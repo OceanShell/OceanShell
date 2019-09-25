@@ -1,0 +1,20 @@
+{"version":1,"strings":[
+{"hash":5515795,"name":"tfrmcodesqc.caption","sourcebytes":[67,111,100,101,115,32,117,112,100,97,116,101,32,97,110,100,32,81,67],"value":"Codes update and QC"},
+{"hash":96905381,"name":"tfrmcodesqc.tabsheet1.caption","sourcebytes":[85,112,100,97,116,101],"value":"Update"},
+{"hash":6861117,"name":"tfrmcodesqc.groupbox1.caption","sourcebytes":[80,76,65,84,70,79,82,77],"value":"PLATFORM"},
+{"hash":256042979,"name":"tfrmcodesqc.btnplatformices.caption","sourcebytes":[85,112,100,97,116,101,32,73,67,69,83,32,99,111,100,101,115],"value":"Update ICES codes"},
+{"hash":249682452,"name":"tfrmcodesqc.label12.caption","sourcebytes":[68,111,119,110,108,111,97,100,32,73,67,69,83,32,99,111,100,101,115,32,105,110,32,116,104,101,32,69,120,99,101,108,32,102,111,114,109,97,116],"value":"Download ICES codes in the Excel format"},
+{"hash":152571445,"name":"tfrmcodesqc.label8.caption","sourcebytes":[68,111,119,110,108,111,97,100,32,100,97,116,97,32,102,114,111,109,32,87,79,68,32,119,101,98,115,105,116,101],"value":"Download data from WOD website"},
+{"hash":16466836,"name":"tfrmcodesqc.btnplatformwod2013.caption","sourcebytes":[115,95,51,95,112,108,97,116,102,111,114,109,46,116,120,116],"value":"s_3_platform.txt"},
+{"hash":139082041,"name":"tfrmcodesqc.groupbox3.caption","sourcebytes":[67,79,85,78,84,82,89],"value":"COUNTRY"},
+{"hash":11279569,"name":"tfrmcodesqc.label7.caption","sourcebytes":[68,111,119,110,108,111,97,100,32,102,114,101,101,32,73,83,79,32,100,97,116,97],"value":"Download free ISO data"},
+{"hash":144985094,"name":"tfrmcodesqc.btncountryiso.caption","sourcebytes":[100,97,116,97,46,99,115,118],"value":"data.csv"},
+{"hash":253146740,"name":"tfrmcodesqc.label1.caption","sourcebytes":[87,79,68,32,99,111,117,110,116,114,121,32,108,105,115,116],"value":"WOD country list"},
+{"hash":85593860,"name":"tfrmcodesqc.btncountrywod.caption","sourcebytes":[99,111,117,110,116,114,121,95,108,105,115,116,46,116,120,116],"value":"country_list.txt"},
+{"hash":1363,"name":"tfrmcodesqc.tabsheet2.caption","sourcebytes":[81,67],"value":"QC"},
+{"hash":133931117,"name":"tfrmcodesqc.rgduplicates.caption","sourcebytes":[68,117,112,108,105,99,97,116,101,115,32,105,110,32,80,76,65,84,70,79,82,77],"value":"Duplicates in PLATFORM"},
+{"hash":60418925,"name":"tfrmcodesqc.btnplatformduplicates.caption","sourcebytes":[70,105,110,100,32,100,117,112,108,105,99,97,116,101,115,32,105,110,32,80,76,65,84,70,79,82,77],"value":"Find duplicates in PLATFORM"},
+{"hash":221317721,"name":"tfrmcodesqc.rgdupcountry.caption","sourcebytes":[68,117,112,108,105,99,97,116,101,115,32,105,110,32,67,79,85,78,84,82,89],"value":"Duplicates in COUNTRY"},
+{"hash":225914505,"name":"tfrmcodesqc.btncountryduplicates.caption","sourcebytes":[70,105,110,100,32,100,117,112,108,105,99,97,116,101,115,32,105,110,32,67,79,85,78,84,82,89],"value":"Find duplicates in COUNTRY"},
+{"hash":64333907,"name":"tfrmcodesqc.button1.caption","sourcebytes":[85,83,83,32,102,114,111,109,32,110,97,109,101,32,116,111,32,99,108,97,115,115],"value":"USS from name to class"}
+]}

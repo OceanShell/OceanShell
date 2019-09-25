@@ -1,0 +1,72 @@
+object frmdm: Tfrmdm
+  OnCreate = DataModuleCreate
+  OnDestroy = DataModuleDestroy
+  OldCreateOrder = False
+  Height = 277
+  HorizontalOffset = 1071
+  VerticalOffset = 239
+  Width = 373
+  PPI = 96
+  object IBDB: TIBConnection
+    Connected = False
+    LoginPrompt = False
+    KeepConnection = False
+    Password = 'masterkey'
+    Transaction = TR
+    UserName = 'SYSDBA'
+    LogEvents = []
+    CheckTransactionParams = False
+    left = 24
+    top = 16
+  end
+  object TR: TSQLTransaction
+    Active = False
+    Action = caNone
+    Database = IBDB
+    left = 69
+    top = 16
+  end
+  object q1: TSQLQuery
+    FieldDefs = <>
+    Database = IBDB
+    Transaction = TR
+    Params = <>
+    left = 112
+    top = 16
+  end
+  object q2: TSQLQuery
+    FieldDefs = <>
+    Database = IBDB
+    Transaction = TR
+    Params = <>
+    left = 160
+    top = 16
+  end
+  object q3: TSQLQuery
+    FieldDefs = <>
+    Database = IBDB
+    Transaction = TR
+    Params = <>
+    left = 208
+    top = 16
+  end
+  object SupportDB: TIBConnection
+    Connected = False
+    LoginPrompt = False
+    KeepConnection = False
+    Password = 'masterkey'
+    Transaction = SupportTR
+    UserName = 'SYSDBA'
+    LogEvents = []
+    CheckTransactionParams = False
+    left = 24
+    top = 88
+  end
+  object SupportTR: TSQLTransaction
+    Active = False
+    Action = caNone
+    Database = SupportDB
+    left = 96
+    top = 88
+  end
+end

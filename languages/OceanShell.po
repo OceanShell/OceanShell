@@ -1,0 +1,477 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: osmain.sdone
+msgid "Done!"
+msgstr ""
+
+#: osmain.serroroccured
+msgid "Something went wrong. Check the output"
+msgstr ""
+
+#: osmain.sno
+msgid "No"
+msgstr ""
+
+#: osmain.snocdo
+msgid "CDO is not found"
+msgstr ""
+
+#: osmain.snographer
+msgid "Grapher is not found"
+msgstr ""
+
+#: osmain.snopython
+msgid "Python is not found"
+msgstr ""
+
+#: osmain.snosupportdb
+msgid "Suport database is not found"
+msgstr ""
+
+#: osmain.snosurfer
+msgid "Surfer is not found"
+msgstr ""
+
+#: osmain.sopenfile
+msgid "Open file?"
+msgstr ""
+
+#: osmain.syes
+msgid "Yes"
+msgstr ""
+
+#: tfrmcodes.btnadd.caption
+msgid "btnadd"
+msgstr ""
+
+#: tfrmcodes.btnadd.hint
+msgid "Add row"
+msgstr ""
+
+#: tfrmcodes.btncancel.hint
+msgid "Cancel changes"
+msgstr ""
+
+#: tfrmcodes.btncommit.caption
+msgid "Save"
+msgstr ""
+
+#: tfrmcodes.btncommit.hint
+msgid "Commit changes"
+msgstr ""
+
+#: tfrmcodes.btndelete.caption
+msgid "btndelete"
+msgstr ""
+
+#: tfrmcodes.btndelete.hint
+msgid "Remove row"
+msgstr ""
+
+#: tfrmcodes.btnupdateqc.caption
+msgctxt "tfrmcodes.btnupdateqc.caption"
+msgid "Update and QC"
+msgstr ""
+
+#: tfrmcodes.btnupdateqc.hint
+msgctxt "tfrmcodes.btnupdateqc.hint"
+msgid "Update and QC"
+msgstr ""
+
+#: tfrmcodes.caption
+msgid "Codes"
+msgstr ""
+
+#: tfrmcodes.dbgrid1.columns[0].title.caption
+msgctxt "tfrmcodes.dbgrid1.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgrid1.columns[1].title.caption
+msgctxt "tfrmcodes.dbgrid1.columns[1].title.caption"
+msgid "NODC"
+msgstr ""
+
+#: tfrmcodes.dbgrid1.columns[2].title.caption
+msgctxt "tfrmcodes.dbgrid1.columns[2].title.caption"
+msgid "OCL"
+msgstr ""
+
+#: tfrmcodes.dbgrid1.columns[3].title.caption
+msgctxt "tfrmcodes.dbgrid1.columns[3].title.caption"
+msgid "IMO"
+msgstr ""
+
+#: tfrmcodes.dbgrid1.columns[4].title.caption
+msgctxt "tfrmcodes.dbgrid1.columns[4].title.caption"
+msgid "Callsign"
+msgstr ""
+
+#: tfrmcodes.dbgrid1.columns[5].title.caption
+msgctxt "tfrmcodes.dbgrid1.columns[5].title.caption"
+msgid "Ship name"
+msgstr ""
+
+#: tfrmcodes.dbgrid1.columns[6].title.caption
+msgctxt "tfrmcodes.dbgrid1.columns[6].title.caption"
+msgid "Native ship name"
+msgstr ""
+
+#: tfrmcodes.dbgrid1.columns[7].title.caption
+msgctxt "tfrmcodes.dbgrid1.columns[7].title.caption"
+msgid "Source"
+msgstr ""
+
+#: tfrmcodes.dbgrid2.columns[0].title.caption
+msgctxt "tfrmcodes.dbgrid2.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgrid2.columns[1].title.caption
+msgctxt "tfrmcodes.dbgrid2.columns[1].title.caption"
+msgid "NODC"
+msgstr ""
+
+#: tfrmcodes.dbgrid2.columns[2].title.caption
+msgctxt "tfrmcodes.dbgrid2.columns[2].title.caption"
+msgid "OCL"
+msgstr ""
+
+#: tfrmcodes.dbgrid2.columns[3].title.caption
+msgctxt "tfrmcodes.dbgrid2.columns[3].title.caption"
+msgid "ISO"
+msgstr ""
+
+#: tfrmcodes.dbgrid2.columns[4].title.caption
+msgctxt "tfrmcodes.dbgrid2.columns[4].title.caption"
+msgid "Country name"
+msgstr ""
+
+#: tfrmcodes.lbcountry.caption
+msgid "lbCountry"
+msgstr ""
+
+#: tfrmcodes.tbcountry.caption
+msgctxt "tfrmcodes.tbcountry.caption"
+msgid "COUNTRY"
+msgstr ""
+
+#: tfrmcodes.tbcruise.caption
+msgid "CRUISE"
+msgstr ""
+
+#: tfrmcodes.tbinstitute.caption
+msgid "INSTITUTE"
+msgstr ""
+
+#: tfrmcodes.tbpi.caption
+msgid "PI"
+msgstr ""
+
+#: tfrmcodes.tbplatform.caption
+msgctxt "tfrmcodes.tbplatform.caption"
+msgid "PLATFORM"
+msgstr ""
+
+#: tfrmcodes.tbproject.caption
+msgid "PROJECT"
+msgstr ""
+
+#: tfrmcodes.tbsource.caption
+msgid "SOURCE"
+msgstr ""
+
+#: tfrmcodes.toolbar1.caption
+msgid "ToolBar1"
+msgstr ""
+
+#: tfrmcodes.toolbutton1.caption
+msgid "ToolButton1"
+msgstr ""
+
+#: tfrmcodesqc.btncountryduplicates.caption
+msgid "Find duplicates in COUNTRY"
+msgstr ""
+
+#: tfrmcodesqc.btncountryiso.caption
+msgctxt "tfrmcodesqc.btncountryiso.caption"
+msgid "data.csv"
+msgstr ""
+
+#: tfrmcodesqc.btncountrywod.caption
+msgctxt "tfrmcodesqc.btncountrywod.caption"
+msgid "country_list.txt"
+msgstr ""
+
+#: tfrmcodesqc.btnplatformduplicates.caption
+msgid "Find duplicates in PLATFORM"
+msgstr ""
+
+#: tfrmcodesqc.btnplatformices.caption
+msgctxt "tfrmcodesqc.btnplatformices.caption"
+msgid "Update ICES codes"
+msgstr ""
+
+#: tfrmcodesqc.btnplatformwod2013.caption
+msgctxt "tfrmcodesqc.btnplatformwod2013.caption"
+msgid "s_3_platform.txt"
+msgstr ""
+
+#: tfrmcodesqc.button1.caption
+msgid "USS from name to class"
+msgstr ""
+
+#: tfrmcodesqc.caption
+msgid "Codes update and QC"
+msgstr ""
+
+#: tfrmcodesqc.groupbox1.caption
+msgctxt "tfrmcodesqc.groupbox1.caption"
+msgid "PLATFORM"
+msgstr ""
+
+#: tfrmcodesqc.groupbox3.caption
+msgctxt "tfrmcodesqc.groupbox3.caption"
+msgid "COUNTRY"
+msgstr ""
+
+#: tfrmcodesqc.label1.caption
+msgctxt "tfrmcodesqc.label1.caption"
+msgid "WOD country list"
+msgstr ""
+
+#: tfrmcodesqc.label12.caption
+msgctxt "tfrmcodesqc.label12.caption"
+msgid "Download ICES codes in the Excel format"
+msgstr ""
+
+#: tfrmcodesqc.label7.caption
+msgctxt "tfrmcodesqc.label7.caption"
+msgid "Download free ISO data"
+msgstr ""
+
+#: tfrmcodesqc.label8.caption
+msgctxt "tfrmcodesqc.label8.caption"
+msgid "Download data from WOD website"
+msgstr ""
+
+#: tfrmcodesqc.rgdupcountry.caption
+msgid "Duplicates in COUNTRY"
+msgstr ""
+
+#: tfrmcodesqc.rgduplicates.caption
+msgid "Duplicates in PLATFORM"
+msgstr ""
+
+#: tfrmcodesqc.tabsheet1.caption
+msgid "Update"
+msgstr ""
+
+#: tfrmcodesqc.tabsheet2.caption
+msgctxt "tfrmcodesqc.tabsheet2.caption"
+msgid "QC"
+msgstr ""
+
+#: tfrmloaditp.button1.caption
+msgid "Data"
+msgstr ""
+
+#: tfrmloaditp.button2.caption
+msgid "Start"
+msgstr ""
+
+#: tfrmloaditp.caption
+msgid "Load ITP"
+msgstr ""
+
+#: tfrmloaditp.chkshow.caption
+msgid "Show"
+msgstr ""
+
+#: tfrmloaditp.chkwrite.caption
+msgid "Write"
+msgstr ""
+
+#: tfrmosmain.caption
+msgid "OceanShell"
+msgstr ""
+
+#: tfrmosmain.iabout.caption
+msgid "About..."
+msgstr ""
+
+#: tfrmosmain.iexit.caption
+msgctxt "tfrmosmain.iexit.caption"
+msgid "Exit"
+msgstr ""
+
+#: tfrmosmain.ifile.caption
+msgid "File"
+msgstr ""
+
+#: tfrmosmain.ihelp.caption
+msgid "Help"
+msgstr ""
+
+#: tfrmosmain.ihelpcontent.caption
+msgid "Content"
+msgstr ""
+
+#: tfrmosmain.iload.caption
+msgid "Load"
+msgstr ""
+
+#: tfrmosmain.iload_itp.caption
+msgid "ITP"
+msgstr ""
+
+#: tfrmosmain.imap.caption
+msgid "Map"
+msgstr ""
+
+#: tfrmosmain.inewdatabase.caption
+msgctxt "tfrmosmain.inewdatabase.caption"
+msgid "New database"
+msgstr ""
+
+#: tfrmosmain.iopendatabase.caption
+msgctxt "tfrmosmain.iopendatabase.caption"
+msgid "Open database"
+msgstr ""
+
+#: tfrmosmain.isettings.caption
+msgctxt "tfrmosmain.isettings.caption"
+msgid "Settings"
+msgstr ""
+
+#: tfrmosmain.isupportdatabase.caption
+msgid "Support database"
+msgstr ""
+
+#: tfrmosmain.itools.caption
+msgid "Tools"
+msgstr ""
+
+#: tfrmosmain.statusbar2.panels[0].text
+msgid "[Database]"
+msgstr ""
+
+#: tfrmosmain.statusbar3.panels[0].text
+msgid "[Selection]"
+msgstr ""
+
+#: tfrmsettings.btngrapherpath.caption
+msgctxt "tfrmsettings.btngrapherpath.caption"
+msgid "..."
+msgstr ""
+
+#: tfrmsettings.btninstallmissing.caption
+msgid "Install missing modules"
+msgstr ""
+
+#: tfrmsettings.btninstallmissing.hint
+msgid "Install required packages"
+msgstr ""
+
+#: tfrmsettings.btnok.caption
+msgid "Ok"
+msgstr ""
+
+#: tfrmsettings.btnpythonpath.caption
+msgctxt "tfrmsettings.btnpythonpath.caption"
+msgid "..."
+msgstr ""
+
+#: tfrmsettings.btnshowinstalled.caption
+msgid "Show installed modules"
+msgstr ""
+
+#: tfrmsettings.btnsupportpath.caption
+msgctxt "tfrmsettings.btnsupportpath.caption"
+msgid "..."
+msgstr ""
+
+#: tfrmsettings.btnsurferpath.caption
+msgctxt "tfrmsettings.btnsurferpath.caption"
+msgid "..."
+msgstr ""
+
+#: tfrmsettings.btnunloadpath.caption
+msgctxt "tfrmsettings.btnunloadpath.caption"
+msgid "..."
+msgstr ""
+
+#: tfrmsettings.caption
+msgctxt "tfrmsettings.caption"
+msgid "Settings"
+msgstr ""
+
+#: tfrmsettings.chkrelerr.caption
+msgid "Do not use values with Relative Error >"
+msgstr ""
+
+#: tfrmsettings.groupbox1.caption
+msgid "Surfer's scripter"
+msgstr ""
+
+#: tfrmsettings.groupbox2.caption
+msgid "Grapher's scripter"
+msgstr ""
+
+#: tfrmsettings.groupbox3.caption
+msgid "Python path"
+msgstr ""
+
+#: tfrmsettings.groupbox4.caption
+msgid "KML"
+msgstr ""
+
+#: tfrmsettings.groupbox5.caption
+msgid "Log"
+msgstr ""
+
+#: tfrmsettings.groupbox6.caption
+msgid "Support files"
+msgstr ""
+
+#: tfrmsettings.groupbox7.caption
+msgid "Output directory"
+msgstr ""
+
+#: tfrmsettings.label1.caption
+msgid "KML support:"
+msgstr ""
+
+#: tfrmsettings.lbkml.caption
+msgid "lbKML"
+msgstr ""
+
+#: tfrmsettings.rgbathymetry.caption
+msgid "Topography and Bathymetry"
+msgstr ""
+
+#: tfrmsettings.rglanguage.caption
+msgid "Language"
+msgstr ""
+
+#: tfrmsettings.tabsheet1.caption
+msgid "General"
+msgstr ""
+
+#: tfrmsettings.tabsheet2.caption
+msgid "Bathymetry"
+msgstr ""
+
+#: tfrmsettings.tabsheet3.caption
+msgid "Advanced"
+msgstr ""
+
+#: tfrmsettings.tabsheet4.caption
+msgid "Python"
+msgstr ""
+
+#: tfrmsettings.tsclimatology.caption
+msgid "Climatology"
+msgstr ""
+
