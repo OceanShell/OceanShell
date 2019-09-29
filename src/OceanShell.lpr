@@ -18,7 +18,6 @@ begin
   Application.Initialize;
   Application.CreateForm(Tfrmosmain, frmosmain);
   Application.CreateForm(Tfrmdm, frmdm);
-  Application.CreateForm(TfrmcodesQC, frmcodesQC);
   Application.Run;
 end.
 

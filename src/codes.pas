@@ -15,36 +15,50 @@ type
 
   Tfrmcodes = class(TForm)
     btnadd: TToolButton;
-    btncommit: TToolButton;
+    btnsave: TToolButton;
     btndelete: TToolButton;
-    DBGrid1: TDBGrid;
-    DBGrid2: TDBGrid;
+    DBGridPlatform: TDBGrid;
+    DBGridCountry: TDBGrid;
+    DBGridProject: TDBGrid;
+    DBGridInstitute: TDBGrid;
     DS: TDataSource;
+    eProject_ID: TEdit;
+    eInstitute_ID: TEdit;
+    eProject_WOD: TEdit;
+    eInstitute_NODC: TEdit;
+    eInstitute_WOD: TEdit;
+    eProject_Name: TEdit;
+    eInstitute_Name: TEdit;
     ePlatform_NameNative: TEdit;
     ePlatform_Source: TEdit;
     ePlatform_ID: TEdit;
     eCountry_ID: TEdit;
     Image1: TImage;
     lbCountry: TLabel;
+    mNotesProject: TMemo;
+    mNotesInstitute: TMemo;
+    Panel10: TPanel;
+    Panel11: TPanel;
     Panel2: TPanel;
     ePlatform_Name: TEdit;
     Panel3: TPanel;
     ePlatform_NODC: TEdit;
-    Panel4: TPanel;
+    Panel7: TPanel;
     Panel8: TPanel;
+    Panel9: TPanel;
     Q: TSQLQuery;
     Splitter1: TSplitter;
     PageControl1: TPageControl;
+    Splitter2: TSplitter;
+    Splitter4: TSplitter;
     tbSource: TTabSheet;
     tbPlatform: TTabSheet;
     tbCountry: TTabSheet;
     Panel5: TPanel;
     Panel6: TPanel;
     eCountry_Name: TEdit;
-    eCountry_ISOAlpha2: TEdit;
-    eCountry_OCL: TEdit;
-    eCountry_NODC: TEdit;
-    ePlatform_OCL: TEdit;
+    eCountry_ISO: TEdit;
+    ePlatform_WOD: TEdit;
     Panel1: TPanel;
     mNotesICES: TMemo;
     mNotes: TMemo;
@@ -59,28 +73,33 @@ type
     ToolBar1: TToolBar;
     btncancel: TToolButton;
     ToolButton1: TToolButton;
-    btnUpdateQC: TToolButton;
 
+    procedure DBGridPlatformKeyPress(Sender: TObject; var Key: char);
+    procedure eInstitute_IDChange(Sender: TObject);
+    procedure eInstitute_IDClick(Sender: TObject);
+    procedure eInstitute_NameChange(Sender: TObject);
+    procedure eInstitute_NODCChange(Sender: TObject);
+    procedure eInstitute_WODChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure mNotesKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure PageControl1Change(Sender: TObject);
+    procedure QAfterEdit(DataSet: TDataSet);
     procedure QAfterScroll(DataSet: TDataSet);
 
     procedure btnaddClick(Sender: TObject);
     procedure btndeleteClick(Sender: TObject);
     procedure btncancelClick(Sender: TObject);
-    procedure btncommitClick(Sender: TObject);
-    procedure btnUpdateQCClick(Sender: TObject);
+    procedure btnsaveClick(Sender: TObject);
 
-    procedure DBGrid1CellClick(Column: TColumn);
-    procedure DBGrid1KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure DBGrid1TitleClick(Column: TColumn);
-    procedure DBGrid2TitleClick(Column: TColumn);
+    procedure DBGridPlatformCellClick(Column: TColumn);
+    procedure DBGridPlatformKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure DBGridPlatformTitleClick(Column: TColumn);
+    procedure DBGridCountryTitleClick(Column: TColumn);
 
     procedure ePlatform_IDChange(Sender: TObject);
-    procedure ePlatform_OCLChange(Sender: TObject);
+    procedure ePlatform_WODChange(Sender: TObject);
     procedure ePlatform_SourceChange(Sender: TObject);
     procedure ePlatform_NameChange(Sender: TObject);
     procedure ePlatform_NameClick(Sender: TObject);
@@ -91,10 +110,8 @@ type
 
     procedure eCountry_IDChange(Sender: TObject);
     procedure eCountry_NameChange(Sender: TObject);
-    procedure eCountry_ISOAlpha2Change(Sender: TObject);
+    procedure eCountry_ISOChange(Sender: TObject);
     procedure eCountry_NameClick(Sender: TObject);
-    procedure eCountry_OCLChange(Sender: TObject);
-    procedure eCountry_NODCChange(Sender: TObject);
 
 
   private
@@ -112,25 +129,27 @@ implementation
 
 {$R *.lfm}
 
-uses dm, codesupdateqc;
+uses osmain, dm;
 
 procedure Tfrmcodes.FormShow(Sender: TObject);
 begin
+ PageControl1.ActivePageIndex:=0;
  PageControl1.OnChange(self);
 
- DBGrid1.Columns[0].Width:=55;
- DBGrid1.Columns[1].Width:=55;
- DBGrid1.Columns[2].Width:=60;
- DBGrid1.Columns[3].Width:=60;
- DBGrid1.Columns[4].Width:=60;
- DBGrid1.Columns[7].Width:=70;
+ DBGridPlatform.Columns[0].Width:=64;
+ DBGridPlatform.Columns[1].Width:=62;
+ DBGridPlatform.Columns[2].Width:=62;
+ DBGridPlatform.Columns[3].Width:=62;
+ DBGridPlatform.Columns[4].Width:=62;
+ DBGridPlatform.Columns[7].Width:=64;
 
- frmcodes.OnResize(self);
 end;
 
 
 procedure Tfrmcodes.PageControl1Change(Sender: TObject);
 begin
+ if Q.Active then btnsave.onClick(Self);
+
  With Q do begin
    Filter:='';
    Filtered:=false;
@@ -140,15 +159,22 @@ begin
 
  CodesTblName:='';
  case PageControl1.ActivePageIndex of
-  0: begin
+  1: begin
        CodesTblName:='PLATFORM';
-       Q.SQL.text:='Select ID, NODC_ID, OCL_ID, IMO_ID, CALLSIGN, NAME, '+
+       Q.SQL.text:='Select ID, NODC_ID, WOD_ID, IMO_ID, CALLSIGN, NAME, '+
                    'NAME_NATIVE, SOURCE FROM PLATFORM ORDER BY NAME';
      end;
-  1: begin
+  2: begin
        CodesTblName:='COUNTRY';
-       Q.SQL.text:='Select ID, NODC_ID, OCL_ID, ISO_ALPHA2, NAME '+
-                   'FROM COUNTRY ORDER BY NAME';
+       Q.SQL.text:='Select ID, ISO_3166, NAME FROM COUNTRY ORDER BY NAME';
+     end;
+  5: begin
+       CodesTblName:='PROJECT';
+       Q.SQL.text:='Select ID, WOD_ID, NAME FROM PROJECT ORDER BY NAME';
+     end;
+  6: begin
+       CodesTblName:='INSTITUTE';
+       Q.SQL.text:='Select ID, WOD_ID, NODC_ID, NAME FROM INSTITUTE ORDER BY NAME';
      end;
  end;
 
@@ -174,7 +200,6 @@ Var
  Qt:TSQLQuery;
  cc:string;
 begin
-
 
  (* Platform *)
  if CodesTblName='PLATFORM' then begin
@@ -208,7 +233,7 @@ begin
     with Qt do begin
      Close;
       SQL.Clear;
-      SQL.Add(' select ISO_ALPHA2, NAME from COUNTRY ');
+      SQL.Add(' select ISO_3166, NAME from COUNTRY ');
       SQL.Add(' where NODC_ID=:code');
       ParamByName('code').AsString:=cc;
      Open;
@@ -218,8 +243,8 @@ begin
      with Qt do begin
       Close;
        SQL.Clear;
-       SQL.Add(' select ISO_ALPHA2, NAME from COUNTRY ');
-       SQL.Add(' where ISO_ALPHA2=:code');
+       SQL.Add(' select ISO_3166, NAME from COUNTRY ');
+       SQL.Add(' where ISO_3166=:code');
        ParamByName('code').AsString:=cc;
       Open;
     end;
@@ -237,7 +262,35 @@ begin
    Qt.Free;
    TRt.Free;
  end; //End Platform
+
+
+ if (CodesTblName<>'COUNTRY') and (Q.FieldByName('ID').AsInteger>0) then begin
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.SupportDB;
+  Qt :=TSQLQuery.Create(self);
+  Qt.Database:=frmdm.SupportDB;
+  Qt.Transaction:=TRt;
+   with Qt do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select NOTES from '+CodesTblName+' where ');
+     SQL.Add(' ID='+inttostr(Q.FieldByName('ID').AsInteger));
+    Open;
+     if CodesTblName='PROJECT' then begin
+       mNotesProject.Clear;
+       mNotesProject.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+     end;
+     if CodesTblName='PInstitute' then begin
+       mNotesInstitute.Clear;
+       mNotesInstitute.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+     end;
+    Close;
+   end;
+  end;
+
+
 end;
+
 
 
 (* Add new row *)
@@ -266,7 +319,11 @@ end;
 (* Delete row *)
 procedure Tfrmcodes.btndeleteClick(Sender: TObject);
 begin
-  Q.Delete;
+   if MessageDlg(SDelete+' '+Q.FieldByName('NAME').AsString+'"?',
+      mtWarning, [mbYes, MbNo], 0)=mrYes then begin
+        Q.Delete;
+    btnSave.Enabled:=true;
+   end;
 end;
 
 
@@ -274,19 +331,30 @@ end;
 procedure Tfrmcodes.btncancelClick(Sender: TObject);
 begin
   Q.Cancel;
+  btnSave.Enabled:=true;
 end;
 
 
 (* Save changes *)
-procedure Tfrmcodes.btncommitClick(Sender: TObject);
+procedure Tfrmcodes.btnsaveClick(Sender: TObject);
 Var
+ TRt:TSQLTransaction;
  Qt:TSQLQuery;
 begin
    if Q.Modified then Q.Post;
-      Q.ApplyUpdates(-1);
-      frmdm.SupportTR.CommitRetaining;
 
-      if (CodesTblName='PLATFORM') and (trim(mNotes.Lines.Text)<>'') then begin
+ //  showmessage('here');
+      Q.ApplyUpdates(0);
+      frmdm.SupportTR.CommitRetaining;
+ //   showmessage('here2');
+
+      if (CodesTblName='PLATFORM') and (mNotes.Lines.Text<>'') then begin
+        TRt:=TSQLTransaction.Create(self);
+        TRt.DataBase:=frmdm.SupportDB;
+
+        Qt:=TSQLQuery.Create(self);
+        Qt.Transaction:=TRt;
+
         With Qt do begin
          Close;
           SQL.Clear;
@@ -294,25 +362,41 @@ begin
           SQL.Add(' NOTES=:NOTES ');
           SQL.Add(' where ID=:ID ');
           ParamByName('ID').AsInteger:=Q.FieldByName('ID').AsInteger;
-          ParamByName('NOTES').AsBlob:=mNotes.Lines.Text;
+          ParamByName('NOTES').AsWideString:=mNotes.Lines.Text;
          ExecSQL;
         end;
-        frmdm.SupportTR.CommitRetaining;
+        Qt.Close;
+        TRt.Commit;
+        Qt.Free;
+        TRt.Free;
       end;
-     Qt.Free;
-end;
 
+      if ((CodesTblName='PROJECT') and (mNotesProject.Lines.Text<>'')) or
+         ((CodesTblName='INSTITUTE') and (mNotesInstitute.Lines.Text<>'')) then begin
+        TRt:=TSQLTransaction.Create(self);
+        TRt.DataBase:=frmdm.SupportDB;
 
-(* Update and QC procedures *)
-procedure Tfrmcodes.btnUpdateQCClick(Sender: TObject);
-begin
-frmcodesQC := TfrmcodesQC.Create(Self);
- try
-  if not frmcodesQC.ShowModal = mrOk then exit;
- finally
-   frmcodesQC.Free;
-   frmcodesQC := nil;
- end;
+        Qt:=TSQLQuery.Create(self);
+        Qt.Transaction:=TRt;
+
+        With Qt do begin
+         Close;
+          SQL.Clear;
+          SQL.Add(' Update '+CodesTblName+' set ');
+          SQL.Add(' NOTES=:NOTES ');
+          SQL.Add(' where ID=:ID ');
+          ParamByName('ID').AsInteger:=Q.FieldByName('ID').AsInteger;
+          if (CodesTblName='PROJECT') then ParamByName('NOTES').AsWideString:=mNotesProject.Lines.Text;
+          if (CodesTblName='INSTITUTE') then ParamByName('NOTES').AsWideString:=mNotesInstitute.Lines.Text;
+         ExecSQL;
+        end;
+        Qt.Close;
+        TRt.Commit;
+        Qt.Free;
+        TRt.Free;
+      end;
+
+ btnSave.Enabled:=false; //Disabling Save button
 end;
 
 
@@ -331,10 +415,10 @@ begin
 end;
 
 (* OCL *)
-procedure Tfrmcodes.ePlatform_OCLChange(Sender: TObject);
+procedure Tfrmcodes.ePlatform_WODChange(Sender: TObject);
 begin
- if ePlatform_OCL.Text='' then exit;
-   Q.Locate('OCL_ID', StrToInt(ePlatform_OCL.Text),[loCaseInsensitive, loPartialKey]);
+ if ePlatform_WOD.Text='' then exit;
+   Q.Locate('WOD_ID', StrToInt(ePlatform_WOD.Text),[loCaseInsensitive, loPartialKey]);
 end;
 
 (* IMO *)
@@ -380,22 +464,10 @@ begin
    Q.Locate('ID',eCountry_ID.Text,[loCaseInsensitive, loPartialKey]);
 end;
 
-procedure Tfrmcodes.eCountry_NODCChange(Sender: TObject);
+procedure Tfrmcodes.eCountry_ISOChange(Sender: TObject);
 begin
-if eCountry_NODC.Text='' then exit;
-  Q.Locate('NODC_ID',eCountry_NODC.Text,[loCaseInsensitive, loPartialKey]);
-end;
-
-procedure Tfrmcodes.eCountry_OCLChange(Sender: TObject);
-begin
- if eCountry_OCL.Text<>'' then
-  Q.Locate('OCL_ID',eCountry_OCL.Text,[loCaseInsensitive, loPartialKey]);
-end;
-
-procedure Tfrmcodes.eCountry_ISOAlpha2Change(Sender: TObject);
-begin
- if eCountry_ISOAlpha2.Text='' then exit;
-  Q.Locate('ISO_ALPHA2',eCountry_ISOAlpha2.Text,[loCaseInsensitive, loPartialKey]);
+ if eCountry_ISO.Text='' then exit;
+  Q.Locate('ISO_1366',eCountry_ISO.Text,[loCaseInsensitive, loPartialKey]);
 end;
 
 (* Быстрый поиск по названию страны *)
@@ -406,13 +478,47 @@ begin
 end;
 
 
+(*********************** Fast search in INSTITUTE ****************************)
+procedure Tfrmcodes.eInstitute_IDChange(Sender: TObject);
+begin
+ if eInstitute_ID.Text='' then exit;
+   Q.Locate('ID', StrToInt(eInstitute_ID.Text),[loCaseInsensitive, loPartialKey]);
+end;
+
+procedure Tfrmcodes.eInstitute_NODCChange(Sender: TObject);
+begin
+  Q.Filter:='NODC_ID = '+QuotedStr(eInstitute_NODC.Text+'*');
+  Q.Filtered:=true;
+end;
+
+procedure Tfrmcodes.eInstitute_WODChange(Sender: TObject);
+begin
+ if eInstitute_ID.Text='' then exit;
+   Q.Locate('WOD_ID', StrToInt(eInstitute_WOD.Text),[loCaseInsensitive, loPartialKey]);
+end;
+
+procedure Tfrmcodes.eInstitute_NameChange(Sender: TObject);
+begin
+  Q.Filter:='NAME = '+QuotedStr(eInstitute_Name.Text+'*');
+  Q.Filtered:=true;
+end;
+
+procedure Tfrmcodes.eInstitute_IDClick(Sender: TObject);
+begin
+  eInstitute_ID.Clear;
+  eInstitute_NODC.Clear;
+  eInstitute_WOD.Clear;
+  eInstitute_Name.Clear;
+end;
+
+
 procedure Tfrmcodes.ePlatform_NameClick(Sender: TObject);
 begin
  ePlatform_ID.Clear;
  ePlatform_Name.Clear;
  ePlatform_NameNative.Clear;
  ePlatform_NODC.Clear;
- ePlatform_OCL.Clear;
+ ePlatform_WOD.Clear;
  ePlatform_IMO.Clear;
  ePlatform_Callsign.Clear;
  ePlatform_Source.Clear;
@@ -424,32 +530,36 @@ procedure Tfrmcodes.eCountry_NameClick(Sender: TObject);
 begin
  eCountry_ID.Clear;
  eCountry_Name.Clear;
- eCountry_NODC.Clear;
- eCountry_OCL.Clear;
- eCountry_ISOAlpha2.Clear;
+ eCountry_ISO.Clear;
 
  Q.Filtered:=false;
 end;
 
 
-procedure Tfrmcodes.DBGrid1KeyUp(Sender: TObject; var Key: Word;
+procedure Tfrmcodes.DBGridPlatformKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if (key=VK_UP) or (key=VK_DOWN) then Navigation;
 end;
 
-procedure Tfrmcodes.DBGrid1TitleClick(Column: TColumn);
+procedure Tfrmcodes.DBGridPlatformKeyPress(Sender: TObject; var Key: char);
+begin
+ Key := UpCase(Key); //only capital letters
+end;
+
+
+procedure Tfrmcodes.DBGridPlatformTitleClick(Column: TColumn);
 begin
   sortbufds.SortBufDataSet(Q, Column.FieldName);
 end;
 
-procedure Tfrmcodes.DBGrid2TitleClick(Column: TColumn);
+procedure Tfrmcodes.DBGridCountryTitleClick(Column: TColumn);
 begin
   sortbufds.SortBufDataSet(Q, Column.FieldName);
 end;
 
 
-procedure Tfrmcodes.DBGrid1CellClick(Column: TColumn);
+procedure Tfrmcodes.DBGridPlatformCellClick(Column: TColumn);
 begin
   Navigation;
 end;
@@ -468,51 +578,71 @@ begin
 end;
 
 
+(* Enabling Save as the query was changed *)
+procedure Tfrmcodes.QAfterEdit(DataSet: TDataSet);
+begin
+   btnSave.Enabled:=true;
+end;
+
+
 procedure Tfrmcodes.FormResize(Sender: TObject);
 Var
  occup:integer;
 begin
-
+//  showmessage(inttostr(PageControl1.ActivePageIndex));
 case PageControl1.ActivePageIndex of
- 0: begin
-    occup:=trunc((DBGrid1.Width-20-
-            (DBGrid1.Columns[0].Width+
-             DBGrid1.Columns[1].Width+
-             DBGrid1.Columns[2].Width+
-             DBGrid1.Columns[3].Width+
-             DBGrid1.Columns[4].Width+
-             DBGrid1.Columns[7].Width))/2);
-
-    DBGrid1.Columns[5].Width:=occup+1;
-    DBGrid1.Columns[6].Width:=occup+1;
-
-    ePlatform_ID.Width:=DBGrid1.Columns[0].Width+1;
-    ePlatform_NODC.Width:=DBGrid1.Columns[1].Width;
-    ePlatform_OCL.Width:=DBGrid1.Columns[2].Width;
-    ePlatform_IMO.Width:=DBGrid1.Columns[3].Width;
-    ePlatform_Callsign.Width:=DBGrid1.Columns[4].Width;
-    ePlatform_Name.Width:=DBGrid1.Columns[5].Width;
-    ePlatform_NameNative.Width:=DBGrid1.Columns[6].Width;
-    ePlatform_Source.Width:=DBGrid1.Columns[7].Width;
- end;
  1: begin
-    occup:=trunc(DBGrid2.Width-20-
-           (DBGrid2.Columns[0].Width+
-            DBGrid2.Columns[1].Width+
-            DBGrid2.Columns[2].Width+
-            DBGrid2.Columns[3].Width));
-    DBGrid2.Columns[4].Width:=occup+1;
+    occup:=trunc((DBGridPlatform.Width-20-
+            (DBGridPlatform.Columns[0].Width+
+             DBGridPlatform.Columns[1].Width+
+             DBGridPlatform.Columns[2].Width+
+             DBGridPlatform.Columns[3].Width+
+             DBGridPlatform.Columns[4].Width+
+             DBGridPlatform.Columns[7].Width))/2);
+
+    DBGridPlatform.Columns[5].Width:=occup+1;
+    DBGridPlatform.Columns[6].Width:=occup+1;
+
+    ePlatform_ID.Width:=DBGridPlatform.Columns[0].Width+1;
+    ePlatform_NODC.Width:=DBGridPlatform.Columns[1].Width;
+    ePlatform_WOD.Width:=DBGridPlatform.Columns[2].Width;
+    ePlatform_IMO.Width:=DBGridPlatform.Columns[3].Width;
+    ePlatform_Callsign.Width:=DBGridPlatform.Columns[4].Width;
+    ePlatform_Name.Width:=DBGridPlatform.Columns[5].Width;
+    ePlatform_NameNative.Width:=DBGridPlatform.Columns[6].Width;
+    ePlatform_Source.Width:=DBGridPlatform.Columns[7].Width;
+ end;
+ 2: begin
+    occup:=trunc(DBGridCountry.Width-20-
+           (DBGridCountry.Columns[0].Width+
+            DBGridCountry.Columns[1].Width));
+    DBGridCountry.Columns[2].Width:=occup+1;
+ end;
+ 5: begin
+    occup:=trunc(DBGridProject.Width-20-
+           (DBGridProject.Columns[0].Width+
+            DBGridProject.Columns[1].Width));
+    DBGridProject.Columns[2].Width:=occup+1;
+ end;
+ 6: begin
+    occup:=trunc(DBGridInstitute.Width-20-
+           (DBGridInstitute.Columns[0].Width+
+            DBGridInstitute.Columns[1].Width+
+            DBGridInstitute.Columns[2].Width));
+    DBGridInstitute.Columns[3].Width:=occup+1;
  end;
 end;
 
-Panel4.Width:=trunc(ToolBar1.Width-65-
- (btnAdd.Width+btnDelete.Width+btnCancel.Width+btnUpdateQC.Width));
+//Panel4.Width:=trunc(ToolBar1.Width-65-
+// (btnAdd.Width+btnDelete.Width+btnCancel.Width+btnUpdateQC.Width));
 end;
 
 
 procedure Tfrmcodes.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
  Q.Close;
+ CloseAction:= caFree;
+ frmcodes_open:=false;
 end;
 
 

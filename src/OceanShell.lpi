@@ -102,6 +102,7 @@
         <Filename Value="codesupdateqc.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmcodesQC"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit10>
       <Unit11>

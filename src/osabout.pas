@@ -52,7 +52,7 @@ begin
    if RunCommand(nco_path, ['-r'], nco_info, AboutOpts) then
       Result:= Result+'NCO netCDF Operators: '+ProgramVersion(29, nco_info)+LineEnding;
 
-   Result:=Result+LineEnding+'© 2004-2019 by Alexander Korablev & Alexander Smirnov';
+   Result:=Result+LineEnding+'© 2004-2019 by Alexander Smirnov & Alexander Korablev';
 end;
 
 

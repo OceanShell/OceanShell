@@ -1904,14 +1904,6 @@ object frmosmain: Tfrmosmain
       object N3: TMenuItem
         Caption = '-'
       end
-      object iSupportDatabase: TMenuItem
-        Caption = 'Support database'
-        ImageIndex = 316
-        OnClick = iSupportDatabaseClick
-      end
-      object MenuItem2: TMenuItem
-        Caption = '-'
-      end
       object iSettings: TMenuItem
         Caption = 'Settings'
         ImageIndex = 235
@@ -1929,6 +1921,19 @@ object frmosmain: Tfrmosmain
       Caption = 'Load'
       object iLoad_ITP: TMenuItem
         Caption = 'ITP'
+      end
+    end
+    object iKnowledgeDB: TMenuItem
+      Caption = 'Knowledge DB'
+      object iKnowledgeDBOpen: TMenuItem
+        Caption = 'Open database'
+        ImageIndex = 314
+        OnClick = iKnowledgeDBOpenClick
+      end
+      object iKnowledgeDBUpdateQC: TMenuItem
+        Caption = 'Update and QC'
+        ImageIndex = 321
+        OnClick = iKnowledgeDBUpdateQCClick
       end
     end
     object iTools: TMenuItem

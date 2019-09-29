@@ -14,16 +14,23 @@ type
 
   TfrmcodesQC = class(TForm)
     btnCountryDuplicates: TButton;
+    btnInstituteWOD: TButton;
+    btnProjectWOD: TButton;
     btnPlatformICES: TButton;
     btnCountryWOD: TButton;
     btnPlatformDuplicates: TButton;
     btnPlatformWOD2013: TButton;
     Button1: TButton;
     btnCountryISO: TButton;
+    chkShowLog: TCheckBox;
     GroupBox1: TGroupBox;
     GroupBox3: TGroupBox;
+    GroupBox4: TGroupBox;
+    GroupBox5: TGroupBox;
     Label1: TLabel;
     Label12: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
     Label7: TLabel;
     Label8: TLabel;
     mLog: TMemo;
@@ -35,11 +42,14 @@ type
     TabSheet2: TTabSheet;
     procedure btnCountryDuplicatesClick(Sender: TObject);
     procedure btnCountryISOClick(Sender: TObject);
+    procedure btnInstituteWODClick(Sender: TObject);
+    procedure btnProjectWODClick(Sender: TObject);
     procedure btnCountryWODClick(Sender: TObject);
     procedure btnPlatformICESClick(Sender: TObject);
     procedure btnPlatformDuplicatesClick(Sender: TObject);
     procedure btnPlatformWOD2013Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure Label12Click(Sender: TObject);
     procedure Label1Click(Sender: TObject);
     procedure Label7Click(Sender: TObject);
@@ -59,7 +69,7 @@ implementation
 
 { TfrmcodesQC }
 
-uses osmain, dm;
+uses osmain, dm, codes;
 
 (* ICES PLATFORM codes *)
 procedure TfrmcodesQC.Label12Click(Sender: TObject);
@@ -161,8 +171,8 @@ if frmosmain.OD.Execute then begin
    with Qt1 do begin
     Close;
      SQL.Clear;
-     SQL.Add(' select absnum, shipname from shipcode_list ');
-     SQL.Add(' where nodcshipcode=:code_nodc ');
+     SQL.Add(' select ID, name from PLATFORM ');
+     SQL.Add(' where nodc_ID=:code_nodc ');
      ParamByName('code_nodc').AsWideString:=VarToStr(Xl.Cells[k,  1].Value);
     Open;
    end;
@@ -172,7 +182,7 @@ if frmosmain.OD.Execute then begin
      with Qt2 do begin
       Close;
        SQL.Clear;
-       SQL.ADD(' Select max(absnum) as AbsnumMax from ShipCode_list ');
+       SQL.ADD(' Select max(ID) as AbsnumMax from PLATFORM ');
       Open;
         Absnum:=Qt2.FieldByName('AbsnumMax').AsInteger+1;
       Close;
@@ -182,21 +192,19 @@ if frmosmain.OD.Execute then begin
      with Qt2 do begin
       Close;
        SQL.Clear;
-       SQL.Add(' INSERT INTO ShipCode_List ' );
-       SQL.Add(' (ABSNUM, NODCSHIPCODE, SHIPNAME, IMOSHIPCODE, CALLSIGN,  NOTES_ICES, ');
-       SQL.Add('  SOURCE) ');
+       SQL.Add(' INSERT INTO PLATFORM ' );
+       SQL.Add(' (ID, NODC_ID, NAME, IMO_ID, CALLSIGN,  NOTES_ICES, SOURCE) ');
        SQL.Add(' VALUES ' );
-       SQL.Add(' (:ABSNUM, :NODCSHIPCODE, :SHIPNAME, :IMOSHIPCODE, :CALLSIGN, :NOTES, ');
-       SQL.Add('  :SOURCE) ');
-       ParamByName('absnum').AsInteger:=absnum;
-       ParamByName('NODCSHIPCODE').asString:=UpperCase(VarToStr(Xl.Cells[k, 1].Value));
-       ParamByName('ShipName').AsString:=UpperCase(VarToStr(Xl.Cells[k, 2].Value));
+       SQL.Add(' (:ID, :NODC_ID, :NAME, :IMO_ID, :CALLSIGN, :NOTES_ICES, :SOURCE ');
+       ParamByName('ID').AsInteger:=absnum;
+       ParamByName('NODC_CODE').asString:=UpperCase(VarToStr(Xl.Cells[k, 1].Value));
+       ParamByName('NAME').AsString:=UpperCase(VarToStr(Xl.Cells[k, 2].Value));
        if trim(Xl.Cells[k, 4].Value)<>'' then
-       ParamByName('IMOSHIPCODE').AsInteger:=Xl.Cells[k, 4].Value else
-       ParamByName('IMOSHIPCODE').AsInteger:=-9;
+       ParamByName('IMO_CODE').AsInteger:=Xl.Cells[k, 4].Value else
+       ParamByName('IMO_CODE').AsInteger:=-9;
        ParamByName('CALLSIGN').AsString:=VarToStr(Xl.Cells[k, 8].Value);
        ParamByName('Source').AsString:=src;
-       ParamByName('NOTES').AsWideString:=RString; //Wide??
+       ParamByName('NOTES_ICES').AsWideString:=RString; //Wide??
       ExecSQL;
       Close;
      end;
@@ -211,8 +219,8 @@ if frmosmain.OD.Execute then begin
    (* Обновляем существующую запись *)
    if Qt1.IsEmpty=false then begin
 
-    Absnum  :=Qt1.FieldByName('absnum').AsInteger;
-    ShipName:=Qt1.FieldByName('ShipName').AsString;
+    Absnum  :=Qt1.FieldByName('ID').AsInteger;
+    ShipName:=Qt1.FieldByName('Name').AsString;
 
     if ShipName<>trim(UpperCase(VarToStr(Xl.Cells[k,  2].Value))) then begin
      RString:='ICES name: '+VarToStr(Xl.Cells[k,  2].Value)+#13+RString;
@@ -223,10 +231,10 @@ if frmosmain.OD.Execute then begin
     with Qt2 do begin
       Close;
        SQL.Clear;
-       SQL.Add(' Update ShipCode_List set ');
+       SQL.Add(' Update PLATFORM set ');
        SQL.Add(' SOURCE=:Source, NOTES_ICES=:Notes ');
-       SQL.Add(' where absnum=:absnum ' );
-       ParamByName('absnum').AsInteger:=absnum;
+       SQL.Add(' where ID=:ID ' );
+       ParamByName('ID').AsInteger:=absnum;
        ParamByName('Source').AsString:=src;
        ParamByName('NOTES').AsWideString:=RString;
       ExecSQL;
@@ -244,18 +252,18 @@ if frmosmain.OD.Execute then begin
       with Qt3 do begin
        Close;
         SQL.Clear;
-        SQL.Add(' Select IMOSHIPCODE from shipcode_list ');
-        SQL.Add(' where absnum=:absnum ' );
-        ParamByName('absnum').AsInteger:=absnum;
+        SQL.Add(' Select IMO_CODE from PLATFORM ');
+        SQL.Add(' where ID=:ID ' );
+        ParamByName('ID').AsInteger:=absnum;
        Open;
         if Qt3.Fields[0].AsInteger<>-9 then begin
          with Qt2 do begin
           Close;
            SQL.Clear;
-           SQL.Add(' Update shipcode_list set ');
-           SQL.Add(' IMOSHIPCODE=:IMO ');
-           SQL.Add(' where absnum=:absnum ' );
-           ParamByName('absnum').AsInteger:=absnum;
+           SQL.Add(' Update PLATFORM ');
+           SQL.Add(' IMO_ID=:IMO ');
+           SQL.Add(' where ID=:ID ' );
+           ParamByName('ID').AsInteger:=absnum;
            ParamByName('IMO').AsInteger:=Xl.Cells[k, 4].Value;
           ExecSQL;
          end;
@@ -264,7 +272,7 @@ if frmosmain.OD.Execute then begin
      end;
     TRt.CommitRetaining;
    except
-    mLog.Lines.Add('Update error IMOSHIPCODE: '+Xl.Cells[k, 4].Value);
+    mLog.Lines.Add('Update error IMO_CODE: '+Xl.Cells[k, 4].Value);
     TRt.RollbackRetaining;
    end;
   end;
@@ -276,18 +284,18 @@ if frmosmain.OD.Execute then begin
       with Qt3 do begin
        Close;
         SQL.Clear;
-        SQL.Add(' Select CALLSIGN from shipcode_list ');
-        SQL.Add(' where absnum=:absnum ' );
-        ParamByName('absnum').AsInteger:=absnum;
+        SQL.Add(' Select CALLSIGN from PLATFORM ');
+        SQL.Add(' where ID=:ID ' );
+        ParamByName('ID').AsInteger:=absnum;
        Open;
         if VarIsNull(Qt3.Fields[0].AsVariant) then begin
          with Qt2 do begin
           Close;
            SQL.Clear;
-           SQL.Add(' Update shipcode_list set ');
+           SQL.Add(' Update PLATFORM set ');
            SQL.Add(' CALLSIGN=:CALLSIGN ');
-           SQL.Add(' where absnum=:absnum ' );
-           ParamByName('absnum').AsInteger:=absnum;
+           SQL.Add(' where ID=:ID ' );
+           ParamByName('ID').AsInteger:=absnum;
            ParamByName('CALLSIGN').AsString:=Xl.Cells[k, 8].Value;
           ExecSQL;
          end;
@@ -325,6 +333,7 @@ end; // if file is open   }
 end;
 
 
+(* Update PLATFORM code from WOD *)
 procedure TfrmcodesQC.btnPlatformWOD2013Click(Sender: TObject);
 var
 dat: text;
@@ -387,6 +396,8 @@ mLog.Clear;
       until (k=length(st)) or (st[k]=')');
     end;
 
+    ReportString:=inttostr(code_ocl)+#9+code_nodc+#9+ShipName+#9+notes;
+
     imo:=-9;
     str_pos:=pos('IMO', notes);
     if str_pos>0 then
@@ -397,9 +408,10 @@ mLog.Clear;
    with Qt1 do begin
     Close;
      SQL.Clear;
-     SQL.Add(' select absnum, source, oclshipcode, shipname from shipcode_list ');
-     SQL.Add(' where nodcshipcode=:code_nodc ');
+     SQL.Add(' select ID, source, nodc_ID, wod_id, name from PLATFORM ');
+     SQL.Add(' where nodc_id=:code_nodc and wod_id=:code_ocl ');
      ParamByName('code_nodc').AsString:=code_nodc;
+     ParamByName('code_ocl').AsInteger:=code_ocl;
     Open;
    end;
 
@@ -408,7 +420,7 @@ mLog.Clear;
      with Qt2 do begin
       Close;
        SQL.Clear;
-       SQL.ADD(' Select max(absnum) as AbsnumMax from ShipCode_list ');
+       SQL.ADD(' Select max(ID) as AbsnumMax from PLATFORM ');
       Open;
         Absnum:=Qt2.FieldByName('AbsnumMax').AsInteger+1;
       Close;
@@ -418,29 +430,32 @@ mLog.Clear;
      with Qt2 do begin
       Close;
        SQL.Clear;
-       SQL.Add(' INSERT INTO ShipCode_List ' );
-       SQL.Add(' (ABSNUM, OCLSHIPCODE, NODCSHIPCODE, SHIPNAME,  NOTES_WOD, SOURCE)');
+       SQL.Add(' INSERT INTO PLATFORM ' );
+       SQL.Add(' (ID, NODC_ID, WOD_ID, IMO_ID, NAME, NOTES_WOD, SOURCE)');
        SQL.Add(' VALUES ' );
-       SQL.Add(' (:ABSNUM, :OCLSHIPCODE, :NODCSHIPCODE, :SHIPNAME, :NOTES, :SOURCE)');
-       ParamByName('absnum').AsInteger:=absnum;
-       ParamByName('NODCSHIPCODE').AsString:=UpperCase(code_nodc);
-       ParamByName('OCLSHIPCODE').AsInteger:=code_ocl;
-       ParamByName('ShipName').AsString:=UpperCase(ShipName);
+       SQL.Add(' (:ID, :NODC_ID, :OCL_ID, :IMO_ID, :NAME, :NOTES_WOD, :SOURCE)');
+       ParamByName('ID').AsInteger:=absnum;
+       ParamByName('NODC_ID').AsString:=UpperCase(code_nodc);
+       ParamByName('OCL_ID').AsInteger:=code_ocl;
+       ParamByName('IMO_ID').AsInteger:=imo;
+       ParamByName('Name').AsString:=UpperCase(ShipName);
        ParamByName('Source').AsString:='WOD';
-       ParamByName('NOTES').AsString:=Notes; //Wide??
+       ParamByName('NOTES_WOD').AsWideString:=Notes; //Wide??
       ExecSQL;
       Close;
      end;
       Trt.CommitRetaining;
+      if chkShowLog.Checked then mLog.Lines.add('Insert successful: '+ReportString);
      except
-      Showmessage('Insert error: '+ReportString);
+      mLog.Lines.add('Insert error: '+ReportString);
      end;
     end;
+
 
    (* Обновляем существующую запись *)
    if (Qt1.IsEmpty=false) then begin
      Absnum:=Qt1.Fields[0].AsInteger;
-     shipname0:=Qt1.FieldByName('shipname').AsString;
+     shipname0:=Qt1.FieldByName('NAME').AsString;
 
    if shipname<>shipname0 then notes:=shipname+#13+notes;
 
@@ -448,9 +463,9 @@ mLog.Clear;
     with Qt2 do begin
       Close;
        SQL.Clear;
-       SQL.Add(' Update ShipCode_List set' );
-       SQL.Add(' OCLSHIPCODE=:OCLSHIPCODE, NOTES_WOD=:Notes');
-       SQL.Add(' where absnum=:absnum ' );
+       SQL.Add(' Update PLATFORM set' );
+       SQL.Add(' WOD_ID=:OCLSHIPCODE, NOTES_WOD=:Notes');
+       SQL.Add(' where ID=:absnum ' );
        ParamByName('absnum').AsInteger:=absnum;
        ParamByName('OCLSHIPCODE').AsInteger:=code_ocl;
        ParamByName('NOTES').AsString:=Notes;
@@ -458,8 +473,9 @@ mLog.Clear;
      Close;
      end;
      TrT.CommitRetaining;
+     if chkShowLog.Checked then mLog.Lines.add('Update successful: '+ReportString);
    except
-    showmessage('Update error: '+ReportString);
+    mLog.Lines.add('Update error: '+ReportString);
    end;
 
    (* IMO *)
@@ -467,17 +483,17 @@ mLog.Clear;
       with Qt3 do begin
        Close;
         SQL.Clear;
-        SQL.Add(' Select IMOSHIPCODE from shipcode_list ');
-        SQL.Add(' where absnum=:absnum ' );
+        SQL.Add(' Select IMO_ID from PLATFORM ');
+        SQL.Add(' where ID=:absnum ' );
         ParamByName('absnum').AsInteger:=absnum;
        Open;
         if VarIsNull(Qt3.Fields[0].AsVariant) then begin
          with Qt2 do begin
           Close;
            SQL.Clear;
-           SQL.Add(' Update shipcode_list set ');
-           SQL.Add(' IMOSHIPCODE=:IMO ');
-           SQL.Add(' where absnum=:absnum ' );
+           SQL.Add(' Update PLATFORM set ');
+           SQL.Add(' IMO_ID=:IMO ');
+           SQL.Add(' where ID=:absnum ' );
            ParamByName('absnum').AsInteger:=absnum;
            ParamByName('IMO').AsInteger:=imo;
           ExecSQL;
@@ -492,16 +508,282 @@ mLog.Clear;
   until eof(dat);
   closefile(dat);
 
-  //GetNODC;
  finally
-  //Q.EnableControls;
   btnPlatformWOD2013.Enabled:=true;
   Qt1.Free;
   Qt2.Free;
   Qt3.free;
   TrT.Free;
+
+  if frmcodes_open=true then frmcodes.PageControl1.OnChange(self);
+
+  Showmessage(SDone);
  end;
 end;
+
+
+(* Update PROJECT from WOD *)
+procedure TfrmcodesQC.btnProjectWODClick(Sender: TObject);
+var
+dat: text;
+PathToCodesSource, buf_str, projectname, st:string;
+c, k, absnum, code_wod:integer;
+TRt:TSQLTransaction;
+Qt1, Qt2:TSQLQuery;
+begin
+try
+mLog.Clear;
+
+ //Q.DisableControls;
+ btnProjectWOD.Enabled:=false;
+
+ frmosmain.OD.Filter:='s_2_project.txt|s_2_project.txt';
+ frmosmain.OD.InitialDir:=GlobalPath;
+ if frmosmain.OD.Execute then PathToCodesSource:=frmosmain.OD.FileName else exit;
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.SupportDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.SupportDB;
+  Qt1.Transaction:=TRt;
+
+  with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.ADD(' Select max(ID) as AbsnumMax from PROJECT ');
+    Open;
+      Absnum:=Qt1.FieldByName('AbsnumMax').AsInteger;
+    Close;
+  end;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.SupportDB;
+  Qt2.Transaction:=TRt;
+
+ AssignFile(dat, PathToCodesSource); reset(dat);
+ readln(dat,st);
+ readln(dat,st);
+
+   repeat
+    readln(dat, st);
+    if eof(dat) then exit;
+
+    k:=0;
+    for c:=1 to 2 do begin
+     buf_str:='';
+     repeat
+      inc(k);
+       if (st[k]<>',') then buf_str:=buf_str+st[k];
+     until (st[k]=',') or (k=length(st));
+     if c=1 then code_wod:=StrToInt(trim(buf_str));
+     if c=2 then ProjectName:=trim(buf_str);
+    end;
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID, name from PROJECT ');
+     SQL.Add(' where wod_id=:code_wod ');
+     ParamByName('code_wod').AsInteger:=code_wod;
+    Open;
+   end;
+
+    (*New project*)
+   if Qt1.IsEmpty=true then begin
+    inc(absnum);
+    try
+     with Qt2 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' INSERT INTO PROJECT ' );
+       SQL.Add(' (ID, WOD_ID, NAME )');
+       SQL.Add(' VALUES ' );
+       SQL.Add(' (:ID, :WOD_ID, :NAME)');
+       ParamByName('ID').AsInteger:=absnum;
+       ParamByName('WOD_ID').AsInteger:=code_wod;
+       ParamByName('Name').AsString:=UpperCase(ProjectName);
+      ExecSQL;
+      Close;
+     end;
+      Trt.CommitRetaining;
+      if chkShowLog.Checked then mLog.Lines.add('Insert successful: '+st);
+     except
+      mLog.Lines.add('Insert error: '+st);
+     end;
+    end;
+
+
+   (* Обновляем существующую запись *)
+   if (Qt1.IsEmpty=false) then begin
+     Absnum:=Qt1.Fields[0].AsInteger;
+   try
+    with Qt2 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' Update PROJECT set' );
+       SQL.Add(' NAME=:name ');
+       SQL.Add(' where ID=:absnum ' );
+       ParamByName('absnum').AsInteger:=absnum;
+       ParamByName('name').AsString:=ProjectName;
+      ExecSQL;
+     Close;
+     end;
+     TrT.CommitRetaining;
+     if chkShowLog.Checked then mLog.Lines.add('Update successful: '+st);
+   except
+    mLog.Lines.add('Update error: '+st);
+   end;
+
+   end;
+  until eof(dat);
+  closefile(dat);
+
+ finally
+  btnProjectWOD.Enabled:=true;
+  Qt1.Free;
+  Qt2.Free;
+  TrT.Commit;
+  TrT.Free;
+  if frmcodes_open=true then frmcodes.PageControl1.OnChange(self);
+  Showmessage(SDone);
+ end;
+end;
+
+
+
+(* Update INSTITUTE from WOD *)
+procedure TfrmcodesQC.btnInstituteWODClick(Sender: TObject);
+var
+dat: text;
+PathToCodesSource, buf_str, institutename, st, code_nodc:string;
+c, k, absnum, code_wod:integer;
+TRt:TSQLTransaction;
+Qt1, Qt2:TSQLQuery;
+begin
+try
+mLog.Clear;
+
+ //Q.DisableControls;
+ btnInstituteWOD.Enabled:=false;
+
+ frmosmain.OD.Filter:='s_4_institute.txt|s_4_institute.txt';
+ frmosmain.OD.InitialDir:=GlobalPath;
+ if frmosmain.OD.Execute then PathToCodesSource:=frmosmain.OD.FileName else exit;
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.SupportDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.SupportDB;
+  Qt1.Transaction:=TRt;
+
+  with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.ADD(' Select max(ID) as AbsnumMax from INSTITUTE ');
+    Open;
+      Absnum:=Qt1.FieldByName('AbsnumMax').AsInteger;
+    Close;
+  end;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.SupportDB;
+  Qt2.Transaction:=TRt;
+
+ AssignFile(dat, PathToCodesSource); reset(dat);
+ readln(dat,st);
+ readln(dat,st);
+
+   repeat
+    readln(dat, st);
+    if eof(dat) then exit;
+
+    k:=0;
+    for c:=1 to 3 do begin
+     buf_str:='';
+     repeat
+      inc(k);
+       if (st[k]<>',') then buf_str:=buf_str+st[k];
+     until (st[k]=',') or (k=length(st));
+     if c=1 then code_wod:=StrToInt(trim(buf_str));
+     if c=2 then code_nodc:=trim(buf_str);
+     if c=3 then InstituteName:=trim(buf_str);
+    end;
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID from INSTITUTE ');
+     SQL.Add(' where wod_id=:code_wod ');
+     ParamByName('code_wod').AsInteger:=code_wod;
+    Open;
+   end;
+
+    (*New project*)
+   if Qt1.IsEmpty=true then begin
+    inc(absnum);
+    try
+     with Qt2 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' INSERT INTO INSTITUTE ' );
+       SQL.Add(' (ID, WOD_ID, NODC_ID, NAME )');
+       SQL.Add(' VALUES ' );
+       SQL.Add(' (:ID, :WOD_ID, :NODC_ID, :NAME)');
+       ParamByName('ID').AsInteger:=absnum;
+       ParamByName('WOD_ID').AsInteger:=code_wod;
+       ParamByName('NODC_ID').AsString:=code_nodc;
+       ParamByName('Name').AsString:=UpperCase(InstituteName);
+      ExecSQL;
+      Close;
+     end;
+      Trt.CommitRetaining;
+      if chkShowLog.Checked then mLog.Lines.add('Insert successful: '+st);
+     except
+      mLog.Lines.add('Insert error: '+st);
+     end;
+    end;
+
+
+   (* Обновляем существующую запись *)
+   if (Qt1.IsEmpty=false) then begin
+     Absnum:=Qt1.Fields[0].AsInteger;
+   try
+    with Qt2 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' Update INSTITUTE set' );
+       SQL.Add(' NODC_ID=:code_nodc, NAME=:name ');
+       SQL.Add(' where ID=:absnum ' );
+       ParamByName('absnum').AsInteger:=absnum;
+       ParamByName('code_nodc').AsString:=code_nodc;
+       ParamByName('name').AsString:=InstituteName;
+      ExecSQL;
+     Close;
+     end;
+     TrT.CommitRetaining;
+     if chkShowLog.Checked then mLog.Lines.add('Update successful: '+st);
+   except
+    mLog.Lines.add('Update error: '+st);
+   end;
+
+   end;
+  until eof(dat);
+  closefile(dat);
+
+ finally
+  btnInstituteWOD.Enabled:=true;
+  Qt1.Free;
+  Qt2.Free;
+  TrT.Commit;
+  TrT.Free;
+  if frmcodes_open=true then frmcodes.PageControl1.OnChange(self);
+  Showmessage(SDone);
+ end;
+end;
+
+
 
 procedure TfrmcodesQC.Button1Click(Sender: TObject);
 Var
@@ -662,6 +944,11 @@ try
  end;
 end;
 
+
+
+
+
+
 procedure TfrmcodesQC.btnCountryISOClick(Sender: TObject);
 Var
   PathToCodes, st, stcountry, code, ReportString:string;
@@ -763,6 +1050,9 @@ begin
   GetNODC;  }
 end;
 
+
+
+
 procedure TfrmcodesQC.btnCountryWODClick(Sender: TObject);
 Var
   PathToCodes, st, stcountry, code, ReportString:string;
@@ -851,6 +1141,12 @@ mLog.Clear;
   closefile(f_dat);
 
   GetNODC;   }
+end;
+
+procedure TfrmcodesQC.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+ CloseAction:= caFree;
+ frmcodesQC_open:=false;
 end;
 
 end.

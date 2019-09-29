@@ -1,7 +1,7 @@
 object frmcodes: Tfrmcodes
-  Left = 855
+  Left = 832
   Height = 550
-  Top = 255
+  Top = 244
   Width = 1024
   Caption = 'Codes'
   ClientHeight = 550
@@ -17,16 +17,20 @@ object frmcodes: Tfrmcodes
   OnShow = FormShow
   Position = poScreenCenter
   LCLVersion = '2.0.4.0'
+  Visible = True
   object PageControl1: TPageControl
     Left = 0
     Height = 528
     Top = 22
     Width = 1024
-    ActivePage = tbPlatform
+    ActivePage = tbCruise
     Align = alClient
     TabIndex = 0
     TabOrder = 0
     OnChange = PageControl1Change
+    object tbCruise: TTabSheet
+      Caption = 'CRUISE'
+    end
     object tbPlatform: TTabSheet
       Caption = 'PLATFORM'
       ClientHeight = 502
@@ -41,7 +45,7 @@ object frmcodes: Tfrmcodes
         ClientHeight = 502
         ClientWidth = 676
         TabOrder = 0
-        object DBGrid1: TDBGrid
+        object DBGridPlatform: TDBGrid
           Left = 0
           Height = 481
           Top = 21
@@ -61,9 +65,9 @@ object frmcodes: Tfrmcodes
               FieldName = 'NODC_ID'
             end          
             item
-              Title.Caption = 'OCL'
+              Title.Caption = 'WOD'
               Width = 62
-              FieldName = 'OCL_ID'
+              FieldName = 'WOD_ID'
             end          
             item
               Title.Caption = 'IMO'
@@ -76,17 +80,18 @@ object frmcodes: Tfrmcodes
               FieldName = 'CALLSIGN'
             end          
             item
-              Title.Caption = 'Ship name'
+              Title.Caption = 'Platform name'
               Width = 150
               FieldName = 'NAME'
             end          
             item
-              Title.Caption = 'Native ship name'
+              Title.Caption = 'Native platform name'
               Width = 150
               FieldName = 'NAME_NATIVE'
             end          
             item
               Title.Caption = 'Source'
+              Width = 70
               FieldName = 'SOURCE'
             end>
           DataSource = DS
@@ -98,9 +103,10 @@ object frmcodes: Tfrmcodes
           TitleFont.Color = clWindowText
           TitleFont.Height = -11
           TitleFont.Name = 'MS Sans Serif'
-          OnCellClick = DBGrid1CellClick
-          OnKeyUp = DBGrid1KeyUp
-          OnTitleClick = DBGrid1TitleClick
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyPress = DBGridPlatformKeyPress
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridPlatformTitleClick
         end
         object Panel3: TPanel
           Left = 0
@@ -136,14 +142,14 @@ object frmcodes: Tfrmcodes
             OnClick = ePlatform_NameClick
             TabOrder = 1
           end
-          object ePlatform_OCL: TEdit
+          object ePlatform_WOD: TEdit
             Left = 127
             Height = 21
             Top = 0
             Width = 62
             Align = alLeft
             Color = clWhite
-            OnChange = ePlatform_OCLChange
+            OnChange = ePlatform_WODChange
             OnClick = ePlatform_NameClick
             TabOrder = 2
           end
@@ -332,10 +338,10 @@ object frmcodes: Tfrmcodes
           ClientWidth = 1016
           TabOrder = 0
           object eCountry_Name: TEdit
-            Left = 252
+            Left = 126
             Height = 21
             Top = 0
-            Width = 764
+            Width = 890
             Align = alClient
             CharCase = ecUppercase
             Color = clWhite
@@ -343,28 +349,7 @@ object frmcodes: Tfrmcodes
             OnClick = eCountry_NameClick
             TabOrder = 0
           end
-          object eCountry_ISOAlpha2: TEdit
-            Left = 189
-            Height = 21
-            Top = 0
-            Width = 63
-            Align = alLeft
-            CharCase = ecUppercase
-            Color = clWhite
-            OnChange = eCountry_ISOAlpha2Change
-            TabOrder = 1
-          end
-          object eCountry_OCL: TEdit
-            Left = 126
-            Height = 21
-            Top = 0
-            Width = 63
-            Align = alLeft
-            Color = clWhite
-            OnChange = eCountry_OCLChange
-            TabOrder = 2
-          end
-          object eCountry_NODC: TEdit
+          object eCountry_ISO: TEdit
             Left = 63
             Height = 21
             Top = 0
@@ -372,8 +357,8 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = eCountry_NODCChange
-            TabOrder = 3
+            OnChange = eCountry_ISOChange
+            TabOrder = 1
           end
           object eCountry_ID: TEdit
             Left = 0
@@ -385,12 +370,251 @@ object frmcodes: Tfrmcodes
             Color = clWhite
             OnChange = eCountry_IDChange
             OnClick = eCountry_NameClick
-            TabOrder = 4
+            TabOrder = 2
           end
         end
-        object DBGrid2: TDBGrid
+        object DBGridCountry: TDBGrid
           Left = 0
           Height = 481
+          Top = 21
+          Width = 1016
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              Title.Caption = 'ID'
+              Width = 63
+              FieldName = 'ID'
+            end          
+            item
+              Title.Caption = 'ISO3166'
+              Width = 63
+              FieldName = 'ISO_3166'
+            end          
+            item
+              Title.Caption = 'Country name'
+              Width = 760
+              FieldName = 'NAME'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Options = [dgEditing, dgTitles, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
+    end
+    object tbSource: TTabSheet
+      Caption = 'SOURCE'
+    end
+    object tbPI: TTabSheet
+      Caption = 'PI'
+    end
+    object tbProject: TTabSheet
+      Caption = 'PROJECT'
+      ClientHeight = 502
+      ClientWidth = 1016
+      object Panel7: TPanel
+        Left = 0
+        Height = 502
+        Top = 0
+        Width = 1016
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 502
+        ClientWidth = 1016
+        TabOrder = 0
+        object Panel9: TPanel
+          Left = 0
+          Height = 21
+          Top = 0
+          Width = 1016
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 21
+          ClientWidth = 1016
+          TabOrder = 0
+          object eProject_Name: TEdit
+            Left = 126
+            Height = 21
+            Top = 0
+            Width = 890
+            Align = alClient
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = eCountry_NameChange
+            OnClick = eCountry_NameClick
+            TabOrder = 0
+          end
+          object eProject_WOD: TEdit
+            Left = 63
+            Height = 21
+            Top = 0
+            Width = 63
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = eCountry_ISOChange
+            TabOrder = 1
+          end
+          object eProject_ID: TEdit
+            Left = 0
+            Height = 21
+            Top = 0
+            Width = 63
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = eCountry_IDChange
+            OnClick = eCountry_NameClick
+            TabOrder = 2
+          end
+        end
+        object DBGridProject: TDBGrid
+          Left = 0
+          Height = 398
+          Top = 21
+          Width = 1016
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              Title.Caption = 'ID'
+              Width = 63
+              FieldName = 'ID'
+            end          
+            item
+              Title.Caption = 'WOD_ID'
+              Width = 63
+              FieldName = 'WOD_ID'
+            end          
+            item
+              Title.Caption = 'Project name'
+              Width = 760
+              FieldName = 'NAME'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Options = [dgEditing, dgTitles, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+        object mNotesProject: TMemo
+          Left = 0
+          Height = 78
+          Top = 424
+          Width = 1016
+          Align = alBottom
+          Color = clWhite
+          OnKeyUp = mNotesKeyUp
+          ScrollBars = ssVertical
+          TabOrder = 2
+        end
+        object Splitter2: TSplitter
+          Cursor = crVSplit
+          Left = 0
+          Height = 5
+          Top = 419
+          Width = 1016
+          Align = alBottom
+          ResizeAnchor = akBottom
+        end
+      end
+    end
+    object tbInstitute: TTabSheet
+      Caption = 'INSTITUTE'
+      ClientHeight = 502
+      ClientWidth = 1016
+      object Panel10: TPanel
+        Left = 0
+        Height = 502
+        Top = 0
+        Width = 1016
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 502
+        ClientWidth = 1016
+        TabOrder = 0
+        object Panel11: TPanel
+          Left = 0
+          Height = 21
+          Top = 0
+          Width = 1016
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 21
+          ClientWidth = 1016
+          TabOrder = 0
+          object eInstitute_Name: TEdit
+            Left = 189
+            Height = 21
+            Top = 0
+            Width = 827
+            Align = alClient
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = eInstitute_NameChange
+            OnClick = eInstitute_IDClick
+            TabOrder = 0
+          end
+          object eInstitute_NODC: TEdit
+            Left = 63
+            Height = 21
+            Top = 0
+            Width = 63
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = eInstitute_NODCChange
+            OnClick = eInstitute_IDClick
+            TabOrder = 1
+          end
+          object eInstitute_ID: TEdit
+            Left = 0
+            Height = 21
+            Top = 0
+            Width = 63
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = eInstitute_IDChange
+            OnClick = eInstitute_IDClick
+            TabOrder = 2
+          end
+          object eInstitute_WOD: TEdit
+            Left = 126
+            Height = 21
+            Top = 0
+            Width = 63
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = eInstitute_WODChange
+            OnClick = eInstitute_IDClick
+            TabOrder = 3
+          end
+        end
+        object DBGridInstitute: TDBGrid
+          Left = 0
+          Height = 398
           Top = 21
           Width = 1016
           Align = alClient
@@ -409,17 +633,12 @@ object frmcodes: Tfrmcodes
               FieldName = 'NODC_ID'
             end          
             item
-              Title.Caption = 'OCL'
+              Title.Caption = 'WOD'
               Width = 63
-              FieldName = 'OCL_ID'
+              FieldName = 'WOD_ID'
             end          
             item
-              Title.Caption = 'ISO'
-              Width = 63
-              FieldName = 'ISO_ALPHA2'
-            end          
-            item
-              Title.Caption = 'Country name'
+              Title.Caption = 'Institute name'
               Width = 760
               FieldName = 'NAME'
             end>
@@ -432,26 +651,31 @@ object frmcodes: Tfrmcodes
           TitleFont.Color = clWindowText
           TitleFont.Height = -11
           TitleFont.Name = 'MS Sans Serif'
-          OnCellClick = DBGrid1CellClick
-          OnKeyUp = DBGrid1KeyUp
-          OnTitleClick = DBGrid2TitleClick
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+        object mNotesInstitute: TMemo
+          Left = 0
+          Height = 78
+          Top = 424
+          Width = 1016
+          Align = alBottom
+          Color = clWhite
+          OnKeyUp = mNotesKeyUp
+          ScrollBars = ssVertical
+          TabOrder = 2
+        end
+        object Splitter4: TSplitter
+          Cursor = crVSplit
+          Left = 0
+          Height = 5
+          Top = 419
+          Width = 1016
+          Align = alBottom
+          ResizeAnchor = akBottom
         end
       end
-    end
-    object tbCruise: TTabSheet
-      Caption = 'CRUISE'
-    end
-    object tbSource: TTabSheet
-      Caption = 'SOURCE'
-    end
-    object tbPI: TTabSheet
-      Caption = 'PI'
-    end
-    object tbProject: TTabSheet
-      Caption = 'PROJECT'
-    end
-    object tbInstitute: TTabSheet
-      Caption = 'INSTITUTE'
     end
   end
   object ToolBar1: TToolBar
@@ -488,13 +712,14 @@ object frmcodes: Tfrmcodes
       OnClick = btndeleteClick
       ShowCaption = False
     end
-    object btncommit: TToolButton
+    object btnsave: TToolButton
       Left = 78
       Hint = 'Commit changes'
       Top = 0
       Caption = 'Save'
+      Enabled = False
       ImageIndex = 940
-      OnClick = btncommitClick
+      OnClick = btnsaveClick
     end
     object btncancel: TToolButton
       Left = 47
@@ -510,34 +735,17 @@ object frmcodes: Tfrmcodes
       Caption = 'ToolButton1'
       Style = tbsDivider
     end
-    object Panel4: TPanel
-      Left = 129
-      Height = 22
-      Top = 0
-      Width = 170
-      BevelOuter = bvNone
-      TabOrder = 0
-    end
-    object btnUpdateQC: TToolButton
-      Left = 299
-      Hint = 'Update and QC'
-      Top = 0
-      Caption = 'Update and QC'
-      ImageIndex = 321
-      OnClick = btnUpdateQCClick
-    end
   end
   object Q: TSQLQuery
     PacketRecords = 1
     MaxIndexesCount = 100
     FieldDefs = <>
+    AfterEdit = QAfterEdit
     AfterScroll = QAfterScroll
     Database = frmdm.SupportDB
     Transaction = frmdm.SupportTR
     SQL.Strings = (
-      'Select absnum, NODCSHIPCODE, OCLSHIPCODE,'
-      'IMOSHIPCODE, CALLSIGN, SHIPNAME, SHIPNAMEORIG,'
-      'SOURCE from SHIPCODE_LIST ORDER BY SHIPNAME'
+      ''
     )
     UpdateSQL.Strings = (
       ''

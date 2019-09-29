@@ -1,6 +1,10 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
+#: osmain.sdelete
+msgid "Delete"
+msgstr ""
+
 #: osmain.sdone
 msgid "Done!"
 msgstr ""
@@ -53,14 +57,6 @@ msgstr ""
 msgid "Cancel changes"
 msgstr ""
 
-#: tfrmcodes.btncommit.caption
-msgid "Save"
-msgstr ""
-
-#: tfrmcodes.btncommit.hint
-msgid "Commit changes"
-msgstr ""
-
 #: tfrmcodes.btndelete.caption
 msgid "btndelete"
 msgstr ""
@@ -69,83 +65,107 @@ msgstr ""
 msgid "Remove row"
 msgstr ""
 
-#: tfrmcodes.btnupdateqc.caption
-msgctxt "tfrmcodes.btnupdateqc.caption"
-msgid "Update and QC"
+#: tfrmcodes.btnsave.caption
+msgctxt "tfrmcodes.btnsave.caption"
+msgid "Save"
 msgstr ""
 
-#: tfrmcodes.btnupdateqc.hint
-msgctxt "tfrmcodes.btnupdateqc.hint"
-msgid "Update and QC"
+#: tfrmcodes.btnsave.hint
+msgctxt "tfrmcodes.btnsave.hint"
+msgid "Commit changes"
 msgstr ""
 
 #: tfrmcodes.caption
 msgid "Codes"
 msgstr ""
 
-#: tfrmcodes.dbgrid1.columns[0].title.caption
-msgctxt "tfrmcodes.dbgrid1.columns[0].title.caption"
+#: tfrmcodes.dbgridcountry.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridcountry.columns[0].title.caption"
 msgid "ID"
 msgstr ""
 
-#: tfrmcodes.dbgrid1.columns[1].title.caption
-msgctxt "tfrmcodes.dbgrid1.columns[1].title.caption"
+#: tfrmcodes.dbgridcountry.columns[1].title.caption
+msgctxt "tfrmcodes.dbgridcountry.columns[1].title.caption"
+msgid "ISO3166"
+msgstr ""
+
+#: tfrmcodes.dbgridcountry.columns[2].title.caption
+msgctxt "tfrmcodes.dbgridcountry.columns[2].title.caption"
+msgid "Country name"
+msgstr ""
+
+#: tfrmcodes.dbgridinstitute.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridinstitute.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgridinstitute.columns[1].title.caption
+msgctxt "tfrmcodes.dbgridinstitute.columns[1].title.caption"
 msgid "NODC"
 msgstr ""
 
-#: tfrmcodes.dbgrid1.columns[2].title.caption
-msgctxt "tfrmcodes.dbgrid1.columns[2].title.caption"
-msgid "OCL"
+#: tfrmcodes.dbgridinstitute.columns[2].title.caption
+msgctxt "tfrmcodes.dbgridinstitute.columns[2].title.caption"
+msgid "WOD"
 msgstr ""
 
-#: tfrmcodes.dbgrid1.columns[3].title.caption
-msgctxt "tfrmcodes.dbgrid1.columns[3].title.caption"
+#: tfrmcodes.dbgridinstitute.columns[3].title.caption
+msgid "Institute name"
+msgstr ""
+
+#: tfrmcodes.dbgridplatform.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridplatform.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgridplatform.columns[1].title.caption
+msgctxt "tfrmcodes.dbgridplatform.columns[1].title.caption"
+msgid "NODC"
+msgstr ""
+
+#: tfrmcodes.dbgridplatform.columns[2].title.caption
+msgctxt "tfrmcodes.dbgridplatform.columns[2].title.caption"
+msgid "WOD"
+msgstr ""
+
+#: tfrmcodes.dbgridplatform.columns[3].title.caption
+msgctxt "tfrmcodes.dbgridplatform.columns[3].title.caption"
 msgid "IMO"
 msgstr ""
 
-#: tfrmcodes.dbgrid1.columns[4].title.caption
-msgctxt "tfrmcodes.dbgrid1.columns[4].title.caption"
+#: tfrmcodes.dbgridplatform.columns[4].title.caption
+msgctxt "tfrmcodes.dbgridplatform.columns[4].title.caption"
 msgid "Callsign"
 msgstr ""
 
-#: tfrmcodes.dbgrid1.columns[5].title.caption
-msgctxt "tfrmcodes.dbgrid1.columns[5].title.caption"
-msgid "Ship name"
+#: tfrmcodes.dbgridplatform.columns[5].title.caption
+msgctxt "tfrmcodes.dbgridplatform.columns[5].title.caption"
+msgid "Platform name"
 msgstr ""
 
-#: tfrmcodes.dbgrid1.columns[6].title.caption
-msgctxt "tfrmcodes.dbgrid1.columns[6].title.caption"
-msgid "Native ship name"
+#: tfrmcodes.dbgridplatform.columns[6].title.caption
+msgctxt "tfrmcodes.dbgridplatform.columns[6].title.caption"
+msgid "Native platform name"
 msgstr ""
 
-#: tfrmcodes.dbgrid1.columns[7].title.caption
-msgctxt "tfrmcodes.dbgrid1.columns[7].title.caption"
+#: tfrmcodes.dbgridplatform.columns[7].title.caption
+msgctxt "tfrmcodes.dbgridplatform.columns[7].title.caption"
 msgid "Source"
 msgstr ""
 
-#: tfrmcodes.dbgrid2.columns[0].title.caption
-msgctxt "tfrmcodes.dbgrid2.columns[0].title.caption"
+#: tfrmcodes.dbgridproject.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridproject.columns[0].title.caption"
 msgid "ID"
 msgstr ""
 
-#: tfrmcodes.dbgrid2.columns[1].title.caption
-msgctxt "tfrmcodes.dbgrid2.columns[1].title.caption"
-msgid "NODC"
+#: tfrmcodes.dbgridproject.columns[1].title.caption
+msgctxt "tfrmcodes.dbgridproject.columns[1].title.caption"
+msgid "WOD_ID"
 msgstr ""
 
-#: tfrmcodes.dbgrid2.columns[2].title.caption
-msgctxt "tfrmcodes.dbgrid2.columns[2].title.caption"
-msgid "OCL"
-msgstr ""
-
-#: tfrmcodes.dbgrid2.columns[3].title.caption
-msgctxt "tfrmcodes.dbgrid2.columns[3].title.caption"
-msgid "ISO"
-msgstr ""
-
-#: tfrmcodes.dbgrid2.columns[4].title.caption
-msgctxt "tfrmcodes.dbgrid2.columns[4].title.caption"
-msgid "Country name"
+#: tfrmcodes.dbgridproject.columns[2].title.caption
+msgctxt "tfrmcodes.dbgridproject.columns[2].title.caption"
+msgid "Project name"
 msgstr ""
 
 #: tfrmcodes.lbcountry.caption
@@ -162,6 +182,7 @@ msgid "CRUISE"
 msgstr ""
 
 #: tfrmcodes.tbinstitute.caption
+msgctxt "tfrmcodes.tbinstitute.caption"
 msgid "INSTITUTE"
 msgstr ""
 
@@ -175,6 +196,7 @@ msgid "PLATFORM"
 msgstr ""
 
 #: tfrmcodes.tbproject.caption
+msgctxt "tfrmcodes.tbproject.caption"
 msgid "PROJECT"
 msgstr ""
 
@@ -204,6 +226,11 @@ msgctxt "tfrmcodesqc.btncountrywod.caption"
 msgid "country_list.txt"
 msgstr ""
 
+#: tfrmcodesqc.btninstitutewod.caption
+msgctxt "tfrmcodesqc.btninstitutewod.caption"
+msgid "s_4_institute.txt"
+msgstr ""
+
 #: tfrmcodesqc.btnplatformduplicates.caption
 msgid "Find duplicates in PLATFORM"
 msgstr ""
@@ -218,12 +245,21 @@ msgctxt "tfrmcodesqc.btnplatformwod2013.caption"
 msgid "s_3_platform.txt"
 msgstr ""
 
+#: tfrmcodesqc.btnprojectwod.caption
+msgctxt "tfrmcodesqc.btnprojectwod.caption"
+msgid "s_2_project.txt"
+msgstr ""
+
 #: tfrmcodesqc.button1.caption
 msgid "USS from name to class"
 msgstr ""
 
 #: tfrmcodesqc.caption
 msgid "Codes update and QC"
+msgstr ""
+
+#: tfrmcodesqc.chkshowlog.caption
+msgid "Detailed log"
 msgstr ""
 
 #: tfrmcodesqc.groupbox1.caption
@@ -236,6 +272,16 @@ msgctxt "tfrmcodesqc.groupbox3.caption"
 msgid "COUNTRY"
 msgstr ""
 
+#: tfrmcodesqc.groupbox4.caption
+msgctxt "tfrmcodesqc.groupbox4.caption"
+msgid "INSTITUTE"
+msgstr ""
+
+#: tfrmcodesqc.groupbox5.caption
+msgctxt "tfrmcodesqc.groupbox5.caption"
+msgid "PROJECT"
+msgstr ""
+
 #: tfrmcodesqc.label1.caption
 msgctxt "tfrmcodesqc.label1.caption"
 msgid "WOD country list"
@@ -244,6 +290,14 @@ msgstr ""
 #: tfrmcodesqc.label12.caption
 msgctxt "tfrmcodesqc.label12.caption"
 msgid "Download ICES codes in the Excel format"
+msgstr ""
+
+#: tfrmcodesqc.label2.caption
+msgid "WOD institute list"
+msgstr ""
+
+#: tfrmcodesqc.label3.caption
+msgid "WOD project list"
 msgstr ""
 
 #: tfrmcodesqc.label7.caption
@@ -318,6 +372,20 @@ msgstr ""
 msgid "Content"
 msgstr ""
 
+#: tfrmosmain.iknowledgedb.caption
+msgid "Knowledge DB"
+msgstr ""
+
+#: tfrmosmain.iknowledgedbopen.caption
+msgctxt "tfrmosmain.iknowledgedbopen.caption"
+msgid "Open database"
+msgstr ""
+
+#: tfrmosmain.iknowledgedbupdateqc.caption
+msgctxt "tfrmosmain.iknowledgedbupdateqc.caption"
+msgid "Update and QC"
+msgstr ""
+
 #: tfrmosmain.iload.caption
 msgid "Load"
 msgstr ""
@@ -343,10 +411,6 @@ msgstr ""
 #: tfrmosmain.isettings.caption
 msgctxt "tfrmosmain.isettings.caption"
 msgid "Settings"
-msgstr ""
-
-#: tfrmosmain.isupportdatabase.caption
-msgid "Support database"
 msgstr ""
 
 #: tfrmosmain.itools.caption

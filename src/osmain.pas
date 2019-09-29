@@ -29,8 +29,9 @@ type
     iTools: TMenuItem;
     iLoad_ITP: TMenuItem;
     iMap: TMenuItem;
-    iSupportDatabase: TMenuItem;
-    MenuItem2: TMenuItem;
+    iKnowledgeDB: TMenuItem;
+    iKnowledgeDBOpen: TMenuItem;
+    iKnowledgeDBUpdateQC: TMenuItem;
     MenuItem3: TMenuItem;
     OD: TOpenDialog;
     pnl2: TPanel;
@@ -57,10 +58,11 @@ type
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure iAboutClick(Sender: TObject);
+    procedure iKnowledgeDBOpenClick(Sender: TObject);
+    procedure iKnowledgeDBUpdateQCClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
-    procedure iSupportDatabaseClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
 
     (*File*)
@@ -87,6 +89,7 @@ type
     SYes = 'Yes';
     SNo  = 'No';
     SDone = 'Done!';
+    SDelete = 'Delete';
 
     SNoPython = 'Python is not found';
     SNoSurfer = 'Surfer is not found';
@@ -113,6 +116,8 @@ var
   SLonP_arr:array[0..20000] of real;
   Length_arr:integer;
 
+  frmcodes_open, frmcodesQC_open:boolean;
+
 
 const
    NC_NOWRITE   = 0;    // file for reading
@@ -126,7 +131,7 @@ const
 implementation
 
 
-uses dm, createdatabase, settings, codes, osabout,
+uses dm, createdatabase, settings, codes, codesupdateqc, osabout,
   //loading data
   osload_itp
   //export
@@ -187,6 +192,9 @@ IBName:='';
    end;
   end;
 
+ (* flags on open forms *)
+  frmcodes_open:=false; frmcodesQC_open:=false;
+
 SetFocus;
 end;
 
@@ -208,16 +216,27 @@ begin
 end;
 
 
-(* Open form for SupportTables.FDB *)
-procedure Tfrmosmain.iSupportDatabaseClick(Sender: TObject);
+(* Open SupportTables.FDB *)
+procedure Tfrmosmain.iKnowledgeDBOpenClick(Sender: TObject);
 begin
- frmcodes := Tfrmcodes.Create(Self);
-  try
-   if not frmcodes.ShowModal = mrOk then exit;
-  finally
-    frmcodes.Free;
-    frmcodes := nil;
-  end;
+ if frmcodes_open=true then frmcodes.SetFocus else
+    begin
+      frmcodes := Tfrmcodes.Create(Self);
+      frmcodes.Show;
+    end;
+ frmcodes_open:=true;
+end;
+
+
+(* Update and QC for SupportTables.FDB *)
+procedure Tfrmosmain.iKnowledgeDBUpdateQCClick(Sender: TObject);
+begin
+ if frmcodesQC_open=true then frmcodesQC.SetFocus else
+    begin
+      frmcodesQC:= TfrmcodesQC.Create(Self);
+      frmcodesQC.Show;
+    end;
+ frmcodesQC_open:=true;
 end;
 
 

@@ -6,21 +6,23 @@ object frmcodesQC: TfrmcodesQC
   Caption = 'Codes update and QC'
   ClientHeight = 550
   ClientWidth = 1024
+  OnClose = FormClose
   Position = poScreenCenter
   LCLVersion = '2.0.4.0'
+  Visible = True
   object PageControl1: TPageControl
     Left = 0
-    Height = 550
+    Height = 395
     Top = 0
-    Width = 784
+    Width = 1024
     ActivePage = TabSheet1
-    Align = alClient
+    Align = alTop
     TabIndex = 0
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Update'
-      ClientHeight = 522
-      ClientWidth = 776
+      ClientHeight = 367
+      ClientWidth = 1016
       object GroupBox1: TGroupBox
         Left = 8
         Height = 88
@@ -131,11 +133,75 @@ object frmcodesQC: TfrmcodesQC
           TabOrder = 1
         end
       end
+      object GroupBox4: TGroupBox
+        Left = 8
+        Height = 64
+        Top = 272
+        Width = 352
+        Caption = 'INSTITUTE'
+        ClientHeight = 44
+        ClientWidth = 348
+        TabOrder = 2
+        object Label2: TLabel
+          Left = 8
+          Height = 15
+          Top = 10
+          Width = 92
+          Caption = 'WOD institute list'
+          ParentColor = False
+          OnClick = Label1Click
+        end
+        object btnInstituteWOD: TButton
+          Left = 216
+          Height = 25
+          Top = 0
+          Width = 120
+          Caption = 's_4_institute.txt'
+          OnClick = btnInstituteWODClick
+          TabOrder = 0
+        end
+      end
+      object GroupBox5: TGroupBox
+        Left = 8
+        Height = 64
+        Top = 200
+        Width = 352
+        Caption = 'PROJECT'
+        ClientHeight = 44
+        ClientWidth = 348
+        TabOrder = 3
+        object Label3: TLabel
+          Left = 8
+          Height = 15
+          Top = 10
+          Width = 86
+          Caption = 'WOD project list'
+          ParentColor = False
+          OnClick = Label1Click
+        end
+        object btnProjectWOD: TButton
+          Left = 216
+          Height = 25
+          Top = 0
+          Width = 120
+          Caption = 's_2_project.txt'
+          OnClick = btnProjectWODClick
+          TabOrder = 0
+        end
+      end
+      object chkShowLog: TCheckBox
+        Left = 8
+        Height = 19
+        Top = 343
+        Width = 83
+        Caption = 'Detailed log'
+        TabOrder = 4
+      end
     end
     object TabSheet2: TTabSheet
       Caption = 'QC'
       ClientHeight = 522
-      ClientWidth = 776
+      ClientWidth = 1016
       object rgDuplicates: TRadioGroup
         Left = 16
         Height = 152
@@ -218,21 +284,21 @@ object frmcodesQC: TfrmcodesQC
     end
   end
   object mLog: TMemo
-    Left = 787
-    Height = 550
-    Top = 0
-    Width = 237
-    Align = alRight
-    Anchors = [akTop, akLeft, akRight, akBottom]
+    Left = 0
+    Height = 152
+    Top = 398
+    Width = 1024
+    Align = alClient
     ScrollBars = ssBoth
     TabOrder = 1
   end
   object Splitter1: TSplitter
-    Left = 784
-    Height = 550
-    Top = 0
-    Width = 3
-    Align = alRight
-    ResizeAnchor = akRight
+    Cursor = crVSplit
+    Left = 0
+    Height = 3
+    Top = 395
+    Width = 1024
+    Align = alTop
+    ResizeAnchor = akTop
   end
 end
