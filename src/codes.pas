@@ -17,11 +17,15 @@ type
     btnadd: TToolButton;
     btnsave: TToolButton;
     btndelete: TToolButton;
+    DBGridCountry1: TDBGrid;
     DBGridPlatform: TDBGrid;
     DBGridCountry: TDBGrid;
     DBGridProject: TDBGrid;
     DBGridInstitute: TDBGrid;
     DS: TDataSource;
+    ePI_ID: TEdit;
+    ePI_WOD: TEdit;
+    ePI_Name: TEdit;
     eProject_ID: TEdit;
     eInstitute_ID: TEdit;
     eProject_WOD: TEdit;
@@ -39,6 +43,8 @@ type
     mNotesInstitute: TMemo;
     Panel10: TPanel;
     Panel11: TPanel;
+    Panel12: TPanel;
+    Panel13: TPanel;
     Panel2: TPanel;
     ePlatform_Name: TEdit;
     Panel3: TPanel;
@@ -75,11 +81,7 @@ type
     ToolButton1: TToolButton;
 
     procedure DBGridPlatformKeyPress(Sender: TObject; var Key: char);
-    procedure eInstitute_IDChange(Sender: TObject);
-    procedure eInstitute_IDClick(Sender: TObject);
-    procedure eInstitute_NameChange(Sender: TObject);
-    procedure eInstitute_NODCChange(Sender: TObject);
-    procedure eInstitute_WODChange(Sender: TObject);
+    procedure ePlatform_IDClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -102,21 +104,17 @@ type
     procedure ePlatform_WODChange(Sender: TObject);
     procedure ePlatform_SourceChange(Sender: TObject);
     procedure ePlatform_NameChange(Sender: TObject);
-    procedure ePlatform_NameClick(Sender: TObject);
     procedure ePlatform_NODCChange(Sender: TObject);
     procedure ePlatform_NameNativeChange(Sender: TObject);
     procedure ePlatform_IMOChange(Sender: TObject);
     procedure ePlatform_CallsignChange(Sender: TObject);
-
-    procedure eCountry_IDChange(Sender: TObject);
-    procedure eCountry_NameChange(Sender: TObject);
     procedure eCountry_ISOChange(Sender: TObject);
-    procedure eCountry_NameClick(Sender: TObject);
 
 
   private
     { Private declarations }
     procedure Navigation;
+    procedure ResizeColumns;
   public
     { Public declarations }
   end;
@@ -157,6 +155,8 @@ begin
    Close;
  end;
 
+ ResizeColumns;
+
  CodesTblName:='';
  case PageControl1.ActivePageIndex of
   1: begin
@@ -166,15 +166,23 @@ begin
      end;
   2: begin
        CodesTblName:='COUNTRY';
-       Q.SQL.text:='Select ID, ISO_3166, NAME FROM COUNTRY ORDER BY NAME';
+       Q.SQL.text:='Select ID, ISO_3166, NAME '+
+                   'FROM COUNTRY ORDER BY NAME';
+     end;
+  4: begin
+       CodesTblName:='PI';
+       Q.SQL.text:='Select ID, WOD_ID, NAME '+
+                   'FROM PI ORDER BY NAME';
      end;
   5: begin
        CodesTblName:='PROJECT';
-       Q.SQL.text:='Select ID, WOD_ID, NAME FROM PROJECT ORDER BY NAME';
+       Q.SQL.text:='Select ID, WOD_ID, NAME '+
+                   'FROM PROJECT ORDER BY NAME';
      end;
   6: begin
        CodesTblName:='INSTITUTE';
-       Q.SQL.text:='Select ID, WOD_ID, NODC_ID, NAME FROM INSTITUTE ORDER BY NAME';
+       Q.SQL.text:='Select ID, WOD_ID, NODC_ID, NAME '+
+                   'FROM INSTITUTE ORDER BY NAME';
      end;
  end;
 
@@ -191,6 +199,60 @@ begin
 
    Navigation;
  end;
+end;
+
+procedure Tfrmcodes.ResizeColumns;
+Var
+ occup:integer;
+begin
+//  showmessage(inttostr(PageControl1.ActivePageIndex));
+case PageControl1.ActivePageIndex of
+ 1: begin
+    occup:=trunc((DBGridPlatform.Width-20-
+            (DBGridPlatform.Columns[0].Width+
+             DBGridPlatform.Columns[1].Width+
+             DBGridPlatform.Columns[2].Width+
+             DBGridPlatform.Columns[3].Width+
+             DBGridPlatform.Columns[4].Width+
+             DBGridPlatform.Columns[7].Width))/2);
+
+    DBGridPlatform.Columns[5].Width:=occup+1;
+    DBGridPlatform.Columns[6].Width:=occup+1;
+
+    ePlatform_ID.Width:=DBGridPlatform.Columns[0].Width+1;
+    ePlatform_NODC.Width:=DBGridPlatform.Columns[1].Width;
+    ePlatform_WOD.Width:=DBGridPlatform.Columns[2].Width;
+    ePlatform_IMO.Width:=DBGridPlatform.Columns[3].Width;
+    ePlatform_Callsign.Width:=DBGridPlatform.Columns[4].Width;
+    ePlatform_Name.Width:=DBGridPlatform.Columns[5].Width;
+    ePlatform_NameNative.Width:=DBGridPlatform.Columns[6].Width;
+    ePlatform_Source.Width:=DBGridPlatform.Columns[7].Width;
+ end;
+ 2: begin //COUNTRY
+    occup:=trunc(DBGridCountry.Width-20-
+           (DBGridCountry.Columns[0].Width+
+            DBGridCountry.Columns[1].Width));
+           // DBGridCountry.Columns[3].Width+
+         //   DBGridCountry.Columns[4].Width));
+    DBGridCountry.Columns[2].Width:=occup+1;
+ end;
+ 5: begin
+    occup:=trunc(DBGridProject.Width-20-
+           (DBGridProject.Columns[0].Width+
+            DBGridProject.Columns[1].Width));
+    DBGridProject.Columns[2].Width:=occup+1;
+ end;
+ 6: begin
+    occup:=trunc(DBGridInstitute.Width-20-
+           (DBGridInstitute.Columns[0].Width+
+            DBGridInstitute.Columns[1].Width+
+            DBGridInstitute.Columns[2].Width));
+    DBGridInstitute.Columns[3].Width:=occup+1;
+ end;
+end;
+
+//Panel4.Width:=trunc(ToolBar1.Width-65-
+// (btnAdd.Width+btnDelete.Width+btnCancel.Width+btnUpdateQC.Width));
 end;
 
 
@@ -400,25 +462,26 @@ begin
 end;
 
 
-(******************** Fast search in PLATFORM *********************************)
+(******************************* Fast search *********************************)
+(* ID *)
 procedure Tfrmcodes.ePlatform_IDChange(Sender: TObject);
 begin
- if ePlatform_ID.Text='' then exit;
-   Q.Locate('ID', StrToInt(ePlatform_ID.Text),[loCaseInsensitive, loPartialKey]);
+ if (Sender as TEdit).Text='' then exit;
+   Q.Locate('ID', StrToInt((Sender as TEdit).Text),[loCaseInsensitive, loPartialKey]);
 end;
 
-(* NODC*)
+(* NODC *)
 procedure Tfrmcodes.ePlatform_NODCChange(Sender: TObject);
 begin
- Q.Filter:='NODC_ID = '+QuotedStr(ePlatform_NODC.Text+'*');
+ Q.Filter:='NODC_ID = '+QuotedStr((Sender as TEdit).Text+'*');
  Q.Filtered:=true;
 end;
 
-(* OCL *)
+(* WOD *)
 procedure Tfrmcodes.ePlatform_WODChange(Sender: TObject);
 begin
- if ePlatform_WOD.Text='' then exit;
-   Q.Locate('WOD_ID', StrToInt(ePlatform_WOD.Text),[loCaseInsensitive, loPartialKey]);
+ if (Sender as TEdit).Text='' then exit;
+   Q.Locate('WOD_ID', StrToInt((Sender as TEdit).Text),[loCaseInsensitive, loPartialKey]);
 end;
 
 (* IMO *)
@@ -428,6 +491,13 @@ begin
    Q.Locate('IMO_ID', StrToInt(ePlatform_IMO.Text),[loCaseInsensitive, loPartialKey]);
 end;
 
+(* ISO-3166 code *)
+procedure Tfrmcodes.eCountry_ISOChange(Sender: TObject);
+begin
+ if eCountry_ISO.Text='' then exit;
+  Q.Locate('ISO_3166',eCountry_ISO.Text,[loCaseInsensitive, loPartialKey]);
+end;
+
 (* Callsign *)
 procedure Tfrmcodes.ePlatform_CallsignChange(Sender: TObject);
 begin
@@ -435,10 +505,10 @@ begin
  Q.Filtered:=true;
 end;
 
-(* Platform name *)
+(* Name *)
 procedure Tfrmcodes.ePlatform_NameChange(Sender: TObject);
 begin
- Q.Filter:='NAME = '+QuotedStr('*'+ePlatform_Name.Text+'*');
+ Q.Filter:='NAME = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
  Q.Filtered:=true;
 end;
 
@@ -456,85 +526,16 @@ Q.Filter:='SOURCE = '+QuotedStr('*'+ePlatform_Source.Text+'*');
 Q.Filtered:=true;
 end;
 
-
-(************************* Fast search in COUNTRY ****************************)
-procedure Tfrmcodes.eCountry_IDChange(Sender: TObject);
+(* Cleaning controls on click and drop the filter *)
+procedure Tfrmcodes.ePlatform_IDClick(Sender: TObject);
+var
+  k: Integer;
 begin
- if eCountry_ID.Text='' then exit;
-   Q.Locate('ID',eCountry_ID.Text,[loCaseInsensitive, loPartialKey]);
+  for k:= 0 to frmcodes.ComponentCount-1 do
+    if frmcodes.Components[k] is TEdit then TEdit(frmcodes.Components[k]).Clear;
+  Q.Filtered:=false;
 end;
-
-procedure Tfrmcodes.eCountry_ISOChange(Sender: TObject);
-begin
- if eCountry_ISO.Text='' then exit;
-  Q.Locate('ISO_1366',eCountry_ISO.Text,[loCaseInsensitive, loPartialKey]);
-end;
-
-(* Быстрый поиск по названию страны *)
-procedure Tfrmcodes.eCountry_NameChange(Sender: TObject);
-begin
-  Q.Filter:='NAME = '+QuotedStr('*'+eCountry_Name.Text+'*');
-  Q.Filtered:=true;
-end;
-
-
-(*********************** Fast search in INSTITUTE ****************************)
-procedure Tfrmcodes.eInstitute_IDChange(Sender: TObject);
-begin
- if eInstitute_ID.Text='' then exit;
-   Q.Locate('ID', StrToInt(eInstitute_ID.Text),[loCaseInsensitive, loPartialKey]);
-end;
-
-procedure Tfrmcodes.eInstitute_NODCChange(Sender: TObject);
-begin
-  Q.Filter:='NODC_ID = '+QuotedStr(eInstitute_NODC.Text+'*');
-  Q.Filtered:=true;
-end;
-
-procedure Tfrmcodes.eInstitute_WODChange(Sender: TObject);
-begin
- if eInstitute_ID.Text='' then exit;
-   Q.Locate('WOD_ID', StrToInt(eInstitute_WOD.Text),[loCaseInsensitive, loPartialKey]);
-end;
-
-procedure Tfrmcodes.eInstitute_NameChange(Sender: TObject);
-begin
-  Q.Filter:='NAME = '+QuotedStr(eInstitute_Name.Text+'*');
-  Q.Filtered:=true;
-end;
-
-procedure Tfrmcodes.eInstitute_IDClick(Sender: TObject);
-begin
-  eInstitute_ID.Clear;
-  eInstitute_NODC.Clear;
-  eInstitute_WOD.Clear;
-  eInstitute_Name.Clear;
-end;
-
-
-procedure Tfrmcodes.ePlatform_NameClick(Sender: TObject);
-begin
- ePlatform_ID.Clear;
- ePlatform_Name.Clear;
- ePlatform_NameNative.Clear;
- ePlatform_NODC.Clear;
- ePlatform_WOD.Clear;
- ePlatform_IMO.Clear;
- ePlatform_Callsign.Clear;
- ePlatform_Source.Clear;
-
- Q.Filtered:=false;
-end;
-
-procedure Tfrmcodes.eCountry_NameClick(Sender: TObject);
-begin
- eCountry_ID.Clear;
- eCountry_Name.Clear;
- eCountry_ISO.Clear;
-
- Q.Filtered:=false;
-end;
-
+(************************************END**************************************)
 
 procedure Tfrmcodes.DBGridPlatformKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -586,55 +587,8 @@ end;
 
 
 procedure Tfrmcodes.FormResize(Sender: TObject);
-Var
- occup:integer;
 begin
-//  showmessage(inttostr(PageControl1.ActivePageIndex));
-case PageControl1.ActivePageIndex of
- 1: begin
-    occup:=trunc((DBGridPlatform.Width-20-
-            (DBGridPlatform.Columns[0].Width+
-             DBGridPlatform.Columns[1].Width+
-             DBGridPlatform.Columns[2].Width+
-             DBGridPlatform.Columns[3].Width+
-             DBGridPlatform.Columns[4].Width+
-             DBGridPlatform.Columns[7].Width))/2);
-
-    DBGridPlatform.Columns[5].Width:=occup+1;
-    DBGridPlatform.Columns[6].Width:=occup+1;
-
-    ePlatform_ID.Width:=DBGridPlatform.Columns[0].Width+1;
-    ePlatform_NODC.Width:=DBGridPlatform.Columns[1].Width;
-    ePlatform_WOD.Width:=DBGridPlatform.Columns[2].Width;
-    ePlatform_IMO.Width:=DBGridPlatform.Columns[3].Width;
-    ePlatform_Callsign.Width:=DBGridPlatform.Columns[4].Width;
-    ePlatform_Name.Width:=DBGridPlatform.Columns[5].Width;
-    ePlatform_NameNative.Width:=DBGridPlatform.Columns[6].Width;
-    ePlatform_Source.Width:=DBGridPlatform.Columns[7].Width;
- end;
- 2: begin
-    occup:=trunc(DBGridCountry.Width-20-
-           (DBGridCountry.Columns[0].Width+
-            DBGridCountry.Columns[1].Width));
-    DBGridCountry.Columns[2].Width:=occup+1;
- end;
- 5: begin
-    occup:=trunc(DBGridProject.Width-20-
-           (DBGridProject.Columns[0].Width+
-            DBGridProject.Columns[1].Width));
-    DBGridProject.Columns[2].Width:=occup+1;
- end;
- 6: begin
-    occup:=trunc(DBGridInstitute.Width-20-
-           (DBGridInstitute.Columns[0].Width+
-            DBGridInstitute.Columns[1].Width+
-            DBGridInstitute.Columns[2].Width));
-    DBGridInstitute.Columns[3].Width:=occup+1;
- end;
-end;
-
-//Panel4.Width:=trunc(ToolBar1.Width-65-
-// (btnAdd.Width+btnDelete.Width+btnCancel.Width+btnUpdateQC.Width));
+  ResizeColumns;
 end;
 
 

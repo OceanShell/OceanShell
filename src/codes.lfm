@@ -23,9 +23,9 @@ object frmcodes: Tfrmcodes
     Height = 528
     Top = 22
     Width = 1024
-    ActivePage = tbCruise
+    ActivePage = tbInstitute
     Align = alClient
-    TabIndex = 0
+    TabIndex = 6
     TabOrder = 0
     OnChange = PageControl1Change
     object tbCruise: TTabSheet
@@ -127,7 +127,7 @@ object frmcodes: Tfrmcodes
             CharCase = ecUppercase
             Color = clWhite
             OnChange = ePlatform_NameChange
-            OnClick = ePlatform_NameClick
+            OnClick = ePlatform_IDClick
             TabOrder = 0
           end
           object ePlatform_NODC: TEdit
@@ -139,7 +139,7 @@ object frmcodes: Tfrmcodes
             CharCase = ecUppercase
             Color = clWhite
             OnChange = ePlatform_NODCChange
-            OnClick = ePlatform_NameClick
+            OnClick = ePlatform_IDClick
             TabOrder = 1
           end
           object ePlatform_WOD: TEdit
@@ -150,7 +150,7 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             Color = clWhite
             OnChange = ePlatform_WODChange
-            OnClick = ePlatform_NameClick
+            OnClick = ePlatform_IDClick
             TabOrder = 2
           end
           object ePlatform_IMO: TEdit
@@ -161,7 +161,7 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             Color = clWhite
             OnChange = ePlatform_IMOChange
-            OnClick = ePlatform_NameClick
+            OnClick = ePlatform_IDClick
             TabOrder = 3
           end
           object ePlatform_Callsign: TEdit
@@ -173,7 +173,7 @@ object frmcodes: Tfrmcodes
             CharCase = ecUppercase
             Color = clWhite
             OnChange = ePlatform_CallsignChange
-            OnClick = ePlatform_NameClick
+            OnClick = ePlatform_IDClick
             TabOrder = 4
           end
           object ePlatform_NameNative: TEdit
@@ -185,7 +185,7 @@ object frmcodes: Tfrmcodes
             CharCase = ecUppercase
             Color = clWhite
             OnChange = ePlatform_NameNativeChange
-            OnClick = ePlatform_NameClick
+            OnClick = ePlatform_IDClick
             TabOrder = 5
           end
           object ePlatform_Source: TEdit
@@ -196,7 +196,7 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             Color = clWhite
             OnChange = ePlatform_SourceChange
-            OnClick = ePlatform_NameClick
+            OnClick = ePlatform_IDClick
             TabOrder = 6
           end
           object ePlatform_ID: TEdit
@@ -207,7 +207,7 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             Color = clWhite
             OnChange = ePlatform_IDChange
-            OnClick = ePlatform_NameClick
+            OnClick = ePlatform_IDClick
             TabOrder = 7
           end
         end
@@ -345,8 +345,8 @@ object frmcodes: Tfrmcodes
             Align = alClient
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = eCountry_NameChange
-            OnClick = eCountry_NameClick
+            OnChange = ePlatform_NameChange
+            OnClick = ePlatform_IDClick
             TabOrder = 0
           end
           object eCountry_ISO: TEdit
@@ -358,6 +358,7 @@ object frmcodes: Tfrmcodes
             CharCase = ecUppercase
             Color = clWhite
             OnChange = eCountry_ISOChange
+            OnClick = ePlatform_IDClick
             TabOrder = 1
           end
           object eCountry_ID: TEdit
@@ -368,8 +369,8 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = eCountry_IDChange
-            OnClick = eCountry_NameClick
+            OnChange = ePlatform_IDChange
+            OnClick = ePlatform_IDClick
             TabOrder = 2
           end
         end
@@ -395,7 +396,7 @@ object frmcodes: Tfrmcodes
             end          
             item
               Title.Caption = 'Country name'
-              Width = 760
+              Width = 710
               FieldName = 'NAME'
             end>
           DataSource = DS
@@ -418,6 +419,103 @@ object frmcodes: Tfrmcodes
     end
     object tbPI: TTabSheet
       Caption = 'PI'
+      ClientHeight = 502
+      ClientWidth = 1016
+      object Panel12: TPanel
+        Left = 0
+        Height = 502
+        Top = 0
+        Width = 1016
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 502
+        ClientWidth = 1016
+        TabOrder = 0
+        object Panel13: TPanel
+          Left = 0
+          Height = 21
+          Top = 0
+          Width = 1016
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 21
+          ClientWidth = 1016
+          TabOrder = 0
+          object ePI_Name: TEdit
+            Left = 126
+            Height = 21
+            Top = 0
+            Width = 890
+            Align = alClient
+            CharCase = ecUppercase
+            Color = clWhite
+            OnClick = ePlatform_IDClick
+            TabOrder = 0
+          end
+          object ePI_WOD: TEdit
+            Left = 63
+            Height = 21
+            Top = 0
+            Width = 63
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = ePlatform_WODChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 1
+          end
+          object ePI_ID: TEdit
+            Left = 0
+            Height = 21
+            Top = 0
+            Width = 63
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = ePlatform_IDChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 2
+          end
+        end
+        object DBGridCountry1: TDBGrid
+          Left = 0
+          Height = 481
+          Top = 21
+          Width = 1016
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              Title.Caption = 'ID'
+              Width = 63
+              FieldName = 'ID'
+            end          
+            item
+              Title.Caption = 'WOD'
+              Width = 63
+              FieldName = 'WOD_ID'
+            end          
+            item
+              Title.Caption = 'PI name(s)'
+              Width = 710
+              FieldName = 'NAME'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Options = [dgEditing, dgTitles, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
     end
     object tbProject: TTabSheet
       Caption = 'PROJECT'
@@ -451,8 +549,8 @@ object frmcodes: Tfrmcodes
             Align = alClient
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = eCountry_NameChange
-            OnClick = eCountry_NameClick
+            OnChange = ePlatform_NameChange
+            OnClick = ePlatform_IDClick
             TabOrder = 0
           end
           object eProject_WOD: TEdit
@@ -463,7 +561,8 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = eCountry_ISOChange
+            OnChange = ePlatform_WODChange
+            OnClick = ePlatform_IDClick
             TabOrder = 1
           end
           object eProject_ID: TEdit
@@ -474,8 +573,8 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = eCountry_IDChange
-            OnClick = eCountry_NameClick
+            OnChange = ePlatform_IDChange
+            OnClick = ePlatform_IDClick
             TabOrder = 2
           end
         end
@@ -495,7 +594,7 @@ object frmcodes: Tfrmcodes
               FieldName = 'ID'
             end          
             item
-              Title.Caption = 'WOD_ID'
+              Title.Caption = 'WOD'
               Width = 63
               FieldName = 'WOD_ID'
             end          
@@ -571,8 +670,8 @@ object frmcodes: Tfrmcodes
             Align = alClient
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = eInstitute_NameChange
-            OnClick = eInstitute_IDClick
+            OnChange = ePlatform_NameChange
+            OnClick = ePlatform_IDClick
             TabOrder = 0
           end
           object eInstitute_NODC: TEdit
@@ -583,8 +682,8 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = eInstitute_NODCChange
-            OnClick = eInstitute_IDClick
+            OnChange = ePlatform_NODCChange
+            OnClick = ePlatform_IDClick
             TabOrder = 1
           end
           object eInstitute_ID: TEdit
@@ -595,8 +694,8 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = eInstitute_IDChange
-            OnClick = eInstitute_IDClick
+            OnChange = ePlatform_IDChange
+            OnClick = ePlatform_IDClick
             TabOrder = 2
           end
           object eInstitute_WOD: TEdit
@@ -607,8 +706,8 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = eInstitute_WODChange
-            OnClick = eInstitute_IDClick
+            OnChange = ePlatform_WODChange
+            OnClick = ePlatform_IDClick
             TabOrder = 3
           end
         end

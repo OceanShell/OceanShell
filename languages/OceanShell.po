@@ -94,6 +94,20 @@ msgctxt "tfrmcodes.dbgridcountry.columns[2].title.caption"
 msgid "Country name"
 msgstr ""
 
+#: tfrmcodes.dbgridcountry1.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridcountry1.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgridcountry1.columns[1].title.caption
+msgctxt "tfrmcodes.dbgridcountry1.columns[1].title.caption"
+msgid "WOD"
+msgstr ""
+
+#: tfrmcodes.dbgridcountry1.columns[2].title.caption
+msgid "PI name(s)"
+msgstr ""
+
 #: tfrmcodes.dbgridinstitute.columns[0].title.caption
 msgctxt "tfrmcodes.dbgridinstitute.columns[0].title.caption"
 msgid "ID"
@@ -160,7 +174,7 @@ msgstr ""
 
 #: tfrmcodes.dbgridproject.columns[1].title.caption
 msgctxt "tfrmcodes.dbgridproject.columns[1].title.caption"
-msgid "WOD_ID"
+msgid "WOD"
 msgstr ""
 
 #: tfrmcodes.dbgridproject.columns[2].title.caption
