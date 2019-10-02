@@ -32,7 +32,10 @@ type
     iKnowledgeDB: TMenuItem;
     iKnowledgeDBOpen: TMenuItem;
     iKnowledgeDBUpdateQC: TMenuItem;
+    MenuItem1: TMenuItem;
+    iLoad_GLODAP_2019_v2_product: TMenuItem;
     MenuItem3: TMenuItem;
+    iLoad_GLODAP_2019_v2: TMenuItem;
     OD: TOpenDialog;
     pnl2: TPanel;
     ProgressBar1: TProgressBar;
@@ -62,12 +65,12 @@ type
     procedure iKnowledgeDBUpdateQCClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
+    procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
 
     (*File*)
     procedure iOpenDatabaseClick(Sender: TObject);
-
 
   //  procedure pmOpenPopup(Sender: TObject);
    // procedure ToolButton1Click(Sender: TObject);
@@ -133,7 +136,8 @@ implementation
 
 uses dm, createdatabase, settings, codes, codesupdateqc, osabout,
   //loading data
-  osload_itp
+  osload_itp,
+  osload_GLODAP_2019_v2_product
   //export
   //QC
   //tools
@@ -249,7 +253,6 @@ begin
    OpenDatabase;
   end;
 end;
-
 
 (* Open local database *)
 procedure Tfrmosmain.OpenDatabase;
@@ -380,6 +383,17 @@ begin
    finally
      frmLoadITP.Free;
      frmLoadITP := nil;
+   end;
+end;
+
+procedure Tfrmosmain.iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
+begin
+    frmloadGLODAP_2019_v2_product := TfrmloadGLODAP_2019_v2_product.Create(Self);
+   try
+    if not frmloadGLODAP_2019_v2_product.ShowModal = mrOk then exit;
+   finally
+     frmloadGLODAP_2019_v2_product.Free;
+     frmloadGLODAP_2019_v2_product := nil;
    end;
 end;
 

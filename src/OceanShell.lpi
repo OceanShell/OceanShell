@@ -42,7 +42,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="12">
+    <Units Count="13">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -109,6 +109,13 @@
         <Filename Value="osabout.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit11>
+      <Unit12>
+        <Filename Value="osload_glodap_2019_v2_product.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmloadGLODAP_2019_v2_product"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="osload_GLODAP_2019_v2_product"/>
+      </Unit12>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

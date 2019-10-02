@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 972
+  Left = 634
   Height = 395
-  Top = 258
+  Top = 265
   Width = 900
   BorderStyle = bsSingle
   Caption = 'OceanShell'
@@ -1921,6 +1921,16 @@ object frmosmain: Tfrmosmain
       Caption = 'Load'
       object iLoad_ITP: TMenuItem
         Caption = 'ITP'
+      end
+      object MenuItem1: TMenuItem
+        Caption = 'GLODAP'
+        object iLoad_GLODAP_2019_v2_product: TMenuItem
+          Caption = '2019.v2 (product)'
+          OnClick = iLoad_GLODAP_2019_v2_productClick
+        end
+        object iLoad_GLODAP_2019_v2: TMenuItem
+          Caption = '2019.v2'
+        end
       end
     end
     object iKnowledgeDB: TMenuItem
