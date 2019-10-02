@@ -341,6 +341,10 @@ msgctxt "tfrmcodesqc.tabsheet2.caption"
 msgid "QC"
 msgstr ""
 
+#: tfrmloadglodap_2019_v2_product.caption
+msgid "frmloadGLODAP_2019_v2_product"
+msgstr ""
+
 #: tfrmloaditp.button1.caption
 msgid "Data"
 msgstr ""
@@ -404,6 +408,14 @@ msgstr ""
 msgid "Load"
 msgstr ""
 
+#: tfrmosmain.iload_glodap_2019_v2.caption
+msgid "2019.v2"
+msgstr ""
+
+#: tfrmosmain.iload_glodap_2019_v2_product.caption
+msgid "2019.v2 (product)"
+msgstr ""
+
 #: tfrmosmain.iload_itp.caption
 msgid "ITP"
 msgstr ""
@@ -429,6 +441,10 @@ msgstr ""
 
 #: tfrmosmain.itools.caption
 msgid "Tools"
+msgstr ""
+
+#: tfrmosmain.menuitem1.caption
+msgid "GLODAP"
 msgstr ""
 
 #: tfrmosmain.statusbar2.panels[0].text

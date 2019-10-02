@@ -1,0 +1,8 @@
+object frmLoad_GLODAP_v2_2019_product: TfrmLoad_GLODAP_v2_2019_product
+  Left = 1105
+  Height = 240
+  Top = 392
+  Width = 320
+  Caption = 'frmLoad_GLODAP_v2_2019_product'
+  LCLVersion = '2.0.4.0'
+end

@@ -1,7 +1,7 @@
 object frmcodes: Tfrmcodes
-  Left = 832
+  Left = 476
   Height = 550
-  Top = 244
+  Top = 236
   Width = 1024
   Caption = 'Codes'
   ClientHeight = 550
