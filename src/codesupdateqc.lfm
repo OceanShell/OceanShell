@@ -1,7 +1,7 @@
 object frmcodesQC: TfrmcodesQC
-  Left = 563
+  Left = 971
   Height = 550
-  Top = 328
+  Top = 252
   Width = 1024
   Caption = 'Codes update and QC'
   ClientHeight = 550
@@ -196,6 +196,34 @@ object frmcodesQC: TfrmcodesQC
         Width = 83
         Caption = 'Detailed log'
         TabOrder = 4
+      end
+      object GroupBox6: TGroupBox
+        Left = 376
+        Height = 64
+        Top = 8
+        Width = 352
+        Caption = 'PI'
+        ClientHeight = 44
+        ClientWidth = 348
+        TabOrder = 5
+        object Label4: TLabel
+          Left = 8
+          Height = 15
+          Top = 10
+          Width = 59
+          Caption = 'WOD PI list'
+          ParentColor = False
+          OnClick = Label1Click
+        end
+        object btnPIWOD: TButton
+          Left = 168
+          Height = 25
+          Top = 0
+          Width = 168
+          Caption = 'primary_investigator_list.txt'
+          OnClick = btnPIWODClick
+          TabOrder = 0
+        end
       end
     end
     object TabSheet2: TTabSheet

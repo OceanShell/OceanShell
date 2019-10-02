@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 634
+  Left = 798
   Height = 395
-  Top = 265
+  Top = 305
   Width = 900
   BorderStyle = bsSingle
   Caption = 'OceanShell'
@@ -1904,6 +1904,14 @@ object frmosmain: Tfrmosmain
       object N3: TMenuItem
         Caption = '-'
       end
+      object iKnowledgeDBOpen: TMenuItem
+        Caption = 'Knowledge DB'
+        ImageIndex = 323
+        OnClick = iKnowledgeDBOpenClick
+      end
+      object MenuItem4: TMenuItem
+        Caption = '-'
+      end
       object iSettings: TMenuItem
         Caption = 'Settings'
         ImageIndex = 235
@@ -1931,19 +1939,6 @@ object frmosmain: Tfrmosmain
         object iLoad_GLODAP_2019_v2: TMenuItem
           Caption = '2019.v2'
         end
-      end
-    end
-    object iKnowledgeDB: TMenuItem
-      Caption = 'Knowledge DB'
-      object iKnowledgeDBOpen: TMenuItem
-        Caption = 'Open database'
-        ImageIndex = 314
-        OnClick = iKnowledgeDBOpenClick
-      end
-      object iKnowledgeDBUpdateQC: TMenuItem
-        Caption = 'Update and QC'
-        ImageIndex = 321
-        OnClick = iKnowledgeDBUpdateQCClick
       end
     end
     object iTools: TMenuItem

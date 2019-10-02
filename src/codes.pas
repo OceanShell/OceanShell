@@ -14,20 +14,29 @@ type
   { Tfrmcodes }
 
   Tfrmcodes = class(TForm)
+    btnUpdateQC: TBitBtn;
     btnadd: TToolButton;
     btnsave: TToolButton;
     btndelete: TToolButton;
-    DBGridCountry1: TDBGrid;
+    DBGridUnits: TDBGrid;
+    DBGridPI: TDBGrid;
     DBGridPlatform: TDBGrid;
     DBGridCountry: TDBGrid;
     DBGridProject: TDBGrid;
     DBGridInstitute: TDBGrid;
+    DBGridInstrument: TDBGrid;
+    DBGridSource: TDBGrid;
     DS: TDataSource;
     ePI_ID: TEdit;
     ePI_WOD: TEdit;
     ePI_Name: TEdit;
     eProject_ID: TEdit;
     eInstitute_ID: TEdit;
+    eProject_ID1: TEdit;
+    eUnits_ID: TEdit;
+    eProject_Name1: TEdit;
+    eSource_ID: TEdit;
+    eUnits_Name: TEdit;
     eProject_WOD: TEdit;
     eInstitute_NODC: TEdit;
     eInstitute_WOD: TEdit;
@@ -37,16 +46,33 @@ type
     ePlatform_Source: TEdit;
     ePlatform_ID: TEdit;
     eCountry_ID: TEdit;
-    Image1: TImage;
-    lbCountry: TLabel;
-    mNotesProject: TMemo;
+    eProject_WOD1: TEdit;
+    eUnits_Empty: TEdit;
+    eSource_Name: TEdit;
+    imgFlagPlatform: TImage;
+    ImgFlagInstitute: TImage;
+    lbCountryPlatform: TLabel;
+    lbCountryInstitute: TLabel;
     mNotesInstitute: TMemo;
+    mNotesUnits: TMemo;
+    mNotesProject: TMemo;
+    mNotesPI: TMemo;
+    mNotesInstrument: TMemo;
+    mNotesSource: TMemo;
     Panel10: TPanel;
     Panel11: TPanel;
     Panel12: TPanel;
     Panel13: TPanel;
+    Panel14: TPanel;
+    Panel15: TPanel;
+    Panel16: TPanel;
+    Panel17: TPanel;
+    Panel18: TPanel;
+    Panel19: TPanel;
     Panel2: TPanel;
     ePlatform_Name: TEdit;
+    Panel20: TPanel;
+    Panel21: TPanel;
     Panel3: TPanel;
     ePlatform_NODC: TEdit;
     Panel7: TPanel;
@@ -55,8 +81,8 @@ type
     Q: TSQLQuery;
     Splitter1: TSplitter;
     PageControl1: TPageControl;
-    Splitter2: TSplitter;
-    Splitter4: TSplitter;
+    tbInstrument: TTabSheet;
+    tbUnits: TTabSheet;
     tbSource: TTabSheet;
     tbPlatform: TTabSheet;
     tbCountry: TTabSheet;
@@ -80,6 +106,7 @@ type
     btncancel: TToolButton;
     ToolButton1: TToolButton;
 
+    procedure btnUpdateQCClick(Sender: TObject);
     procedure DBGridPlatformKeyPress(Sender: TObject; var Key: char);
     procedure ePlatform_IDClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -127,7 +154,7 @@ implementation
 
 {$R *.lfm}
 
-uses osmain, dm;
+uses osmain, dm, codesupdateqc;
 
 procedure Tfrmcodes.FormShow(Sender: TObject);
 begin
@@ -169,6 +196,11 @@ begin
        Q.SQL.text:='Select ID, ISO_3166, NAME '+
                    'FROM COUNTRY ORDER BY NAME';
      end;
+  3: begin
+       CodesTblName:='SOURCE';
+       Q.SQL.text:='Select ID, NAME '+
+                   'FROM SOURCE ORDER BY ID';
+     end;
   4: begin
        CodesTblName:='PI';
        Q.SQL.text:='Select ID, WOD_ID, NAME '+
@@ -184,6 +216,16 @@ begin
        Q.SQL.text:='Select ID, WOD_ID, NODC_ID, NAME '+
                    'FROM INSTITUTE ORDER BY NAME';
      end;
+  7: begin
+       CodesTblName:='INSTRUMENT';
+       Q.SQL.text:='Select ID, WOD_ID, NAME '+
+                   'FROM INSTRUMENT ORDER BY WOD_ID';
+  end;
+  8: begin
+       CodesTblName:='UNITS';
+       Q.SQL.text:='Select ID, NAME_SHORT, NAME '+
+                   'FROM UNITS ORDER BY ID';
+  end;
  end;
 
  //If table exists
@@ -236,6 +278,17 @@ case PageControl1.ActivePageIndex of
          //   DBGridCountry.Columns[4].Width));
     DBGridCountry.Columns[2].Width:=occup+1;
  end;
+ 3: begin
+    occup:=trunc(DBGridSource.Width-20-
+           (DBGridSource.Columns[0].Width));
+    DBGridSource.Columns[1].Width:=occup+1;
+ end;
+ 4: begin
+    occup:=trunc(DBGridPI.Width-20-
+           (DBGridPI.Columns[0].Width+
+            DBGridPI.Columns[1].Width));
+    DBGridPI.Columns[2].Width:=occup+1;
+ end;
  5: begin
     occup:=trunc(DBGridProject.Width-20-
            (DBGridProject.Columns[0].Width+
@@ -248,6 +301,18 @@ case PageControl1.ActivePageIndex of
             DBGridInstitute.Columns[1].Width+
             DBGridInstitute.Columns[2].Width));
     DBGridInstitute.Columns[3].Width:=occup+1;
+ end;
+ 7: begin
+    occup:=trunc(DBGridInstrument.Width-20-
+           (DBGridInstrument.Columns[0].Width+
+            DBGridInstrument.Columns[1].Width));
+    DBGridInstrument.Columns[2].Width:=occup+1;
+ end;
+ 8: begin
+    occup:=trunc(DBGridUnits.Width-20-
+           (DBGridUnits.Columns[0].Width+
+            DBGridUnits.Columns[1].Width));
+    DBGridUnits.Columns[2].Width:=occup+1;
  end;
 end;
 
@@ -287,8 +352,22 @@ begin
      mNotes.Lines.Text    :=Qt.FieldByName('NOTES').AsWideString;
     Close;
    end;
+   TRt.Commit;
+   Qt.Free;
+   TRt.Free;
+  end;
+ end;
 
-   lbCountry.Caption:=''; Image1.Picture.Clear;
+  If (CodesTblName='PLATFORM') or (CodesTblName='INSTITUTE') then begin
+    TRt:=TSQLTransaction.Create(self);
+    TRt.DataBase:=frmdm.SupportDB;
+    Qt :=TSQLQuery.Create(self);
+    Qt.Database:=frmdm.SupportDB;
+    Qt.Transaction:=TRt;
+
+   lbCountryPlatform.Caption:=''; imgFlagPlatform.Picture.Clear;
+   lbCountryInstitute.Caption:=''; imgFlagInstitute.Picture.Clear;
+
    cc:=Copy(Q.FieldByName('NODC_ID').AsString, 1, 2);
    if trim(cc)='' then exit;
 
@@ -313,17 +392,22 @@ begin
 
     if Qt.IsEmpty=false then begin
        try
-         Image1.Picture.LoadFromLazarusResource(LowerCase(Qt.Fields[0].AsString+'_32'));
+         if CodesTblName='PLATFORM' then begin
+            imgFlagPlatform.Picture.LoadFromLazarusResource(LowerCase(Qt.Fields[0].AsString+'_32'));
+            lbCountryPlatform.Caption:=Qt.Fields[1].AsString;
+         end;
+         if CodesTblName='INSTITUTE' then begin
+            imgFlagInstitute.Picture.LoadFromLazarusResource(LowerCase(Qt.Fields[0].AsString+'_32'));
+            lbCountryInstitute.Caption:=Qt.Fields[1].AsString;
+         end;
        except
        end;
-       lbCountry.Caption:=Qt.Fields[1].AsString;
+
       end;
-    Qt.Close;
-   end;
-   TRt.Commit;
+    TRt.Commit;
    Qt.Free;
    TRt.Free;
- end; //End Platform
+  end;
 
 
  if (CodesTblName<>'COUNTRY') and (Q.FieldByName('ID').AsInteger>0) then begin
@@ -342,7 +426,7 @@ begin
        mNotesProject.Clear;
        mNotesProject.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
      end;
-     if CodesTblName='PInstitute' then begin
+     if CodesTblName='INSTITUTE' then begin
        mNotesInstitute.Clear;
        mNotesInstitute.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
      end;
@@ -433,8 +517,13 @@ begin
         TRt.Free;
       end;
 
-      if ((CodesTblName='PROJECT') and (mNotesProject.Lines.Text<>'')) or
-         ((CodesTblName='INSTITUTE') and (mNotesInstitute.Lines.Text<>'')) then begin
+      if ((CodesTblName='SOURCE') and (mNotesSource.Lines.Text<>'')) or
+         ((CodesTblName='PROJECT') and (mNotesProject.Lines.Text<>'')) or
+         ((CodesTblName='INSTITUTE') and (mNotesInstitute.Lines.Text<>'')) or
+         ((CodesTblName='PI') and (mNotesPI.Lines.Text<>'')) or
+         ((CodesTblName='INSTRUMENT') and (mNotesInstrument.Lines.Text<>'')) or
+         ((CodesTblName='UNITS') and (mNotesUnits.Lines.Text<>'')) then begin
+
         TRt:=TSQLTransaction.Create(self);
         TRt.DataBase:=frmdm.SupportDB;
 
@@ -448,8 +537,12 @@ begin
           SQL.Add(' NOTES=:NOTES ');
           SQL.Add(' where ID=:ID ');
           ParamByName('ID').AsInteger:=Q.FieldByName('ID').AsInteger;
+          if (CodesTblName='SOURCE') then ParamByName('NOTES').AsWideString:=mNotesSource.Lines.Text;
           if (CodesTblName='PROJECT') then ParamByName('NOTES').AsWideString:=mNotesProject.Lines.Text;
           if (CodesTblName='INSTITUTE') then ParamByName('NOTES').AsWideString:=mNotesInstitute.Lines.Text;
+          if (CodesTblName='PI') then ParamByName('NOTES').AsWideString:=mNotesPI.Lines.Text;
+          if (CodesTblName='INSTRUMENT') then ParamByName('NOTES').AsWideString:=mNotesInstrument.Lines.Text;
+          if (CodesTblName='UNITS') then ParamByName('NOTES').AsWideString:=mNotesUnits.Lines.Text;
          ExecSQL;
         end;
         Qt.Close;
@@ -589,6 +682,18 @@ end;
 procedure Tfrmcodes.FormResize(Sender: TObject);
 begin
   ResizeColumns;
+end;
+
+
+(* Update and QC for SupportTables.FDB *)
+procedure Tfrmcodes.btnUpdateQCClick(Sender: TObject);
+begin
+ if frmcodesQC_open=true then frmcodesQC.SetFocus else
+    begin
+      frmcodesQC:= TfrmcodesQC.Create(Self);
+      frmcodesQC.Show;
+    end;
+ frmcodesQC_open:=true;
 end;
 
 

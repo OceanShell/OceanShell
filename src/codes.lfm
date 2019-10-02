@@ -1,7 +1,7 @@
 object frmcodes: Tfrmcodes
-  Left = 476
+  Left = 893
   Height = 550
-  Top = 236
+  Top = 194
   Width = 1024
   Caption = 'Codes'
   ClientHeight = 550
@@ -23,9 +23,9 @@ object frmcodes: Tfrmcodes
     Height = 528
     Top = 22
     Width = 1024
-    ActivePage = tbInstitute
+    ActivePage = tbCruise
     Align = alClient
-    TabIndex = 6
+    TabIndex = 0
     TabOrder = 0
     OnChange = PageControl1Change
     object tbCruise: TTabSheet
@@ -286,7 +286,7 @@ object frmcodes: Tfrmcodes
           ClientHeight = 21
           ClientWidth = 336
           TabOrder = 5
-          object Image1: TImage
+          object imgFlagPlatform: TImage
             Left = 0
             Height = 21
             Top = 0
@@ -296,12 +296,12 @@ object frmcodes: Tfrmcodes
             AutoSize = True
             Center = True
           end
-          object lbCountry: TLabel
+          object lbCountryPlatform: TLabel
             Left = 40
             Height = 13
             Top = 4
-            Width = 54
-            Caption = 'lbCountry'
+            Width = 100
+            Caption = 'lbCountryPlatform'
             Font.Color = clWindowText
             Font.Height = -11
             Font.Name = 'MS Sans Serif'
@@ -416,6 +416,98 @@ object frmcodes: Tfrmcodes
     end
     object tbSource: TTabSheet
       Caption = 'SOURCE'
+      ClientHeight = 502
+      ClientWidth = 1016
+      object Panel20: TPanel
+        Left = 0
+        Height = 502
+        Top = 0
+        Width = 676
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 502
+        ClientWidth = 676
+        TabOrder = 0
+        object Panel21: TPanel
+          Left = 0
+          Height = 21
+          Top = 0
+          Width = 676
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 21
+          ClientWidth = 676
+          TabOrder = 0
+          object eSource_Name: TEdit
+            Left = 63
+            Height = 21
+            Top = 0
+            Width = 613
+            Align = alClient
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = ePlatform_NameChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 0
+          end
+          object eSource_ID: TEdit
+            Left = 0
+            Height = 21
+            Top = 0
+            Width = 63
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = ePlatform_IDChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 1
+          end
+        end
+        object DBGridSource: TDBGrid
+          Left = 0
+          Height = 481
+          Top = 21
+          Width = 676
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              Title.Caption = 'ID'
+              Width = 63
+              FieldName = 'ID'
+            end          
+            item
+              Title.Caption = 'Source name'
+              Width = 760
+              FieldName = 'NAME'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Options = [dgEditing, dgTitles, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
+      object mNotesSource: TMemo
+        Left = 676
+        Height = 502
+        Top = 0
+        Width = 340
+        Align = alRight
+        Color = clWhite
+        OnKeyUp = mNotesKeyUp
+        ScrollBars = ssVertical
+        TabOrder = 1
+      end
     end
     object tbPI: TTabSheet
       Caption = 'PI'
@@ -425,30 +517,31 @@ object frmcodes: Tfrmcodes
         Left = 0
         Height = 502
         Top = 0
-        Width = 1016
+        Width = 676
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 502
-        ClientWidth = 1016
+        ClientWidth = 676
         TabOrder = 0
         object Panel13: TPanel
           Left = 0
           Height = 21
           Top = 0
-          Width = 1016
+          Width = 676
           Align = alTop
           BevelOuter = bvNone
           ClientHeight = 21
-          ClientWidth = 1016
+          ClientWidth = 676
           TabOrder = 0
           object ePI_Name: TEdit
             Left = 126
             Height = 21
             Top = 0
-            Width = 890
+            Width = 550
             Align = alClient
             CharCase = ecUppercase
             Color = clWhite
+            OnChange = ePlatform_NameChange
             OnClick = ePlatform_IDClick
             TabOrder = 0
           end
@@ -477,11 +570,11 @@ object frmcodes: Tfrmcodes
             TabOrder = 2
           end
         end
-        object DBGridCountry1: TDBGrid
+        object DBGridPI: TDBGrid
           Left = 0
           Height = 481
           Top = 21
-          Width = 1016
+          Width = 676
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
@@ -498,7 +591,7 @@ object frmcodes: Tfrmcodes
               FieldName = 'WOD_ID'
             end          
             item
-              Title.Caption = 'PI name(s)'
+              Title.Caption = 'Primary Investigator name(s)'
               Width = 710
               FieldName = 'NAME'
             end>
@@ -516,6 +609,17 @@ object frmcodes: Tfrmcodes
           OnTitleClick = DBGridCountryTitleClick
         end
       end
+      object mNotesPI: TMemo
+        Left = 676
+        Height = 502
+        Top = 0
+        Width = 340
+        Align = alRight
+        Color = clWhite
+        OnKeyUp = mNotesKeyUp
+        ScrollBars = ssVertical
+        TabOrder = 1
+      end
     end
     object tbProject: TTabSheet
       Caption = 'PROJECT'
@@ -525,27 +629,27 @@ object frmcodes: Tfrmcodes
         Left = 0
         Height = 502
         Top = 0
-        Width = 1016
+        Width = 676
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 502
-        ClientWidth = 1016
+        ClientWidth = 676
         TabOrder = 0
         object Panel9: TPanel
           Left = 0
           Height = 21
           Top = 0
-          Width = 1016
+          Width = 676
           Align = alTop
           BevelOuter = bvNone
           ClientHeight = 21
-          ClientWidth = 1016
+          ClientWidth = 676
           TabOrder = 0
           object eProject_Name: TEdit
             Left = 126
             Height = 21
             Top = 0
-            Width = 890
+            Width = 550
             Align = alClient
             CharCase = ecUppercase
             Color = clWhite
@@ -580,9 +684,9 @@ object frmcodes: Tfrmcodes
         end
         object DBGridProject: TDBGrid
           Left = 0
-          Height = 398
+          Height = 481
           Top = 21
-          Width = 1016
+          Width = 676
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
@@ -616,26 +720,17 @@ object frmcodes: Tfrmcodes
           OnKeyUp = DBGridPlatformKeyUp
           OnTitleClick = DBGridCountryTitleClick
         end
-        object mNotesProject: TMemo
-          Left = 0
-          Height = 78
-          Top = 424
-          Width = 1016
-          Align = alBottom
-          Color = clWhite
-          OnKeyUp = mNotesKeyUp
-          ScrollBars = ssVertical
-          TabOrder = 2
-        end
-        object Splitter2: TSplitter
-          Cursor = crVSplit
-          Left = 0
-          Height = 5
-          Top = 419
-          Width = 1016
-          Align = alBottom
-          ResizeAnchor = akBottom
-        end
+      end
+      object mNotesProject: TMemo
+        Left = 676
+        Height = 502
+        Top = 0
+        Width = 340
+        Align = alRight
+        Color = clWhite
+        OnKeyUp = mNotesKeyUp
+        ScrollBars = ssVertical
+        TabOrder = 1
       end
     end
     object tbInstitute: TTabSheet
@@ -646,27 +741,27 @@ object frmcodes: Tfrmcodes
         Left = 0
         Height = 502
         Top = 0
-        Width = 1016
+        Width = 676
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 502
-        ClientWidth = 1016
+        ClientWidth = 676
         TabOrder = 0
         object Panel11: TPanel
           Left = 0
           Height = 21
           Top = 0
-          Width = 1016
+          Width = 676
           Align = alTop
           BevelOuter = bvNone
           ClientHeight = 21
-          ClientWidth = 1016
+          ClientWidth = 676
           TabOrder = 0
           object eInstitute_Name: TEdit
             Left = 189
             Height = 21
             Top = 0
-            Width = 827
+            Width = 487
             Align = alClient
             CharCase = ecUppercase
             Color = clWhite
@@ -713,9 +808,9 @@ object frmcodes: Tfrmcodes
         end
         object DBGridInstitute: TDBGrid
           Left = 0
-          Height = 398
+          Height = 481
           Top = 21
-          Width = 1016
+          Width = 676
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
@@ -754,26 +849,288 @@ object frmcodes: Tfrmcodes
           OnKeyUp = DBGridPlatformKeyUp
           OnTitleClick = DBGridCountryTitleClick
         end
+      end
+      object Panel14: TPanel
+        Left = 676
+        Height = 502
+        Top = 0
+        Width = 340
+        Align = alRight
+        BevelOuter = bvNone
+        ClientHeight = 502
+        ClientWidth = 340
+        TabOrder = 1
         object mNotesInstitute: TMemo
           Left = 0
-          Height = 78
-          Top = 424
-          Width = 1016
-          Align = alBottom
+          Height = 477
+          Top = 25
+          Width = 340
+          Align = alClient
           Color = clWhite
           OnKeyUp = mNotesKeyUp
           ScrollBars = ssVertical
-          TabOrder = 2
+          TabOrder = 0
         end
-        object Splitter4: TSplitter
-          Cursor = crVSplit
+        object Panel15: TPanel
           Left = 0
-          Height = 5
-          Top = 419
-          Width = 1016
-          Align = alBottom
-          ResizeAnchor = akBottom
+          Height = 25
+          Top = 0
+          Width = 340
+          Align = alTop
+          BevelOuter = bvNone
+          BorderStyle = bsSingle
+          ClientHeight = 21
+          ClientWidth = 336
+          TabOrder = 1
+          object ImgFlagInstitute: TImage
+            Left = 0
+            Height = 21
+            Top = 0
+            Width = 35
+            AntialiasingMode = amOn
+            Align = alLeft
+            AutoSize = True
+            Center = True
+          end
+          object lbCountryInstitute: TLabel
+            Left = 40
+            Height = 13
+            Top = 4
+            Width = 100
+            Caption = 'lbCountryInstitute'
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            ParentColor = False
+            ParentFont = False
+          end
         end
+      end
+    end
+    object tbInstrument: TTabSheet
+      Caption = 'INSTRUMENT'
+      ClientHeight = 502
+      ClientWidth = 1016
+      object Panel16: TPanel
+        Left = 0
+        Height = 502
+        Top = 0
+        Width = 676
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 502
+        ClientWidth = 676
+        TabOrder = 0
+        object Panel17: TPanel
+          Left = 0
+          Height = 21
+          Top = 0
+          Width = 676
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 21
+          ClientWidth = 676
+          TabOrder = 0
+          object eProject_Name1: TEdit
+            Left = 126
+            Height = 21
+            Top = 0
+            Width = 550
+            Align = alClient
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = ePlatform_NameChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 0
+          end
+          object eProject_WOD1: TEdit
+            Left = 63
+            Height = 21
+            Top = 0
+            Width = 63
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = ePlatform_WODChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 1
+          end
+          object eProject_ID1: TEdit
+            Left = 0
+            Height = 21
+            Top = 0
+            Width = 63
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = ePlatform_IDChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 2
+          end
+        end
+        object DBGridInstrument: TDBGrid
+          Left = 0
+          Height = 481
+          Top = 21
+          Width = 676
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              Title.Caption = 'ID'
+              Width = 63
+              FieldName = 'ID'
+            end          
+            item
+              Title.Caption = 'WOD'
+              Width = 63
+              FieldName = 'WOD_ID'
+            end          
+            item
+              Title.Caption = 'Instrument name'
+              Width = 760
+              FieldName = 'NAME'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Options = [dgEditing, dgTitles, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
+      object mNotesInstrument: TMemo
+        Left = 676
+        Height = 502
+        Top = 0
+        Width = 340
+        Align = alRight
+        Color = clWhite
+        OnKeyUp = mNotesKeyUp
+        ScrollBars = ssVertical
+        TabOrder = 1
+      end
+    end
+    object tbUnits: TTabSheet
+      Caption = 'UNITS'
+      ClientHeight = 502
+      ClientWidth = 1016
+      object Panel18: TPanel
+        Left = 0
+        Height = 502
+        Top = 0
+        Width = 676
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 502
+        ClientWidth = 676
+        TabOrder = 0
+        object Panel19: TPanel
+          Left = 0
+          Height = 21
+          Top = 0
+          Width = 676
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 21
+          ClientWidth = 676
+          TabOrder = 0
+          object eUnits_Name: TEdit
+            Left = 143
+            Height = 21
+            Top = 0
+            Width = 533
+            Align = alClient
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = ePlatform_NameChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 0
+          end
+          object eUnits_Empty: TEdit
+            Left = 63
+            Height = 21
+            Top = 0
+            Width = 80
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Enabled = False
+            OnChange = ePlatform_WODChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 1
+          end
+          object eUnits_ID: TEdit
+            Left = 0
+            Height = 21
+            Top = 0
+            Width = 63
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = ePlatform_IDChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 2
+          end
+        end
+        object DBGridUnits: TDBGrid
+          Left = 0
+          Height = 481
+          Top = 21
+          Width = 676
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              Title.Caption = 'ID'
+              Width = 63
+              FieldName = 'ID'
+            end          
+            item
+              Title.Caption = 'Short name'
+              Width = 80
+              FieldName = 'NAME_SHORT'
+            end          
+            item
+              Title.Caption = 'Full name'
+              Width = 760
+              FieldName = 'NAME'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Options = [dgEditing, dgTitles, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
+      object mNotesUnits: TMemo
+        Left = 676
+        Height = 502
+        Top = 0
+        Width = 340
+        Align = alRight
+        Color = clWhite
+        OnKeyUp = mNotesKeyUp
+        ScrollBars = ssVertical
+        TabOrder = 1
       end
     end
   end
@@ -834,6 +1191,18 @@ object frmcodes: Tfrmcodes
       Caption = 'ToolButton1'
       Style = tbsDivider
     end
+  end
+  object btnUpdateQC: TBitBtn
+    Left = 904
+    Height = 22
+    Top = 22
+    Width = 116
+    Anchors = [akTop, akRight]
+    Caption = 'Update and QC'
+    Images = frmosmain.IL1
+    ImageIndex = 321
+    OnClick = btnUpdateQCClick
+    TabOrder = 2
   end
   object Q: TSQLQuery
     PacketRecords = 1

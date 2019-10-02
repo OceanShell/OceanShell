@@ -29,13 +29,12 @@ type
     iTools: TMenuItem;
     iLoad_ITP: TMenuItem;
     iMap: TMenuItem;
-    iKnowledgeDB: TMenuItem;
-    iKnowledgeDBOpen: TMenuItem;
-    iKnowledgeDBUpdateQC: TMenuItem;
     MenuItem1: TMenuItem;
     iLoad_GLODAP_2019_v2_product: TMenuItem;
+    iKnowledgeDBOpen: TMenuItem;
     MenuItem3: TMenuItem;
     iLoad_GLODAP_2019_v2: TMenuItem;
+    MenuItem4: TMenuItem;
     OD: TOpenDialog;
     pnl2: TPanel;
     ProgressBar1: TProgressBar;
@@ -62,7 +61,6 @@ type
     procedure FormShow(Sender: TObject);
     procedure iAboutClick(Sender: TObject);
     procedure iKnowledgeDBOpenClick(Sender: TObject);
-    procedure iKnowledgeDBUpdateQCClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
@@ -71,9 +69,6 @@ type
 
     (*File*)
     procedure iOpenDatabaseClick(Sender: TObject);
-
-  //  procedure pmOpenPopup(Sender: TObject);
-   // procedure ToolButton1Click(Sender: TObject);
 
 
   private
@@ -134,7 +129,7 @@ const
 implementation
 
 
-uses dm, createdatabase, settings, codes, codesupdateqc, osabout,
+uses dm, createdatabase, settings, codes, osabout,
   //loading data
   osload_itp,
   osload_GLODAP_2019_v2_product
@@ -232,17 +227,6 @@ begin
 end;
 
 
-(* Update and QC for SupportTables.FDB *)
-procedure Tfrmosmain.iKnowledgeDBUpdateQCClick(Sender: TObject);
-begin
- if frmcodesQC_open=true then frmcodesQC.SetFocus else
-    begin
-      frmcodesQC:= TfrmcodesQC.Create(Self);
-      frmcodesQC.Show;
-    end;
- frmcodesQC_open:=true;
-end;
-
 
 (**)
 procedure Tfrmosmain.iOpenDatabaseClick(Sender: TObject);
@@ -253,6 +237,7 @@ begin
    OpenDatabase;
   end;
 end;
+
 
 (* Open local database *)
 procedure Tfrmosmain.OpenDatabase;

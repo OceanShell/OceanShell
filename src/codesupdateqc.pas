@@ -15,6 +15,7 @@ type
   TfrmcodesQC = class(TForm)
     btnCountryDuplicates: TButton;
     btnInstituteWOD: TButton;
+    btnPIWOD: TButton;
     btnProjectWOD: TButton;
     btnPlatformICES: TButton;
     btnCountryWOD: TButton;
@@ -27,10 +28,12 @@ type
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
     GroupBox5: TGroupBox;
+    GroupBox6: TGroupBox;
     Label1: TLabel;
     Label12: TLabel;
     Label2: TLabel;
     Label3: TLabel;
+    Label4: TLabel;
     Label7: TLabel;
     Label8: TLabel;
     mLog: TMemo;
@@ -40,8 +43,10 @@ type
     Splitter1: TSplitter;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
+
     procedure btnCountryDuplicatesClick(Sender: TObject);
     procedure btnCountryISOClick(Sender: TObject);
+    procedure btnPIWODClick(Sender: TObject);
     procedure btnInstituteWODClick(Sender: TObject);
     procedure btnProjectWODClick(Sender: TObject);
     procedure btnCountryWODClick(Sender: TObject);
@@ -1055,93 +1060,208 @@ end;
 
 procedure TfrmcodesQC.btnCountryWODClick(Sender: TObject);
 Var
+  f_dat:text;
   PathToCodes, st, stcountry, code, ReportString:string;
   absnum:integer;
+
+  TRt:TSQLTransaction;
+  Qt1, Qt2:TSQLQuery;
 begin
 mLog.Clear;
 
-{ Main.OpenDialog1.Filter:='*.txt|*.txt';
- Main.OpenDialog1.InitialDir:=GlobalPath+'support\codes\';
- if Main.OpenDialog1.Execute then PathToCodes:=Main.OpenDialog1.FileName else exit;
+ frmosmain.OD.Filter:='country_list.txt|country_list.txt';
+ if frmosmain.OD.Execute then PathToCodes:=frmosmain.OD.FileName else exit;
 
- Main.ProgressBar1.Max:=LinesCount(PathToCodes)-1;
- Main.ProgressBar1.Position:=0;
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.SupportDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.SupportDB;
+  Qt1.Transaction:=TRt;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.SupportDB;
+  Qt2.Transaction:=TRt;
+
+    with Qt1 do begin
+      Close;
+       SQL.Clear;
+       SQL.ADD(' Select max(ID) as AbsnumMax from COUNTRY ');
+      Open;
+        Absnum:=Qt1.FieldByName('AbsnumMax').AsInteger+1;
+      Close;
+    end;
+
 
  AssignFile(f_dat, PathToCodes); reset(f_dat);
 
-   ODBDM.IBTransaction2.StartTransaction;
+
    repeat
     readln(f_dat, st);
 
     code:=copy(st, 1, 2);
     stcountry:=trim(copy(st, 4, 50));
 
-   with ODBDM.ib2q1 do begin
+   with Qt1 do begin
     Close;
      SQL.Clear;
-     SQL.Add(' select absnum, countryname from countrycode_list ');
-     SQL.Add(' where ISOcountrycode=:code ');
+     SQL.Add(' select ID, NAME from COUNTRY ');
+     SQL.Add(' where ISO_3166=:code ');
      ParamByName('code').AsString:=code;
     Open;
    end;
 
-    (*Вставляем новое судно *)
-   if ODBDM.ib2q1.IsEmpty=true then begin
-     with ODBDM.ib2q2 do begin
+    (* insert missing country *)
+   if Qt1.IsEmpty=true then begin
+    inc(absnum);
+     with Qt2 do begin
       Close;
        SQL.Clear;
-       SQL.ADD(' Select max(absnum) as AbsnumMax from countryCode_list ');
-      Open;
-        Absnum:=ODBDM.ib2q2.FieldByName('AbsnumMax').AsInteger+1;
-      Close;
-     end;
-
-
-     with ODBDM.ib2qq1 do begin
-      Close;
-       SQL.Clear;
-       SQL.Add(' INSERT INTO countryCode_List ' );
-       SQL.Add(' (ABSNUM, OCLCOUNTRYCODE, NODCCOUNTRYCODE, ISOCOUNTRYCODE, COUNTRYNAME)');
+       SQL.Add(' INSERT INTO COUNTRY ' );
+       SQL.Add(' (ID, ISO_3166, NAME)');
        SQL.Add(' VALUES ' );
-       SQL.Add(' (:ABSNUM, :OCLCOUNTRYCODE, :NODCCOUNTRYCODE, :ISOCOUNTRYCODE, :COUNTRYNAME)');
-       ParamByName('absnum').AsInteger:=absnum;
-       ParamByName('NODCCOUNTRYCODE').AsString:='';
-       ParamByName('OCLCOUNTRYCODE').AsInteger:=-9;
-       ParamByName('ISOCOUNTRYCODE').AsString:=code;
-       ParamByName('countryName').AsString:=stcountry;
-      ExecQuery;
+       SQL.Add(' (:ID, :ISO_3166, :NAME)');
+       ParamByName('ID').AsInteger:=absnum;
+       ParamByName('ISO_3166').AsString:=code;
+       ParamByName('Name').AsString:=stcountry;
+      ExecSQL;
+      Close;
      end;
-      ODBDM.ib2q1.Close;
-      ODBDM.IBTransaction2.CommitRetaining;
-    end;      }
+     Trt.CommitRetaining;
+    end;
+
+   until eof(f_dat);
+   TRt.Commit;
+  Qt1.free;
+  Qt2.free;
+  TrT.Free;
+end;
+
+
+procedure TfrmcodesQC.btnPIWODClick(Sender: TObject);
+var
+dat: text;
+PathToCodesSource, buf_str, piname, st, code_nodc:string;
+c, k, absnum, code_wod:integer;
+TRt:TSQLTransaction;
+Qt1, Qt2:TSQLQuery;
+begin
+try
+mLog.Clear;
+
+ btnPIWOD.Enabled:=false;
+
+ frmosmain.OD.Filter:='primary_investigator_list.txt|primary_investigator_list.txt';
+ if frmosmain.OD.Execute then PathToCodesSource:=frmosmain.OD.FileName else exit;
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.SupportDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.SupportDB;
+  Qt1.Transaction:=TRt;
+
+  with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.ADD(' Select max(ID) as AbsnumMax from PI ');
+    Open;
+      Absnum:=Qt1.FieldByName('AbsnumMax').AsInteger;
+    Close;
+  end;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.SupportDB;
+  Qt2.Transaction:=TRt;
+
+ AssignFile(dat, PathToCodesSource); reset(dat);
+
+   repeat
+    readln(dat, st);
+    if eof(dat) then exit;
+
+    k:=0;
+    for c:=1 to 2 do begin
+     buf_str:='';
+     repeat
+      inc(k);
+       if (st[k]<>',') then buf_str:=buf_str+st[k];
+     until (st[k]=',') or (k=length(st));
+     if c=1 then code_wod:=StrToInt(trim(buf_str));
+     if c=2 then PIName:=trim(buf_str);
+    end;
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID from PI ');
+     SQL.Add(' where wod_id=:code_wod ');
+     ParamByName('code_wod').AsInteger:=code_wod;
+    Open;
+   end;
+
+    (*New project*)
+   if Qt1.IsEmpty=true then begin
+    inc(absnum);
+    try
+     with Qt2 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' INSERT INTO PI ' );
+       SQL.Add(' (ID, WOD_ID, NAME )');
+       SQL.Add(' VALUES ' );
+       SQL.Add(' (:ID, :WOD_ID, :NAME)');
+       ParamByName('ID').AsInteger:=absnum;
+       ParamByName('WOD_ID').AsInteger:=code_wod;
+       ParamByName('Name').AsString:=UpperCase(PIName);
+      ExecSQL;
+      Close;
+     end;
+      Trt.CommitRetaining;
+      if chkShowLog.Checked then mLog.Lines.add('Insert successful: '+st);
+     except
+      mLog.Lines.add('Insert error: '+st);
+     end;
+    end;
+
 
    (* Обновляем существующую запись *)
- {  if (ODBDM.ib2q1.IsEmpty=false) then begin
-     Absnum:=ODBDM.ib2q1.Fields[0].AsInteger;
-
-   if (ODBDM.ib2q1.FieldByName('countryname').AsString<>stcountry) then begin
-    with ODBDM.ib2qq1 do begin
+   if (Qt1.IsEmpty=false) then begin
+     Absnum:=Qt1.Fields[0].AsInteger;
+   try
+    with Qt2 do begin
       Close;
        SQL.Clear;
-       SQL.Add(' Update countryCode_List set' );
-       SQL.Add(' COUNTRYNAME=:COUNTRYNAME ');
-       SQL.Add(' where absnum=:absnum ' );
+       SQL.Add(' Update PI set' );
+       SQL.Add(' NAME=:name ');
+       SQL.Add(' where ID=:absnum ' );
        ParamByName('absnum').AsInteger:=absnum;
-       ParamByName('countryName').AsString:=UpperCase(stcountry);
-      ExecQuery;
+       ParamByName('name').AsString:=PIName;
+      ExecSQL;
+     Close;
      end;
-     ODBDM.ib2q1.Close;
-     ODBDM.IBTransaction2.CommitRetaining;
+     TrT.CommitRetaining;
+     if chkShowLog.Checked then mLog.Lines.add('Update successful: '+st);
+   except
+    mLog.Lines.add('Update error: '+st);
    end;
-   end; }
 
- {  Main.ProgressBar1.Position:=Main.ProgressBar1.Position+1;
-   Application.ProcessMessages;
-  until eof(f_dat);
-  closefile(f_dat);
+   end;
+  until eof(dat);
+  closefile(dat);
 
-  GetNODC;   }
+ finally
+  btnPIWOD.Enabled:=true;
+  Qt1.Free;
+  Qt2.Free;
+  TrT.Commit;
+  TrT.Free;
+  if frmcodes_open=true then frmcodes.PageControl1.OnChange(self);
+  Showmessage(SDone);
+ end;
 end;
+
+
 
 procedure TfrmcodesQC.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin

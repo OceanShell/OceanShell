@@ -113,6 +113,7 @@
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmloadGLODAP_2019_v2_product"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="osload_GLODAP_2019_v2_product"/>
       </Unit12>

@@ -75,6 +75,11 @@ msgctxt "tfrmcodes.btnsave.hint"
 msgid "Commit changes"
 msgstr ""
 
+#: tfrmcodes.btnupdateqc.caption
+msgctxt "tfrmcodes.btnupdateqc.caption"
+msgid "Update and QC"
+msgstr ""
+
 #: tfrmcodes.caption
 msgid "Codes"
 msgstr ""
@@ -94,20 +99,6 @@ msgctxt "tfrmcodes.dbgridcountry.columns[2].title.caption"
 msgid "Country name"
 msgstr ""
 
-#: tfrmcodes.dbgridcountry1.columns[0].title.caption
-msgctxt "tfrmcodes.dbgridcountry1.columns[0].title.caption"
-msgid "ID"
-msgstr ""
-
-#: tfrmcodes.dbgridcountry1.columns[1].title.caption
-msgctxt "tfrmcodes.dbgridcountry1.columns[1].title.caption"
-msgid "WOD"
-msgstr ""
-
-#: tfrmcodes.dbgridcountry1.columns[2].title.caption
-msgid "PI name(s)"
-msgstr ""
-
 #: tfrmcodes.dbgridinstitute.columns[0].title.caption
 msgctxt "tfrmcodes.dbgridinstitute.columns[0].title.caption"
 msgid "ID"
@@ -125,6 +116,35 @@ msgstr ""
 
 #: tfrmcodes.dbgridinstitute.columns[3].title.caption
 msgid "Institute name"
+msgstr ""
+
+#: tfrmcodes.dbgridinstrument.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridinstrument.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgridinstrument.columns[1].title.caption
+msgctxt "tfrmcodes.dbgridinstrument.columns[1].title.caption"
+msgid "WOD"
+msgstr ""
+
+#: tfrmcodes.dbgridinstrument.columns[2].title.caption
+msgid "Instrument name"
+msgstr ""
+
+#: tfrmcodes.dbgridpi.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridpi.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgridpi.columns[1].title.caption
+msgctxt "tfrmcodes.dbgridpi.columns[1].title.caption"
+msgid "WOD"
+msgstr ""
+
+#: tfrmcodes.dbgridpi.columns[2].title.caption
+msgctxt "tfrmcodes.dbgridpi.columns[2].title.caption"
+msgid "Primary Investigator name(s)"
 msgstr ""
 
 #: tfrmcodes.dbgridplatform.columns[0].title.caption
@@ -182,8 +202,37 @@ msgctxt "tfrmcodes.dbgridproject.columns[2].title.caption"
 msgid "Project name"
 msgstr ""
 
-#: tfrmcodes.lbcountry.caption
-msgid "lbCountry"
+#: tfrmcodes.dbgridsource.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridsource.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgridsource.columns[1].title.caption
+msgctxt "tfrmcodes.dbgridsource.columns[1].title.caption"
+msgid "Source name"
+msgstr ""
+
+#: tfrmcodes.dbgridunits.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridunits.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgridunits.columns[1].title.caption
+msgid "Short name"
+msgstr ""
+
+#: tfrmcodes.dbgridunits.columns[2].title.caption
+msgctxt "tfrmcodes.dbgridunits.columns[2].title.caption"
+msgid "Full name"
+msgstr ""
+
+#: tfrmcodes.lbcountryinstitute.caption
+msgctxt "tfrmcodes.lbcountryinstitute.caption"
+msgid "lbCountryInstitute"
+msgstr ""
+
+#: tfrmcodes.lbcountryplatform.caption
+msgid "lbCountryPlatform"
 msgstr ""
 
 #: tfrmcodes.tbcountry.caption
@@ -200,7 +249,13 @@ msgctxt "tfrmcodes.tbinstitute.caption"
 msgid "INSTITUTE"
 msgstr ""
 
+#: tfrmcodes.tbinstrument.caption
+msgctxt "tfrmcodes.tbinstrument.caption"
+msgid "INSTRUMENT"
+msgstr ""
+
 #: tfrmcodes.tbpi.caption
+msgctxt "tfrmcodes.tbpi.caption"
 msgid "PI"
 msgstr ""
 
@@ -216,6 +271,11 @@ msgstr ""
 
 #: tfrmcodes.tbsource.caption
 msgid "SOURCE"
+msgstr ""
+
+#: tfrmcodes.tbunits.caption
+msgctxt "tfrmcodes.tbunits.caption"
+msgid "UNITS"
 msgstr ""
 
 #: tfrmcodes.toolbar1.caption
@@ -243,6 +303,10 @@ msgstr ""
 #: tfrmcodesqc.btninstitutewod.caption
 msgctxt "tfrmcodesqc.btninstitutewod.caption"
 msgid "s_4_institute.txt"
+msgstr ""
+
+#: tfrmcodesqc.btnpiwod.caption
+msgid "primary_investigator_list.txt"
 msgstr ""
 
 #: tfrmcodesqc.btnplatformduplicates.caption
@@ -296,6 +360,11 @@ msgctxt "tfrmcodesqc.groupbox5.caption"
 msgid "PROJECT"
 msgstr ""
 
+#: tfrmcodesqc.groupbox6.caption
+msgctxt "tfrmcodesqc.groupbox6.caption"
+msgid "PI"
+msgstr ""
+
 #: tfrmcodesqc.label1.caption
 msgctxt "tfrmcodesqc.label1.caption"
 msgid "WOD country list"
@@ -312,6 +381,10 @@ msgstr ""
 
 #: tfrmcodesqc.label3.caption
 msgid "WOD project list"
+msgstr ""
+
+#: tfrmcodesqc.label4.caption
+msgid "WOD PI list"
 msgstr ""
 
 #: tfrmcodesqc.label7.caption
@@ -390,18 +463,9 @@ msgstr ""
 msgid "Content"
 msgstr ""
 
-#: tfrmosmain.iknowledgedb.caption
-msgid "Knowledge DB"
-msgstr ""
-
 #: tfrmosmain.iknowledgedbopen.caption
 msgctxt "tfrmosmain.iknowledgedbopen.caption"
-msgid "Open database"
-msgstr ""
-
-#: tfrmosmain.iknowledgedbupdateqc.caption
-msgctxt "tfrmosmain.iknowledgedbupdateqc.caption"
-msgid "Update and QC"
+msgid "Knowledge DB"
 msgstr ""
 
 #: tfrmosmain.iload.caption
