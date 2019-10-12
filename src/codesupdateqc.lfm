@@ -225,6 +225,51 @@ object frmcodesQC: TfrmcodesQC
           TabOrder = 0
         end
       end
+      object GroupBox7: TGroupBox
+        Left = 376
+        Height = 88
+        Top = 80
+        Width = 352
+        Caption = 'CRUISE'
+        ClientHeight = 68
+        ClientWidth = 348
+        TabOrder = 6
+        object Label5: TLabel
+          Left = 8
+          Height = 15
+          Top = 10
+          Width = 82
+          Caption = 'WOD Cruise list'
+          ParentColor = False
+          OnClick = Label1Click
+        end
+        object btnCruiseWOD: TButton
+          Left = 168
+          Height = 25
+          Top = 0
+          Width = 168
+          Caption = 'allcruises_list.txt'
+          OnClick = btnCruiseWODClick
+          TabOrder = 0
+        end
+        object Label6: TLabel
+          Left = 8
+          Height = 15
+          Top = 38
+          Width = 101
+          Caption = 'GLODAP cruise md'
+          ParentColor = False
+        end
+        object btnGLODAPCruise: TButton
+          Left = 168
+          Height = 25
+          Top = 28
+          Width = 168
+          Caption = 'GLODAPCruise'
+          OnClick = btnGLODAPCruiseClick
+          TabOrder = 1
+        end
+      end
     end
     object TabSheet2: TTabSheet
       Caption = 'QC'

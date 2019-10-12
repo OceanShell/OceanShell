@@ -16,6 +16,7 @@ type
     btnCountryDuplicates: TButton;
     btnInstituteWOD: TButton;
     btnPIWOD: TButton;
+    btnCruiseWOD: TButton;
     btnProjectWOD: TButton;
     btnPlatformICES: TButton;
     btnCountryWOD: TButton;
@@ -23,17 +24,21 @@ type
     btnPlatformWOD2013: TButton;
     Button1: TButton;
     btnCountryISO: TButton;
+    btnGLODAPCruise: TButton;
     chkShowLog: TCheckBox;
     GroupBox1: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
     GroupBox5: TGroupBox;
     GroupBox6: TGroupBox;
+    GroupBox7: TGroupBox;
     Label1: TLabel;
     Label12: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
     mLog: TMemo;
@@ -46,6 +51,8 @@ type
 
     procedure btnCountryDuplicatesClick(Sender: TObject);
     procedure btnCountryISOClick(Sender: TObject);
+    procedure btnCruiseWODClick(Sender: TObject);
+    procedure btnGLODAPCruiseClick(Sender: TObject);
     procedure btnPIWODClick(Sender: TObject);
     procedure btnInstituteWODClick(Sender: TObject);
     procedure btnProjectWODClick(Sender: TObject);
@@ -74,7 +81,7 @@ implementation
 
 { TfrmcodesQC }
 
-uses osmain, dm, codes;
+uses osmain, dm, codes, procedures;
 
 (* ICES PLATFORM codes *)
 procedure TfrmcodesQC.Label12Click(Sender: TObject);
@@ -1057,6 +1064,213 @@ end;
 
 
 
+procedure TfrmcodesQC.btnCruiseWODClick(Sender: TObject);
+var
+dat: text;
+PathToCodesSource, buf_str, piname, st, code_nodc:string;
+c, k, i, absnum, ID:integer;
+wod_country:string;
+wod_id, country_ID, wod_institute_id, wod_platform_id, stnum: integer;
+platform_id, institute_id, project_id: integer;
+
+cruise_ind, start_date, end_date, wmo_id: string;
+mn, dd, yy: word;
+
+fl1, fl2:boolean;
+
+nodate:boolean;
+date1, date2:TDateTime;
+
+TRt:TSQLTransaction;
+Qt1, Qt2, Qt3:TSQLQuery;
+begin
+try
+mLog.Clear;
+
+ btnCruiseWOD.Enabled:=false;
+
+ frmosmain.OD.Filter:='allcruises_list.txt|allcruises_list.txt';
+ if frmosmain.OD.Execute then PathToCodesSource:=frmosmain.OD.FileName else exit;
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.SupportDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.SupportDB;
+  Qt1.Transaction:=TRt;
+
+  with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.ADD(' Select max(ID) as AbsnumMax from CRUISE ');
+    Open;
+      Absnum:=Qt1.FieldByName('AbsnumMax').AsInteger;
+    Close;
+  end;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.SupportDB;
+  Qt2.Transaction:=TRt;
+
+  Qt3 :=TSQLQuery.Create(self);
+  Qt3.Database:=frmdm.SupportDB;
+  Qt3.Transaction:=TRt;
+
+ AssignFile(dat, PathToCodesSource); reset(dat);
+ readln(dat, st);
+ readln(dat, st);
+
+   repeat
+    readln(dat, st);
+    if eof(dat) then exit;
+
+    k:=0;
+    wmo_id:='';
+    for c:=1 to 8 do begin
+     buf_str:='';
+     repeat
+      inc(k);
+       if (st[k]<>',') then buf_str:=buf_str+st[k];
+     until (st[k]=',') or (k=length(st));
+     if c=1 then cruise_ind:=trim(buf_str);
+     if c=2 then if trim(buf_str)<>'' then wod_institute_ID:=StrToInt(trim(buf_str)) else wod_institute_ID:=-9;
+     if c=3 then if trim(buf_str)<>'' then wod_platform_ID:=StrToInt(trim(buf_str)) else wod_platform_ID:=-9;
+     if c=4 then
+       if (trim(buf_str)<>'') and (trim(buf_str)<>'S') then stnum:=strtoint(trim(buf_str)) else stnum:=0;
+     if c=6 then start_date:=trim(buf_str);
+     if c=7 then end_date:=trim(buf_str);
+     if c=8 then if trim(buf_str)<>'' then wmo_ID:=trim(buf_str);
+    end;
+
+    if (wod_platform_id>0) then begin
+    wod_country:=copy(cruise_ind, 1, 2);
+
+    with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID from COUNTRY ');
+     SQL.Add(' where iso_3166=:code_wod ');
+     ParamByName('code_wod').AsString:=wod_country;
+    Open;
+     if Qt1.IsEmpty=false then country_id:=Qt1.Fields[0].AsInteger else country_id:=-9;
+    Close;
+   end;
+
+    wod_id:=strtoint(copy(cruise_ind, 4, length(cruise_ind)));
+
+  //  showmessage(inttostr(wod_id)+'   '+inttostr(country_id));
+
+    nodate:=false;
+    for i:=1 to 2 do begin
+     if i=1 then st:=start_date;
+     if i=2 then st:=end_date;
+       k:=0;
+        for c:=1 to 3 do begin
+         buf_str:='';
+          repeat
+           inc(k);
+            if (st[k]<>'/') then buf_str:=buf_str+st[k];
+          until (st[k]='/') or (k=length(st));
+        if c=1 then mn:=StrToInt(trim(buf_str));
+        if c=2 then dd:=StrToInt(trim(buf_str));
+        if c=3 then yy:=StrToInt(trim(buf_str));
+       end;
+     if i=1 then date1:=DateEncode(yy, mn, dd, 0, 0, fl1, fl2);
+     if i=2 then date2:=DateEncode(yy, mn, dd, 0, 0, fl1, fl2);
+    end;
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID from CRUISE_WOD ');
+     SQL.Add(' where wod_id=:code_wod ');
+     ParamByName('code_wod').AsWideString:=cruise_ind;
+    Open;
+   end;
+
+   if Qt1.IsEmpty=true then begin
+    inc(absnum);
+
+    with Qt3 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID from PLATFORM ');
+     SQL.Add(' where WOD_ID=:code_wod ');
+     ParamByName('code_wod').AsInteger:=wod_platform_id;
+    Open;
+      if Qt3.IsEmpty=false then platform_id:=Qt3.Fields[0].AsInteger else platform_id:=-9;
+    Close;
+   end;
+
+   with Qt3 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID from INSTITUTE ');
+     SQL.Add(' where WOD_ID=:code_wod ');
+     ParamByName('code_wod').AsInteger:=wod_institute_id;
+    Open;
+     if Qt3.IsEmpty=false then  institute_id:=Qt3.Fields[0].AsInteger else institute_id:=-9;
+    Close;
+   end;
+
+    try
+     with Qt2 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' INSERT INTO CRUISE_WOD ' );
+       SQL.Add(' (ID, PLATFORM_ID, DATE_START, DATE_END, STATIONS_AMOUNT, ');
+       SQL.Add('  COUNTRY_ID, INSTITUTE_ID, WOD_ID, WOD_WMO_ID )');
+       SQL.Add(' VALUES ' );
+       SQL.Add(' (:ID, :PLATFORM_ID, :DATE_START, :DATE_END, :STATIONS_AMOUNT, ');
+       SQL.Add('  :COUNTRY_ID, :INSTITUTE_ID, :WOD_ID, :WOD_WMO_ID )');
+       ParamByName('ID').AsInteger:=absnum;
+       ParamByName('PLATFORM_ID').AsInteger:=platform_id;
+       ParamByName('DATE_START').AsDate:=date1;
+       ParamByName('DATE_END').AsDate:=date2;
+       ParamByName('STATIONS_AMOUNT').AsInteger:=stnum;
+       ParamByName('COUNTRY_ID').AsInteger:=country_id;
+       ParamByName('INSTITUTE_ID').AsInteger:=institute_id;
+       ParamByName('WOD_ID').AsWideString:=cruise_ind;
+       ParamByName('WOD_WMO_ID').AsString:=wmo_id;
+      ExecSQL;
+      Close;
+     end;
+      Trt.CommitRetaining;
+      if chkShowLog.Checked then mLog.Lines.add('Insert successful: '+st);
+     except
+       on E: Exception do begin
+         if MessageDlg(E.Message, mtWarning, [mbOk], 0)=mrOk then exit;
+          mLog.Lines.add('Insert error: '+st);
+       end;
+
+     end;
+
+    mLog.Lines.Add(inttostr(absnum)+'   '+
+                  inttostr(platform_id)+'   '+
+                  datetostr(date1)+'   '+
+                  datetostr(date2)+'   '+
+                  inttostr(stnum)+'   '+
+                  inttostr(country_id)+'   '+
+                  inttostr(institute_id)+'   '+
+                  cruise_ind+'   '+
+                  wmo_id);
+  end;
+ end;
+
+  until eof(dat);
+  closefile(dat);
+
+ finally
+  btnCRUISEWOD.Enabled:=true;
+  Qt1.Free;
+  Qt2.Free;
+  TrT.Commit;
+  TrT.Free;
+  if frmcodes_open=true then frmcodes.PageControl1.OnChange(self);
+  Showmessage(SDone);
+ end;
+end;
+
 
 procedure TfrmcodesQC.btnCountryWODClick(Sender: TObject);
 Var
@@ -1263,9 +1477,239 @@ end;
 
 
 
+procedure TfrmcodesQC.btnGLODAPCruiseClick(Sender: TObject);
+var
+dat: text;
+PathToCodesSource, buf_str, piname, st, code_nodc:string;
+c, k, i, absnum, ID:integer;
+wod_country:string;
+wod_id, country_ID, wod_institute_id, wod_platform_id, stnum: integer;
+platform_id, institute_id, project_id: integer;
+
+cruise_ind, start_date, end_date, wmo_id, date_str: string;
+country_name, platform_name: string;
+notes_str: widestring;
+
+expocode, cr_alias, dates, platform, chiefSc, carbonPI, HydroPI, OxygenPI: widestring;
+NutrientPI, CFCPI, OrganicsPI, IsotopesPI, OtherPI, source_id:widestring;
+mn, dd, yy: word;
+
+fl1, fl2:boolean;
+
+nodate:boolean;
+date1, date2:TDateTime;
+
+TRt:TSQLTransaction;
+Qt1, Qt2, Qt3:TSQLQuery;
+begin
+
+try
+mLog.Clear;
+
+ btnCruiseWOD.Enabled:=false;
+
+ frmosmain.OD.Filter:='*.csv|*.csv';
+ if frmosmain.OD.Execute then PathToCodesSource:=frmosmain.OD.FileName else exit;
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.SupportDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.SupportDB;
+  Qt1.Transaction:=TRt;
+
+  with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.ADD(' Select max(ID) as AbsnumMax from CRUISE_GLODAP ');
+    Open;
+      Absnum:=Qt1.FieldByName('AbsnumMax').AsInteger;
+    Close;
+  end;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.SupportDB;
+  Qt2.Transaction:=TRt;
+
+  Qt3 :=TSQLQuery.Create(self);
+  Qt3.Database:=frmdm.SupportDB;
+  Qt3.Transaction:=TRt;
+
+ AssignFile(dat, PathToCodesSource); reset(dat);
+ readln(dat, st);
+
+   repeat
+    readln(dat, st);
+    if eof(dat) then exit;
+
+
+    expocode:=''; cr_alias:=''; dates:=''; platform:=''; chiefsc:='';
+    CarbonPI:=''; HydroPI:=''; OxygenPI:=''; NutrientPI:=''; CFCPI:='';
+    OrganicsPI:=''; IsotopesPI:=''; OtherPI:='';
+
+    k:=0;
+    for c:=1 to 14 do begin
+     buf_str:='';
+     repeat
+      inc(k);
+       if (st[k]<>';') and (k<=length(st)) then buf_str:=buf_str+trim(st[k]);
+
+   //    if c=14 then showmessage(st[k]+'   '+buf_str);
+     until (st[k]=';') or (st[k]='\0') or (k=length(st));
+     if c=1 then source_id:=trim(buf_str);
+     if c=2 then EXPOCODE:=trim(buf_str);
+     if c=3 then Cr_Alias:=trim(buf_str);
+     if c=4 then dates:=trim(buf_str);
+     if c=5 then platform:=trim(buf_str);
+     if c=6 then ChiefSc:=trim(buf_str);
+     if c=7 then CarbonPI:=trim(buf_str);
+     if c=8 then HydroPI:=trim(buf_str);
+     if c=9 then OxygenPI:=trim(buf_str);
+     if c=10 then NutrientPI:=trim(buf_str);
+     if c=11 then CFCPI:=trim(buf_str);
+     if c=12 then OrganicsPI:=trim(buf_str);
+     if c=13 then IsotopesPI:=trim(buf_str);
+  //   if c=14 then OtherPI:=trim(buf_str);
+    end;
+
+ //   showmessage(trimRight(otherpi));
+
+    notes_str:='';
+    if ChiefSc<>'' then notes_str:='Chief scientist: '+ChiefSc+LineEnding;
+    if CarbonPI<>'' then notes_str:=notes_str+'Carbon PI: '+CarbonPI+LineEnding;
+    if HydroPI<>'' then notes_str:=notes_str+'Hydro PI: '+HydroPI+LineEnding;
+    if OxygenPI<>'' then notes_str:=notes_str+'Oxygen PI: '+OxygenPI+LineEnding;
+    if NutrientPI<>'' then notes_str:=notes_str+'Nutrient PI: '+NutrientPI+LineEnding;
+    if CFCPI<>'' then notes_str:=notes_str+'CFC PI: '+CFCPI+LineEnding;
+    if OrganicsPI<>'' then notes_str:=notes_str+'Organics PI: '+OrganicsPI+LineEnding;
+    if IsotopesPI<>'' then notes_str:=notes_str+'Isotopes PI: '+IsotopesPI;
+  //  if OtherPI<>'' then notes_str:=notes_str+'Other PI: '+OtherPI;
+
+   date1:=DateEncode(StrToInt(copy(EXPOCODE, 5, 4)),
+                     StrToInt(copy(EXPOCODE, 9, 2)),
+                     StrToInt(copy(EXPOCODE, 11, 2)),
+                     0, 0, fl1, fl2);
+
+  // showmessage(datetostr(date1));
+
+   date_str:=trim(copy(dates, Pos('-',dates)+1, length(dates)));
+
+   k:=0;
+   for c:=1 to 3 do begin
+    buf_str:='';
+      repeat
+        inc(k);
+            if (date_str[k]<>'/') then buf_str:=buf_str+date_str[k];
+      until (date_str[k]='/') or (k=length(date_str));
+        if c=1 then mn:=StrToInt(trim(buf_str));
+        if c=2 then dd:=StrToInt(trim(buf_str));
+        if c=3 then yy:=StrToInt(trim(buf_str));
+   end;
+   date2:=DateEncode(yy, mn, dd, 0, 0, fl1, fl2);
+
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID from CRUISE_GLODAP ');
+     SQL.Add(' where glodap_id=:ID ');
+     ParamByName('ID').AsWideString:=expocode;
+    Open;
+   end;
+
+   if Qt1.IsEmpty=true then begin
+    inc(absnum);
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID, name from COUNTRY ');
+     SQL.Add(' where NODC_ID=:ID ');
+     ParamByName('ID').AsString:=copy(EXPOCODE, 1, 2);
+    Open;
+     if Qt1.IsEmpty=false then begin
+       country_id:=Qt1.Fields[0].AsInteger;
+       country_name:=Qt1.Fields[1].AsString;
+     end else country_id:=-9;
+    Close;
+   end;
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID, name from PLATFORM');
+     SQL.Add(' where NODC_ID=:ID ');
+     ParamByName('ID').AsString:=copy(EXPOCODE, 1, 4);
+    Open;
+     if Qt1.IsEmpty=false then begin
+       platform_id:=Qt1.Fields[0].AsInteger;
+       platform_name:=Qt1.Fields[1].AsString;
+     end else platform_id:=-9;
+    Close;
+   end;
+
+    try
+     with Qt2 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' INSERT INTO CRUISE_GLODAP ' );
+       SQL.Add(' (ID, PLATFORM_ID, DATE_START, DATE_END, CRUISE_NUMBER, ');
+       SQL.Add('  COUNTRY_ID, INSTITUTE_ID, GLODAP_ID, NOTES, DATE_ADDED )');
+       SQL.Add(' VALUES ' );
+       SQL.Add(' (:ID, :PLATFORM_ID, :DATE_START, :DATE_END, :CRUISE_NUMBER, ');
+       SQL.Add('  :COUNTRY_ID, :INSTITUTE_ID, :GLODAP_ID, :NOTES, :DATE_ADDED )');
+       ParamByName('ID').AsInteger:=absnum;
+       ParamByName('PLATFORM_ID').AsInteger:=platform_id;
+       ParamByName('DATE_START').AsDate:=date1;
+       ParamByName('DATE_END').AsDate:=date2;
+       ParamByName('CRUISE_NUMBER').AsString:=Cr_alias;
+       ParamByName('COUNTRY_ID').AsInteger:=country_id;
+       ParamByName('INSTITUTE_ID').AsInteger:=-9;
+       ParamByName('GLODAP_ID').AsWideString:=expocode;
+       ParamByName('Notes').AsWideString:=notes_str;
+       ParamByName('DATE_ADDED').AsDateTime :=now;
+      ExecSQL;
+      Close;
+     end;
+      Trt.CommitRetaining;
+      if chkShowLog.Checked then mLog.Lines.add('Insert successful: '+st);
+     except
+       on E: Exception do begin
+         if MessageDlg(E.Message, mtWarning, [mbOk], 0)=mrOk then exit;
+          mLog.Lines.add('Insert error: '+st);
+       end;
+
+     end;
+
+    mLog.Lines.Add(source_id+'   '+
+                  platform_name+'   '+
+                  datetostr(date1)+'   '+
+                  datetostr(date2)+'   '+
+                  country_name+'   '+
+                  expocode+'   '+
+                  cr_alias);
+ // end;
+ end;
+
+  until eof(dat);
+  closefile(dat);
+
+ finally
+  btnCRUISEWOD.Enabled:=true;
+  Qt1.Free;
+  Qt2.Free;
+  TrT.Commit;
+  TrT.Free;
+  if frmcodes_open=true then frmcodes.PageControl1.OnChange(self);
+  Showmessage(SDone);
+ end;
+end;
+
+
+
 procedure TfrmcodesQC.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
- CloseAction:= caFree;
+// CloseAction:= caFree;
  frmcodesQC_open:=false;
 end;
 

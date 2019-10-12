@@ -84,6 +84,18 @@ msgstr ""
 msgid "Codes"
 msgstr ""
 
+#: tfrmcodes.cbcruise_institute.text
+msgid "cbCruise_Institute"
+msgstr ""
+
+#: tfrmcodes.cbcruise_pi.text
+msgid "cbCruise_PI"
+msgstr ""
+
+#: tfrmcodes.cbcruise_project.text
+msgid "cbCruise_Project"
+msgstr ""
+
 #: tfrmcodes.dbgridcountry.columns[0].title.caption
 msgctxt "tfrmcodes.dbgridcountry.columns[0].title.caption"
 msgid "ID"
@@ -96,6 +108,115 @@ msgstr ""
 
 #: tfrmcodes.dbgridcountry.columns[2].title.caption
 msgctxt "tfrmcodes.dbgridcountry.columns[2].title.caption"
+msgid "Country name"
+msgstr ""
+
+#: tfrmcodes.dbgridcruise.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridcruise.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgridcruise.columns[1].title.caption
+msgctxt "tfrmcodes.dbgridcruise.columns[1].title.caption"
+msgid "WOD"
+msgstr ""
+
+#: tfrmcodes.dbgridcruise.columns[2].title.caption
+msgctxt "tfrmcodes.dbgridcruise.columns[2].title.caption"
+msgid "Platform name"
+msgstr ""
+
+#: tfrmcodes.dbgridcruise.columns[3].title.caption
+msgctxt "tfrmcodes.dbgridcruise.columns[3].title.caption"
+msgid "Cruise #"
+msgstr ""
+
+#: tfrmcodes.dbgridcruise.columns[4].title.caption
+msgctxt "tfrmcodes.dbgridcruise.columns[4].title.caption"
+msgid "Start date"
+msgstr ""
+
+#: tfrmcodes.dbgridcruise.columns[5].title.caption
+msgctxt "tfrmcodes.dbgridcruise.columns[5].title.caption"
+msgid "End date"
+msgstr ""
+
+#: tfrmcodes.dbgridcruise.columns[6].title.caption
+msgctxt "tfrmcodes.dbgridcruise.columns[6].title.caption"
+msgid "Stations #"
+msgstr ""
+
+#: tfrmcodes.dbgridcruise.columns[7].title.caption
+msgctxt "tfrmcodes.dbgridcruise.columns[7].title.caption"
+msgid "Country name"
+msgstr ""
+
+#: tfrmcodes.dbgridcruiseglodap.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridcruiseglodap.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgridcruiseglodap.columns[1].title.caption
+msgid "EXPOCODE"
+msgstr ""
+
+#: tfrmcodes.dbgridcruiseglodap.columns[2].title.caption
+msgctxt "tfrmcodes.dbgridcruiseglodap.columns[2].title.caption"
+msgid "Platform name"
+msgstr ""
+
+#: tfrmcodes.dbgridcruiseglodap.columns[3].title.caption
+msgctxt "tfrmcodes.dbgridcruiseglodap.columns[3].title.caption"
+msgid "Cruise #"
+msgstr ""
+
+#: tfrmcodes.dbgridcruiseglodap.columns[4].title.caption
+msgctxt "tfrmcodes.dbgridcruiseglodap.columns[4].title.caption"
+msgid "Start date"
+msgstr ""
+
+#: tfrmcodes.dbgridcruiseglodap.columns[5].title.caption
+msgctxt "tfrmcodes.dbgridcruiseglodap.columns[5].title.caption"
+msgid "End date"
+msgstr ""
+
+#: tfrmcodes.dbgridcruiseglodap.columns[6].title.caption
+msgctxt "tfrmcodes.dbgridcruiseglodap.columns[6].title.caption"
+msgid "Country name"
+msgstr ""
+
+#: tfrmcodes.dbgridcruisewod.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridcruisewod.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgridcruisewod.columns[1].title.caption
+msgctxt "tfrmcodes.dbgridcruisewod.columns[1].title.caption"
+msgid "WOD"
+msgstr ""
+
+#: tfrmcodes.dbgridcruisewod.columns[2].title.caption
+msgctxt "tfrmcodes.dbgridcruisewod.columns[2].title.caption"
+msgid "Platform name"
+msgstr ""
+
+#: tfrmcodes.dbgridcruisewod.columns[3].title.caption
+msgctxt "tfrmcodes.dbgridcruisewod.columns[3].title.caption"
+msgid "Start date"
+msgstr ""
+
+#: tfrmcodes.dbgridcruisewod.columns[4].title.caption
+msgctxt "tfrmcodes.dbgridcruisewod.columns[4].title.caption"
+msgid "End date"
+msgstr ""
+
+#: tfrmcodes.dbgridcruisewod.columns[5].title.caption
+msgctxt "tfrmcodes.dbgridcruisewod.columns[5].title.caption"
+msgid "Stations #"
+msgstr ""
+
+#: tfrmcodes.dbgridcruisewod.columns[6].title.caption
+msgctxt "tfrmcodes.dbgridcruisewod.columns[6].title.caption"
 msgid "Country name"
 msgstr ""
 
@@ -226,6 +347,21 @@ msgctxt "tfrmcodes.dbgridunits.columns[2].title.caption"
 msgid "Full name"
 msgstr ""
 
+#: tfrmcodes.label1.caption
+msgctxt "tfrmcodes.label1.caption"
+msgid "Project"
+msgstr ""
+
+#: tfrmcodes.label2.caption
+msgctxt "tfrmcodes.label2.caption"
+msgid "Institute"
+msgstr ""
+
+#: tfrmcodes.label3.caption
+msgctxt "tfrmcodes.label3.caption"
+msgid "PI"
+msgstr ""
+
 #: tfrmcodes.lbcountryinstitute.caption
 msgctxt "tfrmcodes.lbcountryinstitute.caption"
 msgid "lbCountryInstitute"
@@ -241,7 +377,16 @@ msgid "COUNTRY"
 msgstr ""
 
 #: tfrmcodes.tbcruise.caption
+msgctxt "tfrmcodes.tbcruise.caption"
 msgid "CRUISE"
+msgstr ""
+
+#: tfrmcodes.tbcruiseglodap.caption
+msgid "CRUISE_GLODAP"
+msgstr ""
+
+#: tfrmcodes.tbcruisewod.caption
+msgid "CRUISE_WOD"
 msgstr ""
 
 #: tfrmcodes.tbinstitute.caption
@@ -298,6 +443,14 @@ msgstr ""
 #: tfrmcodesqc.btncountrywod.caption
 msgctxt "tfrmcodesqc.btncountrywod.caption"
 msgid "country_list.txt"
+msgstr ""
+
+#: tfrmcodesqc.btncruisewod.caption
+msgid "allcruises_list.txt"
+msgstr ""
+
+#: tfrmcodesqc.btnglodapcruise.caption
+msgid "GLODAPCruise"
 msgstr ""
 
 #: tfrmcodesqc.btninstitutewod.caption
@@ -365,6 +518,11 @@ msgctxt "tfrmcodesqc.groupbox6.caption"
 msgid "PI"
 msgstr ""
 
+#: tfrmcodesqc.groupbox7.caption
+msgctxt "tfrmcodesqc.groupbox7.caption"
+msgid "CRUISE"
+msgstr ""
+
 #: tfrmcodesqc.label1.caption
 msgctxt "tfrmcodesqc.label1.caption"
 msgid "WOD country list"
@@ -385,6 +543,14 @@ msgstr ""
 
 #: tfrmcodesqc.label4.caption
 msgid "WOD PI list"
+msgstr ""
+
+#: tfrmcodesqc.label5.caption
+msgid "WOD Cruise list"
+msgstr ""
+
+#: tfrmcodesqc.label6.caption
+msgid "GLODAP cruise md"
 msgstr ""
 
 #: tfrmcodesqc.label7.caption
