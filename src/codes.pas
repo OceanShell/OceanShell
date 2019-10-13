@@ -7,17 +7,23 @@ interface
 uses
   Windows, lclintf, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Buttons, ComCtrls, ExtCtrls, Menus, sqldb, DB, sortbufds,
-  LResources, DBGrids;
+  LResources, DBGrids, DBCtrls;
 
 type
 
   { Tfrmcodes }
 
   Tfrmcodes = class(TForm)
-    btnUpdateQC: TBitBtn;
     btnadd: TToolButton;
     btnsave: TToolButton;
     btndelete: TToolButton;
+    btnUpdateQC: TBitBtn;
+    cbCruise_Institute: TComboBox;
+    cbCruise_Project: TComboBox;
+    cbCruise_PI: TComboBox;
+    DBGridCruise: TDBGrid;
+    DBGridCruiseWOD: TDBGrid;
+    DBGridCruiseGLODAP: TDBGrid;
     DBGridUnits: TDBGrid;
     DBGridPI: TDBGrid;
     DBGridPlatform: TDBGrid;
@@ -27,9 +33,31 @@ type
     DBGridInstrument: TDBGrid;
     DBGridSource: TDBGrid;
     DS: TDataSource;
+    eCruiseWOD_COUNTRYNAME: TEdit;
+    eCruiseWOD_DATEEND: TEdit;
+    eCruiseGLODAP_DATEEND: TEdit;
+    eCruiseWOD_DATESTART: TEdit;
+    eCruiseGLODAP_DATESTART: TEdit;
+    eCruiseWOD_ID: TEdit;
+    eCruiseGLODAP_ID: TEdit;
+    eCruiseGLODAP_NUMBER: TEdit;
+    eCruiseWOD_PLATFORMNAME: TEdit;
+    eCruiseGLODAP_PLATFORMNAME: TEdit;
+    eCruiseWOD_STATIONAMOUNT: TEdit;
+    eCruiseGLODAP_COUNTRYNAME: TEdit;
+    eCruise_WOD: TEdit;
+    eCruiseWOD_WOD: TEdit;
+    eCruiseGLODAP_EXPOCODE: TEdit;
     ePI_ID: TEdit;
     ePI_WOD: TEdit;
     ePI_Name: TEdit;
+    eCruise_DATEEND: TEdit;
+    eCruise_ID: TEdit;
+    eCruise_DATESTART: TEdit;
+    eCruise_STATIONAMOUNT: TEdit;
+    eCruise_COUNTRYNAME: TEdit;
+    eCruise_PLATFORMNAME: TEdit;
+    eCruise_NUMBER: TEdit;
     eProject_ID: TEdit;
     eInstitute_ID: TEdit;
     eProject_ID1: TEdit;
@@ -51,14 +79,20 @@ type
     eSource_Name: TEdit;
     imgFlagPlatform: TImage;
     ImgFlagInstitute: TImage;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
     lbCountryPlatform: TLabel;
     lbCountryInstitute: TLabel;
+    mNotesCruise: TMemo;
+    mNotesCruiseGLODAP: TMemo;
     mNotesInstitute: TMemo;
     mNotesUnits: TMemo;
     mNotesProject: TMemo;
     mNotesPI: TMemo;
     mNotesInstrument: TMemo;
     mNotesSource: TMemo;
+    mNotesCountry: TMemo;
     Panel10: TPanel;
     Panel11: TPanel;
     Panel12: TPanel;
@@ -73,14 +107,25 @@ type
     ePlatform_Name: TEdit;
     Panel20: TPanel;
     Panel21: TPanel;
+    Panel22: TPanel;
+    Panel23: TPanel;
+    Panel24: TPanel;
+    Panel25: TPanel;
+    Panel26: TPanel;
+    Panel27: TPanel;
+    Panel28: TPanel;
     Panel3: TPanel;
     ePlatform_NODC: TEdit;
+    Panel4: TPanel;
     Panel7: TPanel;
     Panel8: TPanel;
     Panel9: TPanel;
     Q: TSQLQuery;
     Splitter1: TSplitter;
     PageControl1: TPageControl;
+    Splitter2: TSplitter;
+    tbCruiseWOD: TTabSheet;
+    tbCruiseGLODAP: TTabSheet;
     tbInstrument: TTabSheet;
     tbUnits: TTabSheet;
     tbSource: TTabSheet;
@@ -93,7 +138,7 @@ type
     ePlatform_WOD: TEdit;
     Panel1: TPanel;
     mNotesICES: TMemo;
-    mNotes: TMemo;
+    mNotesPlatform: TMemo;
     ePlatform_IMO: TEdit;
     ePlatform_Callsign: TEdit;
     mNotesWOD: TMemo;
@@ -107,12 +152,14 @@ type
     ToolButton1: TToolButton;
 
     procedure btnUpdateQCClick(Sender: TObject);
+    procedure cbCruise_ProjectChange(Sender: TObject);
+    procedure cbCruise_ProjectDropDown(Sender: TObject);
     procedure DBGridPlatformKeyPress(Sender: TObject; var Key: char);
     procedure ePlatform_IDClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
-    procedure mNotesKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure mNotesPlatformKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure PageControl1Change(Sender: TObject);
     procedure QAfterEdit(DataSet: TDataSet);
     procedure QAfterScroll(DataSet: TDataSet);
@@ -160,14 +207,26 @@ procedure Tfrmcodes.FormShow(Sender: TObject);
 begin
  PageControl1.ActivePageIndex:=0;
  PageControl1.OnChange(self);
+ ResizeColumns;
 
- DBGridPlatform.Columns[0].Width:=64;
- DBGridPlatform.Columns[1].Width:=62;
- DBGridPlatform.Columns[2].Width:=62;
- DBGridPlatform.Columns[3].Width:=62;
- DBGridPlatform.Columns[4].Width:=62;
- DBGridPlatform.Columns[7].Width:=64;
+  With DBGridCruise do begin
+   Columns[0].Width:=50;
+   Columns[1].Width:=50;
+   Columns[2].Width:=200;
+   Columns[3].Width:=60;
+   Columns[4].Width:=64;
+   Columns[5].Width:=64;
+   Columns[6].Width:=60;
+ end;
 
+ With DBGridPlatform do begin
+   Columns[0].Width:=64;
+   Columns[1].Width:=62;
+   Columns[2].Width:=62;
+   Columns[3].Width:=62;
+   Columns[4].Width:=62;
+   Columns[7].Width:=64;
+ end;
 end;
 
 
@@ -182,46 +241,73 @@ begin
    Close;
  end;
 
- ResizeColumns;
-
  CodesTblName:='';
  case PageControl1.ActivePageIndex of
-  1: begin
+  0: begin
        CodesTblName:='PLATFORM';
        Q.SQL.text:='Select ID, NODC_ID, WOD_ID, IMO_ID, CALLSIGN, NAME, '+
                    'NAME_NATIVE, SOURCE FROM PLATFORM ORDER BY NAME';
      end;
+  1: begin
+       CodesTblName:='CRUISE';
+       Q.SQL.text:='Select CRUISE.ID, CRUISE.WOD_ID, PLATFORM.NAME as PLATFORMNAME, '+
+                   'COUNTRY.NAME as COUNTRYNAME, CRUISE.CRUISE_NUMBER, '+
+                   'CRUISE.DATE_START, CRUISE.DATE_END, CRUISE.STATIONS_AMOUNT '+
+                   'FROM CRUISE, PLATFORM, COUNTRY WHERE '+
+                   'CRUISE.PLATFORM_ID=PLATFORM.ID and CRUISE.COUNTRY_ID=COUNTRY.ID '+
+                   'ORDER BY CRUISE.DATE_START, PLATFORM.NAME';
+     end;
   2: begin
+       CodesTblName:='CRUISE_WOD';
+       Q.SQL.text:='Select CRUISE_WOD.ID, CRUISE_WOD.WOD_ID, PLATFORM.NAME as PLATFORMNAME, '+
+                   'COUNTRY.NAME as COUNTRYNAME, CRUISE_WOD.CRUISE_NUMBER, '+
+                   'CRUISE_WOD.DATE_START, CRUISE_WOD.DATE_END, CRUISE_WOD.STATIONS_AMOUNT '+
+                   'FROM CRUISE_WOD, PLATFORM, COUNTRY WHERE '+
+                   'CRUISE_WOD.PLATFORM_ID=PLATFORM.ID and CRUISE_WOD.COUNTRY_ID=COUNTRY.ID '+
+                   'ORDER BY CRUISE_WOD.DATE_START, PLATFORM.NAME';
+     end;
+  3: begin
+         CodesTblName:='CRUISE_GLODAP';
+         Q.SQL.text:='Select CRUISE_GLODAP.ID, CRUISE_GLODAP.GLODAP_ID, '+
+                     'PLATFORM.NAME as PLATFORMNAME, '+
+                     'COUNTRY.NAME as COUNTRYNAME, CRUISE_GLODAP.CRUISE_NUMBER, '+
+                     'CRUISE_GLODAP.DATE_START, CRUISE_GLODAP.DATE_END '+
+                     'FROM CRUISE_GLODAP, PLATFORM, COUNTRY WHERE '+
+                     'CRUISE_GLODAP.PLATFORM_ID=PLATFORM.ID and '+
+                     'CRUISE_GLODAP.COUNTRY_ID=COUNTRY.ID '+
+                     'ORDER BY CRUISE_GLODAP.DATE_START, PLATFORM.NAME';
+     end;
+  4: begin
        CodesTblName:='COUNTRY';
        Q.SQL.text:='Select ID, ISO_3166, NAME '+
                    'FROM COUNTRY ORDER BY NAME';
      end;
-  3: begin
+  5: begin
        CodesTblName:='SOURCE';
        Q.SQL.text:='Select ID, NAME '+
                    'FROM SOURCE ORDER BY ID';
      end;
-  4: begin
+  6: begin
        CodesTblName:='PI';
        Q.SQL.text:='Select ID, WOD_ID, NAME '+
                    'FROM PI ORDER BY NAME';
      end;
-  5: begin
+  7: begin
        CodesTblName:='PROJECT';
        Q.SQL.text:='Select ID, WOD_ID, NAME '+
                    'FROM PROJECT ORDER BY NAME';
      end;
-  6: begin
+  8: begin
        CodesTblName:='INSTITUTE';
        Q.SQL.text:='Select ID, WOD_ID, NODC_ID, NAME '+
                    'FROM INSTITUTE ORDER BY NAME';
      end;
-  7: begin
+  9: begin
        CodesTblName:='INSTRUMENT';
        Q.SQL.text:='Select ID, WOD_ID, NAME '+
                    'FROM INSTRUMENT ORDER BY WOD_ID';
   end;
-  8: begin
+  10: begin
        CodesTblName:='UNITS';
        Q.SQL.text:='Select ID, NAME_SHORT, NAME '+
                    'FROM UNITS ORDER BY ID';
@@ -240,6 +326,7 @@ begin
                 ': '+inttostr(Q.RecordCount);
 
    Navigation;
+   ResizeColumns;
  end;
 end;
 
@@ -247,9 +334,65 @@ procedure Tfrmcodes.ResizeColumns;
 Var
  occup:integer;
 begin
-//  showmessage(inttostr(PageControl1.ActivePageIndex));
-case PageControl1.ActivePageIndex of
- 1: begin
+ if CodesTblName='CRUISE' then begin
+    occup:=trunc(DBGridCruise.Width-20-
+           (DBGridCruise.Columns[0].Width+
+            DBGridCruise.Columns[1].Width+
+            DBGridCruise.Columns[2].Width+
+            DBGridCruise.Columns[3].Width+
+            DBGridCruise.Columns[4].Width+
+            DBGridCruise.Columns[5].Width+
+            DBGridCruise.Columns[6].Width));
+    DBGridCruise.Columns[7].Width:=occup+1;
+
+    eCruise_ID.Width:=DBGridCruise.Columns[0].Width+1;
+    eCruise_WOD.Width:=DBGridCruise.Columns[1].Width;
+    eCruise_PLATFORMNAME.Width:=DBGridCruise.Columns[2].Width;
+    eCruise_NUMBER.Width:=DBGridCruise.Columns[3].Width;
+    eCruise_DATESTART.Width:=DBGridCruise.Columns[4].Width;
+    eCruise_DATEEND.Width:=DBGridCruise.Columns[5].Width;
+    eCruise_STATIONAMOUNT.Width:=DBGridCruise.Columns[6].Width;
+    eCruise_COUNTRYNAME.Width:=DBGridCruise.Columns[7].Width;
+ end;
+ if CodesTblName='CRUISE_WOD' then begin
+    occup:=trunc(DBGridCruiseWOD.Width-20-
+           (DBGridCruiseWOD.Columns[0].Width+
+            DBGridCruiseWOD.Columns[1].Width+
+            DBGridCruiseWOD.Columns[3].Width+
+            DBGridCruiseWOD.Columns[4].Width+
+            DBGridCruiseWOD.Columns[5].Width+
+            DBGridCruiseWOD.Columns[6].Width));
+
+            DBGridCruiseWOD.Columns[2].Width:=occup+1;
+
+    eCruiseWOD_ID.Width:=           DBGridCruiseWOD.Columns[0].Width+1;
+    eCruiseWOD_WOD.Width:=          DBGridCruiseWOD.Columns[1].Width;
+    eCruiseWOD_PLATFORMNAME.Width:= DBGridCruiseWOD.Columns[2].Width;
+    eCruiseWOD_STATIONAMOUNT.Width:=DBGridCruiseWOD.Columns[3].Width;
+    eCruiseWOD_DATESTART.Width:=    DBGridCruiseWOD.Columns[4].Width;
+    eCruiseWOD_DATEEND.Width:=      DBGridCruiseWOD.Columns[5].Width;
+    eCruiseWOD_COUNTRYNAME.Width:=  DBGridCruiseWOD.Columns[6].Width;
+ end;
+ if CodesTblName='CRUISE_GLODAP' then begin
+    occup:=trunc(DBGridCruiseGLODAP.Width-20-
+           (DBGridCruiseGLODAP.Columns[0].Width+
+            DBGridCruiseGLODAP.Columns[1].Width+
+            DBGridCruiseGLODAP.Columns[2].Width+
+            DBGridCruiseGLODAP.Columns[4].Width+
+            DBGridCruiseGLODAP.Columns[5].Width+
+            DBGridCruiseGLODAP.Columns[6].Width));
+
+            DBGridCruiseGLODAP.Columns[3].Width:=occup+1;
+
+    eCruiseGLODAP_ID.Width:=          DBGridCruiseGLODAP.Columns[0].Width+1;
+    eCruiseGLODAP_EXPOCODE.Width:=    DBGridCruiseGLODAP.Columns[1].Width;
+    eCruiseGLODAP_PLATFORMNAME.Width:=DBGridCruiseGLODAP.Columns[2].Width;
+    eCruiseGLODAP_NUMBER.Width:=      DBGridCruiseGLODAP.Columns[3].Width;
+    eCruiseGLODAP_DATESTART.Width:=   DBGridCruiseGLODAP.Columns[4].Width;
+    eCruiseGLODAP_DATEEND.Width:=     DBGridCruiseGLODAP.Columns[5].Width;
+    eCruiseGLODAP_COUNTRYNAME.Width:= DBGridCruiseGLODAP.Columns[6].Width;
+ end;
+ if CodesTblName='PLATFORM' then begin
     occup:=trunc((DBGridPlatform.Width-20-
             (DBGridPlatform.Columns[0].Width+
              DBGridPlatform.Columns[1].Width+
@@ -270,7 +413,7 @@ case PageControl1.ActivePageIndex of
     ePlatform_NameNative.Width:=DBGridPlatform.Columns[6].Width;
     ePlatform_Source.Width:=DBGridPlatform.Columns[7].Width;
  end;
- 2: begin //COUNTRY
+ if CodesTblName='CROUNTRY' then begin
     occup:=trunc(DBGridCountry.Width-20-
            (DBGridCountry.Columns[0].Width+
             DBGridCountry.Columns[1].Width));
@@ -278,46 +421,46 @@ case PageControl1.ActivePageIndex of
          //   DBGridCountry.Columns[4].Width));
     DBGridCountry.Columns[2].Width:=occup+1;
  end;
- 3: begin
+ if CodesTblName='SOURCE' then begin
     occup:=trunc(DBGridSource.Width-20-
            (DBGridSource.Columns[0].Width));
     DBGridSource.Columns[1].Width:=occup+1;
  end;
- 4: begin
+ if CodesTblName='PI' then begin
     occup:=trunc(DBGridPI.Width-20-
            (DBGridPI.Columns[0].Width+
             DBGridPI.Columns[1].Width));
     DBGridPI.Columns[2].Width:=occup+1;
  end;
- 5: begin
+ if CodesTblName='PROJECT' then begin
     occup:=trunc(DBGridProject.Width-20-
            (DBGridProject.Columns[0].Width+
             DBGridProject.Columns[1].Width));
     DBGridProject.Columns[2].Width:=occup+1;
  end;
- 6: begin
+ if CodesTblName='INSTITUTE' then begin
     occup:=trunc(DBGridInstitute.Width-20-
            (DBGridInstitute.Columns[0].Width+
             DBGridInstitute.Columns[1].Width+
             DBGridInstitute.Columns[2].Width));
     DBGridInstitute.Columns[3].Width:=occup+1;
  end;
- 7: begin
+ if CodesTblName='INSTRUMENT' then begin
     occup:=trunc(DBGridInstrument.Width-20-
            (DBGridInstrument.Columns[0].Width+
             DBGridInstrument.Columns[1].Width));
     DBGridInstrument.Columns[2].Width:=occup+1;
  end;
- 8: begin
+ if CodesTblName='UNITS' then begin
     occup:=trunc(DBGridUnits.Width-20-
            (DBGridUnits.Columns[0].Width+
             DBGridUnits.Columns[1].Width));
     DBGridUnits.Columns[2].Width:=occup+1;
  end;
-end;
 
-//Panel4.Width:=trunc(ToolBar1.Width-65-
-// (btnAdd.Width+btnDelete.Width+btnCancel.Width+btnUpdateQC.Width));
+Panel28.Width:=trunc(ToolBar1.Width-65-
+ (btnAdd.Width+btnDelete.Width+btnCancel.Width+btnUpdateQC.Width));
+Application.ProcessMessages;
 end;
 
 
@@ -328,11 +471,11 @@ Var
  cc:string;
 begin
 
- (* Platform *)
- if CodesTblName='PLATFORM' then begin
-  mNotesICES.Clear;
-  mNotesWOD.Clear;
-  mNotes.Clear;
+(* CRUISE *)
+ if CodesTblName='CRUISE' then begin
+  cbCruise_project.Clear;
+  cbCruise_institute.Clear;
+  cbCruise_pi.Clear;
 
  if Q.FieldByName('ID').AsInteger>0 then begin
   TRt:=TSQLTransaction.Create(self);
@@ -343,13 +486,42 @@ begin
    with Qt do begin
     Close;
      SQL.Clear;
-     SQL.Add(' select NOTES_ICES, NOTES_WOD, NOTES ');
+     SQL.Add('select CRUISE.ID, PROJECT.NAME as PROJECTNAME, INSTITUTE.NAME as INSTITUTENAME, ');
+     SQL.Add('PI.NAME as PINAME FROM CRUISE, COUNTRY, PROJECT, INSTITUTE, PI WHERE ');
+     SQL.Add('CRUISE.PROJECT_ID=PROJECT.ID and CRUISE.INSTITUTE_ID=INSTITUTE.ID and ');
+     SQL.Add('CRUISE.PI_ID=PI.ID and CRUISE.ID='+inttostr(Q.FieldByName('ID').AsInteger));
+    Open;
+     cbCruise_project.Text:=Qt.FieldByName('PROJECTNAME').AsWideString;
+     cbCruise_institute.Text:=Qt.FieldByName('INSTITUTENAME').AsWideString;
+     cbCruise_pi.Text:=Qt.FieldByName('PINAME').AsWideString;
+    Close;
+   end;
+   TRt.Commit;
+   Qt.Free;
+   TRt.Free;
+  end;
+ end;
+
+ (* Platform *)
+ if CodesTblName='PLATFORM' then begin
+  mNotesICES.Clear;
+  mNotesWOD.Clear;
+
+ if Q.FieldByName('ID').AsInteger>0 then begin
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.SupportDB;
+  Qt :=TSQLQuery.Create(self);
+  Qt.Database:=frmdm.SupportDB;
+  Qt.Transaction:=TRt;
+   with Qt do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select NOTES_ICES, NOTES_WOD ');
      SQL.Add(' from PLATFORM where ');
      SQL.Add(' ID='+inttostr(Q.FieldByName('ID').AsInteger));
     Open;
      mNotesICES.Lines.Text:=Qt.FieldByName('NOTES_ICES').AsWideString;
      mNotesWOD.Lines.Text :=Qt.FieldByName('NOTES_WOD').AsWideString;
-     mNotes.Lines.Text    :=Qt.FieldByName('NOTES').AsWideString;
     Close;
    end;
    TRt.Commit;
@@ -410,7 +582,7 @@ begin
   end;
 
 
- if (CodesTblName<>'COUNTRY') and (Q.FieldByName('ID').AsInteger>0) then begin
+ if Q.FieldByName('ID').AsInteger>0 then begin
   TRt:=TSQLTransaction.Create(self);
   TRt.DataBase:=frmdm.SupportDB;
   Qt :=TSQLQuery.Create(self);
@@ -422,6 +594,30 @@ begin
      SQL.Add(' select NOTES from '+CodesTblName+' where ');
      SQL.Add(' ID='+inttostr(Q.FieldByName('ID').AsInteger));
     Open;
+     if CodesTblName='CRUISE' then begin
+       mNotesCruise.Clear;
+       mNotesCruise.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+     end;
+     if CodesTblName='CRUISE_GLODAP' then begin
+       mNotesCruiseGLODAP.Clear;
+       mNotesCruiseGLODAP.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+     end;
+     if CodesTblName='PLATFORM' then begin
+       mNotesPlatform.Clear;
+       mNotesPlatform.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+     end;
+     if CodesTblName='COUNTRY' then begin
+       mNotesCruise.Clear;
+       mNotesCruise.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+     end;
+     if CodesTblName='SOURCE' then begin
+       mNotesSource.Clear;
+       mNotesSource.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+     end;
+     if CodesTblName='PI' then begin
+       mNotesPI.Clear;
+       mNotesPI.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+     end;
      if CodesTblName='PROJECT' then begin
        mNotesProject.Clear;
        mNotesProject.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
@@ -429,6 +625,14 @@ begin
      if CodesTblName='INSTITUTE' then begin
        mNotesInstitute.Clear;
        mNotesInstitute.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+     end;
+     if CodesTblName='INSTRUMENT' then begin
+       mNotesInstrument.Clear;
+       mNotesInstrument.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+     end;
+     if CodesTblName='UNITS' then begin
+       mNotesUnits.Clear;
+       mNotesUnits.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
      end;
     Close;
    end;
@@ -459,6 +663,7 @@ Qt.Transaction:=frmdm.SupportTR;
    end;
 
 Qt.Free;
+btnSave.Enabled:=true;
 end;
 
 
@@ -468,7 +673,7 @@ begin
    if MessageDlg(SDelete+' '+Q.FieldByName('NAME').AsString+'"?',
       mtWarning, [mbYes, MbNo], 0)=mrYes then begin
         Q.Delete;
-    btnSave.Enabled:=true;
+     btnSave.Enabled:=true;
    end;
 end;
 
@@ -494,7 +699,7 @@ begin
       frmdm.SupportTR.CommitRetaining;
  //   showmessage('here2');
 
-      if (CodesTblName='PLATFORM') and (mNotes.Lines.Text<>'') then begin
+      if (CodesTblName='PLATFORM') and (mNotesPlatform.Lines.Text<>'') then begin
         TRt:=TSQLTransaction.Create(self);
         TRt.DataBase:=frmdm.SupportDB;
 
@@ -508,7 +713,7 @@ begin
           SQL.Add(' NOTES=:NOTES ');
           SQL.Add(' where ID=:ID ');
           ParamByName('ID').AsInteger:=Q.FieldByName('ID').AsInteger;
-          ParamByName('NOTES').AsWideString:=mNotes.Lines.Text;
+          ParamByName('NOTES').AsWideString:=mNotesPlatform.Lines.Text;
          ExecSQL;
         end;
         Qt.Close;
@@ -659,7 +864,7 @@ begin
 end;
 
 
-procedure Tfrmcodes.mNotesKeyUp(Sender: TObject; var Key: Word;
+procedure Tfrmcodes.mNotesPlatformKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
  Q.Edit;
@@ -695,6 +900,41 @@ begin
     end;
  frmcodesQC_open:=true;
 end;
+
+procedure Tfrmcodes.cbCruise_ProjectChange(Sender: TObject);
+begin
+
+end;
+
+
+procedure Tfrmcodes.cbCruise_ProjectDropDown(Sender: TObject);
+Var
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
+begin
+ cbCruise_project.Items.Clear;
+
+ TRt:=TSQLTransaction.Create(self);
+ TRt.DataBase:=frmdm.SupportDB;
+ Qt :=TSQLQuery.Create(self);
+ With Qt do begin
+   Database:=frmdm.SupportDB;
+   Transaction:=TRt;
+   SQL.Text:='select Distinct(NAME) from PROJECT order by NAME';
+   Open;
+ end;
+
+ while not Qt.Eof do begin
+   cbCruise_project.Items.Add(Qt.Fields[0].AsWideString);
+  Qt.Next;
+ end;
+  Qt.Close;
+  TRt.Commit;
+  Qt.Free;
+  TRt.Free;
+//   DBGridEh1.Columns[9].PickList:=cbVessel.Items;
+end;
+
 
 
 procedure Tfrmcodes.FormClose(Sender: TObject; var CloseAction: TCloseAction);

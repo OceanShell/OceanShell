@@ -129,7 +129,7 @@ const
 implementation
 
 
-uses dm, createdatabase, settings, codes, osabout,
+uses dm, oscreatenewdb, settings, codes, osabout,
   //loading data
   osload_itp,
   osload_GLODAP_2019_v2_product
@@ -336,15 +336,15 @@ procedure Tfrmosmain.iNewDatabaseClick(Sender: TObject);
 Var
 ScriptPath:string;
 begin
-{ SD.Filter:='*.FDB|*.FDB';
+ SD.Filter:='Firebird database|*.FDB';
  SD.DefaultExt:='FDB';
  if SD.Execute then begin
     CreateNewDB(SD.FileName);
-     frmosdm.IBDB.Close;
-     frmosdm.IBDB.DatabaseName:=SD.FileName;
-    IBName:=frmosdm.IBDB.DatabaseName;
+     frmdm.IBDB.Close;
+     frmdm.IBDB.DatabaseName:=SD.FileName;
+    IBName:=frmdm.IBDB.DatabaseName;
   OpenDatabase;
- end;  }
+ end;
 end;
 
 

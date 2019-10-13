@@ -15,6 +15,11 @@ function ClearDir(Dir:string ): boolean;
 function DateTimeToFloat(StDate, StTime:TDateTime):Real;
 function US80(t,s,p:real):real;
 
+(* Date encoding function *)
+function DateEncode(Year,Month,Day,Hour,Minutes:word;
+ Var DaysInAMonthFlag,DateChangedFlag:Boolean):TDateTime;
+
+
 
 {vertical interpolation}
 procedure ODBPr_VertInt(IntLev,LU1,LU2,LD1,LD2,VU1,VU2,VD1,VD2:real;
@@ -164,6 +169,7 @@ begin
 end;
 
 
+
 (* Вставляем последний горизонт для выборки *)
 procedure InsertLastLevel;
 var
@@ -297,6 +303,7 @@ begin
   rots0:=rop+A*S-B*sqrt(S*S*S)+C*S*S;
   US80:=rots0/(1-p*1e-5/kptsp);
 end;
+
 
 {updated 9.10.2004}
 function DateEncode(Year,Month,Day,Hour,Minutes:word;

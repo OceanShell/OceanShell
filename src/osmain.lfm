@@ -1892,7 +1892,6 @@ object frmosmain: Tfrmosmain
       Caption = 'File'
       object iNewDatabase: TMenuItem
         Caption = 'New database'
-        Enabled = False
         ImageIndex = 311
         OnClick = iNewDatabaseClick
       end

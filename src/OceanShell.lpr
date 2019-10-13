@@ -7,8 +7,8 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, osmain, dm, procedures,
-  osload_itp, osstandartqueries, codesupdateqc, osload_GLODAP_2019_v2_product;
+  Forms, osmain, dm, procedures, osload_itp, osstandartqueries, codesupdateqc,
+  osload_GLODAP_2019_v2_product, oscreatenewdb;
 
 {$R *.res}
 
