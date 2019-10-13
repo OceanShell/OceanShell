@@ -414,6 +414,15 @@ msgctxt "tfrmcodesqc.tabsheet2.caption"
 msgid "QC"
 msgstr ""
 
+#: tfrmloadglodap_2019_v2_product.button1.caption
+msgid "Product (csv)"
+msgstr ""
+
+#: tfrmloadglodap_2019_v2_product.button2.caption
+msgctxt "tfrmloadglodap_2019_v2_product.button2.caption"
+msgid "Start"
+msgstr ""
+
 #: tfrmloadglodap_2019_v2_product.caption
 msgid "frmloadGLODAP_2019_v2_product"
 msgstr ""
@@ -423,6 +432,7 @@ msgid "Data"
 msgstr ""
 
 #: tfrmloaditp.button2.caption
+msgctxt "tfrmloaditp.button2.caption"
 msgid "Start"
 msgstr ""
 

@@ -1,7 +1,7 @@
 object frmLoadITP: TfrmLoadITP
-  Left = 975
+  Left = 1158
   Height = 284
-  Top = 377
+  Top = 469
   Width = 502
   BorderStyle = bsSingle
   Caption = 'Load ITP'
