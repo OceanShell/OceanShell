@@ -286,7 +286,7 @@ Qt.Transaction:=TRt;
         SQL.Add(' min(Extract(Day from STDATE)) as StDayMin, ');
         SQL.Add(' max(Extract(Day from STDATE)) as StDayMax ');
         SQL.Add(' from STATION');
-        showmessage(SQL.Text);
+       // showmessage(SQL.Text);
     Open;
       IBCount:=FieldByName('StCount').AsInteger;
        if IBCount>0 then begin

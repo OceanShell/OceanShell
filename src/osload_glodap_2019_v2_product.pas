@@ -5,7 +5,8 @@ unit osload_GLODAP_2019_v2_product;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, DateUtils;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, DateUtils,
+  SQLDB;
 
 type
 
@@ -14,7 +15,9 @@ type
   TfrmloadGLODAP_2019_v2_product = class(TForm)
     Button1: TButton;
     Button2: TButton;
+    btnCreateTables: TButton;
     Memo1: TMemo;
+    procedure btnCreateTablesClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
   private
@@ -95,6 +98,7 @@ begin
   Button2.Visible:=true;
 end;
 
+
 procedure TfrmloadGLODAP_2019_v2_product.Button2Click(Sender: TObject);
 var
 k,kv,line,n,mik:integer;
@@ -107,6 +111,14 @@ st,buf_str:string;
 StDate,StTime,StDT:TDateTime;
 DayChange,DateChange:Boolean;
 ww:boolean; //workedwell
+
+press,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp,cfcll:real;
+salt_pQF1,oxy_pQF1,aou_pQF1,nat_pQF1,nit_pQF1,sil_pQF1,pho_pQF1,tco2_pQF1,talk_pQF1:integer;
+phtsinsitutp_pQF1, phts25p0_pQF1, cfcll_pQF1: integer;
+salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF, phts25p0_sQF:integer;
+
+//cfcll:real;
+
 begin
    path_out:='c:\Users\ako071\AK\datasets\GLODAP\output.dat';
    AssignFile(out, Path_out); Rewrite(out);
@@ -152,6 +164,8 @@ begin
   if not TryStrToFloat(buf_str, buf)
   then showmessage ('trystrtofloat line='+inttostr(line)+' '+buf_str);
 
+
+(***********************************COMMENTED out to compile the code - AS
     case kv of
     1: cruiseN:=trunc(strtofloat(buf_str));
     2: stationN:=trunc(strtofloat(buf_str));
@@ -216,15 +230,17 @@ begin
    51: pcfc11:=strtofloat(buf_str);                   //cfc11
    52: cfc11_pQF1:=trunc(strtofloat(buf_str));        //pQF1
    53: cfc11_sQF:=trunc(strtofloat(buf_str));         //sQF
+ }
 
-
-
+{
 press,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp
 salt_pQF1,oxy_pQF1,aou_pQF1,nat_pQF1,nit_pQF1,sil_pQF1,pho_pQF1,tco2_pQF1,talk_pQF1
 phtsinsitutp_pQF1
-salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF
+salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF}
 
     end;{case}
+*)  //END of commenting out - AS
+
 {k}end;
 
 {b}end;
@@ -337,6 +353,104 @@ begin
     Result:=IncYear(DateBuf,-1600);
   end;
 
+end;
+
+
+
+procedure TfrmloadGLODAP_2019_v2_product.btnCreateTablesClick(Sender: TObject);
+var
+  dat:text;
+  st, buf_str:string;
+  c, k, cnt:integer;
+  tbl_name, par_name, par_desc: string;
+  TRt:TSQLTransaction;
+  Qt1, Qt2, Qt3:TSQLQuery;
+begin
+
+  if frmdm.IBDB.Connected=false then begin
+    showmessage('database is not opened');
+    exit;
+  end;
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
+
+  frmosmain.OD.Filter:='DB TABLES|DB TABLES.txt';
+  if not frmosmain.OD.Execute then exit;
+
+   AssignFile(dat, frmosmain.OD.FileName); reset(dat);
+
+   cnt:=0;
+   repeat
+     readln(dat, st);
+     inc(cnt);
+
+     c:=0;
+     for k:=1 to 3 do begin
+      buf_str:='';
+      repeat
+        inc(c);
+         if st[c]<>#9 then buf_str:=buf_str+st[c];
+      until (st[c]=#9) or (c=length(st)) ;
+      if k=1 then tbl_name:=trim(buf_str);
+      if k=2 then par_name:=trim(buf_str);
+      if k=3 then par_desc:=trim(buf_str);
+     end;
+
+     memo1.Lines.Add(tbl_name+'   '+par_name+'   '+par_desc);
+
+      with Qt1 do begin
+       Close;
+        SQL.Clear;
+        SQL.ADD('CREATE TABLE '+tbl_name+' (');
+        SQL.ADD('   ID             BIGINT NOT NULL,');
+        SQL.ADD('   LEVEL_         NUMERIC(9,4) NOT NULL,');
+        SQL.ADD('   VALUE_         DECIMAL(8,4) NOT NULL,');
+        SQL.ADD('   QCFLAG_ODB     SMALLINT NOT NULL,');
+        SQL.ADD('   QCFLAG_SOURCE  SMALLINT,');
+        SQL.ADD('   BOTTLE_NUMBER  SMALLINT,');
+        SQL.ADD('   CAST_NUMBER    SMALLINT,');
+        SQL.ADD('   UNIT_ID        BIGINT');
+        SQL.ADD(')');
+       ExecSQL;
+     end;
+     Trt.CommitRetaining;
+
+     with Qt1 do begin
+       Close;
+        SQL.Clear;
+        SQL.ADD(' ALTER TABLE '+tbl_name);
+        SQL.ADD(' ADD CONSTRAINT FK_'+tbl_name);
+        SQL.ADD(' FOREIGN KEY (ID) REFERENCES STATION (ID) ');
+        SQL.ADD(' ON DELETE CASCADE ON UPDATE CASCADE');
+       ExecSQL;
+     end;
+    Trt.CommitRetaining;
+
+    with Qt1 do begin
+       Close;
+        SQL.Clear;
+        SQL.ADD(' INSERT INTO "PARAMETER" ');
+        SQL.ADD(' (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) ');
+        SQL.ADD('VALUES');
+        SQL.ADD('(:ID, :TABLENAME, :PARAMETERNAME, :DESCRIPTION) ');
+        ParamByName('ID').AsInteger:=cnt;
+        ParamByName('TABLENAME').AsString:=tbl_name;
+        ParamByName('PARAMETERNAME').AsString:=par_name;
+        ParamByName('DESCRIPTION').AsString:=par_desc;
+       ExecSQL;
+     end;
+    Trt.CommitRetaining;
+
+   until eof(dat);
+   Trt.Commit;
+
+   Qt1.free;
+   TRt.Free;
 end;
 
 end.

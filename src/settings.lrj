@@ -23,7 +23,5 @@
 {"hash":218288499,"name":"tfrmsettings.btnshowinstalled.caption","sourcebytes":[83,104,111,119,32,105,110,115,116,97,108,108,101,100,32,109,111,100,117,108,101,115],"value":"Show installed modules"},
 {"hash":475945,"name":"tfrmsettings.tabsheet2.caption","sourcebytes":[66,97,116,104,121,109,101,116,114,121],"value":"Bathymetry"},
 {"hash":145730441,"name":"tfrmsettings.rgbathymetry.caption","sourcebytes":[84,111,112,111,103,114,97,112,104,121,32,97,110,100,32,66,97,116,104,121,109,101,116,114,121],"value":"Topography and Bathymetry"},
-{"hash":151004633,"name":"tfrmsettings.tsclimatology.caption","sourcebytes":[67,108,105,109,97,116,111,108,111,103,121],"value":"Climatology"},
-{"hash":191543742,"name":"tfrmsettings.chkrelerr.caption","sourcebytes":[68,111,32,110,111,116,32,117,115,101,32,118,97,108,117,101,115,32,119,105,116,104,32,82,101,108,97,116,105,118,101,32,69,114,114,111,114,32,62],"value":"Do not use values with Relative Error >"},
 {"hash":197676484,"name":"tfrmsettings.tabsheet3.caption","sourcebytes":[65,100,118,97,110,99,101,100],"value":"Advanced"}
 ]}

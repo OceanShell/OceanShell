@@ -32,6 +32,7 @@ type
     DBGridInstitute: TDBGrid;
     DBGridInstrument: TDBGrid;
     DBGridSource: TDBGrid;
+    DBGridQCFlag: TDBGrid;
     DS: TDataSource;
     eCruiseWOD_COUNTRYNAME: TEdit;
     eCruiseWOD_DATEEND: TEdit;
@@ -61,9 +62,11 @@ type
     eProject_ID: TEdit;
     eInstitute_ID: TEdit;
     eProject_ID1: TEdit;
+    eQCFlag_Source: TEdit;
     eUnits_ID: TEdit;
     eProject_Name1: TEdit;
     eSource_ID: TEdit;
+    eQCFlag_ID: TEdit;
     eUnits_Name: TEdit;
     eProject_WOD: TEdit;
     eInstitute_NODC: TEdit;
@@ -77,6 +80,8 @@ type
     eProject_WOD1: TEdit;
     eUnits_Empty: TEdit;
     eSource_Name: TEdit;
+    eQCFlag_SourceFlag: TEdit;
+    eQCFlag_ODBFlag: TEdit;
     imgFlagPlatform: TImage;
     ImgFlagInstitute: TImage;
     Label1: TLabel;
@@ -92,7 +97,6 @@ type
     mNotesPI: TMemo;
     mNotesInstrument: TMemo;
     mNotesSource: TMemo;
-    mNotesCountry: TMemo;
     Panel10: TPanel;
     Panel11: TPanel;
     Panel12: TPanel;
@@ -114,8 +118,10 @@ type
     Panel26: TPanel;
     Panel27: TPanel;
     Panel28: TPanel;
+    Panel29: TPanel;
     Panel3: TPanel;
     ePlatform_NODC: TEdit;
+    Panel30: TPanel;
     Panel4: TPanel;
     Panel7: TPanel;
     Panel8: TPanel;
@@ -127,6 +133,7 @@ type
     tbCruiseWOD: TTabSheet;
     tbCruiseGLODAP: TTabSheet;
     tbInstrument: TTabSheet;
+    tbQCFlag: TTabSheet;
     tbUnits: TTabSheet;
     tbSource: TTabSheet;
     tbPlatform: TTabSheet;
@@ -155,7 +162,12 @@ type
     procedure cbCruise_ProjectChange(Sender: TObject);
     procedure cbCruise_ProjectDropDown(Sender: TObject);
     procedure DBGridPlatformKeyPress(Sender: TObject; var Key: char);
+    procedure eCruiseGLODAP_COUNTRYNAMEChange(Sender: TObject);
+    procedure eCruiseGLODAP_EXPOCODEChange(Sender: TObject);
+    procedure eCruiseGLODAP_NUMBERChange(Sender: TObject);
+    procedure eCruiseGLODAP_PLATFORMNAMEChange(Sender: TObject);
     procedure ePlatform_IDClick(Sender: TObject);
+    procedure eQCFlag_SourceChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -312,6 +324,14 @@ begin
        Q.SQL.text:='Select ID, NAME_SHORT, NAME '+
                    'FROM UNITS ORDER BY ID';
   end;
+  11: begin
+       CodesTblName:='QCFLAG';
+       Q.SQL.text:='Select QCFLAG.ID, SOURCE.NAME as SOURCENAME, '+
+                   'QCFLAG.SOURCE_FLAG, QCFLAG.ODB_FLAG '+
+                   'FROM QCFLAG, SOURCE '+
+                   'WHERE QCFLAG.SOURCE_ID=SOURCE.ID '+
+                   'ORDER BY SOURCE.NAME, QCFLAG.SOURCE_FLAG';
+  end;
  end;
 
  //If table exists
@@ -322,8 +342,8 @@ begin
 
    // Page title with amount of rows
    if not Q.IsEmpty then
-     PageControl1.Page[PageControl1.ActivePageIndex].Caption:=CodesTblName+
-                ': '+inttostr(Q.RecordCount);
+     Caption:='Codes: '+CodesTblName+' ['+inttostr(Q.RecordCount)+']' else
+     Caption:='Codes: '+CodesTblName;
 
    Navigation;
    ResizeColumns;
@@ -413,12 +433,10 @@ begin
     ePlatform_NameNative.Width:=DBGridPlatform.Columns[6].Width;
     ePlatform_Source.Width:=DBGridPlatform.Columns[7].Width;
  end;
- if CodesTblName='CROUNTRY' then begin
+ if CodesTblName='COUNTRY' then begin
     occup:=trunc(DBGridCountry.Width-20-
            (DBGridCountry.Columns[0].Width+
             DBGridCountry.Columns[1].Width));
-           // DBGridCountry.Columns[3].Width+
-         //   DBGridCountry.Columns[4].Width));
     DBGridCountry.Columns[2].Width:=occup+1;
  end;
  if CodesTblName='SOURCE' then begin
@@ -456,6 +474,13 @@ begin
            (DBGridUnits.Columns[0].Width+
             DBGridUnits.Columns[1].Width));
     DBGridUnits.Columns[2].Width:=occup+1;
+ end;
+
+ if CodesTblName='QCFLAG' then begin
+    eQCFlag_ID.Width:=DBGridQCFlag.Columns[0].Width+1;
+    eQCFlag_Source.Width:=DBGridQCFlag.Columns[1].Width;
+    eQCFlag_SourceFlag.Width:=DBGridQCFlag.Columns[2].Width;
+    eQCFlag_ODBFlag.Width:=DBGridQCFlag.Columns[3].Width;
  end;
 
 Panel28.Width:=trunc(ToolBar1.Width-65-
@@ -582,7 +607,10 @@ begin
   end;
 
 
- if Q.FieldByName('ID').AsInteger>0 then begin
+ if (Q.FieldByName('ID').AsInteger>0) and
+    (CodesTblName='COUNTRY') and
+    (CodesTblName='QCFLAG') and
+    (CodesTblName='QCRUISE_WOD') then begin
   TRt:=TSQLTransaction.Create(self);
   TRt.DataBase:=frmdm.SupportDB;
   Qt :=TSQLQuery.Create(self);
@@ -824,6 +852,36 @@ Q.Filter:='SOURCE = '+QuotedStr('*'+ePlatform_Source.Text+'*');
 Q.Filtered:=true;
 end;
 
+procedure Tfrmcodes.eCruiseGLODAP_EXPOCODEChange(Sender: TObject);
+begin
+ Q.Filter:='EXPOCODE = '+QuotedStr('*'+eCruiseGLODAP_EXPOCODE.Text+'*');
+ Q.Filtered:=true;
+end;
+
+procedure Tfrmcodes.eCruiseGLODAP_NUMBERChange(Sender: TObject);
+begin
+ Q.Filter:='CRUISE_NUMBER = '+QuotedStr('*'+eCruiseGLODAP_NUMBER.Text+'*');
+ Q.Filtered:=true;
+end;
+
+procedure Tfrmcodes.eCruiseGLODAP_PLATFORMNAMEChange(Sender: TObject);
+begin
+ Q.Filter:='PLATFORMNAME = '+QuotedStr('*'+eCruiseGLODAP_PLATFORMNAME.Text+'*');
+ Q.Filtered:=true;
+end;
+
+procedure Tfrmcodes.eCruiseGLODAP_COUNTRYNAMEChange(Sender: TObject);
+begin
+ Q.Filter:='COUNTRYNAME = '+QuotedStr('*'+eCruiseGLODAP_COUNTRYNAME.Text+'*');
+ Q.Filtered:=true;
+end;
+
+procedure Tfrmcodes.eQCFlag_SourceChange(Sender: TObject);
+begin
+ Q.Filter:='SOURCENAME = '+QuotedStr('*'+eQCFlag_Source.Text+'*');
+ Q.Filtered:=true;
+end;
+
 (* Cleaning controls on click and drop the filter *)
 procedure Tfrmcodes.ePlatform_IDClick(Sender: TObject);
 var
@@ -833,6 +891,8 @@ begin
     if frmcodes.Components[k] is TEdit then TEdit(frmcodes.Components[k]).Clear;
   Q.Filtered:=false;
 end;
+
+
 (************************************END**************************************)
 
 procedure Tfrmcodes.DBGridPlatformKeyUp(Sender: TObject; var Key: Word;

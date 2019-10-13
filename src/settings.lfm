@@ -58,7 +58,7 @@ object frmsettings: Tfrmsettings
           TabOrder = 0
         end
         object btnSurferPath: TButton
-          Left = 438
+          Left = 439
           Height = 23
           Top = 8
           Width = 26

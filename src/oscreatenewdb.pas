@@ -15,130 +15,102 @@ DB:TIBConnection;
 TR:TSQLTransaction;
 ST:TSQLScript;
 
+(* Script for main tables *)
 const ScriptText=
-   'CREATE TABLE ENTRY '+LineEnding+
-   '( '+LineEnding+
+   (* STATION *)
+   'CREATE TABLE STATION ('+LineEnding+
+   '    ID                  BIGINT NOT NULL, '+LineEnding+
+   '    STLAT               DECIMAL(8,5) NOT NULL, '+LineEnding+
+   '    STLON               DECIMAL(9,5) NOT NULL, '+LineEnding+
+   '    STDATE              TIMESTAMP NOT NULL, '+LineEnding+
+   '    STDEPTH             INTEGER, '+LineEnding+
+   '    STLASTLEVEL         INTEGER, '+LineEnding+
+   '    SOURCE_ID           BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+   '    COUNTRY_ID          BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+   '    PLATFORM_ID         BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+   '    CRUISE_ID           BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+   '    INSTRUMENT_ID       BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+   '    STNUMBER            VARCHAR(50), '+LineEnding+
+   '    ORIGINALSOURCEID    BIGINT, '+LineEnding+
+   '    STFLAG              SMALLINT NOT NULL, '+LineEnding+
+   '    STVERSION           SMALLINT NOT NULL, '+LineEnding+
+   '    MERGED              SMALLINT DEFAULT 0 NOT NULL, '+LineEnding+
+   '    DATE_ADDED          TIMESTAMP NOT NULL, '+LineEnding+
+   '    DATE_UPDATED        TIMESTAMP, '+LineEnding+
+   '    CONSTRAINT STATION_PK PRIMARY KEY (ID) '+LineEnding+
+   '); '+LineEnding+
+
+   (* ENTRY *)
+   'CREATE TABLE ENTRY ('+LineEnding+
    '    ID               BIGINT NOT NULL, '+LineEnding+
    '    ENTRIES_TYPE_ID  BIGINT NOT NULL, '+LineEnding+
    '    TITLE            VARCHAR(100) NOT NULL, '+LineEnding+
    '    DATE_BEGIN       TIMESTAMP NOT NULL, '+LineEnding+
    '    DATE_END         TIMESTAMP NOT NULL, '+LineEnding+
    '    STATIONS_NUMBER  BIGINT, '+LineEnding+
-   '    DATE_ADDED       TIMESTAMP, '+LineEnding+
+   '    DATE_ADDED       TIMESTAMP NOT NULL, '+LineEnding+
+   '    DATE_UPDATED     TIMESTAMP, '+LineEnding+
    '    CONSTRAINT ENTRY_PK PRIMARY KEY (ID) '+LineEnding+
    '); '+LineEnding+
 
+   (* ENTRY_TYPE *)
+   'CREATE TABLE ENTRY_TYPE ('+LineEnding+
+   '    ID           BIGINT NOT NULL, '+LineEnding+
+   '    NAME         VARCHAR(255) NOT NULL, '+LineEnding+
+   '    DESCRIPTION  BLOB SUB_TYPE 1 SEGMENT SIZE 16384, '+LineEnding+
+   '    CONSTRAINT ENTRY_TYPE_PK PRIMARY KEY (ID) '+LineEnding+
+   '); '+LineEnding+
 
-   {  Add('CREATE TABLE ENTRY_TYPE');
-   Add('(');
-   Add('    ID           BIGINT NOT NULL,');
-   Add('    NAME         VARCHAR(255) NOT NULL,');
-   Add('    DESCRIPTION  BLOB SUB_TYPE 1 SEGMENT SIZE 16384');
-   Add('    CONSTRAINT ENTRY_TYPE_PK PRIMARY KEY (ID)');
-   Add(');');
-   Add('');
+   (* STATION_ENTRY *)
+   'CREATE TABLE STATION_ENTRY ('+LineEnding+
+   '    STATION_ID  BIGINT NOT NULL, '+LineEnding+
+   '    ENTRY_ID    BIGINT NOT NULL '+LineEnding+
+   '); '+LineEnding+
 
-   Add('CREATE TABLE METEO (');
-   Add('    ID           BIGINT NOT NULL,');
-   Add('    TEMPDRY      DECIMAL(5,2),');
-   Add('    TEMPWET      DECIMAL(5,2),');
-   Add('    PRESSURE     DECIMAL(5,1),');
-   Add('    WINDDIR      SMALLINT,');
-   Add('    WINDSPEED    NUMERIC(5,1),');
-   Add('    CLOUDCOMMON  SMALLINT,');
-   Add('    CLOUDLOW     SMALLINT,');
-   Add('    CLOUDTYPE    VARCHAR(20),');
-   Add('    VISIBILITY   SMALLINT,');
-   Add('    HUMABS       DECIMAL(4,1),');
-   Add('    HUMREL       SMALLINT,');
-   Add('    WAVEHEIGHT   NUMERIC(5,1),');
-   Add('    WAVEDIR      SMALLINT,');
-   Add('    WAVEPERIOD   SMALLINT,');
-   Add('    SEASTATE     SMALLINT,');
-   Add('    WEATHER      SMALLINT,');
-   Add('    WATERCOLOR   SMALLINT,');
-   Add('    WATERTRANSP  SMALLINT,');
-   Add('    SURFTEMP     DECIMAL(5,2),');
-   Add('    SURFSALT     DECIMAL(5,2)');
-   Add(');');
-   Add('');
-   Add('CREATE TABLE P_TEMPERATURE_BOTTLE (');
-   Add('    ID             BIGINT NOT NULL,');
-   Add('    LEVEL_         NUMERIC(9,4) NOT NULL,');
-   Add('    VALUE_         DECIMAL(6,4) NOT NULL,');
-   Add('    QCFLAG_ODB     SMALLINT NOT NULL,');
-   Add('    QCFLAG_SOURCE  SMALLINT,');
-   Add('    BOTTLE_NUMBER  SMALLINT,');
-   Add('    CAST_NUMBER    SMALLINT,');
-   Add('    UNIT_ID        BIGINT');
-   Add(');');
-   Add('');
-   Add('CREATE TABLE P_TEMPERATURE_CTD (');
-   Add('    ID             BIGINT NOT NULL,');
-   Add('    LEVEL_         NUMERIC(9,4) NOT NULL,');
-   Add('    VALUE_         DECIMAL(6,4) NOT NULL,');
-   Add('    QCFLAG_ODB     SMALLINT NOT NULL,');
-   Add('    QCFLAG_SOURCE  SMALLINT,');
-   Add('    CAST_NUMBER    SMALLINT,');
-   Add('    UNIT_ID        BIGINT');
-   Add(');');
-   Add('');
-   Add('CREATE TABLE QCFLAG (');
-   Add('    SOURCE_ID      BIGINT NOT NULL,');
-   Add('    QCFLAG_ODB     SMALLINT NOT NULL,');
-   Add('    QCFLAG_SOURCE  SMALLINT NOT NULL');
-   Add(');');
-   Add('');
-   Add('CREATE TABLE STATION (');
-   Add('    ID                  BIGINT NOT NULL,');
-   Add('    STLAT               DECIMAL(8,5) NOT NULL,');
-   Add('    STLON               DECIMAL(9,5) NOT NULL,');
-   Add('    STDATE              TIMESTAMP NOT NULL,');
-   Add('    STDEPTH             INTEGER,');
-   Add('    STLASTLEVEL         INTEGER,');
-   Add('    SOURCE_ID           BIGINT DEFAULT -9 NOT NULL,');
-   Add('    COUNTRY_ID          BIGINT DEFAULT -9 NOT NULL,');
-   Add('    PLATFORM_ID         BIGINT DEFAULT -9 NOT NULL,');
-   Add('    CRUISE_ID           BIGINT DEFAULT -9 NOT NULL,');
-   Add('    INSTRUMENT_ID       BIGINT DEFAULT -9 NOT NULL,');
-   Add('    STNUMBER            VARCHAR(50),');
-   Add('    ORIGINAL_SOURCE_ID  BIGINT,');
-   Add('    STFLAG              SMALLINT NOT NULL,');
-   Add('    STVERSION           SMALLINT NOT NULL,');
-   Add('    MERGED              SMALLINT DEFAULT 0 NOT NULL,');
-   Add('    DATE_ADDED          TIMESTAMP NOT NULL,');
-   Add('    DATE_UPDATED        TIMESTAMP NOT NULL');
-   Add(');');
-   Add('');
-   Add('CREATE TABLE STATION_ENTRY (');
-   Add('    STATION_ID  BIGINT NOT NULL,');
-   Add('    ENTRY_ID    BIGINT NOT NULL');
-   Add(');');          }
+   (* METEO *)
+   'CREATE TABLE METEO ('+LineEnding+
+   '    ID           BIGINT NOT NULL, '+LineEnding+
+   '    TEMPDRY      DECIMAL(5,2), '+LineEnding+
+   '    TEMPWET      DECIMAL(5,2), '+LineEnding+
+   '    PRESSURE     DECIMAL(5,1), '+LineEnding+
+   '    WINDDIR      SMALLINT, '    +LineEnding+
+   '    WINDSPEED    DECIMAL(5,1), '+LineEnding+
+   '    CLOUDCOMMON  SMALLINT, '    +LineEnding+
+   '    CLOUDLOW     SMALLINT, '    +LineEnding+
+   '    CLOUDTYPE    VARCHAR(20), ' +LineEnding+
+   '    VISIBILITY   SMALLINT, '    +LineEnding+
+   '    HUMABS       DECIMAL(4,1), '+LineEnding+
+   '    HUMREL       SMALLINT, '    +LineEnding+
+   '    WAVEHEIGHT   DECIMAL(5,1), '+LineEnding+
+   '    WAVEDIR      SMALLINT, '    +LineEnding+
+   '    WAVEPERIOD   SMALLINT, '    +LineEnding+
+   '    SEASTATE     SMALLINT, '    +LineEnding+
+   '    WEATHER      SMALLINT, '    +LineEnding+
+   '    WATERCOLOR   SMALLINT, '    +LineEnding+
+   '    WATERTRANSP  SMALLINT, '    +LineEnding+
+   '    SURFTEMP     DECIMAL(5,2), '+LineEnding+
+   '    SURFSALT     DECIMAL(5,2) ' +LineEnding+
+   '); '+LineEnding+
 
+   (* PARAMETERS *)
+   'CREATE TABLE "PARAMETER" ('+LineEnding+
+   '    ID            BIGINT NOT NULL, '+LineEnding+
+   '    TABLENAME     VARCHAR(255) NOT NULL, '+LineEnding+
+   '    PARAMETERNAME VARCHAR(255) NOT NULL, '+LineEnding+
+   '    DESCRIPTION   VARCHAR(255), '+LineEnding+
+   '    CONSTRAINT PARAMETER_PK PRIMARY KEY (ID) '+LineEnding+
+   '); '+LineEnding+
 
- {
-ALTER TABLE STATION ADD CONSTRAINT PK_STATION PRIMARY KEY (ID);
-ALTER TABLE ENTRY ADD CONSTRAINT PK_ENTRY PRIMARY KEY (ID);
-ALTER TABLE ENTRY_TYPE ADD CONSTRAINT PK_ENTRY_TYPE PRIMARY KEY (ID);
-
-
-/******************************************************************************/
-/***                              Foreign keys                              ***/
-/******************************************************************************/
-
-ALTER TABLE ENTRY ADD CONSTRAINT FK_ENTRY_1 FOREIGN KEY (ENTRIES_TYPE_ID) REFERENCES ENTRY_TYPE (ID);
-ALTER TABLE P_TEMPERATURE_BOTTLE ADD CONSTRAINT FK_P_TEMPERATURE_BOTTLE_2 FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE P_TEMPERATURE_CTD ADD CONSTRAINT FK_P_TEMPERATURE_CTD_2 FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_1 FOREIGN KEY (STATION_ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_2 FOREIGN KEY (ENTRY_ID) REFERENCES ENTRY (ID) ON DELETE CASCADE ON UPDATE CASCADE;
-}
-
-
+   'ALTER TABLE ENTRY ADD CONSTRAINT FK_ENTRY FOREIGN KEY (ENTRIES_TYPE_ID) REFERENCES ENTRY_TYPE (ID); '+LineEnding+
+   'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_1 FOREIGN KEY (STATION_ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_2 FOREIGN KEY (ENTRY_ID) REFERENCES ENTRY (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
 
    'COMMIT WORK '+LineEnding+
    'SET TERM ; '+LineEnding;
 
 begin
+
+// showmessage(ScriptText);
  try
    DB:=TIBConnection.Create(nil);
    TR:=TSQLTransaction.Create(nil);

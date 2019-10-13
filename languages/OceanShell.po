@@ -323,6 +323,24 @@ msgctxt "tfrmcodes.dbgridproject.columns[2].title.caption"
 msgid "Project name"
 msgstr ""
 
+#: tfrmcodes.dbgridqcflag.columns[0].title.caption
+msgctxt "tfrmcodes.dbgridqcflag.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmcodes.dbgridqcflag.columns[1].title.caption
+msgctxt "tfrmcodes.dbgridqcflag.columns[1].title.caption"
+msgid "Source name"
+msgstr ""
+
+#: tfrmcodes.dbgridqcflag.columns[2].title.caption
+msgid "Source QC flag"
+msgstr ""
+
+#: tfrmcodes.dbgridqcflag.columns[3].title.caption
+msgid "ODB QC flag"
+msgstr ""
+
 #: tfrmcodes.dbgridsource.columns[0].title.caption
 msgctxt "tfrmcodes.dbgridsource.columns[0].title.caption"
 msgid "ID"
@@ -412,6 +430,10 @@ msgstr ""
 #: tfrmcodes.tbproject.caption
 msgctxt "tfrmcodes.tbproject.caption"
 msgid "PROJECT"
+msgstr ""
+
+#: tfrmcodes.tbqcflag.caption
+msgid "QCFLAG"
 msgstr ""
 
 #: tfrmcodes.tbsource.caption
@@ -580,13 +602,16 @@ msgctxt "tfrmcodesqc.tabsheet2.caption"
 msgid "QC"
 msgstr ""
 
+#: tfrmloadglodap_2019_v2_product.btncreatetables.caption
+msgid "btnCreateTables"
+msgstr ""
+
 #: tfrmloadglodap_2019_v2_product.button1.caption
-msgid "Product (csv)"
+msgid "Button1"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.button2.caption
-msgctxt "tfrmloadglodap_2019_v2_product.button2.caption"
-msgid "Start"
+msgid "Button2"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.caption
@@ -741,10 +766,6 @@ msgctxt "tfrmsettings.caption"
 msgid "Settings"
 msgstr ""
 
-#: tfrmsettings.chkrelerr.caption
-msgid "Do not use values with Relative Error >"
-msgstr ""
-
 #: tfrmsettings.groupbox1.caption
 msgid "Surfer's scripter"
 msgstr ""
@@ -803,9 +824,5 @@ msgstr ""
 
 #: tfrmsettings.tabsheet4.caption
 msgid "Python"
-msgstr ""
-
-#: tfrmsettings.tsclimatology.caption
-msgid "Climatology"
 msgstr ""
 
