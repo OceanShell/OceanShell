@@ -133,8 +133,8 @@
         <UnitName Value="osload_GLODAP_2019_v2_product"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="831"/>
-        <CursorPos X="49" Y="854"/>
+        <TopLine Value="748"/>
+        <CursorPos X="61" Y="770"/>
         <UsageCount Value="186"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>

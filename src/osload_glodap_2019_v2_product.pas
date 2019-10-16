@@ -382,7 +382,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 2	P_SALINITY_BOTTLE	5	press val         pQF1 pQF2 sQF	CV	SALINITY	Sea water salinity *)
@@ -396,7 +396,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 3	P_OXYGEN_BOTTLE		5	press val         pQF1 pQF2 sQF	CV	OXYGEN		Dissolved Oxygen *)
@@ -410,7 +410,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 4	P_AOU_BOTTLE		5	press val         pQF1 pQF2 sQF		AOU		Apparent oxygen utilization  *)
@@ -424,7 +424,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 5	P_NITRATE_BOTTLE	5	press val         pQF1 pQF2 sQF	CV	NITRATE		Nitrate *)
@@ -438,7 +438,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 6	P_NITRITE_BOTTLE	5	press val         pQF1 pQF2 sQF		NITRITE		Nitrite *)
@@ -452,7 +452,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 7	P_SILICATE_BOTTLE	5	press val         pQF1 pQF2 sQF	CV	SILICATE	Silicate *)
@@ -466,7 +466,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 8	P_PHOSPHATE_BOTTLE	5	press val         pQF1 pQF2 sQF	CV	PHOSPHATE	Phosphate  *)
@@ -480,7 +480,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
 
@@ -495,7 +495,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 10	P_TALK_BOTTLE		5	press val         pQF1 pQF2 sQF	CV	TALK		Total alkalinity *)
@@ -509,7 +509,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 11	P_PHTS25P0_BOTTLE	5	press val         pQF1 pQF2 sQF	CV	PH		pH on total scale, 25C, 0dbar *)
@@ -523,7 +523,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 12	P_PHTSINSITUTP_BOTTLE	5	press val         pQF1 pQF2 sQF		PH		pH on total scale, in situ temperature and pressure *)
@@ -537,7 +537,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 13	P_CFC11_BOTTLE		6	press val pval    pQF1 pQF2 sQF	CV	CFC11		Halogenated transient tracer CFC11  *)
@@ -552,7 +552,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 14	P_CFC12_BOTTLE		6	press val pval    pQF1 pQF2 sQF	CV	CFC12		Halogenated transient tracer CFC12 *)
@@ -567,7 +567,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 15	P_CFC113_BOTTLE		6	press val pval    pQF1 pQF2 sQF	CV	CFC113		Halogenated transient tracer CFC113 *)
@@ -582,7 +582,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (*16	P_CC14_BOTTLE		6	press val pval    pQF1 pQF2 sQF	CV	CC14		Halogenated transient tracer CC14 *)
@@ -597,7 +597,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 17	P_SF6_BOTTLE		6	press val pval    pQF1 pQF2 sQF		SF6		Sulfur hexafluoride  *)
@@ -612,7 +612,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 18	P_C13_BOTTLE		5	press val         pQF1 pQF2 sQF		C13		Stable isotop carbon 13 *)
@@ -626,7 +626,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 19	P_C14_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		C14		Radioisotop carbon 14  *)
@@ -641,7 +641,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 20	P_HE3_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		HE3		Radioisotop helium 3  *)
@@ -656,7 +656,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 21	P_HE_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		HE		Helium *)
@@ -671,7 +671,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 22	P_NEON_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		NEON		Neon *)
@@ -686,7 +686,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 23	P_O18_BOTTLE		5	press val         pQF1 pQF2 sQF		O18		Stable isotop of oxygen 18 *)
@@ -700,7 +700,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 24	P_TOC_BOTTLE		5	press val         pQF1 pQF2 sQF		TOC		Total organic carbon *)
@@ -714,7 +714,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 25	P_DOC_BOTTLE		5	press val         pQF1 pQF2 sQF		DOC		Dissolved organic carbon  *)
@@ -728,7 +728,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 26	P_DON_BOTTLE		5	press val         pQF1 pQF2 sQF		DON		Dissolved organic nitrogen *)
@@ -742,7 +742,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 27	P_TDN_BOTTLE		5	press val         pQF1 pQF2 sQF		TDN		Total dissolved nitrogen *)
@@ -756,7 +756,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
   (* 28	P_CHLA_BOTTLE		5	press val         pQF1 pQF2 sQF		CHLA		chlorophylla *)
@@ -770,7 +770,7 @@ begin
      '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
-     '   UNIT_ID        BIGINT '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
      'ALTER TABLE P_TEMPERATURE_BOTTLE ADD CONSTRAINT FK_P_TEMPERATURE_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
