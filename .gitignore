@@ -1,9 +1,10 @@
+*.exe
+backup/
 data/
+databases/
 documents/
 help/
-support/
-unload/
-backup/
 src/lib/
 src/backup/
-OceanShell.exe
+support/
+unload/

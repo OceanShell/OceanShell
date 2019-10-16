@@ -50,6 +50,7 @@ type
     eCruiseWOD_WOD: TEdit;
     eCruiseGLODAP_EXPOCODE: TEdit;
     ePI_ID: TEdit;
+    ePI_Source: TEdit;
     ePI_WOD: TEdit;
     ePI_Name: TEdit;
     eCruise_DATEEND: TEdit;
@@ -192,8 +193,8 @@ type
     procedure ePlatform_NameChange(Sender: TObject);
     procedure ePlatform_NODCChange(Sender: TObject);
     procedure ePlatform_NameNativeChange(Sender: TObject);
-    procedure ePlatform_IMOChange(Sender: TObject);
-    procedure ePlatform_CallsignChange(Sender: TObject);
+    procedure ePlatfo(Sender: TObject);
+    procedure ePlatform_(Sender: TObject);
     procedure eCountry_ISOChange(Sender: TObject);
 
 
@@ -251,6 +252,7 @@ begin
    Filtered:=false;
    SQL.text:='';
    Close;
+   ClearIndexes;
  end;
 
  CodesTblName:='';
@@ -280,14 +282,14 @@ begin
      end;
   3: begin
          CodesTblName:='CRUISE_GLODAP';
-         Q.SQL.text:='Select CRUISE_GLODAP.ID, CRUISE_GLODAP.GLODAP_ID, '+
+         Q.SQL.text:='Select CRUISE_GLODAP.ID, CRUISE_GLODAP.EXPOCODE, '+
                      'PLATFORM.NAME as PLATFORMNAME, '+
                      'COUNTRY.NAME as COUNTRYNAME, CRUISE_GLODAP.CRUISE_NUMBER, '+
                      'CRUISE_GLODAP.DATE_START, CRUISE_GLODAP.DATE_END '+
                      'FROM CRUISE_GLODAP, PLATFORM, COUNTRY WHERE '+
                      'CRUISE_GLODAP.PLATFORM_ID=PLATFORM.ID and '+
                      'CRUISE_GLODAP.COUNTRY_ID=COUNTRY.ID '+
-                     'ORDER BY CRUISE_GLODAP.DATE_START, PLATFORM.NAME';
+                     'ORDER BY CRUISE_GLODAP.ID';
      end;
   4: begin
        CodesTblName:='COUNTRY';
@@ -301,8 +303,10 @@ begin
      end;
   6: begin
        CodesTblName:='PI';
-       Q.SQL.text:='Select ID, WOD_ID, NAME '+
-                   'FROM PI ORDER BY NAME';
+       Q.SQL.text:='Select PI.ID, PI.WOD_ID, PI.NAME, '+
+                   'SOURCE.NAME as SOURCENAME '+
+                   'FROM PI, SOURCE WHERE '+
+                   'PI.SOURCE_ID=SOURCE.ID ORDER BY NAME';
      end;
   7: begin
        CodesTblName:='PROJECT';
@@ -447,8 +451,15 @@ begin
  if CodesTblName='PI' then begin
     occup:=trunc(DBGridPI.Width-20-
            (DBGridPI.Columns[0].Width+
-            DBGridPI.Columns[1].Width));
-    DBGridPI.Columns[2].Width:=occup+1;
+            DBGridPI.Columns[2].Width+
+            DBGridPI.Columns[3].Width));
+
+    DBGridPI.Columns[1].Width:=occup+1;
+
+    ePI_ID.Width:=     DBGridPI.Columns[0].Width+1;
+    ePI_Name.Width:=   DBGridPI.Columns[1].Width;
+    ePI_Source.Width:= DBGridPI.Columns[2].Width;
+    ePI_WOD.Width:=    DBGridPI.Columns[3].Width;
  end;
  if CodesTblName='PROJECT' then begin
     occup:=trunc(DBGridProject.Width-20-
@@ -608,9 +619,9 @@ begin
 
 
  if (Q.FieldByName('ID').AsInteger>0) and
-    (CodesTblName='COUNTRY') and
-    (CodesTblName='QCFLAG') and
-    (CodesTblName='QCRUISE_WOD') then begin
+    (CodesTblName<>'COUNTRY') and
+    (CodesTblName<>'QCFLAG') and
+    (CodesTblName<>'CRUISE_WOD') then begin
   TRt:=TSQLTransaction.Create(self);
   TRt.DataBase:=frmdm.SupportDB;
   Qt :=TSQLQuery.Create(self);
@@ -811,7 +822,7 @@ begin
 end;
 
 (* IMO *)
-procedure Tfrmcodes.ePlatform_IMOChange(Sender: TObject);
+procedure Tfrmcodes.ePlatfo(Sender: TObject);
 begin
  if ePlatform_IMO.Text='' then exit;
    Q.Locate('IMO_ID', StrToInt(ePlatform_IMO.Text),[loCaseInsensitive, loPartialKey]);
@@ -825,7 +836,7 @@ begin
 end;
 
 (* Callsign *)
-procedure Tfrmcodes.ePlatform_CallsignChange(Sender: TObject);
+procedure Tfrmcodes.ePlatform_(Sender: TObject);
 begin
  Q.Filter:='CALLSIGN = '+QuotedStr('*'+ePlatform_Callsign.Text+'*');
  Q.Filtered:=true;

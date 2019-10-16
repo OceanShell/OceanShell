@@ -118,37 +118,37 @@ msgstr ""
 
 #: tfrmcodes.dbgridcruise.columns[1].title.caption
 msgctxt "tfrmcodes.dbgridcruise.columns[1].title.caption"
-msgid "WOD"
+msgid "Platform name"
 msgstr ""
 
 #: tfrmcodes.dbgridcruise.columns[2].title.caption
 msgctxt "tfrmcodes.dbgridcruise.columns[2].title.caption"
-msgid "Platform name"
+msgid "Cruise #"
 msgstr ""
 
 #: tfrmcodes.dbgridcruise.columns[3].title.caption
 msgctxt "tfrmcodes.dbgridcruise.columns[3].title.caption"
-msgid "Cruise #"
+msgid "Start date"
 msgstr ""
 
 #: tfrmcodes.dbgridcruise.columns[4].title.caption
 msgctxt "tfrmcodes.dbgridcruise.columns[4].title.caption"
-msgid "Start date"
+msgid "End date"
 msgstr ""
 
 #: tfrmcodes.dbgridcruise.columns[5].title.caption
 msgctxt "tfrmcodes.dbgridcruise.columns[5].title.caption"
-msgid "End date"
+msgid "Stations #"
 msgstr ""
 
 #: tfrmcodes.dbgridcruise.columns[6].title.caption
 msgctxt "tfrmcodes.dbgridcruise.columns[6].title.caption"
-msgid "Stations #"
+msgid "Country name"
 msgstr ""
 
 #: tfrmcodes.dbgridcruise.columns[7].title.caption
 msgctxt "tfrmcodes.dbgridcruise.columns[7].title.caption"
-msgid "Country name"
+msgid "WOD"
 msgstr ""
 
 #: tfrmcodes.dbgridcruiseglodap.columns[0].title.caption
@@ -260,12 +260,17 @@ msgstr ""
 
 #: tfrmcodes.dbgridpi.columns[1].title.caption
 msgctxt "tfrmcodes.dbgridpi.columns[1].title.caption"
-msgid "WOD"
+msgid "Primary Investigator name"
 msgstr ""
 
 #: tfrmcodes.dbgridpi.columns[2].title.caption
 msgctxt "tfrmcodes.dbgridpi.columns[2].title.caption"
-msgid "Primary Investigator name(s)"
+msgid "Source"
+msgstr ""
+
+#: tfrmcodes.dbgridpi.columns[3].title.caption
+msgctxt "tfrmcodes.dbgridpi.columns[3].title.caption"
+msgid "WOD"
 msgstr ""
 
 #: tfrmcodes.dbgridplatform.columns[0].title.caption
@@ -467,12 +472,12 @@ msgctxt "tfrmcodesqc.btncountrywod.caption"
 msgid "country_list.txt"
 msgstr ""
 
-#: tfrmcodesqc.btncruisewod.caption
-msgid "allcruises_list.txt"
+#: tfrmcodesqc.btncruiseglodap.caption
+msgid "GLODAP Cruise"
 msgstr ""
 
-#: tfrmcodesqc.btnglodapcruise.caption
-msgid "GLODAPCruise"
+#: tfrmcodesqc.btncruisewod.caption
+msgid "allcruises_list.txt"
 msgstr ""
 
 #: tfrmcodesqc.btninstitutewod.caption

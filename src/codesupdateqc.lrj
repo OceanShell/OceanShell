@@ -25,7 +25,7 @@
 {"hash":255719572,"name":"tfrmcodesqc.label5.caption","sourcebytes":[87,79,68,32,67,114,117,105,115,101,32,108,105,115,116],"value":"WOD Cruise list"},
 {"hash":134833700,"name":"tfrmcodesqc.btncruisewod.caption","sourcebytes":[97,108,108,99,114,117,105,115,101,115,95,108,105,115,116,46,116,120,116],"value":"allcruises_list.txt"},
 {"hash":74440340,"name":"tfrmcodesqc.label6.caption","sourcebytes":[71,76,79,68,65,80,32,99,114,117,105,115,101,32,109,100],"value":"GLODAP cruise md"},
-{"hash":6854901,"name":"tfrmcodesqc.btnglodapcruise.caption","sourcebytes":[71,76,79,68,65,80,67,114,117,105,115,101],"value":"GLODAPCruise"},
+{"hash":146425589,"name":"tfrmcodesqc.btncruiseglodap.caption","sourcebytes":[71,76,79,68,65,80,32,67,114,117,105,115,101],"value":"GLODAP Cruise"},
 {"hash":1363,"name":"tfrmcodesqc.tabsheet2.caption","sourcebytes":[81,67],"value":"QC"},
 {"hash":133931117,"name":"tfrmcodesqc.rgduplicates.caption","sourcebytes":[68,117,112,108,105,99,97,116,101,115,32,105,110,32,80,76,65,84,70,79,82,77],"value":"Duplicates in PLATFORM"},
 {"hash":60418925,"name":"tfrmcodesqc.btnplatformduplicates.caption","sourcebytes":[70,105,110,100,32,100,117,112,108,105,99,97,116,101,115,32,105,110,32,80,76,65,84,70,79,82,77],"value":"Find duplicates in PLATFORM"},

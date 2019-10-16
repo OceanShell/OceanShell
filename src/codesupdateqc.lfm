@@ -260,13 +260,13 @@ object frmcodesQC: TfrmcodesQC
           Caption = 'GLODAP cruise md'
           ParentColor = False
         end
-        object btnGLODAPCruise: TButton
+        object btnCruiseGLODAP: TButton
           Left = 168
           Height = 25
           Top = 28
           Width = 168
-          Caption = 'GLODAPCruise'
-          OnClick = btnGLODAPCruiseClick
+          Caption = 'GLODAP Cruise'
+          OnClick = btnCruiseGLODAPClick
           TabOrder = 1
         end
       end

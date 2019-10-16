@@ -24,7 +24,7 @@ type
     btnPlatformWOD2013: TButton;
     Button1: TButton;
     btnCountryISO: TButton;
-    btnGLODAPCruise: TButton;
+    btnCruiseGLODAP: TButton;
     chkShowLog: TCheckBox;
     GroupBox1: TGroupBox;
     GroupBox3: TGroupBox;
@@ -52,7 +52,7 @@ type
     procedure btnCountryDuplicatesClick(Sender: TObject);
     procedure btnCountryISOClick(Sender: TObject);
     procedure btnCruiseWODClick(Sender: TObject);
-    procedure btnGLODAPCruiseClick(Sender: TObject);
+    procedure btnCruiseGLODAPClick(Sender: TObject);
     procedure btnPIWODClick(Sender: TObject);
     procedure btnInstituteWODClick(Sender: TObject);
     procedure btnProjectWODClick(Sender: TObject);
@@ -1477,9 +1477,11 @@ end;
 
 
 
-procedure TfrmcodesQC.btnGLODAPCruiseClick(Sender: TObject);
+procedure TfrmcodesQC.btnCruiseGLODAPClick(Sender: TObject);
 var
 dat: text;
+
+
 PathToCodesSource, buf_str, piname, st, code_nodc:string;
 c, k, i, absnum, ID:integer;
 wod_country:string;
@@ -1487,7 +1489,7 @@ wod_id, country_ID, wod_institute_id, wod_platform_id, stnum: integer;
 platform_id, institute_id, project_id: integer;
 
 cruise_ind, start_date, end_date, wmo_id, date_str: string;
-country_name, platform_name: string;
+Glodap_ID, country_name, platform_name: string;
 notes_str: widestring;
 
 expocode, cr_alias, dates, platform, chiefSc, carbonPI, HydroPI, OxygenPI: widestring;
@@ -1496,7 +1498,8 @@ mn, dd, yy: word;
 
 fl1, fl2:boolean;
 
-nodate:boolean;
+XL: oleVariant;
+XLTemplate:Variant;
 date1, date2:TDateTime;
 
 TRt:TSQLTransaction;
@@ -1506,9 +1509,10 @@ begin
 try
 mLog.Clear;
 
- btnCruiseWOD.Enabled:=false;
+ btnCruiseGLODAP.Enabled:=false;
 
- frmosmain.OD.Filter:='*.csv|*.csv';
+
+ frmosmain.OD.Filter:='*.xls|*.xls';
  if frmosmain.OD.Execute then PathToCodesSource:=frmosmain.OD.FileName else exit;
 
   TRt:=TSQLTransaction.Create(self);
@@ -1518,15 +1522,6 @@ mLog.Clear;
   Qt1.Database:=frmdm.SupportDB;
   Qt1.Transaction:=TRt;
 
-  with Qt1 do begin
-    Close;
-     SQL.Clear;
-     SQL.ADD(' Select max(ID) as AbsnumMax from CRUISE_GLODAP ');
-    Open;
-      Absnum:=Qt1.FieldByName('AbsnumMax').AsInteger;
-    Close;
-  end;
-
   Qt2 :=TSQLQuery.Create(self);
   Qt2.Database:=frmdm.SupportDB;
   Qt2.Transaction:=TRt;
@@ -1535,91 +1530,149 @@ mLog.Clear;
   Qt3.Database:=frmdm.SupportDB;
   Qt3.Transaction:=TRt;
 
- AssignFile(dat, PathToCodesSource); reset(dat);
- readln(dat, st);
 
+  XLTemplate:=frmosmain.OD.FileName;
+
+  try
+   XL := CreateOleObject('Excel.Application');
+   XL.Visible := False;
+   XL.DisplayAlerts := False;
+  except
+   Showmessage('MS Excel is not installed');
+   Exit;
+  end;
+
+  XL.WorkBooks.Open(XLTemplate);
+
+   k:=1;
    repeat
-    readln(dat, st);
-    if eof(dat) then exit;
+    inc(k);
 
+    if vartostr(Xl.Cells[k, 1].Value)='' then exit;
 
-    expocode:=''; cr_alias:=''; dates:=''; platform:=''; chiefsc:='';
+    expocode:=''; cr_alias:=''; dates:=''; platform_name:=''; chiefsc:='';
     CarbonPI:=''; HydroPI:=''; OxygenPI:=''; NutrientPI:=''; CFCPI:='';
     OrganicsPI:=''; IsotopesPI:=''; OtherPI:='';
 
-    k:=0;
-    for c:=1 to 14 do begin
-     buf_str:='';
-     repeat
-      inc(k);
-       if (st[k]<>';') and (k<=length(st)) then buf_str:=buf_str+trim(st[k]);
+ {   showmessage(vartostr(Xl.Cells[k, 1].Value)+#13+
+    vartostr(Xl.Cells[k, 2].Value)+#13+
+    vartostr(Xl.Cells[k, 3].Value)+#13+
+    vartostr(Xl.Cells[k, 4].Value)+#13+
+    vartostr(Xl.Cells[k, 5].Value)+#13+
+    vartostr(Xl.Cells[k, 6].Value)+#13+
+    vartostr(Xl.Cells[k, 7].Value)+#13+
+    vartostr(Xl.Cells[k, 8].Value)+#13+
+    vartostr(Xl.Cells[k, 9].Value)+#13+
+    vartostr(Xl.Cells[k, 10].Value)+#13+
+    vartostr(Xl.Cells[k, 11].Value)+#13+
+    vartostr(Xl.Cells[k, 12].Value)+#13+
+    vartostr(Xl.Cells[k, 13].Value)+#13+
+    vartostr(Xl.Cells[k, 14].Value));     }
 
-   //    if c=14 then showmessage(st[k]+'   '+buf_str);
-     until (st[k]=';') or (st[k]='\0') or (k=length(st));
-     if c=1 then source_id:=trim(buf_str);
-     if c=2 then EXPOCODE:=trim(buf_str);
-     if c=3 then Cr_Alias:=trim(buf_str);
-     if c=4 then dates:=trim(buf_str);
-     if c=5 then platform:=trim(buf_str);
-     if c=6 then ChiefSc:=trim(buf_str);
-     if c=7 then CarbonPI:=trim(buf_str);
-     if c=8 then HydroPI:=trim(buf_str);
-     if c=9 then OxygenPI:=trim(buf_str);
-     if c=10 then NutrientPI:=trim(buf_str);
-     if c=11 then CFCPI:=trim(buf_str);
-     if c=12 then OrganicsPI:=trim(buf_str);
-     if c=13 then IsotopesPI:=trim(buf_str);
-  //   if c=14 then OtherPI:=trim(buf_str);
-    end;
-
- //   showmessage(trimRight(otherpi));
+     Glodap_ID:= vartostr(Xl.Cells[k, 1].Value);
+     EXPOCODE:=  vartostr(Xl.Cells[k, 2].Value);
+     Cr_Alias:=  vartostr(Xl.Cells[k, 3].Value);
+     dates:=     vartostr(Xl.Cells[k, 4].Value);
+     platform:=  vartostr(Xl.Cells[k, 5].Value);
+     ChiefSc:=   vartostr(Xl.Cells[k, 6].Value);
+     CarbonPI:=  vartostr(Xl.Cells[k, 7].Value);
+     HydroPI:=   vartostr(Xl.Cells[k, 8].Value);
+     OxygenPI:=  vartostr(Xl.Cells[k, 9].Value);
+     NutrientPI:=vartostr(Xl.Cells[k, 10].Value);
+     CFCPI:=     vartostr(Xl.Cells[k, 11].Value);
+     OrganicsPI:=vartostr(Xl.Cells[k, 12].Value);
+     IsotopesPI:=vartostr(Xl.Cells[k, 13].Value);
+     OtherPI:=   vartostr(Xl.Cells[k, 14].Value);
 
     notes_str:='';
-    if ChiefSc<>'' then notes_str:='Chief scientist: '+ChiefSc+LineEnding;
-    if CarbonPI<>'' then notes_str:=notes_str+'Carbon PI: '+CarbonPI+LineEnding;
-    if HydroPI<>'' then notes_str:=notes_str+'Hydro PI: '+HydroPI+LineEnding;
-    if OxygenPI<>'' then notes_str:=notes_str+'Oxygen PI: '+OxygenPI+LineEnding;
+    if ChiefSc<>''    then notes_str:='Chief scientist: '+ChiefSc+LineEnding;
+    if CarbonPI<>''   then notes_str:=notes_str+'Carbon PI: '+CarbonPI+LineEnding;
+    if HydroPI<>''    then notes_str:=notes_str+'Hydro PI: '+HydroPI+LineEnding;
+    if OxygenPI<>''   then notes_str:=notes_str+'Oxygen PI: '+OxygenPI+LineEnding;
     if NutrientPI<>'' then notes_str:=notes_str+'Nutrient PI: '+NutrientPI+LineEnding;
-    if CFCPI<>'' then notes_str:=notes_str+'CFC PI: '+CFCPI+LineEnding;
+    if CFCPI<>''      then notes_str:=notes_str+'CFC PI: '+CFCPI+LineEnding;
     if OrganicsPI<>'' then notes_str:=notes_str+'Organics PI: '+OrganicsPI+LineEnding;
     if IsotopesPI<>'' then notes_str:=notes_str+'Isotopes PI: '+IsotopesPI;
-  //  if OtherPI<>'' then notes_str:=notes_str+'Other PI: '+OtherPI;
+    if OtherPI<>''    then notes_str:=notes_str+'Other PI: '+OtherPI;
 
+  //   showmessage(notes_str);
+
+  if (strtoint(Glodap_ID)<>396) and
+     (strtoint(Glodap_ID)<=718) then begin
    date1:=DateEncode(StrToInt(copy(EXPOCODE, 5, 4)),
                      StrToInt(copy(EXPOCODE, 9, 2)),
                      StrToInt(copy(EXPOCODE, 11, 2)),
                      0, 0, fl1, fl2);
 
-  // showmessage(datetostr(date1));
-
    date_str:=trim(copy(dates, Pos('-',dates)+1, length(dates)));
 
-   k:=0;
+   i:=0;
    for c:=1 to 3 do begin
     buf_str:='';
       repeat
-        inc(k);
-            if (date_str[k]<>'/') then buf_str:=buf_str+date_str[k];
-      until (date_str[k]='/') or (k=length(date_str));
+        inc(i);
+            if (date_str[i]<>'/') then buf_str:=buf_str+date_str[i];
+      until (date_str[i]='/') or (i=length(date_str));
         if c=1 then mn:=StrToInt(trim(buf_str));
         if c=2 then dd:=StrToInt(trim(buf_str));
         if c=3 then yy:=StrToInt(trim(buf_str));
    end;
    date2:=DateEncode(yy, mn, dd, 0, 0, fl1, fl2);
+  end;
 
+  if strtoint(Glodap_ID)=396 then begin
+    date1:=DateEncode(1990, 01, 27, 0, 0, fl1, fl2);
+    date2:=DateEncode(1995, 08, 01, 0, 0, fl1, fl2);
+  end;
+  if strtoint(Glodap_ID)=719 then begin
+    date1:=DateEncode(2005, 01, 01, 0, 0, fl1, fl2);
+    date2:=DateEncode(2007, 12, 31, 0, 0, fl1, fl2);
+  end;
+  if strtoint(Glodap_ID)=720 then begin
+    date1:=DateEncode(1991, 08, 15, 0, 0, fl1, fl2);
+    date2:=DateEncode(2006, 10, 02, 0, 0, fl1, fl2);
+  end;
+  if strtoint(Glodap_ID)=721 then begin
+    date1:=DateEncode(1991, 08, 08, 0, 0, fl1, fl2);
+    date2:=DateEncode(2006, 02, 02, 0, 0, fl1, fl2);
+  end;
+  if strtoint(Glodap_ID)=722 then begin
+    date1:=DateEncode(1993, 04, 01, 0, 0, fl1, fl2);
+    date2:=DateEncode(1995, 11, 30, 0, 0, fl1, fl2);
+  end;
+  if strtoint(Glodap_ID)=723 then begin
+    date1:=DateEncode(1997, 06, 01, 0, 0, fl1, fl2);
+    date2:=DateEncode(1999, 09, 30, 0, 0, fl1, fl2);
+  end;
+  if strtoint(Glodap_ID)=724 then begin
+    date1:=DateEncode(2005, 01, 01, 0, 0, fl1, fl2);
+    date2:=DateEncode(2009, 12, 31, 0, 0, fl1, fl2);
+  end;
+
+  if (strtoint(Glodap_ID)>=725) then begin
+    yy:=StrToInt(copy(dates, 1, 4));
+    mn:=StrToInt(copy(dates, 5, 2));
+    dd:=StrToInt(copy(dates, 7, 2));
+
+    date1:=DateEncode(yy, mn, dd, 0, 0, fl1, fl2);
+
+    yy:=StrToInt(copy(dates, 12, 4));
+    mn:=StrToInt(copy(dates, 16, 2));
+    dd:=StrToInt(copy(dates, 18, 2));
+
+    date2:=DateEncode(yy, mn, dd, 0, 0, fl1, fl2);
+  end;
 
    with Qt1 do begin
     Close;
      SQL.Clear;
      SQL.Add(' select ID from CRUISE_GLODAP ');
-     SQL.Add(' where glodap_id=:ID ');
-     ParamByName('ID').AsWideString:=expocode;
+     SQL.Add(' where id=:ID ');
+     ParamByName('ID').AsString:=Glodap_ID;
     Open;
    end;
 
    if Qt1.IsEmpty=true then begin
-    inc(absnum);
-
    with Qt1 do begin
     Close;
      SQL.Clear;
@@ -1630,7 +1683,7 @@ mLog.Clear;
      if Qt1.IsEmpty=false then begin
        country_id:=Qt1.Fields[0].AsInteger;
        country_name:=Qt1.Fields[1].AsString;
-     end else country_id:=-9;
+     end else country_id:=488;   //UNKNOWN
     Close;
    end;
 
@@ -1644,7 +1697,7 @@ mLog.Clear;
      if Qt1.IsEmpty=false then begin
        platform_id:=Qt1.Fields[0].AsInteger;
        platform_name:=Qt1.Fields[1].AsString;
-     end else platform_id:=-9;
+     end else platform_id:=19043;  //UNKNOWN PLATFORM
     Close;
    end;
 
@@ -1654,18 +1707,17 @@ mLog.Clear;
        SQL.Clear;
        SQL.Add(' INSERT INTO CRUISE_GLODAP ' );
        SQL.Add(' (ID, PLATFORM_ID, DATE_START, DATE_END, CRUISE_NUMBER, ');
-       SQL.Add('  COUNTRY_ID, INSTITUTE_ID, GLODAP_ID, NOTES, DATE_ADDED )');
+       SQL.Add('  COUNTRY_ID, EXPOCODE, NOTES, DATE_ADDED )');
        SQL.Add(' VALUES ' );
        SQL.Add(' (:ID, :PLATFORM_ID, :DATE_START, :DATE_END, :CRUISE_NUMBER, ');
-       SQL.Add('  :COUNTRY_ID, :INSTITUTE_ID, :GLODAP_ID, :NOTES, :DATE_ADDED )');
-       ParamByName('ID').AsInteger:=absnum;
+       SQL.Add('  :COUNTRY_ID, :EXPOCODE, :NOTES, :DATE_ADDED )');
+       ParamByName('ID').AsInteger:=strtoint(glodap_id);
        ParamByName('PLATFORM_ID').AsInteger:=platform_id;
        ParamByName('DATE_START').AsDate:=date1;
        ParamByName('DATE_END').AsDate:=date2;
        ParamByName('CRUISE_NUMBER').AsString:=Cr_alias;
+       ParamByName('EXPOCODE').AsString:=EXPOCODE;
        ParamByName('COUNTRY_ID').AsInteger:=country_id;
-       ParamByName('INSTITUTE_ID').AsInteger:=-9;
-       ParamByName('GLODAP_ID').AsWideString:=expocode;
        ParamByName('Notes').AsWideString:=notes_str;
        ParamByName('DATE_ADDED').AsDateTime :=now;
       ExecSQL;
@@ -1681,20 +1733,21 @@ mLog.Clear;
 
      end;
 
-    mLog.Lines.Add(source_id+'   '+
+    mLog.Lines.Add(Glodap_ID+'   '+
                   platform_name+'   '+
                   datetostr(date1)+'   '+
                   datetostr(date2)+'   '+
                   country_name+'   '+
                   expocode+'   '+
                   cr_alias);
- // end;
- end;
+   end;
 
-  until eof(dat);
-  closefile(dat);
+  until vartostr(Xl.Cells[k, 1].Value)='';
 
  finally
+  XL.Quit;
+  XL:=UnAssigned;
+
   btnCRUISEWOD.Enabled:=true;
   Qt1.Free;
   Qt2.Free;

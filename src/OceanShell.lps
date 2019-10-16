@@ -4,11 +4,11 @@
     <PathDelim Value="\"/>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="34">
+    <Units Count="33">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="7"/>
         <CursorPos X="65" Y="21"/>
         <UsageCount Value="208"/>
         <Loaded Value="True"/>
@@ -19,7 +19,6 @@
         <ComponentName Value="frmosmain"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <TopLine Value="274"/>
         <CursorPos X="23" Y="293"/>
         <UsageCount Value="208"/>
@@ -32,7 +31,7 @@
         <ComponentName Value="frmdm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="DataModule"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="9"/>
         <CursorPos X="26" Y="60"/>
         <UsageCount Value="207"/>
         <Loaded Value="True"/>
@@ -49,7 +48,7 @@
       <Unit4>
         <Filename Value="osstandartqueries.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="126"/>
         <CursorPos X="7" Y="163"/>
         <UsageCount Value="221"/>
@@ -97,9 +96,9 @@
         <ComponentName Value="frmcodes"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="609"/>
-        <CursorPos X="56" Y="625"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="262"/>
+        <CursorPos X="54" Y="292"/>
         <UsageCount Value="215"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -110,15 +109,17 @@
         <ComponentName Value="frmcodesQC"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="1499"/>
-        <CursorPos X="25" Y="1528"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="1486"/>
+        <CursorPos Y="1505"/>
         <UsageCount Value="207"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit10>
       <Unit11>
         <Filename Value="osabout.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <CursorPos X="39" Y="9"/>
         <UsageCount Value="204"/>
         <Loaded Value="True"/>
@@ -130,23 +131,33 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="osload_GLODAP_2019_v2_product"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="419"/>
-        <CursorPos X="55" Y="385"/>
-        <UsageCount Value="151"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="831"/>
+        <CursorPos X="49" Y="854"/>
+        <UsageCount Value="186"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit12>
       <Unit13>
+        <Filename Value="oscreatenewdb.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="122"/>
+        <CursorPos X="37" Y="157"/>
+        <UsageCount Value="196"/>
+        <Loaded Value="True"/>
+      </Unit13>
+      <Unit14>
         <Filename Value="load_glodap_v2_2019_product.pas"/>
         <ComponentName Value="frmLoad_GLODAP_v2_2019_product"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="69" Y="14"/>
-        <UsageCount Value="9"/>
-      </Unit13>
-      <Unit14>
+        <UsageCount Value="5"/>
+      </Unit14>
+      <Unit15>
         <Filename Value="preferences.pas"/>
         <ComponentName Value="frmpreferences"/>
         <HasResources Value="True"/>
@@ -154,9 +165,9 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="228"/>
         <CursorPos X="70" Y="240"/>
-        <UsageCount Value="139"/>
-      </Unit14>
-      <Unit15>
+        <UsageCount Value="135"/>
+      </Unit15>
+      <Unit16>
         <Filename Value="opendb.pas"/>
         <ComponentName Value="frmopendb"/>
         <HasResources Value="True"/>
@@ -164,9 +175,9 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="41"/>
         <CursorPos Y="49"/>
-        <UsageCount Value="158"/>
-      </Unit15>
-      <Unit16>
+        <UsageCount Value="154"/>
+      </Unit16>
+      <Unit17>
         <Filename Value="opendbreg.pas"/>
         <ComponentName Value="frmopendbreg"/>
         <HasResources Value="True"/>
@@ -174,27 +185,27 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="35"/>
         <CursorPos X="48" Y="37"/>
-        <UsageCount Value="158"/>
-      </Unit16>
-      <Unit17>
+        <UsageCount Value="154"/>
+      </Unit17>
+      <Unit18>
         <Filename Value="statistics.pas"/>
         <ComponentName Value="frmstatistics"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="53" Y="132"/>
-        <UsageCount Value="150"/>
-      </Unit17>
-      <Unit18>
+        <UsageCount Value="146"/>
+      </Unit18>
+      <Unit19>
         <Filename Value="loadseabird.pas"/>
         <ComponentName Value="frmLoadSeaBird"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="76" Y="182"/>
-        <UsageCount Value="138"/>
-      </Unit18>
-      <Unit19>
+        <UsageCount Value="134"/>
+      </Unit19>
+      <Unit20>
         <Filename Value="loadargo.pas"/>
         <ComponentName Value="frmloadargo"/>
         <HasResources Value="True"/>
@@ -202,9 +213,9 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="333"/>
         <CursorPos X="9" Y="353"/>
-        <UsageCount Value="133"/>
-      </Unit19>
-      <Unit20>
+        <UsageCount Value="129"/>
+      </Unit20>
+      <Unit21>
         <Filename Value="loadpangaea.pas"/>
         <ComponentName Value="frmloadpangea"/>
         <HasResources Value="True"/>
@@ -212,9 +223,9 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="183"/>
         <CursorPos X="52" Y="186"/>
-        <UsageCount Value="132"/>
-      </Unit20>
-      <Unit21>
+        <UsageCount Value="128"/>
+      </Unit21>
+      <Unit22>
         <Filename Value="qduplicatesexternaldb.pas"/>
         <ComponentName Value="frmDuplicatesWithExternalDB"/>
         <HasResources Value="True"/>
@@ -222,16 +233,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="138"/>
         <CursorPos X="59" Y="133"/>
-        <UsageCount Value="113"/>
-      </Unit21>
-      <Unit22>
-        <Filename Value="oscreatenewdb.pas"/>
-        <IsPartOfProject Value="True"/>
-        <EditorIndex Value="4"/>
-        <TopLine Value="102"/>
-        <CursorPos X="3" Y="113"/>
-        <UsageCount Value="161"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="109"/>
       </Unit22>
       <Unit23>
         <Filename Value="loadwod.pas"/>
@@ -241,7 +243,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="125"/>
         <CursorPos X="31" Y="130"/>
-        <UsageCount Value="67"/>
+        <UsageCount Value="63"/>
       </Unit23>
       <Unit24>
         <Filename Value="topography3d.pas"/>
@@ -251,14 +253,14 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="113"/>
         <CursorPos X="38" Y="116"/>
-        <UsageCount Value="63"/>
+        <UsageCount Value="59"/>
       </Unit24>
       <Unit25>
         <Filename Value="GEBCO.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="187"/>
         <CursorPos X="80" Y="206"/>
-        <UsageCount Value="63"/>
+        <UsageCount Value="59"/>
       </Unit25>
       <Unit26>
         <Filename Value="loadpolarstern.pas"/>
@@ -267,7 +269,7 @@
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="40" Y="11"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="20"/>
       </Unit26>
       <Unit27>
         <Filename Value="exportdivand.pas"/>
@@ -276,7 +278,7 @@
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="3"/>
-        <UsageCount Value="14"/>
+        <UsageCount Value="10"/>
       </Unit27>
       <Unit28>
         <Filename Value="loadargo_nc.pas"/>
@@ -286,7 +288,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="44"/>
         <CursorPos X="81" Y="60"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="7"/>
       </Unit28>
       <Unit29>
         <Filename Value="loadudash.pas"/>
@@ -294,161 +296,152 @@
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="65" Y="12"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="5"/>
       </Unit29>
       <Unit30>
-        <Filename Value="toolfreshwatercontent.pas"/>
-        <ComponentName Value="frmFreshWaterContent"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="313"/>
-        <CursorPos X="40" Y="324"/>
-        <UsageCount Value="2"/>
-      </Unit30>
-      <Unit31>
         <Filename Value="dm.lfm"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="52"/>
         <CursorPos X="19" Y="56"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="0"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
-      </Unit31>
-      <Unit32>
+      </Unit30>
+      <Unit31>
         <Filename Value="ncdeclarations.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="121"/>
         <CursorPos X="27" Y="128"/>
-        <UsageCount Value="15"/>
-      </Unit32>
-      <Unit33>
+        <UsageCount Value="11"/>
+      </Unit31>
+      <Unit32>
         <Filename Value="C:\lazarus-2.0.4-fpc-3.0.4-win64\fpc\3.0.4\source\rtl\inc\varianth.inc"/>
-        <EditorIndex Value="-1"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="206"/>
-        <CursorPos X="10" Y="225"/>
-        <UsageCount Value="10"/>
-      </Unit33>
+        <CursorPos X="13" Y="225"/>
+        <UsageCount Value="15"/>
+        <Loaded Value="True"/>
+      </Unit32>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="oscreatenewdb.pas"/>
-        <Caret Line="112" Column="12" TopLine="87"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1669" Column="12" TopLine="1643"/>
       </Position1>
       <Position2>
-        <Filename Value="codes.pas"/>
-        <Caret Line="317" Column="44" TopLine="298"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1585" Column="60" TopLine="1558"/>
       </Position2>
       <Position3>
         <Filename Value="codes.pas"/>
-        <Caret Line="304" Column="33" TopLine="299"/>
+        <Caret Line="617" Column="39" TopLine="609"/>
       </Position3>
       <Position4>
         <Filename Value="codes.pas"/>
-        <Caret Line="310" Column="33" TopLine="305"/>
+        <Caret Line="456" Column="15" TopLine="440"/>
       </Position4>
       <Position5>
-        <Filename Value="codes.pas"/>
-        <Caret Line="309" Column="33" TopLine="304"/>
+        <Filename Value="C:\lazarus-2.0.4-fpc-3.0.4-win64\fpc\3.0.4\source\rtl\inc\varianth.inc"/>
+        <Caret Line="225" Column="13" TopLine="206"/>
       </Position5>
       <Position6>
-        <Filename Value="codes.pas"/>
-        <Caret Line="593" Column="41" TopLine="628"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1604" Column="36" TopLine="1475"/>
       </Position6>
       <Position7>
-        <Filename Value="codes.pas"/>
-        <Caret Line="320" Column="56" TopLine="295"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1512" Column="14" TopLine="1490"/>
       </Position7>
       <Position8>
-        <Filename Value="codes.pas"/>
-        <Caret Line="327" Column="56" TopLine="306"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1524" Column="51" TopLine="1501"/>
       </Position8>
       <Position9>
-        <Filename Value="codes.pas"/>
-        <Caret Line="328" Column="63" TopLine="309"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1674" Column="39" TopLine="1651"/>
       </Position9>
       <Position10>
-        <Filename Value="codes.pas"/>
-        <Caret Line="332" Column="51" TopLine="310"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1537" Column="26" TopLine="1514"/>
       </Position10>
       <Position11>
-        <Filename Value="codes.pas"/>
-        <Caret Line="861" Column="48" TopLine="833"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1484" TopLine="1552"/>
       </Position11>
       <Position12>
-        <Filename Value="codes.pas"/>
-        <Caret Line="867" Column="52" TopLine="834"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1621" Column="26" TopLine="1602"/>
       </Position12>
       <Position13>
-        <Filename Value="codes.pas"/>
-        <Caret Line="863" Column="51" TopLine="835"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1685" Column="30" TopLine="1666"/>
       </Position13>
       <Position14>
-        <Filename Value="codes.pas"/>
-        <Caret Line="859" Column="58" TopLine="846"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1568" Column="37" TopLine="1543"/>
       </Position14>
       <Position15>
-        <Filename Value="oscreatenewdb.pas"/>
-        <Caret Line="92" Column="21" TopLine="81"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1596" Column="28" TopLine="1576"/>
       </Position15>
       <Position16>
-        <Filename Value="oscreatenewdb.pas"/>
-        <Caret Line="122" TopLine="81"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1617" Column="9" TopLine="1595"/>
       </Position16>
       <Position17>
-        <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="106" Column="49" TopLine="61"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1672" Column="44" TopLine="1646"/>
       </Position17>
       <Position18>
-        <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="50" Column="3" TopLine="44"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="1659" Column="37" TopLine="1632"/>
       </Position18>
       <Position19>
-        <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="84" Column="55" TopLine="113"/>
+        <Filename Value="codesupdateqc.pas"/>
+        <Caret Line="583" Column="69" TopLine="562"/>
       </Position19>
       <Position20>
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="40" Column="59" TopLine="29"/>
+        <Caret Line="831" Column="11" TopLine="799"/>
       </Position20>
       <Position21>
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="42" Column="59" TopLine="31"/>
+        <Caret Line="803" Column="76" TopLine="778"/>
       </Position21>
       <Position22>
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="375" Column="51" TopLine="342"/>
+        <Caret Line="800" Column="28" TopLine="781"/>
       </Position22>
       <Position23>
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="364" Column="40" TopLine="344"/>
+        <Caret Line="799" Column="137" TopLine="767"/>
       </Position23>
       <Position24>
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="376" Column="36" TopLine="355"/>
+        <Caret Line="781" Column="137" TopLine="762"/>
       </Position24>
       <Position25>
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="363" Column="16" TopLine="355"/>
+        <Caret Line="796" Column="179" TopLine="780"/>
       </Position25>
       <Position26>
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="417" Column="31" TopLine="389"/>
+        <Caret Line="364" Column="37" TopLine="352"/>
       </Position26>
       <Position27>
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="9" Column="8"/>
+        <Caret Line="799" Column="28" TopLine="780"/>
       </Position27>
       <Position28>
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="407" Column="37" TopLine="388"/>
+        <Caret Line="374" Column="15" TopLine="351"/>
       </Position28>
       <Position29>
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="432" Column="28" TopLine="421"/>
+        <Caret Line="9" Column="12"/>
       </Position29>
       <Position30>
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
-        <Caret Line="438" Column="44" TopLine="420"/>
+        <Caret Line="854" Column="48" TopLine="829"/>
       </Position30>
     </JumpHistory>
     <RunParams>

@@ -23,9 +23,9 @@ object frmcodes: Tfrmcodes
     Height = 528
     Top = 22
     Width = 1000
-    ActivePage = tbPlatform
+    ActivePage = tbCruiseGLODAP
     Align = alClient
-    TabIndex = 0
+    TabIndex = 3
     TabOrder = 0
     OnChange = PageControl1Change
     object tbPlatform: TTabSheet
@@ -157,7 +157,7 @@ object frmcodes: Tfrmcodes
             Width = 62
             Align = alLeft
             Color = clWhite
-            OnChange = ePlatform_IMOChange
+            OnChange = ePlatfo
             OnClick = ePlatform_IDClick
             TabOrder = 3
           end
@@ -169,7 +169,7 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_CallsignChange
+            OnChange = ePlatform_
             OnClick = ePlatform_IDClick
             TabOrder = 4
           end
@@ -339,11 +339,6 @@ object frmcodes: Tfrmcodes
               FieldName = 'ID'
             end          
             item
-              Title.Caption = 'WOD'
-              Width = 50
-              FieldName = 'WOD_ID'
-            end          
-            item
               Title.Caption = 'Platform name'
               Width = 200
               FieldName = 'PLATFORMNAME'
@@ -369,6 +364,11 @@ object frmcodes: Tfrmcodes
             item
               Title.Caption = 'Country name'
               FieldName = 'COUNTRYNAME'
+            end          
+            item
+              Title.Caption = 'WOD'
+              Width = 50
+              FieldName = 'WOD_ID'
             end>
           DataSource = DS
           FixedCols = 0
@@ -395,72 +395,66 @@ object frmcodes: Tfrmcodes
           ClientWidth = 992
           TabOrder = 1
           object eCruise_STATIONAMOUNT: TEdit
-            Left = 488
+            Left = 438
             Height = 21
             Top = 0
             Width = 60
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_NameChange
             OnClick = ePlatform_IDClick
             TabOrder = 0
           end
           object eCruise_PLATFORMNAME: TEdit
-            Left = 100
+            Left = 50
             Height = 21
             Top = 0
             Width = 200
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_NODCChange
             OnClick = ePlatform_IDClick
             TabOrder = 1
           end
           object eCruise_NUMBER: TEdit
-            Left = 300
+            Left = 250
             Height = 21
             Top = 0
             Width = 60
             Align = alLeft
             Color = clWhite
-            OnChange = ePlatform_WODChange
             OnClick = ePlatform_IDClick
             TabOrder = 2
           end
           object eCruise_DATESTART: TEdit
-            Left = 360
+            Left = 310
             Height = 21
             Top = 0
             Width = 64
             Align = alLeft
             Color = clWhite
-            OnChange = ePlatform_IMOChange
             OnClick = ePlatform_IDClick
             TabOrder = 3
           end
           object eCruise_DATEEND: TEdit
-            Left = 424
+            Left = 374
             Height = 21
             Top = 0
             Width = 64
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_CallsignChange
             OnClick = ePlatform_IDClick
             TabOrder = 4
           end
           object eCruise_COUNTRYNAME: TEdit
-            Left = 548
+            Left = 498
             Height = 21
             Top = 0
             Width = 64
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_NameNativeChange
             OnClick = ePlatform_IDClick
             TabOrder = 5
           end
@@ -476,14 +470,13 @@ object frmcodes: Tfrmcodes
             TabOrder = 6
           end
           object eCruise_WOD: TEdit
-            Left = 50
+            Left = 562
             Height = 21
             Top = 0
             Width = 50
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_NameNativeChange
             OnClick = ePlatform_IDClick
             TabOrder = 7
           end
@@ -668,7 +661,6 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_NODCChange
             OnClick = ePlatform_IDClick
             TabOrder = 1
           end
@@ -679,7 +671,7 @@ object frmcodes: Tfrmcodes
             Width = 64
             Align = alLeft
             Color = clWhite
-            OnChange = ePlatform_IMOChange
+            Enabled = False
             OnClick = ePlatform_IDClick
             TabOrder = 2
           end
@@ -691,7 +683,8 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_CallsignChange
+            Enabled = False
+            OnChange = ePlatform_
             OnClick = ePlatform_IDClick
             TabOrder = 3
           end
@@ -703,7 +696,6 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_NameNativeChange
             OnClick = ePlatform_IDClick
             TabOrder = 4
           end
@@ -726,7 +718,6 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_NameNativeChange
             OnClick = ePlatform_IDClick
             TabOrder = 6
           end
@@ -765,7 +756,7 @@ object frmcodes: Tfrmcodes
             item
               Title.Caption = 'EXPOCODE'
               Width = 100
-              FieldName = 'GLODAP_ID'
+              FieldName = 'EXPOCODE'
             end          
             item
               Title.Caption = 'Platform name'
@@ -1142,11 +1133,11 @@ object frmcodes: Tfrmcodes
           ClientWidth = 652
           TabOrder = 0
           object ePI_Name: TEdit
-            Left = 126
+            Left = 63
             Height = 21
             Top = 0
-            Width = 526
-            Align = alClient
+            Width = 298
+            Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
             OnChange = ePlatform_NameChange
@@ -1154,7 +1145,7 @@ object frmcodes: Tfrmcodes
             TabOrder = 0
           end
           object ePI_WOD: TEdit
-            Left = 63
+            Left = 424
             Height = 21
             Top = 0
             Width = 63
@@ -1177,6 +1168,18 @@ object frmcodes: Tfrmcodes
             OnClick = ePlatform_IDClick
             TabOrder = 2
           end
+          object ePI_Source: TEdit
+            Left = 361
+            Height = 21
+            Top = 0
+            Width = 63
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnChange = ePlatform_WODChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 3
+          end
         end
         object DBGridPI: TDBGrid
           Left = 0
@@ -1194,14 +1197,19 @@ object frmcodes: Tfrmcodes
               FieldName = 'ID'
             end          
             item
+              Title.Caption = 'Primary Investigator name'
+              Width = 300
+              FieldName = 'NAME'
+            end          
+            item
+              Title.Caption = 'Source'
+              Width = 100
+              FieldName = 'SOURCENAME'
+            end          
+            item
               Title.Caption = 'WOD'
               Width = 63
               FieldName = 'WOD_ID'
-            end          
-            item
-              Title.Caption = 'Primary Investigator name(s)'
-              Width = 710
-              FieldName = 'NAME'
             end>
           DataSource = DS
           FixedCols = 0

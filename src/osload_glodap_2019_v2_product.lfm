@@ -33,6 +33,7 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
     Lines.Strings = (
       'Memo1'
     )
+    ScrollBars = ssBoth
     TabOrder = 2
   end
   object btnCreateTables: TButton
