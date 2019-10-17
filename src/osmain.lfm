@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 798
+  Left = 751
   Height = 395
-  Top = 305
+  Top = 385
   Width = 900
   BorderStyle = bsSingle
   Caption = 'OceanShell'

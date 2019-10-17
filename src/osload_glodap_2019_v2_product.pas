@@ -13,13 +13,13 @@ type
   { TfrmloadGLODAP_2019_v2_product }
 
   TfrmloadGLODAP_2019_v2_product = class(TForm)
-    Button1: TButton;
-    Button2: TButton;
+    btnDataSource: TButton;
+    btnDownloadMD: TButton;
     btnCreateTables: TButton;
     Memo1: TMemo;
     procedure btnCreateTablesClick(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    procedure btnDataSourceClick(Sender: TObject);
+    procedure btnDownloadMDClick(Sender: TObject);
   private
     function DateEncode(Year,Month,Day,Hour,Minutes:word;
       Var DaysInAMonthFlag,DateChangedFlag:Boolean):TDateTime;
@@ -44,7 +44,7 @@ uses osmain, procedures, dm;
 
 
 
-procedure TfrmloadGLODAP_2019_v2_product.Button1Click(Sender: TObject);
+procedure TfrmloadGLODAP_2019_v2_product.btnDataSourceClick(Sender: TObject);
 var
   k,n,line:integer;
   symbol:char;
@@ -94,12 +94,12 @@ begin
     line_num:=line;
     memo1.Lines.Add('line#='+inttostr(line));
 
-  //CloseFile(dat);
-  Button2.Visible:=true;
+  CloseFile(dat);
+  btnDownloadMD.Visible:=true;
 end;
 
 
-procedure TfrmloadGLODAP_2019_v2_product.Button2Click(Sender: TObject);
+procedure TfrmloadGLODAP_2019_v2_product.btnDownloadMDClick(Sender: TObject);
 var
 k,kv,line,n,mik:integer;
 cruiseN,stationN,castN,stNBNum:integer;
@@ -112,12 +112,22 @@ StDate,StTime,StDT:TDateTime;
 DayChange,DateChange:Boolean;
 ww:boolean; //workedwell
 
-press,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp,cfcll:real;
-salt_pQF1,oxy_pQF1,aou_pQF1,nat_pQF1,nit_pQF1,sil_pQF1,pho_pQF1,tco2_pQF1,talk_pQF1:integer;
-phtsinsitutp_pQF1, phts25p0_pQF1, cfcll_pQF1: integer;
-salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF, phts25p0_sQF:integer;
 
-//cfcll:real;
+//values
+press,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
+cfc11,pcfc11,cfc12,pcfc12,cfc113,pcfc113,cc14,pcc14,sf6,psf6,c13,c14:real;
+h3,he3,he,neon,O18,toc,doc,don,tdn,chla:real;
+//errors
+c14_err,h3_err,he3_err,he_err,neon_err:real;
+//QF primary 1
+salt_pQF1,oxy_pQF1,aou_pQF1,nat_pQF1,nit_pQF1,sil_pQF1,pho_pQF1:integer;
+tco2_pQF1,talk_pQF1,phtsinsitutp_pQF1,cfc11_pQF1,cfc12_pQF1,cfc113_pQF1:integer;
+cc14_pQF1,c13_pQF1,c14_pQF1,h3_pQF1,he3_pQF1,he_pQF1,neon_pQF1:integer;
+O18_pQF1,toc_pQF1,doc_pQF1,don_pQF1,tdn_pQF1,chla_pQF1,phts25p0_pQF1:integer;
+//QF secondary
+salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF:integer;
+cfc11_sQF,cfc12_sQF,cfc113_sQF,cc14_sQF,sf6_pQF1,c13_sQF,phts25p0_sQF:integer;
+
 
 begin
    path_out:='c:\Users\ako071\AK\datasets\GLODAP\output.dat';
@@ -165,7 +175,6 @@ begin
   then showmessage ('trystrtofloat line='+inttostr(line)+' '+buf_str);
 
 
-(***********************************COMMENTED out to compile the code - AS
     case kv of
     1: cruiseN:=trunc(strtofloat(buf_str));
     2: stationN:=trunc(strtofloat(buf_str));
@@ -192,8 +201,8 @@ begin
    28: oxy_pQF1:=trunc(strtofloat(buf_str));        //pQF1
    29: oxy_sQF:=trunc(strtofloat(buf_str));         //sQF
 
-   27: aou:=strtofloat(buf_str);                    //apparant oxygen utilization
-   28: aou_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+   30: aou:=strtofloat(buf_str);                    //apparant oxygen utilization
+   31: aou_pQF1:=trunc(strtofloat(buf_str));        //pQF1
 
    32: nat:=strtofloat(buf_str);                    //nitrate
    33: nat_pQF1:=trunc(strtofloat(buf_str));        //pQF1
@@ -210,36 +219,90 @@ begin
    41: pho_pQF1:=trunc(strtofloat(buf_str));        //pQF1
    42: pho_sQF:=trunc(strtofloat(buf_str));         //sQF
 
-   43: tco2:=strtofloat(buf_str);                    //tco2
+   43: tco2:=strtofloat(buf_str);                    //tco2:Dissolved inorganic carbon
    44: tco2_pQF1:=trunc(strtofloat(buf_str));        //pQF1
    45: tco2_sQF:=trunc(strtofloat(buf_str));         //sQF
 
-   43: talk:=strtofloat(buf_str);                    //talk
-   44: talk_pQF1:=trunc(strtofloat(buf_str));        //pQF1
-   45: talk_sQF:=trunc(strtofloat(buf_str));         //sQF
+   46: talk:=strtofloat(buf_str);                    //talk
+   47: talk_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+   48: talk_sQF:=trunc(strtofloat(buf_str));         //sQF
 
    49: phts25p0:=strtofloat(buf_str);                    //ph ts 25 p0
    50: phts25p0_pQF1:=trunc(strtofloat(buf_str));        //pQF1
-   53: phts25p0_sQF:=trunc(strtofloat(buf_str));         //sQF
+   53: begin
+        phts25p0_sQF:=trunc(strtofloat(buf_str));         //sQF
+        phtsinsitutp_sQF:=trunc(strtofloat(buf_str));         //sQF
+       end;
 
    51: phtsinsitutp:=strtofloat(buf_str);                    //ph ts insitu tp
    52: phtsinsitutp_pQF1:=trunc(strtofloat(buf_str));        //pQF1
-   53: phtsinsitutp_sQF:=trunc(strtofloat(buf_str));         //sQF
 
-   51: cfc11:=strtofloat(buf_str);                    //cfc11
-   51: pcfc11:=strtofloat(buf_str);                   //cfc11
-   52: cfc11_pQF1:=trunc(strtofloat(buf_str));        //pQF1
-   53: cfc11_sQF:=trunc(strtofloat(buf_str));         //sQF
- }
+   54: cfc11:=strtofloat(buf_str);                    //cfc11:transient tracer
+   55: pcfc11:=strtofloat(buf_str);                   //pcfc11
+   56: cfc11_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+   57: cfc11_sQF:=trunc(strtofloat(buf_str));         //sQF
 
-{
-press,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp
-salt_pQF1,oxy_pQF1,aou_pQF1,nat_pQF1,nit_pQF1,sil_pQF1,pho_pQF1,tco2_pQF1,talk_pQF1
-phtsinsitutp_pQF1
-salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF}
+   58: cfc12:=strtofloat(buf_str);                    //cfc12:transient tracer
+   59: pcfc12:=strtofloat(buf_str);                   //pcfc12
+   60: cfc12_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+   61: cfc12_sQF:=trunc(strtofloat(buf_str));         //sQF
 
+   62: cfc113:=strtofloat(buf_str);                    //cfc113:transient tracer
+   63: pcfc113:=strtofloat(buf_str);                   //pcfc113
+   64: cfc113_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+   65: cfc113_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+   66: cc14:=strtofloat(buf_str);                    //cc14:transient tracer
+   67: pcc14:=strtofloat(buf_str);                   //pcc14
+   68: cc14_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+   69: cc14_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+   70: sf6:=strtofloat(buf_str);                    //sf6:Sulfur hexafluoride
+   71: psf6:=strtofloat(buf_str);                   //psf6
+   72: sf6_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+   73: c13:=strtofloat(buf_str);                    //c13 Stable isotop carbon 13
+   74: c13_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+   75: c13_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+   76: c14:=strtofloat(buf_str);                   //c14 Radioisotop carbon 14
+   77: c14_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+   78: c14_err:=strtofloat(buf_str);               //counting error
+
+   79: h3:=strtofloat(buf_str);                   //h3:radioisotop hydrogen 3, Tritium
+   80: h3_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+   81: h3_err:=strtofloat(buf_str);               //counting error
+
+   82: he3:=strtofloat(buf_str);                   //he3:Radioisotop helium 3
+   83: he3_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+   84: he3_err:=strtofloat(buf_str);               //counting error
+
+   85: he:=strtofloat(buf_str);                    //he:helium
+   86: he_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+   87: he_err:=strtofloat(buf_str);               //counting error
+
+   88: neon:=strtofloat(buf_str);                    //neon
+   89: neon_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+   90: neon_err:=strtofloat(buf_str);               //counting error
+
+   91: O18:=strtofloat(buf_str);                    //O18:Stable isotop of oxygen 18
+   92: O18_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+   93: toc:=strtofloat(buf_str);                    //toc:Total organic carbon
+   94: toc_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+   95: doc:=strtofloat(buf_str);                    //doc:Dissolved organic carbon
+   96: doc_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+   97: don:=strtofloat(buf_str);                    //don:Dissolved organic nitrogen
+   98: don_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+   99: tdn:=strtofloat(buf_str);                    //tdn:Total dissolved nitrogen
+  100: tdn_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+  101: chla:=strtofloat(buf_str);                    //chla:chlorophylla
+  102: chla_pQF1:=trunc(strtofloat(buf_str));        //pQF1
     end;{case}
-*)  //END of commenting out - AS
 
 {k}end;
 
