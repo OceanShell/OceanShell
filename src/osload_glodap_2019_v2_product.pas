@@ -94,7 +94,6 @@ begin
     line_num:=line;
     memo1.Lines.Add('line#='+inttostr(line));
 
-  CloseFile(dat);
   btnDownloadMD.Visible:=true;
 end;
 
