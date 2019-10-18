@@ -1,6 +1,7 @@
 {"version":1,"strings":[
 {"hash":238171124,"name":"tfrmloadglodap_2019_v2_product.caption","sourcebytes":[102,114,109,108,111,97,100,71,76,79,68,65,80,95,50,48,49,57,95,118,50,95,112,114,111,100,117,99,116],"value":"frmloadGLODAP_2019_v2_product"},
 {"hash":255090773,"name":"tfrmloadglodap_2019_v2_product.btndatasource.caption","sourcebytes":[98,116,110,68,97,116,97,83,111,117,114,99,101],"value":"btnDataSource"},
-{"hash":245878740,"name":"tfrmloadglodap_2019_v2_product.btndownloadmd.caption","sourcebytes":[98,116,110,68,111,119,110,108,111,97,100,77,68],"value":"btnDownloadMD"},
-{"hash":135226323,"name":"tfrmloadglodap_2019_v2_product.btncreatetables.caption","sourcebytes":[98,116,110,67,114,101,97,116,101,84,97,98,108,101,115],"value":"btnCreateTables"}
+{"hash":87150580,"name":"tfrmloadglodap_2019_v2_product.btndownloadmd.caption","sourcebytes":[68,111,119,110,108,111,97,100,77,68],"value":"DownloadMD"},
+{"hash":135226323,"name":"tfrmloadglodap_2019_v2_product.btncreatetables.caption","sourcebytes":[98,116,110,67,114,101,97,116,101,84,97,98,108,101,115],"value":"btnCreateTables"},
+{"hash":30297489,"name":"tfrmloadglodap_2019_v2_product.btndownloaddata.caption","sourcebytes":[68,111,119,110,108,111,97,100,68,97,116,97],"value":"DownloadData"}
 ]}

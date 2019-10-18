@@ -1,11 +1,11 @@
 object frmcodes: Tfrmcodes
-  Left = 659
+  Left = 660
   Height = 550
-  Top = 333
+  Top = 339
   Width = 1000
   Caption = 'Codes'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 550
+  ClientWidth = 1000
   Color = clBtnFace
   Constraints.MinHeight = 550
   Constraints.MinWidth = 1000

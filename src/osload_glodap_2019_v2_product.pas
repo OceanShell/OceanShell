@@ -1,3 +1,24 @@
+//GLODAPv2.2019 product download
+//
+// I. First file scroll btnDataSource
+//    determining the number of variables in a file (102)
+//    number of lines in file (1175007)
+//    creation of an array of names on the first line (var_name[1..200])
+//
+// II.Second file scroll btnDownloadMD
+//    extract metadata from strings
+//    conversion to numbers and dates
+//    counting the number of cruises (840), stations (52299), castes (42112)
+//    and real stations (RSt)
+//    creation of an array of station boundaries in a file (by line numbers)
+//    line_err[1..100000]
+//    writing metadata to the STATION table
+//
+//III.Third file scroll btnDownloadData
+//    writing profiles into variables table
+//
+
+
 unit osload_GLODAP_2019_v2_product;
 
 {$mode objfpc}{$H+}
@@ -16,9 +37,11 @@ type
     btnDataSource: TButton;
     btnDownloadMD: TButton;
     btnCreateTables: TButton;
+    btnDownloadData: TButton;
     Memo1: TMemo;
     procedure btnCreateTablesClick(Sender: TObject);
     procedure btnDataSourceClick(Sender: TObject);
+    procedure btnDownloadDataClick(Sender: TObject);
     procedure btnDownloadMDClick(Sender: TObject);
   private
     function DateEncode(Year,Month,Day,Hour,Minutes:word;
@@ -29,9 +52,10 @@ type
 
 var
   frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product;
-  var_num,line_num:integer;
+  var_num,line_num,RSt:integer;
   Path, path_out:string;
-  var_name:array[1..200] of string;
+  var_name:array[1..200] of string;     //variables names
+  line_arr:array[1..100000] of integer; //profile intervals at stations
   Dat, out:text;
 
 implementation
@@ -49,7 +73,6 @@ var
   k,n,line:integer;
   symbol:char;
   st,buf_str:string;
-//  var_name:array[1..200] of string;
 
 begin
   path:='c:\Users\ako071\AK\datasets\GLODAP\GLODAPv2.2019_Merged_Master_File.csv';
@@ -105,7 +128,7 @@ end;
 
 procedure TfrmloadGLODAP_2019_v2_product.btnDownloadMDClick(Sender: TObject);
 var
-k,kv,line,n,mik,RSt:integer;
+k,kv,line,n,mik:integer;
 cruiseN,stationN,castN,stNBNum:integer;
 year,month,day,hour,min:integer;
 stlat,stlon,stBD,stPDS:real;
@@ -115,7 +138,6 @@ st,buf_str:string;
 StDate,StTime,StDT:TDateTime;
 DayChange,DateChange:Boolean;
 ww:boolean; //workedwell
-//var_name:array[1..200] of string;
 
 
 //values
@@ -139,6 +161,7 @@ newCruise,newStation,newCast,NewMD:Boolean;
 
 
 
+
 begin
    path_out:='c:\Users\ako071\AK\datasets\GLODAP\output.dat';
    AssignFile(out, Path_out); Rewrite(out);
@@ -156,9 +179,9 @@ begin
    readln(dat, st);
    line:=1;
 
-   cruise_count:=0;
-   station_count:=0;
-   cast_count:=0;
+   cruise_count:=1;
+   station_count:=1;
+   cast_count:=1;
 
    RSt:=0; //Real Station
 //{r}repeat
@@ -370,6 +393,8 @@ begin
 
 {MD}if newMD=true then begin
       RSt:=RSt+1;
+      line_arr[RSt]:=line;
+
       cruiseNbuf:=cruiseN;
       stationNbuf:=stationN;
       castNbuf:=castN;
@@ -411,7 +436,92 @@ begin
    memo1.Lines.Add('casts#         ='+inttostr(cast_count));
    memo1.Lines.Add('Real Stations# ='+inttostr(RSt));
 
+   btnDownloadData.Visible:=true;
 end;
+
+
+
+procedure TfrmloadGLODAP_2019_v2_product.btnDownloadDataClick(Sender: TObject);
+var
+  kst,kl,kv,line,L1,L2,n:integer;
+  cruiseN,stationN,castN,stNBNum:integer;
+  press, temp:real;
+  symbol:char;
+  st,buf_str:string;
+
+begin
+   path_out:='c:\Users\ako071\AK\datasets\GLODAP\output_profiles.dat';
+   AssignFile(out, Path_out); Rewrite(out);
+   writeln(out,'RSt#  L1  L2  line#  cruise  station  cast  bottle#  press  temp');
+
+
+//first prepare data for one table P_TEMPERATURE_BOTTLE
+{st}for kst:=1 to RSt do begin
+      L1:=line_arr[kst];
+      L2:=line_arr[kst+1]-1;
+
+      Reset(dat);
+      readln(dat, st);
+      line:=1;
+
+{L}for kl:=1 to line_num-1 do begin    //file scroll
+      readln(dat, st);
+      st:=trim(st);
+      line:=line+1;
+
+{pr}if (line>=L1) and (line<=L2) then begin  //inside profile
+
+//string analysis
+       n:=0;
+  {kv}for kv:=1 to var_num do begin
+       buf_str:='';
+  {s}repeat
+       inc(n);
+       symbol:=st[n];
+       if (symbol<>',') then buf_str:=buf_str+symbol;
+  {s}until (symbol=',') or (n=length(st));
+
+  {b}if buf_str<>'' then begin
+      case kv of
+      1: cruiseN:=trunc(strtofloat(buf_str));
+      2: stationN:=trunc(strtofloat(buf_str));
+      3: castN:=trunc(strtofloat(buf_str));
+     13: stNBNum:=trunc(strtofloat(buf_str));          //Niskin bottle number
+
+     14: press:=strtofloat(buf_str);                   //sampling pressure dbar
+     16: temp:=strtofloat(buf_str);                    //temperature
+      end;{case}
+  {b}end;
+
+  {kv}end;
+//end string analysis
+
+     writeln(out,inttostr(kst),
+     #9+inttostr(L1),
+     #9+inttostr(L2),
+     #9,inttostr(line),
+     #9,inttostr(cruiseN),
+     #9,inttostr(stationN),
+     #9,inttostr(castN),
+     #9,inttostr(stNBNum),
+     #9,floattostr(press),
+     #9,floattostr(temp));
+
+
+{pr}end;{inside profiles}
+{L} end; {lines in file}
+
+{st}end; //stations
+closefile(out);
+
+memo1.Lines.Add('');
+memo1.Lines.Add('Loading completed');
+
+
+end;
+
+
+
 
 function TfrmloadGLODAP_2019_v2_product.DateEncode(Year,Month,Day,Hour,Minutes:word;
   Var DaysInAMonthFlag,DateChangedFlag:Boolean):TDateTime;

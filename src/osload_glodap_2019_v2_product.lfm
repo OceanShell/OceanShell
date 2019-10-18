@@ -1,7 +1,7 @@
 object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
-  Left = 1079
+  Left = 1089
   Height = 342
-  Top = 126
+  Top = 116
   Width = 581
   Caption = 'frmloadGLODAP_2019_v2_product'
   ClientHeight = 342
@@ -21,7 +21,7 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
     Height = 25
     Top = 48
     Width = 99
-    Caption = 'btnDownloadMD'
+    Caption = 'DownloadMD'
     OnClick = btnDownloadMDClick
     TabOrder = 1
     Visible = False
@@ -45,5 +45,15 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
     Caption = 'btnCreateTables'
     OnClick = btnCreateTablesClick
     TabOrder = 3
+  end
+  object btnDownloadData: TButton
+    Left = 16
+    Height = 25
+    Top = 80
+    Width = 99
+    Caption = 'DownloadData'
+    OnClick = btnDownloadDataClick
+    TabOrder = 4
+    Visible = False
   end
 end

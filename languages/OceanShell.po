@@ -615,8 +615,12 @@ msgstr ""
 msgid "btnDataSource"
 msgstr ""
 
+#: tfrmloadglodap_2019_v2_product.btndownloaddata.caption
+msgid "DownloadData"
+msgstr ""
+
 #: tfrmloadglodap_2019_v2_product.btndownloadmd.caption
-msgid "btnDownloadMD"
+msgid "DownloadMD"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.caption
