@@ -40,7 +40,7 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
   object btnCreateTables: TButton
     Left = 16
     Height = 25
-    Top = 80
+    Top = 304
     Width = 99
     Caption = 'btnCreateTables'
     OnClick = btnCreateTablesClick

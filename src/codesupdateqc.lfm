@@ -1,7 +1,7 @@
 object frmcodesQC: TfrmcodesQC
-  Left = 505
+  Left = 581
   Height = 550
-  Top = 240
+  Top = 302
   Width = 1024
   Caption = 'Codes update and QC'
   ClientHeight = 550

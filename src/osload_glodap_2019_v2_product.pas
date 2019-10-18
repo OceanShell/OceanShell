@@ -62,18 +62,16 @@ begin
   st:=trim(st);
 
   //number of variables in the first line
-  //if trim(st)<>'' then begin
     var_num:=0;
   for k:=1 to length(st) do begin
     symbol:=st[k];
     if symbol=',' then var_num:=var_num+1;
   end;
-  //end;
     var_num:=var_num+1;
-    memo1.Lines.Add('var_num='+inttostr(var_num));
+    memo1.Lines.Add('Variables in file:'+inttostr(var_num));
 
 
-  //create array with variable names from the first line
+  //array with variable names
   for k:=1 to 200 do var_name[k]:='';
     n:=0;
   for k:=1 to var_num do begin
@@ -99,7 +97,7 @@ begin
     closefile(dat);
   end;
     line_num:=line;
-    memo1.Lines.Add('line#='+inttostr(line));
+    memo1.Lines.Add('Lines in file    :'+inttostr(line));
 
   btnDownloadMD.Visible:=true;
 end;
@@ -107,7 +105,7 @@ end;
 
 procedure TfrmloadGLODAP_2019_v2_product.btnDownloadMDClick(Sender: TObject);
 var
-k,kv,line,n,mik:integer;
+k,kv,line,n,mik,RSt:integer;
 cruiseN,stationN,castN,stNBNum:integer;
 year,month,day,hour,min:integer;
 stlat,stlon,stBD,stPDS:real;
@@ -144,11 +142,14 @@ newCruise,newStation,newCast,NewMD:Boolean;
 begin
    path_out:='c:\Users\ako071\AK\datasets\GLODAP\output.dat';
    AssignFile(out, Path_out); Rewrite(out);
+   writeln(out,'Rst#  line#  cruise#  st#  cast#  date  lat  lon  BD  LastPress bottle#');
+
 
    memo1.Lines.Add('');
-   memo1.Lines.Add('var_num ='+inttostr(var_num));
+   memo1.Lines.Add('Variables');
+   //memo1.Lines.Add('Variables in file:'+inttostr(var_num));
    for k:=1 to var_num do memo1.Lines.Add(inttostr(k)+#9+var_name[k]);
-   memo1.Lines.Add('line_num='+inttostr(line_num));
+   //memo1.Lines.Add('Lines in file:'+inttostr(line_num));
 
 
    Reset(dat);
@@ -159,6 +160,7 @@ begin
    station_count:=0;
    cast_count:=0;
 
+   RSt:=0; //Real Station
 //{r}repeat
 //{w}while not EOF(dat) do begin
 {k}for k:=1 to line_num-1 do begin
@@ -367,11 +369,14 @@ begin
 
 
 {MD}if newMD=true then begin
+      RSt:=RSt+1;
       cruiseNbuf:=cruiseN;
       stationNbuf:=stationN;
       castNbuf:=castN;
 
-      writeln(out,inttostr(line),
+
+      writeln(out,inttostr(RSt),
+      #9,inttostr(line),
       #9,inttostr(cruiseN),
       #9,inttostr(stationN),
       #9,inttostr(castN),
@@ -401,9 +406,10 @@ begin
    CloseFile(out);
 
    memo1.Lines.Add('End of file');
-   memo1.Lines.Add('cruises# ='+inttostr(cruise_count));
-   memo1.Lines.Add('stations#='+inttostr(station_count));
-   memo1.Lines.Add('casts#   ='+inttostr(cast_count));
+   memo1.Lines.Add('cruises#       ='+inttostr(cruise_count));
+   memo1.Lines.Add('stations#      ='+inttostr(station_count));
+   memo1.Lines.Add('casts#         ='+inttostr(cast_count));
+   memo1.Lines.Add('Real Stations# ='+inttostr(RSt));
 
 end;
 
