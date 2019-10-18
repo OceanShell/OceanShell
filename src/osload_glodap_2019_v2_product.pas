@@ -49,6 +49,8 @@ var
   k,n,line:integer;
   symbol:char;
   st,buf_str:string;
+//  var_name:array[1..200] of string;
+
 begin
   path:='c:\Users\ako071\AK\datasets\GLODAP\GLODAPv2.2019_Merged_Master_File.csv';
   //path:='c:\Users\ako071\AK\datasets\GLODAP\cruise 1116a.csv';
@@ -57,19 +59,22 @@ begin
 
   AssignFile(dat, Path); Reset(dat);
   readln(dat, st);
+  st:=trim(st);
 
   //number of variables in the first line
-  if trim(st)<>'' then begin
+  //if trim(st)<>'' then begin
     var_num:=0;
   for k:=1 to length(st) do begin
     symbol:=st[k];
     if symbol=',' then var_num:=var_num+1;
   end;
-  end;
+  //end;
     var_num:=var_num+1;
     memo1.Lines.Add('var_num='+inttostr(var_num));
 
+
   //create array with variable names from the first line
+  for k:=1 to 200 do var_name[k]:='';
     n:=0;
   for k:=1 to var_num do begin
     buf_str:='';
@@ -80,6 +85,8 @@ begin
   until (symbol=',') or (symbol=#10);
     var_name[k]:=buf_str;
   end;
+  memo1.Lines.Add('Array with variable names is created');
+
 
   //count lines
   line:=1;
@@ -110,6 +117,7 @@ st,buf_str:string;
 StDate,StTime,StDT:TDateTime;
 DayChange,DateChange:Boolean;
 ww:boolean; //workedwell
+//var_name:array[1..200] of string;
 
 
 //values
@@ -126,6 +134,11 @@ O18_pQF1,toc_pQF1,doc_pQF1,don_pQF1,tdn_pQF1,chla_pQF1,phts25p0_pQF1:integer;
 //QF secondary
 salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF:integer;
 cfc11_sQF,cfc12_sQF,cfc113_sQF,cc14_sQF,sf6_pQF1,c13_sQF,phts25p0_sQF:integer;
+//divide file on stations/casts
+cruiseNbuf,stationNbuf,castNbuf:Integer;
+cruise_count,station_count,cast_count:Integer;
+newCruise,newStation,newCast,NewMD:Boolean;
+
 
 
 begin
@@ -141,10 +154,16 @@ begin
    Reset(dat);
    readln(dat, st);
    line:=1;
+
+   cruise_count:=0;
+   station_count:=0;
+   cast_count:=0;
+
 //{r}repeat
 //{w}while not EOF(dat) do begin
-{f}for k:=1 to line_num-1 do begin
+{k}for k:=1 to line_num-1 do begin
      readln(dat, st);
+     st:=trim(st);
      line:=line+1;
      //showmessage('line='+inttostr(line)+'  length='+inttostr(length(st)));
 
@@ -153,9 +172,13 @@ begin
      stPDS:=-9999;
      stNBNum:=-9999;
 
+     newCruise:=false;
+     newStation:=false;
+     newCast:=false;
+
 //string analysis
      n:=0;
-{k}for kv:=1 to var_num do begin
+{kv}for kv:=1 to var_num do begin
      buf_str:='';
 {s}repeat
      inc(n);
@@ -168,6 +191,7 @@ begin
      //            +' ASCII='+inttostr(ord(symbol))+' buf='+buf_str);
 
 {s}until (symbol=',') or (n=length(st));
+
 {b}if buf_str<>'' then begin
 
   if not TryStrToFloat(buf_str, buf)
@@ -303,16 +327,15 @@ begin
   102: chla_pQF1:=trunc(strtofloat(buf_str));        //pQF1
     end;{case}
 
-{k}end;
+{kv}end;
 
 {b}end;
 
+    //dates
     //stDate:=EncodeDate(year,month,day);
     //stTime:=EncodeTime(hour,min,0,0);
     //ODBPr_ConvertDateTime(year,month,day,hour,min,StDate,StTime,MonthErr,TimeErr);
-
     StDT:= DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
-
     if DayChange=true then memo1.Lines.Add('Day was changed in line='
                            +inttostr(line)
                            +'  '+inttostr(day)+'.'+inttostr(month)+'.'+inttostr(year)
@@ -322,35 +345,65 @@ begin
                            +'  '+inttostr(day)+'.'+inttostr(month)+'.'+inttostr(year)
                            +'  '+inttostr(hour)+':'+inttostr(min));
 
+    //count cruise, stations, casts
+    if k=1 then begin
+          cruiseNbuf:=cruiseN;
+          stationNbuf:=stationN;
+          castNbuf:=cruiseN;
+    end;
 
-     writeln(out,inttostr(line),
-     #9,inttostr(cruiseN),
-     #9,inttostr(stationN),
-     #9,inttostr(castN),
-     //#9,datetostr(stdate),
-     //#9,timetostr(sttime),
-     #9,datetimetostr(stDT),
-     #9,floattostr(stlat),
-     #9,floattostr(stlon),
-     #9,floattostr(stBD),
-     #9,floattostr(stPDS),
-     #9,inttostr(stNBNum)
-     );
+    if k>1 then begin
+      if cruiseN<>cruiseNbuf then begin newCruise:=true; cruise_count:=cruise_count+1; end;
+      if stationN<>stationNbuf then begin newStation:=true; station_count:=station_count+1; end;
+      if castN<>castNbuf then begin newCast:=true; cast_count:=cast_count+1; end;
+
+      newMD:=false;
+      if(newCruise=true)  then newMD:=true;
+      if(newStation=true) then newMD:=true;
+      if(newStation=false) and (newCast=true) then newMD:=true;
+      //if(newCruise=false) and (newStation=true)  and (newCast=true) then newMD:=true;
+      //if(newCruise=false) and (newStation=false) and (newCast=true) then newMD:=true;
+    end;
+
+
+{MD}if newMD=true then begin
+      cruiseNbuf:=cruiseN;
+      stationNbuf:=stationN;
+      castNbuf:=castN;
+
+      writeln(out,inttostr(line),
+      #9,inttostr(cruiseN),
+      #9,inttostr(stationN),
+      #9,inttostr(castN),
+      //#9,datetostr(stdate),
+      //#9,timetostr(sttime),
+      #9,datetimetostr(stDT),
+      #9,floattostr(stlat),
+      #9,floattostr(stlon),
+      #9,floattostr(stBD),
+      #9,floattostr(stPDS),
+      #9,inttostr(stNBNum)
+      );
 
     //memo1.Lines.Add(inttostr(line)
     //+#9+inttostr(cruiseN)
     //+#9+inttostr(stationN)
     //+#9+inttostr(castN)
     //);
+{MD}end;
+
 
 //{r}until eof(dat);
 //{w}end;
-{f}end;
+{k}end; {lines }
 
    CloseFile(dat);
    CloseFile(out);
 
    memo1.Lines.Add('End of file');
+   memo1.Lines.Add('cruises# ='+inttostr(cruise_count));
+   memo1.Lines.Add('stations#='+inttostr(station_count));
+   memo1.Lines.Add('casts#   ='+inttostr(cast_count));
 
 end;
 
