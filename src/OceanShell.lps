@@ -95,7 +95,6 @@
         <ComponentName Value="frmcodes"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
         <TopLine Value="286"/>
         <CursorPos X="36" Y="297"/>
@@ -130,9 +129,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="osload_GLODAP_2019_v2_product"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="348"/>
-        <CursorPos X="188" Y="814"/>
+        <TopLine Value="375"/>
+        <CursorPos X="46" Y="384"/>
         <UsageCount Value="197"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
