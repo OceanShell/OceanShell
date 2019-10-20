@@ -27,6 +27,7 @@ const ScriptText=
    '    LASTLEVEL_M         INTEGER, '+LineEnding+
    '    LASTLEVEL_DBAR      INTEGER, '+LineEnding+
    '    CRUISE_ID           BIGINT NOT NULL, '+LineEnding+
+   '    INSTRUMENT_ID       BIGINT NOT NULL, '+LineEnding+
    '    STATIONID           VARCHAR(50), '+LineEnding+
    '    STATIONID_ORIG      BIGINT, '+LineEnding+
    '    QCFLAG              SMALLINT NOT NULL, '+LineEnding+
@@ -95,12 +96,12 @@ const ScriptText=
    '); '+LineEnding+
 
    (* PARAMETERS *)
-   'CREATE TABLE "PARAMETER" ('+LineEnding+
+   'CREATE TABLE DATABASE_TABLES ('+LineEnding+
    '    ID            BIGINT NOT NULL, '+LineEnding+
    '    TABLENAME     VARCHAR(255) NOT NULL, '+LineEnding+
-   '    PARAMETERNAME VARCHAR(255) NOT NULL, '+LineEnding+
+   '    VARIABLENAME  VARCHAR(255) NOT NULL, '+LineEnding+
    '    DESCRIPTION   VARCHAR(255), '+LineEnding+
-   '    CONSTRAINT PARAMETER_PK PRIMARY KEY (ID) '+LineEnding+
+   '    CONSTRAINT DATABASE_TABLES_PK PRIMARY KEY (ID) '+LineEnding+
    '); '+LineEnding+
 
    'ALTER TABLE METEO ADD CONSTRAINT FK_METEO FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+

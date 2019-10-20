@@ -7,24 +7,23 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
   ClientHeight = 342
   ClientWidth = 581
   LCLVersion = '2.0.4.0'
-  object btnDataSource: TButton
+  object Button1: TButton
     Left = 16
     Height = 25
     Top = 16
     Width = 99
-    Caption = 'btnDataSource'
-    OnClick = btnDataSourceClick
+    Caption = 'Button1'
+    OnClick = Button1Click
     TabOrder = 0
   end
-  object btnDownloadMD: TButton
+  object Button2: TButton
     Left = 16
     Height = 25
     Top = 48
     Width = 99
-    Caption = 'DownloadMD'
-    OnClick = btnDownloadMDClick
+    Caption = 'Button2'
+    OnClick = Button2Click
     TabOrder = 1
-    Visible = False
   end
   object Memo1: TMemo
     Left = 128
@@ -40,20 +39,10 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
   object btnCreateTables: TButton
     Left = 16
     Height = 25
-    Top = 304
+    Top = 80
     Width = 99
     Caption = 'btnCreateTables'
     OnClick = btnCreateTablesClick
     TabOrder = 3
-  end
-  object btnDownloadData: TButton
-    Left = 16
-    Height = 25
-    Top = 80
-    Width = 99
-    Caption = 'DownloadData'
-    OnClick = btnDownloadDataClick
-    TabOrder = 4
-    Visible = False
   end
 end

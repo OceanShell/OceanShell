@@ -34,6 +34,7 @@ type
     DBGridSource: TDBGrid;
     DBGridQCFlag: TDBGrid;
     DS: TDataSource;
+    eCruiseGLODAP_PI: TEdit;
     eCruiseWOD_COUNTRYNAME: TEdit;
     eCruiseWOD_DATEEND: TEdit;
     eCruiseGLODAP_DATEEND: TEdit;
@@ -286,7 +287,7 @@ begin
   3: begin
          CodesTblName:='CRUISE_GLODAP';
          Q.SQL.text:='Select CRUISE_GLODAP.ID, CRUISE_GLODAP.EXPOCODE, '+
-                     'PLATFORM.NAME as PLATFORMNAME, '+
+                     'PLATFORM.NAME as PLATFORMNAME, CRUISE_GLODAP.PI, '+
                      'COUNTRY.NAME as COUNTRYNAME, CRUISE_GLODAP.CRUISE_NUMBER, '+
                      'CRUISE_GLODAP.DATE_START, CRUISE_GLODAP.DATE_END '+
                      'FROM CRUISE_GLODAP, PLATFORM, COUNTRY WHERE '+
@@ -406,11 +407,12 @@ begin
            (DBGridCruiseGLODAP.Columns[0].Width+
             DBGridCruiseGLODAP.Columns[1].Width+
             DBGridCruiseGLODAP.Columns[2].Width+
+            DBGridCruiseGLODAP.Columns[3].Width+
             DBGridCruiseGLODAP.Columns[4].Width+
             DBGridCruiseGLODAP.Columns[5].Width+
             DBGridCruiseGLODAP.Columns[6].Width));
 
-            DBGridCruiseGLODAP.Columns[3].Width:=occup+1;
+            DBGridCruiseGLODAP.Columns[7].Width:=occup+1;
 
     eCruiseGLODAP_ID.Width:=          DBGridCruiseGLODAP.Columns[0].Width+1;
     eCruiseGLODAP_EXPOCODE.Width:=    DBGridCruiseGLODAP.Columns[1].Width;
@@ -419,6 +421,7 @@ begin
     eCruiseGLODAP_DATESTART.Width:=   DBGridCruiseGLODAP.Columns[4].Width;
     eCruiseGLODAP_DATEEND.Width:=     DBGridCruiseGLODAP.Columns[5].Width;
     eCruiseGLODAP_COUNTRYNAME.Width:= DBGridCruiseGLODAP.Columns[6].Width;
+    eCruiseGLODAP_PI.Width:=          DBGridCruiseGLODAP.Columns[7].Width;
  end;
  if CodesTblName='PLATFORM' then begin
     occup:=trunc((DBGridPlatform.Width-20-

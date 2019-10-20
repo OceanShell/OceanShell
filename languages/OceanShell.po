@@ -190,6 +190,11 @@ msgctxt "tfrmcodes.dbgridcruiseglodap.columns[6].title.caption"
 msgid "Country name"
 msgstr ""
 
+#: tfrmcodes.dbgridcruiseglodap.columns[7].title.caption
+msgctxt "tfrmcodes.dbgridcruiseglodap.columns[7].title.caption"
+msgid "PI"
+msgstr ""
+
 #: tfrmcodes.dbgridcruisewod.columns[0].title.caption
 msgctxt "tfrmcodes.dbgridcruisewod.columns[0].title.caption"
 msgid "ID"
@@ -601,16 +606,12 @@ msgstr ""
 msgid "btnCreateTables"
 msgstr ""
 
-#: tfrmloadglodap_2019_v2_product.btndatasource.caption
-msgid "btnDataSource"
+#: tfrmloadglodap_2019_v2_product.button1.caption
+msgid "Button1"
 msgstr ""
 
-#: tfrmloadglodap_2019_v2_product.btndownloaddata.caption
-msgid "DownloadData"
-msgstr ""
-
-#: tfrmloadglodap_2019_v2_product.btndownloadmd.caption
-msgid "DownloadMD"
+#: tfrmloadglodap_2019_v2_product.button2.caption
+msgid "Button2"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.caption

@@ -41,6 +41,7 @@
 {"hash":157483557,"name":"tfrmcodes.dbgridcruiseglodap.columns[4].title.caption","sourcebytes":[83,116,97,114,116,32,100,97,116,101],"value":"Start date"},
 {"hash":73837669,"name":"tfrmcodes.dbgridcruiseglodap.columns[5].title.caption","sourcebytes":[69,110,100,32,100,97,116,101],"value":"End date"},
 {"hash":219251589,"name":"tfrmcodes.dbgridcruiseglodap.columns[6].title.caption","sourcebytes":[67,111,117,110,116,114,121,32,110,97,109,101],"value":"Country name"},
+{"hash":1353,"name":"tfrmcodes.dbgridcruiseglodap.columns[7].title.caption","sourcebytes":[80,73],"value":"PI"},
 {"hash":139082041,"name":"tfrmcodes.tbcountry.caption","sourcebytes":[67,79,85,78,84,82,89],"value":"COUNTRY"},
 {"hash":1236,"name":"tfrmcodes.dbgridcountry.columns[0].title.caption","sourcebytes":[73,68],"value":"ID"},
 {"hash":243426518,"name":"tfrmcodes.dbgridcountry.columns[1].title.caption","sourcebytes":[73,83,79,51,49,54,54],"value":"ISO3166"},
