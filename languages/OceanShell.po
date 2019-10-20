@@ -601,12 +601,16 @@ msgstr ""
 msgid "btnCreateTables"
 msgstr ""
 
-#: tfrmloadglodap_2019_v2_product.button1.caption
-msgid "Button1"
+#: tfrmloadglodap_2019_v2_product.btndatasource.caption
+msgid "btnDataSource"
 msgstr ""
 
-#: tfrmloadglodap_2019_v2_product.button2.caption
-msgid "Button2"
+#: tfrmloadglodap_2019_v2_product.btndownloaddata.caption
+msgid "DownloadData"
+msgstr ""
+
+#: tfrmloadglodap_2019_v2_product.btndownloadmd.caption
+msgid "DownloadMD"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.caption
