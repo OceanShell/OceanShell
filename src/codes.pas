@@ -49,9 +49,8 @@ type
     eCruise_WOD: TEdit;
     eCruiseWOD_WOD: TEdit;
     eCruiseGLODAP_EXPOCODE: TEdit;
+    eCruise_SOURCENAME: TEdit;
     ePI_ID: TEdit;
-    ePI_Source: TEdit;
-    ePI_WOD: TEdit;
     ePI_Name: TEdit;
     eCruise_DATEEND: TEdit;
     eCruise_ID: TEdit;
@@ -62,8 +61,8 @@ type
     eCruise_NUMBER: TEdit;
     eProject_ID: TEdit;
     eInstitute_ID: TEdit;
-    eProject_ID1: TEdit;
-    eQCFlag_Source: TEdit;
+    eInstrument_ID: TEdit;
+    eQCFlag_SOURCENAME: TEdit;
     eUnits_ID: TEdit;
     eProject_Name1: TEdit;
     eSource_ID: TEdit;
@@ -75,12 +74,11 @@ type
     eProject_Name: TEdit;
     eInstitute_Name: TEdit;
     ePlatform_NameNative: TEdit;
-    ePlatform_Source: TEdit;
     ePlatform_ID: TEdit;
     eCountry_ID: TEdit;
     eProject_WOD1: TEdit;
     eUnits_Empty: TEdit;
-    eSource_Name: TEdit;
+    eSource_SOURCENAME: TEdit;
     eQCFlag_SourceFlag: TEdit;
     eQCFlag_ODBFlag: TEdit;
     imgFlagPlatform: TImage;
@@ -95,7 +93,6 @@ type
     mNotesInstitute: TMemo;
     mNotesUnits: TMemo;
     mNotesProject: TMemo;
-    mNotesPI: TMemo;
     mNotesInstrument: TMemo;
     mNotesSource: TMemo;
     Panel10: TPanel;
@@ -151,7 +148,7 @@ type
     ePlatform_Callsign: TEdit;
     mNotesWOD: TMemo;
     Splitter3: TSplitter;
-    tbPI: TTabSheet;
+    tbPI_WOD: TTabSheet;
     tbProject: TTabSheet;
     tbInstitute: TTabSheet;
     tbCruise: TTabSheet;
@@ -168,7 +165,7 @@ type
     procedure eCruiseGLODAP_NUMBERChange(Sender: TObject);
     procedure eCruiseGLODAP_PLATFORMNAMEChange(Sender: TObject);
     procedure ePlatform_IDClick(Sender: TObject);
-    procedure eQCFlag_SourceChange(Sender: TObject);
+    procedure eQCFlag_SOURCENAMEChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -187,7 +184,6 @@ type
     procedure DBGridPlatformTitleClick(Column: TColumn);
     procedure DBGridCountryTitleClick(Column: TColumn);
 
-    procedure ePlatform_IDChange(Sender: TObject);
     procedure ePlatform_WODChange(Sender: TObject);
     procedure ePlatform_SourceChange(Sender: TObject);
     procedure ePlatform_NameChange(Sender: TObject);
@@ -202,6 +198,8 @@ type
     { Private declarations }
     procedure Navigation;
     procedure ResizeColumns;
+    procedure SearchID(Sender:TObject);
+    procedure SearchSOURCENAME(Sender:TObject);
   public
     { Public declarations }
   end;
@@ -220,26 +218,28 @@ procedure Tfrmcodes.FormShow(Sender: TObject);
 begin
  PageControl1.ActivePageIndex:=0;
  PageControl1.OnChange(self);
+
  ResizeColumns;
 
-  With DBGridCruise do begin
-   Columns[0].Width:=50;
-   Columns[1].Width:=50;
-   Columns[2].Width:=200;
-   Columns[3].Width:=60;
-   Columns[4].Width:=64;
-   Columns[5].Width:=64;
-   Columns[6].Width:=60;
- end;
+ // Assigning procedures for fast search
+ (* ID *)
+ ePlatform_ID.OnChange     := @SearchID;
+ eCruise_ID.OnChange       := @SearchID;
+ eCruiseWOD_ID.OnChange    := @SearchID;
+ eCruiseGLODAP_ID.OnChange := @SearchID;
+ eCountry_ID.OnChange      := @SearchID;
+ eSource_ID.OnChange       := @SearchID;
+ ePI_ID.OnChange           := @SearchID;
+ eProject_ID.OnChange      := @SearchID;
+ eInstitute_ID.OnChange    := @SearchID;
+ eInstrument_ID.OnChange   := @SearchID;
+ eUnits_ID.OnChange        := @SearchID;
+ eQCFlag_ID.OnChange       := @SearchID;
 
- With DBGridPlatform do begin
-   Columns[0].Width:=64;
-   Columns[1].Width:=62;
-   Columns[2].Width:=62;
-   Columns[3].Width:=62;
-   Columns[4].Width:=62;
-   Columns[7].Width:=64;
- end;
+ (* SOURCE *)
+ eSource_SOURCENAME.OnChange := @SearchSOURCENAME;
+ eCruise_SOURCENAME.OnChange := @SearchSOURCENAME;
+ eQCFlag_SOURCENAME.OnChange := @SearchSOURCENAME;
 end;
 
 
@@ -259,16 +259,19 @@ begin
  case PageControl1.ActivePageIndex of
   0: begin
        CodesTblName:='PLATFORM';
-       Q.SQL.text:='Select ID, NODC_ID, WOD_ID, IMO_ID, CALLSIGN, NAME, '+
-                   'NAME_NATIVE, SOURCE FROM PLATFORM ORDER BY NAME';
+       Q.SQL.text:='Select ID, NODC_CODE, WOD_ID, IMO_ID, CALLSIGN, NAME, '+
+                   'NAME_NATIVE FROM PLATFORM ORDER BY NAME';
      end;
   1: begin
        CodesTblName:='CRUISE';
        Q.SQL.text:='Select CRUISE.ID, CRUISE.WOD_ID, PLATFORM.NAME as PLATFORMNAME, '+
                    'COUNTRY.NAME as COUNTRYNAME, CRUISE.CRUISE_NUMBER, '+
-                   'CRUISE.DATE_START, CRUISE.DATE_END, CRUISE.STATIONS_AMOUNT '+
-                   'FROM CRUISE, PLATFORM, COUNTRY WHERE '+
-                   'CRUISE.PLATFORM_ID=PLATFORM.ID and CRUISE.COUNTRY_ID=COUNTRY.ID '+
+                   'CRUISE.DATE_START, CRUISE.DATE_END, CRUISE.STATIONS_AMOUNT, '+
+                   'SOURCE.NAME AS SOURCENAME '+
+                   'FROM CRUISE, PLATFORM, COUNTRY, SOURCE WHERE '+
+                   'CRUISE.PLATFORM_ID=PLATFORM.ID AND '+
+                   'CRUISE.COUNTRY_ID=COUNTRY.ID AND '+
+                   'CRUISE.SOURCE_ID=SOURCE.ID '+
                    'ORDER BY CRUISE.DATE_START, PLATFORM.NAME';
      end;
   2: begin
@@ -293,20 +296,18 @@ begin
      end;
   4: begin
        CodesTblName:='COUNTRY';
-       Q.SQL.text:='Select ID, ISO_3166, NAME '+
+       Q.SQL.text:='Select ID, ISO3166_CODE, NAME '+
                    'FROM COUNTRY ORDER BY NAME';
      end;
   5: begin
        CodesTblName:='SOURCE';
-       Q.SQL.text:='Select ID, NAME '+
+       Q.SQL.text:='Select ID, NAME as SOURCENAME '+
                    'FROM SOURCE ORDER BY ID';
      end;
   6: begin
-       CodesTblName:='PI';
-       Q.SQL.text:='Select PI.ID, PI.WOD_ID, PI.NAME, '+
-                   'SOURCE.NAME as SOURCENAME '+
-                   'FROM PI, SOURCE WHERE '+
-                   'PI.SOURCE_ID=SOURCE.ID ORDER BY NAME';
+       CodesTblName:='PI_WOD';
+       Q.SQL.text:='Select PI_WOD.ID, PI_WOD.NAME '+
+                   'FROM PI_WOD ORDER BY ID';
      end;
   7: begin
        CodesTblName:='PROJECT';
@@ -315,7 +316,7 @@ begin
      end;
   8: begin
        CodesTblName:='INSTITUTE';
-       Q.SQL.text:='Select ID, WOD_ID, NODC_ID, NAME '+
+       Q.SQL.text:='Select ID, WOD_ID, NODC_CODE, NAME '+
                    'FROM INSTITUTE ORDER BY NAME';
      end;
   9: begin
@@ -340,6 +341,7 @@ begin
 
  //If table exists
  if CodesTblName<>'' then begin
+ //  showmessage(Q.SQL.Text);
   Q.Open;
   Q.Last;
   Q.First;
@@ -366,17 +368,19 @@ begin
             DBGridCruise.Columns[3].Width+
             DBGridCruise.Columns[4].Width+
             DBGridCruise.Columns[5].Width+
-            DBGridCruise.Columns[6].Width));
-    DBGridCruise.Columns[7].Width:=occup+1;
+            DBGridCruise.Columns[7].Width+
+            DBGridCruise.Columns[8].Width));
+    DBGridCruise.Columns[6].Width:=occup+1;
 
     eCruise_ID.Width:=DBGridCruise.Columns[0].Width+1;
-    eCruise_WOD.Width:=DBGridCruise.Columns[1].Width;
-    eCruise_PLATFORMNAME.Width:=DBGridCruise.Columns[2].Width;
-    eCruise_NUMBER.Width:=DBGridCruise.Columns[3].Width;
-    eCruise_DATESTART.Width:=DBGridCruise.Columns[4].Width;
-    eCruise_DATEEND.Width:=DBGridCruise.Columns[5].Width;
-    eCruise_STATIONAMOUNT.Width:=DBGridCruise.Columns[6].Width;
-    eCruise_COUNTRYNAME.Width:=DBGridCruise.Columns[7].Width;
+    eCruise_PLATFORMNAME.Width:=DBGridCruise.Columns[1].Width;
+    eCruise_NUMBER.Width:=DBGridCruise.Columns[2].Width;
+    eCruise_DATESTART.Width:=DBGridCruise.Columns[3].Width;
+    eCruise_DATEEND.Width:=DBGridCruise.Columns[4].Width;
+    eCruise_STATIONAMOUNT.Width:=DBGridCruise.Columns[5].Width;
+    eCruise_COUNTRYNAME.Width:=DBGridCruise.Columns[6].Width;
+    eCruise_SOURCENAME.Width:=DBGridCruise.Columns[7].Width;
+    eCruise_WOD.Width:=DBGridCruise.Columns[8].Width;
  end;
  if CodesTblName='CRUISE_WOD' then begin
     occup:=trunc(DBGridCruiseWOD.Width-20-
@@ -422,8 +426,7 @@ begin
              DBGridPlatform.Columns[1].Width+
              DBGridPlatform.Columns[2].Width+
              DBGridPlatform.Columns[3].Width+
-             DBGridPlatform.Columns[4].Width+
-             DBGridPlatform.Columns[7].Width))/2);
+             DBGridPlatform.Columns[4].Width))/2);
 
     DBGridPlatform.Columns[5].Width:=occup+1;
     DBGridPlatform.Columns[6].Width:=occup+1;
@@ -435,7 +438,6 @@ begin
     ePlatform_Callsign.Width:=DBGridPlatform.Columns[4].Width;
     ePlatform_Name.Width:=DBGridPlatform.Columns[5].Width;
     ePlatform_NameNative.Width:=DBGridPlatform.Columns[6].Width;
-    ePlatform_Source.Width:=DBGridPlatform.Columns[7].Width;
  end;
  if CodesTblName='COUNTRY' then begin
     occup:=trunc(DBGridCountry.Width-20-
@@ -458,8 +460,8 @@ begin
 
     ePI_ID.Width:=     DBGridPI.Columns[0].Width+1;
     ePI_Name.Width:=   DBGridPI.Columns[1].Width;
-    ePI_Source.Width:= DBGridPI.Columns[2].Width;
-    ePI_WOD.Width:=    DBGridPI.Columns[3].Width;
+    //ePI_Source.Width:= DBGridPI.Columns[2].Width;
+   // ePI_WOD.Width:=    DBGridPI.Columns[3].Width;
  end;
  if CodesTblName='PROJECT' then begin
     occup:=trunc(DBGridProject.Width-20-
@@ -489,7 +491,7 @@ begin
 
  if CodesTblName='QCFLAG' then begin
     eQCFlag_ID.Width:=DBGridQCFlag.Columns[0].Width+1;
-    eQCFlag_Source.Width:=DBGridQCFlag.Columns[1].Width;
+    eQCFlag_SOURCENAME.Width:=DBGridQCFlag.Columns[1].Width;
     eQCFlag_SourceFlag.Width:=DBGridQCFlag.Columns[2].Width;
     eQCFlag_ODBFlag.Width:=DBGridQCFlag.Columns[3].Width;
  end;
@@ -576,14 +578,14 @@ begin
    lbCountryPlatform.Caption:=''; imgFlagPlatform.Picture.Clear;
    lbCountryInstitute.Caption:=''; imgFlagInstitute.Picture.Clear;
 
-   cc:=Copy(Q.FieldByName('NODC_ID').AsString, 1, 2);
+   cc:=Copy(Q.FieldByName('NODC_CODE').AsString, 1, 2);
    if trim(cc)='' then exit;
 
     with Qt do begin
      Close;
       SQL.Clear;
-      SQL.Add(' select ISO_3166, NAME from COUNTRY ');
-      SQL.Add(' where NODC_ID=:code');
+      SQL.Add(' select ISO3166_CODE, NAME from COUNTRY ');
+      SQL.Add(' where NODC_CODE=:code');
       ParamByName('code').AsString:=cc;
      Open;
     end;
@@ -592,8 +594,8 @@ begin
      with Qt do begin
       Close;
        SQL.Clear;
-       SQL.Add(' select ISO_3166, NAME from COUNTRY ');
-       SQL.Add(' where ISO_3166=:code');
+       SQL.Add(' select ISO3166_CODE, NAME from COUNTRY ');
+       SQL.Add(' where ISO3166_CODE=:code');
        ParamByName('code').AsString:=cc;
       Open;
     end;
@@ -621,7 +623,8 @@ begin
  if (Q.FieldByName('ID').AsInteger>0) and
     (CodesTblName<>'COUNTRY') and
     (CodesTblName<>'QCFLAG') and
-    (CodesTblName<>'CRUISE_WOD') then begin
+    (CodesTblName<>'CRUISE_WOD') and
+    (CodesTblName<>'PI_WOD') then begin
   TRt:=TSQLTransaction.Create(self);
   TRt.DataBase:=frmdm.SupportDB;
   Qt :=TSQLQuery.Create(self);
@@ -652,10 +655,6 @@ begin
      if CodesTblName='SOURCE' then begin
        mNotesSource.Clear;
        mNotesSource.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
-     end;
-     if CodesTblName='PI' then begin
-       mNotesPI.Clear;
-       mNotesPI.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
      end;
      if CodesTblName='PROJECT' then begin
        mNotesProject.Clear;
@@ -709,7 +708,7 @@ end;
 (* Delete row *)
 procedure Tfrmcodes.btndeleteClick(Sender: TObject);
 begin
-   if MessageDlg(SDelete+' '+Q.FieldByName('NAME').AsString+'"?',
+   if MessageDlg(SDelete+' ID='+Q.Fields[0].AsString+'?',
       mtWarning, [mbYes, MbNo], 0)=mrYes then begin
         Q.Delete;
      btnSave.Enabled:=true;
@@ -764,7 +763,6 @@ begin
       if ((CodesTblName='SOURCE') and (mNotesSource.Lines.Text<>'')) or
          ((CodesTblName='PROJECT') and (mNotesProject.Lines.Text<>'')) or
          ((CodesTblName='INSTITUTE') and (mNotesInstitute.Lines.Text<>'')) or
-         ((CodesTblName='PI') and (mNotesPI.Lines.Text<>'')) or
          ((CodesTblName='INSTRUMENT') and (mNotesInstrument.Lines.Text<>'')) or
          ((CodesTblName='UNITS') and (mNotesUnits.Lines.Text<>'')) then begin
 
@@ -784,7 +782,6 @@ begin
           if (CodesTblName='SOURCE') then ParamByName('NOTES').AsWideString:=mNotesSource.Lines.Text;
           if (CodesTblName='PROJECT') then ParamByName('NOTES').AsWideString:=mNotesProject.Lines.Text;
           if (CodesTblName='INSTITUTE') then ParamByName('NOTES').AsWideString:=mNotesInstitute.Lines.Text;
-          if (CodesTblName='PI') then ParamByName('NOTES').AsWideString:=mNotesPI.Lines.Text;
           if (CodesTblName='INSTRUMENT') then ParamByName('NOTES').AsWideString:=mNotesInstrument.Lines.Text;
           if (CodesTblName='UNITS') then ParamByName('NOTES').AsWideString:=mNotesUnits.Lines.Text;
          ExecSQL;
@@ -801,16 +798,22 @@ end;
 
 (******************************* Fast search *********************************)
 (* ID *)
-procedure Tfrmcodes.ePlatform_IDChange(Sender: TObject);
+procedure Tfrmcodes.SearchID(Sender: TObject);
+Begin
+  if (Sender as TEdit).Text='' then exit;
+    Q.Locate('ID', StrToInt((Sender as TEdit).Text),[loCaseInsensitive, loPartialKey]);
+end;
+
+procedure Tfrmcodes.SearchSOURCENAME(Sender: TObject);
 begin
- if (Sender as TEdit).Text='' then exit;
-   Q.Locate('ID', StrToInt((Sender as TEdit).Text),[loCaseInsensitive, loPartialKey]);
+  Q.Filter:='SOURCENAME = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+  Q.Filtered:=true;
 end;
 
 (* NODC *)
 procedure Tfrmcodes.ePlatform_NODCChange(Sender: TObject);
 begin
- Q.Filter:='NODC_ID = '+QuotedStr((Sender as TEdit).Text+'*');
+ Q.Filter:='NODC_CODE = '+QuotedStr((Sender as TEdit).Text+'*');
  Q.Filtered:=true;
 end;
 
@@ -819,6 +822,11 @@ procedure Tfrmcodes.ePlatform_WODChange(Sender: TObject);
 begin
  if (Sender as TEdit).Text='' then exit;
    Q.Locate('WOD_ID', StrToInt((Sender as TEdit).Text),[loCaseInsensitive, loPartialKey]);
+end;
+
+procedure Tfrmcodes.ePlatform_SourceChange(Sender: TObject);
+begin
+
 end;
 
 (* IMO *)
@@ -832,7 +840,7 @@ end;
 procedure Tfrmcodes.eCountry_ISOChange(Sender: TObject);
 begin
  if eCountry_ISO.Text='' then exit;
-  Q.Locate('ISO_3166',eCountry_ISO.Text,[loCaseInsensitive, loPartialKey]);
+  Q.Locate('ISO3166_CODE',eCountry_ISO.Text,[loCaseInsensitive, loPartialKey]);
 end;
 
 (* Callsign *)
@@ -856,12 +864,6 @@ begin
   Q.Filtered:=true;
 end;
 
-(* Data source *)
-procedure Tfrmcodes.ePlatform_SourceChange(Sender: TObject);
-begin
-Q.Filter:='SOURCE = '+QuotedStr('*'+ePlatform_Source.Text+'*');
-Q.Filtered:=true;
-end;
 
 procedure Tfrmcodes.eCruiseGLODAP_EXPOCODEChange(Sender: TObject);
 begin
@@ -887,9 +889,9 @@ begin
  Q.Filtered:=true;
 end;
 
-procedure Tfrmcodes.eQCFlag_SourceChange(Sender: TObject);
+procedure Tfrmcodes.eQCFlag_SOURCENAMEChange(Sender: TObject);
 begin
- Q.Filter:='SOURCENAME = '+QuotedStr('*'+eQCFlag_Source.Text+'*');
+ Q.Filter:='SOURCENAME = '+QuotedStr('*'+eQCFlag_SOURCENAME.Text+'*');
  Q.Filtered:=true;
 end;
 

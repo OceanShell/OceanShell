@@ -1,7 +1,7 @@
 object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
-  Left = 1025
+  Left = 836
   Height = 342
-  Top = 216
+  Top = 851
   Width = 581
   Caption = 'frmloadGLODAP_2019_v2_product'
   ClientHeight = 342

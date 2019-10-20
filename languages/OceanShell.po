@@ -118,7 +118,7 @@ msgstr ""
 
 #: tfrmcodes.dbgridcruise.columns[1].title.caption
 msgctxt "tfrmcodes.dbgridcruise.columns[1].title.caption"
-msgid "Platform name"
+msgid "Platform"
 msgstr ""
 
 #: tfrmcodes.dbgridcruise.columns[2].title.caption
@@ -143,11 +143,16 @@ msgstr ""
 
 #: tfrmcodes.dbgridcruise.columns[6].title.caption
 msgctxt "tfrmcodes.dbgridcruise.columns[6].title.caption"
-msgid "Country name"
+msgid "Country"
 msgstr ""
 
 #: tfrmcodes.dbgridcruise.columns[7].title.caption
 msgctxt "tfrmcodes.dbgridcruise.columns[7].title.caption"
+msgid "Source"
+msgstr ""
+
+#: tfrmcodes.dbgridcruise.columns[8].title.caption
+msgctxt "tfrmcodes.dbgridcruise.columns[8].title.caption"
 msgid "WOD"
 msgstr ""
 
@@ -263,16 +268,6 @@ msgctxt "tfrmcodes.dbgridpi.columns[1].title.caption"
 msgid "Primary Investigator name"
 msgstr ""
 
-#: tfrmcodes.dbgridpi.columns[2].title.caption
-msgctxt "tfrmcodes.dbgridpi.columns[2].title.caption"
-msgid "Source"
-msgstr ""
-
-#: tfrmcodes.dbgridpi.columns[3].title.caption
-msgctxt "tfrmcodes.dbgridpi.columns[3].title.caption"
-msgid "WOD"
-msgstr ""
-
 #: tfrmcodes.dbgridplatform.columns[0].title.caption
 msgctxt "tfrmcodes.dbgridplatform.columns[0].title.caption"
 msgid "ID"
@@ -306,11 +301,6 @@ msgstr ""
 #: tfrmcodes.dbgridplatform.columns[6].title.caption
 msgctxt "tfrmcodes.dbgridplatform.columns[6].title.caption"
 msgid "Native platform name"
-msgstr ""
-
-#: tfrmcodes.dbgridplatform.columns[7].title.caption
-msgctxt "tfrmcodes.dbgridplatform.columns[7].title.caption"
-msgid "Source"
 msgstr ""
 
 #: tfrmcodes.dbgridproject.columns[0].title.caption
@@ -422,9 +412,9 @@ msgctxt "tfrmcodes.tbinstrument.caption"
 msgid "INSTRUMENT"
 msgstr ""
 
-#: tfrmcodes.tbpi.caption
-msgctxt "tfrmcodes.tbpi.caption"
-msgid "PI"
+#: tfrmcodes.tbpi_wod.caption
+msgctxt "tfrmcodes.tbpi_wod.caption"
+msgid "PI_WOD"
 msgstr ""
 
 #: tfrmcodes.tbplatform.caption

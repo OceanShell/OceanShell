@@ -379,7 +379,6 @@ begin
      '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -393,7 +392,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -407,7 +405,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -421,7 +418,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -435,7 +431,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -449,7 +444,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -463,7 +457,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -477,7 +470,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -492,7 +484,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -506,7 +497,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -520,7 +510,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -534,7 +523,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -549,7 +537,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -564,7 +551,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -579,7 +565,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -594,7 +579,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -609,7 +593,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -623,7 +606,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -638,13 +620,26 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 20	P_HE3_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		HE3		Radioisotop helium 3  *)
+  (* 20	P_H3_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		H3		Radioisotop hydrogen 3, tritium *)
+     'CREATE TABLE P_H3_BOTTLE ( '+LineEnding+
+     '   ID             BIGINT NOT NULL, '+LineEnding+
+     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VALERR         DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   pQF1           SMALLINT, '+LineEnding+
+     '   pQF2           SMALLINT, '+LineEnding+
+     '   sQF            SMALLINT, '+LineEnding+
+     '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+     '   CAST_NUMBER    SMALLINT, '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
+     '); '+LineEnding+
+
+  (* 21	P_HE3_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		HE3		Radioisotop helium 3, counting error  *)
      'CREATE TABLE P_HE3_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -653,13 +648,12 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 21	P_HE_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		HE		Helium *)
+  (* 22	P_HE_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		HE		Helium, counting error  *)
      'CREATE TABLE P_HE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -668,13 +662,12 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 22	P_NEON_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		NEON		Neon *)
+  (* 23	P_NEON_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		NEON		Neon, counting error *)
      'CREATE TABLE P_NEON_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -683,13 +676,12 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 23	P_O18_BOTTLE		5	press val         pQF1 pQF2 sQF		O18		Stable isotop of oxygen 18 *)
+  (* 24	P_O18_BOTTLE		5	press val         pQF1 pQF2 sQF		O18		Stable isotop of oxygen 18 *)
      'CREATE TABLE P_O18_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -697,13 +689,12 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 24	P_TOC_BOTTLE		5	press val         pQF1 pQF2 sQF		TOC		Total organic carbon *)
+  (* 25	P_TOC_BOTTLE		5	press val         pQF1 pQF2 sQF		TOC		Total organic carbon *)
      'CREATE TABLE P_TOC_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -711,13 +702,12 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 25	P_DOC_BOTTLE		5	press val         pQF1 pQF2 sQF		DOC		Dissolved organic carbon  *)
+  (* 26	P_DOC_BOTTLE		5	press val         pQF1 pQF2 sQF		DOC		Dissolved organic carbon  *)
      'CREATE TABLE P_DOC_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -725,13 +715,12 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 26	P_DON_BOTTLE		5	press val         pQF1 pQF2 sQF		DON		Dissolved organic nitrogen *)
+  (* 27	P_DON_BOTTLE		5	press val         pQF1 pQF2 sQF		DON		Dissolved organic nitrogen *)
      'CREATE TABLE P_DON_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -739,13 +728,12 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 27	P_TDN_BOTTLE		5	press val         pQF1 pQF2 sQF		TDN		Total dissolved nitrogen *)
+  (* 28	P_TDN_BOTTLE		5	press val         pQF1 pQF2 sQF		TDN		Total dissolved nitrogen *)
      'CREATE TABLE P_TDN_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -753,13 +741,12 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 28	P_CHLA_BOTTLE		5	press val         pQF1 pQF2 sQF		CHLA		chlorophylla *)
+  (* 29	P_CHLA_BOTTLE		5	press val         pQF1 pQF2 sQF		CHLA		chlorophylla *)
      'CREATE TABLE P_CHLA_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -767,7 +754,6 @@ begin
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
-     '   QF             SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
@@ -792,6 +778,7 @@ begin
      'ALTER TABLE P_SF6_BOTTLE ADD CONSTRAINT FK_P_SF6_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_C13_BOTTLE ADD CONSTRAINT FK_P_C13_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_C14_BOTTLE ADD CONSTRAINT FK_P_C14_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+     'ALTER TABLE P_H3_BOTTLE ADD CONSTRAINT FK_P_H3_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_HE3_BOTTLE ADD CONSTRAINT FK_P_HE3_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_HE_BOTTLE ADD CONSTRAINT FK_P_HE_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_NEON_BOTTLE ADD CONSTRAINT FK_P_NEON_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
@@ -802,34 +789,35 @@ begin
      'ALTER TABLE P_TDN_BOTTLE ADD CONSTRAINT FK_P_TDN_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_CHLA_BOTTLE ADD CONSTRAINT FK_P_CHLA_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
 
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (1, '+QuotedStr('P_TEMPERATURE_BOTTLE')+','+QuotedStr('TEMPERATURE')+','+QuotedStr('Sea water temperture')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (2, '+QuotedStr('P_SALINITY_BOTTLE')+','+QuotedStr('SALINITY')+','+QuotedStr('Sea water salinity')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (3, '+QuotedStr('P_OXYGEN_BOTTLE')+','+QuotedStr('OXYGEN')+','+QuotedStr('Dissolved Oxygen')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (4, '+QuotedStr('P_AOU_BOTTLE')+','+QuotedStr('AOU')+','+QuotedStr('Apparent oxygen utilization')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (5, '+QuotedStr('P_NITRATE_BOTTLE')+','+QuotedStr('NITRATE')+','+QuotedStr('Nitrate')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (6, '+QuotedStr('P_NITRITE_BOTTLE')+','+QuotedStr('NITRITE')+','+QuotedStr('Nitrite')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (7, '+QuotedStr('P_SILICATE_BOTTLE')+','+QuotedStr('SILICATE')+','+QuotedStr('Silicate')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (8, '+QuotedStr('P_PHOSPHATE_BOTTLE')+','+QuotedStr('PHOSPHATE')+','+QuotedStr('Phosphate')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (9, '+QuotedStr('P_TCO2_BOTTLE')+','+QuotedStr('TCO2')+','+QuotedStr('Dissolved inorganic carbon')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (10, '+QuotedStr('P_TALK_BOTTLE')+','+QuotedStr('TALK')+','+QuotedStr('Total alkalinity')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (11, '+QuotedStr('P_PHTS25P0_BOTTLE')+','+QuotedStr('PH')+','+QuotedStr('pH on total scale, 25C, 0dbar')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (12, '+QuotedStr('P_PHTSINSITUTP_BOTTLE')+','+QuotedStr('PH')+','+QuotedStr('pH on total scale, in situ temperature and pressure')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (13, '+QuotedStr('P_CFC11_BOTTLE')+','+QuotedStr('CFC11')+','+QuotedStr('Halogenated transient tracer CFC11')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (14, '+QuotedStr('P_CFC12_BOTTLE')+','+QuotedStr('CFC12')+','+QuotedStr('Halogenated transient tracer CFC12')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (15, '+QuotedStr('P_CFC113_BOTTLE')+','+QuotedStr('CFC113')+','+QuotedStr('Halogenated transient tracer CFC113')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (16, '+QuotedStr('P_CC14_BOTTLE')+','+QuotedStr('CC14,')+','+QuotedStr('Halogenated transient tracer CC14')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (17, '+QuotedStr('P_SF6_BOTTLE')+','+QuotedStr('SF6,')+','+QuotedStr('Sulfur hexafluoride')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (18, '+QuotedStr('P_C13_BOTTLE')+','+QuotedStr('C13,')+','+QuotedStr('Stable isotop carbon 13')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (19, '+QuotedStr('P_C14_BOTTLE')+','+QuotedStr('C14,')+','+QuotedStr('Radioisotop carbon 14')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (20, '+QuotedStr('P_HE3_BOTTLE')+','+QuotedStr('HE3,')+','+QuotedStr('Radioisotop helium 3')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (21, '+QuotedStr('P_HE_BOTTLE')+','+QuotedStr('HE,')+','+QuotedStr('Helium')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (22, '+QuotedStr('P_NEON_BOTTLE')+','+QuotedStr('NEON,')+','+QuotedStr('Neon')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (23, '+QuotedStr('P_O18_BOTTLE')+','+QuotedStr('O18,')+','+QuotedStr('Stable isotop of oxygen 18')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (24, '+QuotedStr('P_TOC_BOTTLE')+','+QuotedStr('TOC,')+','+QuotedStr('Total organic carbon')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (25, '+QuotedStr('P_DOC_BOTTLE')+','+QuotedStr('DOC,')+','+QuotedStr('Dissolved organic carbon')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (26, '+QuotedStr('P_DON_BOTTLE')+','+QuotedStr('DON,')+','+QuotedStr('Dissolved organic nitrogen')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (27, '+QuotedStr('P_TDN_BOTTLE')+','+QuotedStr('TDN,')+','+QuotedStr('Total dissolved nitrogen')+'); '+LineEnding+
-     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (28, '+QuotedStr('P_CHLA_BOTTLE')+','+QuotedStr('CHLA,')+','+QuotedStr('chlorophylla')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (1, '+QuotedStr('P_TEMPERATURE_BOTTLE')+','  +QuotedStr('TEMPERATURE')+','+QuotedStr('Sea water temperture')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (2, '+QuotedStr('P_SALINITY_BOTTLE')+','     +QuotedStr('SALINITY')+','   +QuotedStr('Sea water salinity')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (3, '+QuotedStr('P_OXYGEN_BOTTLE')+','       +QuotedStr('OXYGEN')+','     +QuotedStr('Dissolved Oxygen')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (4, '+QuotedStr('P_AOU_BOTTLE')+','          +QuotedStr('AOU')+','        +QuotedStr('Apparent oxygen utilization')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (5, '+QuotedStr('P_NITRATE_BOTTLE')+','      +QuotedStr('NITRATE')+','    +QuotedStr('Nitrate')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (6, '+QuotedStr('P_NITRITE_BOTTLE')+','      +QuotedStr('NITRITE')+','    +QuotedStr('Nitrite')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (7, '+QuotedStr('P_SILICATE_BOTTLE')+','     +QuotedStr('SILICATE')+','   +QuotedStr('Silicate')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (8, '+QuotedStr('P_PHOSPHATE_BOTTLE')+','    +QuotedStr('PHOSPHATE')+','  +QuotedStr('Phosphate')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (9, '+QuotedStr('P_TCO2_BOTTLE')+','         +QuotedStr('TCO2')+','       +QuotedStr('Dissolved inorganic carbon')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (10, '+QuotedStr('P_TALK_BOTTLE')+','        +QuotedStr('TALK')+','       +QuotedStr('Total alkalinity')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (11, '+QuotedStr('P_PHTS25P0_BOTTLE')+','    +QuotedStr('PH')+','         +QuotedStr('pH on total scale, 25C, 0dbar')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (12, '+QuotedStr('P_PHTSINSITUTP_BOTTLE')+','+QuotedStr('PH')+','         +QuotedStr('pH on total scale, in situ temperature and pressure')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (13, '+QuotedStr('P_CFC11_BOTTLE')+','       +QuotedStr('CFC11')+','      +QuotedStr('Halogenated transient tracer CFC11, partial pressure')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (14, '+QuotedStr('P_CFC12_BOTTLE')+','       +QuotedStr('CFC12')+','      +QuotedStr('Halogenated transient tracer CFC12, partial pressure')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (15, '+QuotedStr('P_CFC113_BOTTLE')+','      +QuotedStr('CFC113')+','     +QuotedStr('Halogenated transient tracer CFC113, partial pressure')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (16, '+QuotedStr('P_CC14_BOTTLE')+','        +QuotedStr('CC14,')+','      +QuotedStr('Halogenated transient tracer CC14, partial pressure')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (17, '+QuotedStr('P_SF6_BOTTLE')+','         +QuotedStr('SF6,')+','       +QuotedStr('Sulfur hexafluoride, partial pressure')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (18, '+QuotedStr('P_C13_BOTTLE')+','         +QuotedStr('C13,')+','       +QuotedStr('Stable isotop carbon 13')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (19, '+QuotedStr('P_C14_BOTTLE')+','         +QuotedStr('C14,')+','       +QuotedStr('Radioisotop carbon 14, counting error')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (21, '+QuotedStr('P_H3_BOTTLE')+','          +QuotedStr('H3,')+','        +QuotedStr('Radioisotop hydrogen 3, tritium')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (20, '+QuotedStr('P_HE3_BOTTLE')+','         +QuotedStr('HE3,')+','       +QuotedStr('Radioisotop helium 3, counting error')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (21, '+QuotedStr('P_HE_BOTTLE')+','          +QuotedStr('HE,')+','        +QuotedStr('Helium, counting error')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (22, '+QuotedStr('P_NEON_BOTTLE')+','        +QuotedStr('NEON,')+','      +QuotedStr('Neon, counting error')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (23, '+QuotedStr('P_O18_BOTTLE')+','         +QuotedStr('O18,')+','       +QuotedStr('Stable isotop of oxygen 18')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (24, '+QuotedStr('P_TOC_BOTTLE')+','         +QuotedStr('TOC,')+','       +QuotedStr('Total organic carbon')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (25, '+QuotedStr('P_DOC_BOTTLE')+','         +QuotedStr('DOC,')+','       +QuotedStr('Dissolved organic carbon')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (26, '+QuotedStr('P_DON_BOTTLE')+','         +QuotedStr('DON,')+','       +QuotedStr('Dissolved organic nitrogen')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (27, '+QuotedStr('P_TDN_BOTTLE')+','         +QuotedStr('TDN,')+','       +QuotedStr('Total dissolved nitrogen')+'); '+LineEnding+
+     'INSERT INTO "PARAMETER" (ID, TABLENAME, PARAMETERNAME, DESCRIPTION) VALUES (28, '+QuotedStr('P_CHLA_BOTTLE')+','        +QuotedStr('CHLA,')+','      +QuotedStr('chlorophylla')+'); '+LineEnding+
 
      'COMMIT WORK '+LineEnding+
      'SET TERM ; '+LineEnding;

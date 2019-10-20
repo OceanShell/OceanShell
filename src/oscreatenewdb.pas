@@ -20,25 +20,27 @@ const ScriptText=
    (* STATION *)
    'CREATE TABLE STATION ('+LineEnding+
    '    ID                  BIGINT NOT NULL, '+LineEnding+
-   '    STLAT               DECIMAL(8,5) NOT NULL, '+LineEnding+
-   '    STLON               DECIMAL(9,5) NOT NULL, '+LineEnding+
-   '    STDATE              TIMESTAMP NOT NULL, '+LineEnding+
-   '    STDEPTH             INTEGER, '+LineEnding+
-   '    STLASTLEVEL         INTEGER, '+LineEnding+
-   '    SOURCE_ID           BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-   '    COUNTRY_ID          BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-   '    PLATFORM_ID         BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-   '    CRUISE_ID           BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-   '    INSTRUMENT_ID       BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-   '    STNUMBER            VARCHAR(50), '+LineEnding+
-   '    ORIGINALSOURCEID    BIGINT, '+LineEnding+
-   '    STFLAG              SMALLINT NOT NULL, '+LineEnding+
+   '    LATITUDE            DECIMAL(8,5) NOT NULL, '+LineEnding+
+   '    LONGITUDE           DECIMAL(9,5) NOT NULL, '+LineEnding+
+   '    DATEANDTIME         TIMESTAMP NOT NULL, '+LineEnding+
+   '    BOTTOMDEPTH         INTEGER, '+LineEnding+
+   '    LASTLEVEL_M         INTEGER, '+LineEnding+
+   '    LASTLEVEL_DBAR      INTEGER, '+LineEnding+
+   '    CRUISE_ID           BIGINT NOT NULL, '+LineEnding+
+   '    STATIONID           VARCHAR(50), '+LineEnding+
+   '    STATIONID_ORIG      BIGINT, '+LineEnding+
+   '    QCFLAG              SMALLINT NOT NULL, '+LineEnding+
    '    STVERSION           SMALLINT NOT NULL, '+LineEnding+
    '    MERGED              SMALLINT DEFAULT 0 NOT NULL, '+LineEnding+
    '    DATE_ADDED          TIMESTAMP NOT NULL, '+LineEnding+
    '    DATE_UPDATED        TIMESTAMP, '+LineEnding+
    '    CONSTRAINT STATION_PK PRIMARY KEY (ID) '+LineEnding+
    '); '+LineEnding+
+
+   //   '    SOURCE_ID           BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+//   '    COUNTRY_ID          BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+//   '    PLATFORM_ID         BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+   //   '    INSTRUMENT_ID       BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
 
    (* ENTRY *)
    'CREATE TABLE ENTRY ('+LineEnding+
@@ -101,7 +103,7 @@ const ScriptText=
    '    CONSTRAINT PARAMETER_PK PRIMARY KEY (ID) '+LineEnding+
    '); '+LineEnding+
 
-   'ALTER TABLE METEO ADD CONSTRAINT FK_METEO FOREIGN KEY (ID) REFERENCES ENTRY (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE METEO ADD CONSTRAINT FK_METEO FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
    'ALTER TABLE ENTRY ADD CONSTRAINT FK_ENTRY FOREIGN KEY (ENTRIES_TYPE_ID) REFERENCES ENTRY_TYPE (ID); '+LineEnding+
    'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_1 FOREIGN KEY (STATION_ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
    'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_2 FOREIGN KEY (ENTRY_ID) REFERENCES ENTRY (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+

@@ -23,9 +23,9 @@ object frmcodes: Tfrmcodes
     Height = 528
     Top = 22
     Width = 1000
-    ActivePage = tbCruiseGLODAP
+    ActivePage = tbPlatform
     Align = alClient
-    TabIndex = 3
+    TabIndex = 0
     TabOrder = 0
     OnChange = PageControl1Change
     object tbPlatform: TTabSheet
@@ -59,7 +59,7 @@ object frmcodes: Tfrmcodes
             item
               Title.Caption = 'NODC'
               Width = 62
-              FieldName = 'NODC_ID'
+              FieldName = 'NODC_CODE'
             end          
             item
               Title.Caption = 'WOD'
@@ -85,11 +85,6 @@ object frmcodes: Tfrmcodes
               Title.Caption = 'Native platform name'
               Width = 150
               FieldName = 'NAME_NATIVE'
-            end          
-            item
-              Title.Caption = 'Source'
-              Width = 70
-              FieldName = 'SOURCE'
             end>
           DataSource = DS
           FixedCols = 0
@@ -185,17 +180,6 @@ object frmcodes: Tfrmcodes
             OnClick = ePlatform_IDClick
             TabOrder = 5
           end
-          object ePlatform_Source: TEdit
-            Left = 613
-            Height = 21
-            Top = 0
-            Width = 64
-            Align = alLeft
-            Color = clWhite
-            OnChange = ePlatform_SourceChange
-            OnClick = ePlatform_IDClick
-            TabOrder = 6
-          end
           object ePlatform_ID: TEdit
             Left = 0
             Height = 21
@@ -203,9 +187,8 @@ object frmcodes: Tfrmcodes
             Width = 64
             Align = alLeft
             Color = clWhite
-            OnChange = ePlatform_IDChange
             OnClick = ePlatform_IDClick
-            TabOrder = 7
+            TabOrder = 6
           end
         end
       end
@@ -339,7 +322,7 @@ object frmcodes: Tfrmcodes
               FieldName = 'ID'
             end          
             item
-              Title.Caption = 'Platform name'
+              Title.Caption = 'Platform'
               Width = 200
               FieldName = 'PLATFORMNAME'
             end          
@@ -362,8 +345,13 @@ object frmcodes: Tfrmcodes
               FieldName = 'STATIONS_AMOUNT'
             end          
             item
-              Title.Caption = 'Country name'
+              Title.Caption = 'Country'
               FieldName = 'COUNTRYNAME'
+            end          
+            item
+              Title.Caption = 'Source'
+              Width = 100
+              FieldName = 'SOURCENAME'
             end          
             item
               Title.Caption = 'WOD'
@@ -465,12 +453,11 @@ object frmcodes: Tfrmcodes
             Width = 50
             Align = alLeft
             Color = clWhite
-            OnChange = ePlatform_IDChange
             OnClick = ePlatform_IDClick
             TabOrder = 6
           end
           object eCruise_WOD: TEdit
-            Left = 562
+            Left = 662
             Height = 21
             Top = 0
             Width = 50
@@ -479,6 +466,17 @@ object frmcodes: Tfrmcodes
             Color = clWhite
             OnClick = ePlatform_IDClick
             TabOrder = 7
+          end
+          object eCruise_SOURCENAME: TEdit
+            Left = 562
+            Height = 21
+            Top = 0
+            Width = 100
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            OnClick = ePlatform_IDClick
+            TabOrder = 8
           end
         end
       end
@@ -706,7 +704,6 @@ object frmcodes: Tfrmcodes
             Width = 50
             Align = alLeft
             Color = clWhite
-            OnChange = ePlatform_IDChange
             OnClick = ePlatform_IDClick
             TabOrder = 5
           end
@@ -871,7 +868,6 @@ object frmcodes: Tfrmcodes
             Width = 50
             Align = alLeft
             Color = clWhite
-            OnChange = ePlatform_IDChange
             OnClick = ePlatform_IDClick
             TabOrder = 5
           end
@@ -968,7 +964,6 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_IDChange
             OnClick = ePlatform_IDClick
             TabOrder = 2
           end
@@ -991,7 +986,7 @@ object frmcodes: Tfrmcodes
             item
               Title.Caption = 'ISO3166'
               Width = 63
-              FieldName = 'ISO_3166'
+              FieldName = 'ISO3166_CODE'
             end          
             item
               Title.Caption = 'Country name'
@@ -1037,7 +1032,7 @@ object frmcodes: Tfrmcodes
           ClientHeight = 21
           ClientWidth = 652
           TabOrder = 0
-          object eSource_Name: TEdit
+          object eSource_SOURCENAME: TEdit
             Left = 63
             Height = 21
             Top = 0
@@ -1057,7 +1052,6 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_IDChange
             OnClick = ePlatform_IDClick
             TabOrder = 1
           end
@@ -1080,7 +1074,7 @@ object frmcodes: Tfrmcodes
             item
               Title.Caption = 'Source name'
               Width = 760
-              FieldName = 'NAME'
+              FieldName = 'SOURCENAME'
             end>
           DataSource = DS
           FixedCols = 0
@@ -1108,29 +1102,29 @@ object frmcodes: Tfrmcodes
         TabOrder = 1
       end
     end
-    object tbPI: TTabSheet
-      Caption = 'PI'
+    object tbPI_WOD: TTabSheet
+      Caption = 'PI_WOD'
       ClientHeight = 502
       ClientWidth = 992
       object Panel12: TPanel
         Left = 0
         Height = 502
         Top = 0
-        Width = 652
+        Width = 992
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 502
-        ClientWidth = 652
+        ClientWidth = 992
         TabOrder = 0
         object Panel13: TPanel
           Left = 0
           Height = 21
           Top = 0
-          Width = 652
+          Width = 992
           Align = alTop
           BevelOuter = bvNone
           ClientHeight = 21
-          ClientWidth = 652
+          ClientWidth = 992
           TabOrder = 0
           object ePI_Name: TEdit
             Left = 63
@@ -1144,18 +1138,6 @@ object frmcodes: Tfrmcodes
             OnClick = ePlatform_IDClick
             TabOrder = 0
           end
-          object ePI_WOD: TEdit
-            Left = 424
-            Height = 21
-            Top = 0
-            Width = 63
-            Align = alLeft
-            CharCase = ecUppercase
-            Color = clWhite
-            OnChange = ePlatform_WODChange
-            OnClick = ePlatform_IDClick
-            TabOrder = 1
-          end
           object ePI_ID: TEdit
             Left = 0
             Height = 21
@@ -1164,28 +1146,15 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_IDChange
             OnClick = ePlatform_IDClick
-            TabOrder = 2
-          end
-          object ePI_Source: TEdit
-            Left = 361
-            Height = 21
-            Top = 0
-            Width = 63
-            Align = alLeft
-            CharCase = ecUppercase
-            Color = clWhite
-            OnChange = ePlatform_WODChange
-            OnClick = ePlatform_IDClick
-            TabOrder = 3
+            TabOrder = 1
           end
         end
         object DBGridPI: TDBGrid
           Left = 0
           Height = 481
           Top = 21
-          Width = 652
+          Width = 992
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
@@ -1200,16 +1169,6 @@ object frmcodes: Tfrmcodes
               Title.Caption = 'Primary Investigator name'
               Width = 300
               FieldName = 'NAME'
-            end          
-            item
-              Title.Caption = 'Source'
-              Width = 100
-              FieldName = 'SOURCENAME'
-            end          
-            item
-              Title.Caption = 'WOD'
-              Width = 63
-              FieldName = 'WOD_ID'
             end>
           DataSource = DS
           FixedCols = 0
@@ -1224,17 +1183,6 @@ object frmcodes: Tfrmcodes
           OnKeyUp = DBGridPlatformKeyUp
           OnTitleClick = DBGridCountryTitleClick
         end
-      end
-      object mNotesPI: TMemo
-        Left = 652
-        Height = 502
-        Top = 0
-        Width = 340
-        Align = alRight
-        Color = clWhite
-        OnKeyUp = mNotesPlatformKeyUp
-        ScrollBars = ssVertical
-        TabOrder = 1
       end
     end
     object tbProject: TTabSheet
@@ -1293,7 +1241,6 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_IDChange
             OnClick = ePlatform_IDClick
             TabOrder = 2
           end
@@ -1405,7 +1352,6 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_IDChange
             OnClick = ePlatform_IDClick
             TabOrder = 2
           end
@@ -1440,7 +1386,7 @@ object frmcodes: Tfrmcodes
             item
               Title.Caption = 'NODC'
               Width = 63
-              FieldName = 'NODC_ID'
+              FieldName = 'NODC_CODE'
             end          
             item
               Title.Caption = 'WOD'
@@ -1572,7 +1518,7 @@ object frmcodes: Tfrmcodes
             OnClick = ePlatform_IDClick
             TabOrder = 1
           end
-          object eProject_ID1: TEdit
+          object eInstrument_ID: TEdit
             Left = 0
             Height = 21
             Top = 0
@@ -1580,7 +1526,6 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_IDChange
             OnClick = ePlatform_IDClick
             TabOrder = 2
           end
@@ -1693,7 +1638,6 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_IDChange
             OnClick = ePlatform_IDClick
             TabOrder = 2
           end
@@ -1786,7 +1730,7 @@ object frmcodes: Tfrmcodes
             OnClick = ePlatform_IDClick
             TabOrder = 0
           end
-          object eQCFlag_Source: TEdit
+          object eQCFlag_SOURCENAME: TEdit
             Left = 63
             Height = 21
             Top = 0
@@ -1794,7 +1738,6 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = eQCFlag_SourceChange
             OnClick = ePlatform_IDClick
             TabOrder = 1
           end
@@ -1806,7 +1749,6 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
-            OnChange = ePlatform_IDChange
             OnClick = ePlatform_IDClick
             TabOrder = 2
           end
