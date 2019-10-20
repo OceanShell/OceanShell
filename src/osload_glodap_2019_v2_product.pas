@@ -385,7 +385,8 @@ begin
       newMD:=false;
       if(newCruise=true)  then newMD:=true;
       if(newStation=true) then newMD:=true;
-      if(newStation=false) and (newCast=true) then newMD:=true;
+      //if(newStation=false) and (newCast=true) then newMD:=true;
+
       //if(newCruise=false) and (newStation=true)  and (newCast=true) then newMD:=true;
       //if(newCruise=false) and (newStation=false) and (newCast=true) then newMD:=true;
     end;
@@ -526,12 +527,12 @@ begin
 {L} end; {lines loop}
 
     StDT:= DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
-    writeln(out,'...new Real Station'
+    writeln(out,'...new Real Station: '+inttostr(kst)
     +'  date: '+datetimetostr(StDT)
     +'  lat: '+floattostr(stlat)
     +'  lon: '+floattostr(stlon)
     +'  BD: '+floattostr(stBD)
-    +'  PressOfDeepestSample: '+floattostr(stPDS)
+    +'  PDS: '+floattostr(stPDS)
     );
 
 {st}end; //real stations loop
