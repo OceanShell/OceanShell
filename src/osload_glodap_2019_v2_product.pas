@@ -27,7 +27,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, DateUtils,
-  SQLDB, DB;
+  SQLDB, DB, BufDataSet;
 
 type
 
@@ -57,6 +57,7 @@ var
   var_name:array[1..200] of string;     //variables names
   line_arr:array[1..100000] of integer; //profile intervals at stations
   Dat, out:text;
+  CDS_DSC:TBufDataSet; //CDS Divide stations on casts
 
 implementation
 
@@ -129,7 +130,7 @@ end;
 procedure TfrmloadGLODAP_2019_v2_product.btnDownloadMDClick(Sender: TObject);
 var
 k,kv,line,n,mik:integer;
-cruiseN,stationN,castN,stNBNum:integer;
+cruiseN,stationN,castN,stNBNum,cast_max:integer;
 year,month,day,hour,min:integer;
 stlat,stlon,stBD,stPDS:real;
 buf:real;
@@ -182,6 +183,7 @@ begin
    cruise_count:=1;
    station_count:=1;
    cast_count:=1;
+   cast_max:=1;
 
    RSt:=0; //Real Station
 //{r}repeat
@@ -226,7 +228,10 @@ begin
     case kv of
     1: cruiseN:=trunc(strtofloat(buf_str));
     2: stationN:=trunc(strtofloat(buf_str));
-    3: castN:=trunc(strtofloat(buf_str));
+    3: begin
+       castN:=trunc(strtofloat(buf_str));
+       if (cast_max<castN) then cast_max:=castN;
+       end;
     4: year:=trunc(strtofloat(buf_str));
     5: month:=trunc(strtofloat(buf_str));
     6: day:=trunc(strtofloat(buf_str));
@@ -423,7 +428,6 @@ begin
     //);
 {MD}end;
 
-
 //{r}until eof(dat);
 //{w}end;
 {k}end; {lines }
@@ -435,6 +439,7 @@ begin
    memo1.Lines.Add('cruises#       ='+inttostr(cruise_count));
    memo1.Lines.Add('stations#      ='+inttostr(station_count));
    memo1.Lines.Add('casts#         ='+inttostr(cast_count));
+   memo1.Lines.Add('cast max       ='+inttostr(cast_max));
    memo1.Lines.Add('Real Stations# ='+inttostr(RSt));
 
    btnDownloadData.Visible:=true;
@@ -444,8 +449,9 @@ end;
 
 procedure TfrmloadGLODAP_2019_v2_product.btnDownloadDataClick(Sender: TObject);
 var
-  kst,kl,kv,line,L1,L2,n:integer;
+  kst,kl,kv,line,L1,L2,n,c,i:integer;
   cruiseN,stationN,castN,stNBNum:integer;
+  cast_maxN:integer;
   Year,Month,Day,Hour,Min:integer;
   press, temp,stlat,stlon,stBD,stPDS:real;
   symbol:char;
@@ -454,6 +460,24 @@ var
   DayChange,DateChange:Boolean;
 
 begin
+
+   //CDS Divide Station on Casts
+    CDS_DSC:=TBufDataSet.Create(self);
+   with CDS_DSC.FieldDefs do begin
+     Add('ID',  ftInteger,0,true);
+     Add('Press', ftFloat,0,true);
+     Add('Val', ftFloat,0,true);
+     Add('PQF1',  ftInteger,0,true);
+     Add('PQF2',  ftInteger,0,true);
+     Add('SQF', ftInteger, 0,true);
+     Add('Bottle',  ftInteger,0,true);
+     Add('Station',  ftInteger,0,true);
+     Add('Cast',  ftInteger,0,true);
+     Add('Units_ID',  ftInteger,0,true);
+   end;
+    CDS_DSC.CreateDataSet;
+
+
    path_out:='c:\Users\ako071\AK\datasets\GLODAP\output_profiles.dat';
    AssignFile(out, Path_out); Rewrite(out);
    writeln(out,'RSt#  L1  L2  line#  cruise  station  cast  bottle#  press  temp');
@@ -466,6 +490,10 @@ begin
 
 //first prepare data for one table P_TEMPERATURE_BOTTLE
 {st}for kst:=1 to RSt do begin
+
+      if CDS_DSC.Active then CDS_DSC.Close;
+      CDS_DSC.Open;
+
       L1:=line_arr[kst];
       L2:=line_arr[kst+1]-1;
 
@@ -511,37 +539,96 @@ begin
   {kv}end;
 //end string analysis
 
-     writeln(out,inttostr(kst),
-     #9+inttostr(L1),
-     #9+inttostr(L2),
-     #9,inttostr(line),
-     #9,inttostr(cruiseN),
-     #9,inttostr(stationN),
-     #9,inttostr(castN),
-     #9,inttostr(stNBNum),
-     #9,floattostr(press),
-     #9,floattostr(temp));
+
+   //append to CDS
+   with CDS_DSC do begin
+      Append;
+      FieldByName('ID').AsInteger:=kst;
+      FieldByName('Press').AsFloat:=press;
+      FieldByName('Val').AsFloat:=temp;
+      FieldByName('PQF1').AsInteger:=0;
+      FieldByName('PQF2').AsInteger:=0;
+      FieldByName('SQF').AsInteger:=0;
+      FieldByName('Bottle').AsInteger:=stNBNum;
+      FieldByName('Station').AsInteger:=stationN;
+      FieldByName('Cast').AsInteger:=castN;
+      FieldByName('Units_ID').AsInteger:=1; //temperature
+      Post;
+   end;
+
 
 
 {pr}end;{inside profiles}
 {L} end; {lines loop}
 
-    StDT:= DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
-    writeln(out,'...new Real Station: '+inttostr(kst)
-    +'  date: '+datetimetostr(StDT)
-    +'  lat: '+floattostr(stlat)
-    +'  lon: '+floattostr(stlon)
-    +'  BD: '+floattostr(stBD)
-    +'  PDS: '+floattostr(stPDS)
-    );
+   StDT:= DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
 
+
+//determine max number of casts at stations
+     CDS_DSC.First;
+     cast_maxN:=CDS_DSC.FieldByName('Cast').AsInteger;
+{s}while not CDS_DSC.EOF do begin
+     if cast_maxN<CDS_DSC.FieldByName('Cast').AsInteger
+     then cast_maxN:=CDS_DSC.FieldByName('Cast').AsInteger;
+     CDS_DSC.Next;
+{s}end;
+
+
+
+   //divide station on casts
+{c}for c:=1 to cast_maxN do begin
+     CDS_DSC.Filter:='CAST='+inttostr(c);
+     CDS_DSC.Filtered:=true;
+
+     CDS_DSC.IndexFieldNames:='Press';  //sort by press
+
+
+{i}if CDS_DSC.IsEmpty=false then begin
+     CDS_DSC.First;
+
+
+     writeln(out,'...new Real Station: '+inttostr(kst)
+     +'  date: '+datetimetostr(StDT)
+     +'  lat: '+floattostr(stlat)
+     +'  lon: '+floattostr(stlon)
+     +'  BD: '+floattostr(stBD)
+     +'  PDS: '+floattostr(stPDS)
+     );
+
+     {writeln(out,inttostr(kst),
+       #9+inttostr(L1),
+       #9+inttostr(L2),
+       #9,inttostr(line),
+       #9,inttostr(cruiseN));}
+
+
+{s}while not CDS_DSC.EOF do begin
+
+   writeln(out,inttostr(kst),
+   #9,inttostr(cruiseN),
+   #9,inttostr(CDS_DSC.FieldByName('Station').AsInteger),
+   #9,inttostr(CDS_DSC.FieldByName('Cast').AsInteger),
+   #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+   #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+   #9,floattostr(CDS_DSC.FieldByName('val').AsFloat));
+
+     CDS_DSC.Next;
+{s}end; //filtered by cast number and sorted station
+{i}end; //if cast exists
+{c}end; //casts
+
+      CDS_DSC.Filtered:=false;
+      //CDS_DSC.Close;
+      //CDS_DSC.Clear;
+      //CDS_DSC.Active:=false;
 {st}end; //real stations loop
-    closefile(out);
 
-    memo1.Lines.Add('');
-    memo1.Lines.Add('Loading completed');
+   if CDS_DSC.Active=true then CDS_DSC.Close;
+      CDS_DSC.Free;
+      closefile(out);
 
-
+      memo1.Lines.Add('');
+      memo1.Lines.Add('Loading completed');
 end;
 
 
