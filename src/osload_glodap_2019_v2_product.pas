@@ -631,6 +631,7 @@ begin
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
+     '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
      '   CAST_NUMBER    SMALLINT, '+LineEnding+
