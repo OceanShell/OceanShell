@@ -200,9 +200,19 @@ msgctxt "tfrmcodes.dbgridcruisewod.columns[0].title.caption"
 msgid "ID"
 msgstr ""
 
+#: tfrmcodes.dbgridcruisewod.columns[10].title.caption
+msgctxt "tfrmcodes.dbgridcruisewod.columns[10].title.caption"
+msgid "WOD"
+msgstr ""
+
+#: tfrmcodes.dbgridcruisewod.columns[11].title.caption
+msgctxt "tfrmcodes.dbgridcruisewod.columns[11].title.caption"
+msgid "WMO"
+msgstr ""
+
 #: tfrmcodes.dbgridcruisewod.columns[1].title.caption
 msgctxt "tfrmcodes.dbgridcruisewod.columns[1].title.caption"
-msgid "WOD"
+msgid "Platform WOD"
 msgstr ""
 
 #: tfrmcodes.dbgridcruisewod.columns[2].title.caption
@@ -227,7 +237,20 @@ msgstr ""
 
 #: tfrmcodes.dbgridcruisewod.columns[6].title.caption
 msgctxt "tfrmcodes.dbgridcruisewod.columns[6].title.caption"
+msgid "ISO"
+msgstr ""
+
+#: tfrmcodes.dbgridcruisewod.columns[7].title.caption
+msgctxt "tfrmcodes.dbgridcruisewod.columns[7].title.caption"
 msgid "Country name"
+msgstr ""
+
+#: tfrmcodes.dbgridcruisewod.columns[8].title.caption
+msgid "INSTITUTE_ID"
+msgstr ""
+
+#: tfrmcodes.dbgridcruisewod.columns[9].title.caption
+msgid "INSTITUTENAME"
 msgstr ""
 
 #: tfrmcodes.dbgridinstitute.columns[0].title.caption

@@ -36,6 +36,8 @@ type
     DS: TDataSource;
     eCruiseGLODAP_PI: TEdit;
     eCruiseWOD_COUNTRYNAME: TEdit;
+    eCruiseWOD_WMO: TEdit;
+    eCruiseWOD_WOD: TEdit;
     eCruiseWOD_DATEEND: TEdit;
     eCruiseGLODAP_DATEEND: TEdit;
     eCruiseWOD_DATESTART: TEdit;
@@ -48,11 +50,10 @@ type
     eCruiseWOD_STATIONAMOUNT: TEdit;
     eCruiseGLODAP_COUNTRYNAME: TEdit;
     eCruise_WOD: TEdit;
-    eCruiseWOD_WOD: TEdit;
     eCruiseGLODAP_EXPOCODE: TEdit;
     eCruise_SOURCENAME: TEdit;
-    ePI_ID: TEdit;
-    ePI_Name: TEdit;
+    ePIWOD_ID: TEdit;
+    ePIWOD_Name: TEdit;
     eCruise_DATEEND: TEdit;
     eCruise_ID: TEdit;
     eCruise_DATESTART: TEdit;
@@ -65,7 +66,7 @@ type
     eInstrument_ID: TEdit;
     eQCFlag_SOURCENAME: TEdit;
     eUnits_ID: TEdit;
-    eProject_Name1: TEdit;
+    eInstrument_Name: TEdit;
     eSource_ID: TEdit;
     eQCFlag_ID: TEdit;
     eUnits_Name: TEdit;
@@ -77,9 +78,9 @@ type
     ePlatform_NameNative: TEdit;
     ePlatform_ID: TEdit;
     eCountry_ID: TEdit;
-    eProject_WOD1: TEdit;
+    eInstrument_WOD: TEdit;
     eUnits_Empty: TEdit;
-    eSource_SOURCENAME: TEdit;
+    eSource_NAME: TEdit;
     eQCFlag_SourceFlag: TEdit;
     eQCFlag_ODBFlag: TEdit;
     imgFlagPlatform: TImage;
@@ -158,7 +159,6 @@ type
     ToolButton1: TToolButton;
 
     procedure btnUpdateQCClick(Sender: TObject);
-    procedure cbCruise_ProjectChange(Sender: TObject);
     procedure cbCruise_ProjectDropDown(Sender: TObject);
     procedure DBGridPlatformKeyPress(Sender: TObject; var Key: char);
     procedure eCruiseGLODAP_COUNTRYNAMEChange(Sender: TObject);
@@ -166,7 +166,6 @@ type
     procedure eCruiseGLODAP_NUMBERChange(Sender: TObject);
     procedure eCruiseGLODAP_PLATFORMNAMEChange(Sender: TObject);
     procedure ePlatform_IDClick(Sender: TObject);
-    procedure eQCFlag_SOURCENAMEChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -185,10 +184,6 @@ type
     procedure DBGridPlatformTitleClick(Column: TColumn);
     procedure DBGridCountryTitleClick(Column: TColumn);
 
-    procedure ePlatform_WODChange(Sender: TObject);
-    procedure ePlatform_SourceChange(Sender: TObject);
-    procedure ePlatform_NameChange(Sender: TObject);
-    procedure ePlatform_NODCChange(Sender: TObject);
     procedure ePlatform_NameNativeChange(Sender: TObject);
     procedure ePlatfo(Sender: TObject);
     procedure ePlatform_(Sender: TObject);
@@ -199,8 +194,13 @@ type
     { Private declarations }
     procedure Navigation;
     procedure ResizeColumns;
+
     procedure SearchID(Sender:TObject);
+    procedure SearchNAME(Sender:TObject);
     procedure SearchSOURCENAME(Sender:TObject);
+    procedure SearchPI(Sender:TObject);
+    procedure SearchNODC(Sender:TObject);
+    procedure SearchWOD(Sender:TObject);
   public
     { Public declarations }
   end;
@@ -230,17 +230,41 @@ begin
  eCruiseGLODAP_ID.OnChange := @SearchID;
  eCountry_ID.OnChange      := @SearchID;
  eSource_ID.OnChange       := @SearchID;
- ePI_ID.OnChange           := @SearchID;
+ ePIWOD_ID.OnChange        := @SearchID;
  eProject_ID.OnChange      := @SearchID;
  eInstitute_ID.OnChange    := @SearchID;
  eInstrument_ID.OnChange   := @SearchID;
  eUnits_ID.OnChange        := @SearchID;
  eQCFlag_ID.OnChange       := @SearchID;
 
+ (* NAME *)
+ ePlatform_NAME.OnChange   := @SearchNAME;
+ eCountry_NAME.OnChange    := @SearchNAME;
+ eSource_NAME.OnChange     := @SearchNAME;
+ ePIWOD_NAME.OnChange      := @SearchNAME;
+ eProject_NAME.OnChange    := @SearchNAME;
+ eInstitute_NAME.OnChange  := @SearchNAME;
+ eInstrument_NAME.OnChange := @SearchNAME;
+ eUnits_NAME.OnChange      := @SearchNAME;
+
+
  (* SOURCE *)
- eSource_SOURCENAME.OnChange := @SearchSOURCENAME;
  eCruise_SOURCENAME.OnChange := @SearchSOURCENAME;
  eQCFlag_SOURCENAME.OnChange := @SearchSOURCENAME;
+
+ (* PI *)
+ eCruiseGLODAP_PI.OnChange := @SearchPI;
+
+ (* NODC *)
+ ePlatform_NODC.OnChange  := @SearchNODC;
+ eInstitute_NODC.OnChange := @SearchNODC;
+
+ (* WOD*)
+ ePlatform_WOD.OnChange   := @SearchWOD;
+ eCruise_WOD.OnChange     := @SearchWOD;
+ eProject_WOD.OnChange    := @SearchWOD;
+ eInstitute_WOD.OnChange  := @SearchWOD;
+ eInstrument_WOD.OnChange := @SearchWOD;
 end;
 
 
@@ -277,11 +301,17 @@ begin
      end;
   2: begin
        CodesTblName:='CRUISE_WOD';
-       Q.SQL.text:='Select CRUISE_WOD.ID, CRUISE_WOD.WOD_ID, PLATFORM.NAME as PLATFORMNAME, '+
-                   'COUNTRY.NAME as COUNTRYNAME, CRUISE_WOD.CRUISE_NUMBER, '+
-                   'CRUISE_WOD.DATE_START, CRUISE_WOD.DATE_END, CRUISE_WOD.STATIONS_AMOUNT '+
-                   'FROM CRUISE_WOD, PLATFORM, COUNTRY WHERE '+
-                   'CRUISE_WOD.PLATFORM_ID=PLATFORM.ID and CRUISE_WOD.COUNTRY_ID=COUNTRY.ID '+
+       Q.SQL.text:='Select CRUISE_WOD.ID, PLATFORM.WOD_ID as PLATFORM_WOD, '+
+                   'PLATFORM.NAME as PLATFORMNAME, CRUISE_WOD.COUNTRY_ID, '+
+                   'COUNTRY.ISO3166_CODE as ISO, COUNTRY.NAME as COUNTRYNAME, '+
+                   'CRUISE_WOD.INSTITUTE_ID, '+
+                   'INSTITUTE.NAME as INSTITUTENAME, CRUISE_WOD.DATE_START, '+
+                   'CRUISE_WOD.DATE_END, CRUISE_WOD.STATIONS_AMOUNT, '+
+                   'CRUISE_WOD.WOD_CODE, CRUISE_WOD.WMO_CODE '+
+                   'FROM CRUISE_WOD, PLATFORM, COUNTRY, INSTITUTE WHERE '+
+                   'CRUISE_WOD.PLATFORM_ID=PLATFORM.ID AND '+
+                   'CRUISE_WOD.COUNTRY_ID=COUNTRY.ID AND '+
+                   'CRUISE_WOD.INSTITUTE_ID=INSTITUTE.ID '+
                    'ORDER BY CRUISE_WOD.DATE_START, PLATFORM.NAME';
      end;
   3: begin
@@ -384,23 +414,25 @@ begin
     eCruise_WOD.Width:=DBGridCruise.Columns[8].Width;
  end;
  if CodesTblName='CRUISE_WOD' then begin
-    occup:=trunc(DBGridCruiseWOD.Width-20-
+ {   occup:=trunc(DBGridCruiseWOD.Width-20-
            (DBGridCruiseWOD.Columns[0].Width+
-            DBGridCruiseWOD.Columns[1].Width+
+            DBGridCruiseWOD.Columns[2].Width+
             DBGridCruiseWOD.Columns[3].Width+
             DBGridCruiseWOD.Columns[4].Width+
             DBGridCruiseWOD.Columns[5].Width+
-            DBGridCruiseWOD.Columns[6].Width));
+            DBGridCruiseWOD.Columns[6].Width+
+            DBGridCruiseWOD.Columns[7].Width));
 
-            DBGridCruiseWOD.Columns[2].Width:=occup+1;
+    DBGridCruiseWOD.Columns[1].Width:=occup+1;
 
     eCruiseWOD_ID.Width:=           DBGridCruiseWOD.Columns[0].Width+1;
-    eCruiseWOD_WOD.Width:=          DBGridCruiseWOD.Columns[1].Width;
-    eCruiseWOD_PLATFORMNAME.Width:= DBGridCruiseWOD.Columns[2].Width;
-    eCruiseWOD_STATIONAMOUNT.Width:=DBGridCruiseWOD.Columns[3].Width;
-    eCruiseWOD_DATESTART.Width:=    DBGridCruiseWOD.Columns[4].Width;
-    eCruiseWOD_DATEEND.Width:=      DBGridCruiseWOD.Columns[5].Width;
-    eCruiseWOD_COUNTRYNAME.Width:=  DBGridCruiseWOD.Columns[6].Width;
+    eCruiseWOD_PLATFORMNAME.Width:= DBGridCruiseWOD.Columns[1].Width;
+    eCruiseWOD_STATIONAMOUNT.Width:=DBGridCruiseWOD.Columns[2].Width;
+    eCruiseWOD_DATESTART.Width:=    DBGridCruiseWOD.Columns[3].Width;
+    eCruiseWOD_DATEEND.Width:=      DBGridCruiseWOD.Columns[4].Width;
+    eCruiseWOD_COUNTRYNAME.Width:=  DBGridCruiseWOD.Columns[5].Width;
+    eCruiseWOD_WOD.Width:=          DBGridCruiseWOD.Columns[6].Width;
+    eCruiseWOD_WMO.Width:=          DBGridCruiseWOD.Columns[7].Width; }
  end;
  if CodesTblName='CRUISE_GLODAP' then begin
     occup:=trunc(DBGridCruiseGLODAP.Width-20-
@@ -412,7 +444,7 @@ begin
             DBGridCruiseGLODAP.Columns[5].Width+
             DBGridCruiseGLODAP.Columns[6].Width));
 
-            DBGridCruiseGLODAP.Columns[7].Width:=occup+1;
+    DBGridCruiseGLODAP.Columns[7].Width:=occup+1;
 
     eCruiseGLODAP_ID.Width:=          DBGridCruiseGLODAP.Columns[0].Width+1;
     eCruiseGLODAP_EXPOCODE.Width:=    DBGridCruiseGLODAP.Columns[1].Width;
@@ -461,8 +493,8 @@ begin
 
     DBGridPI.Columns[1].Width:=occup+1;
 
-    ePI_ID.Width:=     DBGridPI.Columns[0].Width+1;
-    ePI_Name.Width:=   DBGridPI.Columns[1].Width;
+    ePIWOD_ID.Width:=     DBGridPI.Columns[0].Width+1;
+    ePIWOD_Name.Width:=   DBGridPI.Columns[1].Width;
     //ePI_Source.Width:= DBGridPI.Columns[2].Width;
    // ePI_WOD.Width:=    DBGridPI.Columns[3].Width;
  end;
@@ -807,30 +839,41 @@ Begin
     Q.Locate('ID', StrToInt((Sender as TEdit).Text),[loCaseInsensitive, loPartialKey]);
 end;
 
+(* NAME *)
+procedure Tfrmcodes.SearchNAME(Sender: TObject);
+begin
+ Q.Filter:='NAME = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+ Q.Filtered:=true;
+end;
+
+(* SOURCE *)
 procedure Tfrmcodes.SearchSOURCENAME(Sender: TObject);
 begin
   Q.Filter:='SOURCENAME = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
   Q.Filtered:=true;
 end;
 
-(* NODC *)
-procedure Tfrmcodes.ePlatform_NODCChange(Sender: TObject);
+(* PI *)
+procedure Tfrmcodes.SearchPI(Sender: TObject);
 begin
- Q.Filter:='NODC_CODE = '+QuotedStr((Sender as TEdit).Text+'*');
+  Q.Filter:='PI = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+  Q.Filtered:=true;
+end;
+
+(* NODC *)
+procedure Tfrmcodes.SearchNODC(Sender: TObject);
+begin
+ Q.Filter:='NODC_CODE = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
  Q.Filtered:=true;
 end;
 
 (* WOD *)
-procedure Tfrmcodes.ePlatform_WODChange(Sender: TObject);
+procedure Tfrmcodes.SearchWOD(Sender: TObject);
 begin
  if (Sender as TEdit).Text='' then exit;
    Q.Locate('WOD_ID', StrToInt((Sender as TEdit).Text),[loCaseInsensitive, loPartialKey]);
 end;
 
-procedure Tfrmcodes.ePlatform_SourceChange(Sender: TObject);
-begin
-
-end;
 
 (* IMO *)
 procedure Tfrmcodes.ePlatfo(Sender: TObject);
@@ -853,12 +896,6 @@ begin
  Q.Filtered:=true;
 end;
 
-(* Name *)
-procedure Tfrmcodes.ePlatform_NameChange(Sender: TObject);
-begin
- Q.Filter:='NAME = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
- Q.Filtered:=true;
-end;
 
 (* Platform native name *)
 procedure Tfrmcodes.ePlatform_NameNativeChange(Sender: TObject);
@@ -892,11 +929,6 @@ begin
  Q.Filtered:=true;
 end;
 
-procedure Tfrmcodes.eQCFlag_SOURCENAMEChange(Sender: TObject);
-begin
- Q.Filter:='SOURCENAME = '+QuotedStr('*'+eQCFlag_SOURCENAME.Text+'*');
- Q.Filtered:=true;
-end;
 
 (* Cleaning controls on click and drop the filter *)
 procedure Tfrmcodes.ePlatform_IDClick(Sender: TObject);
@@ -977,10 +1009,6 @@ begin
  frmcodesQC_open:=true;
 end;
 
-procedure Tfrmcodes.cbCruise_ProjectChange(Sender: TObject);
-begin
-
-end;
 
 
 procedure Tfrmcodes.cbCruise_ProjectDropDown(Sender: TObject);
