@@ -1099,15 +1099,6 @@ mLog.Clear;
   Qt1.Database:=frmdm.SupportDB;
   Qt1.Transaction:=TRt;
 
-  with Qt1 do begin
-    Close;
-     SQL.Clear;
-     SQL.ADD(' Select max(ID) as AbsnumMax from CRUISE ');
-    Open;
-      Absnum:=Qt1.FieldByName('AbsnumMax').AsInteger;
-    Close;
-  end;
-
   Qt2 :=TSQLQuery.Create(self);
   Qt2.Database:=frmdm.SupportDB;
   Qt2.Transaction:=TRt;
@@ -1120,6 +1111,7 @@ mLog.Clear;
  readln(dat, st);
  readln(dat, st);
 
+ absnum:=0;
    repeat
     readln(dat, st);
     if eof(dat) then exit;
@@ -1142,17 +1134,16 @@ mLog.Clear;
      if c=8 then if trim(buf_str)<>'' then wmo_ID:=trim(buf_str);
     end;
 
-    if (wod_platform_id>0) then begin
     wod_country:=copy(cruise_ind, 1, 2);
 
     with Qt1 do begin
     Close;
      SQL.Clear;
      SQL.Add(' select ID from COUNTRY ');
-     SQL.Add(' where iso_3166=:code_wod ');
+     SQL.Add(' where iso3166_code=:code_wod ');
      ParamByName('code_wod').AsString:=wod_country;
     Open;
-     if Qt1.IsEmpty=false then country_id:=Qt1.Fields[0].AsInteger else country_id:=-9;
+     if Qt1.IsEmpty=false then country_id:=Qt1.Fields[0].AsInteger else country_id:=488;
     Close;
    end;
 
@@ -1183,13 +1174,12 @@ mLog.Clear;
     Close;
      SQL.Clear;
      SQL.Add(' select ID from CRUISE_WOD ');
-     SQL.Add(' where wod_id=:code_wod ');
+     SQL.Add(' where wod_code=:code_wod ');
      ParamByName('code_wod').AsWideString:=cruise_ind;
     Open;
    end;
 
    if Qt1.IsEmpty=true then begin
-    inc(absnum);
 
     with Qt3 do begin
     Close;
@@ -1198,7 +1188,7 @@ mLog.Clear;
      SQL.Add(' where WOD_ID=:code_wod ');
      ParamByName('code_wod').AsInteger:=wod_platform_id;
     Open;
-      if Qt3.IsEmpty=false then platform_id:=Qt3.Fields[0].AsInteger else platform_id:=-9;
+      if Qt3.IsEmpty=false then platform_id:=Qt3.Fields[0].AsInteger else platform_id:=19043;
     Close;
    end;
 
@@ -1209,20 +1199,21 @@ mLog.Clear;
      SQL.Add(' where WOD_ID=:code_wod ');
      ParamByName('code_wod').AsInteger:=wod_institute_id;
     Open;
-     if Qt3.IsEmpty=false then  institute_id:=Qt3.Fields[0].AsInteger else institute_id:=-9;
+     if Qt3.IsEmpty=false then  institute_id:=Qt3.Fields[0].AsInteger else institute_id:=1;
     Close;
    end;
 
-    try
+  //  try
+  inc(absnum);
      with Qt2 do begin
       Close;
        SQL.Clear;
        SQL.Add(' INSERT INTO CRUISE_WOD ' );
        SQL.Add(' (ID, PLATFORM_ID, DATE_START, DATE_END, STATIONS_AMOUNT, ');
-       SQL.Add('  COUNTRY_ID, INSTITUTE_ID, WOD_ID, WOD_WMO_ID )');
+       SQL.Add('  COUNTRY_ID, INSTITUTE_ID, WOD_CODE, WMO_CODE )');
        SQL.Add(' VALUES ' );
        SQL.Add(' (:ID, :PLATFORM_ID, :DATE_START, :DATE_END, :STATIONS_AMOUNT, ');
-       SQL.Add('  :COUNTRY_ID, :INSTITUTE_ID, :WOD_ID, :WOD_WMO_ID )');
+       SQL.Add('  :COUNTRY_ID, :INSTITUTE_ID, :WOD_CODE, :WMO_CODE )');
        ParamByName('ID').AsInteger:=absnum;
        ParamByName('PLATFORM_ID').AsInteger:=platform_id;
        ParamByName('DATE_START').AsDate:=date1;
@@ -1230,22 +1221,21 @@ mLog.Clear;
        ParamByName('STATIONS_AMOUNT').AsInteger:=stnum;
        ParamByName('COUNTRY_ID').AsInteger:=country_id;
        ParamByName('INSTITUTE_ID').AsInteger:=institute_id;
-       ParamByName('WOD_ID').AsWideString:=cruise_ind;
-       ParamByName('WOD_WMO_ID').AsString:=wmo_id;
+       ParamByName('WOD_CODE').AsWideString:=cruise_ind;
+       ParamByName('WMO_CODE').AsString:=wmo_id;
       ExecSQL;
       Close;
      end;
       Trt.CommitRetaining;
       if chkShowLog.Checked then mLog.Lines.add('Insert successful: '+st);
-     except
+  {   except
        on E: Exception do begin
-         if MessageDlg(E.Message, mtWarning, [mbOk], 0)=mrOk then exit;
           mLog.Lines.add('Insert error: '+st);
-       end;
+       end;   }
 
-     end;
+    // end;
 
-    mLog.Lines.Add(inttostr(absnum)+'   '+
+  {  mLog.Lines.Add(inttostr(absnum)+'   '+
                   inttostr(platform_id)+'   '+
                   datetostr(date1)+'   '+
                   datetostr(date2)+'   '+
@@ -1253,9 +1243,8 @@ mLog.Clear;
                   inttostr(country_id)+'   '+
                   inttostr(institute_id)+'   '+
                   cruise_ind+'   '+
-                  wmo_id);
+                  wmo_id); }
   end;
- end;
 
   until eof(dat);
   closefile(dat);
@@ -1707,16 +1696,17 @@ mLog.Clear;
        SQL.Clear;
        SQL.Add(' INSERT INTO CRUISE_GLODAP ' );
        SQL.Add(' (ID, PLATFORM_ID, DATE_START, DATE_END, CRUISE_NUMBER, ');
-       SQL.Add('  COUNTRY_ID, EXPOCODE, NOTES, DATE_ADDED )');
+       SQL.Add('  COUNTRY_ID, EXPOCODE, PI, NOTES, DATE_ADDED )');
        SQL.Add(' VALUES ' );
        SQL.Add(' (:ID, :PLATFORM_ID, :DATE_START, :DATE_END, :CRUISE_NUMBER, ');
-       SQL.Add('  :COUNTRY_ID, :EXPOCODE, :NOTES, :DATE_ADDED )');
+       SQL.Add('  :COUNTRY_ID, :EXPOCODE, :PI, :NOTES, :DATE_ADDED )');
        ParamByName('ID').AsInteger:=strtoint(glodap_id);
        ParamByName('PLATFORM_ID').AsInteger:=platform_id;
        ParamByName('DATE_START').AsDate:=date1;
        ParamByName('DATE_END').AsDate:=date2;
        ParamByName('CRUISE_NUMBER').AsString:=Cr_alias;
        ParamByName('EXPOCODE').AsString:=EXPOCODE;
+       ParamByName('PI').AsWideString:=UpperCase(ChiefSc);
        ParamByName('COUNTRY_ID').AsInteger:=country_id;
        ParamByName('Notes').AsWideString:=notes_str;
        ParamByName('DATE_ADDED').AsDateTime :=now;
