@@ -15,6 +15,7 @@
 //    writing metadata to the STATION table
 //
 //III.Third file scroll btnDownloadData
+//    divide station on casts (CDS_DSC)
 //    writing profiles into variables table
 //
 
@@ -26,8 +27,8 @@ unit osload_GLODAP_2019_v2_product;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, DateUtils,
-  SQLDB, DB, BufDataSet;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
+  DateUtils, SQLDB, DB, BufDataSet;
 
 type
 
@@ -38,11 +39,17 @@ type
     btnDownloadMD: TButton;
     btnCreateTables: TButton;
     btnDownloadData: TButton;
+    btnSplitOnMDandProfiles: TButton;
+    CheckBox1: TCheckBox;
     Memo1: TMemo;
-    procedure btnCreateTablesClick(Sender: TObject);
+    Panel1: TPanel;
     procedure btnDataSourceClick(Sender: TObject);
-    procedure btnDownloadDataClick(Sender: TObject);
     procedure btnDownloadMDClick(Sender: TObject);
+    procedure btnDownloadDataClick(Sender: TObject);
+
+    procedure btnCreateTablesClick(Sender: TObject);
+    procedure btnSplitOnMDandProfilesClick(Sender: TObject);
+
   private
     function DateEncode(Year,Month,Day,Hour,Minutes:word;
       Var DaysInAMonthFlag,DateChangedFlag:Boolean):TDateTime;
@@ -52,11 +59,11 @@ type
 
 var
   frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product;
-  var_num,line_num,RSt:integer;
-  Path, path_out:string;
+  var_num,LinesInFile,RSt:integer;
+  Path, path_out, path_MD, path_PRF:string;
   var_name:array[1..200] of string;     //variables names
   line_arr:array[1..100000] of integer; //profile intervals at stations
-  Dat, out:text;
+  Dat, out, outMD, outPRF:text;
   CDS_DSC:TBufDataSet; //CDS Divide stations on casts
 
 implementation
@@ -71,21 +78,35 @@ uses osmain, procedures, dm;
 
 procedure TfrmloadGLODAP_2019_v2_product.btnDataSourceClick(Sender: TObject);
 var
-  k,n,line:integer;
-  symbol:char;
-  st,buf_str:string;
+k,kv,n,i:integer;
+cruiseN,stationN,castN,stNBNum,cast_max:integer;
+year,month,day,hour,min:integer;
+stlat,stlon,stBD,stPDS:real;
+buf:real;
+symbol:char;
+st,buf_str:string;
+StDate,StTime,StDT:TDateTime;
+DayChange,DateChange:Boolean;
+//divide file on stations/casts
+cruiseNbuf,stationNbuf,castNbuf:Integer;
+cruise_count,station_count,cast_count:Integer;
+newCruise,newStation,newCast,NewMD:Boolean;
 
 begin
   path:='c:\Users\ako071\AK\datasets\GLODAP\GLODAPv2.2019_Merged_Master_File.csv';
-  //path:='c:\Users\ako071\AK\datasets\GLODAP\cruise 1116a.csv';
-  //path:='c:\Users\ako071\AK\datasets\GLODAP\cruise 1046.csv';
   memo1.Lines.Add('path='+path);
+
+  path_out:='c:\Users\ako071\AK\datasets\GLODAP\output_MD.dat';
+  AssignFile(out, Path_out); Rewrite(out);
+  memo1.Lines.Add('path_out='+path_out);
+
+  writeln(out,'Rst#  Line_arr[RSt]  line#  cruise#  st#  cast#  date  lat  lon  BD  LastPress bottle#');
 
   AssignFile(dat, Path); Reset(dat);
   readln(dat, st);
   st:=trim(st);
 
-  //number of variables in the first line
+//number of variables in file from the first line
     var_num:=0;
   for k:=1 to length(st) do begin
     symbol:=st[k];
@@ -95,7 +116,7 @@ begin
     memo1.Lines.Add('Variables in file:'+inttostr(var_num));
 
 
-  //array with variable names
+//create array with variable names
   for k:=1 to 200 do var_name[k]:='';
     n:=0;
   for k:=1 to var_num do begin
@@ -110,26 +131,165 @@ begin
   memo1.Lines.Add('Array with variable names is created');
 
 
-  //count lines
-  line:=1;
+//count lines in file
+  i:=1;
   try
   repeat
     readln(dat,st);
-    line:=line+1;
+    i:=i+1;
   until eof(dat);
   finally
     closefile(dat);
   end;
-    line_num:=line;
-    memo1.Lines.Add('Lines in file    :'+inttostr(line));
+    LinesInFile:=i;
+    memo1.Lines.Add('Total    lines in file    :'+inttostr(LinesInFile));
+    memo1.Lines.Add('Profiles lines in file    :'+inttostr(LinesInFile-1));
 
-  btnDownloadMD.Visible:=true;
+
+
+//create array 'line_arr' for file division on profiles
+
+     Reset(dat);
+     readln(dat, st);
+     line_arr[1]:=2; //first profile begins in line 2
+     RSt:=0; //real station = profile
+
+{L}for i:=2 to LinesInFile do begin
+     readln(dat,st);
+     st:=trim(st);
+
+     newCruise:=false;
+     newStation:=false;
+     newCast:=false;
+
+//the string analysis
+     n:=0;
+{kv}for kv:=1 to var_num do begin
+     buf_str:='';
+{s}repeat
+    inc(n);
+    symbol:=st[n];
+    if (symbol<>',') then buf_str:=buf_str+symbol;
+    //if i=1 then showmessage (' kv='+inttostr(kv)+' n='+inttostr(n)+' sym='+symbol
+    //            +' ASCII='+inttostr(ord(symbol))+' buf='+buf_str);
+    //if i=LinesInFile-1 then showmessage (' kv='+inttostr(kv)+' n='+inttostr(n)+' sym='+symbol
+    //            +' ASCII='+inttostr(ord(symbol))+' buf='+buf_str);
+{s}until (symbol=',') or (n=length(st));
+
+{b}if buf_str<>'' then begin
+
+       if not TryStrToFloat(buf_str, buf)
+       then showmessage ('trystrtofloat line='+inttostr(i)+' '+buf_str);
+
+       case kv of
+       1: cruiseN:=trunc(strtofloat(buf_str));
+       2: stationN:=trunc(strtofloat(buf_str));
+       3: castN:=trunc(strtofloat(buf_str));
+       4: year:=trunc(strtofloat(buf_str));
+       5: month:=trunc(strtofloat(buf_str));
+       6: day:=trunc(strtofloat(buf_str));
+       7: hour:=trunc(strtofloat(buf_str));
+       8: min:=trunc(strtofloat(buf_str));
+       9: stlat:=strtofloat(buf_str);
+      10: stlon:=strtofloat(buf_str);
+      11: stBD:=strtofloat(buf_str);                    //bottom depth m
+      12: stPDS:=strtofloat(buf_str);                   //pressure of the deepest sample
+      13: stNBNum:=trunc(strtofloat(buf_str));          //Niskin bottle number
+       end; {case}
+
+{b}end; {buf_str<>''}
+{kv}end; {kv variables loop}
+//end the string analysis
+
+     //convert date and time into datetime
+     StDT:= DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
+     if DayChange=true then memo1.Lines.Add('Day was changed in line='
+                       +inttostr(i)
+                       +'  '+inttostr(day)+'.'+inttostr(month)+'.'+inttostr(year)
+                       +'  '+inttostr(hour)+':'+inttostr(min));
+     if DateChange=true then memo1.Lines.Add('Date was changed in line='
+                       +inttostr(i)
+                       +'  '+inttostr(day)+'.'+inttostr(month)+'.'+inttostr(year)
+                       +'  '+inttostr(hour)+':'+inttostr(min));
+
+     //count cruise, stations, casts
+     if i=1 then begin
+           cruiseNbuf:=cruiseN;
+           stationNbuf:=stationN;
+           castNbuf:=cruiseN;
+     end;
+
+     //count cruises, stations, casts
+     if i>1 then begin
+       if cruiseN<>cruiseNbuf then begin newCruise:=true; cruise_count:=cruise_count+1; end;
+       if stationN<>stationNbuf then begin newStation:=true; station_count:=station_count+1; end;
+       if castN<>castNbuf then begin newCast:=true; cast_count:=cast_count+1; end;
+
+       newMD:=false;
+       if(newCruise=true)  then newMD:=true;
+       if(newStation=true) then newMD:=true;
+     end;
+
+   //find stations first line
+{N}if newMD=true then begin
+           RSt:=RSt+1;
+           line_arr[RSt]:=i; //lines where stations begin
+           //showmessage('RST -> Line  '+inttostr(RSt)+'->'+inttostr(line));
+
+           cruiseNbuf:=cruiseN;
+           stationNbuf:=stationN;
+           castNbuf:=castN;
+
+           writeln(out,inttostr(RSt),
+           #9,inttostr(line_arr[Rst]),
+           #9,inttostr(i),
+           #9,inttostr(cruiseN),
+           #9,inttostr(stationN),
+           #9,inttostr(castN),
+           #9,datetimetostr(stDT),
+           #9,floattostr(stlat),
+           #9,floattostr(stlon),
+           #9,floattostr(stBD),
+           #9,floattostr(stPDS),
+           #9,inttostr(stNBNum)
+           );
+{N}end;
+
+{L}end; { i all lines in file}
+     RSt:=RSt+1;
+     line_arr[RSt]:=LinesInFile;
+
+     writeln(out,'!!! Last element in the Line_ARR contains number of the last line in file ');
+     writeln(out,'!!! So it is not really the station number');
+     writeln(out,inttostr(RSt),
+     #9,inttostr(line_arr[Rst]),
+     #9,inttostr(i),
+     #9,inttostr(cruiseN),
+     #9,inttostr(stationN),
+     #9,inttostr(castN),
+     #9,datetimetostr(stDT),
+     #9,floattostr(stlat),
+     #9,floattostr(stlon),
+     #9,floattostr(stBD),
+     #9,floattostr(stPDS),
+     #9,inttostr(stNBNum)
+     );
+
+
+     closefile(dat);
+     closefile(out);
+
+     Panel1.Visible:=true;
+     btnSplitOnMDandProfiles.Visible:=true;
+     //btnDownloadMD.Visible:=true;
+
+     memo1.Lines.Add('Stations in file          :'+inttostr(RSt-1));
 end;
 
 
 procedure TfrmloadGLODAP_2019_v2_product.btnDownloadMDClick(Sender: TObject);
 var
-k,kv,line,n,mik:integer;
+i,kv,line,n,mik:integer;
 cruiseN,stationN,castN,stNBNum,cast_max:integer;
 year,month,day,hour,min:integer;
 stlat,stlon,stBD,stPDS:real;
@@ -156,43 +316,40 @@ O18_pQF1,toc_pQF1,doc_pQF1,don_pQF1,tdn_pQF1,chla_pQF1,phts25p0_pQF1:integer;
 salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF:integer;
 cfc11_sQF,cfc12_sQF,cfc113_sQF,cc14_sQF,sf6_pQF1,c13_sQF,phts25p0_sQF:integer;
 //divide file on stations/casts
-cruiseNbuf,stationNbuf,castNbuf:Integer;
-cruise_count,station_count,cast_count:Integer;
-newCruise,newStation,newCast,NewMD:Boolean;
-
-
-
+cast_count:Integer;
+//download
+CountDup,StVersion:integer;
 
 begin
-   path_out:='c:\Users\ako071\AK\datasets\GLODAP\output.dat';
+{   path_out:='c:\Users\ako071\AK\datasets\GLODAP\output_MD_Load.dat';
    AssignFile(out, Path_out); Rewrite(out);
    writeln(out,'Rst#  line#  cruise#  st#  cast#  date  lat  lon  BD  LastPress bottle#');
 
 
    memo1.Lines.Add('');
    memo1.Lines.Add('Variables');
+   for kv:=1 to var_num do memo1.Lines.Add(inttostr(kv)+#9+var_name[kv]);
+
    //memo1.Lines.Add('Variables in file:'+inttostr(var_num));
-   for k:=1 to var_num do memo1.Lines.Add(inttostr(k)+#9+var_name[k]);
-   //memo1.Lines.Add('Lines in file:'+inttostr(line_num));
+   //memo1.Lines.Add('Lines in file:'+inttostr(LinesInFile));
 
 
    Reset(dat);
-   readln(dat, st);
-   line:=1;
 
-   cruise_count:=1;
-   station_count:=1;
-   cast_count:=1;
    cast_max:=1;
 
-   RSt:=0; //Real Station
-//{r}repeat
-//{w}while not EOF(dat) do begin
-{k}for k:=1 to line_num-1 do begin
+{i}for i:=1 to LinesInFile do begin
      readln(dat, st);
      st:=trim(st);
-     line:=line+1;
      //showmessage('line='+inttostr(line)+'  length='+inttostr(length(st)));
+
+     NextStFound:=false;
+   for k:=1 to RSt do begin
+     L:=line_arr[k];
+     if (i=L) then NextStFound:=true;
+   end;
+
+{N}if NextStFound=true then begin
 
      stlat:=-9999;
      stlon:=-9999;
@@ -211,19 +368,12 @@ begin
      inc(n);
      symbol:=st[n];
      if (symbol<>',') then buf_str:=buf_str+symbol;
-
-     //if k=1 then showmessage (' kv='+inttostr(kv)+' n='+inttostr(n)+' sym='+symbol
-     //            +' ASCII='+inttostr(ord(symbol))+' buf='+buf_str);
-     //if k=line_num-1 then showmessage (' kv='+inttostr(kv)+' n='+inttostr(n)+' sym='+symbol
-     //            +' ASCII='+inttostr(ord(symbol))+' buf='+buf_str);
-
 {s}until (symbol=',') or (n=length(st));
 
 {b}if buf_str<>'' then begin
 
   if not TryStrToFloat(buf_str, buf)
   then showmessage ('trystrtofloat line='+inttostr(line)+' '+buf_str);
-
 
     case kv of
     1: cruiseN:=trunc(strtofloat(buf_str));
@@ -375,36 +525,6 @@ begin
                            +'  '+inttostr(day)+'.'+inttostr(month)+'.'+inttostr(year)
                            +'  '+inttostr(hour)+':'+inttostr(min));
 
-    //count cruise, stations, casts
-    if k=1 then begin
-          cruiseNbuf:=cruiseN;
-          stationNbuf:=stationN;
-          castNbuf:=cruiseN;
-    end;
-
-    if k>1 then begin
-      if cruiseN<>cruiseNbuf then begin newCruise:=true; cruise_count:=cruise_count+1; end;
-      if stationN<>stationNbuf then begin newStation:=true; station_count:=station_count+1; end;
-      if castN<>castNbuf then begin newCast:=true; cast_count:=cast_count+1; end;
-
-      newMD:=false;
-      if(newCruise=true)  then newMD:=true;
-      if(newStation=true) then newMD:=true;
-      //if(newStation=false) and (newCast=true) then newMD:=true;
-
-      //if(newCruise=false) and (newStation=true)  and (newCast=true) then newMD:=true;
-      //if(newCruise=false) and (newStation=false) and (newCast=true) then newMD:=true;
-    end;
-
-
-{MD}if newMD=true then begin
-      RSt:=RSt+1;
-      line_arr[RSt]:=line;
-
-      cruiseNbuf:=cruiseN;
-      stationNbuf:=stationN;
-      castNbuf:=castN;
-
 
       writeln(out,inttostr(RSt),
       #9,inttostr(line),
@@ -426,14 +546,78 @@ begin
     //+#9+inttostr(stationN)
     //+#9+inttostr(castN)
     //);
+
+//write MD into GLODAPv2_2019_PRODUCT.FDB
+{w}if CheckBox1.Checked then begin
+
+     StVersion:=1;
+   with frmdm.q1 do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' Select count(ID) as CountDup from STATION ');
+      SQL.Add(' where DATEANDTIME=:stDT and ');
+      SQL.Add(' Latitude=:stlat and Longitude=:stlon ');
+      ParamByName('stDT').AsDateTime:=stDT;
+      ParamByName('stlat' ).Asfloat:=stlat;
+      ParamByName('stlon' ).AsFloat:=stlon;
+      Open;
+        CountDup:=FieldByName('CountDup').AsInteger;
+      Close;
+   end;
+
+     if CountDup>0 then begin
+       StVersion:=CountDup+1;
+     end;
+
+     //memo1.Lines.Add(inttostr(RSt)+#9+datetimetostr(NOW));
+   with frmdm.q2 do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' INSERT INTO STATION ' );
+      SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, LASTLEVEL_M, ' );
+      SQL.Add('  LASTLEVEL_DBAR, CRUISE_ID, INSTRUMENT_ID, STATIONID, STATIONID_ORIG, ' );
+      SQL.Add('  QCFLAG, STVERSION, MERGED, DATE_ADDED, DATE_UPDATED ) ' );
+      SQL.Add(' VALUES ' );
+      SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :BOTTOMDEPTH, :LASTLEVEL_M, ' );
+      SQL.Add('  :LASTLEVEL_DBAR, :CRUISE_ID, :INSTRUMENT_ID, :STATIONID, :STATIONID_ORIG, ' );
+      SQL.Add('  :QCFLAG, :STVERSION, :MERGED, :DATE_ADDED, :DATE_UPDATED ) ' );
+      ParamByName('ID'            ).Value:=RSt-1;
+      ParamByName('LATITUDE'      ).Value:=stlat;
+      ParamByName('LONGITUDE'     ).Value:=stlat;
+      ParamByName('DATEANDTIME'   ).Value:=stDT;
+      ParamByName('BOTTOMDEPTH'   ).Value:=stBD;
+      ParamByName('LASTLEVEL_M'   ).Value:=0;
+      ParamByName('LASTLEVEL_DBAR').Value:=stPDS;
+      ParamByName('CRUISE_ID'     ).Value:=cruiseN;
+      ParamByName('INSTRUMENT_ID' ).Value:=7; //bottle type unknown
+      ParamByName('STATIONID'     ).Value:='';
+      ParamByName('STATIONID_ORIG').Value:=stationN;
+      ParamByName('QCFLAG'        ).Value:=0;
+      ParamByName('STVERSION'     ).Value:=stversion;
+      ParamByName('MERGED'        ).Value:=0;
+      ParamByName('DATE_ADDED'    ).Value:=Now;
+      ParamByName('DATE_UPDATED'  ).Value:=Now;
+     ExecSQL;
+   end;
+
+      frmdm.TR.CommitRetaining;
+
+{w}end;
+
+
+
 {MD}end;
 
 //{r}until eof(dat);
 //{w}end;
-{k}end; {lines }
+{i}end; {lines }
 
    CloseFile(dat);
    CloseFile(out);
+   //last line in file
+   RSt:=RSt+1;
+   line_arr[RSt]:=LinesInFile;
+
 
    memo1.Lines.Add('End of file');
    memo1.Lines.Add('cruises#       ='+inttostr(cruise_count));
@@ -443,7 +627,223 @@ begin
    memo1.Lines.Add('Real Stations# ='+inttostr(RSt));
 
    btnDownloadData.Visible:=true;
+
+//showmessage('L1 L2:  '+inttostr(line_arr[1])+'  '+inttostr(line_arr[2]));
+}
 end;
+
+
+//split file on MD and Profiles/casts
+procedure TfrmloadGLODAP_2019_v2_product.btnSplitOnMDandProfilesClick(
+  Sender: TObject);
+var
+  kst,kL,kv,L1,L2,n,c,i,line:integer;
+  cruiseN,stationN,castN,stNBNum:integer;
+  cast_maxN,PRF_count:integer;
+  Year,Month,Day,Hour,Min:integer;
+  press, temp,stlat,stlon,stBD,stPDS:real;
+  symbol:char;
+  st,buf_str:string;
+  str_MD,str_PRF1:string;
+  StDT:TDateTime;
+  DayChange,DateChange:Boolean;
+begin
+
+  //CDS Divide Station on Casts
+   CDS_DSC:=TBufDataSet.Create(self);
+  with CDS_DSC.FieldDefs do begin
+    Add('ID',  ftInteger,0,true);
+    Add('Press', ftFloat,0,true);
+    Add('Val', ftFloat,0,true);
+    Add('PQF1',  ftInteger,0,true);
+    Add('PQF2',  ftInteger,0,true);
+    Add('SQF', ftInteger, 0,true);
+    Add('Bottle',  ftInteger,0,true);
+    Add('Station',  ftInteger,0,true);
+    Add('Cast',  ftInteger,0,true);
+    Add('Units_ID',  ftInteger,0,true);
+  end;
+   CDS_DSC.CreateDataSet;
+
+   str_MD:='ID LATITUDE LONGITUDE DATEANDTIME BOTTOMDEPTH LASTLEV_M LASTLEV_DBAR ' +
+   'CRUISE_ID INSTRUMENT_ID STATION_NUM_ORIG STATION_ID_ORIG QFLAG STVERSION '+
+   'MERGED DATE_ADDED DATE_UPDATED';
+
+   str_PRF1:='ID PRES VAL PQF1 PQF2 SQF BOTTLE_NUMBER CAST_NUMBER UNITS_ID';
+
+   path_MD:='c:\Users\ako071\AK\datasets\GLODAP\download\STATION.dat';
+   AssignFile(outMD, path_MD); Rewrite(outMD);
+   writeln(outMD,str_MD);
+
+   path_PRF:='c:\Users\ako071\AK\datasets\GLODAP\download\P_TEMPERATURE_BOTTLE.dat';
+   AssignFile(outPRF, path_PRF); Rewrite(outPRF);
+   writeln(outPRF,str_PRF1);
+
+
+   Reset(dat);
+   readln(dat, st);
+
+
+   line:=1;
+   PRF_count:=0;
+{st}for kst:=1 to RSt-1 do begin
+
+   if CDS_DSC.Active then CDS_DSC.Close;
+     CDS_DSC.Open;
+
+     L1:=line_arr[kst];      //station begin
+     L2:=line_arr[kst+1]-1;  //station end
+
+     //memo1.Lines.Add('kst='+inttostr(kst)+'   L1:'+inttostr(L1)+'->'+inttostr(L2));
+
+{L}for kL:=L1 to L2 do begin    //file scroll
+     readln(dat, st);
+     st:=trim(st);
+     line:=line+1;
+
+
+{pr}if (line>=L1) and (line<=L2) then begin  //inside profile
+
+//showmessage('L1->L2:'+inttostr(L1)+'->'+inttostr(L2)+'  line='+inttostr(line));
+
+
+//string analysis
+      n:=0;
+{kv}for kv:=1 to var_num do begin
+      buf_str:='';
+{s}repeat
+      inc(n);
+      symbol:=st[n];
+      if (symbol<>',') then buf_str:=buf_str+symbol;
+{s}until (symbol=',') or (n=length(st));
+
+ {b}if buf_str<>'' then begin
+     case kv of
+     1: cruiseN:=trunc(strtofloat(buf_str));
+     2: stationN:=trunc(strtofloat(buf_str));
+     3: castN:=trunc(strtofloat(buf_str));
+     4: year:=trunc(strtofloat(buf_str));
+     5: month:=trunc(strtofloat(buf_str));
+     6: day:=trunc(strtofloat(buf_str));
+     7: hour:=trunc(strtofloat(buf_str));
+     8: min:=trunc(strtofloat(buf_str));
+     9: stlat:=strtofloat(buf_str);
+    10: stlon:=strtofloat(buf_str);
+    11: stBD:=strtofloat(buf_str);                    //bottom depth m
+    12: stPDS:=strtofloat(buf_str);                   //pressure of the deepest sample
+    13: stNBNum:=trunc(strtofloat(buf_str));          //Niskin bottle number
+
+    14: press:=strtofloat(buf_str);                   //sampling pressure dbar
+    16: temp:=strtofloat(buf_str);                    //temperature
+     end;{case}
+ {b}end;
+
+ {kv}end;
+//end string analysis
+
+
+  //append to CDS
+  with CDS_DSC do begin
+     Append;
+     FieldByName('ID').AsInteger:=kst;
+     FieldByName('Press').AsFloat:=press;
+     FieldByName('Val').AsFloat:=temp;
+     FieldByName('PQF1').AsInteger:=0;
+     FieldByName('PQF2').AsInteger:=0;
+     FieldByName('SQF').AsInteger:=0;
+     FieldByName('Bottle').AsInteger:=stNBNum;
+     FieldByName('Station').AsInteger:=stationN;
+     FieldByName('Cast').AsInteger:=castN;
+     FieldByName('Units_ID').AsInteger:=1; //temperature
+     Post;
+  end;
+
+
+
+{pr}end;{inside profiles}
+{L} end; {lines loop}
+
+  StDT:= DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
+
+//determine max number of casts at stations
+    CDS_DSC.First;
+    cast_maxN:=CDS_DSC.FieldByName('Cast').AsInteger;
+{s}while not CDS_DSC.EOF do begin
+    if cast_maxN<CDS_DSC.FieldByName('Cast').AsInteger
+    then cast_maxN:=CDS_DSC.FieldByName('Cast').AsInteger;
+    CDS_DSC.Next;
+{s}end;
+
+
+
+  //divide station on casts
+{c}for c:=1 to cast_maxN do begin
+    CDS_DSC.Filter:='CAST='+inttostr(c);
+    CDS_DSC.Filtered:=true;
+
+    CDS_DSC.IndexFieldNames:='Press';  //sort by press
+
+
+{i}if CDS_DSC.IsEmpty=false then begin
+    CDS_DSC.First;
+    PRF_count:=PRF_count+1;
+
+    //prepare to write into STATION
+    writeln(outMD,inttostr(PRF_count),  //ID
+    #9,floattostr(stlat),       //LATITUDE
+    #9,floattostr(stlon),       //LONGITUDE
+    #9,datetimetostr(StDT),    //DATEANDTIME
+    #9,floattostr(stBD),        //BOTTOMDEPTH
+    #9,floattostr(stPDS),        //LASTLEVEL_M   !!!CONVERT
+    #9,floattostr(stPDS),        //LASTLEVEL_DBAR
+    #9,inttostr(CruiseN),        //CRUISEID
+    #9,inttostr(StationN),        //STATION_NUM_ORIG
+    #9,inttostr(StationN),        //STATION_ID_ORIG
+    #9,inttostr(1),               //QCFLAG
+    #9,inttostr(1),               //STVERSION
+    #9,datetimetostr(NOW),        //DATE_ADDED
+    #9,datetimetostr(NOW));      //DATE_UPDATED
+
+
+{s}while not CDS_DSC.EOF do begin
+
+  //prepare variable table  !!! make TABLES NAMES IN CYCLE
+  writeln(outPRF,inttostr(PRF_count),                      //ID
+  #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
+  #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
+  #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
+  #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
+  #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
+  #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+  #9,inttostr(CDS_DSC.FieldByName('Cast').AsInteger),      //CAST_NUMBER
+  #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+
+    CDS_DSC.Next;
+{s}end; //filtered by cast number and sorted station
+{i}end; //if cast exists
+{c}end; //casts
+
+     CDS_DSC.Filtered:=false;
+     //CDS_DSC.Close;
+     //CDS_DSC.Clear;
+     //CDS_DSC.Active:=false;
+{st}end; //real stations loop
+
+  if CDS_DSC.Active=true then CDS_DSC.Close;
+     CDS_DSC.Free;
+
+     closefile(outMD);
+     closefile(outPRF);
+
+     memo1.Lines.Add('Profiles in file: '+inttostr(PRF_count));
+     memo1.Lines.Add('Spliting completed');
+
+     CheckBox1.Visible:=true;
+     btnDownloadMD.Visible:=true;
+     btnDownloadData.Visible:=true;
+end;
+
+
 
 
 
@@ -491,29 +891,34 @@ begin
 //first prepare data for one table P_TEMPERATURE_BOTTLE
 {st}for kst:=1 to RSt do begin
 
-      if CDS_DSC.Active then CDS_DSC.Close;
+    if CDS_DSC.Active then CDS_DSC.Close;
       CDS_DSC.Open;
 
       L1:=line_arr[kst];
       L2:=line_arr[kst+1]-1;
 
+      memo1.Lines.Add('kst='+inttostr(kst)+'   L1:'+inttostr(L1)+'->'+inttostr(L2));
 
 {L}for kl:=L1 to L2 do begin    //file scroll
       readln(dat, st);
       st:=trim(st);
       line:=line+1;
 
+
 {pr}if (line>=L1) and (line<=L2) then begin  //inside profile
+
+//showmessage('L1->L2:'+inttostr(L1)+'->'+inttostr(L2)+'  line='+inttostr(line));
+
 
 //string analysis
        n:=0;
-  {kv}for kv:=1 to var_num do begin
+{kv}for kv:=1 to var_num do begin
        buf_str:='';
-  {s}repeat
+{s}repeat
        inc(n);
        symbol:=st[n];
        if (symbol<>',') then buf_str:=buf_str+symbol;
-  {s}until (symbol=',') or (n=length(st));
+{s}until (symbol=',') or (n=length(st));
 
   {b}if buf_str<>'' then begin
       case kv of
@@ -563,7 +968,6 @@ begin
 
    StDT:= DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
 
-
 //determine max number of casts at stations
      CDS_DSC.First;
      cast_maxN:=CDS_DSC.FieldByName('Cast').AsInteger;
@@ -591,7 +995,7 @@ begin
      +'  date: '+datetimetostr(StDT)
      +'  lat: '+floattostr(stlat)
      +'  lon: '+floattostr(stlon)
-     +'  BD: '+floattostr(stBD)
+     +'  BD : '+floattostr(stBD)
      +'  PDS: '+floattostr(stPDS)
      );
 
@@ -1191,6 +1595,7 @@ begin
   TR.Free;
  end;
 end;
+
 
 
 
