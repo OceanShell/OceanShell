@@ -1109,7 +1109,7 @@ mLog.Clear;
 
  AssignFile(dat, PathToCodesSource); reset(dat);
  readln(dat, st);
- readln(dat, st);
+// readln(dat, st);
 
  absnum:=0;
    repeat
@@ -1143,13 +1143,13 @@ mLog.Clear;
      SQL.Add(' where iso3166_code=:code_wod ');
      ParamByName('code_wod').AsString:=wod_country;
     Open;
-     if Qt1.IsEmpty=false then country_id:=Qt1.Fields[0].AsInteger else country_id:=488;
+      if Qt1.IsEmpty=false then country_id:=Qt1.Fields[0].AsInteger else country_id:=99;
     Close;
    end;
 
-    wod_id:=strtoint(copy(cruise_ind, 4, length(cruise_ind)));
 
-  //  showmessage(inttostr(wod_id)+'   '+inttostr(country_id));
+
+    wod_id:=strtoint(copy(cruise_ind, 4, length(cruise_ind)));
 
     nodate:=false;
     for i:=1 to 2 do begin
@@ -1180,6 +1180,7 @@ mLog.Clear;
    end;
 
    if Qt1.IsEmpty=true then begin
+    inc(absnum);
 
     with Qt3 do begin
     Close;
@@ -1188,7 +1189,7 @@ mLog.Clear;
      SQL.Add(' where WOD_ID=:code_wod ');
      ParamByName('code_wod').AsInteger:=wod_platform_id;
     Open;
-      if Qt3.IsEmpty=false then platform_id:=Qt3.Fields[0].AsInteger else platform_id:=19043;
+      if Qt3.IsEmpty=false then platform_id:=Qt3.Fields[0].AsInteger else platform_id:=-9;
     Close;
    end;
 
@@ -1199,12 +1200,11 @@ mLog.Clear;
      SQL.Add(' where WOD_ID=:code_wod ');
      ParamByName('code_wod').AsInteger:=wod_institute_id;
     Open;
-     if Qt3.IsEmpty=false then  institute_id:=Qt3.Fields[0].AsInteger else institute_id:=1;
+     if Qt3.IsEmpty=false then  institute_id:=Qt3.Fields[0].AsInteger else institute_id:=-9;
     Close;
    end;
 
-  //  try
-  inc(absnum);
+
      with Qt2 do begin
       Close;
        SQL.Clear;
@@ -1215,13 +1215,13 @@ mLog.Clear;
        SQL.Add(' (:ID, :PLATFORM_ID, :DATE_START, :DATE_END, :STATIONS_AMOUNT, ');
        SQL.Add('  :COUNTRY_ID, :INSTITUTE_ID, :WOD_CODE, :WMO_CODE )');
        ParamByName('ID').AsInteger:=absnum;
-       ParamByName('PLATFORM_ID').AsInteger:=platform_id;
+       ParamByName('PLATFORM_ID').AsINteger:=platform_id;
        ParamByName('DATE_START').AsDate:=date1;
        ParamByName('DATE_END').AsDate:=date2;
        ParamByName('STATIONS_AMOUNT').AsInteger:=stnum;
        ParamByName('COUNTRY_ID').AsInteger:=country_id;
        ParamByName('INSTITUTE_ID').AsInteger:=institute_id;
-       ParamByName('WOD_CODE').AsWideString:=cruise_ind;
+       ParamByName('WOD_CODE').AsString:=cruise_ind;
        ParamByName('WMO_CODE').AsString:=wmo_id;
       ExecSQL;
       Close;

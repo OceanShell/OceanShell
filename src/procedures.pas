@@ -366,9 +366,7 @@ begin
 
     Result:=IncYear(DateBuf,-1600);
   end;
-
 end;
-
 
 
 {...convert date/time to TdateTime and assign quality flags}

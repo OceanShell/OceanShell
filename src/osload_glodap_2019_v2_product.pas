@@ -51,8 +51,7 @@ type
     procedure btnSplitOnMDandProfilesClick(Sender: TObject);
 
   private
-    function DateEncode(Year,Month,Day,Hour,Minutes:word;
-      Var DaysInAMonthFlag,DateChangedFlag:Boolean):TDateTime;
+
   public
 
   end;
@@ -68,7 +67,7 @@ var
 
 implementation
 
-uses osmain, procedures, dm;
+uses osmain, procedures, dm, declarations_gsw;
 
 {$R *.lfm}
 
@@ -202,7 +201,7 @@ begin
 //end the string analysis
 
      //convert date and time into datetime
-     StDT:= DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
+     StDT:= procedures.DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
      if DayChange=true then memo1.Lines.Add('Day was changed in line='
                        +inttostr(i)
                        +'  '+inttostr(day)+'.'+inttostr(month)+'.'+inttostr(year)
@@ -292,7 +291,7 @@ var
 i,kv,line,n,mik:integer;
 cruiseN,stationN,castN,stNBNum,cast_max:integer;
 year,month,day,hour,min:integer;
-stlat,stlon,stBD,stPDS:real;
+stlat,stlon,stBD,stPDS,stLLM:real;
 buf:real;
 symbol:char;
 st,buf_str:string;
@@ -515,7 +514,7 @@ begin
     //stDate:=EncodeDate(year,month,day);
     //stTime:=EncodeTime(hour,min,0,0);
     //ODBPr_ConvertDateTime(year,month,day,hour,min,StDate,StTime,MonthErr,TimeErr);
-    StDT:= DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
+    StDT:= procedures.DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
     if DayChange=true then memo1.Lines.Add('Day was changed in line='
                            +inttostr(line)
                            +'  '+inttostr(day)+'.'+inttostr(month)+'.'+inttostr(year)
@@ -570,6 +569,10 @@ begin
      end;
 
      //memo1.Lines.Add(inttostr(RSt)+#9+datetimetostr(NOW));
+
+   (* Last level from dbar to meters *)
+   stLLM:=declarations_gsw.gsw_z_from_p(stPDS, stlat);
+
    with frmdm.q2 do begin
      Close;
       SQL.Clear;
@@ -586,7 +589,7 @@ begin
       ParamByName('LONGITUDE'     ).Value:=stlat;
       ParamByName('DATEANDTIME'   ).Value:=stDT;
       ParamByName('BOTTOMDEPTH'   ).Value:=stBD;
-      ParamByName('LASTLEVEL_M'   ).Value:=0;
+      ParamByName('LASTLEVEL_M'   ).Value:=stLLM;
       ParamByName('LASTLEVEL_DBAR').Value:=stPDS;
       ParamByName('CRUISE_ID'     ).Value:=cruiseN;
       ParamByName('INSTRUMENT_ID' ).Value:=7; //bottle type unknown
@@ -763,7 +766,7 @@ begin
 {pr}end;{inside profiles}
 {L} end; {lines loop}
 
-  StDT:= DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
+  StDT:= procedures.DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
 
 //determine max number of casts at stations
     CDS_DSC.First;
@@ -971,7 +974,7 @@ begin
 {pr}end;{inside profiles}
 {L} end; {lines loop}
 
-   StDT:= DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
+   StDT:= procedures.DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
 
 //determine max number of casts at stations
      CDS_DSC.First;
@@ -1041,71 +1044,6 @@ begin
 end;
 
 
-
-
-function TfrmloadGLODAP_2019_v2_product.DateEncode(Year,Month,Day,Hour,Minutes:word;
-  Var DaysInAMonthFlag,DateChangedFlag:Boolean):TDateTime;
-var
-  DateBuf:TDateTime;
-begin
-
-  DaysInAMonthFlag:=False;
-  DateChangedFlag:=False;
-
-  if Day<=DaysInaMonth(Year,Month) then
-  begin
-    DateBuf:=EncodeDateTime(Year+1600,Month,1,0,0,0,0);
-    if (Hour>=0) and (Hour<=24) then
-    begin
-      if ((Minutes<=60) and (Minutes>0) and (Hour<24)) or
-       ((Minutes<60) and (Hour=24)) then
-       DateBuf:=IncMinute(DateBuf,Minutes)  ;
-
-      if (Hour=24) or ((Hour=23) and (Minutes=60)) then
-        DateChangedFlag:=True;
-      if (Hour=24) and (Minutes>60) then
-        DateChangedFlag:=False;
-
-      if (Hour>0) and (Minutes<=60) then
-        DateBuf:=IncHour(DateBuf,Hour);
-    end;
-
-    DateBuf:=IncDay(DateBuf,Day-1);
-    Result:=IncYear(DateBuf,-1600);
-  end
-  else
-  begin
-    DaysInAMonthFlag:=True;
-    if Month<12 then
-      DateBuf:=EncodeDateTime(Year+1600,Month+1,1,0,0,0,0)
-    else
-      DateBuf:=EncodeDateTime(Year+1601,1,1,0,0,0,0);
-
-    if (Hour>=0) and (Hour<=24) then
-    begin
-      if (Minutes<60) and (Minutes>0) then
-       DateBuf:=IncMinute(DateBuf,Minutes)
-      else
-      begin
-       if Minutes=60 then
-          inc(Hour);
-      end;
-
-      if (Hour>=24) or ((Hour=23) and (Minutes=60)) then
-        DateChangedFlag:=True;
-      if (Hour=24) and (Minutes>60) then
-        DateChangedFlag:=False;
-
-      if (Hour>=24) or (Minutes>60) then
-        Hour:=0;
-      DateBuf:=IncHour(DateBuf,Hour);
-    end;
-
-    Result:=IncYear(DateBuf,-1600);
-  end;
-
-end;
-
 procedure TfrmloadGLODAP_2019_v2_product.btnCreateTablesClick(Sender: TObject);
 Var
 TR:TSQLTransaction;
@@ -1130,7 +1068,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1143,7 +1080,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1156,7 +1092,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1169,7 +1104,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1182,7 +1116,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1195,7 +1128,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1208,7 +1140,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1221,7 +1152,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1235,7 +1165,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1248,7 +1177,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1261,7 +1189,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1274,7 +1201,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1288,7 +1214,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1302,7 +1227,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1316,7 +1240,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1330,7 +1253,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1344,7 +1266,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1357,7 +1278,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1371,7 +1291,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1385,7 +1304,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1399,7 +1317,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1413,7 +1330,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1427,7 +1343,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1440,7 +1355,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1453,7 +1367,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1466,7 +1379,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1479,7 +1391,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1492,7 +1403,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1505,7 +1415,6 @@ begin
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-     '   CAST_NUMBER    SMALLINT, '+LineEnding+
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
@@ -1572,7 +1481,6 @@ begin
      'COMMIT WORK '+LineEnding+
      'SET TERM ; '+LineEnding;
 
-//  memo1.Lines.add(ScriptText);
  try
     TR:=TSQLTransaction.Create(self);
     TR.DataBase:=frmdm.IBDB;

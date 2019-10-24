@@ -27,8 +27,10 @@ src/lib/
 # Application bundle for Mac OS
 *.app/
 
+# Log files
+*.log
+
 # OceanShell specific files and folders
-OceanShell.exe
 data/
 databases/
 documents/
