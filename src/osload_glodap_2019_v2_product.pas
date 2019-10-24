@@ -788,6 +788,11 @@ begin
     CDS_DSC.First;
     PRF_count:=PRF_count+1;
 
+    //convert pressure to depth
+    //m=1 pressure to depth
+    //Depth_to_Pressure(stPDS,stlat,1,stLastLevel_m);
+
+
     //prepare to write into STATION
     writeln(outMD,inttostr(PRF_count),  //ID
     #9,floattostr(stlat),       //LATITUDE
