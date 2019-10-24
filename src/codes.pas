@@ -38,16 +38,12 @@ type
     eCruiseWOD_COUNTRYNAME: TEdit;
     eCruiseWOD_WMO: TEdit;
     eCruiseWOD_WOD: TEdit;
-    eCruiseWOD_DATEEND: TEdit;
-    eCruiseGLODAP_DATEEND: TEdit;
-    eCruiseWOD_DATESTART: TEdit;
-    eCruiseGLODAP_DATESTART: TEdit;
     eCruiseWOD_ID: TEdit;
     eCruiseGLODAP_ID: TEdit;
     eCruiseGLODAP_NUMBER: TEdit;
     eCruiseWOD_PLATFORMNAME: TEdit;
     eCruiseGLODAP_PLATFORMNAME: TEdit;
-    eCruiseWOD_STATIONAMOUNT: TEdit;
+    eCruiseWOD_Institute: TEdit;
     eCruiseGLODAP_COUNTRYNAME: TEdit;
     eCruise_WOD: TEdit;
     eCruiseGLODAP_EXPOCODE: TEdit;
@@ -122,10 +118,12 @@ type
     Panel3: TPanel;
     ePlatform_NODC: TEdit;
     Panel30: TPanel;
+    pCruiseGLODAP: TPanel;
     Panel4: TPanel;
     Panel7: TPanel;
     Panel8: TPanel;
     Panel9: TPanel;
+    pCruiseWOD: TPanel;
     Q: TSQLQuery;
     Splitter1: TSplitter;
     PageControl1: TPageControl;
@@ -193,7 +191,7 @@ type
   private
     { Private declarations }
     procedure Navigation;
-    procedure ResizeColumns;
+    procedure ResizeColumns(Sender: TObject);
 
     procedure SearchID(Sender:TObject);
     procedure SearchNAME(Sender:TObject);
@@ -220,7 +218,7 @@ begin
  PageControl1.ActivePageIndex:=0;
  PageControl1.OnChange(self);
 
- ResizeColumns;
+ ResizeColumns(self);
 
  // Assigning procedures for fast search
  (* ID *)
@@ -265,6 +263,21 @@ begin
  eProject_WOD.OnChange    := @SearchWOD;
  eInstitute_WOD.OnChange  := @SearchWOD;
  eInstrument_WOD.OnChange := @SearchWOD;
+
+
+ (* Procedures for resizing *)
+ DBGridPlatform.OnColumnSized     := @ResizeColumns;
+ DBGridCruise.OnColumnSized       := @ResizeColumns;
+ DBGridCruiseGLODAP.OnColumnSized := @ResizeColumns;
+ DBGridCruiseWOD.OnColumnSized    := @ResizeColumns;
+ DBGridCountry.OnColumnSized      := @ResizeColumns;
+ DBGridSource.OnColumnSized       := @ResizeColumns;
+ DBGridPI.OnColumnSized           := @ResizeColumns;
+ DBGridProject.OnColumnSized      := @ResizeColumns;
+ DBGridInstitute.OnColumnSized    := @ResizeColumns;
+ DBGridInstrument.OnColumnSized   := @ResizeColumns;
+ DBGridUnits.OnColumnSized        := @ResizeColumns;
+ DBGridQCFlag.OnColumnSized       := @ResizeColumns;
 end;
 
 
@@ -319,7 +332,8 @@ begin
          Q.SQL.text:='Select CRUISE_GLODAP.ID, CRUISE_GLODAP.EXPOCODE, '+
                      'PLATFORM.NAME as PLATFORMNAME, CRUISE_GLODAP.PI, '+
                      'COUNTRY.NAME as COUNTRYNAME, CRUISE_GLODAP.CRUISE_NUMBER, '+
-                     'CRUISE_GLODAP.DATE_START, CRUISE_GLODAP.DATE_END '+
+                     'CRUISE_GLODAP.DATE_START, CRUISE_GLODAP.DATE_END, '+
+                     'CRUISE_GLODAP.STATIONS_AMOUNT '+
                      'FROM CRUISE_GLODAP, PLATFORM, COUNTRY WHERE '+
                      'CRUISE_GLODAP.PLATFORM_ID=PLATFORM.ID and '+
                      'CRUISE_GLODAP.COUNTRY_ID=COUNTRY.ID '+
@@ -383,11 +397,11 @@ begin
      Caption:='Codes: '+CodesTblName;
 
    Navigation;
-   ResizeColumns;
+   ResizeColumns(self);
  end;
 end;
 
-procedure Tfrmcodes.ResizeColumns;
+procedure Tfrmcodes.ResizeColumns(Sender: TObject);
 Var
  occup:integer;
 begin
@@ -414,46 +428,66 @@ begin
     eCruise_WOD.Width:=DBGridCruise.Columns[8].Width;
  end;
  if CodesTblName='CRUISE_WOD' then begin
- {   occup:=trunc(DBGridCruiseWOD.Width-20-
-           (DBGridCruiseWOD.Columns[0].Width+
-            DBGridCruiseWOD.Columns[2].Width+
-            DBGridCruiseWOD.Columns[3].Width+
-            DBGridCruiseWOD.Columns[4].Width+
-            DBGridCruiseWOD.Columns[5].Width+
-            DBGridCruiseWOD.Columns[6].Width+
-            DBGridCruiseWOD.Columns[7].Width));
+   DBGridCruiseWOD.Columns[1].Width:=65;
+   DBGridCruiseWOD.Columns[3].Width:=65;
+   DBGridCruiseWOD.Columns[4].Width:=65;
+   DBGridCruiseWOD.Columns[5].Width:=65;
 
-    DBGridCruiseWOD.Columns[1].Width:=occup+1;
+   pCruiseWOD.Width:=DBGridCruiseWOD.Columns[3].Width+
+                     DBGridCruiseWOD.Columns[4].Width+
+                     DBGridCruiseWOD.Columns[5].Width;
+
+{   occup:= trunc((DBGridCruiseWOD.Width-20-
+                  DBGridCruiseWOD.Columns[0].Width+
+                  DBGridCruiseWOD.Columns[1].Width+
+                  DBGridCruiseWOD.Columns[2].Width+
+                  pCruiseWOD.Width+
+                  DBGridCruiseWOD.Columns[8].Width)/2);
+
+   showmessage(inttostr(DBGridCruiseWOD.Width-
+                  DBGridCruiseWOD.Columns[0].Width+
+                  DBGridCruiseWOD.Columns[1].Width+
+                  DBGridCruiseWOD.Columns[2].Width+
+                  pCruiseWOD.Width+
+                  DBGridCruiseWOD.Columns[8].Width));
+
+   showmessage(inttostr(DBGridCruiseWOD.Width-20)+'   '+inttostr(occup));
+
+    DBGridCruiseWOD.Columns[6].Width:=occup;
+    DBGridCruiseWOD.Columns[7].Width:=occup;    }
 
     eCruiseWOD_ID.Width:=           DBGridCruiseWOD.Columns[0].Width+1;
-    eCruiseWOD_PLATFORMNAME.Width:= DBGridCruiseWOD.Columns[1].Width;
-    eCruiseWOD_STATIONAMOUNT.Width:=DBGridCruiseWOD.Columns[2].Width;
-    eCruiseWOD_DATESTART.Width:=    DBGridCruiseWOD.Columns[3].Width;
-    eCruiseWOD_DATEEND.Width:=      DBGridCruiseWOD.Columns[4].Width;
-    eCruiseWOD_COUNTRYNAME.Width:=  DBGridCruiseWOD.Columns[5].Width;
-    eCruiseWOD_WOD.Width:=          DBGridCruiseWOD.Columns[6].Width;
-    eCruiseWOD_WMO.Width:=          DBGridCruiseWOD.Columns[7].Width; }
+    eCruiseWOD_WOD.Width:=          DBGridCruiseWOD.Columns[1].Width;
+    eCruiseWOD_PLATFORMNAME.Width:= DBGridCruiseWOD.Columns[2].Width;
+    eCruiseWOD_COUNTRYNAME.Width:=  DBGridCruiseWOD.Columns[6].Width;
+    eCruiseWOD_Institute.Width:=    DBGridCruiseWOD.Columns[7].Width;
+    eCruiseWOD_WMO.Width:=          DBGridCruiseWOD.Columns[8].Width;
  end;
  if CodesTblName='CRUISE_GLODAP' then begin
+    DBGridCruiseGLODAP.Columns[4].Width:=65;
+    DBGridCruiseGLODAP.Columns[5].Width:=65;
+    DBGridCruiseGLODAP.Columns[6].Width:=65;
+
+    pCruiseGLODAP.Width:=DBGridCruiseGLODAP.Columns[4].Width+
+                         DBGridCruiseGLODAP.Columns[5].Width+
+                         DBGridCruiseGLODAP.Columns[6].Width;
+
     occup:=trunc(DBGridCruiseGLODAP.Width-20-
            (DBGridCruiseGLODAP.Columns[0].Width+
             DBGridCruiseGLODAP.Columns[1].Width+
             DBGridCruiseGLODAP.Columns[2].Width+
             DBGridCruiseGLODAP.Columns[3].Width+
-            DBGridCruiseGLODAP.Columns[4].Width+
-            DBGridCruiseGLODAP.Columns[5].Width+
-            DBGridCruiseGLODAP.Columns[6].Width));
+            pCruiseGLODAP.Width+
+            DBGridCruiseGLODAP.Columns[7].Width));
 
-    DBGridCruiseGLODAP.Columns[7].Width:=occup+1;
+    DBGridCruiseGLODAP.Columns[8].Width:=occup+1;
 
     eCruiseGLODAP_ID.Width:=          DBGridCruiseGLODAP.Columns[0].Width+1;
     eCruiseGLODAP_EXPOCODE.Width:=    DBGridCruiseGLODAP.Columns[1].Width;
     eCruiseGLODAP_PLATFORMNAME.Width:=DBGridCruiseGLODAP.Columns[2].Width;
     eCruiseGLODAP_NUMBER.Width:=      DBGridCruiseGLODAP.Columns[3].Width;
-    eCruiseGLODAP_DATESTART.Width:=   DBGridCruiseGLODAP.Columns[4].Width;
-    eCruiseGLODAP_DATEEND.Width:=     DBGridCruiseGLODAP.Columns[5].Width;
-    eCruiseGLODAP_COUNTRYNAME.Width:= DBGridCruiseGLODAP.Columns[6].Width;
-    eCruiseGLODAP_PI.Width:=          DBGridCruiseGLODAP.Columns[7].Width;
+    eCruiseGLODAP_COUNTRYNAME.Width:= DBGridCruiseGLODAP.Columns[7].Width;
+    eCruiseGLODAP_PI.Width:=          DBGridCruiseGLODAP.Columns[8].Width;
  end;
  if CodesTblName='PLATFORM' then begin
     occup:=trunc((DBGridPlatform.Width-20-
@@ -994,7 +1028,7 @@ end;
 
 procedure Tfrmcodes.FormResize(Sender: TObject);
 begin
-  ResizeColumns;
+  ResizeColumns(self);
 end;
 
 
@@ -1038,8 +1072,6 @@ begin
   TRt.Free;
 //   DBGridEh1.Columns[9].PickList:=cbVessel.Items;
 end;
-
-
 
 procedure Tfrmcodes.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin

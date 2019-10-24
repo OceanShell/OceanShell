@@ -89,7 +89,7 @@ object frmcodes: Tfrmcodes
           DataSource = DS
           FixedCols = 0
           Flat = True
-          Options = [dgEditing, dgTitles, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
           Scrollbars = ssVertical
           TabOrder = 0
           TitleFont.Color = clWindowText
@@ -358,7 +358,7 @@ object frmcodes: Tfrmcodes
           DataSource = DS
           FixedCols = 0
           Flat = True
-          Options = [dgEditing, dgTitles, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
           Scrollbars = ssVertical
           TabOrder = 0
           TitleFont.Color = clWindowText
@@ -584,9 +584,8 @@ object frmcodes: Tfrmcodes
               FieldName = 'ID'
             end          
             item
-              Title.Caption = 'Platform WOD'
-              Width = 75
-              FieldName = 'PLATFORM_WOD'
+              Title.Caption = 'WOD'
+              FieldName = 'WOD_CODE'
             end          
             item
               Title.Caption = 'Platform name'
@@ -602,13 +601,9 @@ object frmcodes: Tfrmcodes
               FieldName = 'DATE_END'
             end          
             item
-              Title.Caption = 'Stations #'
+              Title.Caption = '# of stations'
               Width = 60
               FieldName = 'STATIONS_AMOUNT'
-            end          
-            item
-              Title.Caption = 'ISO'
-              FieldName = 'ISO'
             end          
             item
               Title.Caption = 'Country name'
@@ -616,25 +611,19 @@ object frmcodes: Tfrmcodes
               FieldName = 'COUNTRYNAME'
             end          
             item
-              Title.Caption = 'INSTITUTE_ID'
-              FieldName = 'INSTITUTE_ID'
-            end          
-            item
-              Title.Caption = 'INSTITUTENAME'
+              Title.Caption = 'Institute'
+              Width = 200
               FieldName = 'INSTITUTENAME'
             end          
             item
-              Title.Caption = 'WOD'
-              FieldName = 'WOD_CODE'
-            end          
-            item
               Title.Caption = 'WMO'
+              Width = 70
               FieldName = 'WMO_CODE'
             end>
           DataSource = DS
           FixedCols = 0
           Flat = True
-          Options = [dgEditing, dgTitles, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
           Scrollbars = ssVertical
           TabOrder = 0
           TitleFont.Color = clWindowText
@@ -655,8 +644,8 @@ object frmcodes: Tfrmcodes
           ClientHeight = 21
           ClientWidth = 992
           TabOrder = 1
-          object eCruiseWOD_STATIONAMOUNT: TEdit
-            Left = 378
+          object eCruiseWOD_Institute: TEdit
+            Left = 700
             Height = 21
             Top = 0
             Width = 60
@@ -667,7 +656,7 @@ object frmcodes: Tfrmcodes
             TabOrder = 0
           end
           object eCruiseWOD_PLATFORMNAME: TEdit
-            Left = 50
+            Left = 114
             Height = 21
             Top = 0
             Width = 200
@@ -677,32 +666,8 @@ object frmcodes: Tfrmcodes
             OnClick = ePlatform_IDClick
             TabOrder = 1
           end
-          object eCruiseWOD_DATESTART: TEdit
-            Left = 250
-            Height = 21
-            Top = 0
-            Width = 64
-            Align = alLeft
-            Color = clWhite
-            Enabled = False
-            OnClick = ePlatform_IDClick
-            TabOrder = 2
-          end
-          object eCruiseWOD_DATEEND: TEdit
-            Left = 314
-            Height = 21
-            Top = 0
-            Width = 64
-            Align = alLeft
-            CharCase = ecUppercase
-            Color = clWhite
-            Enabled = False
-            OnChange = ePlatform_
-            OnClick = ePlatform_IDClick
-            TabOrder = 3
-          end
           object eCruiseWOD_COUNTRYNAME: TEdit
-            Left = 438
+            Left = 500
             Height = 21
             Top = 0
             Width = 200
@@ -710,7 +675,7 @@ object frmcodes: Tfrmcodes
             CharCase = ecUppercase
             Color = clWhite
             OnClick = ePlatform_IDClick
-            TabOrder = 4
+            TabOrder = 2
           end
           object eCruiseWOD_ID: TEdit
             Left = 0
@@ -720,10 +685,10 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             Color = clWhite
             OnClick = ePlatform_IDClick
-            TabOrder = 5
+            TabOrder = 3
           end
           object eCruiseWOD_WMO: TEdit
-            Left = 702
+            Left = 760
             Height = 21
             Top = 0
             Width = 66
@@ -731,10 +696,10 @@ object frmcodes: Tfrmcodes
             CharCase = ecUppercase
             Color = clWhite
             OnClick = ePlatform_IDClick
-            TabOrder = 6
+            TabOrder = 4
           end
           object eCruiseWOD_WOD: TEdit
-            Left = 638
+            Left = 50
             Height = 21
             Top = 0
             Width = 64
@@ -742,7 +707,16 @@ object frmcodes: Tfrmcodes
             CharCase = ecUppercase
             Color = clWhite
             OnClick = ePlatform_IDClick
-            TabOrder = 7
+            TabOrder = 5
+          end
+          object pCruiseWOD: TPanel
+            Left = 314
+            Height = 21
+            Top = 0
+            Width = 186
+            Align = alLeft
+            BevelOuter = bvNone
+            TabOrder = 6
           end
         end
       end
@@ -800,6 +774,10 @@ object frmcodes: Tfrmcodes
               FieldName = 'DATE_END'
             end          
             item
+              Title.Caption = '# of stations'
+              FieldName = 'STATIONS_AMOUNT'
+            end          
+            item
               Title.Caption = 'Country name'
               Width = 200
               FieldName = 'COUNTRYNAME'
@@ -811,7 +789,7 @@ object frmcodes: Tfrmcodes
           DataSource = DS
           FixedCols = 0
           Flat = True
-          Options = [dgEditing, dgTitles, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
           Scrollbars = ssVertical
           TabOrder = 0
           TitleFont.Color = clWindowText
@@ -833,10 +811,10 @@ object frmcodes: Tfrmcodes
           ClientWidth = 992
           TabOrder = 1
           object eCruiseGLODAP_COUNTRYNAME: TEdit
-            Left = 518
+            Left = 642
             Height = 21
             Top = 0
-            Width = 60
+            Width = 200
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
@@ -845,10 +823,10 @@ object frmcodes: Tfrmcodes
             TabOrder = 0
           end
           object eCruiseGLODAP_PLATFORMNAME: TEdit
-            Left = 130
+            Left = 152
             Height = 21
             Top = 0
-            Width = 200
+            Width = 152
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
@@ -857,39 +835,16 @@ object frmcodes: Tfrmcodes
             TabOrder = 1
           end
           object eCruiseGLODAP_NUMBER: TEdit
-            Left = 330
+            Left = 304
             Height = 21
             Top = 0
-            Width = 60
+            Width = 144
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
             OnChange = eCruiseGLODAP_NUMBERChange
             OnClick = ePlatform_IDClick
             TabOrder = 2
-          end
-          object eCruiseGLODAP_DATESTART: TEdit
-            Left = 390
-            Height = 21
-            Top = 0
-            Width = 64
-            Align = alLeft
-            Color = clWhite
-            Enabled = False
-            OnClick = ePlatform_IDClick
-            TabOrder = 3
-          end
-          object eCruiseGLODAP_DATEEND: TEdit
-            Left = 454
-            Height = 21
-            Top = 0
-            Width = 64
-            Align = alLeft
-            CharCase = ecUppercase
-            Color = clWhite
-            Enabled = False
-            OnClick = ePlatform_IDClick
-            TabOrder = 4
           end
           object eCruiseGLODAP_ID: TEdit
             Left = 0
@@ -899,31 +854,40 @@ object frmcodes: Tfrmcodes
             Align = alLeft
             Color = clWhite
             OnClick = ePlatform_IDClick
-            TabOrder = 5
+            TabOrder = 3
           end
           object eCruiseGLODAP_EXPOCODE: TEdit
             Left = 50
             Height = 21
             Top = 0
-            Width = 80
+            Width = 102
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
             OnChange = eCruiseGLODAP_EXPOCODEChange
             OnClick = ePlatform_IDClick
-            TabOrder = 6
+            TabOrder = 4
           end
           object eCruiseGLODAP_PI: TEdit
-            Left = 578
+            Left = 842
             Height = 21
             Top = 0
-            Width = 60
+            Width = 64
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
             OnChange = eCruiseGLODAP_COUNTRYNAMEChange
             OnClick = ePlatform_IDClick
-            TabOrder = 7
+            TabOrder = 5
+          end
+          object pCruiseGLODAP: TPanel
+            Left = 448
+            Height = 21
+            Top = 0
+            Width = 194
+            Align = alLeft
+            BevelOuter = bvNone
+            TabOrder = 6
           end
         end
         object mNotesCruiseGLODAP: TMemo
@@ -1700,7 +1664,7 @@ object frmcodes: Tfrmcodes
           DataSource = DS
           FixedCols = 0
           Flat = True
-          Options = [dgEditing, dgTitles, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
           Scrollbars = ssVertical
           TabOrder = 1
           TitleFont.Color = clWindowText
@@ -1827,7 +1791,7 @@ object frmcodes: Tfrmcodes
           DataSource = DS
           FixedCols = 0
           Flat = True
-          Options = [dgEditing, dgTitles, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
           Scrollbars = ssVertical
           TabOrder = 1
           TitleFont.Color = clWindowText

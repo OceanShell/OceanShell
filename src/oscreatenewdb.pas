@@ -126,6 +126,7 @@ begin
     TR.Database:=DB;
     ST.Transaction:=TR;
     ST.Database:=DB;
+    ST.CommentsInSQL:=false;
 
     DB.DatabaseName:=(dbname);
     DB.UserName:='SYSDBA';

@@ -1147,8 +1147,6 @@ mLog.Clear;
     Close;
    end;
 
-
-
     wod_id:=strtoint(copy(cruise_ind, 4, length(cruise_ind)));
 
     nodate:=false;
@@ -1189,7 +1187,7 @@ mLog.Clear;
      SQL.Add(' where WOD_ID=:code_wod ');
      ParamByName('code_wod').AsInteger:=wod_platform_id;
     Open;
-      if Qt3.IsEmpty=false then platform_id:=Qt3.Fields[0].AsInteger else platform_id:=-9;
+      if Qt3.IsEmpty=false then platform_id:=Qt3.Fields[0].AsInteger else platform_id:=1;
     Close;
    end;
 
@@ -1200,7 +1198,7 @@ mLog.Clear;
      SQL.Add(' where WOD_ID=:code_wod ');
      ParamByName('code_wod').AsInteger:=wod_institute_id;
     Open;
-     if Qt3.IsEmpty=false then  institute_id:=Qt3.Fields[0].AsInteger else institute_id:=-9;
+     if Qt3.IsEmpty=false then  institute_id:=Qt3.Fields[0].AsInteger else institute_id:=1;
     Close;
    end;
 
@@ -1215,7 +1213,7 @@ mLog.Clear;
        SQL.Add(' (:ID, :PLATFORM_ID, :DATE_START, :DATE_END, :STATIONS_AMOUNT, ');
        SQL.Add('  :COUNTRY_ID, :INSTITUTE_ID, :WOD_CODE, :WMO_CODE )');
        ParamByName('ID').AsInteger:=absnum;
-       ParamByName('PLATFORM_ID').AsINteger:=platform_id;
+       ParamByName('PLATFORM_ID').AsInteger:=platform_id;
        ParamByName('DATE_START').AsDate:=date1;
        ParamByName('DATE_END').AsDate:=date2;
        ParamByName('STATIONS_AMOUNT').AsInteger:=stnum;

@@ -187,11 +187,16 @@ msgstr ""
 
 #: tfrmcodes.dbgridcruiseglodap.columns[6].title.caption
 msgctxt "tfrmcodes.dbgridcruiseglodap.columns[6].title.caption"
-msgid "Country name"
+msgid "# of stations"
 msgstr ""
 
 #: tfrmcodes.dbgridcruiseglodap.columns[7].title.caption
 msgctxt "tfrmcodes.dbgridcruiseglodap.columns[7].title.caption"
+msgid "Country name"
+msgstr ""
+
+#: tfrmcodes.dbgridcruiseglodap.columns[8].title.caption
+msgctxt "tfrmcodes.dbgridcruiseglodap.columns[8].title.caption"
 msgid "PI"
 msgstr ""
 
@@ -200,19 +205,9 @@ msgctxt "tfrmcodes.dbgridcruisewod.columns[0].title.caption"
 msgid "ID"
 msgstr ""
 
-#: tfrmcodes.dbgridcruisewod.columns[10].title.caption
-msgctxt "tfrmcodes.dbgridcruisewod.columns[10].title.caption"
-msgid "WOD"
-msgstr ""
-
-#: tfrmcodes.dbgridcruisewod.columns[11].title.caption
-msgctxt "tfrmcodes.dbgridcruisewod.columns[11].title.caption"
-msgid "WMO"
-msgstr ""
-
 #: tfrmcodes.dbgridcruisewod.columns[1].title.caption
 msgctxt "tfrmcodes.dbgridcruisewod.columns[1].title.caption"
-msgid "Platform WOD"
+msgid "WOD"
 msgstr ""
 
 #: tfrmcodes.dbgridcruisewod.columns[2].title.caption
@@ -232,25 +227,22 @@ msgstr ""
 
 #: tfrmcodes.dbgridcruisewod.columns[5].title.caption
 msgctxt "tfrmcodes.dbgridcruisewod.columns[5].title.caption"
-msgid "Stations #"
+msgid "# of stations"
 msgstr ""
 
 #: tfrmcodes.dbgridcruisewod.columns[6].title.caption
 msgctxt "tfrmcodes.dbgridcruisewod.columns[6].title.caption"
-msgid "ISO"
+msgid "Country name"
 msgstr ""
 
 #: tfrmcodes.dbgridcruisewod.columns[7].title.caption
 msgctxt "tfrmcodes.dbgridcruisewod.columns[7].title.caption"
-msgid "Country name"
+msgid "Institute"
 msgstr ""
 
 #: tfrmcodes.dbgridcruisewod.columns[8].title.caption
-msgid "INSTITUTE_ID"
-msgstr ""
-
-#: tfrmcodes.dbgridcruisewod.columns[9].title.caption
-msgid "INSTITUTENAME"
+msgctxt "tfrmcodes.dbgridcruisewod.columns[8].title.caption"
+msgid "WMO"
 msgstr ""
 
 #: tfrmcodes.dbgridinstitute.columns[0].title.caption
