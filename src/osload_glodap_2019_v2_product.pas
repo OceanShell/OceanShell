@@ -636,21 +636,48 @@ begin
 end;
 
 
+
+
 //split file on MD and Profiles/casts
 procedure TfrmloadGLODAP_2019_v2_product.btnSplitOnMDandProfilesClick(
   Sender: TObject);
 var
   kst,kL,kv,L1,L2,n,c,i,line:integer;
+  kTT:integer;
   cruiseN,stationN,castN,stNBNum:integer;
   cast_maxN,PRF_count:integer;
   Year,Month,Day,Hour,Min:integer;
-  press, temp,stlat,stlon,stBD,stPDS:real;
+  stlat,stlon,stBD,stPDS,stMDS:real;
   symbol:char;
   st,buf_str:string;
-  str_MD,str_PRF1:string;
+  str_MD,str_PRF:string;
   StDT:TDateTime;
   DayChange,DateChange:Boolean;
+
+  //values
+  press,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
+  cfc11,pcfc11,cfc12,pcfc12,cfc113,pcfc113,cc14,pcc14,sf6,psf6,c13,c14:real;
+  h3,he3,he,neon,O18,toc,doc,don,tdn,chla:real;
+  //errors
+  c14_err,h3_err,he3_err,he_err,neon_err:real;
+  //QF primary 1
+  salt_pQF1,oxy_pQF1,aou_pQF1,nat_pQF1,nit_pQF1,sil_pQF1,pho_pQF1:integer;
+  tco2_pQF1,talk_pQF1,phtsinsitutp_pQF1,cfc11_pQF1,cfc12_pQF1,cfc113_pQF1:integer;
+  cc14_pQF1,c13_pQF1,c14_pQF1,h3_pQF1,he3_pQF1,he_pQF1,neon_pQF1:integer;
+  O18_pQF1,toc_pQF1,doc_pQF1,don_pQF1,tdn_pQF1,chla_pQF1,phts25p0_pQF1:integer;
+  //QF secondary
+  salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF:integer;
+  cfc11_sQF,cfc12_sQF,cfc113_sQF,cc14_sQF,sf6_pQF1,c13_sQF,phts25p0_sQF:integer;
+  //divide file on stations/casts
+  cast_count:Integer;
+  //download
+  CountDup,StVersion:integer;
+
+
 begin
+
+//three GLODAP tables types
+{TT}for kTT:=1 to 3 do begin
 
   //CDS Divide Station on Casts
    CDS_DSC:=TBufDataSet.Create(self);
@@ -658,21 +685,27 @@ begin
     Add('ID',  ftInteger,0,true);
     Add('Press', ftFloat,0,true);
     Add('Val', ftFloat,0,true);
+    if kTT=2 then Add('PVal', ftFloat,0,true);
+    if kTT=3 then Add('ValErr', ftFloat,0,true);
     Add('PQF1',  ftInteger,0,true);
     Add('PQF2',  ftInteger,0,true);
     Add('SQF', ftInteger, 0,true);
     Add('Bottle',  ftInteger,0,true);
     Add('Station',  ftInteger,0,true);
-    Add('Cast',  ftInteger,0,true);
     Add('Units_ID',  ftInteger,0,true);
   end;
    CDS_DSC.CreateDataSet;
 
    str_MD:='ID LATITUDE LONGITUDE DATEANDTIME BOTTOMDEPTH LASTLEV_M LASTLEV_DBAR ' +
-   'CRUISE_ID INSTRUMENT_ID STATION_NUM_ORIG STATION_ID_ORIG QFLAG STVERSION '+
-   'MERGED DATE_ADDED DATE_UPDATED';
+   'CRUISE_ID INSTRUMENT_ID STATION_NUM_ORIGin STATION_ID_ORIGin CAST_NUMBER ' +
+   'QFLAG STVERSION MERGED DATE_ADDED DATE_UPDATED';
 
-   str_PRF1:='ID PRES VAL PQF1 PQF2 SQF BOTTLE_NUMBER CAST_NUMBER UNITS_ID';
+   //DB TBL Type1 fields:8 PRES VAL
+   //DB TBL Type2 fields:9 PRES VAL PVAL
+   //DB TBL Type3 fields:9 PRES VALERR PVAL
+   if kTT=1 then str_PRF:='ID PRES VAL PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
+   if kTT=2 then 'ID PRES VAL PVAL PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
+   if kTT=3 then 'ID PRES VAL PVAL PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
 
    path_MD:='c:\Users\ako071\AK\datasets\GLODAP\download\STATION.dat';
    AssignFile(outMD, path_MD); Rewrite(outMD);
@@ -738,11 +771,300 @@ begin
 
     14: press:=strtofloat(buf_str);                   //sampling pressure dbar
     16: temp:=strtofloat(buf_str);                    //temperature
-     end;{case}
- {b}end;
+    18: salt:=strtofloat(buf_str);                    //salinity
+    19: salt_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    20: salt_sQF:=trunc(strtofloat(buf_str));         //sQF
 
- {kv}end;
+    27: oxy:=strtofloat(buf_str);                    //oxygen
+    28: oxy_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    29: oxy_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+    30: aou:=strtofloat(buf_str);                    //apparant oxygen utilization
+    31: aou_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+    32: nat:=strtofloat(buf_str);                    //nitrate
+    33: nat_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    34: nat_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+    35: nit:=strtofloat(buf_str);                    //nitrite
+    36: nit_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+    37: sil:=strtofloat(buf_str);                    //silicate
+    38: sil_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    39: sil_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+    40: pho:=strtofloat(buf_str);                    //phosphate
+    41: pho_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    42: pho_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+    43: tco2:=strtofloat(buf_str);                    //tco2:Dissolved inorganic carbon
+    44: tco2_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    45: tco2_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+    46: talk:=strtofloat(buf_str);                    //talk
+    47: talk_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    48: talk_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+    49: phts25p0:=strtofloat(buf_str);                    //ph ts 25 p0
+    50: phts25p0_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    53: begin
+         phts25p0_sQF:=trunc(strtofloat(buf_str));         //sQF
+         phtsinsitutp_sQF:=trunc(strtofloat(buf_str));         //sQF
+        end;
+
+    51: phtsinsitutp:=strtofloat(buf_str);                    //ph ts insitu tp
+    52: phtsinsitutp_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+    54: cfc11:=strtofloat(buf_str);                    //cfc11:transient tracer
+    55: pcfc11:=strtofloat(buf_str);                   //pcfc11
+    56: cfc11_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    57: cfc11_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+    58: cfc12:=strtofloat(buf_str);                    //cfc12:transient tracer
+    59: pcfc12:=strtofloat(buf_str);                   //pcfc12
+    60: cfc12_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    61: cfc12_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+    62: cfc113:=strtofloat(buf_str);                    //cfc113:transient tracer
+    63: pcfc113:=strtofloat(buf_str);                   //pcfc113
+    64: cfc113_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    65: cfc113_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+    66: cc14:=strtofloat(buf_str);                    //cc14:transient tracer
+    67: pcc14:=strtofloat(buf_str);                   //pcc14
+    68: cc14_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    69: cc14_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+    70: sf6:=strtofloat(buf_str);                    //sf6:Sulfur hexafluoride
+    71: psf6:=strtofloat(buf_str);                   //psf6
+    72: sf6_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+    73: c13:=strtofloat(buf_str);                    //c13 Stable isotop carbon 13
+    74: c13_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    75: c13_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+    76: c14:=strtofloat(buf_str);                   //c14 Radioisotop carbon 14
+    77: c14_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+    78: c14_err:=strtofloat(buf_str);               //counting error
+
+    79: h3:=strtofloat(buf_str);                   //h3:radioisotop hydrogen 3, Tritium
+    80: h3_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+    81: h3_err:=strtofloat(buf_str);               //counting error
+
+    82: he3:=strtofloat(buf_str);                   //he3:Radioisotop helium 3
+    83: he3_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+    84: he3_err:=strtofloat(buf_str);               //counting error
+
+    85: he:=strtofloat(buf_str);                    //he:helium
+    86: he_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+    87: he_err:=strtofloat(buf_str);               //counting error
+
+    88: neon:=strtofloat(buf_str);                    //neon
+    89: neon_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+    90: neon_err:=strtofloat(buf_str);               //counting error
+
+    91: O18:=strtofloat(buf_str);                    //O18:Stable isotop of oxygen 18
+    92: O18_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+    93: toc:=strtofloat(buf_str);                    //toc:Total organic carbon
+    94: toc_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+    95: doc:=strtofloat(buf_str);                    //doc:Dissolved organic carbon
+    96: doc_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+    97: don:=strtofloat(buf_str);                    //don:Dissolved organic nitrogen
+    98: don_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+    99: tdn:=strtofloat(buf_str);                    //tdn:Total dissolved nitrogen
+   100: tdn_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+   101: chla:=strtofloat(buf_str);                    //chla:chlorophylla
+   102: chla_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    end;{case}
+
+{b}end;
+
+{kv}end;
 //end string analysis
+
+   //number of tables depending on table type
+   if (kTT=1) then TNum:=19;
+   if (kTT=2) then TNum:=5;
+   if (kTT=3) then TNum:=5;
+
+   TPQF1:=0;
+   TPQF2:=0;
+   TSQF:=0;
+
+   //UNITS indexes from TBD UNITS
+   //1 Degree centigrade
+   //3 Micro-mole per kilogram
+
+{TN}for kTN:=1 to TNum
+
+   if (kTT) =1 then begin
+   case kTN of
+   1: begin
+      TName:='P_AOF_BOTTLE';
+      Tval:=aou;
+      TPQF1:=aou_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=3; //Micro-mole per kilogram
+      end; {1}
+   2: begin
+      TName:='P_C13_BOTTLE';
+      Tval:=c13;
+      TPQF1:=c13_pQF1;
+      TSQF:=c13_SQF;
+      TBottle:=stNBNum;
+      TUNIT:=11; //Per-mille deviation
+      end; {2}
+   3: begin
+      TName:='P_CHLA_BOTTLE';
+      Tval:=chla;
+      TPQF1:=chla_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=14;  //Micro-gram per kilogram
+      end;
+   4: begin
+      TName:='P_DOC_BOTTLE';
+      Tval:=doc;
+      TPQF1:=doc_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=15;  //Micro-gram per liter
+      end;
+   5: begin
+      TName:='P_DON_BOTTLE';
+      Tval:=don;
+      TPQF1:=don_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=15;  //Micro-gram per liter
+      end;
+   6: begin
+      TName:='P_NITRATE_BOTTLE';
+      Tval:=nat;
+      TPQF1:=nat_pQF1;
+      TSQF:=nat_SQF;
+      TBottle:=stNBNum;
+      TUNIT:=3;  //Micro-mole per kilogram
+      end;
+   7: begin
+      TName:='P_NITRITE_BOTTLE';
+      Tval:=nit;
+      TPQF1:=nit_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=3;  //Micro-mole per kilogram
+      end;
+   8: begin
+      TName:='P_018_BOTTLE';
+      Tval:=O18;
+      TPQF1:=O18_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=11;  //Per-mille deviation
+      end;
+   9: begin
+      TName:='P_OXYGEN_BOTTLE';
+      Tval:=oxy;
+      TPQF1:=oxy_pQF1;
+      TSQF:=oxy_SQF;
+      TBottle:=stNBNum;
+      TUNIT:=3;  //Micro-mole per kilogram
+      end;
+   10: begin
+       TName:='P_PHOSPHATE_BOTTLE';
+       Tval:=pho;
+       TPQF1:=pho_pQF1;
+       TSQF:=pho_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=3;  //Micro-mole per kilogram
+       end;
+   11: begin
+       TName:='P_PHTS25P0_BOTTLE';
+       Tval:=phts25p0;
+       TPQF1:=phts25p0_pQF1;
+       TSQF:=phts25p0_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=2;  //Dimensionless or unit less
+       end;
+   12: begin
+       TName:='P_PHTSINSITUTP_BOTTLE';
+       Tval:=phtsinsitutp;
+       TPQF1:=phtsinsitutp_pQF1;
+       TSQF:=phtsinsitutp_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=2;  //Dimensionless or unit less
+       end;
+   13: begin
+       TName:='P_SALINITY_BOTTLE';
+       Tval:=salt;
+       TPQF1:=salt_pQF1;
+       TSQF:=salt_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=2;  //Dimensionless or unit less
+       end;
+   14: begin
+       TName:='P_SILICATE_BOTTLE';
+       Tval:=sil;
+       TPQF1:=sil_pQF1;
+       TSQF:=sil_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=3;  //Micro-mole per kilogram
+       end;
+   15: begin
+       TName:='P_TALK_BOTTLE';
+       Tval:=talk;
+       TPQF1:=talk_pQF1;
+       TSQF:=talk_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=3;  //Micro-mole per kilogram
+       end;
+   16: begin
+       TName:='P_TCO2_BOTTLE';
+       Tval:=tco2;
+       TPQF1:=tco2_pQF1;
+       TSQF:=tco2_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=3;  //Micro-mole per kilogram
+       end;
+   17: begin
+       TName:='P_TDN_BOTTLE';
+       Tval:=tdn;
+       TPQF1:=tdn_pQF1;
+       TBottle:=stNBNum;
+       TUNIT:=15;  //Micro-mole per liter
+       end;
+   18: begin
+       TName:='P_TOC_BOTTLE';
+       Tval:=toc;
+       TPQF1:=toc_pQF1;
+       TBottle:=stNBNum;
+       TUNIT:=15;  //Micro-mole per liter
+       end;
+   19: begin
+       TName:='P_TEMPERATURE_BOTTLE';
+       Tval:=temp;
+       TBottle:=stNBNum;
+       TUNIT:=1;  //Degree centigrade
+       end;
+   end;
+
+   if (kTT) =2 then begin
+   case kTN of
+   1: TName:='P_CC14_BOTTLE';
+   2: TName:='P_CFC113_BOTTLE';
+   3: TName:='P_CFC11_BOTTLE';
+   4: TName:='P_CFC12_BOTTLE';
+   5: TName:='P_SF6_BOTTLE';
+   end;
+
+   if (kTT) =3 then begin
+   case kTN of
+   1: TName:='P_C14_BOTTLE';
+   2: TName:='P_HE3_BOTTLE';
+   3: TName:='P_HE_BOTTLE';
+   4: TName:='P_NEON_BOTTLE';
+   5: TName:='P_H3_BOTTLE';
+   end;
 
 
   //append to CDS
@@ -751,12 +1073,13 @@ begin
      FieldByName('ID').AsInteger:=kst;
      FieldByName('Press').AsFloat:=press;
      FieldByName('Val').AsFloat:=temp;
+     if (kTT=2) then  FieldByName('PVal').AsFloat:=temp;
+     if (kTT=3) then  FieldByName('ValErr').AsFloat:=temp;
      FieldByName('PQF1').AsInteger:=0;
      FieldByName('PQF2').AsInteger:=0;
      FieldByName('SQF').AsInteger:=0;
      FieldByName('Bottle').AsInteger:=stNBNum;
      FieldByName('Station').AsInteger:=stationN;
-     FieldByName('Cast').AsInteger:=castN;
      FieldByName('Units_ID').AsInteger:=1; //temperature
      Post;
   end;
@@ -794,6 +1117,7 @@ begin
     //convert pressure to depth
     //m=1 pressure to depth
     //Depth_to_Pressure(stPDS,stlat,1,stLastLevel_m);
+    stMDS:=declarations_gsw.gsw_z_from_p(stPDS,stlat);
 
 
     //prepare to write into STATION
@@ -802,11 +1126,12 @@ begin
     #9,floattostr(stlon),       //LONGITUDE
     #9,datetimetostr(StDT),    //DATEANDTIME
     #9,floattostr(stBD),        //BOTTOMDEPTH
-    #9,floattostr(stPDS),        //LASTLEVEL_M   !!!CONVERT
+    #9,floattostr(stMDS),        //LASTLEVEL_M   !!!CONVERT
     #9,floattostr(stPDS),        //LASTLEVEL_DBAR
     #9,inttostr(CruiseN),        //CRUISEID
-    #9,inttostr(StationN),        //STATION_NUM_ORIG
-    #9,inttostr(StationN),        //STATION_ID_ORIG
+    #9,inttostr(StationN),        //ST_NUM_ORIGIN
+    #9,inttostr(StationN),        //ST_ID_ORIGIN
+    #9,inttostr(castN),           //CAST_NUMBER
     #9,inttostr(1),               //QCFLAG
     #9,inttostr(1),               //STVERSION
     #9,datetimetostr(NOW),        //DATE_ADDED
@@ -836,6 +1161,10 @@ begin
      //CDS_DSC.Clear;
      //CDS_DSC.Active:=false;
 {st}end; //real stations loop
+
+{TN}end; //GLODAP tables depending on type 19,5,5
+{TT}end; //three GLODAP table types
+
 
   if CDS_DSC.Active=true then CDS_DSC.Close;
      CDS_DSC.Free;
