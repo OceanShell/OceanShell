@@ -65,6 +65,12 @@ var
   Dat, out, outMD, outPRF:text;
   CDS_DSC:TBufDataSet; //CDS Divide stations on casts
 
+  outPRF1,outPRF2,outPRF3,outPRF4,outPRF5,outPRF6,outPRF7,outPRF8,outPRF9:text;
+  outPRF10,outPRF11,outPRF12,outPRF13,outPRF14,outPRF15,outPRF16,outPRF17:text;
+  outPRF18,outPRF19,outPRF20,outPRF21,outPRF22,outPRF23,outPRF24,outPRF25:text;
+  outPRF26,outPRF27,outPRF28,outPRF29,outPRF30,outPRF31,outPRF32,outPRF33:text;
+  outPRF34:text;
+
 implementation
 
 uses osmain, procedures, dm, declarations_gsw;
@@ -642,7 +648,7 @@ end;
 procedure TfrmloadGLODAP_2019_v2_product.btnSplitOnMDandProfilesClick(
   Sender: TObject);
 var
-  kst,kL,kv,L1,L2,n,c,i,line:integer;
+  kst,kL,kv,kt,L1,L2,n,c,i,line:integer;
   kTT:integer;
   cruiseN,stationN,castN,stNBNum:integer;
   cast_maxN,PRF_count:integer;
@@ -650,7 +656,7 @@ var
   stlat,stlon,stBD,stPDS,stMDS:real;
   symbol:char;
   st,buf_str:string;
-  str_MD,str_PRF:string;
+  str_MD,str_PRF,path_TBL:string;
   StDT:TDateTime;
   DayChange,DateChange:Boolean;
 
@@ -673,47 +679,106 @@ var
   //download
   CountDup,StVersion:integer;
 
-
+  TNames1_arr:array[29] of strings;   //GLODAP tables names Type 1
+  TNames2_arr:array[5] of strings;   //GLODAP tables names Type 1
 begin
+      TNames1_arr[1]=P_AOF_BOTTLE;
+      TNames1_arr[2]=P_C13_BOTTLE;
+      TNames1_arr[3]=P_CHLA_BOTTLE;
+      TNames1_arr[4]=P_DOC_BOTTLE;
+      TNames1_arr[5]=P_DON_BOTTLE;
+      TNames1_arr[6]=P_NITRATE_BOTTLE;
+      TNames1_arr[7]=P_NITRITE_BOTTLE;
+      TNames1_arr[8]=P_018_BOTTLE;
+      TNames1_arr[9]=P_OXYGEN_BOTTLE;
+      TNames1_arr[10]=P_PHOSPHATE_BOTTLE;
+      TNames1_arr[11]=P_PHTS25P0_BOTTLE;
+      TNames1_arr[12]=P_PHTSINSITUTP_BOTTLE;
+      TNames1_arr[13]=P_SALINITY_BOTTLE;
+      TNames1_arr[14]=P_SILICATE_BOTTLE;
+      TNames1_arr[15]=P_TALK_BOTTLE;
+      TNames1_arr[16]=P_TCO2_BOTTLE;
+      TNames1_arr[17]=P_TDN_BOTTLE;
+      TNames1_arr[18]=P_TOC_BOTTLE;
+      TNames1_arr[19]=P_TEMPERATURE_BOTTLE;
+      TNames1_arr[20]=P_CC14_BOTTLE;
+      TNames1_arr[21]=P_PCCL4_BOTTLE;
+      TNames1_arr[22]=P_CFC113_BOTTLE;
+      TNames1_arr[23]=P_PCFC113_BOTTLE;
+      TNames1_arr[24]=P_CFC11_BOTTLE;
+      TNames1_arr[25]=P_PCFC11_BOTTLE;
+      TNames1_arr[26]=P_CFC12_BOTTLE;
+      TNames1_arr[27]=P_PCFC12_BOTTLE;
+      TNames1_arr[28]=P_SF6_BOTTLE;
+      TNames1_arr[29]=P_PSF6_BOTTLE;
 
-//three GLODAP tables types
-{TT}for kTT:=1 to 3 do begin
+      TNames2_arr[1]=P_C14_BOTTLE;
+      TNames2_arr[2]=P_HE3_BOTTLE;
+      TNames2_arr[3]=P_HE_BOTTLE;
+      TNames2_arr[4]=P_NEON_BOTTLE;
+      TNames2_arr[5]=P_H3_BOTTLE;
 
-  //CDS Divide Station on Casts
-   CDS_DSC:=TBufDataSet.Create(self);
-  with CDS_DSC.FieldDefs do begin
-    Add('ID',  ftInteger,0,true);
-    Add('Press', ftFloat,0,true);
-    Add('Val', ftFloat,0,true);
-    if kTT=2 then Add('PVal', ftFloat,0,true);
-    if kTT=3 then Add('ValErr', ftFloat,0,true);
-    Add('PQF1',  ftInteger,0,true);
-    Add('PQF2',  ftInteger,0,true);
-    Add('SQF', ftInteger, 0,true);
-    Add('Bottle',  ftInteger,0,true);
-    Add('Station',  ftInteger,0,true);
-    Add('Units_ID',  ftInteger,0,true);
-  end;
-   CDS_DSC.CreateDataSet;
 
-   str_MD:='ID LATITUDE LONGITUDE DATEANDTIME BOTTOMDEPTH LASTLEV_M LASTLEV_DBAR ' +
-   'CRUISE_ID INSTRUMENT_ID STATION_NUM_ORIGin STATION_ID_ORIGin CAST_NUMBER ' +
-   'QFLAG STVERSION MERGED DATE_ADDED DATE_UPDATED';
+ path_MD:='c:\Users\ako071\AK\datasets\GLODAP\download\STATION.dat';
+ str_MD:='ID LATITUDE LONGITUDE DATEANDTIME BOTTOMDEPTH LASTLEV_M LASTLEV_DBAR ' +
+ 'CRUISE_ID INSTRUMENT_ID STATION_NUM_ORIGin STATION_ID_ORIGin CAST_NUMBER ' +
+ 'QFLAG STVERSION MERGED DATE_ADDED DATE_UPDATED';
 
-   //DB TBL Type1 fields:8 PRES VAL
-   //DB TBL Type2 fields:9 PRES VAL PVAL
-   //DB TBL Type3 fields:9 PRES VALERR PVAL
-   if kTT=1 then str_PRF:='ID PRES VAL PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
-   if kTT=2 then 'ID PRES VAL PVAL PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
-   if kTT=3 then 'ID PRES VAL PVAL PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
+ AssignFile(outMD, path_MD); Rewrite(outMD);
+ writeln(outMD,str_MD);
 
-   path_MD:='c:\Users\ako071\AK\datasets\GLODAP\download\STATION.dat';
-   AssignFile(outMD, path_MD); Rewrite(outMD);
-   writeln(outMD,str_MD);
+ str_PRF1:='ID PRES VAL PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
+ str_PRF2:='ID PRES VAL VALERR PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
 
-   path_PRF:='c:\Users\ako071\AK\datasets\GLODAP\download\P_TEMPERATURE_BOTTLE.dat';
-   AssignFile(outPRF, path_PRF); Rewrite(outPRF);
-   writeln(outPRF,str_PRF1);
+    //create TBL files on disk Type 1
+    path_PRF:='c:\Users\ako071\AK\datasets\GLODAP\download\';
+    // 1  P_AOF_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[1]+'.dat';
+    AssignFile(outPRF1, path_TBL);
+    Rewrite(outPRF1);
+    writeln(outPRF1,str_PRF1);
+    // 2  P_C13_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[2]+'.dat';
+    AssignFile(outPRF2, path_TBL);
+    Rewrite(outPRF2);
+    writeln(outPRF2,str_PRF1);
+    // 3  P_C13_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[3]+'.dat';
+    AssignFile(outPRF3, path_TBL);
+    Rewrite(outPRF3);
+    writeln(outPRF3,str_PRF1);
+    // 4  P_DOC_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[4]+'.dat';
+    AssignFile(outPRF4, path_TBL);
+    Rewrite(outPRF4);
+    writeln(outPRF4,str_PRF1);
+    // 5  P_DON_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[5]+'.dat';
+    AssignFile(outPRF5, path_TBL);
+    Rewrite(outPRF5);
+    writeln(outPRF5,str_PRF1);
+    // 6  P_NITRATE_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[6]+'.dat';
+    AssignFile(outPRF6, path_TBL);
+    Rewrite(outPRF6);
+    writeln(outPRF6,str_PRF1);
+    // 7  P_NITRITE_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[7]+'.dat';
+    AssignFile(outPRF7, path_TBL);
+    Rewrite(outPRF7);
+    writeln(outPRF7,str_PRF1);
+    // 8  P_018_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[7]+'.dat';
+    AssignFile(outPRF7, path_TBL);
+    Rewrite(outPRF7);
+    writeln(outPRF7,str_PRF1);
+
+    //DB TBL Type1 fields:8 PRES VAL
+    //DB TBL Type2 fields:9 PRES VAL VALERR
+    str_PRF1:='ID PRES VAL PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
+    str_PRF2:='ID PRES VAL VALERR PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
+
+
 
 
    Reset(dat);
@@ -722,6 +787,7 @@ begin
 
    line:=1;
    PRF_count:=0;
+
 {st}for kst:=1 to RSt-1 do begin
 
    if CDS_DSC.Active then CDS_DSC.Close;
@@ -888,21 +954,35 @@ begin
 //end string analysis
 
    //number of tables depending on table type
-   if (kTT=1) then TNum:=19;
-   if (kTT=2) then TNum:=5;
-   if (kTT=3) then TNum:=5;
+   //DB TBL Type1 fields:8 PRES VAL
+   //DB TBL Type2 fields:9 PRES VAL VALERR
 
-   TPQF1:=0;
-   TPQF2:=0;
-   TSQF:=0;
 
-   //UNITS indexes from TBD UNITS
-   //1 Degree centigrade
-   //3 Micro-mole per kilogram
+   //two different GLODAP tables types
+{TT}for kTT:=1 to 2 do begin
 
-{TN}for kTN:=1 to TNum
+     //CDS Divide Station on Casts
+      CDS_DSC:=TBufDataSet.Create(self);
+     with CDS_DSC.FieldDefs do begin
+       Add('ID',  ftInteger,0,true);
+       Add('Press', ftFloat,0,true);
+       Add('Val', ftFloat,0,true);
+       if kTT=2 then Add('ValErr', ftFloat,0,true);
+       Add('PQF1',  ftInteger,0,true);
+       Add('PQF2',  ftInteger,0,true);
+       Add('SQF', ftInteger, 0,true);
+       Add('Bottle',  ftInteger,0,true);
+       Add('Station',  ftInteger,0,true);
+       Add('Units_ID',  ftInteger,0,true);
+     end;
+      CDS_DSC.CreateDataSet;
 
-   if (kTT) =1 then begin
+{T1}if kTT=1 then begin
+{TN}for kTN:=1 to 29
+      TPQF1:=0;
+      TPQF2:=0;
+      TSQF:=0;
+
    case kTN of
    1: begin
       TName:='P_AOF_BOTTLE';
@@ -1046,24 +1126,138 @@ begin
        TBottle:=stNBNum;
        TUNIT:=1;  //Degree centigrade
        end;
-   end;
+{T1}end;
 
-   if (kTT) =2 then begin
+   //разделил таблицы с разными единицами
+{T1a}if (kTT) =1 then begin
    case kTN of
-   1: TName:='P_CC14_BOTTLE';
-   2: TName:='P_CFC113_BOTTLE';
-   3: TName:='P_CFC11_BOTTLE';
-   4: TName:='P_CFC12_BOTTLE';
-   5: TName:='P_SF6_BOTTLE';
-   end;
+   20: begin
+      TName:='P_CC14_BOTTLE';
+      Tval:=cc14;
+      TPQF1:=cc14_pQF1;
+      TSQF:=cc14_SQF;
+      TBottle:=stNBNum;
+      TUNIT:=13;  //Pico-mole per kilogram
+      end;
+   21: begin
+       TName:='P_PCCL4_BOTTLE';
+       Tval:=pcc14;
+       TPQF1:=cc14_pQF1;
+       TSQF:=cc14_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
+       end;
+   22: begin
+       TName:='P_CFC113_BOTTLE';
+       Tval:=cfc113;
+       TPQF1:=cfc113_pQF1;
+       TSQF:=cfc113_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=13;  //Pico-mole per kilogram
+       end;
+   23: begin
+       TName:='P_PCFC113_BOTTLE';
+       Tval:=pcfc113;
+       TPQF1:=cfc113_pQF1;
+       TSQF:=cfc113_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
+       end;
+   24: begin
+       TName:='P_CFC11_BOTTLE';
+       Tval:=cfc11;
+       TPQF1:=cfc11_pQF1;
+       TSQF:=cfc11_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=13;  //Pico-mole per kilogram
+       end;
+   25: begin
+       TName:='P_PCFC11_BOTTLE';
+       Tval:=pcfc11;
+       TPQF1:=cfc11_pQF1;
+       TSQF:=cfc11_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
+       end;
+   26: begin
+       TName:='P_CFC12_BOTTLE';
+       Tval:=cfc12;
+       TPQF1:=cfc12_pQF1;
+       TSQF:=cfc12_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=13;  //Pico-mole per kilogram
+       end;
+   27: begin
+       TName:='P_PCFC12_BOTTLE';
+       Tval:=pcfc12;
+       TPQF1:=cfc12_pQF1;
+       TSQF:=cfc12_SQF;
+       TBottle:=stNBNum;
+       TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
+       end;
+   28: begin
+      TName:='P_SF6_BOTTLE';
+      Tval:=sf6;
+      TPQF1:=sf6_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=19;  //Femto-mole per kilogram
+      end;
+   29: begin
+      TName:='P_PSF6_BOTTLE';
+      Tval:=psf6;
+      TPQF1:=sf6_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
+      end;
+{T2}end;
 
-   if (kTT) =3 then begin
+{T2}if kTT=2 then begin
+{TN}for kTN:=1 to 5
+         TPQF1:=0;
+         TPQF2:=0;
+         TSQF:=0;
+
    case kTN of
-   1: TName:='P_C14_BOTTLE';
-   2: TName:='P_HE3_BOTTLE';
-   3: TName:='P_HE_BOTTLE';
-   4: TName:='P_NEON_BOTTLE';
-   5: TName:='P_H3_BOTTLE';
+   1: begin
+      TName:='P_C14_BOTTLE';
+      Tval:=c14;
+      Tvalerr:=c14_err;
+      TPQF1:=c14_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=11;  //Per-mille deviation
+      end;
+   2: begin
+      TName:='P_HE3_BOTTLE';
+      Tval:=he3;
+      Tvalerr:=he3_err;
+      TPQF1:=he3_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=10;  //
+      end;
+   3: begin
+      TName:='P_HE_BOTTLE';
+      Tval:=he;
+      Tvalerr:=he_err;
+      TPQF1:=he_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=12;  //Nano-mole per kilogram
+      end;
+   4: begin
+      TName:='P_NEON_BOTTLE';
+      Tval:=neon;
+      Tvalerr:=neon_err;
+      TPQF1:=neon_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=12;  //Nano-mole per kilogram
+      end;
+   5: begin
+      TName:='P_H3_BOTTLE';
+      Tval:=h3;
+      Tvalerr:=h3_err;
+      TPQF1:=h3_pQF1;
+      TBottle:=stNBNum;
+      TUNIT:=8;  // TU Tritium Unit
+      end;
    end;
 
 
@@ -1072,15 +1266,14 @@ begin
      Append;
      FieldByName('ID').AsInteger:=kst;
      FieldByName('Press').AsFloat:=press;
-     FieldByName('Val').AsFloat:=temp;
-     if (kTT=2) then  FieldByName('PVal').AsFloat:=temp;
-     if (kTT=3) then  FieldByName('ValErr').AsFloat:=temp;
-     FieldByName('PQF1').AsInteger:=0;
-     FieldByName('PQF2').AsInteger:=0;
-     FieldByName('SQF').AsInteger:=0;
-     FieldByName('Bottle').AsInteger:=stNBNum;
+     FieldByName('Val').AsFloat:=TVal;
+     if (kTT=2) then  FieldByName('PVal').AsFloat:=TValErr;
+     FieldByName('PQF1').AsInteger:=TPQF1;
+     FieldByName('PQF2').AsInteger:=TPQF2;
+     FieldByName('SQF').AsInteger:=TSQF;
+     FieldByName('Bottle').AsInteger:=TBottle;
      FieldByName('Station').AsInteger:=stationN;
-     FieldByName('Units_ID').AsInteger:=1; //temperature
+     FieldByName('Units_ID').AsInteger:=TUNIT;
      Post;
   end;
 
@@ -1152,18 +1345,27 @@ begin
   #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
 
     CDS_DSC.Next;
+
 {s}end; //filtered by cast number and sorted station
 {i}end; //if cast exists
 {c}end; //casts
+
+{TN}end; //table names
+{TT}end; //table types
+
+
+
 
      CDS_DSC.Filtered:=false;
      //CDS_DSC.Close;
      //CDS_DSC.Clear;
      //CDS_DSC.Active:=false;
-{st}end; //real stations loop
 
-{TN}end; //GLODAP tables depending on type 19,5,5
-{TT}end; //three GLODAP table types
+
+
+
+{ST}end; //real stations loop
+
 
 
   if CDS_DSC.Active=true then CDS_DSC.Close;
