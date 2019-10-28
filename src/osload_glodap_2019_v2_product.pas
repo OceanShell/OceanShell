@@ -1,4 +1,4 @@
-//GLODAPv2.2019 product download
+// GLODAPv2.2019 product download
 //
 // I. First file scroll btnDataSource
 //    determining the number of variables in a file (102)
@@ -62,7 +62,7 @@ var
   Path, path_out, path_MD, path_PRF:string;
   var_name:array[1..200] of string;     //variables names
   line_arr:array[1..100000] of integer; //profile intervals at stations
-  Dat, out, outMD, outPRF:text;
+  Dat, out, outMD :text;
   CDS_DSC:TBufDataSet; //CDS Divide stations on casts
 
   outPRF1,outPRF2,outPRF3,outPRF4,outPRF5,outPRF6,outPRF7,outPRF8,outPRF9:text;
@@ -648,7 +648,7 @@ end;
 procedure TfrmloadGLODAP_2019_v2_product.btnSplitOnMDandProfilesClick(
   Sender: TObject);
 var
-  kst,kL,kv,kt,L1,L2,n,c,i,line:integer;
+  kst,ktn,kL,kv,kt,L1,L2,n,c,i,line:integer;
   kTT:integer;
   cruiseN,stationN,castN,stNBNum:integer;
   cast_maxN,PRF_count:integer;
@@ -679,44 +679,48 @@ var
   //download
   CountDup,StVersion:integer;
 
-  TNames1_arr:array[29] of strings;   //GLODAP tables names Type 1
-  TNames2_arr:array[5] of strings;   //GLODAP tables names Type 1
+  TPQF1,TPQF2,TSQF,TBottle,TUnit:integer;
+  TVAL,TVALERR:real;
+  TName:string;
+  str_PRF1,str_PRF2:string;
+  TNames1_arr:array[1..29] of string;   //GLODAP tables names Type 1
+  TNames2_arr:array[1..5] of string;   //GLODAP tables names Type 1
 begin
-      TNames1_arr[1]=P_AOF_BOTTLE;
-      TNames1_arr[2]=P_C13_BOTTLE;
-      TNames1_arr[3]=P_CHLA_BOTTLE;
-      TNames1_arr[4]=P_DOC_BOTTLE;
-      TNames1_arr[5]=P_DON_BOTTLE;
-      TNames1_arr[6]=P_NITRATE_BOTTLE;
-      TNames1_arr[7]=P_NITRITE_BOTTLE;
-      TNames1_arr[8]=P_018_BOTTLE;
-      TNames1_arr[9]=P_OXYGEN_BOTTLE;
-      TNames1_arr[10]=P_PHOSPHATE_BOTTLE;
-      TNames1_arr[11]=P_PHTS25P0_BOTTLE;
-      TNames1_arr[12]=P_PHTSINSITUTP_BOTTLE;
-      TNames1_arr[13]=P_SALINITY_BOTTLE;
-      TNames1_arr[14]=P_SILICATE_BOTTLE;
-      TNames1_arr[15]=P_TALK_BOTTLE;
-      TNames1_arr[16]=P_TCO2_BOTTLE;
-      TNames1_arr[17]=P_TDN_BOTTLE;
-      TNames1_arr[18]=P_TOC_BOTTLE;
-      TNames1_arr[19]=P_TEMPERATURE_BOTTLE;
-      TNames1_arr[20]=P_CC14_BOTTLE;
-      TNames1_arr[21]=P_PCCL4_BOTTLE;
-      TNames1_arr[22]=P_CFC113_BOTTLE;
-      TNames1_arr[23]=P_PCFC113_BOTTLE;
-      TNames1_arr[24]=P_CFC11_BOTTLE;
-      TNames1_arr[25]=P_PCFC11_BOTTLE;
-      TNames1_arr[26]=P_CFC12_BOTTLE;
-      TNames1_arr[27]=P_PCFC12_BOTTLE;
-      TNames1_arr[28]=P_SF6_BOTTLE;
-      TNames1_arr[29]=P_PSF6_BOTTLE;
+      TNames1_arr[1]:='P_AOF_BOTTLE';
+      TNames1_arr[2]:='P_C13_BOTTLE';
+      TNames1_arr[3]:='P_CHLA_BOTTLE';
+      TNames1_arr[4]:='P_DOC_BOTTLE';
+      TNames1_arr[5]:='P_DON_BOTTLE';
+      TNames1_arr[6]:='P_NITRATE_BOTTLE';
+      TNames1_arr[7]:='P_NITRITE_BOTTLE';
+      TNames1_arr[8]:='P_O18_BOTTLE';
+      TNames1_arr[9]:='P_OXYGEN_BOTTLE';
+      TNames1_arr[10]:='P_PHOSPHATE_BOTTLE';
+      TNames1_arr[11]:='P_PHTS25P0_BOTTLE';
+      TNames1_arr[12]:='P_PHTSINSITUTP_BOTTLE';
+      TNames1_arr[13]:='P_SALINITY_BOTTLE';
+      TNames1_arr[14]:='P_SILICATE_BOTTLE';
+      TNames1_arr[15]:='P_TALK_BOTTLE';
+      TNames1_arr[16]:='P_TCO2_BOTTLE';
+      TNames1_arr[17]:='P_TDN_BOTTLE';
+      TNames1_arr[18]:='P_TOC_BOTTLE';
+      TNames1_arr[19]:='P_TEMPERATURE_BOTTLE';
+      TNames1_arr[20]:='P_CC14_BOTTLE';
+      TNames1_arr[21]:='P_PCCL4_BOTTLE';
+      TNames1_arr[22]:='P_CFC113_BOTTLE';
+      TNames1_arr[23]:='P_PCFC113_BOTTLE';
+      TNames1_arr[24]:='P_CFC11_BOTTLE';
+      TNames1_arr[25]:='P_PCFC11_BOTTLE';
+      TNames1_arr[26]:='P_CFC12_BOTTLE';
+      TNames1_arr[27]:='P_PCFC12_BOTTLE';
+      TNames1_arr[28]:='P_SF6_BOTTLE';
+      TNames1_arr[29]:='P_PSF6_BOTTLE';
 
-      TNames2_arr[1]=P_C14_BOTTLE;
-      TNames2_arr[2]=P_HE3_BOTTLE;
-      TNames2_arr[3]=P_HE_BOTTLE;
-      TNames2_arr[4]=P_NEON_BOTTLE;
-      TNames2_arr[5]=P_H3_BOTTLE;
+      TNames2_arr[1]:='P_C14_BOTTLE';
+      TNames2_arr[2]:='P_HE3_BOTTLE';
+      TNames2_arr[3]:='P_HE_BOTTLE';
+      TNames2_arr[4]:='P_NEON_BOTTLE';
+      TNames2_arr[5]:='P_H3_BOTTLE';
 
 
  path_MD:='c:\Users\ako071\AK\datasets\GLODAP\download\STATION.dat';
@@ -727,6 +731,8 @@ begin
  AssignFile(outMD, path_MD); Rewrite(outMD);
  writeln(outMD,str_MD);
 
+ //DB TBL Type1 fields:8 PRES VAL
+ //DB TBL Type2 fields:9 PRES VAL VALERR
  str_PRF1:='ID PRES VAL PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
  str_PRF2:='ID PRES VAL VALERR PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
 
@@ -734,61 +740,186 @@ begin
     path_PRF:='c:\Users\ako071\AK\datasets\GLODAP\download\';
     // 1  P_AOF_BOTTLE
     path_TBL:=path_PRF+TNames1_arr[1]+'.dat';
-    AssignFile(outPRF1, path_TBL);
-    Rewrite(outPRF1);
-    writeln(outPRF1,str_PRF1);
+                  AssignFile(outPRF1, path_TBL);
+                     Rewrite(outPRF1);
+                     writeln(outPRF1,str_PRF1);
     // 2  P_C13_BOTTLE
     path_TBL:=path_PRF+TNames1_arr[2]+'.dat';
-    AssignFile(outPRF2, path_TBL);
-    Rewrite(outPRF2);
-    writeln(outPRF2,str_PRF1);
+                  AssignFile(outPRF2, path_TBL);
+                     Rewrite(outPRF2);
+                     writeln(outPRF2,str_PRF1);
     // 3  P_C13_BOTTLE
     path_TBL:=path_PRF+TNames1_arr[3]+'.dat';
-    AssignFile(outPRF3, path_TBL);
-    Rewrite(outPRF3);
-    writeln(outPRF3,str_PRF1);
+                  AssignFile(outPRF3, path_TBL);
+                     Rewrite(outPRF3);
+                     writeln(outPRF3,str_PRF1);
     // 4  P_DOC_BOTTLE
     path_TBL:=path_PRF+TNames1_arr[4]+'.dat';
-    AssignFile(outPRF4, path_TBL);
-    Rewrite(outPRF4);
-    writeln(outPRF4,str_PRF1);
+                  AssignFile(outPRF4, path_TBL);
+                     Rewrite(outPRF4);
+                     writeln(outPRF4,str_PRF1);
     // 5  P_DON_BOTTLE
     path_TBL:=path_PRF+TNames1_arr[5]+'.dat';
-    AssignFile(outPRF5, path_TBL);
-    Rewrite(outPRF5);
-    writeln(outPRF5,str_PRF1);
+                  AssignFile(outPRF5, path_TBL);
+                     Rewrite(outPRF5);
+                     writeln(outPRF5,str_PRF1);
     // 6  P_NITRATE_BOTTLE
     path_TBL:=path_PRF+TNames1_arr[6]+'.dat';
-    AssignFile(outPRF6, path_TBL);
-    Rewrite(outPRF6);
-    writeln(outPRF6,str_PRF1);
+                  AssignFile(outPRF6, path_TBL);
+                     Rewrite(outPRF6);
+                     writeln(outPRF6,str_PRF1);
     // 7  P_NITRITE_BOTTLE
     path_TBL:=path_PRF+TNames1_arr[7]+'.dat';
-    AssignFile(outPRF7, path_TBL);
-    Rewrite(outPRF7);
-    writeln(outPRF7,str_PRF1);
+                  AssignFile(outPRF7, path_TBL);
+                     Rewrite(outPRF7);
+                     writeln(outPRF7,str_PRF1);
     // 8  P_018_BOTTLE
-    path_TBL:=path_PRF+TNames1_arr[7]+'.dat';
-    AssignFile(outPRF7, path_TBL);
-    Rewrite(outPRF7);
-    writeln(outPRF7,str_PRF1);
+    path_TBL:=path_PRF+TNames1_arr[8]+'.dat';
+                  AssignFile(outPRF8, path_TBL);
+                     Rewrite(outPRF8);
+                     writeln(outPRF8,str_PRF1);
+    // 9  P_OXYGEN_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[9]+'.dat';
+                  AssignFile(outPRF9, path_TBL);
+                     Rewrite(outPRF9);
+                     writeln(outPRF9,str_PRF1);
+    // 10 P_PHOSPHATE_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[10]+'.dat';
+                  AssignFile(outPRF10, path_TBL);
+                     Rewrite(outPRF10);
+                     writeln(outPRF10,str_PRF1);
+    // 11 P_PHTS25P0_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[11]+'.dat';
+                  AssignFile(outPRF11, path_TBL);
+                     Rewrite(outPRF11);
+                     writeln(outPRF11,str_PRF1);
+    // 12 P_PHTSINSITUTP_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[12]+'.dat';
+                  AssignFile(outPRF12, path_TBL);
+                     Rewrite(outPRF12);
+                     writeln(outPRF12,str_PRF1);
+    // 13 P_SALINITY_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[13]+'.dat';
+                  AssignFile(outPRF13, path_TBL);
+                     Rewrite(outPRF13);
+                     writeln(outPRF13,str_PRF1);
+    // 14 P_SILICATE_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[14]+'.dat';
+                  AssignFile(outPRF14, path_TBL);
+                     Rewrite(outPRF14);
+                     writeln(outPRF14,str_PRF1);
+    // 15 P_TALK_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[15]+'.dat';
+                  AssignFile(outPRF15, path_TBL);
+                     Rewrite(outPRF15);
+                     writeln(outPRF15,str_PRF1);
+    // 16 P_TCO2_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[16]+'.dat';
+                  AssignFile(outPRF16, path_TBL);
+                     Rewrite(outPRF16);
+                     writeln(outPRF16,str_PRF1);
+    // 17 P_TDN_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[17]+'.dat';
+                  AssignFile(outPRF17, path_TBL);
+                     Rewrite(outPRF17);
+                     writeln(outPRF17,str_PRF1);
+    // 18 P_TOC_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[18]+'.dat';
+                  AssignFile(outPRF18, path_TBL);
+                     Rewrite(outPRF18);
+                     writeln(outPRF18,str_PRF1);
+    // 19 P_TEMPERATURE_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[19]+'.dat';
+                  AssignFile(outPRF19, path_TBL);
+                     Rewrite(outPRF19);
+                     writeln(outPRF19,str_PRF1);
+    // 20 P_CC14_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[20]+'.dat';
+                  AssignFile(outPRF20, path_TBL);
+                     Rewrite(outPRF20);
+                     writeln(outPRF20,str_PRF1);
+    // 21 P_PCCL4_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[21]+'.dat';
+                  AssignFile(outPRF21, path_TBL);
+                     Rewrite(outPRF21);
+                     writeln(outPRF21,str_PRF1);
+    // 22 P_CFC113_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[22]+'.dat';
+                  AssignFile(outPRF22, path_TBL);
+                     Rewrite(outPRF22);
+                     writeln(outPRF22,str_PRF1);
+    // 23 P_PCFC113_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[23]+'.dat';
+                  AssignFile(outPRF23, path_TBL);
+                     Rewrite(outPRF23);
+                     writeln(outPRF23,str_PRF1);
+    // 24 P_CFC11_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[24]+'.dat';
+                  AssignFile(outPRF24, path_TBL);
+                     Rewrite(outPRF24);
+                     writeln(outPRF24,str_PRF1);
+    // 25 P_PCFC11_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[25]+'.dat';
+                  AssignFile(outPRF25, path_TBL);
+                     Rewrite(outPRF25);
+                     writeln(outPRF25,str_PRF1);
+    // 26 P_CFC12_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[26]+'.dat';
+                  AssignFile(outPRF26, path_TBL);
+                     Rewrite(outPRF26);
+                     writeln(outPRF26,str_PRF1);
+    // 27 P_PCFC12_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[27]+'.dat';
+                  AssignFile(outPRF27, path_TBL);
+                     Rewrite(outPRF27);
+                     writeln(outPRF27,str_PRF1);
+    // 28 P_SF6_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[28]+'.dat';
+                  AssignFile(outPRF28, path_TBL);
+                     Rewrite(outPRF28);
+                     writeln(outPRF28,str_PRF1);
+    // 29 P_PSF6_BOTTLE
+    path_TBL:=path_PRF+TNames1_arr[29]+'.dat';
+                  AssignFile(outPRF29, path_TBL);
+                     Rewrite(outPRF29);
+                     writeln(outPRF29,str_PRF1);
 
-    //DB TBL Type1 fields:8 PRES VAL
-    //DB TBL Type2 fields:9 PRES VAL VALERR
-    str_PRF1:='ID PRES VAL PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
-    str_PRF2:='ID PRES VAL VALERR PQF1 PQF2 SQF BOTTLE_NUMBER UNITS_ID';
+    //create TBL files on disk Type 2
+    // 1  P_C14_BOTTLE ->30
+    path_TBL:=path_PRF+TNames2_arr[1]+'.dat';
+                  AssignFile(outPRF30, path_TBL);
+                     Rewrite(outPRF30);
+                     writeln(outPRF30,str_PRF2);
+    // 2  P_HE3_BOTTLE ->31
+    path_TBL:=path_PRF+TNames2_arr[2]+'.dat';
+                  AssignFile(outPRF31, path_TBL);
+                     Rewrite(outPRF31);
+                     writeln(outPRF31,str_PRF2);
+    // 3  P_HE_BOTTLE ->32
+    path_TBL:=path_PRF+TNames2_arr[3]+'.dat';
+                  AssignFile(outPRF32, path_TBL);
+                     Rewrite(outPRF32);
+                     writeln(outPRF32,str_PRF2);
+    // 4  P_NEON_BOTTLE ->33
+    path_TBL:=path_PRF+TNames2_arr[4]+'.dat';
+                  AssignFile(outPRF33, path_TBL);
+                     Rewrite(outPRF33);
+                     writeln(outPRF33,str_PRF2);
+    // 5  P_H3_BOTTLE ->34
+    path_TBL:=path_PRF+TNames2_arr[5]+'.dat';
+                  AssignFile(outPRF34, path_TBL);
+                     Rewrite(outPRF34);
+                     writeln(outPRF34,str_PRF2);
 
 
-
-
+//START SPLITING
    Reset(dat);
    readln(dat, st);
-
-
    line:=1;
    PRF_count:=0;
+showmessage('#############################1');
 
-{st}for kst:=1 to RSt-1 do begin
+{ST}for kst:=1 to RSt-1 do begin
 
    if CDS_DSC.Active then CDS_DSC.Close;
      CDS_DSC.Open;
@@ -796,7 +927,7 @@ begin
      L1:=line_arr[kst];      //station begin
      L2:=line_arr[kst+1]-1;  //station end
 
-     //memo1.Lines.Add('kst='+inttostr(kst)+'   L1:'+inttostr(L1)+'->'+inttostr(L2));
+     memo1.Lines.Add('kst='+inttostr(kst)+'   L1:'+inttostr(L1)+'->'+inttostr(L2));
 
 {L}for kL:=L1 to L2 do begin    //file scroll
      readln(dat, st);
@@ -959,7 +1090,12 @@ begin
 
 
    //two different GLODAP tables types
-{TT}for kTT:=1 to 2 do begin
+{TN}for kTN:=1 to 34 do begin
+     if (kTN<=29) then kTT:=1 else kTT:=2;
+
+     TPQF1:=0;
+     TPQF2:=0;
+     TSQF:=0;
 
      //CDS Divide Station on Casts
       CDS_DSC:=TBufDataSet.Create(self);
@@ -978,11 +1114,6 @@ begin
       CDS_DSC.CreateDataSet;
 
 {T1}if kTT=1 then begin
-{TN}for kTN:=1 to 29
-      TPQF1:=0;
-      TPQF2:=0;
-      TSQF:=0;
-
    case kTN of
    1: begin
       TName:='P_AOF_BOTTLE';
@@ -1126,11 +1257,6 @@ begin
        TBottle:=stNBNum;
        TUNIT:=1;  //Degree centigrade
        end;
-{T1}end;
-
-   //разделил таблицы с разными единицами
-{T1a}if (kTT) =1 then begin
-   case kTN of
    20: begin
       TName:='P_CC14_BOTTLE';
       Tval:=cc14;
@@ -1209,16 +1335,13 @@ begin
       TBottle:=stNBNum;
       TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
       end;
-{T2}end;
+     end;{case}
+{TT} end; {'TT=1'}
+
 
 {T2}if kTT=2 then begin
-{TN}for kTN:=1 to 5
-         TPQF1:=0;
-         TPQF2:=0;
-         TSQF:=0;
-
    case kTN of
-   1: begin
+   30: begin
       TName:='P_C14_BOTTLE';
       Tval:=c14;
       Tvalerr:=c14_err;
@@ -1226,7 +1349,7 @@ begin
       TBottle:=stNBNum;
       TUNIT:=11;  //Per-mille deviation
       end;
-   2: begin
+   31: begin
       TName:='P_HE3_BOTTLE';
       Tval:=he3;
       Tvalerr:=he3_err;
@@ -1234,7 +1357,7 @@ begin
       TBottle:=stNBNum;
       TUNIT:=10;  //
       end;
-   3: begin
+   32: begin
       TName:='P_HE_BOTTLE';
       Tval:=he;
       Tvalerr:=he_err;
@@ -1242,7 +1365,7 @@ begin
       TBottle:=stNBNum;
       TUNIT:=12;  //Nano-mole per kilogram
       end;
-   4: begin
+   33: begin
       TName:='P_NEON_BOTTLE';
       Tval:=neon;
       Tvalerr:=neon_err;
@@ -1250,7 +1373,7 @@ begin
       TBottle:=stNBNum;
       TUNIT:=12;  //Nano-mole per kilogram
       end;
-   5: begin
+   34: begin
       TName:='P_H3_BOTTLE';
       Tval:=h3;
       Tvalerr:=h3_err;
@@ -1258,26 +1381,24 @@ begin
       TBottle:=stNBNum;
       TUNIT:=8;  // TU Tritium Unit
       end;
-   end;
+    end;{case}
+{T2}end; {TT=2}
 
-
-  //append to CDS
-  with CDS_DSC do begin
-     Append;
-     FieldByName('ID').AsInteger:=kst;
-     FieldByName('Press').AsFloat:=press;
-     FieldByName('Val').AsFloat:=TVal;
-     if (kTT=2) then  FieldByName('PVal').AsFloat:=TValErr;
-     FieldByName('PQF1').AsInteger:=TPQF1;
-     FieldByName('PQF2').AsInteger:=TPQF2;
-     FieldByName('SQF').AsInteger:=TSQF;
-     FieldByName('Bottle').AsInteger:=TBottle;
-     FieldByName('Station').AsInteger:=stationN;
-     FieldByName('Units_ID').AsInteger:=TUNIT;
-     Post;
-  end;
-
-
+//append to CDS
+with CDS_DSC do begin
+   Append;
+   FieldByName('ID').AsInteger:=kst;
+   FieldByName('Press').AsFloat:=press;
+   FieldByName('Val').AsFloat:=TVal;
+   if (kTT=2) then  FieldByName('PVal').AsFloat:=TValErr;
+   FieldByName('PQF1').AsInteger:=TPQF1;
+   FieldByName('PQF2').AsInteger:=TPQF2;
+   FieldByName('SQF').AsInteger:=TSQF;
+   FieldByName('Bottle').AsInteger:=TBottle;
+   FieldByName('Station').AsInteger:=stationN;
+   FieldByName('Units_ID').AsInteger:=TUNIT;
+   Post;
+end;
 
 {pr}end;{inside profiles}
 {L} end; {lines loop}
@@ -1333,16 +1454,361 @@ begin
 
 {s}while not CDS_DSC.EOF do begin
 
-  //prepare variable table  !!! make TABLES NAMES IN CYCLE
-  writeln(outPRF,inttostr(PRF_count),                      //ID
-  #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
-  #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
-  #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
-  #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
-  #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
-  #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
-  #9,inttostr(CDS_DSC.FieldByName('Cast').AsInteger),      //CAST_NUMBER
-  #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+{w1}if kTT=1 then begin
+    case kTN of
+    1: begin
+    writeln(outPRF1,inttostr(PRF_count),                      //ID
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+    end;
+    2: begin
+    writeln(outPRF2,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    3: begin
+    writeln(outPRF3,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    4: begin
+    writeln(outPRF4,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    5: begin
+    writeln(outPRF5,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    6: begin
+    writeln(outPRF6,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    7: begin
+    writeln(outPRF7,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    8: begin
+    writeln(outPRF8,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    9: begin
+    writeln(outPRF9,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    10: begin
+    writeln(outPRF10,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    11: begin
+    writeln(outPRF11,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    12: begin
+    writeln(outPRF12,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    13: begin
+    writeln(outPRF13,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    14: begin
+    writeln(outPRF14,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    15: begin
+    writeln(outPRF15,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    16: begin
+    writeln(outPRF16,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    17: begin
+    writeln(outPRF17,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    18: begin
+    writeln(outPRF18,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    19: begin
+    writeln(outPRF19,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    20: begin
+    writeln(outPRF20,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    21: begin
+    writeln(outPRF21,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    22: begin
+    writeln(outPRF22,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    23: begin
+    writeln(outPRF23,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    24: begin
+    writeln(outPRF24,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    25: begin
+    writeln(outPRF25,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    26: begin
+    writeln(outPRF26,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    27: begin
+    writeln(outPRF27,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    28: begin
+    writeln(outPRF28,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    29: begin
+    writeln(outPRF29,inttostr(PRF_count),
+    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    end;
+    end;{case}
+{w1}end;
+
+
+{w2}if kTT=2 then begin
+        case kTN of
+        30: begin
+        writeln(outPRF30,inttostr(PRF_count),                      //ID
+        #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
+        #9,floattostr(CDS_DSC.FieldByName('valerr').AsFloat),    //VALERR
+        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
+        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
+        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
+        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+        #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+        end;
+        31: begin
+        writeln(outPRF31,inttostr(PRF_count),                      //ID
+        #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
+        #9,floattostr(CDS_DSC.FieldByName('valerr').AsFloat),    //VALERR
+        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
+        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
+        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
+        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+        #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+        end;
+        32: begin
+        writeln(outPRF32,inttostr(PRF_count),                      //ID
+        #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
+        #9,floattostr(CDS_DSC.FieldByName('valerr').AsFloat),    //VALERR
+        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
+        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
+        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
+        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+        #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+        end;
+        33: begin
+        writeln(outPRF33,inttostr(PRF_count),                      //ID
+        #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
+        #9,floattostr(CDS_DSC.FieldByName('valerr').AsFloat),    //VALERR
+        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
+        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
+        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
+        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+        #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+        end;
+        34: begin
+        writeln(outPRF34,inttostr(PRF_count),                      //ID
+        #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
+        #9,floattostr(CDS_DSC.FieldByName('valerr').AsFloat),    //VALERR
+        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
+        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
+        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
+        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+        #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+        end;
+        end;{case}
+{w2}end;
 
     CDS_DSC.Next;
 
@@ -1350,29 +1816,54 @@ begin
 {i}end; //if cast exists
 {c}end; //casts
 
-{TN}end; //table names
-{TT}end; //table types
-
-
-
+{TN}end; //table names 1..34
 
      CDS_DSC.Filtered:=false;
      //CDS_DSC.Close;
      //CDS_DSC.Clear;
      //CDS_DSC.Active:=false;
 
-
-
-
 {ST}end; //real stations loop
-
-
 
   if CDS_DSC.Active=true then CDS_DSC.Close;
      CDS_DSC.Free;
 
      closefile(outMD);
-     closefile(outPRF);
+
+     closefile(outPRF1);
+     closefile(outPRF2);
+     closefile(outPRF3);
+     closefile(outPRF4);
+     closefile(outPRF5);
+     closefile(outPRF6);
+     closefile(outPRF7);
+     closefile(outPRF8);
+     closefile(outPRF9);
+     closefile(outPRF10);
+     closefile(outPRF11);
+     closefile(outPRF12);
+     closefile(outPRF13);
+     closefile(outPRF14);
+     closefile(outPRF15);
+     closefile(outPRF16);
+     closefile(outPRF17);
+     closefile(outPRF18);
+     closefile(outPRF19);
+     closefile(outPRF20);
+     closefile(outPRF21);
+     closefile(outPRF22);
+     closefile(outPRF23);
+     closefile(outPRF24);
+     closefile(outPRF25);
+     closefile(outPRF26);
+     closefile(outPRF27);
+     closefile(outPRF28);
+     closefile(outPRF29);
+     closefile(outPRF30);
+     closefile(outPRF31);
+     closefile(outPRF32);
+     closefile(outPRF33);
+     closefile(outPRF34);
 
      memo1.Lines.Add('Profiles in file: '+inttostr(PRF_count));
      memo1.Lines.Add('Spliting completed');
