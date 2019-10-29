@@ -618,7 +618,7 @@ msgid "QC"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.btncreatetables.caption
-msgid "Add Var Tables"
+msgid "Add Variable Tables"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.btndatasource.caption
@@ -630,7 +630,11 @@ msgid "DownloadData"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.btndownloadmd.caption
-msgid "DownloadMD"
+msgid "Download MD"
+msgstr ""
+
+#: tfrmloadglodap_2019_v2_product.btnsavestationmdondisk.caption
+msgid "Save Station MD"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.btnsplitonmdandprofiles.caption
@@ -642,6 +646,12 @@ msgid "frmloadGLODAP_2019_v2_product"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.checkbox1.caption
+msgctxt "tfrmloadglodap_2019_v2_product.checkbox1.caption"
+msgid "Write into DB"
+msgstr ""
+
+#: tfrmloadglodap_2019_v2_product.checkbox2.caption
+msgctxt "tfrmloadglodap_2019_v2_product.checkbox2.caption"
 msgid "Write into DB"
 msgstr ""
 

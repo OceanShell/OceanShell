@@ -5,7 +5,7 @@
 //    number of lines in file (1175007)
 //    creation of an array of names on the first line (var_name[1..200])
 //
-// II.Second file scroll btnDownloadMD
+// II.Second file scroll btnSaveStationMDonDisk
 //    extract metadata from strings
 //    string conversion to values and date
 //    counting the number of cruises (840), stations (52299), castes (42112)
@@ -36,15 +36,18 @@ type
 
   TfrmloadGLODAP_2019_v2_product = class(TForm)
     btnDataSource: TButton;
-    btnDownloadMD: TButton;
+    btnSaveStationMDonDisk: TButton;
     btnCreateTables: TButton;
     btnDownloadData: TButton;
     btnSplitOnMDandProfiles: TButton;
+    btnDownloadMD: TButton;
     CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
     Memo1: TMemo;
     Panel1: TPanel;
     procedure btnDataSourceClick(Sender: TObject);
     procedure btnDownloadMDClick(Sender: TObject);
+    procedure btnSaveStationMDonDiskClick(Sender: TObject);
     procedure btnDownloadDataClick(Sender: TObject);
 
     procedure btnCreateTablesClick(Sender: TObject);
@@ -63,7 +66,9 @@ var
   var_name:array[1..200] of string;     //variables names
   line_arr:array[1..100000] of integer; //profile intervals at stations
   Dat, out, outMD :text;
-  CDS_DSC:TBufDataSet; //CDS Divide stations on casts
+  CDS_DSC1,CDS_DSC2:TBufDataSet; //CDS Divide stations on casts
+  CDS_DSC:TBufDataSet; //ПОТОМ УБРАТЬ
+
 
   outPRF1,outPRF2,outPRF3,outPRF4,outPRF5,outPRF6,outPRF7,outPRF8,outPRF9:text;
   outPRF10,outPRF11,outPRF12,outPRF13,outPRF14,outPRF15,outPRF16,outPRF17:text;
@@ -286,25 +291,244 @@ begin
 
      Panel1.Visible:=true;
      btnSplitOnMDandProfiles.Visible:=true;
-     //btnDownloadMD.Visible:=true;
+     //btnSaveStationMDonDisk.Visible:=true;
 
      memo1.Lines.Add('Stations in file          :'+inttostr(RSt-1));
 end;
 
 
+
+
 procedure TfrmloadGLODAP_2019_v2_product.btnDownloadMDClick(Sender: TObject);
 var
-i,kv,line,n,mik:integer;
-cruiseN,stationN,castN,stNBNum,cast_max:integer;
+kst,kL,kv,kc,n:integer;
+L1,L2:integer;
+PRF_count,Cast_MaxN:integer;
+cruiseN,stationN,castN,stNBNum,StVersion,countDup:integer;
+Year,Month,Day,Hour,Min:integer;
+stlat,stlon,stBD,stPDS,stMDS:real;
+press:real;
+symbol:char;
+st,buf_str,str_MD,path_MD:string;
+StDT:TDateTime;
+DayChange,DateChange:boolean;
+begin
+
+ path_MD:='c:\Users\ako071\AK\datasets\GLODAP\download\STATION.dat';
+
+ str_MD:='ID'+#9+'LATITUDE'+#9+'LONGITUDE'+#9+'DATEANDTIME'+#9+'BOTTOMDEPTH'
+ +#9+'LASTLEV_M'+#9+'LASTLEV_DBAR'+#9+'CRUISE_ID'+#9+'INSTRUMENT_ID'
+ +#9+'ST_NUM_ORIGIN'+#9+'ST_ID_ORIGIN'+#9+'CAST_NUMBER'
+ +#9+'QCFLAG'+#9+'STVERSION'+#9+'MERGED'+#9+'DATE_ADDED'+#9+'DATE_UPDATED';
+
+ AssignFile(outMD, path_MD); Rewrite(outMD);
+ writeln(outMD,str_MD);
+
+  //CDS Divide Station on Casts
+   CDS_DSC:=TBufDataSet.Create(self);
+  with CDS_DSC.FieldDefs do begin
+    Add('ID',  ftInteger,0,true);
+    Add('Press', ftFloat,0,true);
+    Add('Bottle',  ftInteger,0,true);
+    Add('Station',  ftInteger,0,true);
+    Add('Cast',  ftInteger,0,true);
+  end;
+   CDS_DSC.CreateDataSet;
+   Reset(dat);
+   readln(dat, st);
+   PRF_count:=0;
+{ST}for kst:=1 to RSt-1 do begin  //GLODAP Stations
+
+  if CDS_DSC.Active then CDS_DSC.Close;
+    CDS_DSC.Open;
+
+
+    L1:=line_arr[kst];      //station begin
+    L2:=line_arr[kst+1]-1;  //station end
+    //memo1.Lines.Add('kst='+inttostr(kst)+'   L1:'+inttostr(L1)+'->'+inttostr(L2));
+
+
+{L}for kL:=L1 to L2 do begin    //GLODAP station
+         readln(dat, st);
+         st:=trim(st);
+
+
+//string analysis
+               n:=0;
+         {kv}for kv:=1 to var_num do begin
+               buf_str:='';
+         {s}repeat
+               inc(n);
+               symbol:=st[n];
+               if (symbol<>',') then buf_str:=buf_str+symbol;
+         {s}until (symbol=',') or (n=length(st));
+
+         {b}if buf_str<>'' then begin
+              case kv of
+              1: cruiseN:=trunc(strtofloat(buf_str));
+              2: stationN:=trunc(strtofloat(buf_str));
+              3: castN:=trunc(strtofloat(buf_str));
+              4: year:=trunc(strtofloat(buf_str));
+              5: month:=trunc(strtofloat(buf_str));
+              6: day:=trunc(strtofloat(buf_str));
+              7: hour:=trunc(strtofloat(buf_str));
+              8: min:=trunc(strtofloat(buf_str));
+              9: stlat:=strtofloat(buf_str);
+             10: stlon:=strtofloat(buf_str);
+             11: stBD:=strtofloat(buf_str);                    //bottom depth m
+             12: stPDS:=strtofloat(buf_str);                   //pressure of the deepest sample
+             13: stNBNum:=trunc(strtofloat(buf_str));          //Niskin bottle number
+             14: press:=strtofloat(buf_str);                   //sampling pressure dbar
+             end;{case}
+         {b}end;
+
+         {kv}end;
+//end string analysis
+
+   with CDS_DSC do begin
+    Append;
+    FieldByName('ID').AsInteger:=kst;
+    FieldByName('Press').AsFloat:=press;
+    FieldByName('Bottle').AsInteger:=stNBNum;
+    FieldByName('Station').AsInteger:=stationN;
+    FieldByName('Cast').AsInteger:=castN;
+    Post;
+  end;
+{L}end;
+
+   StDT:= procedures.DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
+
+   CDS_DSC.First;
+   Cast_MaxN:=CDS_DSC.FieldByName('Cast').AsInteger;
+{s}while not CDS_DSC.EOF do begin
+   if Cast_MaxN<CDS_DSC.FieldByName('Cast').AsInteger
+   then Cast_MaxN:=CDS_DSC.FieldByName('Cast').AsInteger;
+   CDS_DSC.Next;
+{s}end;
+
+{c}for kc:=1 to cast_maxN do begin
+    CDS_DSC.Filter:='CAST='+inttostr(kc);
+    CDS_DSC.Filtered:=true;               //filter by cast
+    CDS_DSC.IndexFieldNames:='Press';     //sort by press
+
+{CAST}if CDS_DSC.IsEmpty=false then begin
+        CDS_DSC.First;
+        PRF_count:=PRF_count+1;
+
+        StDT:= procedures.DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
+        stMDS:=declarations_gsw.gsw_z_from_p(stPDS,stlat);
+
+        //memo1.Lines.Add('ID='+inttostr(PRF_count)
+        //+'   Cruise:'+inttostr(CruiseN)
+        //+'  Station:'+inttostr(StationN)
+        //+'  Cast:'+inttostr(CastN));
+
+        //STATION
+        writeln(outMD,inttostr(PRF_count),  //ID
+        #9,floattostr(stlat),       //LATITUDE
+        #9,floattostr(stlon),       //LONGITUDE
+        #9,datetimetostr(StDT),    //DATEANDTIME
+        #9,floattostr(stBD),        //BOTTOMDEPTH
+        #9,floattostr(stMDS),        //LASTLEVEL_M   !!!CONVERT
+        #9,floattostr(stPDS),        //LASTLEVEL_DBAR
+        #9,inttostr(CruiseN),        //CRUISEID
+        #9,inttostr(7),        //INSTRUMENT_ID
+        #9,inttostr(StationN),        //ST_NUM_ORIGIN
+        #9,inttostr(0),              //ST_ID_ORIGIN
+        #9,inttostr(kc),           //CAST_NUMBER
+        #9,inttostr(1),               //QCFLAG
+        #9,inttostr(1),               //STVERSION
+        #9,inttostr(1),               //MERGED
+        #9,datetimetostr(NOW),        //DATE_ADDED
+        #9,datetimetostr(NOW));      //DATE_UPDATED
+
+
+
+//write MD into GLODAPv2_2019_PRODUCT.FDB
+{wDB}if CheckBox1.Checked then begin
+
+             StVersion:=0;
+           with frmdm.q1 do begin
+             Close;
+              SQL.Clear;
+              SQL.Add(' Select count(ID) as CountDup from STATION ');
+              SQL.Add(' where DATEANDTIME=:stDT and ');
+              SQL.Add(' Latitude=:stlat and Longitude=:stlon and CAST_NUMBER=:CAST_NUMBER ');
+              ParamByName('stDT').AsDateTime:=stDT;
+              ParamByName('stlat' ).Asfloat:=stlat;
+              ParamByName('stlon' ).AsFloat:=stlon;
+              ParamByName('CAST_NUMBER').AsInteger:=castN;
+              Open;
+                CountDup:=FieldByName('CountDup').AsInteger;
+              Close;
+           end;
+             if CountDup>0 then StVersion:=CountDup+1;
+
+           with frmdm.q2 do begin
+             Close;
+              SQL.Clear;
+              SQL.Add(' INSERT INTO STATION ' );
+              SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, LASTLEVEL_M, ' );
+              SQL.Add('  LASTLEVEL_DBAR, CRUISE_ID, INSTRUMENT_ID, ST_NUMBER_ORIGIN, ST_ID_ORIGIN, ' );
+              SQL.Add('  CAST_NUMBER, QCFLAG, STVERSION, MERGED, DATE_ADDED, DATE_UPDATED ) ' );
+              SQL.Add(' VALUES ' );
+              SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :BOTTOMDEPTH, :LASTLEVEL_M, ' );
+              SQL.Add('  :LASTLEVEL_DBAR, :CRUISE_ID, :INSTRUMENT_ID, :ST_NUMBER_ORIGIN, :ST_ID_ORIGIN, ' );
+              SQL.Add('  :CAST_NUMBER, :QCFLAG, :STVERSION, :MERGED, :DATE_ADDED, :DATE_UPDATED ) ' );
+              ParamByName('ID'               ).Value:=PRF_count;
+              ParamByName('LATITUDE'         ).Value:=stlat;
+              ParamByName('LONGITUDE'        ).Value:=stlon;
+              ParamByName('DATEANDTIME'      ).Value:=stDT;
+              ParamByName('BOTTOMDEPTH'      ).Value:=stBD;
+              ParamByName('LASTLEVEL_M'      ).Value:=stMDS;
+              ParamByName('LASTLEVEL_DBAR'   ).Value:=stPDS;
+              ParamByName('CRUISE_ID'        ).Value:=cruiseN;
+              ParamByName('INSTRUMENT_ID'    ).Value:=7; //bottle type unknown
+              ParamByName('ST_NUMBER_ORIGIN' ).Value:=inttostr(stationN);
+              ParamByName('ST_ID_ORIGIN'     ).Value:=0;
+              ParamByName('CAST_NUMBER'      ).Value:=kc;
+              ParamByName('QCFLAG'           ).Value:=0;
+              ParamByName('STVERSION'        ).Value:=stversion;
+              ParamByName('MERGED'           ).Value:=0;
+              ParamByName('DATE_ADDED'       ).Value:=Now;
+              ParamByName('DATE_UPDATED'     ).Value:=Now;
+             ExecSQL;
+           end;
+
+              frmdm.TR.CommitRetaining;
+{wDB}end;
+        CDS_DSC.Next;
+{CAST}end;
+        CDS_DSC.Filtered:=false;
+{c}end; {kc 1..cast_maxN}
+{ST}end; {kst 1..RSt-1}
+
+  if CDS_DSC.Active=true then CDS_DSC.Close;
+     CDS_DSC.Free;
+  closefile(outMD);
+
+  memo1.Lines.Add('Profiles in file: '+inttostr(PRF_count));
+  btnDownloadData.Visible:=true;
+end;
+
+
+
+
+
+procedure TfrmloadGLODAP_2019_v2_product.btnSaveStationMDonDiskClick(Sender: TObject);
+var
+i,k,kv,line,n,mik,L:integer;
+cruiseN,stationN,castN,stNBNum,cast_max,st_count:integer;
 year,month,day,hour,min:integer;
-stlat,stlon,stBD,stPDS,stLLM:real;
+stlat,stlon,stBD,stPDS,stMDS:real;
 buf:real;
 symbol:char;
 st,buf_str:string;
 StDate,StTime,StDT:TDateTime;
 DayChange,DateChange:Boolean;
 ww:boolean; //workedwell
-
+NextStFound:boolean;
+str_out:string;
 
 //values
 press,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
@@ -326,9 +550,12 @@ cast_count:Integer;
 CountDup,StVersion:integer;
 
 begin
-{   path_out:='c:\Users\ako071\AK\datasets\GLODAP\output_MD_Load.dat';
+   path_out:='c:\Users\ako071\AK\datasets\GLODAP\download\GLODAP_STATIONS.dat';
    AssignFile(out, Path_out); Rewrite(out);
-   writeln(out,'Rst#  line#  cruise#  st#  cast#  date  lat  lon  BD  LastPress bottle#');
+   str_out:='st_count'+#9+'lat'+#9+'lon'+#9+'datetime'+#9+'BD[m]'+#9+'LastLev[m]'
+   +#9+'LastLev[dbar]'+#9+'Cruise#'+#9+'Instrument_ID'+#9+'Station#'+#9+'StID'
+   +#9+'Cast#'+#9+'QCFlag'+#9+'StVersion'+#9+'Megged'+#9+'DateAdded'+#9+'LineInFile';
+   writeln(out,str_out);
 
 
    memo1.Lines.Add('');
@@ -339,14 +566,14 @@ begin
    //memo1.Lines.Add('Lines in file:'+inttostr(LinesInFile));
 
 
+
    Reset(dat);
-
+   st_count:=0;
    cast_max:=1;
-
-{i}for i:=1 to LinesInFile do begin
+{LF}for i:=1 to LinesInFile-1 do begin
      readln(dat, st);
      st:=trim(st);
-     //showmessage('line='+inttostr(line)+'  length='+inttostr(length(st)));
+     //showmessage('line='+inttostr(i)+'  length='+inttostr(length(st)));
 
      NextStFound:=false;
    for k:=1 to RSt do begin
@@ -354,18 +581,16 @@ begin
      if (i=L) then NextStFound:=true;
    end;
 
-{N}if NextStFound=true then begin
+{NS}if NextStFound=true then begin
 
+     st_count:=st_count+1;
      stlat:=-9999;
      stlon:=-9999;
      stPDS:=-9999;
      stNBNum:=-9999;
 
-     newCruise:=false;
-     newStation:=false;
-     newCast:=false;
 
-//string analysis
+//START string analysis
      n:=0;
 {kv}for kv:=1 to var_num do begin
      buf_str:='';
@@ -378,7 +603,7 @@ begin
 {b}if buf_str<>'' then begin
 
   if not TryStrToFloat(buf_str, buf)
-  then showmessage ('trystrtofloat line='+inttostr(line)+' '+buf_str);
+  then showmessage ('trystrtofloat line='+inttostr(i)+' '+buf_str);
 
     case kv of
     1: cruiseN:=trunc(strtofloat(buf_str));
@@ -511,40 +736,46 @@ begin
   101: chla:=strtofloat(buf_str);                    //chla:chlorophylla
   102: chla_pQF1:=trunc(strtofloat(buf_str));        //pQF1
     end;{case}
-
-{kv}end;
-
 {b}end;
+{kv}end;
+//END string analysis
 
-    //dates
-    //stDate:=EncodeDate(year,month,day);
-    //stTime:=EncodeTime(hour,min,0,0);
-    //ODBPr_ConvertDateTime(year,month,day,hour,min,StDate,StTime,MonthErr,TimeErr);
+
+    //convert date and time into datetime
     StDT:= procedures.DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
     if DayChange=true then memo1.Lines.Add('Day was changed in line='
-                           +inttostr(line)
-                           +'  '+inttostr(day)+'.'+inttostr(month)+'.'+inttostr(year)
-                           +'  '+inttostr(hour)+':'+inttostr(min));
+                      +inttostr(i)
+                      +'  '+inttostr(day)+'.'+inttostr(month)+'.'+inttostr(year)
+                      +'  '+inttostr(hour)+':'+inttostr(min));
     if DateChange=true then memo1.Lines.Add('Date was changed in line='
-                           +inttostr(line)
-                           +'  '+inttostr(day)+'.'+inttostr(month)+'.'+inttostr(year)
-                           +'  '+inttostr(hour)+':'+inttostr(min));
+                      +inttostr(i)
+                      +'  '+inttostr(day)+'.'+inttostr(month)+'.'+inttostr(year)
+                      +'  '+inttostr(hour)+':'+inttostr(min));
 
 
-      writeln(out,inttostr(RSt),
-      #9,inttostr(line),
-      #9,inttostr(cruiseN),
-      #9,inttostr(stationN),
-      #9,inttostr(castN),
-      //#9,datetostr(stdate),
-      //#9,timetostr(sttime),
-      #9,datetimetostr(stDT),
-      #9,floattostr(stlat),
-      #9,floattostr(stlon),
-      #9,floattostr(stBD),
-      #9,floattostr(stPDS),
-      #9,inttostr(stNBNum)
-      );
+
+    (* Last level from dbar to meters TEOS10 *)
+    stMDS:=declarations_gsw.gsw_z_from_p(stPDS, stlat);
+
+
+      writeln(out,inttostr(st_count),       //stations count
+      #9,floattostrF(stlat,FFFixed,10,5),    //LATITUDE
+      #9,floattostrF(stlon,FFFixed,12,5),    //LONGITUDE
+      #9,datetimetostr(stDT):20,           //DATEANDTIME
+      #9,floattostrF(stBD,FFFixed,7,1),     //BOTTOMDEPTH
+      #9,floattostrF(stMDS,FFFixed,7,1), //LASTLEVVEL_M
+      #9,floattostrF(stPDS,FFFixed,7,1), //LASTLEVVEL_M
+      #9,inttostr(cruiseN), //CRUISE_ID
+      #9,inttostr(7),        //INSTRUMENT_ID
+      #9,inttostr(stationN), //ST_NUMBER_ORIGIN
+      #9,inttostr(0),        //ST_ID_ORIGIN
+      #9,inttostr(castN),    //CAST_NUMBER
+      #9,inttostr(0),        //QCFLAG
+      #9,inttostr(0),        //STVERSION
+      #9,inttostr(0),        //MERGED
+      #9,datetimetostr(NOW), //DATE_ADDED
+      #9,inttostr(i));
+
 
     //memo1.Lines.Add(inttostr(line)
     //+#9+inttostr(cruiseN)
@@ -553,7 +784,7 @@ begin
     //);
 
 //write MD into GLODAPv2_2019_PRODUCT.FDB
-{w}if CheckBox1.Checked then begin
+{wDB}if CheckBox1.Checked then begin
 
      StVersion:=1;
    with frmdm.q1 do begin
@@ -561,10 +792,11 @@ begin
       SQL.Clear;
       SQL.Add(' Select count(ID) as CountDup from STATION ');
       SQL.Add(' where DATEANDTIME=:stDT and ');
-      SQL.Add(' Latitude=:stlat and Longitude=:stlon ');
+      SQL.Add(' Latitude=:stlat and Longitude=:stlon and CAST_NUMBER=:CAST_NUMBER ');
       ParamByName('stDT').AsDateTime:=stDT;
       ParamByName('stlat' ).Asfloat:=stlat;
       ParamByName('stlon' ).AsFloat:=stlon;
+      ParamByName('CAST_NUMBER').AsInteger:=castN;
       Open;
         CountDup:=FieldByName('CountDup').AsInteger;
       Close;
@@ -572,73 +804,58 @@ begin
 
      if CountDup>0 then begin
        StVersion:=CountDup+1;
+       memo1.Lines.Add('Duplicate found in line='+inttostr(i));
      end;
 
      //memo1.Lines.Add(inttostr(RSt)+#9+datetimetostr(NOW));
 
-   (* Last level from dbar to meters *)
-   stLLM:=declarations_gsw.gsw_z_from_p(stPDS, stlat);
 
    with frmdm.q2 do begin
      Close;
       SQL.Clear;
       SQL.Add(' INSERT INTO STATION ' );
       SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, LASTLEVEL_M, ' );
-      SQL.Add('  LASTLEVEL_DBAR, CRUISE_ID, INSTRUMENT_ID, STATIONID, STATIONID_ORIG, ' );
-      SQL.Add('  QCFLAG, STVERSION, MERGED, DATE_ADDED, DATE_UPDATED ) ' );
+      SQL.Add('  LASTLEVEL_DBAR, CRUISE_ID, INSTRUMENT_ID, ST_NUMBER_ORIGIN, ST_ID_ORIGIN, ' );
+      SQL.Add('  CAST_NUMBER, QCFLAG, STVERSION, MERGED, DATE_ADDED, DATE_UPDATED ) ' );
       SQL.Add(' VALUES ' );
       SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :BOTTOMDEPTH, :LASTLEVEL_M, ' );
-      SQL.Add('  :LASTLEVEL_DBAR, :CRUISE_ID, :INSTRUMENT_ID, :STATIONID, :STATIONID_ORIG, ' );
-      SQL.Add('  :QCFLAG, :STVERSION, :MERGED, :DATE_ADDED, :DATE_UPDATED ) ' );
-      ParamByName('ID'            ).Value:=RSt-1;
-      ParamByName('LATITUDE'      ).Value:=stlat;
-      ParamByName('LONGITUDE'     ).Value:=stlat;
-      ParamByName('DATEANDTIME'   ).Value:=stDT;
-      ParamByName('BOTTOMDEPTH'   ).Value:=stBD;
-      ParamByName('LASTLEVEL_M'   ).Value:=stLLM;
-      ParamByName('LASTLEVEL_DBAR').Value:=stPDS;
-      ParamByName('CRUISE_ID'     ).Value:=cruiseN;
-      ParamByName('INSTRUMENT_ID' ).Value:=7; //bottle type unknown
-      ParamByName('STATIONID'     ).Value:='';
-      ParamByName('STATIONID_ORIG').Value:=stationN;
-      ParamByName('QCFLAG'        ).Value:=0;
-      ParamByName('STVERSION'     ).Value:=stversion;
-      ParamByName('MERGED'        ).Value:=0;
-      ParamByName('DATE_ADDED'    ).Value:=Now;
-      ParamByName('DATE_UPDATED'  ).Value:=Now;
+      SQL.Add('  :LASTLEVEL_DBAR, :CRUISE_ID, :INSTRUMENT_ID, :ST_NUMBER_ORIGIN, :ST_ID_ORIGIN, ' );
+      SQL.Add('  :CAST_NUMBER, :QCFLAG, :STVERSION, :MERGED, :DATE_ADDED, :DATE_UPDATED ) ' );
+      ParamByName('ID'               ).Value:=RSt-1;
+      ParamByName('LATITUDE'         ).Value:=stlat;
+      ParamByName('LONGITUDE'        ).Value:=stlat;
+      ParamByName('DATEANDTIME'      ).Value:=stDT;
+      ParamByName('BOTTOMDEPTH'      ).Value:=stBD;
+      ParamByName('LASTLEVEL_M'      ).Value:=stMDS;
+      ParamByName('LASTLEVEL_DBAR'   ).Value:=stPDS;
+      ParamByName('CRUISE_ID'        ).Value:=cruiseN;
+      ParamByName('INSTRUMENT_ID'    ).Value:=7; //bottle type unknown
+      ParamByName('ST_NUMBER_ORIGIN' ).Value:=inttostr(stationN);
+      ParamByName('ST_ID_ORIGIN'     ).Value:=0;
+      ParamByName('CAST_NUMBER'      ).Value:=castN;
+      ParamByName('QCFLAG'           ).Value:=0;
+      ParamByName('STVERSION'        ).Value:=stversion;
+      ParamByName('MERGED'           ).Value:=0;
+      ParamByName('DATE_ADDED'       ).Value:=Now;
+      ParamByName('DATE_UPDATED'     ).Value:=Now;
      ExecSQL;
    end;
 
       frmdm.TR.CommitRetaining;
 
-{w}end;
+{wDB}end;
 
-
-
-{MD}end;
-
-//{r}until eof(dat);
-//{w}end;
-{i}end; {lines }
+{NS}end;{next station found}
+{LF}end; {1..LinesInFile}
 
    CloseFile(dat);
    CloseFile(out);
-   //last line in file
-   RSt:=RSt+1;
-   line_arr[RSt]:=LinesInFile;
-
 
    memo1.Lines.Add('End of file');
-   memo1.Lines.Add('cruises#       ='+inttostr(cruise_count));
-   memo1.Lines.Add('stations#      ='+inttostr(station_count));
-   memo1.Lines.Add('casts#         ='+inttostr(cast_count));
+   memo1.Lines.Add('Stations# ='+inttostr(st_count));
    memo1.Lines.Add('cast max       ='+inttostr(cast_max));
-   memo1.Lines.Add('Real Stations# ='+inttostr(RSt));
 
    btnDownloadData.Visible:=true;
-
-//showmessage('L1 L2:  '+inttostr(line_arr[1])+'  '+inttostr(line_arr[2]));
-}
 end;
 
 
@@ -725,7 +942,7 @@ begin
 
  path_MD:='c:\Users\ako071\AK\datasets\GLODAP\download\STATION.dat';
  str_MD:='ID LATITUDE LONGITUDE DATEANDTIME BOTTOMDEPTH LASTLEV_M LASTLEV_DBAR ' +
- 'CRUISE_ID INSTRUMENT_ID STATION_NUM_ORIGin STATION_ID_ORIGin CAST_NUMBER ' +
+ 'CRUISE_ID INSTRUMENT_ID ST_NUM_ORIGIN ST_ID_ORIGIN CAST_NUMBER ' +
  'QFLAG STVERSION MERGED DATE_ADDED DATE_UPDATED';
 
  AssignFile(outMD, path_MD); Rewrite(outMD);
@@ -912,17 +1129,51 @@ begin
                      writeln(outPRF34,str_PRF2);
 
 
-//START SPLITING
-   Reset(dat);
-   readln(dat, st);
-   line:=1;
-   PRF_count:=0;
-showmessage('#############################1');
+//CDS Divide Station on Casts Type 1
+ CDS_DSC1:=TBufDataSet.Create(self);
+with CDS_DSC1.FieldDefs do begin
+  Add('ID',  ftInteger,0,true);
+  Add('Press', ftFloat,0,true);
+  Add('Val', ftFloat,0,true);
+  Add('PQF1',  ftInteger,0,true);
+  Add('PQF2',  ftInteger,0,true);
+  Add('SQF', ftInteger, 0,true);
+  Add('Bottle',  ftInteger,0,true);
+  Add('Station',  ftInteger,0,true);
+  Add('Cast',  ftInteger,0,true);
+  Add('Units_ID',  ftInteger,0,true);
+end;
+ CDS_DSC1.CreateDataSet;
 
+ //CDS Divide Station on Casts  Type2 (+ValErr)
+ CDS_DSC2:=TBufDataSet.Create(self);
+with CDS_DSC2.FieldDefs do begin
+  Add('ID',  ftInteger,0,true);
+  Add('Press', ftFloat,0,true);
+  Add('Val', ftFloat,0,true);
+  Add('ValErr', ftFloat,0,true);
+  Add('PQF1',  ftInteger,0,true);
+  Add('PQF2',  ftInteger,0,true);
+  Add('SQF', ftInteger, 0,true);
+  Add('Bottle',  ftInteger,0,true);
+  Add('Station',  ftInteger,0,true);
+  Add('Cast',  ftInteger,0,true);
+  Add('Units_ID',  ftInteger,0,true);
+end;
+ CDS_DSC2.CreateDataSet;
+
+
+ //START SPLITING
+    Reset(dat);
+    readln(dat, st);
+    line:=1;
+    PRF_count:=0;
 {ST}for kst:=1 to RSt-1 do begin
 
-   if CDS_DSC.Active then CDS_DSC.Close;
-     CDS_DSC.Open;
+   if CDS_DSC1.Active then CDS_DSC1.Close;
+     CDS_DSC1.Open;
+   if CDS_DSC2.Active then CDS_DSC2.Close;
+     CDS_DSC2.Open;
 
      L1:=line_arr[kst];      //station begin
      L2:=line_arr[kst+1]-1;  //station end
@@ -1089,29 +1340,13 @@ showmessage('#############################1');
    //DB TBL Type2 fields:9 PRES VAL VALERR
 
 
-   //two different GLODAP tables types
+
 {TN}for kTN:=1 to 34 do begin
-     if (kTN<=29) then kTT:=1 else kTT:=2;
+     if (kTN<=29) then kTT:=1 else kTT:=2; //two different GLODAP tables types
 
      TPQF1:=0;
      TPQF2:=0;
      TSQF:=0;
-
-     //CDS Divide Station on Casts
-      CDS_DSC:=TBufDataSet.Create(self);
-     with CDS_DSC.FieldDefs do begin
-       Add('ID',  ftInteger,0,true);
-       Add('Press', ftFloat,0,true);
-       Add('Val', ftFloat,0,true);
-       if kTT=2 then Add('ValErr', ftFloat,0,true);
-       Add('PQF1',  ftInteger,0,true);
-       Add('PQF2',  ftInteger,0,true);
-       Add('SQF', ftInteger, 0,true);
-       Add('Bottle',  ftInteger,0,true);
-       Add('Station',  ftInteger,0,true);
-       Add('Units_ID',  ftInteger,0,true);
-     end;
-      CDS_DSC.CreateDataSet;
 
 {T1}if kTT=1 then begin
    case kTN of
@@ -1336,10 +1571,10 @@ showmessage('#############################1');
       TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
       end;
      end;{case}
-{TT} end; {'TT=1'}
+{T1}end;
 
 
-{T2}if kTT=2 then begin
+{T2}if (kTT=2) then begin
    case kTN of
    30: begin
       TName:='P_C14_BOTTLE';
@@ -1382,57 +1617,76 @@ showmessage('#############################1');
       TUNIT:=8;  // TU Tritium Unit
       end;
     end;{case}
-{T2}end; {TT=2}
+{T2}end;
 
-//append to CDS
-with CDS_DSC do begin
-   Append;
-   FieldByName('ID').AsInteger:=kst;
-   FieldByName('Press').AsFloat:=press;
-   FieldByName('Val').AsFloat:=TVal;
-   if (kTT=2) then  FieldByName('PVal').AsFloat:=TValErr;
-   FieldByName('PQF1').AsInteger:=TPQF1;
-   FieldByName('PQF2').AsInteger:=TPQF2;
-   FieldByName('SQF').AsInteger:=TSQF;
-   FieldByName('Bottle').AsInteger:=TBottle;
-   FieldByName('Station').AsInteger:=stationN;
-   FieldByName('Units_ID').AsInteger:=TUNIT;
-   Post;
-end;
+
+   //append to CDS Type1
+   if kTT=1 then
+   with CDS_DSC1 do begin
+     Append;
+     FieldByName('ID').AsInteger:=kst;
+     FieldByName('Press').AsFloat:=press;
+     FieldByName('Val').AsFloat:=TVal;
+     FieldByName('PQF1').AsInteger:=TPQF1;
+     FieldByName('PQF2').AsInteger:=TPQF2;
+     FieldByName('SQF').AsInteger:=TSQF;
+     FieldByName('Bottle').AsInteger:=TBottle;
+     FieldByName('Station').AsInteger:=stationN;
+     FieldByName('Cast').AsInteger:=CastN;
+     FieldByName('Units_ID').AsInteger:=TUNIT;
+     Post;
+   end;
+
+   //append to CDS Type1
+   if kTT=2 then
+   with CDS_DSC2 do begin
+     Append;
+     FieldByName('ID').AsInteger:=kst;
+     FieldByName('Press').AsFloat:=press;
+     FieldByName('Val').AsFloat:=TVal;
+     FieldByName('ValErr').AsFloat:=TValErr;
+     FieldByName('PQF1').AsInteger:=TPQF1;
+     FieldByName('PQF2').AsInteger:=TPQF2;
+     FieldByName('SQF').AsInteger:=TSQF;
+     FieldByName('Bottle').AsInteger:=TBottle;
+     FieldByName('Station').AsInteger:=stationN;
+     FieldByName('Cast').AsInteger:=CastN;
+     FieldByName('Units_ID').AsInteger:=TUNIT;
+     Post;
+   end;
 
 {pr}end;{inside profiles}
 {L} end; {lines loop}
 
   StDT:= procedures.DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
 
+//CDS_DSC1
 //determine max number of casts at stations
-    CDS_DSC.First;
-    cast_maxN:=CDS_DSC.FieldByName('Cast').AsInteger;
-{s}while not CDS_DSC.EOF do begin
-    if cast_maxN<CDS_DSC.FieldByName('Cast').AsInteger
-    then cast_maxN:=CDS_DSC.FieldByName('Cast').AsInteger;
-    CDS_DSC.Next;
+{CDS1}if kTT=1 then begin
+    CDS_DSC1.First;
+    cast_maxN:=CDS_DSC1.FieldByName('Cast').AsInteger;
+{s}while not CDS_DSC1.EOF do begin
+    if cast_maxN<CDS_DSC1.FieldByName('Cast').AsInteger
+    then cast_maxN:=CDS_DSC1.FieldByName('Cast').AsInteger;
+    CDS_DSC1.Next;
 {s}end;
-
-
-
+showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
   //divide station on casts
 {c}for c:=1 to cast_maxN do begin
-    CDS_DSC.Filter:='CAST='+inttostr(c);
-    CDS_DSC.Filtered:=true;
+    CDS_DSC1.Filter:='CAST='+inttostr(c);
+    CDS_DSC1.Filtered:=true;
 
-    CDS_DSC.IndexFieldNames:='Press';  //sort by press
+    CDS_DSC1.IndexFieldNames:='Press';  //sort by press
 
 
-{i}if CDS_DSC.IsEmpty=false then begin
-    CDS_DSC.First;
+{i}if CDS_DSC1.IsEmpty=false then begin
+    CDS_DSC1.First;
     PRF_count:=PRF_count+1;
 
     //convert pressure to depth
     //m=1 pressure to depth
     //Depth_to_Pressure(stPDS,stlat,1,stLastLevel_m);
     stMDS:=declarations_gsw.gsw_z_from_p(stPDS,stlat);
-
 
     //prepare to write into STATION
     writeln(outMD,inttostr(PRF_count),  //ID
@@ -1451,382 +1705,434 @@ end;
     #9,datetimetostr(NOW),        //DATE_ADDED
     #9,datetimetostr(NOW));      //DATE_UPDATED
 
-
-{s}while not CDS_DSC.EOF do begin
-
-{w1}if kTT=1 then begin
+{s}while not CDS_DSC1.EOF do begin
     case kTN of
     1: begin
     writeln(outPRF1,inttostr(PRF_count),                      //ID
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),     //PRESS
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),       //VAL
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),      //PQF1
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),      //PQF2
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),      //SQF
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
     end;
     2: begin
     writeln(outPRF2,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     3: begin
     writeln(outPRF3,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     4: begin
     writeln(outPRF4,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     5: begin
     writeln(outPRF5,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     6: begin
     writeln(outPRF6,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     7: begin
     writeln(outPRF7,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     8: begin
     writeln(outPRF8,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     9: begin
     writeln(outPRF9,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     10: begin
     writeln(outPRF10,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     11: begin
     writeln(outPRF11,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     12: begin
     writeln(outPRF12,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     13: begin
     writeln(outPRF13,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     14: begin
     writeln(outPRF14,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     15: begin
     writeln(outPRF15,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     16: begin
     writeln(outPRF16,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     17: begin
     writeln(outPRF17,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     18: begin
     writeln(outPRF18,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     19: begin
     writeln(outPRF19,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     20: begin
     writeln(outPRF20,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     21: begin
     writeln(outPRF21,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     22: begin
     writeln(outPRF22,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     23: begin
     writeln(outPRF23,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     24: begin
     writeln(outPRF24,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     25: begin
     writeln(outPRF25,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     26: begin
     writeln(outPRF26,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     27: begin
     writeln(outPRF27,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     28: begin
     writeln(outPRF28,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     29: begin
     writeln(outPRF29,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-    #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),
-    #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-    #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger));
+    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('Bottle').AsInteger),
+    #9,inttostr(CDS_DSC1.FieldByName('UNITS_ID').AsInteger));
     end;
     end;{case}
-{w1}end;
+
+     CDS_DSC1.Next;
+{s}end; {CDS_DSC1.EOF}
+{i}end; //if cast exists
+{c}end; //casts
+{CDS1}end;
 
 
-{w2}if kTT=2 then begin
+
+
+//CDS_DSC2
+//determine max number of casts at stations
+{CDS2}if kTT=2 then begin
+    CDS_DSC2.First;
+    cast_maxN:=CDS_DSC2.FieldByName('Cast').AsInteger;
+{s}while not CDS_DSC2.EOF do begin
+    if cast_maxN<CDS_DSC2.FieldByName('Cast').AsInteger
+    then cast_maxN:=CDS_DSC2.FieldByName('Cast').AsInteger;
+    CDS_DSC2.Next;
+{s}end;
+
+  //divide station on casts
+{c}for c:=1 to cast_maxN do begin
+    CDS_DSC2.Filter:='CAST='+inttostr(c);
+    CDS_DSC2.Filtered:=true;
+
+    CDS_DSC2.IndexFieldNames:='Press';  //sort by press
+
+
+{i}if CDS_DSC2.IsEmpty=false then begin
+    CDS_DSC2.First;
+    PRF_count:=PRF_count+1;
+
+    //convert pressure to depth
+    //m=1 pressure to depth
+    //Depth_to_Pressure(stPDS,stlat,1,stLastLevel_m);
+    stMDS:=declarations_gsw.gsw_z_from_p(stPDS,stlat);
+
+    //prepare to write into STATION
+    writeln(outMD,inttostr(PRF_count),  //ID
+    #9,floattostr(stlat),       //LATITUDE
+    #9,floattostr(stlon),       //LONGITUDE
+    #9,datetimetostr(StDT),    //DATEANDTIME
+    #9,floattostr(stBD),        //BOTTOMDEPTH
+    #9,floattostr(stMDS),        //LASTLEVEL_M   !!!CONVERT
+    #9,floattostr(stPDS),        //LASTLEVEL_DBAR
+    #9,inttostr(CruiseN),        //CRUISEID
+    #9,inttostr(StationN),        //ST_NUM_ORIGIN
+    #9,inttostr(StationN),        //ST_ID_ORIGIN
+    #9,inttostr(castN),           //CAST_NUMBER
+    #9,inttostr(1),               //QCFLAG
+    #9,inttostr(1),               //STVERSION
+    #9,datetimetostr(NOW),        //DATE_ADDED
+    #9,datetimetostr(NOW));      //DATE_UPDATED
+
+{s}while not CDS_DSC2.EOF do begin
         case kTN of
         30: begin
         writeln(outPRF30,inttostr(PRF_count),                      //ID
-        #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
-        #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
-        #9,floattostr(CDS_DSC.FieldByName('valerr').AsFloat),    //VALERR
-        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
-        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
-        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
-        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
-        #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+        #9,floattostr(CDS_DSC2.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC2.FieldByName('val').AsFloat),       //VAL
+        #9,floattostr(CDS_DSC2.FieldByName('valerr').AsFloat),    //VALERR
+        #9,inttostr(CDS_DSC2.FieldByName('PQF1').AsInteger),      //PQF1
+        #9,inttostr(CDS_DSC2.FieldByName('PQF2').AsInteger),      //PQF2
+        #9,inttostr(CDS_DSC2.FieldByName('PQF2').AsInteger),      //SQF
+        #9,inttostr(CDS_DSC2.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+        #9,inttostr(CDS_DSC2.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
         end;
         31: begin
         writeln(outPRF31,inttostr(PRF_count),                      //ID
-        #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
-        #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
-        #9,floattostr(CDS_DSC.FieldByName('valerr').AsFloat),    //VALERR
-        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
-        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
-        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
-        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
-        #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+        #9,floattostr(CDS_DSC2.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC2.FieldByName('val').AsFloat),       //VAL
+        #9,floattostr(CDS_DSC2.FieldByName('valerr').AsFloat),    //VALERR
+        #9,inttostr(CDS_DSC2.FieldByName('PQF1').AsInteger),      //PQF1
+        #9,inttostr(CDS_DSC2.FieldByName('PQF2').AsInteger),      //PQF2
+        #9,inttostr(CDS_DSC2.FieldByName('PQF2').AsInteger),      //SQF
+        #9,inttostr(CDS_DSC2.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+        #9,inttostr(CDS_DSC2.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
         end;
         32: begin
         writeln(outPRF32,inttostr(PRF_count),                      //ID
-        #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
-        #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
-        #9,floattostr(CDS_DSC.FieldByName('valerr').AsFloat),    //VALERR
-        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
-        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
-        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
-        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
-        #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+        #9,floattostr(CDS_DSC2.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC2.FieldByName('val').AsFloat),       //VAL
+        #9,floattostr(CDS_DSC2.FieldByName('valerr').AsFloat),    //VALERR
+        #9,inttostr(CDS_DSC2.FieldByName('PQF1').AsInteger),      //PQF1
+        #9,inttostr(CDS_DSC2.FieldByName('PQF2').AsInteger),      //PQF2
+        #9,inttostr(CDS_DSC2.FieldByName('PQF2').AsInteger),      //SQF
+        #9,inttostr(CDS_DSC2.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+        #9,inttostr(CDS_DSC2.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
         end;
         33: begin
         writeln(outPRF33,inttostr(PRF_count),                      //ID
-        #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
-        #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
-        #9,floattostr(CDS_DSC.FieldByName('valerr').AsFloat),    //VALERR
-        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
-        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
-        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
-        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
-        #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+        #9,floattostr(CDS_DSC2.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC2.FieldByName('val').AsFloat),       //VAL
+        #9,floattostr(CDS_DSC2.FieldByName('valerr').AsFloat),    //VALERR
+        #9,inttostr(CDS_DSC2.FieldByName('PQF1').AsInteger),      //PQF1
+        #9,inttostr(CDS_DSC2.FieldByName('PQF2').AsInteger),      //PQF2
+        #9,inttostr(CDS_DSC2.FieldByName('PQF2').AsInteger),      //SQF
+        #9,inttostr(CDS_DSC2.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+        #9,inttostr(CDS_DSC2.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
         end;
         34: begin
         writeln(outPRF34,inttostr(PRF_count),                      //ID
-        #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),     //PRESS
-        #9,floattostr(CDS_DSC.FieldByName('val').AsFloat),       //VAL
-        #9,floattostr(CDS_DSC.FieldByName('valerr').AsFloat),    //VALERR
-        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),      //PQF1
-        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //PQF2
-        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),      //SQF
-        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
-        #9,inttostr(CDS_DSC.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
+        #9,floattostr(CDS_DSC2.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC2.FieldByName('val').AsFloat),       //VAL
+        #9,floattostr(CDS_DSC2.FieldByName('valerr').AsFloat),    //VALERR
+        #9,inttostr(CDS_DSC2.FieldByName('PQF1').AsInteger),      //PQF1
+        #9,inttostr(CDS_DSC2.FieldByName('PQF2').AsInteger),      //PQF2
+        #9,inttostr(CDS_DSC2.FieldByName('PQF2').AsInteger),      //SQF
+        #9,inttostr(CDS_DSC2.FieldByName('Bottle').AsInteger),    //BOTTLE_NUMBER
+        #9,inttostr(CDS_DSC2.FieldByName('UNITS_ID').AsInteger)); //UNITS_ID
         end;
         end;{case}
-{w2}end;
 
-    CDS_DSC.Next;
+        CDS_DSC2.Next;
 
-{s}end; //filtered by cast number and sorted station
+{s}end;{CDS_DSC2.EOF}
 {i}end; //if cast exists
 {c}end; //casts
+{CDS2}end;
 
 {TN}end; //table names 1..34
 
-     CDS_DSC.Filtered:=false;
+     CDS_DSC1.Filtered:=false;
+     CDS_DSC2.Filtered:=false;
      //CDS_DSC.Close;
      //CDS_DSC.Clear;
      //CDS_DSC.Active:=false;
 
 {ST}end; //real stations loop
 
-  if CDS_DSC.Active=true then CDS_DSC.Close;
-     CDS_DSC.Free;
+  if CDS_DSC1.Active=true then CDS_DSC1.Close;
+     CDS_DSC1.Free;
+  if CDS_DSC2.Active=true then CDS_DSC2.Close;
+     CDS_DSC2.Free;
 
      closefile(outMD);
 
@@ -1869,7 +2175,7 @@ end;
      memo1.Lines.Add('Spliting completed');
 
      CheckBox1.Visible:=true;
-     btnDownloadMD.Visible:=true;
+     btnSaveStationMDonDisk.Visible:=true;
      btnDownloadData.Visible:=true;
 end;
 
@@ -2226,12 +2532,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 13	P_CFC11_BOTTLE		6	press val pval    pQF1 pQF2 sQF	CV	CFC11		Halogenated transient tracer CFC11  *)
+  (* 13	P_CFC11_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CFC11		Halogenated transient tracer CFC11  *)
      'CREATE TABLE P_CFC11_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
-     '   PVAL           DECIMAL(8,4) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -2239,12 +2544,23 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 14	P_CFC12_BOTTLE		6	press val pval    pQF1 pQF2 sQF	CV	CFC12		Halogenated transient tracer CFC12 *)
+  (* 13a P_PCFC11_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CFC11		Halogenated transient tracer CFC11  *)
+     'CREATE TABLE P_PCFC11_BOTTLE ( '+LineEnding+
+     '   ID             BIGINT NOT NULL, '+LineEnding+
+     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   pQF1           SMALLINT, '+LineEnding+
+     '   pQF2           SMALLINT, '+LineEnding+
+     '   sQF            SMALLINT, '+LineEnding+
+     '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
+     '); '+LineEnding+
+
+  (* 14	P_CFC12_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CFC12		Halogenated transient tracer CFC12 *)
      'CREATE TABLE P_CFC12_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
-     '   PVAL           DECIMAL(8,4) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -2252,12 +2568,35 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 15	P_CFC113_BOTTLE		6	press val pval    pQF1 pQF2 sQF	CV	CFC113		Halogenated transient tracer CFC113 *)
+  (* 14	P_PCFC12_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CFC12		Halogenated transient tracer CFC12 *)
+     'CREATE TABLE P_PCFC12_BOTTLE ( '+LineEnding+
+     '   ID             BIGINT NOT NULL, '+LineEnding+
+     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   pQF1           SMALLINT, '+LineEnding+
+     '   pQF2           SMALLINT, '+LineEnding+
+     '   sQF            SMALLINT, '+LineEnding+
+     '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
+     '); '+LineEnding+
+
+  (* 15	P_CFC113_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CFC113		Halogenated transient tracer CFC113 *)
      'CREATE TABLE P_CFC113_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
-     '   PVAL           DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   pQF1           SMALLINT, '+LineEnding+
+     '   pQF2           SMALLINT, '+LineEnding+
+     '   sQF            SMALLINT, '+LineEnding+
+     '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
+     '); '+LineEnding+
+
+  (* 15a	P_PCFC113_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CFC113		Halogenated transient tracer CFC113 *)
+     'CREATE TABLE P_PCFC113_BOTTLE ( '+LineEnding+
+     '   ID             BIGINT NOT NULL, '+LineEnding+
+     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -2270,7 +2609,6 @@ begin
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
-     '   PVAL           DECIMAL(8,4) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -2278,12 +2616,35 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 17	P_SF6_BOTTLE		6	press val pval    pQF1 pQF2 sQF		SF6		Sulfur hexafluoride  *)
+  (*16a	P_CC14_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CC14		Halogenated transient tracer CC14 *)
+     'CREATE TABLE P_PCC14_BOTTLE ( '+LineEnding+
+     '   ID             BIGINT NOT NULL, '+LineEnding+
+     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   pQF1           SMALLINT, '+LineEnding+
+     '   pQF2           SMALLINT, '+LineEnding+
+     '   sQF            SMALLINT, '+LineEnding+
+     '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
+     '); '+LineEnding+
+
+  (* 17	P_SF6_BOTTLE		6	press val    pQF1 pQF2 sQF		SF6		Sulfur hexafluoride  *)
      'CREATE TABLE P_SF6_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
-     '   PVAL           DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   pQF1           SMALLINT, '+LineEnding+
+     '   pQF2           SMALLINT, '+LineEnding+
+     '   sQF            SMALLINT, '+LineEnding+
+     '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+     '   UNITS_ID        BIGINT '+LineEnding+
+     '); '+LineEnding+
+
+  (* 17a P_PSF6_BOTTLE		6	press val    pQF1 pQF2 sQF		SF6		Sulfur hexafluoride  *)
+     'CREATE TABLE P_PSF6_BOTTLE ( '+LineEnding+
+     '   ID             BIGINT NOT NULL, '+LineEnding+
+     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -2453,10 +2814,15 @@ begin
      'ALTER TABLE P_PHTS25P0_BOTTLE ADD CONSTRAINT FK_P_PHTS25P0_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_PHTSINSITUTP_BOTTLE ADD CONSTRAINT FK_P_PHTSINSITUTP_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_CFC11_BOTTLE ADD CONSTRAINT FK_P_CFC11_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+     'ALTER TABLE P_PCFC11_BOTTLE ADD CONSTRAINT FK_P_PCFC11_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_CFC12_BOTTLE ADD CONSTRAINT FK_P_CFC12_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+     'ALTER TABLE P_PCFC12_BOTTLE ADD CONSTRAINT FK_P_PCFC12_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_CFC113_BOTTLE ADD CONSTRAINT FK_P_CFC113_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+     'ALTER TABLE P_PCFC113_BOTTLE ADD CONSTRAINT FK_P_PCFC113_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_CC14_BOTTLE ADD CONSTRAINT FK_P_CC14_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+     'ALTER TABLE P_PCC14_BOTTLE ADD CONSTRAINT FK_P_PCC14_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_SF6_BOTTLE ADD CONSTRAINT FK_P_SF6_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+     'ALTER TABLE P_PSF6_BOTTLE ADD CONSTRAINT FK_P_PSF6_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_C13_BOTTLE ADD CONSTRAINT FK_P_C13_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_C14_BOTTLE ADD CONSTRAINT FK_P_C14_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_H3_BOTTLE ADD CONSTRAINT FK_P_H3_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
