@@ -43,14 +43,15 @@ type
     btnDownloadMD: TButton;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
+    GroupBox1: TGroupBox;
     Memo1: TMemo;
-    Panel1: TPanel;
     procedure btnDataSourceClick(Sender: TObject);
     procedure btnDownloadMDClick(Sender: TObject);
-    procedure btnSaveStationMDonDiskClick(Sender: TObject);
     procedure btnDownloadDataClick(Sender: TObject);
 
-    procedure btnCreateTablesClick(Sender: TObject);
+    procedure btnSaveStationMDonDiskClick(Sender: TObject); //GLODAP stations with casts
+    procedure btnCreateTablesClick(Sender: TObject);        //add variable tables to DB
+    //неудачная попытка записать все за один проход текстового файла
     procedure btnSplitOnMDandProfilesClick(Sender: TObject);
 
   private
@@ -289,11 +290,8 @@ begin
      closefile(dat);
      closefile(out);
 
-     Panel1.Visible:=true;
-     btnSplitOnMDandProfiles.Visible:=true;
-     //btnSaveStationMDonDisk.Visible:=true;
-
      memo1.Lines.Add('Stations in file          :'+inttostr(RSt-1));
+     GroupBox1.Visible:=true;
 end;
 
 
@@ -412,11 +410,18 @@ begin
     CDS_DSC.IndexFieldNames:='Press';     //sort by press
 
 {CAST}if CDS_DSC.IsEmpty=false then begin
-        CDS_DSC.First;
+
+        //real last level for each profile
+        CDS_DSC.Last;
+        stPDS:=CDS_DSC.FieldByName('Press').AsFloat;
+
+        //CDS_DSC.First;
         PRF_count:=PRF_count+1;
 
         StDT:= procedures.DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
+        //TEOS: dbar to meters
         stMDS:=declarations_gsw.gsw_z_from_p(stPDS,stlat);
+        stMDS:=-stMDS;
 
         //memo1.Lines.Add('ID='+inttostr(PRF_count)
         //+'   Cruise:'+inttostr(CruiseN)
@@ -498,7 +503,7 @@ begin
               frmdm.TR.CommitRetaining;
 {wDB}end;
         CDS_DSC.Next;
-{CAST}end;
+{CAST}end; {CDS_DSC not empty}
         CDS_DSC.Filtered:=false;
 {c}end; {kc 1..cast_maxN}
 {ST}end; {kst 1..RSt-1}
@@ -2185,17 +2190,130 @@ end;
 
 procedure TfrmloadGLODAP_2019_v2_product.btnDownloadDataClick(Sender: TObject);
 var
-  kst,kl,kv,line,L1,L2,n,c,i:integer;
+  ktbl,kst,kl,kv,L1,L2,n,c,i,PRF_count:integer;
   cruiseN,stationN,castN,stNBNum:integer;
   cast_maxN:integer;
   Year,Month,Day,Hour,Min:integer;
-  press, temp,stlat,stlon,stBD,stPDS:real;
+  stlat,stlon,stBD,stPDS:real;
   symbol:char;
-  st,buf_str:string;
+  st,buf_str,path_out,path_TBL,str_out:string;
   StDT:TDateTime;
   DayChange,DateChange:Boolean;
+  UnitID:array[1..34] of integer;
+  TblName:array[1..34] of string;
+  //values
+  press,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
+  cfc11,pcfc11,cfc12,pcfc12,cfc113,pcfc113,cc14,pcc14,sf6,psf6,c13,c14:real;
+  h3,he3,he,neon,O18,toc,doc,don,tdn,chla:real;
+  //errors
+  c14_err,h3_err,he3_err,he_err,neon_err:real;
+  //QF primary 1
+  salt_pQF1,oxy_pQF1,aou_pQF1,nat_pQF1,nit_pQF1,sil_pQF1,pho_pQF1:integer;
+  tco2_pQF1,talk_pQF1,phtsinsitutp_pQF1,cfc11_pQF1,cfc12_pQF1,cfc113_pQF1:integer;
+  cc14_pQF1,c13_pQF1,c14_pQF1,h3_pQF1,he3_pQF1,he_pQF1,neon_pQF1:integer;
+  O18_pQF1,toc_pQF1,doc_pQF1,don_pQF1,tdn_pQF1,chla_pQF1,phts25p0_pQF1:integer;
+  //QF secondary
+  salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF:integer;
+  cfc11_sQF,cfc12_sQF,cfc113_sQF,cc14_sQF,sf6_pQF1,c13_sQF,phts25p0_sQF:integer;
+  //divide file on stations/casts
+  cast_count:Integer;
+
+  TPQF1,TPQF2,TSQF,TBottle,TUnit:integer;
+  TPress,TVAL,TVALERR:real;
 
 begin
+
+TblName[1]:='P_AOU_BOTTLE';
+TblName[2]:='P_C13_BOTTLE';
+TblName[3]:='P_CHLA_BOTTLE';
+TblName[4]:='P_DOC_BOTTLE';
+TblName[5]:='P_DON_BOTTLE';
+TblName[6]:='P_NITRATE_BOTTLE';
+TblName[7]:='P_NITRITE_BOTTLE';
+TblName[8]:='P_O18_BOTTLE';
+TblName[9]:='P_OXYGEN_BOTTLE';
+TblName[10]:='P_PHOSPHATE_BOTTLE';
+TblName[11]:='P_PHTS25P0_BOTTLE';
+TblName[12]:='P_PHTSINSITUTP_BOTTLE';
+TblName[13]:='P_SALINITY_BOTTLE';
+TblName[14]:='P_SILICATE_BOTTLE';
+TblName[15]:='P_TALK_BOTTLE';
+TblName[16]:='P_TCO2_BOTTLE';
+TblName[17]:='P_TDN_BOTTLE';
+TblName[18]:='P_TOC_BOTTLE';
+TblName[19]:='P_TEMPERATURE_BOTTLE';
+TblName[20]:='P_CC14_BOTTLE';
+TblName[21]:='P_PCCL4_BOTTLE';
+TblName[22]:='P_CFC113_BOTTLE';
+TblName[23]:='P_PCFC113_BOTTLE';
+TblName[24]:='P_CFC11_BOTTLE';
+TblName[25]:='P_PCFC11_BOTTLE';
+TblName[26]:='P_CFC12_BOTTLE';
+TblName[27]:='P_PCFC12_BOTTLE';
+TblName[28]:='P_SF6_BOTTLE';
+TblName[29]:='P_PSF6_BOTTLE';
+TblName[30]:='P_C14_BOTTLE';
+TblName[31]:='P_HE3_BOTTLE';
+TblName[32]:='P_HE_BOTTLE';
+TblName[33]:='P_NEON_BOTTLE';
+TblName[34]:='P_H3_BOTTLE';
+
+UnitID[1]:=3;              //'P_AOU_BOTTLE'  Micro-mole per kilogram
+UnitID[2]:=11;             //'P_C13_BOTTLE'  Per-mille deviation
+UnitID[3]:=14;             //'P_CHLA_BOTTLE'  Micro-gram per kilogram
+UnitID[4]:=15;             //'P_DOC_BOTTLE'  Micro-gram per liter
+UnitID[5]:=15;             //'P_DON_BOTTLE'  Micro-gram per liter
+UnitID[6]:=3;              //'P_NITRATE_BOTTLE'  Micro-mole per kilogram
+UnitID[7]:=3;              //'P_NITRITE_BOTTLE'  Micro-mole per kilogram
+UnitID[8]:=11;             //'P_O18_BOTTLE'  Per-mille deviation
+UnitID[9]:=3;              //'P_OXYGEN_BOTTLE'  Micro-mole per kilogram
+UnitID[10]:=3;             //'P_PHOSPHATE_BOTTLE'  Micro-mole per kilogram
+UnitID[11]:=2;             //'P_PHTS25P0_BOTTLE' Dimensionless or unit less
+UnitID[12]:=2;             //'P_PHTSINSITUTP_BOTTLE'  Dimensionless or unit less
+UnitID[13]:=2;             //'P_SALINITY_BOTTLE' Dimensionless or unit less
+UnitID[14]:=3;             //'P_SILICATE_BOTTLE'  Micro-mole per kilogram
+UnitID[15]:=3;             //'P_TALK_BOTTLE'  Micro-mole per kilogram
+UnitID[16]:=3;             //'P_TCO2_BOTTLE'  Micro-mole per kilogram
+UnitID[17]:=15;            //'P_TDN_BOTTLE' Micro-mole per liter
+UnitID[18]:=15;            //'P_TOC_BOTTLE'  Micro-mole per liter
+UnitID[19]:=1;             //'P_TEMPERATURE_BOTTLE'  Degree centigrade
+UnitID[20]:=13;            //'P_CC14_BOTTLE'  Pico-mole per kilogram
+UnitID[21]:=18;            //'P_PCCL4_BOTTLE'  Parts per thousand (16) or trillion (18) ???
+UnitID[22]:=13;            //'P_CFC113_BOTTLE'  Pico-mole per kilogram
+UnitID[23]:=18;            //'P_PCFC113_BOTTLE'  Parts per thousand (16) or trillion (18) ???
+UnitID[24]:=13;            //'P_CFC11_BOTTLE'  Pico-mole per kilogram
+UnitID[25]:=18;            //'P_PCFC11_BOTTLE'  Parts per thousand (16) or trillion (18) ???
+UnitID[26]:=13;            //'P_CFC12_BOTTLE' Pico-mole per kilogram
+UnitID[27]:=18;            //'P_PCFC12_BOTTLE'  Parts per thousand (16) or trillion (18) ???
+UnitID[28]:=19;            //'P_SF6_BOTTLE'  Femto-mole per kilogram
+UnitID[29]:=18;            //'P_PSF6_BOTTLE'  Parts per thousand (16) or trillion (18) ???
+UnitID[30]:=11;            //'P_C14_BOTTLE'  Per-mille deviation
+UnitID[31]:=10;            //'P_HE3_BOTTLE'  Persent
+UnitID[32]:=12;            //'P_HE_BOTTLE'  Nano-mole per kilogram
+UnitID[33]:=12;            //'P_NEON_BOTTLE Nano-mole per kilogram
+UnitID[34]:=8;             //'P_H3_BOTTLE' TU Tritium Unit
+
+path_out:='c:\Users\ako071\AK\datasets\GLODAP\download\';
+
+memo1.Lines.Add('Start:'+datetimetostr(NOW));
+
+//{TBL}for ktbl:=1 to 34 do begin
+{TBL}for ktbl:=1 to 1 do begin
+
+     Reset(dat);
+     readln(dat, st);
+
+     path_TBL:=path_out+TblName[ktbl];
+
+     AssignFile(out,path_tbl);
+     Rewrite(out);
+
+     str_out:='ID'+#9+'Pres'+#9+'VAL'+#9+'PQF1'+#9+'PQF2'+#9+'SQF'+#9+'BOTTLE_NUMBER'+#9+'UNITS_ID';
+     if (ktbl>29) then
+     str_out:='ID'+#9+'Pres'+#9+'VAL'+#9+'VALERR'+#9+'PQF1'+#9+'PQF2'+#9+'SQF'+#9+'BOTTLE_NUMBER'+#9+'UNITS_ID';
+     writeln(out,str_out);
+
+     memo1.Lines.Add(inttostr(ktbl)+#9+path_TBL);
 
    //CDS Divide Station on Casts
     CDS_DSC:=TBufDataSet.Create(self);
@@ -2203,6 +2321,7 @@ begin
      Add('ID',  ftInteger,0,true);
      Add('Press', ftFloat,0,true);
      Add('Val', ftFloat,0,true);
+     if (ktbl>29) then Add('ValErr', ftFloat,0,true);
      Add('PQF1',  ftInteger,0,true);
      Add('PQF2',  ftInteger,0,true);
      Add('SQF', ftInteger, 0,true);
@@ -2214,36 +2333,21 @@ begin
     CDS_DSC.CreateDataSet;
 
 
-   path_out:='c:\Users\ako071\AK\datasets\GLODAP\output_profiles.dat';
-   AssignFile(out, Path_out); Rewrite(out);
-   writeln(out,'RSt#  L1  L2  line#  cruise  station  cast  bottle#  press  temp');
-
-
-   Reset(dat);
-   readln(dat, st);
-   line:=1;
-
-
-//first prepare data for one table P_TEMPERATURE_BOTTLE
-{st}for kst:=1 to RSt do begin
+    PRF_count:=0;
+{ST}for kst:=1 to RSt-1 do begin        //GLODAP Stations
 
     if CDS_DSC.Active then CDS_DSC.Close;
       CDS_DSC.Open;
 
       L1:=line_arr[kst];
       L2:=line_arr[kst+1]-1;
+      //memo1.Lines.Add('kst='+inttostr(kst)+'   L1:'+inttostr(L1)+'->'+inttostr(L2));
 
-      memo1.Lines.Add('kst='+inttostr(kst)+'   L1:'+inttostr(L1)+'->'+inttostr(L2));
+{L}for kL:=L1 to L2 do begin    //file scroll
 
-{L}for kl:=L1 to L2 do begin    //file scroll
       readln(dat, st);
       st:=trim(st);
-      line:=line+1;
-
-
-{pr}if (line>=L1) and (line<=L2) then begin  //inside profile
-
-//showmessage('L1->L2:'+inttostr(L1)+'->'+inttostr(L2)+'  line='+inttostr(line));
+      //showmessage('L1->L2:'+inttostr(L1)+'->'+inttostr(L2)+'  line='+inttostr(line));
 
 
 //string analysis
@@ -2274,32 +2378,409 @@ begin
 
      14: press:=strtofloat(buf_str);                   //sampling pressure dbar
      16: temp:=strtofloat(buf_str);                    //temperature
+     18: salt:=strtofloat(buf_str);                    //salinity
+     19: salt_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     20: salt_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+     27: oxy:=strtofloat(buf_str);                    //oxygen
+     28: oxy_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     29: oxy_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+     30: aou:=strtofloat(buf_str);                    //apparant oxygen utilization
+     31: aou_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+     32: nat:=strtofloat(buf_str);                    //nitrate
+     33: nat_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     34: nat_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+     35: nit:=strtofloat(buf_str);                    //nitrite
+     36: nit_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+     37: sil:=strtofloat(buf_str);                    //silicate
+     38: sil_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     39: sil_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+     40: pho:=strtofloat(buf_str);                    //phosphate
+     41: pho_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     42: pho_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+     43: tco2:=strtofloat(buf_str);                    //tco2:Dissolved inorganic carbon
+     44: tco2_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     45: tco2_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+     46: talk:=strtofloat(buf_str);                    //talk
+     47: talk_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     48: talk_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+     49: phts25p0:=strtofloat(buf_str);                    //ph ts 25 p0
+     50: phts25p0_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     53: begin
+          phts25p0_sQF:=trunc(strtofloat(buf_str));         //sQF
+          phtsinsitutp_sQF:=trunc(strtofloat(buf_str));         //sQF
+         end;
+
+     51: phtsinsitutp:=strtofloat(buf_str);                    //ph ts insitu tp
+     52: phtsinsitutp_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+     54: cfc11:=strtofloat(buf_str);                    //cfc11:transient tracer
+     55: pcfc11:=strtofloat(buf_str);                   //pcfc11
+     56: cfc11_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     57: cfc11_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+     58: cfc12:=strtofloat(buf_str);                    //cfc12:transient tracer
+     59: pcfc12:=strtofloat(buf_str);                   //pcfc12
+     60: cfc12_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     61: cfc12_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+     62: cfc113:=strtofloat(buf_str);                    //cfc113:transient tracer
+     63: pcfc113:=strtofloat(buf_str);                   //pcfc113
+     64: cfc113_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     65: cfc113_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+     66: cc14:=strtofloat(buf_str);                    //cc14:transient tracer
+     67: pcc14:=strtofloat(buf_str);                   //pcc14
+     68: cc14_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     69: cc14_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+     70: sf6:=strtofloat(buf_str);                    //sf6:Sulfur hexafluoride
+     71: psf6:=strtofloat(buf_str);                   //psf6
+     72: sf6_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+     73: c13:=strtofloat(buf_str);                    //c13 Stable isotop carbon 13
+     74: c13_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     75: c13_sQF:=trunc(strtofloat(buf_str));         //sQF
+
+     76: c14:=strtofloat(buf_str);                   //c14 Radioisotop carbon 14
+     77: c14_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+     78: c14_err:=strtofloat(buf_str);               //counting error
+
+     79: h3:=strtofloat(buf_str);                   //h3:radioisotop hydrogen 3, Tritium
+     80: h3_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+     81: h3_err:=strtofloat(buf_str);               //counting error
+
+     82: he3:=strtofloat(buf_str);                   //he3:Radioisotop helium 3
+     83: he3_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+     84: he3_err:=strtofloat(buf_str);               //counting error
+
+     85: he:=strtofloat(buf_str);                    //he:helium
+     86: he_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+     87: he_err:=strtofloat(buf_str);               //counting error
+
+     88: neon:=strtofloat(buf_str);                    //neon
+     89: neon_pQF1:=trunc(strtofloat(buf_str));       //pQF1
+     90: neon_err:=strtofloat(buf_str);               //counting error
+
+     91: O18:=strtofloat(buf_str);                    //O18:Stable isotop of oxygen 18
+     92: O18_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+     93: toc:=strtofloat(buf_str);                    //toc:Total organic carbon
+     94: toc_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+     95: doc:=strtofloat(buf_str);                    //doc:Dissolved organic carbon
+     96: doc_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+     97: don:=strtofloat(buf_str);                    //don:Dissolved organic nitrogen
+     98: don_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+     99: tdn:=strtofloat(buf_str);                    //tdn:Total dissolved nitrogen
+    100: tdn_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+
+    101: chla:=strtofloat(buf_str);                    //chla:chlorophylla
+    102: chla_pQF1:=trunc(strtofloat(buf_str));        //pQF1
       end;{case}
   {b}end;
-
   {kv}end;
 //end string analysis
+
+      TVal:=-9999;
+      TValErr:=-9999;
+      TPQF1:=0;
+      TPQF2:=0;
+      TSQF:=0;
+      TUNIT:=0;
+
+      case ktbl of
+      1: begin
+         TPress:=press;
+         Tval:=aou;
+         TPQF1:=aou_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=3; //Micro-mole per kilogram
+         end; {1}
+      2: begin
+         TPress:=press;
+         Tval:=c13;
+         TPQF1:=c13_pQF1;
+         TSQF:=c13_SQF;
+         TBottle:=stNBNum;
+         TUNIT:=11; //Per-mille deviation
+         end; {2}
+      3: begin
+         TPress:=press;
+         Tval:=chla;
+         TPQF1:=chla_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=14;  //Micro-gram per kilogram
+         end;
+      4: begin
+         TPress:=press;
+         Tval:=doc;
+         TPQF1:=doc_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=15;  //Micro-gram per liter
+         end;
+      5: begin
+         TPress:=press;
+         Tval:=don;
+         TPQF1:=don_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=15;  //Micro-gram per liter
+         end;
+      6: begin
+         TPress:=press;
+         Tval:=nat;
+         TPQF1:=nat_pQF1;
+         TSQF:=nat_SQF;
+         TBottle:=stNBNum;
+         TUNIT:=3;  //Micro-mole per kilogram
+         end;
+      7: begin
+         TPress:=press;
+         Tval:=nit;
+         TPQF1:=nit_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=3;  //Micro-mole per kilogram
+         end;
+      8: begin
+         TPress:=press;
+         Tval:=O18;
+         TPQF1:=O18_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=11;  //Per-mille deviation
+         end;
+      9: begin
+         TPress:=press;
+         Tval:=oxy;
+         TPQF1:=oxy_pQF1;
+         TSQF:=oxy_SQF;
+         TBottle:=stNBNum;
+         TUNIT:=3;  //Micro-mole per kilogram
+         end;
+      10: begin
+          TPress:=press;
+          Tval:=pho;
+          TPQF1:=pho_pQF1;
+          TSQF:=pho_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=3;  //Micro-mole per kilogram
+          end;
+      11: begin
+          TPress:=press;
+          Tval:=phts25p0;
+          TPQF1:=phts25p0_pQF1;
+          TSQF:=phts25p0_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=2;  //Dimensionless or unit less
+          end;
+      12: begin
+          TPress:=press;
+          Tval:=phtsinsitutp;
+          TPQF1:=phtsinsitutp_pQF1;
+          TSQF:=phtsinsitutp_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=2;  //Dimensionless or unit less
+          end;
+      13: begin
+          TPress:=press;
+          Tval:=salt;
+          TPQF1:=salt_pQF1;
+          TSQF:=salt_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=2;  //Dimensionless or unit less
+          end;
+      14: begin
+          TPress:=press;
+          Tval:=sil;
+          TPQF1:=sil_pQF1;
+          TSQF:=sil_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=3;  //Micro-mole per kilogram
+          end;
+      15: begin
+          TPress:=press;
+          Tval:=talk;
+          TPQF1:=talk_pQF1;
+          TSQF:=talk_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=3;  //Micro-mole per kilogram
+          end;
+      16: begin
+          TPress:=press;
+          Tval:=tco2;
+          TPQF1:=tco2_pQF1;
+          TSQF:=tco2_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=3;  //Micro-mole per kilogram
+          end;
+      17: begin
+          TPress:=press;
+          Tval:=tdn;
+          TPQF1:=tdn_pQF1;
+          TBottle:=stNBNum;
+          TUNIT:=15;  //Micro-mole per liter
+          end;
+      18: begin
+          TPress:=press;
+          Tval:=toc;
+          TPQF1:=toc_pQF1;
+          TBottle:=stNBNum;
+          TUNIT:=15;  //Micro-mole per liter
+          end;
+      19: begin
+          TPress:=press;
+          Tval:=temp;
+          TBottle:=stNBNum;
+          TUNIT:=1;  //Degree centigrade
+          end;
+      20: begin
+         TPress:=press;
+         Tval:=cc14;
+         TPQF1:=cc14_pQF1;
+         TSQF:=cc14_SQF;
+         TBottle:=stNBNum;
+         TUNIT:=13;  //Pico-mole per kilogram
+         end;
+      21: begin
+          TPress:=press;
+          Tval:=pcc14;
+          TPQF1:=cc14_pQF1;
+          TSQF:=cc14_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
+          end;
+      22: begin
+          TPress:=press;
+          Tval:=cfc113;
+          TPQF1:=cfc113_pQF1;
+          TSQF:=cfc113_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=13;  //Pico-mole per kilogram
+          end;
+      23: begin
+          TPress:=press;
+          Tval:=pcfc113;
+          TPQF1:=cfc113_pQF1;
+          TSQF:=cfc113_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
+          end;
+      24: begin
+          TPress:=press;
+          Tval:=cfc11;
+          TPQF1:=cfc11_pQF1;
+          TSQF:=cfc11_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=13;  //Pico-mole per kilogram
+          end;
+      25: begin
+          TPress:=press;
+          Tval:=pcfc11;
+          TPQF1:=cfc11_pQF1;
+          TSQF:=cfc11_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
+          end;
+      26: begin
+          TPress:=press;
+          Tval:=cfc12;
+          TPQF1:=cfc12_pQF1;
+          TSQF:=cfc12_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=13;  //Pico-mole per kilogram
+          end;
+      27: begin
+          TPress:=press;
+          Tval:=pcfc12;
+          TPQF1:=cfc12_pQF1;
+          TSQF:=cfc12_SQF;
+          TBottle:=stNBNum;
+          TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
+          end;
+      28: begin
+         TPress:=press;
+         Tval:=sf6;
+         TPQF1:=sf6_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=19;  //Femto-mole per kilogram
+         end;
+      29: begin
+         TPress:=press;
+         Tval:=psf6;
+         TPQF1:=sf6_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
+         end;
+      30: begin
+         TPress:=press;
+         Tval:=c14;
+         Tvalerr:=c14_err;
+         TPQF1:=c14_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=11;  //Per-mille deviation
+         end;
+      31: begin
+         TPress:=press;
+         Tval:=he3;
+         Tvalerr:=he3_err;
+         TPQF1:=he3_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=10;  //
+         end;
+      32: begin
+         TPress:=press;
+         Tval:=he;
+         Tvalerr:=he_err;
+         TPQF1:=he_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=12;  //Nano-mole per kilogram
+         end;
+      33: begin
+         TPress:=press;
+         Tval:=neon;
+         Tvalerr:=neon_err;
+         TPQF1:=neon_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=12;  //Nano-mole per kilogram
+         end;
+      34: begin
+         TPress:=press;
+         Tval:=h3;
+         Tvalerr:=h3_err;
+         TPQF1:=h3_pQF1;
+         TBottle:=stNBNum;
+         TUNIT:=8;  // TU Tritium Unit
+         end;
+      end;{case}
+
 
 
    //append to CDS
    with CDS_DSC do begin
       Append;
       FieldByName('ID').AsInteger:=kst;
-      FieldByName('Press').AsFloat:=press;
-      FieldByName('Val').AsFloat:=temp;
+      FieldByName('Press').AsFloat:=TPress;
+      FieldByName('Val').AsFloat:=TVal;
+      if (kTBL>29) then FieldByName('ValErr').AsFloat:=TValErr;
       FieldByName('PQF1').AsInteger:=0;
       FieldByName('PQF2').AsInteger:=0;
       FieldByName('SQF').AsInteger:=0;
       FieldByName('Bottle').AsInteger:=stNBNum;
       FieldByName('Station').AsInteger:=stationN;
       FieldByName('Cast').AsInteger:=castN;
-      FieldByName('Units_ID').AsInteger:=1; //temperature
+      FieldByName('Units_ID').AsInteger:=UnitID[ktbl];
       Post;
    end;
 
-
-
-{pr}end;{inside profiles}
 {L} end; {lines loop}
 
    StDT:= procedures.DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
@@ -2314,61 +2795,113 @@ begin
 {s}end;
 
 
-
    //divide station on casts
-{c}for c:=1 to cast_maxN do begin
+{CN}for c:=1 to cast_maxN do begin       //cast number
      CDS_DSC.Filter:='CAST='+inttostr(c);
-     CDS_DSC.Filtered:=true;
-
+     CDS_DSC.Filtered:=true;            //filter by cast
      CDS_DSC.IndexFieldNames:='Press';  //sort by press
 
 
-{i}if CDS_DSC.IsEmpty=false then begin
-     CDS_DSC.First;
+{CAST}if CDS_DSC.IsEmpty=false then begin
+      PRF_count:=PRF_count+1;
+
+      CDS_DSC.First;
+{PRF}while not CDS_DSC.EOF do begin
 
 
-     writeln(out,'...new Real Station: '+inttostr(kst)
-     +'  date: '+datetimetostr(StDT)
-     +'  lat: '+floattostr(stlat)
-     +'  lon: '+floattostr(stlon)
-     +'  BD : '+floattostr(stBD)
-     +'  PDS: '+floattostr(stPDS)
-     );
+//write if value exists
+//on disk
+{V}if (CDS_DSC.FieldByName('Val').AsFloat<>-9999) and (ktbl<=29) then begin
+       writeln(out,inttostr(PRF_count),
+       #9,floattostr(CDS_DSC.FieldByName('Press').AsFloat),
+       #9,floattostr(CDS_DSC.FieldByName('Val').AsFloat),
+       #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+       #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+       #9,inttostr(CDS_DSC.FieldByName('SQF').AsInteger),
+       #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+       #9,inttostr(CDS_DSC.FieldByName('Units_ID').AsInteger));
 
-     {writeln(out,inttostr(kst),
-       #9+inttostr(L1),
-       #9+inttostr(L2),
-       #9,inttostr(line),
-       #9,inttostr(cruiseN));}
+//write into DB
+       if CheckBox2.Checked then
+       with frmdm.q3 do begin
+         Close;
+         SQL.Clear;
+         SQL.Add(' insert into ');
+         SQL.Add(trim(TblName[ktbl]));
+         SQL.Add(' (ID, PRES, VAL, PQF1, PQF2, SQF, BOTTLE_NUMBER, UNITS_ID) ');
+         SQL.Add(' values ');
+         SQL.Add(' (:ID, :PRES, :VAL, :PQF1, :PQF2, :SQF, :BOTTLE_NUMBER, :UNITS_ID) ');
+         ParamByName('ID').AsInteger:=PRF_count;
+         ParamByName('PRES').AsFloat:=CDS_DSC.FieldByName('Press').AsFloat;
+         ParamByName('VAL').AsFloat:=CDS_DSC.FieldByName('Val').AsFloat;
+         ParamByName('PQF1').AsInteger:=CDS_DSC.FieldByName('PQF1').AsInteger;
+         ParamByName('PQF2').AsInteger:=CDS_DSC.FieldByName('PQF2').AsInteger;
+         ParamByName('SQF').AsInteger:=CDS_DSC.FieldByName('SQF').AsInteger;
+         ParamByName('BOTTLE_NUMBER').AsInteger:=CDS_DSC.FieldByName('Bottle').AsInteger;
+         ParamByName('UNITS_ID').AsInteger:=CDS_DSC.FieldByName('Units_ID').AsInteger;
+         ExecSQL;
+       end;
+       frmdm.TR.CommitRetaining;
+{V}end;
 
+{V}if (CDS_DSC.FieldByName('Val').AsFloat<>-9999) and (ktbl>29) then begin
 
-{s}while not CDS_DSC.EOF do begin
+       writeln(out,inttostr(PRF_count),
+       #9,floattostr(CDS_DSC.FieldByName('Press').AsFloat),
+       #9,floattostr(CDS_DSC.FieldByName('Val').AsFloat),
+       #9,floattostr(CDS_DSC.FieldByName('ValErr').AsFloat),
+       #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
+       #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
+       #9,inttostr(CDS_DSC.FieldByName('SQF').AsInteger),
+       #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
+       #9,inttostr(CDS_DSC.FieldByName('Units_ID').AsInteger));
+       if CheckBox2.Checked then
 
-   writeln(out,inttostr(kst),
-   #9,inttostr(cruiseN),
-   #9,inttostr(CDS_DSC.FieldByName('Station').AsInteger),
-   #9,inttostr(CDS_DSC.FieldByName('Cast').AsInteger),
-   #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
-   #9,floattostr(CDS_DSC.FieldByName('press').AsFloat),
-   #9,floattostr(CDS_DSC.FieldByName('val').AsFloat));
+       if CheckBox2.Checked then
+       with frmdm.q3 do begin
+         Close;
+         SQL.Clear;
+         SQL.Add(' insert into ');
+         SQL.Add(TblName[ktbl]);
+         SQL.Add(' (ID, PRES, VAL, VALERR, PQF1, PQF2, SQF, BOTTLE_NUMBER, UNITS_ID) ');
+         SQL.Add(' values ');
+         SQL.Add(' (:ID, :PRES, :VAL, :VALERR, :PQF1, :PQF2, :SQF, :BOTTLE_NUMBER, :UNITS_ID) ');
+         ParamByName('ID').AsInteger:=PRF_count;
+         ParamByName('PRES').AsFloat:=CDS_DSC.FieldByName('Press').AsFloat;
+         ParamByName('VAL').AsFloat:=CDS_DSC.FieldByName('Val').AsFloat;
+         ParamByName('VALERR').AsFloat:=CDS_DSC.FieldByName('ValErr').AsFloat;
+         ParamByName('PQF1').AsInteger:=CDS_DSC.FieldByName('PQF1').AsInteger;
+         ParamByName('PQF2').AsInteger:=CDS_DSC.FieldByName('PQF2').AsInteger;
+         ParamByName('SQF').AsInteger:=CDS_DSC.FieldByName('SQF').AsInteger;
+         ParamByName('BOTTLE_NUMBER').AsInteger:=CDS_DSC.FieldByName('Bottle').AsInteger;
+         ParamByName('UNITS_ID').AsInteger:=CDS_DSC.FieldByName('Units_ID').AsInteger;
+         ExecSQL;
+       end;
+       frmdm.TR.CommitRetaining;
+
+{V}end;
+
 
      CDS_DSC.Next;
-{s}end; //filtered by cast number and sorted station
-{i}end; //if cast exists
-{c}end; //casts
+{PRF}end; //filtered by cast number and sorted station
+{CAST}end; //if cast exists
+{CN}end; // 1..cast_maxN
 
       CDS_DSC.Filtered:=false;
-      //CDS_DSC.Close;
-      //CDS_DSC.Clear;
-      //CDS_DSC.Active:=false;
-{st}end; //real stations loop
+{ST}end; //GLODAP stations
 
    if CDS_DSC.Active=true then CDS_DSC.Close;
       CDS_DSC.Free;
+
+      closefile(dat);
       closefile(out);
+
+{TBL}end; {ktbl 1..34}
 
       memo1.Lines.Add('');
       memo1.Lines.Add('Loading completed');
+      memo1.Lines.Add('End:'+datetimetostr(NOW));
+
 end;
 
 
