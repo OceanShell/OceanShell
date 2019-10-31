@@ -18,7 +18,7 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
   end
   object Memo1: TMemo
     Left = 0
-    Height = 360
+    Height = 368
     Top = 0
     Width = 683
     Align = alTop
@@ -28,49 +28,15 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
     ScrollBars = ssBoth
     TabOrder = 1
   end
-  object btnCreateTables: TButton
-    Left = 520
-    Height = 25
-    Top = 424
-    Width = 147
-    Caption = 'Add Variable Tables'
-    Font.CharSet = RUSSIAN_CHARSET
-    Font.Color = clRed
-    Font.Height = -12
-    Font.Name = 'Segoe UI'
-    Font.Pitch = fpVariable
-    Font.Quality = fqDraft
-    OnClick = btnCreateTablesClick
-    ParentFont = False
-    TabOrder = 2
-  end
-  object btnSplitOnMDandProfiles: TButton
-    Left = 352
-    Height = 25
-    Top = 424
-    Width = 144
-    Caption = 'Split On MD and Profiles'
-    OnClick = btnSplitOnMDandProfilesClick
-    TabOrder = 3
-  end
-  object btnSaveStationMDonDisk: TButton
-    Left = 352
-    Height = 25
-    Top = 384
-    Width = 144
-    Caption = 'Save GLODAP Station MD'
-    OnClick = btnSaveStationMDonDiskClick
-    TabOrder = 4
-  end
   object GroupBox1: TGroupBox
     Left = 168
     Height = 81
-    Top = 376
+    Top = 375
     Width = 161
     Caption = 'Download into DB'
     ClientHeight = 61
     ClientWidth = 157
-    TabOrder = 5
+    TabOrder = 2
     Visible = False
     object btnDownloadMD: TButton
       Left = 8
@@ -105,6 +71,51 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
       Width = 48
       Caption = 'Write'
       TabOrder = 3
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 352
+    Height = 80
+    Top = 376
+    Width = 312
+    Caption = 'Auxiliary procedures'
+    ClientHeight = 60
+    ClientWidth = 308
+    TabOrder = 3
+    object btnSplitOnMDandProfiles: TButton
+      Left = 160
+      Height = 25
+      Top = 0
+      Width = 144
+      Caption = 'Split On MD and Profiles'
+      OnClick = btnSplitOnMDandProfilesClick
+      TabOrder = 0
+    end
+    object btnCreateTables: TButton
+      Left = 8
+      Height = 25
+      Top = 0
+      Width = 147
+      Caption = 'Add Variable Tables'
+      Color = clRed
+      Font.CharSet = RUSSIAN_CHARSET
+      Font.Color = clRed
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Pitch = fpVariable
+      Font.Quality = fqDraft
+      OnClick = btnCreateTablesClick
+      ParentFont = False
+      TabOrder = 1
+    end
+    object btnSaveStationMDonDisk: TButton
+      Left = 160
+      Height = 25
+      Top = 32
+      Width = 144
+      Caption = 'Save GLODAP Station MD'
+      OnClick = btnSaveStationMDonDiskClick
+      TabOrder = 2
     end
   end
 end

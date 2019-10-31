@@ -44,6 +44,7 @@ type
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     GroupBox1: TGroupBox;
+    GroupBox2: TGroupBox;
     Memo1: TMemo;
     procedure btnDataSourceClick(Sender: TObject);
     procedure btnDownloadMDClick(Sender: TObject);
@@ -64,7 +65,7 @@ var
   frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product;
   var_num,LinesInFile,RSt:integer;
   Path, path_out, path_MD, path_PRF:string;
-  var_name:array[1..200] of string;     //variables names
+  var_name:array[1..102] of string;     //variables names
   line_arr:array[1..100000] of integer; //profile intervals at stations
   Dat, out, outMD :text;
   CDS_DSC1,CDS_DSC2:TBufDataSet; //CDS Divide stations on casts
@@ -111,7 +112,7 @@ begin
   AssignFile(out, Path_out); Rewrite(out);
   memo1.Lines.Add('path_out='+path_out);
 
-  writeln(out,'Rst#  Line_arr[RSt]  line#  cruise#  st#  cast#  date  lat  lon  BD  LastPress bottle#');
+  writeln(out,'Rst#  Line_arr[RSt]  line#  cruise#  st#  cast#  date  lat  lon  BD  LastPres bottle#');
 
   AssignFile(dat, Path); Reset(dat);
   readln(dat, st);
@@ -136,8 +137,9 @@ begin
     inc(n);
     symbol:=st[n];
     if (symbol<>',') then buf_str:=buf_str+symbol;
-  until (symbol=',') or (symbol=#10);
-    var_name[k]:=buf_str;
+  until (symbol=',') or (n=length(st));
+    //memo1.Lines.Add('k='+inttostr(k)+'  '+buf_str);
+    var_name[k]:=trim(buf_str);
   end;
   memo1.Lines.Add('Array with variable names is created');
 
@@ -305,7 +307,7 @@ PRF_count,Cast_MaxN:integer;
 cruiseN,stationN,castN,stNBNum,StVersion,countDup:integer;
 Year,Month,Day,Hour,Min:integer;
 stlat,stlon,stBD,stPDS,stMDS:real;
-press:real;
+pres:real;
 symbol:char;
 st,buf_str,str_MD,path_MD:string;
 StDT:TDateTime;
@@ -326,7 +328,7 @@ begin
    CDS_DSC:=TBufDataSet.Create(self);
   with CDS_DSC.FieldDefs do begin
     Add('ID',  ftInteger,0,true);
-    Add('Press', ftFloat,0,true);
+    Add('Pres', ftFloat,0,true);
     Add('Bottle',  ftInteger,0,true);
     Add('Station',  ftInteger,0,true);
     Add('Cast',  ftInteger,0,true);
@@ -376,7 +378,7 @@ begin
              11: stBD:=strtofloat(buf_str);                    //bottom depth m
              12: stPDS:=strtofloat(buf_str);                   //pressure of the deepest sample
              13: stNBNum:=trunc(strtofloat(buf_str));          //Niskin bottle number
-             14: press:=strtofloat(buf_str);                   //sampling pressure dbar
+             14: pres:=strtofloat(buf_str);                   //sampling pressure dbar
              end;{case}
          {b}end;
 
@@ -386,7 +388,7 @@ begin
    with CDS_DSC do begin
     Append;
     FieldByName('ID').AsInteger:=kst;
-    FieldByName('Press').AsFloat:=press;
+    FieldByName('Pres').AsFloat:=pres;
     FieldByName('Bottle').AsInteger:=stNBNum;
     FieldByName('Station').AsInteger:=stationN;
     FieldByName('Cast').AsInteger:=castN;
@@ -407,13 +409,13 @@ begin
 {c}for kc:=1 to cast_maxN do begin
     CDS_DSC.Filter:='CAST='+inttostr(kc);
     CDS_DSC.Filtered:=true;               //filter by cast
-    CDS_DSC.IndexFieldNames:='Press';     //sort by press
+    CDS_DSC.IndexFieldNames:='Pres';     //sort by press
 
 {CAST}if CDS_DSC.IsEmpty=false then begin
 
         //real last level for each profile
         CDS_DSC.Last;
-        stPDS:=CDS_DSC.FieldByName('Press').AsFloat;
+        stPDS:=CDS_DSC.FieldByName('Pres').AsFloat;
 
         //CDS_DSC.First;
         PRF_count:=PRF_count+1;
@@ -536,7 +538,7 @@ NextStFound:boolean;
 str_out:string;
 
 //values
-press,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
+pres,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
 cfc11,pcfc11,cfc12,pcfc12,cfc113,pcfc113,cc14,pcc14,sf6,psf6,c13,c14:real;
 h3,he3,he,neon,O18,toc,doc,don,tdn,chla:real;
 //errors
@@ -553,6 +555,7 @@ cfc11_sQF,cfc12_sQF,cfc113_sQF,cc14_sQF,sf6_pQF1,c13_sQF,phts25p0_sQF:integer;
 cast_count:Integer;
 //download
 CountDup,StVersion:integer;
+
 
 begin
    path_out:='c:\Users\ako071\AK\datasets\GLODAP\download\GLODAP_STATIONS.dat';
@@ -628,7 +631,7 @@ begin
    12: stPDS:=strtofloat(buf_str);                   //pressure of the deepest sample
    13: stNBNum:=trunc(strtofloat(buf_str));          //Niskin bottle number
 
-   14: press:=strtofloat(buf_str);                   //sampling pressure dbar
+   14: pres:=strtofloat(buf_str);                   //sampling pressure dbar
    16: temp:=strtofloat(buf_str);                    //temperature
 
    18: salt:=strtofloat(buf_str);                    //salinity
@@ -883,7 +886,7 @@ var
   DayChange,DateChange:Boolean;
 
   //values
-  press,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
+  pres,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
   cfc11,pcfc11,cfc12,pcfc12,cfc113,pcfc113,cc14,pcc14,sf6,psf6,c13,c14:real;
   h3,he3,he,neon,O18,toc,doc,don,tdn,chla:real;
   //errors
@@ -995,7 +998,7 @@ begin
                   AssignFile(outPRF7, path_TBL);
                      Rewrite(outPRF7);
                      writeln(outPRF7,str_PRF1);
-    // 8  P_018_BOTTLE
+    // 8  P_O18_BOTTLE
     path_TBL:=path_PRF+TNames1_arr[8]+'.dat';
                   AssignFile(outPRF8, path_TBL);
                      Rewrite(outPRF8);
@@ -1138,7 +1141,7 @@ begin
  CDS_DSC1:=TBufDataSet.Create(self);
 with CDS_DSC1.FieldDefs do begin
   Add('ID',  ftInteger,0,true);
-  Add('Press', ftFloat,0,true);
+  Add('Pres', ftFloat,0,true);
   Add('Val', ftFloat,0,true);
   Add('PQF1',  ftInteger,0,true);
   Add('PQF2',  ftInteger,0,true);
@@ -1154,7 +1157,7 @@ end;
  CDS_DSC2:=TBufDataSet.Create(self);
 with CDS_DSC2.FieldDefs do begin
   Add('ID',  ftInteger,0,true);
-  Add('Press', ftFloat,0,true);
+  Add('Pres', ftFloat,0,true);
   Add('Val', ftFloat,0,true);
   Add('ValErr', ftFloat,0,true);
   Add('PQF1',  ftInteger,0,true);
@@ -1222,7 +1225,7 @@ end;
     12: stPDS:=strtofloat(buf_str);                   //pressure of the deepest sample
     13: stNBNum:=trunc(strtofloat(buf_str));          //Niskin bottle number
 
-    14: press:=strtofloat(buf_str);                   //sampling pressure dbar
+    14: pres:=strtofloat(buf_str);                   //sampling pressure dbar
     16: temp:=strtofloat(buf_str);                    //temperature
     18: salt:=strtofloat(buf_str);                    //salinity
     19: salt_pQF1:=trunc(strtofloat(buf_str));        //pQF1
@@ -1407,7 +1410,7 @@ end;
       TUNIT:=3;  //Micro-mole per kilogram
       end;
    8: begin
-      TName:='P_018_BOTTLE';
+      TName:='P_O18_BOTTLE';
       Tval:=O18;
       TPQF1:=O18_pQF1;
       TBottle:=stNBNum;
@@ -1630,7 +1633,7 @@ end;
    with CDS_DSC1 do begin
      Append;
      FieldByName('ID').AsInteger:=kst;
-     FieldByName('Press').AsFloat:=press;
+     FieldByName('Pres').AsFloat:=pres;
      FieldByName('Val').AsFloat:=TVal;
      FieldByName('PQF1').AsInteger:=TPQF1;
      FieldByName('PQF2').AsInteger:=TPQF2;
@@ -1647,7 +1650,7 @@ end;
    with CDS_DSC2 do begin
      Append;
      FieldByName('ID').AsInteger:=kst;
-     FieldByName('Press').AsFloat:=press;
+     FieldByName('Pres').AsFloat:=pres;
      FieldByName('Val').AsFloat:=TVal;
      FieldByName('ValErr').AsFloat:=TValErr;
      FieldByName('PQF1').AsInteger:=TPQF1;
@@ -1681,7 +1684,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     CDS_DSC1.Filter:='CAST='+inttostr(c);
     CDS_DSC1.Filtered:=true;
 
-    CDS_DSC1.IndexFieldNames:='Press';  //sort by press
+    CDS_DSC1.IndexFieldNames:='Pres';  //sort by pressure
 
 
 {i}if CDS_DSC1.IsEmpty=false then begin
@@ -1714,7 +1717,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     case kTN of
     1: begin
     writeln(outPRF1,inttostr(PRF_count),                      //ID
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),     //PRESS
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),     //PRES
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),       //VAL
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),      //PQF1
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),      //PQF2
@@ -1724,7 +1727,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     2: begin
     writeln(outPRF2,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1734,7 +1737,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     3: begin
     writeln(outPRF3,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1744,7 +1747,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     4: begin
     writeln(outPRF4,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1754,7 +1757,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     5: begin
     writeln(outPRF5,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1764,7 +1767,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     6: begin
     writeln(outPRF6,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1774,7 +1777,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     7: begin
     writeln(outPRF7,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1784,7 +1787,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     8: begin
     writeln(outPRF8,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1794,7 +1797,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     9: begin
     writeln(outPRF9,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1804,7 +1807,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     10: begin
     writeln(outPRF10,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1814,7 +1817,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     11: begin
     writeln(outPRF11,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1824,7 +1827,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     12: begin
     writeln(outPRF12,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1834,7 +1837,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     13: begin
     writeln(outPRF13,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1844,7 +1847,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     14: begin
     writeln(outPRF14,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1854,7 +1857,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     15: begin
     writeln(outPRF15,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1864,7 +1867,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     16: begin
     writeln(outPRF16,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1874,7 +1877,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     17: begin
     writeln(outPRF17,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1884,7 +1887,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     18: begin
     writeln(outPRF18,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1894,7 +1897,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     19: begin
     writeln(outPRF19,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1904,7 +1907,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     20: begin
     writeln(outPRF20,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1914,7 +1917,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     21: begin
     writeln(outPRF21,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1924,7 +1927,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     22: begin
     writeln(outPRF22,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1934,7 +1937,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     23: begin
     writeln(outPRF23,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1944,7 +1947,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     24: begin
     writeln(outPRF24,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1954,7 +1957,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     25: begin
     writeln(outPRF25,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1964,7 +1967,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     26: begin
     writeln(outPRF26,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1974,7 +1977,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     27: begin
     writeln(outPRF27,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1984,7 +1987,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     28: begin
     writeln(outPRF28,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -1994,7 +1997,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     end;
     29: begin
     writeln(outPRF29,inttostr(PRF_count),
-    #9,floattostr(CDS_DSC1.FieldByName('press').AsFloat),
+    #9,floattostr(CDS_DSC1.FieldByName('pres').AsFloat),
     #9,floattostr(CDS_DSC1.FieldByName('val').AsFloat),
     #9,inttostr(CDS_DSC1.FieldByName('PQF1').AsInteger),
     #9,inttostr(CDS_DSC1.FieldByName('PQF2').AsInteger),
@@ -2029,7 +2032,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     CDS_DSC2.Filter:='CAST='+inttostr(c);
     CDS_DSC2.Filtered:=true;
 
-    CDS_DSC2.IndexFieldNames:='Press';  //sort by press
+    CDS_DSC2.IndexFieldNames:='Pres';  //sort by pressure
 
 
 {i}if CDS_DSC2.IsEmpty=false then begin
@@ -2062,7 +2065,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
         case kTN of
         30: begin
         writeln(outPRF30,inttostr(PRF_count),                      //ID
-        #9,floattostr(CDS_DSC2.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC2.FieldByName('pres').AsFloat),     //PRES
         #9,floattostr(CDS_DSC2.FieldByName('val').AsFloat),       //VAL
         #9,floattostr(CDS_DSC2.FieldByName('valerr').AsFloat),    //VALERR
         #9,inttostr(CDS_DSC2.FieldByName('PQF1').AsInteger),      //PQF1
@@ -2073,7 +2076,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
         end;
         31: begin
         writeln(outPRF31,inttostr(PRF_count),                      //ID
-        #9,floattostr(CDS_DSC2.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC2.FieldByName('pres').AsFloat),     //PRES
         #9,floattostr(CDS_DSC2.FieldByName('val').AsFloat),       //VAL
         #9,floattostr(CDS_DSC2.FieldByName('valerr').AsFloat),    //VALERR
         #9,inttostr(CDS_DSC2.FieldByName('PQF1').AsInteger),      //PQF1
@@ -2084,7 +2087,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
         end;
         32: begin
         writeln(outPRF32,inttostr(PRF_count),                      //ID
-        #9,floattostr(CDS_DSC2.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC2.FieldByName('pres').AsFloat),     //PRES
         #9,floattostr(CDS_DSC2.FieldByName('val').AsFloat),       //VAL
         #9,floattostr(CDS_DSC2.FieldByName('valerr').AsFloat),    //VALERR
         #9,inttostr(CDS_DSC2.FieldByName('PQF1').AsInteger),      //PQF1
@@ -2095,7 +2098,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
         end;
         33: begin
         writeln(outPRF33,inttostr(PRF_count),                      //ID
-        #9,floattostr(CDS_DSC2.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC2.FieldByName('pres').AsFloat),     //PRES
         #9,floattostr(CDS_DSC2.FieldByName('val').AsFloat),       //VAL
         #9,floattostr(CDS_DSC2.FieldByName('valerr').AsFloat),    //VALERR
         #9,inttostr(CDS_DSC2.FieldByName('PQF1').AsInteger),      //PQF1
@@ -2106,7 +2109,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
         end;
         34: begin
         writeln(outPRF34,inttostr(PRF_count),                      //ID
-        #9,floattostr(CDS_DSC2.FieldByName('press').AsFloat),     //PRESS
+        #9,floattostr(CDS_DSC2.FieldByName('pres').AsFloat),     //PRES
         #9,floattostr(CDS_DSC2.FieldByName('val').AsFloat),       //VAL
         #9,floattostr(CDS_DSC2.FieldByName('valerr').AsFloat),    //VALERR
         #9,inttostr(CDS_DSC2.FieldByName('PQF1').AsInteger),      //PQF1
@@ -2196,13 +2199,13 @@ var
   Year,Month,Day,Hour,Min:integer;
   stlat,stlon,stBD,stPDS:real;
   symbol:char;
-  st,buf_str,path_out,path_TBL,str_out:string;
+  st,buf_str,path_out,path_TBL,str_out,GLODAP_TBL:string;
   StDT:TDateTime;
   DayChange,DateChange:Boolean;
   UnitID:array[1..34] of integer;
   TblName:array[1..34] of string;
   //values
-  press,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
+  pres,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
   cfc11,pcfc11,cfc12,pcfc12,cfc113,pcfc113,cc14,pcc14,sf6,psf6,c13,c14:real;
   h3,he3,he,neon,O18,toc,doc,don,tdn,chla:real;
   //errors
@@ -2219,7 +2222,7 @@ var
   cast_count:Integer;
 
   TPQF1,TPQF2,TSQF,TBottle,TUnit:integer;
-  TPress,TVAL,TVALERR:real;
+  TPres,TVAL,TVALERR:real;
 
 begin
 
@@ -2243,7 +2246,7 @@ TblName[17]:='P_TDN_BOTTLE';
 TblName[18]:='P_TOC_BOTTLE';
 TblName[19]:='P_TEMPERATURE_BOTTLE';
 TblName[20]:='P_CC14_BOTTLE';
-TblName[21]:='P_PCCL4_BOTTLE';
+TblName[21]:='P_PCC14_BOTTLE';
 TblName[22]:='P_CFC113_BOTTLE';
 TblName[23]:='P_PCFC113_BOTTLE';
 TblName[24]:='P_CFC11_BOTTLE';
@@ -2297,8 +2300,8 @@ path_out:='c:\Users\ako071\AK\datasets\GLODAP\download\';
 
 memo1.Lines.Add('Start:'+datetimetostr(NOW));
 
-//{TBL}for ktbl:=1 to 34 do begin
-{TBL}for ktbl:=1 to 1 do begin
+
+{TBL}for ktbl:=1 to 34 do begin
 
      Reset(dat);
      readln(dat, st);
@@ -2314,12 +2317,13 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
      writeln(out,str_out);
 
      memo1.Lines.Add(inttostr(ktbl)+#9+path_TBL);
+     Application.ProcessMessages;
 
    //CDS Divide Station on Casts
     CDS_DSC:=TBufDataSet.Create(self);
    with CDS_DSC.FieldDefs do begin
      Add('ID',  ftInteger,0,true);
-     Add('Press', ftFloat,0,true);
+     Add('Pres', ftFloat,0,true);
      Add('Val', ftFloat,0,true);
      if (ktbl>29) then Add('ValErr', ftFloat,0,true);
      Add('PQF1',  ftInteger,0,true);
@@ -2334,7 +2338,8 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
 
 
     PRF_count:=0;
-{ST}for kst:=1 to RSt-1 do begin        //GLODAP Stations
+//{ST}for kst:=1 to RSt-1 do begin        //GLODAP Stations
+{ST}for kst:=1 to 1000 do begin        //GLODAP Stations
 
     if CDS_DSC.Active then CDS_DSC.Close;
       CDS_DSC.Open;
@@ -2376,7 +2381,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
      12: stPDS:=strtofloat(buf_str);                   //pressure of the deepest sample
      13: stNBNum:=trunc(strtofloat(buf_str));          //Niskin bottle number
 
-     14: press:=strtofloat(buf_str);                   //sampling pressure dbar
+     14: pres:=strtofloat(buf_str);                   //sampling pressure dbar
      16: temp:=strtofloat(buf_str);                    //temperature
      18: salt:=strtofloat(buf_str);                    //salinity
      19: salt_pQF1:=trunc(strtofloat(buf_str));        //pQF1
@@ -2501,14 +2506,14 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
 
       case ktbl of
       1: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=aou;
          TPQF1:=aou_pQF1;
          TBottle:=stNBNum;
          TUNIT:=3; //Micro-mole per kilogram
          end; {1}
       2: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=c13;
          TPQF1:=c13_pQF1;
          TSQF:=c13_SQF;
@@ -2516,28 +2521,28 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          TUNIT:=11; //Per-mille deviation
          end; {2}
       3: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=chla;
          TPQF1:=chla_pQF1;
          TBottle:=stNBNum;
          TUNIT:=14;  //Micro-gram per kilogram
          end;
       4: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=doc;
          TPQF1:=doc_pQF1;
          TBottle:=stNBNum;
          TUNIT:=15;  //Micro-gram per liter
          end;
       5: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=don;
          TPQF1:=don_pQF1;
          TBottle:=stNBNum;
          TUNIT:=15;  //Micro-gram per liter
          end;
       6: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=nat;
          TPQF1:=nat_pQF1;
          TSQF:=nat_SQF;
@@ -2545,21 +2550,21 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          TUNIT:=3;  //Micro-mole per kilogram
          end;
       7: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=nit;
          TPQF1:=nit_pQF1;
          TBottle:=stNBNum;
          TUNIT:=3;  //Micro-mole per kilogram
          end;
       8: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=O18;
          TPQF1:=O18_pQF1;
          TBottle:=stNBNum;
          TUNIT:=11;  //Per-mille deviation
          end;
       9: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=oxy;
          TPQF1:=oxy_pQF1;
          TSQF:=oxy_SQF;
@@ -2567,7 +2572,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          TUNIT:=3;  //Micro-mole per kilogram
          end;
       10: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=pho;
           TPQF1:=pho_pQF1;
           TSQF:=pho_SQF;
@@ -2575,7 +2580,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=3;  //Micro-mole per kilogram
           end;
       11: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=phts25p0;
           TPQF1:=phts25p0_pQF1;
           TSQF:=phts25p0_SQF;
@@ -2583,7 +2588,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=2;  //Dimensionless or unit less
           end;
       12: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=phtsinsitutp;
           TPQF1:=phtsinsitutp_pQF1;
           TSQF:=phtsinsitutp_SQF;
@@ -2591,7 +2596,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=2;  //Dimensionless or unit less
           end;
       13: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=salt;
           TPQF1:=salt_pQF1;
           TSQF:=salt_SQF;
@@ -2599,7 +2604,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=2;  //Dimensionless or unit less
           end;
       14: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=sil;
           TPQF1:=sil_pQF1;
           TSQF:=sil_SQF;
@@ -2607,7 +2612,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=3;  //Micro-mole per kilogram
           end;
       15: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=talk;
           TPQF1:=talk_pQF1;
           TSQF:=talk_SQF;
@@ -2615,7 +2620,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=3;  //Micro-mole per kilogram
           end;
       16: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=tco2;
           TPQF1:=tco2_pQF1;
           TSQF:=tco2_SQF;
@@ -2623,27 +2628,27 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=3;  //Micro-mole per kilogram
           end;
       17: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=tdn;
           TPQF1:=tdn_pQF1;
           TBottle:=stNBNum;
           TUNIT:=15;  //Micro-mole per liter
           end;
       18: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=toc;
           TPQF1:=toc_pQF1;
           TBottle:=stNBNum;
           TUNIT:=15;  //Micro-mole per liter
           end;
       19: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=temp;
           TBottle:=stNBNum;
           TUNIT:=1;  //Degree centigrade
           end;
       20: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=cc14;
          TPQF1:=cc14_pQF1;
          TSQF:=cc14_SQF;
@@ -2651,7 +2656,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          TUNIT:=13;  //Pico-mole per kilogram
          end;
       21: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=pcc14;
           TPQF1:=cc14_pQF1;
           TSQF:=cc14_SQF;
@@ -2659,7 +2664,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
           end;
       22: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=cfc113;
           TPQF1:=cfc113_pQF1;
           TSQF:=cfc113_SQF;
@@ -2667,7 +2672,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=13;  //Pico-mole per kilogram
           end;
       23: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=pcfc113;
           TPQF1:=cfc113_pQF1;
           TSQF:=cfc113_SQF;
@@ -2675,7 +2680,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
           end;
       24: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=cfc11;
           TPQF1:=cfc11_pQF1;
           TSQF:=cfc11_SQF;
@@ -2683,7 +2688,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=13;  //Pico-mole per kilogram
           end;
       25: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=pcfc11;
           TPQF1:=cfc11_pQF1;
           TSQF:=cfc11_SQF;
@@ -2691,7 +2696,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
           end;
       26: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=cfc12;
           TPQF1:=cfc12_pQF1;
           TSQF:=cfc12_SQF;
@@ -2699,7 +2704,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=13;  //Pico-mole per kilogram
           end;
       27: begin
-          TPress:=press;
+          TPres:=pres;
           Tval:=pcfc12;
           TPQF1:=cfc12_pQF1;
           TSQF:=cfc12_SQF;
@@ -2707,21 +2712,21 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
           end;
       28: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=sf6;
          TPQF1:=sf6_pQF1;
          TBottle:=stNBNum;
          TUNIT:=19;  //Femto-mole per kilogram
          end;
       29: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=psf6;
          TPQF1:=sf6_pQF1;
          TBottle:=stNBNum;
          TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
          end;
       30: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=c14;
          Tvalerr:=c14_err;
          TPQF1:=c14_pQF1;
@@ -2729,7 +2734,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          TUNIT:=11;  //Per-mille deviation
          end;
       31: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=he3;
          Tvalerr:=he3_err;
          TPQF1:=he3_pQF1;
@@ -2737,7 +2742,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          TUNIT:=10;  //
          end;
       32: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=he;
          Tvalerr:=he_err;
          TPQF1:=he_pQF1;
@@ -2745,7 +2750,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          TUNIT:=12;  //Nano-mole per kilogram
          end;
       33: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=neon;
          Tvalerr:=neon_err;
          TPQF1:=neon_pQF1;
@@ -2753,7 +2758,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          TUNIT:=12;  //Nano-mole per kilogram
          end;
       34: begin
-         TPress:=press;
+         TPres:=pres;
          Tval:=h3;
          Tvalerr:=h3_err;
          TPQF1:=h3_pQF1;
@@ -2768,7 +2773,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
    with CDS_DSC do begin
       Append;
       FieldByName('ID').AsInteger:=kst;
-      FieldByName('Press').AsFloat:=TPress;
+      FieldByName('Pres').AsFloat:=TPres;
       FieldByName('Val').AsFloat:=TVal;
       if (kTBL>29) then FieldByName('ValErr').AsFloat:=TValErr;
       FieldByName('PQF1').AsInteger:=0;
@@ -2799,11 +2804,12 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
 {CN}for c:=1 to cast_maxN do begin       //cast number
      CDS_DSC.Filter:='CAST='+inttostr(c);
      CDS_DSC.Filtered:=true;            //filter by cast
-     CDS_DSC.IndexFieldNames:='Press';  //sort by press
+     CDS_DSC.IndexFieldNames:='Pres';  //sort by pressure
 
 
 {CAST}if CDS_DSC.IsEmpty=false then begin
       PRF_count:=PRF_count+1;
+      GLODAP_TBL:=trim(TblName[ktbl]);
 
       CDS_DSC.First;
 {PRF}while not CDS_DSC.EOF do begin
@@ -2813,26 +2819,25 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
 //on disk
 {V}if (CDS_DSC.FieldByName('Val').AsFloat<>-9999) and (ktbl<=29) then begin
        writeln(out,inttostr(PRF_count),
-       #9,floattostr(CDS_DSC.FieldByName('Press').AsFloat),
+       #9,floattostr(CDS_DSC.FieldByName('Pres').AsFloat),
        #9,floattostr(CDS_DSC.FieldByName('Val').AsFloat),
        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
        #9,inttostr(CDS_DSC.FieldByName('SQF').AsInteger),
        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
        #9,inttostr(CDS_DSC.FieldByName('Units_ID').AsInteger));
-
 //write into DB
-       if CheckBox2.Checked then
+   if CheckBox2.Checked then
        with frmdm.q3 do begin
          Close;
          SQL.Clear;
          SQL.Add(' insert into ');
-         SQL.Add(trim(TblName[ktbl]));
+         SQL.Add('"'+GLODAP_TBL+'"');
          SQL.Add(' (ID, PRES, VAL, PQF1, PQF2, SQF, BOTTLE_NUMBER, UNITS_ID) ');
          SQL.Add(' values ');
          SQL.Add(' (:ID, :PRES, :VAL, :PQF1, :PQF2, :SQF, :BOTTLE_NUMBER, :UNITS_ID) ');
          ParamByName('ID').AsInteger:=PRF_count;
-         ParamByName('PRES').AsFloat:=CDS_DSC.FieldByName('Press').AsFloat;
+         ParamByName('PRES').AsFloat:=CDS_DSC.FieldByName('Pres').AsFloat;
          ParamByName('VAL').AsFloat:=CDS_DSC.FieldByName('Val').AsFloat;
          ParamByName('PQF1').AsInteger:=CDS_DSC.FieldByName('PQF1').AsInteger;
          ParamByName('PQF2').AsInteger:=CDS_DSC.FieldByName('PQF2').AsInteger;
@@ -2845,9 +2850,8 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
 {V}end;
 
 {V}if (CDS_DSC.FieldByName('Val').AsFloat<>-9999) and (ktbl>29) then begin
-
        writeln(out,inttostr(PRF_count),
-       #9,floattostr(CDS_DSC.FieldByName('Press').AsFloat),
+       #9,floattostr(CDS_DSC.FieldByName('Pres').AsFloat),
        #9,floattostr(CDS_DSC.FieldByName('Val').AsFloat),
        #9,floattostr(CDS_DSC.FieldByName('ValErr').AsFloat),
        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
@@ -2856,18 +2860,18 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
        #9,inttostr(CDS_DSC.FieldByName('Units_ID').AsInteger));
        if CheckBox2.Checked then
-
-       if CheckBox2.Checked then
+//write into DB
+   if CheckBox2.Checked then
        with frmdm.q3 do begin
          Close;
          SQL.Clear;
          SQL.Add(' insert into ');
-         SQL.Add(TblName[ktbl]);
+         SQL.Add('"'+GLODAP_TBL+'"');
          SQL.Add(' (ID, PRES, VAL, VALERR, PQF1, PQF2, SQF, BOTTLE_NUMBER, UNITS_ID) ');
          SQL.Add(' values ');
          SQL.Add(' (:ID, :PRES, :VAL, :VALERR, :PQF1, :PQF2, :SQF, :BOTTLE_NUMBER, :UNITS_ID) ');
          ParamByName('ID').AsInteger:=PRF_count;
-         ParamByName('PRES').AsFloat:=CDS_DSC.FieldByName('Press').AsFloat;
+         ParamByName('PRES').AsFloat:=CDS_DSC.FieldByName('Pres').AsFloat;
          ParamByName('VAL').AsFloat:=CDS_DSC.FieldByName('Val').AsFloat;
          ParamByName('VALERR').AsFloat:=CDS_DSC.FieldByName('ValErr').AsFloat;
          ParamByName('PQF1').AsInteger:=CDS_DSC.FieldByName('PQF1').AsInteger;
@@ -2878,7 +2882,6 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          ExecSQL;
        end;
        frmdm.TR.CommitRetaining;
-
 {V}end;
 
 
@@ -2920,7 +2923,7 @@ begin
 
   (* Script for parameter tables *)
   ScriptText:=
-  (* 1	P_TEMPERATURE_BOTTLE	5	press val         pQF1      sQF		TEMPERATURE	Sea water temperture *)
+  (* 1	P_TEMPERATURE_BOTTLE	5	pres val         pQF1      sQF		TEMPERATURE	Sea water temperture *)
      'CREATE TABLE P_TEMPERATURE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -2932,7 +2935,7 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 2	P_SALINITY_BOTTLE	5	press val         pQF1 pQF2 sQF	CV	SALINITY	Sea water salinity *)
+  (* 2	P_SALINITY_BOTTLE	5	pres val         pQF1 pQF2 sQF	CV	SALINITY	Sea water salinity *)
      'CREATE TABLE P_SALINITY_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -2944,7 +2947,7 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 3	P_OXYGEN_BOTTLE		5	press val         pQF1 pQF2 sQF	CV	OXYGEN		Dissolved Oxygen *)
+  (* 3	P_OXYGEN_BOTTLE		5	pres val         pQF1 pQF2 sQF	CV	OXYGEN		Dissolved Oxygen *)
      'CREATE TABLE P_OXYGEN_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -2956,11 +2959,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 4	P_AOU_BOTTLE		5	press val         pQF1 pQF2 sQF		AOU		Apparent oxygen utilization  *)
+  (* 4	P_AOU_BOTTLE		5	pres val         pQF1 pQF2 sQF		AOU		Apparent oxygen utilization  *)
      'CREATE TABLE P_AOU_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -2968,11 +2971,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 5	P_NITRATE_BOTTLE	5	press val         pQF1 pQF2 sQF	CV	NITRATE		Nitrate *)
+  (* 5	P_NITRATE_BOTTLE	5	pres val         pQF1 pQF2 sQF	CV	NITRATE		Nitrate *)
      'CREATE TABLE P_NITRATE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -2980,11 +2983,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 6	P_NITRITE_BOTTLE	5	press val         pQF1 pQF2 sQF		NITRITE		Nitrite *)
+  (* 6	P_NITRITE_BOTTLE	5	pres val         pQF1 pQF2 sQF		NITRITE		Nitrite *)
      'CREATE TABLE P_NITRITE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -2992,11 +2995,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 7	P_SILICATE_BOTTLE	5	press val         pQF1 pQF2 sQF	CV	SILICATE	Silicate *)
+  (* 7	P_SILICATE_BOTTLE	5	pres val         pQF1 pQF2 sQF	CV	SILICATE	Silicate *)
      'CREATE TABLE P_SILICATE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3004,11 +3007,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 8	P_PHOSPHATE_BOTTLE	5	press val         pQF1 pQF2 sQF	CV	PHOSPHATE	Phosphate  *)
+  (* 8	P_PHOSPHATE_BOTTLE	5	pres val         pQF1 pQF2 sQF	CV	PHOSPHATE	Phosphate  *)
      'CREATE TABLE P_PHOSPHATE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3017,11 +3020,11 @@ begin
      '); '+LineEnding+
 
 
-  (* 9	P_TCO2_BOTTLE		5	press val         pQF1 pQF2 sQF	CV	TCO2		Dissolved inorganic carbon *)
+  (* 9	P_TCO2_BOTTLE		5	pres val         pQF1 pQF2 sQF	CV	TCO2		Dissolved inorganic carbon *)
      'CREATE TABLE P_TCO2_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3029,11 +3032,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 10	P_TALK_BOTTLE		5	press val         pQF1 pQF2 sQF	CV	TALK		Total alkalinity *)
+  (* 10	P_TALK_BOTTLE		5	pres val         pQF1 pQF2 sQF	CV	TALK		Total alkalinity *)
      'CREATE TABLE P_TALK_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3041,11 +3044,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 11	P_PHTS25P0_BOTTLE	5	press val         pQF1 pQF2 sQF	CV	PH		pH on total scale, 25C, 0dbar *)
+  (* 11	P_PHTS25P0_BOTTLE	5	pres val         pQF1 pQF2 sQF	CV	PH		pH on total scale, 25C, 0dbar *)
      'CREATE TABLE P_PHTS25P0_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3053,11 +3056,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 12	P_PHTSINSITUTP_BOTTLE	5	press val         pQF1 pQF2 sQF		PH		pH on total scale, in situ temperature and pressure *)
+  (* 12	P_PHTSINSITUTP_BOTTLE	5	pres val         pQF1 pQF2 sQF		PH		pH on total scale, in situ temperature and pressure *)
      'CREATE TABLE P_PHTSINSITUTP_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3065,11 +3068,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 13	P_CFC11_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CFC11		Halogenated transient tracer CFC11  *)
+  (* 13	P_CFC11_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CFC11		Halogenated transient tracer CFC11  *)
      'CREATE TABLE P_CFC11_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3077,11 +3080,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 13a P_PCFC11_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CFC11		Halogenated transient tracer CFC11  *)
+  (* 13a P_PCFC11_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CFC11		Halogenated transient tracer CFC11  *)
      'CREATE TABLE P_PCFC11_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3089,11 +3092,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 14	P_CFC12_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CFC12		Halogenated transient tracer CFC12 *)
+  (* 14	P_CFC12_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CFC12		Halogenated transient tracer CFC12 *)
      'CREATE TABLE P_CFC12_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3101,11 +3104,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 14	P_PCFC12_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CFC12		Halogenated transient tracer CFC12 *)
+  (* 14	P_PCFC12_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CFC12		Halogenated transient tracer CFC12 *)
      'CREATE TABLE P_PCFC12_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3113,11 +3116,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 15	P_CFC113_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CFC113		Halogenated transient tracer CFC113 *)
+  (* 15	P_CFC113_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CFC113		Halogenated transient tracer CFC113 *)
      'CREATE TABLE P_CFC113_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3125,11 +3128,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 15a	P_PCFC113_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CFC113		Halogenated transient tracer CFC113 *)
+  (* 15a	P_PCFC113_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CFC113		Halogenated transient tracer CFC113 *)
      'CREATE TABLE P_PCFC113_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3137,11 +3140,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (*16	P_CC14_BOTTLE		6	press val pval    pQF1 pQF2 sQF	CV	CC14		Halogenated transient tracer CC14 *)
+  (*16	P_CC14_BOTTLE		6	pres val pval    pQF1 pQF2 sQF	CV	CC14		Halogenated transient tracer CC14 *)
      'CREATE TABLE P_CC14_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3149,11 +3152,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (*16a	P_CC14_BOTTLE		6	press val    pQF1 pQF2 sQF	CV	CC14		Halogenated transient tracer CC14 *)
+  (*16a	P_CC14_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CC14		Halogenated transient tracer CC14 *)
      'CREATE TABLE P_PCC14_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3161,11 +3164,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 17	P_SF6_BOTTLE		6	press val    pQF1 pQF2 sQF		SF6		Sulfur hexafluoride  *)
+  (* 17	P_SF6_BOTTLE		6	pres val    pQF1 pQF2 sQF		SF6		Sulfur hexafluoride  *)
      'CREATE TABLE P_SF6_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3173,11 +3176,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 17a P_PSF6_BOTTLE		6	press val    pQF1 pQF2 sQF		SF6		Sulfur hexafluoride  *)
+  (* 17a P_PSF6_BOTTLE		6	pres val    pQF1 pQF2 sQF		SF6		Sulfur hexafluoride  *)
      'CREATE TABLE P_PSF6_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3185,11 +3188,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 18	P_C13_BOTTLE		5	press val         pQF1 pQF2 sQF		C13		Stable isotop carbon 13 *)
+  (* 18	P_C13_BOTTLE		5	pres val         pQF1 pQF2 sQF		C13		Stable isotop carbon 13 *)
      'CREATE TABLE P_C13_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3197,12 +3200,12 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 19	P_C14_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		C14		Radioisotop carbon 14  *)
+  (* 19	P_C14_BOTTLE		6	pres val valerr  pQF1 pQF2 sQF		C14		Radioisotop carbon 14  *)
      'CREATE TABLE P_C14_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
-     '   VALERR         DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VALERR         DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3214,8 +3217,8 @@ begin
      'CREATE TABLE P_H3_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
-     '   VALERR         DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VALERR         DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3223,12 +3226,12 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 21	P_HE3_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		HE3		Radioisotop helium 3, counting error  *)
+  (* 21	P_HE3_BOTTLE		6	pres val valerr  pQF1 pQF2 sQF		HE3		Radioisotop helium 3, counting error  *)
      'CREATE TABLE P_HE3_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
-     '   VALERR         DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VALERR         DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3236,12 +3239,12 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 22	P_HE_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		HE		Helium, counting error  *)
+  (* 22	P_HE_BOTTLE		6	pres val valerr  pQF1 pQF2 sQF		HE		Helium, counting error  *)
      'CREATE TABLE P_HE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
-     '   VALERR         DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VALERR         DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3249,12 +3252,12 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 23	P_NEON_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		NEON		Neon, counting error *)
+  (* 23	P_NEON_BOTTLE		6	pres val valerr  pQF1 pQF2 sQF		NEON		Neon, counting error *)
      'CREATE TABLE P_NEON_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
-     '   VALERR         DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VALERR         DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3262,11 +3265,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 24	P_O18_BOTTLE		5	press val         pQF1 pQF2 sQF		O18		Stable isotop of oxygen 18 *)
+  (* 24	P_O18_BOTTLE		5	pres val         pQF1 pQF2 sQF		O18		Stable isotop of oxygen 18 *)
      'CREATE TABLE P_O18_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3274,11 +3277,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 25	P_TOC_BOTTLE		5	press val         pQF1 pQF2 sQF		TOC		Total organic carbon *)
+  (* 25	P_TOC_BOTTLE		5	pres val         pQF1 pQF2 sQF		TOC		Total organic carbon *)
      'CREATE TABLE P_TOC_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3286,11 +3289,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 26	P_DOC_BOTTLE		5	press val         pQF1 pQF2 sQF		DOC		Dissolved organic carbon  *)
+  (* 26	P_DOC_BOTTLE		5	pres val         pQF1 pQF2 sQF		DOC		Dissolved organic carbon  *)
      'CREATE TABLE P_DOC_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3298,11 +3301,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 27	P_DON_BOTTLE		5	press val         pQF1 pQF2 sQF		DON		Dissolved organic nitrogen *)
+  (* 27	P_DON_BOTTLE		5	pres val         pQF1 pQF2 sQF		DON		Dissolved organic nitrogen *)
      'CREATE TABLE P_DON_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3310,11 +3313,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 28	P_TDN_BOTTLE		5	press val         pQF1 pQF2 sQF		TDN		Total dissolved nitrogen *)
+  (* 28	P_TDN_BOTTLE		5	pres val         pQF1 pQF2 sQF		TDN		Total dissolved nitrogen *)
      'CREATE TABLE P_TDN_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3322,11 +3325,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 29	P_CHLA_BOTTLE		5	press val         pQF1 pQF2 sQF		CHLA		chlorophylla *)
+  (* 29	P_CHLA_BOTTLE		5	pres val         pQF1 pQF2 sQF		CHLA		chlorophylla *)
      'CREATE TABLE P_CHLA_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+

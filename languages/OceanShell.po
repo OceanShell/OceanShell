@@ -659,6 +659,10 @@ msgstr ""
 msgid "Download into DB"
 msgstr ""
 
+#: tfrmloadglodap_2019_v2_product.groupbox2.caption
+msgid "Auxiliary procedures"
+msgstr ""
+
 #: tfrmloaditp.button1.caption
 msgid "Data"
 msgstr ""
