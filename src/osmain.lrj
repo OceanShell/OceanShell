@@ -2,6 +2,7 @@
 {"hash":138195868,"name":"tfrmosmain.caption","sourcebytes":[79,99,101,97,110,83,104,101,108,108],"value":"OceanShell"},
 {"hash":175993645,"name":"tfrmosmain.statusbar2.panels[0].text","sourcebytes":[91,68,97,116,97,98,97,115,101,93],"value":"[Database]"},
 {"hash":197818909,"name":"tfrmosmain.statusbar3.panels[0].text","sourcebytes":[91,83,101,108,101,99,116,105,111,110,93],"value":"[Selection]"},
+{"hash":94120868,"name":"tfrmosmain.btnselection.caption","sourcebytes":[83,101,108,101,99,116],"value":"Select"},
 {"hash":315429,"name":"tfrmosmain.ifile.caption","sourcebytes":[70,105,108,101],"value":"File"},
 {"hash":233512501,"name":"tfrmosmain.inewdatabase.caption","sourcebytes":[78,101,119,32,100,97,116,97,98,97,115,101],"value":"New database"},
 {"hash":248221285,"name":"tfrmosmain.iopendatabase.caption","sourcebytes":[79,112,101,110,32,100,97,116,97,98,97,115,101],"value":"Open database"},
@@ -15,6 +16,8 @@
 {"hash":87344546,"name":"tfrmosmain.iload_glodap_2019_v2.caption","sourcebytes":[50,48,49,57,46,118,50],"value":"2019.v2"},
 {"hash":5989939,"name":"tfrmosmain.itools.caption","sourcebytes":[84,111,111,108,115],"value":"Tools"},
 {"hash":21376,"name":"tfrmosmain.imap.caption","sourcebytes":[77,97,112],"value":"Map"},
+{"hash":185533731,"name":"tfrmosmain.istatistics.caption","sourcebytes":[83,116,97,116,105,115,116,105,99,115],"value":"Statistics"},
+{"hash":55510371,"name":"tfrmosmain.idbstatistics.caption","sourcebytes":[68,66,32,83,116,97,116,105,115,116,105,99,115],"value":"DB Statistics"},
 {"hash":322608,"name":"tfrmosmain.ihelp.caption","sourcebytes":[72,101,108,112],"value":"Help"},
 {"hash":174435348,"name":"tfrmosmain.ihelpcontent.caption","sourcebytes":[67,111,110,116,101,110,116],"value":"Content"},
 {"hash":158102910,"name":"tfrmosmain.iabout.caption","sourcebytes":[65,98,111,117,116,46,46,46],"value":"About..."}

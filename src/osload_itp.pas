@@ -74,8 +74,8 @@ stDate, StTime:TDateTime;
 stvessel, stnumincruise:string;
 withdepth:boolean;
 begin
-frmosmain.ProgressBar1.Position:=0;
-frmosmain.ProgressBar1.Max:=ListBox1.Count;
+{frmosmain.ProgressBar1.Position:=0;
+frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
 
  if chkWrite.Checked then begin
  {  With odbdm.ib1q1 do begin
@@ -195,14 +195,14 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;
        end;
      End;
   end;
-     frmosmain.ProgressBar1.Position:=frmosmain.ProgressBar1.Position+1;
-     Application.processMessages;
+  //   frmosmain.ProgressBar1.Position:=frmosmain.ProgressBar1.Position+1;
+  //   Application.processMessages;
 
      CloseFile(Dat);
  end;
  if chkWrite.Checked then begin
   //odbdm.IBTransaction1.Commit;
-  frmosmain.UpdateDBContent;
+  frmosmain.DatabaseInfo;
  end;
 Showmessage('Done!');
 end;

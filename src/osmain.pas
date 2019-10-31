@@ -23,6 +23,7 @@ type
   { Tfrmosmain }
 
   Tfrmosmain = class(TForm)
+    btnSelection: TButton;
     IL1: TImageList;
     iSettings: TMenuItem;
     iLoad: TMenuItem;
@@ -32,12 +33,13 @@ type
     MenuItem1: TMenuItem;
     iLoad_GLODAP_2019_v2_product: TMenuItem;
     iKnowledgeDBOpen: TMenuItem;
+    iStatistics: TMenuItem;
+    iDBStatistics: TMenuItem;
     MenuItem3: TMenuItem;
     iLoad_GLODAP_2019_v2: TMenuItem;
     MenuItem4: TMenuItem;
     OD: TOpenDialog;
     pnl2: TPanel;
-    ProgressBar1: TProgressBar;
     StatusBar1: TStatusBar;
     StatusBar2: TStatusBar;
     IL2: TImageList;
@@ -56,14 +58,17 @@ type
     ListBox1: TListBox;
     ListBox2: TListBox;
 
+    procedure btnSelectionClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure iAboutClick(Sender: TObject);
+    procedure iDBStatisticsClick(Sender: TObject);
     procedure iKnowledgeDBOpenClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
+    procedure iMapClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
 
@@ -76,7 +81,8 @@ type
   public
     procedure OpenDatabase;
     procedure ItemsVisibility;
-    procedure UpdateDBContent;
+    procedure DatabaseInfo;
+    procedure SelectionInfo;
     procedure RunScript(ExeFlag:integer; cmd:string; Sender:TMemo);
   end;
 
@@ -103,10 +109,10 @@ var
   IBName, IniFileName:string;
   GlobalPath, GlobalUnloadPath, GlobalSupportPath:string; //global paths for the app
 
-  IBLatMin,IBLatMax,IBLonMin,IBLonMax:Real;
-  IBYearMin,IBYearMax,IBMonthMin,IBMonthMax,IBDayMin,IBDayMax :Word;
-  IBCount:Integer;
-  IBDateMin,IBDateMax :TDateTime;
+  IBLatMin,IBLatMax,IBLonMin,IBLonMax,SLatMin,SLatMax,SLonMin,SLonMax:Real;
+  IBDateMin, IBDateMax, SDateMin, SDateMax :TDateTime;
+  IBCount, SCount:Integer; //number od stations in database and selection
+
 
   NavigationOrder:boolean=true; //Stop navigation until all modules responded
 
@@ -132,10 +138,14 @@ implementation
 uses dm, oscreatenewdb, settings, codes, osabout,
   //loading data
   osload_itp,
-  osload_GLODAP_2019_v2_product
+  osload_GLODAP_2019_v2_product,
   //export
   //QC
   //tools
+  osmap_kml,
+
+  //statistics
+  osstatistics
   ;
 
 {$R *.lfm}
@@ -143,9 +153,10 @@ uses dm, oscreatenewdb, settings, codes, osabout,
 
 procedure Tfrmosmain.FormCreate(Sender: TObject);
 begin
- StatusBar1.Panels[2].Style := psOwnerDraw;
- ProgressBar1.Parent:=StatusBar1;
+// StatusBar1.Panels[2].Style := psOwnerDraw;
+ //ProgressBar1.Parent:=StatusBar1;
 end;
+
 
 procedure Tfrmosmain.FormResize(Sender: TObject);
 begin
@@ -169,18 +180,19 @@ IBName:='';
     Ini.Free;
   end;
 
- (* Check for existing program folders *)
-{  if not DirectoryExists(GlobalPath+'unload\')              then CreateDir(GlobalPath+'unload\');
-  if not DirectoryExists(GlobalPath+'unload\fields\')       then CreateDir(GlobalPath+'unload\fields\');
-  if not DirectoryExists(GlobalPath+'unload\topography\')   then CreateDir(GlobalPath+'unload\topography\');
-  if not DirectoryExists(GlobalPath+'unload\timeseries\')   then CreateDir(GlobalPath+'unload\timeseries\');
-  if not DirectoryExists(GlobalPath+'unload\nctimeseries\') then CreateDir(GlobalPath+'unload\nctimeseries\');
-  if not DirectoryExists(GlobalPath+'unload\nctldiagrams\') then CreateDir(GlobalPath+'unload\nctldiagrams\');
-  if not DirectoryExists(GlobalPath+'unload\tsdiagram\')    then CreateDir(GlobalPath+'unload\tsdiagram\');
-  if not DirectoryExists(GlobalPath+'unload\export\')       then CreateDir(GlobalPath+'unload\export\');
-  if not DirectoryExists(GlobalPath+'unload\statistics\')   then CreateDir(GlobalPath+'unload\statistics\');
-  if not DirectoryExists(GlobalPath+'unload\sections\')     then CreateDir(GlobalPath+'unload\sections\');
-  }
+  (* Define global delimiter *)
+//  DefaultFormatSettings.DecimalSeparator := '.';
+
+ (* Check for existing essencial program folders *)
+  Ini := TIniFile.Create(IniFileName);
+  try
+    GlobalSupportPath := Ini.ReadString('main', 'SupportPath', GlobalPath+'support'+PathDelim);
+      if not DirectoryExists(GlobalSupportPath) then CreateDir(GlobalSupportPath);
+    GlobalUnloadPath  := Ini.ReadString('main', 'UnloadPath', GlobalPath+'unload'+PathDelim);
+      if not DirectoryExists(GlobalUnloadPath) then CreateDir(GlobalUnloadPath);
+  finally
+    Ini.Free;
+  end;
 
 
  (* открываем ассоциированный файл (nc или ib) *)
@@ -197,9 +209,31 @@ IBName:='';
 SetFocus;
 end;
 
-procedure Tfrmosmain.iAboutClick(Sender: TObject);
+
+procedure Tfrmosmain.btnSelectionClick(Sender: TObject);
 begin
-  if messagedlg(AboutProgram, mtInformation, [mbOk], 0)=mrOk then exit;
+ with frmdm.Q do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' Select * FROM STATION ');
+    SQL.Add(' ORDER BY DATEANDTIME ' );
+   Open;
+ end;
+
+ SelectionInfo;
+end;
+
+
+
+procedure Tfrmosmain.iDBStatisticsClick(Sender: TObject);
+begin
+frmosstatistics := Tfrmosstatistics.Create(Self);
+ try
+  if not frmosstatistics.ShowModal = mrOk then exit;
+ finally
+   frmosstatistics.Free;
+   frmosstatistics := nil;
+ end;
 end;
 
 
@@ -249,19 +283,18 @@ begin
      on E: Exception do
        if MessageDlg(E.Message, mtWarning, [mbOk], 0)=mrOk then exit;
    end;
-  UpdateDBContent;
+  DatabaseInfo;
+  ItemsVisibility;
 end;
 
 
 (* gathering info about the database *)
-procedure Tfrmosmain.UpdateDBContent;
+procedure Tfrmosmain.DatabaseInfo;
 var
 TRt:TSQLTransaction;
 Qt:TSQLQuery;
 
-k,i:integer;
-tbl_arr:array[0..30] of string;
-LocName:string;
+k:integer;
 begin
 ListBox1.Clear;
 ListBox2.Clear;
@@ -279,14 +312,9 @@ Qt.Transaction:=TRt;
         SQL.Add(' select count(ID) as StCount, ');
         SQL.Add(' min(LATITUDE) as StLatMin, max(LATITUDE) as StLatMax, ');
         SQL.Add(' min(LONGITUDE) as StLonMin, max(LONGITUDE) as StLonMax, ');
-        SQL.Add(' min(Extract(Year from DATEANDTIME)) as StYearMin, ');
-        SQL.Add(' max(Extract(Year from DATEANDTIME)) as StYearMax, ');
-        SQL.Add(' min(Extract(Month from DATEANDTIME)) as StMonthMin, ');
-        SQL.Add(' max(Extract(Month from DATEANDTIME)) as StMonthMax, ');
-        SQL.Add(' min(Extract(Day from DATEANDTIME)) as StDayMin, ');
-        SQL.Add(' max(Extract(Day from DATEANDTIME)) as StDayMax ');
+        SQL.Add(' min(DATEANDTIME) as StDateMin, ');
+        SQL.Add(' max(DATEANDTIME) as StDateMax ');
         SQL.Add(' from STATION');
-       // showmessage(SQL.Text);
     Open;
       IBCount:=FieldByName('StCount').AsInteger;
        if IBCount>0 then begin
@@ -294,14 +322,8 @@ Qt.Transaction:=TRt;
          IBLatMax  :=FieldByName('StLatMax').AsFloat;
          IBLonMin  :=FieldByName('StLonMin').AsFloat;
          IBLonMax  :=FieldByName('StLonMax').AsFloat;
-         IBYearMin :=FieldByName('StYearMin').AsInteger;
-         IBYearMax :=FieldByName('StYearMax').AsInteger;
-         IBMonthMin:=FieldByName('StMonthMin').AsInteger;
-         IBMonthMax:=FieldByName('StMonthMax').AsInteger;
-         IBDayMin  :=FieldByName('StDayMin').AsInteger;
-         IBDayMax  :=FieldByName('StDayMax').AsInteger;
-         IBDateMin :=EncodeDate(IBYearMin, IBMonthMin, IBDayMin);
-         IBDateMax :=EncodeDate(IBYearMax, IBMonthMax, IBDayMax);
+         IBDateMin :=FieldByName('StDateMin').AsDateTime;
+         IBDateMax :=FieldByName('StDateMax').AsDateTime;
 
          StatusBar2.Panels[1].Text:='LtMin: '+floattostr(IBLatMin);
          StatusBar2.Panels[2].Text:='LtMax: '+floattostr(IBLatMax);
@@ -319,6 +341,47 @@ Qt.Transaction:=TRt;
 end;
 
 
+(* gathering info about selected stations *)
+procedure Tfrmosmain.SelectionInfo;
+var
+  k: integer;
+  lat1, lon1:real;
+  dat1:TDateTime;
+begin
+
+  SLatMin:=90;  SLatMax:=-90;
+  SLonMin:=180; SLonMax:=-180;
+  SDateMin:=Now;
+  frmdm.Q.First;
+  while not frmdm.Q.EOF do begin
+   lat1:=frmdm.Q.FieldByName('LATITUDE').AsFloat;
+   lon1:=frmdm.Q.FieldByName('LONGITUDE').AsFloat;
+   dat1:=frmdm.Q.FieldByName('DATEANDTIME').AsDateTime;
+
+     if lat1<SLatMin then SLatMin:=lat1;
+     if lat1>SLatMax then SLatMax:=lat1;
+     if lon1<SLonMin then SLonMin:=lon1;
+     if lon1>SLonMax then SLonMax:=lon1;
+     if CompareDate(dat1, SDateMin)<0 then SDateMin:=dat1;
+     if CompareDate(dat1, SDateMax)>0 then SDateMax:=dat1;
+
+    frmdm.Q.Next;
+  end;
+     SCount   :=frmdm.Q.RecordCount;
+     if SCount>0 then begin
+       with StatusBar3 do begin
+         Panels[1].Text:='           '+floattostr(SLatMin);
+         Panels[2].Text:='            '+floattostr(SLatMax);
+         Panels[3].Text:='            '+floattostr(SLonMin);
+         Panels[4].Text:='             '+floattostr(SLonMax);
+         Panels[5].Text:='               '+datetostr(SDateMin);
+         Panels[6].Text:='                '+datetostr(SDateMax);
+         Panels[7].Text:='               '+inttostr(SCount);
+       end;
+     end else for k:=1 to 7 do statusbar3.Panels[k].Text:='---';
+end;
+
+
 procedure Tfrmosmain.ItemsVisibility;
 Var
   Ini:TIniFile;
@@ -329,6 +392,8 @@ begin
   finally
    ini.Free;
   end;
+
+ btnSelection.Enabled:=true;
 end;
 
 
@@ -380,6 +445,11 @@ begin
      frmloadGLODAP_2019_v2_product.Free;
      frmloadGLODAP_2019_v2_product := nil;
    end;
+end;
+
+procedure Tfrmosmain.iMapClick(Sender: TObject);
+begin
+   ExportKML_;
 end;
 
 
@@ -482,6 +552,10 @@ finally
 end;
 end;
 
+procedure Tfrmosmain.iAboutClick(Sender: TObject);
+begin
+  if messagedlg(AboutProgram, mtInformation, [mbOk], 0)=mrOk then exit;
+end;
 
 end.
 

@@ -5,7 +5,7 @@ unit dm;
 interface
 
 uses
-  Classes, SysUtils, Dialogs, Controls, IBConnection, sqldb;
+  Classes, SysUtils, Dialogs, Controls, IBConnection, sqldb, BufDataset;
 
 type
 
@@ -15,6 +15,7 @@ type
     q2: TSQLQuery;
     q3: TSQLQuery;
     IBDB: TIBConnection;
+    Q: TSQLQuery;
     SupportDB: TIBConnection;
     TR: TSQLTransaction;
     q1: TSQLQuery;

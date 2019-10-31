@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 695
+  Left = 1087
   Height = 395
-  Top = 852
+  Top = 346
   Width = 900
   BorderStyle = bsSingle
   Caption = 'OceanShell'
@@ -166,13 +166,15 @@ object frmosmain: Tfrmosmain
         end>
       SimplePanel = False
     end
-    object ProgressBar1: TProgressBar
-      Left = 748
-      Height = 20
-      Top = 302
-      Width = 100
+    object btnSelection: TButton
+      Left = 816
+      Height = 25
+      Top = 56
+      Width = 75
+      Caption = 'Select'
+      Enabled = False
+      OnClick = btnSelectionClick
       TabOrder = 3
-      Visible = False
     end
   end
   object OD: TOpenDialog
@@ -1944,6 +1946,16 @@ object frmosmain: Tfrmosmain
       Caption = 'Tools'
       object iMap: TMenuItem
         Caption = 'Map'
+        ImageIndex = 984
+        OnClick = iMapClick
+      end
+    end
+    object iStatistics: TMenuItem
+      Caption = 'Statistics'
+      object iDBStatistics: TMenuItem
+        Caption = 'DB Statistics'
+        ImageIndex = 196
+        OnClick = iDBStatisticsClick
       end
     end
     object iHelp: TMenuItem

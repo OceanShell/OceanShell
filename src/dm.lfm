@@ -31,7 +31,7 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 112
+    left = 192
     top = 16
   end
   object q2: TSQLQuery
@@ -39,7 +39,7 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 160
+    left = 232
     top = 16
   end
   object q3: TSQLQuery
@@ -47,7 +47,7 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 208
+    left = 272
     top = 16
   end
   object SupportDB: TIBConnection
@@ -68,5 +68,13 @@ object frmdm: Tfrmdm
     Database = SupportDB
     left = 96
     top = 88
+  end
+  object Q: TSQLQuery
+    FieldDefs = <>
+    Database = IBDB
+    Transaction = TR
+    Params = <>
+    left = 120
+    top = 16
   end
 end

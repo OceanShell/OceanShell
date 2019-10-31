@@ -685,12 +685,21 @@ msgctxt "tfrmloaditp.chkwrite.caption"
 msgid "Write"
 msgstr ""
 
+#: tfrmosmain.btnselection.caption
+msgctxt "tfrmosmain.btnselection.caption"
+msgid "Select"
+msgstr ""
+
 #: tfrmosmain.caption
 msgid "OceanShell"
 msgstr ""
 
 #: tfrmosmain.iabout.caption
 msgid "About..."
+msgstr ""
+
+#: tfrmosmain.idbstatistics.caption
+msgid "DB Statistics"
 msgstr ""
 
 #: tfrmosmain.iexit.caption
@@ -750,6 +759,11 @@ msgctxt "tfrmosmain.isettings.caption"
 msgid "Settings"
 msgstr ""
 
+#: tfrmosmain.istatistics.caption
+msgctxt "tfrmosmain.istatistics.caption"
+msgid "Statistics"
+msgstr ""
+
 #: tfrmosmain.itools.caption
 msgid "Tools"
 msgstr ""
@@ -764,6 +778,45 @@ msgstr ""
 
 #: tfrmosmain.statusbar3.panels[0].text
 msgid "[Selection]"
+msgstr ""
+
+#: tfrmosstatistics.btngetstatistics.caption
+msgid "Get Statistics"
+msgstr ""
+
+#: tfrmosstatistics.caption
+msgctxt "tfrmosstatistics.caption"
+msgid "Statistics"
+msgstr ""
+
+#: tfrmosstatistics.clbstatlist.caption
+msgctxt "tfrmosstatistics.clbstatlist.caption"
+msgid "Statistics"
+msgstr ""
+
+#: tfrmosstatistics.standardchartsettings1.caption
+msgid "Standard chart settings"
+msgstr ""
+
+#: tfrmosstatistics.tabbarhorisontal.caption
+msgid "Bar plots [horizontal]"
+msgstr ""
+
+#: tfrmosstatistics.tabbarpoints.caption
+msgid "Point plots"
+msgstr ""
+
+#: tfrmosstatistics.tabbarvertical.caption
+msgid "Bar plots [vertical]"
+msgstr ""
+
+#: tfrmosstatistics.tablog.caption
+msgctxt "tfrmosstatistics.tablog.caption"
+msgid "Log"
+msgstr ""
+
+#: tfrmosstatistics.tabselection.caption
+msgid "Selection"
 msgstr ""
 
 #: tfrmsettings.btngrapherpath.caption
@@ -829,6 +882,7 @@ msgid "KML"
 msgstr ""
 
 #: tfrmsettings.groupbox5.caption
+msgctxt "tfrmsettings.groupbox5.caption"
 msgid "Log"
 msgstr ""
 

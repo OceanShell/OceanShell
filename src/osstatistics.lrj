@@ -1,0 +1,11 @@
+{"version":1,"strings":[
+{"hash":185533731,"name":"tfrmosstatistics.caption","sourcebytes":[83,116,97,116,105,115,116,105,99,115],"value":"Statistics"},
+{"hash":45807518,"name":"tfrmosstatistics.tabselection.caption","sourcebytes":[83,101,108,101,99,116,105,111,110],"value":"Selection"},
+{"hash":124715507,"name":"tfrmosstatistics.btngetstatistics.caption","sourcebytes":[71,101,116,32,83,116,97,116,105,115,116,105,99,115],"value":"Get Statistics"},
+{"hash":185533731,"name":"tfrmosstatistics.clbstatlist.caption","sourcebytes":[83,116,97,116,105,115,116,105,99,115],"value":"Statistics"},
+{"hash":21335,"name":"tfrmosstatistics.tablog.caption","sourcebytes":[76,111,103],"value":"Log"},
+{"hash":180145469,"name":"tfrmosstatistics.tabbarvertical.caption","sourcebytes":[66,97,114,32,112,108,111,116,115,32,91,118,101,114,116,105,99,97,108,93],"value":"Bar plots [vertical]"},
+{"hash":72297533,"name":"tfrmosstatistics.tabbarhorisontal.caption","sourcebytes":[66,97,114,32,112,108,111,116,115,32,91,104,111,114,105,122,111,110,116,97,108,93],"value":"Bar plots [horizontal]"},
+{"hash":102913763,"name":"tfrmosstatistics.tabbarpoints.caption","sourcebytes":[80,111,105,110,116,32,112,108,111,116,115],"value":"Point plots"},
+{"hash":148991395,"name":"tfrmosstatistics.standardchartsettings1.caption","sourcebytes":[83,116,97,110,100,97,114,100,32,99,104,97,114,116,32,115,101,116,116,105,110,103,115],"value":"Standard chart settings"}
+]}

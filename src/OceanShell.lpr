@@ -8,7 +8,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, osmain, dm, procedures, osload_itp, osstandartqueries, codesupdateqc,
-  osload_GLODAP_2019_v2_product, oscreatenewdb;
+  osload_GLODAP_2019_v2_product, oscreatenewdb, osstatistics, tachartlazaruspkg;
 
 {$R *.res}
 
