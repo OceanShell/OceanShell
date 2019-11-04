@@ -95,7 +95,7 @@ begin
    tabBarHorisontal.TabVisible:=false;
    tabBarPoints.TabVisible:=false;
 
- for k:=2 to clbStatList.Items.Count-1 do
+ for k:=1 to clbStatList.Items.Count-1 do
   clbStatList.CheckEnabled[k]:=false;
 end;
 

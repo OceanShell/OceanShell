@@ -1,7 +1,7 @@
 object frmcodes: Tfrmcodes
-  Left = 1036
+  Left = 327
   Height = 550
-  Top = 210
+  Top = 185
   Width = 1000
   Caption = 'Codes'
   ClientHeight = 550
@@ -16,16 +16,16 @@ object frmcodes: Tfrmcodes
   OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.2.0'
   Visible = True
   object PageControl1: TPageControl
     Left = 0
     Height = 528
     Top = 22
     Width = 1000
-    ActivePage = tbCruiseWOD
+    ActivePage = tbPlatform
     Align = alClient
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 0
     OnChange = PageControl1Change
     object tbPlatform: TTabSheet
@@ -1602,38 +1602,26 @@ object frmcodes: Tfrmcodes
           ClientWidth = 652
           TabOrder = 0
           object eUnits_Name: TEdit
-            Left = 143
+            Left = 64
             Height = 21
             Top = 0
-            Width = 509
-            Align = alClient
+            Width = 201
+            Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
             OnClick = ePlatform_IDClick
             TabOrder = 0
           end
-          object eUnits_Empty: TEdit
-            Left = 63
-            Height = 21
-            Top = 0
-            Width = 80
-            Align = alLeft
-            CharCase = ecUppercase
-            Color = clWhite
-            Enabled = False
-            OnClick = ePlatform_IDClick
-            TabOrder = 1
-          end
           object eUnits_ID: TEdit
             Left = 0
             Height = 21
             Top = 0
-            Width = 63
+            Width = 64
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
             OnClick = ePlatform_IDClick
-            TabOrder = 2
+            TabOrder = 1
           end
         end
         object DBGridUnits: TDBGrid
@@ -1652,14 +1640,22 @@ object frmcodes: Tfrmcodes
               FieldName = 'ID'
             end          
             item
+              Title.Caption = 'Full name'
+              Width = 200
+              FieldName = 'NAME'
+            end          
+            item
               Title.Caption = 'Short name'
               Width = 80
               FieldName = 'NAME_SHORT'
             end          
             item
-              Title.Caption = 'Full name'
-              Width = 760
-              FieldName = 'NAME'
+              Title.Caption = 'Length'
+              FieldName = 'LENGTH'
+            end          
+            item
+              Title.Caption = 'Scale'
+              FieldName = 'SCALE'
             end>
           DataSource = DS
           FixedCols = 0

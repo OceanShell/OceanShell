@@ -75,7 +75,6 @@ type
     ePlatform_ID: TEdit;
     eCountry_ID: TEdit;
     eInstrument_WOD: TEdit;
-    eUnits_Empty: TEdit;
     eSource_NAME: TEdit;
     eQCFlag_SourceFlag: TEdit;
     eQCFlag_ODBFlag: TEdit;
@@ -371,7 +370,7 @@ begin
   end;
   10: begin
        CodesTblName:='UNITS';
-       Q.SQL.text:='Select ID, NAME_SHORT, NAME '+
+       Q.SQL.text:='Select ID, NAME_SHORT, NAME, SCALE, LENGTH '+
                    'FROM UNITS ORDER BY ID';
   end;
   11: begin
@@ -554,15 +553,18 @@ begin
  if CodesTblName='UNITS' then begin
     occup:=trunc(DBGridUnits.Width-20-
            (DBGridUnits.Columns[0].Width+
-            DBGridUnits.Columns[1].Width));
-    DBGridUnits.Columns[2].Width:=occup+1;
+            DBGridUnits.Columns[2].Width+
+            DBGridUnits.Columns[3].Width+
+            DBGridUnits.Columns[4].Width));
+    DBGridUnits.Columns[1].Width:=occup+1;
+    eUnits_Name.Width:=DBGridUnits.Columns[1].Width;
  end;
 
  if CodesTblName='QCFLAG' then begin
     eQCFlag_ID.Width:=DBGridQCFlag.Columns[0].Width+1;
     eQCFlag_SOURCENAME.Width:=DBGridQCFlag.Columns[1].Width;
     eQCFlag_SourceFlag.Width:=DBGridQCFlag.Columns[2].Width;
-    eQCFlag_ODBFlag.Width:=DBGridQCFlag.Columns[3].Width;
+    eQCFlag_ODBFlag.Width:=DBGridQCFlag.Columns[3].Width+1;
  end;
 
 Panel28.Width:=trunc(ToolBar1.Width-65-

@@ -16,7 +16,7 @@ object frmosmain: Tfrmosmain
   OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.2.0'
   object ListBox1: TListBox
     Left = 806
     Height = 49

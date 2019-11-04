@@ -197,7 +197,7 @@ IBName:='';
 
  (* открываем ассоциированный файл (nc или ib) *)
   If ParamCount<>0 then begin
-   if uppercase(ExtractFileExt(ParamStr(1)))='.IB' then begin
+   if uppercase(ExtractFileExt(ParamStr(1)))='.FDB' then begin
       IBName:=ParamStr(1);
       OpenDatabase;
    end;
