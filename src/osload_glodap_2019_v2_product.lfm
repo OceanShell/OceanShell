@@ -117,5 +117,21 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
       OnClick = btnSaveStationMDonDiskClick
       TabOrder = 2
     end
+    object btnGetDBStatistics: TBitBtn
+      Left = 8
+      Height = 30
+      Top = 27
+      Width = 144
+      Caption = 'Get DB Statistics'
+      Font.CharSet = RUSSIAN_CHARSET
+      Font.Color = clRed
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Pitch = fpVariable
+      Font.Quality = fqDraft
+      OnClick = btnGetDBStatisticsClick
+      ParentFont = False
+      TabOrder = 3
+    end
   end
 end

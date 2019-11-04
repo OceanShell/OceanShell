@@ -633,6 +633,10 @@ msgstr ""
 msgid "Download MD"
 msgstr ""
 
+#: tfrmloadglodap_2019_v2_product.btngetdbstatistics.caption
+msgid "Get DB Statistics"
+msgstr ""
+
 #: tfrmloadglodap_2019_v2_product.btnsavestationmdondisk.caption
 msgid "Save GLODAP Station MD"
 msgstr ""

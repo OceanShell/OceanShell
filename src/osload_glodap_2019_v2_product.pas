@@ -28,13 +28,14 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  DateUtils, SQLDB, DB, BufDataSet;
+  Buttons, DateUtils, SQLDB, DB, BufDataSet;
 
 type
 
   { TfrmloadGLODAP_2019_v2_product }
 
   TfrmloadGLODAP_2019_v2_product = class(TForm)
+    btnGetDBStatistics: TBitBtn;
     btnDataSource: TButton;
     btnSaveStationMDonDisk: TButton;
     btnCreateTables: TButton;
@@ -49,6 +50,8 @@ type
     procedure btnDataSourceClick(Sender: TObject);
     procedure btnDownloadMDClick(Sender: TObject);
     procedure btnDownloadDataClick(Sender: TObject);
+
+    procedure btnGetDBStatisticsClick(Sender: TObject);
 
     procedure btnSaveStationMDonDiskClick(Sender: TObject); //GLODAP stations with casts
     procedure btnCreateTablesClick(Sender: TObject);        //add variable tables to DB
@@ -2906,6 +2909,111 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
       memo1.Lines.Add('End:'+datetimetostr(NOW));
 
 end;
+
+
+
+
+procedure TfrmloadGLODAP_2019_v2_product.btnGetDBStatisticsClick(Sender: TObject);
+var
+ktbl:integer;
+first_str:string;
+TblName:array[1..34] of string;
+begin
+
+  TblName[1]:='P_AOU_BOTTLE';
+  TblName[2]:='P_C13_BOTTLE';
+  TblName[3]:='P_CHLA_BOTTLE';
+  TblName[4]:='P_DOC_BOTTLE';
+  TblName[5]:='P_DON_BOTTLE';
+  TblName[6]:='P_NITRATE_BOTTLE';
+  TblName[7]:='P_NITRITE_BOTTLE';
+  TblName[8]:='P_O18_BOTTLE';
+  TblName[9]:='P_OXYGEN_BOTTLE';
+  TblName[10]:='P_PHOSPHATE_BOTTLE';
+  TblName[11]:='P_PHTS25P0_BOTTLE';
+  TblName[12]:='P_PHTSINSITUTP_BOTTLE';
+  TblName[13]:='P_SALINITY_BOTTLE';
+  TblName[14]:='P_SILICATE_BOTTLE';
+  TblName[15]:='P_TALK_BOTTLE';
+  TblName[16]:='P_TCO2_BOTTLE';
+  TblName[17]:='P_TDN_BOTTLE';
+  TblName[18]:='P_TOC_BOTTLE';
+  TblName[19]:='P_TEMPERATURE_BOTTLE';
+  TblName[20]:='P_CC14_BOTTLE';
+  TblName[21]:='P_PCC14_BOTTLE';
+  TblName[22]:='P_CFC113_BOTTLE';
+  TblName[23]:='P_PCFC113_BOTTLE';
+  TblName[24]:='P_CFC11_BOTTLE';
+  TblName[25]:='P_PCFC11_BOTTLE';
+  TblName[26]:='P_CFC12_BOTTLE';
+  TblName[27]:='P_PCFC12_BOTTLE';
+  TblName[28]:='P_SF6_BOTTLE';
+  TblName[29]:='P_PSF6_BOTTLE';
+  TblName[30]:='P_C14_BOTTLE';
+  TblName[31]:='P_HE3_BOTTLE';
+  TblName[32]:='P_HE_BOTTLE';
+  TblName[33]:='P_NEON_BOTTLE';
+  TblName[34]:='P_H3_BOTTLE';
+
+  first_str:='Table header'
+  +#9+'samples#'
+  +#9+'Upper level[dbar]'
+  +#9+'Down level[dbar]'
+  +#9+'Average'
+  +#9+'Minimum'
+  +#9+'Maximum';
+  memo1.Lines.Add(first_str);
+
+  path_out:='c:\Users\ako071\AK\OceanShell-GIT\OceanShell\unload\statistics\GLODAP_statistics.dat';
+  AssignFile(out, Path_out); Rewrite(out);
+  memo1.Lines.Add('path_out='+path_out);
+
+  memo1.Lines.Add('');
+  memo1.Lines.Add(first_str);
+  writeln(out,first_str);
+
+
+
+{TBL}for ktbl:=1 to 34 do begin
+{w}with frmdm.q1 do begin
+     Close;
+     SQL.Clear;
+     SQL.Add(' Select count(*) as samples_num, ');
+     SQL.Add(' min(pres) as pres_min, max(pres) as pres_max, ');
+     SQL.Add(' avg(val) as val_avg, ');
+     SQL.Add(' min(val) as val_min, ');
+     SQL.Add(' max(val) as val_max ');
+     SQL.Add(' from ');
+     SQL.Add(trim(TblName[ktbl]));
+     Open;
+
+     memo1.Lines.Add(TblName[ktbl]
+     +#9+inttostr(frmdm.q1.FieldByName('samples_num').AsInteger)
+     +#9+floattostr(frmdm.q1.FieldByName('pres_min').AsFloat)
+     +#9+floattostr(frmdm.q1.FieldByName('pres_max').AsFloat)
+     +#9+floattostr(frmdm.q1.FieldByName('val_avg').AsFloat)
+     +#9+floattostr(frmdm.q1.FieldByName('val_min').AsFloat)
+     +#9+floattostr(frmdm.q1.FieldByName('val_max').AsFloat));
+
+     writeln(out,TblName[ktbl],
+     #9,inttostr(frmdm.q1.FieldByName('samples_num').AsInteger),
+     #9,floattostr(frmdm.q1.FieldByName('pres_min').AsFloat),
+     #9,floattostr(frmdm.q1.FieldByName('pres_max').AsFloat),
+     #9,floattostr(frmdm.q1.FieldByName('val_avg').AsFloat),
+     #9,floattostr(frmdm.q1.FieldByName('val_min').AsFloat),
+     #9,floattostr(frmdm.q1.FieldByName('val_max').AsFloat));
+
+     Close;
+{w}end;
+{TBL}end;
+     closefile(out);
+     memo1.Lines.Add('');
+     memo1.Lines.Add('...Done');
+
+end;
+
+
+
 
 
 procedure TfrmloadGLODAP_2019_v2_product.btnCreateTablesClick(Sender: TObject);
