@@ -46,22 +46,27 @@ msgid "Yes"
 msgstr ""
 
 #: tfrmcodes.btnadd.caption
+msgctxt "tfrmcodes.btnadd.caption"
 msgid "btnadd"
 msgstr ""
 
 #: tfrmcodes.btnadd.hint
+msgctxt "tfrmcodes.btnadd.hint"
 msgid "Add row"
 msgstr ""
 
 #: tfrmcodes.btncancel.hint
+msgctxt "tfrmcodes.btncancel.hint"
 msgid "Cancel changes"
 msgstr ""
 
 #: tfrmcodes.btndelete.caption
+msgctxt "tfrmcodes.btndelete.caption"
 msgid "btndelete"
 msgstr ""
 
 #: tfrmcodes.btndelete.hint
+msgctxt "tfrmcodes.btndelete.hint"
 msgid "Remove row"
 msgstr ""
 
@@ -424,6 +429,7 @@ msgid "CRUISE"
 msgstr ""
 
 #: tfrmcodes.tbcruiseglodap.caption
+msgctxt "tfrmcodes.tbcruiseglodap.caption"
 msgid "CRUISE_GLODAP"
 msgstr ""
 
@@ -470,10 +476,12 @@ msgid "UNITS"
 msgstr ""
 
 #: tfrmcodes.toolbar1.caption
+msgctxt "tfrmcodes.toolbar1.caption"
 msgid "ToolBar1"
 msgstr ""
 
 #: tfrmcodes.toolbutton1.caption
+msgctxt "tfrmcodes.toolbutton1.caption"
 msgid "ToolButton1"
 msgstr ""
 
@@ -698,6 +706,41 @@ msgctxt "tfrmloaditp.chkwrite.caption"
 msgid "Write"
 msgstr ""
 
+#: tfrmosmain.btnadd.caption
+msgctxt "tfrmosmain.btnadd.caption"
+msgid "btnadd"
+msgstr ""
+
+#: tfrmosmain.btnadd.hint
+msgctxt "tfrmosmain.btnadd.hint"
+msgid "Add row"
+msgstr ""
+
+#: tfrmosmain.btncancel.hint
+msgctxt "tfrmosmain.btncancel.hint"
+msgid "Cancel changes"
+msgstr ""
+
+#: tfrmosmain.btndelete.caption
+msgctxt "tfrmosmain.btndelete.caption"
+msgid "btndelete"
+msgstr ""
+
+#: tfrmosmain.btndelete.hint
+msgctxt "tfrmosmain.btndelete.hint"
+msgid "Remove row"
+msgstr ""
+
+#: tfrmosmain.btnsave.caption
+msgctxt "tfrmosmain.btnsave.caption"
+msgid "Save"
+msgstr ""
+
+#: tfrmosmain.btnsave.hint
+msgctxt "tfrmosmain.btnsave.hint"
+msgid "Commit changes"
+msgstr ""
+
 #: tfrmosmain.btnselection.caption
 msgctxt "tfrmosmain.btnselection.caption"
 msgid "Select"
@@ -705,6 +748,29 @@ msgstr ""
 
 #: tfrmosmain.caption
 msgid "OceanShell"
+msgstr ""
+
+#: tfrmosmain.chkperiod.caption
+msgctxt "tfrmosmain.chkperiod.caption"
+msgid "Period"
+msgstr ""
+
+#: tfrmosmain.dtpdatemax.textfornulldate
+msgctxt "tfrmosmain.dtpdatemax.textfornulldate"
+msgid "NULL"
+msgstr ""
+
+#: tfrmosmain.dtpdatemin.textfornulldate
+msgctxt "tfrmosmain.dtpdatemin.textfornulldate"
+msgid "NULL"
+msgstr ""
+
+#: tfrmosmain.groupbox1.caption
+msgid "Area"
+msgstr ""
+
+#: tfrmosmain.groupbox2.caption
+msgid "Date and Time"
 msgstr ""
 
 #: tfrmosmain.iabout.caption
@@ -781,6 +847,14 @@ msgstr ""
 msgid "Tools"
 msgstr ""
 
+#: tfrmosmain.label1.caption
+msgid "From"
+msgstr ""
+
+#: tfrmosmain.label2.caption
+msgid "To"
+msgstr ""
+
 #: tfrmosmain.menuitem1.caption
 msgid "GLODAP"
 msgstr ""
@@ -791,6 +865,28 @@ msgstr ""
 
 #: tfrmosmain.statusbar3.panels[0].text
 msgid "[Selection]"
+msgstr ""
+
+#: tfrmosmain.toolbar1.caption
+msgctxt "tfrmosmain.toolbar1.caption"
+msgid "ToolBar1"
+msgstr ""
+
+#: tfrmosmain.toolbutton1.caption
+msgctxt "tfrmosmain.toolbutton1.caption"
+msgid "ToolButton1"
+msgstr ""
+
+#: tfrmosmain.tsmaindata.caption
+msgid "Selected data"
+msgstr ""
+
+#: tfrmosmain.tsmainselect.caption
+msgid "Select data"
+msgstr ""
+
+#: tfrmosmain.tsmainselectadvanced.caption
+msgid "Advanced selection"
 msgstr ""
 
 #: tfrmosstatistics.btngetstatistics.caption

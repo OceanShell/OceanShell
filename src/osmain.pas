@@ -5,9 +5,10 @@ unit osmain;
 interface
 
 uses
-  Windows, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  ComCtrls, Menus, Dialogs, ActnList, StdCtrls,  INIFiles,  ExtCtrls,
-  DateUtils, sqldb, DB, SHFolder, LCLTranslator, Process;
+  Windows, SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls,
+  Menus, Dialogs, ActnList, StdCtrls, INIFiles, ExtCtrls, DateUtils, sqldb, DB,
+  SHFolder, LCLTranslator, Buttons, DBGrids, Spin, ComboEx, DateTimePicker,
+  Process;
 
 type
 
@@ -23,7 +24,24 @@ type
   { Tfrmosmain }
 
   Tfrmosmain = class(TForm)
+    btnadd: TToolButton;
+    btncancel: TToolButton;
+    btndelete: TToolButton;
+    btnsave: TToolButton;
     btnSelection: TButton;
+    chkPeriod: TCheckBox;
+    dtpDateMin: TDateTimePicker;
+    dtpDateMax: TDateTimePicker;
+    DS: TDataSource;
+    DBGridPlatform: TDBGrid;
+    GroupBox2: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    seLonMin: TFloatSpinEdit;
+    seLonMax: TFloatSpinEdit;
+    seLatMax: TFloatSpinEdit;
+    seLatMin: TFloatSpinEdit;
+    GroupBox1: TGroupBox;
     IL1: TImageList;
     iSettings: TMenuItem;
     iLoad: TMenuItem;
@@ -39,8 +57,10 @@ type
     iLoad_GLODAP_2019_v2: TMenuItem;
     MenuItem4: TMenuItem;
     OD: TOpenDialog;
+    PageControl1: TPageControl;
+    Panel1: TPanel;
     pnl2: TPanel;
-    StatusBar1: TStatusBar;
+    Splitter1: TSplitter;
     StatusBar2: TStatusBar;
     IL2: TImageList;
     SD: TSaveDialog;
@@ -56,7 +76,11 @@ type
     iExit: TMenuItem;
     StatusBar3: TStatusBar;
     ListBox1: TListBox;
-    ListBox2: TListBox;
+    ToolBar1: TToolBar;
+    ToolButton1: TToolButton;
+    tsMainSelect: TTabSheet;
+    tsMainSelectAdvanced: TTabSheet;
+    tsMainData: TTabSheet;
 
     procedure btnSelectionClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -160,7 +184,7 @@ end;
 
 procedure Tfrmosmain.FormResize(Sender: TObject);
 begin
- StatusBar1.Panels[1].Width:=Width-(statusbar1.Panels[0].Width+statusbar1.Panels[2].Width+75);
+ //StatusBar1.Panels[1].Width:=Width-(statusbar1.Panels[0].Width+statusbar1.Panels[2].Width+75);
 end;
 
 procedure Tfrmosmain.FormShow(Sender: TObject);
@@ -211,12 +235,78 @@ end;
 
 
 procedure Tfrmosmain.btnSelectionClick(Sender: TObject);
+var
+i, k, fl:integer;
+SSYearMin,SSYearMax,SSMonthMin,SSMonthMax,SSDayMin,SSDayMax :Word;
+NotCondCountry, NotCondVessel, NotCondSource, SBordersFile, str, buf_str:string;
+NotCondCruise, NotCondInstr, NotCondOrigin, NotCondCountryC, NotCondVesselC, instr:string;
+MinDay, MaxDay, cnt:integer;
+Lat, Lon:real;
 begin
+
+  SSYearMin := strtoint(copy(datetostr(dtpDateMin.Date),7,4));
+  SSYearMax := strtoint(copy(datetostr(dtpDateMax.Date),7,4));
+  SSMonthMin:= strtoint(copy(datetostr(dtpDateMin.Date),4,2));
+  SSMonthMax:= strtoint(copy(datetostr(dtpDateMax.Date),4,2));
+  SSDayMin  := strtoint(copy(datetostr(dtpDateMin.Date),1,2));
+  SSDayMax  := strtoint(copy(datetostr(dtpDateMax.Date),1,2));
+
  with frmdm.Q do begin
    Close;
     SQL.Clear;
-    SQL.Add(' Select * FROM STATION ');
+    SQL.Add(' SELECT * FROM STATION ');
+    SQL.Add(' WHERE ');
+
+    (* Coordinates *)
+    SQL.Add(' (LATITUDE BETWEEN :SSLatMin AND :SSLatMax) ');
+     if seLonMax.Value>=seLonMin.Value then
+      SQL.Add(' and (LONGITUDE BETWEEN :SSLonMin AND :SSLonMax) ');
+     if seLonMax.Value<seLonMin.Value then
+      SQL.Add(' and ((LONGITUDE>=:SSLonMin AND LONGITUDE<=180) or'+
+              '      (LONGITUDE>=-180 and LONGITUDE<=:SSLonMax)) ');
+    (* End of coordinates *)
+
+    (* Date and Time *)
+    // From date to date
+    if chkPeriod.Checked=false then
+     SQL.Add('  and (DATEANDTIME between :SSDateMin and :SSDateMax) ');
+
+    //Date in Period
+    if chkPeriod.Checked=true then begin
+      SQL.Add(' and (Extract(Year from DATEANDTIME) between :SSYearMin  and :SSYearMax) ');
+      if SSMonthMin<=SSMonthMax then
+         SQL.Add(' and (Extract(Month from DATEANDTIME) between :SSMonthMin and :SSMonthMax) ');
+      if SSMonthMin>SSMonthMax then
+         SQL.Add(' and ((Extract(Month from DATEANDTIME)>= :SSMonthMin) or'+
+                 '      (Extract(Month from DATEANDTIME)<= :SSMonthMax)) ');
+      if SSDayMin<=SSDayMax then
+         SQL.Add(' and (Extract(Day from DATEANDTIME) between :SSDayMin and :SSDayMax) ');
+      if SSDayMin>SSDayMax then
+         SQL.Add(' and ((Extract(Day from DATEANDTIME)>= :SSDayMin) or '+
+                 '      (Extract(Day from DATEANDTIME)<= :SSDayMax)) ');
+    end;
+    (* End of Date and Time *)
+
     SQL.Add(' ORDER BY DATEANDTIME ' );
+
+
+    ParamByName('SSLatMin').AsFloat:=seLatMin.Value;
+    ParamByName('SSLatMax').AsFloat:=seLatMax.Value;
+    ParamByName('SSLonMin').AsFloat:=seLonMin.Value;
+    ParamByName('SSLonMax').AsFloat:=seLonMax.Value;
+     if chkPeriod.Checked=true then begin
+       ParamByName('SSYearMin').AsInteger:=SSYearMin;
+       ParamByName('SSYearMax').AsInteger:=SSYearMax;
+       ParamByName('SSMonthMin').AsInteger:=SSMonthMin;
+       ParamByName('SSMonthMax').AsInteger:=SSMonthMax;
+       ParamByName('SSDayMin').AsInteger:=SSDayMin;
+       ParamByName('SSDayMax').AsInteger:=SSDayMax;
+     end;
+     if chkPeriod.Checked=false then begin
+       ParamByName('SSDateMin').AsDateTime:=dtpDateMin.DateTime;
+       ParamByName('SSDateMax').AsDateTime:=dtpDateMax.DateTime;
+     end;
+
    Open;
  end;
 
@@ -277,6 +367,7 @@ end;
 procedure Tfrmosmain.OpenDatabase;
 begin
    try
+    frmdm.IBDB.Close(false);
     frmdm.IBDB.DatabaseName:=IBName;
     frmdm.IBDB.Open;
    except
@@ -291,22 +382,31 @@ end;
 (* gathering info about the database *)
 procedure Tfrmosmain.DatabaseInfo;
 var
-TRt:TSQLTransaction;
-Qt:TSQLQuery;
+TRt_DB1, TRt_DB2:TSQLTransaction;
+Qt_DB1, Qt_DB2:TSQLQuery;
+TempList:TListBox;
 
 k:integer;
 begin
-ListBox1.Clear;
-ListBox2.Clear;
+(* temporary transaction for main database *)
+TRt_DB1:=TSQLTransaction.Create(self);
+TRt_DB1.DataBase:=frmdm.IBDB;
 
-TRt:=TSQLTransaction.Create(self);
-TRt.DataBase:=frmdm.IBDB;
+(* temporary query for main database *)
+Qt_DB1 :=TSQLQuery.Create(self);
+Qt_DB1.Database:=frmdm.IBDB;
+Qt_DB1.Transaction:=TRt_DB1;
 
-Qt :=TSQLQuery.Create(self);
-Qt.Database:=frmdm.IBDB;
-Qt.Transaction:=TRt;
+(* temporary transaction for support database *)
+TRt_DB2:=TSQLTransaction.Create(self);
+TRt_DB2.DataBase:=frmdm.SupportDB;
 
-   with Qt do begin
+(* temporary query for support database *)
+Qt_DB2 :=TSQLQuery.Create(self);
+Qt_DB2.Database:=frmdm.SupportDB;
+Qt_DB2.Transaction:=TRt_DB2;
+
+   with Qt_DB1 do begin
     Close;
         SQL.Clear;
         SQL.Add(' select count(ID) as StCount, ');
@@ -332,12 +432,92 @@ Qt.Transaction:=TRt;
          StatusBar2.Panels[5].Text:='DateMin: '+datetostr(IBDateMin);
          StatusBar2.Panels[6].Text:='DateMax: '+datetostr(IBDateMax);
          StatusBar2.Panels[7].Text:='Stations: '+inttostr(IBCount);
+
+         seLatMin.Value:=IBLatMin;
+         seLatMax.Value:=IBLatMax;
+         seLonMin.Value:=IBLonMin;
+         seLonMax.Value:=IBLonMax;
+
+         dtpDateMin.DateTime:=IBDateMin;
+         dtpDateMax.DateTime:=IBDateMax;
+
       end else for k:=1 to 7 do frmosmain.statusbar2.Panels[k].Text:='---';
     Close;
    end;
-  TRt.Commit;
-  Qt.Free;
-  TRt.free;
+
+   (* permanent list for parameter tables *)
+   ListBox1.Clear;
+
+   try
+   (* temporary list for all tables from Db *)
+    TempList:=TListBox.Create(self);
+
+   (* list of all tables *)
+   frmdm.IBDB.GetTableNames(TempList.Items,False);
+
+    for k:=0 to TempList.Items.Count-1 do
+     if (copy(TempList.Items.Strings[k], 1, 2)='P_') then
+       ListBox1.Items.Add(TempList.Items.Strings[k]);
+   finally
+     TempList.Free;
+   end;
+
+
+
+
+ {  with Qt_DB1 do begin
+    Close;
+      SQL.Clear;
+      SQL.Add(' select distinct(CRUISE_ID) ');
+      SQL.Add(' from STATION');
+    Open;
+   end;
+
+   Qt_DB1.First;
+   while not Qt_DB1.EOF do begin
+      id_str:=id_str+Qt_DB1.Fields[0].AsInteger+',';
+     Qt_DB1.Next;
+   end;
+   Qt_DB1.Close;
+
+   id_str:=copy(id_str, 1, length(id_str)-1);
+
+     with Qt_DB2 do begin
+       Close;
+         SQL.Clear;
+         SQL.Add(' SELECT distinct(PLATFORM.NAME)');
+         SQL.Add(' from CRUISE_GLODAP, PLATFORM ');
+         SQL.Add(' WHERE ');
+         SQL.Add(' PLAFRORM.ID=CRUISE_GLOBAP.PLATFORM_ID AND ');
+         SQL.Add(' CRUISE_GLODAP.ID IN ('+id_str+');
+       Open;
+      end;
+
+
+      with Qt_DB2 do begin
+       Close;
+         SQL.Clear;
+         SQL.Add(' SELECT ');
+         SQL.Add(' distinct(PLATFORM.NAME) as Platform_name, ');
+         SQL.Add(' distinct(COUNTRY.NAME) as Country_name ');
+         SQL.Add(' from CRUISE_GLODAP, PLATFORM, COUNTRY ');
+         SQL.Add(' WHERE ');
+         SQL.Add(' PLAFRORM.ID=CRUISE_GLOBAP.PLATFORM_ID AND ');
+         SQL.Add(' COUNTRY.ID=CRUISE_GLODAP.COUNTRY_ID AND ');
+         SQL.Add(' CRUISE_GLODAP.ID IN ('+id_str+');
+       Open;
+      end;    }
+
+
+
+  TRt_DB1.Commit;
+  TRt_DB2.Commit;
+
+  Qt_DB1.Free;
+  Qt_DB2.Free;
+
+  TRt_DB1.free;
+  TRt_DB2.free;
 end;
 
 
@@ -347,6 +527,7 @@ var
   k: integer;
   lat1, lon1:real;
   dat1:TDateTime;
+  items_enabled:boolean;
 begin
 
   SLatMin:=90;  SLatMax:=-90;
@@ -379,6 +560,12 @@ begin
          Panels[7].Text:='               '+inttostr(SCount);
        end;
      end else for k:=1 to 7 do statusbar3.Panels[k].Text:='---';
+
+  (* if there are selected station enabling some menu items *)
+  if SCount>0 then items_enabled:=true else items_enabled:=false;
+
+  iDBStatistics.Enabled:=items_enabled;
+  iMap.Enabled:=items_enabled;
 end;
 
 

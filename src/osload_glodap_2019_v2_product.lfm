@@ -1,12 +1,12 @@
 object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
-  Left = 977
+  Left = 648
   Height = 473
-  Top = 194
+  Top = 197
   Width = 683
   Caption = 'frmloadGLODAP_2019_v2_product'
   ClientHeight = 473
   ClientWidth = 683
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.2.0'
   object btnDataSource: TButton
     Left = 8
     Height = 25

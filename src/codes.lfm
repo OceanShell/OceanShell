@@ -1,11 +1,11 @@
 object frmcodes: Tfrmcodes
-  Left = 630
+  Left = 260
   Height = 550
-  Top = 244
+  Top = 168
   Width = 1000
   Caption = 'Codes'
-  ClientHeight = 550
-  ClientWidth = 1000
+  ClientHeight = 0
+  ClientWidth = 0
   Color = clBtnFace
   Constraints.MinHeight = 550
   Constraints.MinWidth = 1000
@@ -16,16 +16,16 @@ object frmcodes: Tfrmcodes
   OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.2.0'
   Visible = True
   object PageControl1: TPageControl
     Left = 0
     Height = 528
     Top = 22
     Width = 1000
-    ActivePage = tbPlatform
+    ActivePage = tbCruiseGLODAP
     Align = alClient
-    TabIndex = 0
+    TabIndex = 3
     TabOrder = 0
     OnChange = PageControl1Change
     object tbPlatform: TTabSheet

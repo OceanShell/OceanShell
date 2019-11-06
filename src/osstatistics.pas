@@ -7,7 +7,7 @@ interface
 uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   StdCtrls, CheckLst, ExtCtrls,ComCtrls, Spin, IniFiles, Dialogs, DateUtils, ToolWin,
-  Menus, FileUtil, TAGraph, TASeries, TAMultiSeries;
+  Menus, FileUtil, TAGraph, TASeries, TAMultiSeries, sqldb;
 
 type
 
@@ -95,7 +95,7 @@ begin
    tabBarHorisontal.TabVisible:=false;
    tabBarPoints.TabVisible:=false;
 
- for k:=1 to clbStatList.Items.Count-1 do
+ for k:=3 to clbStatList.Items.Count-1 do
   clbStatList.CheckEnabled[k]:=false;
 end;
 
@@ -211,6 +211,121 @@ Application.ProcessMessages;
 end;
 
 
+
+procedure Tfrmosstatistics.MonthStatistics;
+var
+dat: text;
+k,cnt:integer;
+StartTime:TDateTime;
+yy, mn, dd: word;
+dat1: TDateTime;
+begin
+StartTime:=Now;
+Assignfile(dat,PathStatistics+'Month.dat'); rewrite(dat);
+writeln(dat, 'Month', #9, 'Stations');
+
+memo1.Lines.Add('STATION DISTRIBUTION BY MONTH:');
+
+  for k:=1 to 12 do begin
+   cnt:=0;
+    frmdm.Q.First;
+    while not frmdm.Q.EOF do begin
+     dat1:=frmdm.Q.FieldByName('DATEANDTIME').AsDateTime;
+      DecodeDate(dat1, yy, mn, dd);
+      if mn=k then inc(cnt);
+     frmdm.Q.Next;
+    end;
+   writeln(dat, k, #9, cnt);
+  end;
+CloseFile(dat);
+
+memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
+memo1.Lines.Add('===');
+memo1.Lines.Add('');
+
+TabControl1.Tabs.Add('Month');
+tabBarVertical.TabVisible:=true;
+TabControl1.OnChange(Self);
+Application.ProcessMessages;
+end;
+
+
+procedure Tfrmosstatistics.ParameterBar;
+Var
+dat: text;
+k, cnt:integer;
+tblPar:string;
+StartTime:TDateTime;
+
+TRt:TSQLTransaction;
+Qt:TSQLQuery;
+
+TblDesc, TblName: string;
+
+begin
+StartTime:=Now;
+Assignfile(dat,PathStatistics+'Parameter.dat'); rewrite(dat);
+WriteLn(dat, 'Stations', #9, 'Parameter');
+
+memo1.Lines.Add('STATIONS BY PARAMETER:');
+
+(* temporary transaction for main db *)
+TRt:=TSQLTransaction.Create(self);
+TRt.DataBase:=frmdm.IBDB;
+
+(* temporary query for main database *)
+Qt:=TSQLQuery.Create(self);
+Qt.Database:=frmdm.IBDB;
+Qt.Transaction:=TRt;
+
+  for k:=0 to frmosmain.ListBox1.Items.Count-1 do begin
+    tblPar:=frmosmain.ListBox1.Items.Strings[k];
+
+    with Qt do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' select VARIABLENAME, DESCRIPTION from DATABASE_TABLES ');
+        SQL.Add(tblPar);
+        SQL.Add(' where TABLENAME='+QuotedStr(tblPar));
+       Open;
+         TblDesc:=Qt.FieldByName('DESCRIPTION').AsWideString;
+         TblName:=Qt.FieldByName('VARIABLENAME').AsWideString;
+       Close;
+      end;
+
+
+    cnt:=0;
+    frmdm.Q.First;
+    while not frmdm.Q.Eof do begin
+      with Qt do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' select ID from ');
+        SQL.Add(tblPar);
+        SQL.Add(' where ID=:ID ');
+        ParamByName('ID').AsInteger:=frmdm.Q.FieldByName('ID').AsInteger;
+       Open;
+         if Qt.IsEmpty=false then inc(cnt);
+       Close;
+      end;
+     frmdm.Q.Next;
+   end;
+    if cnt>0 then writeln(dat, inttostr(cnt), #9, TblDesc+' ['+tblPar+']');
+  end;
+CloseFile(dat);
+
+memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
+memo1.Lines.Add('===');
+memo1.Lines.Add('');
+
+TabControl1.Tabs.Add('Parameter');
+tabBarVertical.TabVisible:=true;
+TabControl1.OnChange(Self);
+Application.ProcessMessages;
+end;
+
+
+
 procedure Tfrmosstatistics.MonthYearStatistics;
 var
 k, mn, CountSt, CountYear, YearCurrent, i, j:integer;
@@ -319,142 +434,6 @@ memo1.Lines.Add('');
 TabControl1.Tabs.Add('MonthYear');
 TabControl1.OnChange(Self);
 tabBarVertical.TabVisible:=true;
-Application.ProcessMessages;
-end;
-
-
-
-procedure Tfrmosstatistics.MonthStatistics;
-var
-k,countst,monthcurrent:integer;
-StartTime:TDateTime;
-instr, source1:string;
-begin
-StartTime:=Now;
-Assignfile(f_dat,PathStatistics+'\Month.dat'); rewrite(f_dat);
-writeln(f_dat, 'Month', #9, 'Stations');
-
-memo1.Lines.Add('STATION DISTRIBUTION BY MONTH:');
-
-{ if CatalogStatistics=false then begin
-   with odbdm.ib1q2 do begin
-    Close;
-      SQL.Clear;
-      SQL.Add(' Select station.absnum from Station, Station_info where');
-      SQL.Add(' Station.absnum=Station_info.absnum and ' );
-      SQL.Add(' StLat between :LatMin and  :LatMax and ' );
-      SQL.Add(' StLon between :LonMin and  :LonMax and ' );
-      SQL.Add(' Extract(Day from StDate) between :DayMin and :DayMax and ' );
-      SQL.Add(' Extract(Month from StDate)=:CurrentMonth and ' );
-      SQL.Add(' Extract(Year from StDate) between :YearMin and :YearMax ' );
-      if rgQC.ItemIndex=1 then SQL.Add(' and StFlag<16384 ');
-
-       instr:='';
-        for k:=0 to chkInstrument.Items.Count-1 do
-         if chkInstrument.Checked[k]=true then if instr='' then instr:=inttostr(k) else instr:=instr+','+inttostr(k);
-       SQL.Add(' and INSTRUMENT in ('+instr+')');
-
-      source1:='';
-       for k:=0 to clbsources.Items.Count-1 do
-        if clbsources.Checked[k]=true then if source1='' then source1:=QuotedStr(clbsources.Items.strings[k]) else
-        source1:=source1+','+QuotedStr(clbsources.Items.strings[k]);
-      SQL.Add(' and StSource in ('+source1+')');
-
-    Prepare;
-   end;
- end;
-
-
-  for k:=1 to 12 do begin
-    MonthCurrent:=k;
-   with odbdm.ib1q2 do begin
-    if CatalogStatistics=false then begin
-      ParamByName('LatMin').AsFloat:=strtofloat(Edit1.Text);
-      ParamByName('LatMax').AsFloat:=strtofloat(Edit2.Text);
-      ParamByName('LonMin').AsFloat:=strtofloat(Edit3.Text);
-      ParamByName('LonMax').AsFloat:=strtofloat(Edit4.Text);
-      ParamByName('DayMin').AsInteger:=SpinEdit1.Value;
-      ParamByName('DayMax').AsInteger:=SpinEdit2.Value;
-      ParamByName('CurrentMonth').AsInteger:=MonthCurrent;
-      ParamByName('YearMin').AsInteger:=SpinEdit5.Value;
-      ParamByName('YearMax').AsInteger:=SpinEdit6.Value;
-    end;
-
-    if CatalogStatistics=true then begin
-     ParamByName('CurrentMonth').AsInteger:=MonthCurrent;
-    end;
-    Open;
-   end;
-   CountSt:=0;
-   While not odbdm.ib1q2.Eof do begin
-     inc(CountSt);
-     odbdm.ib1q2.Next;
-   end;
-   odbdm.ib1q2.Close;
-    writeln(f_dat, MonthCurrent, #9, CountSt, ' ');
-  end;
-CloseFile(f_dat);    }
-
-//frmmain.ProgressBar1.Position:=frmmain.ProgressBar1.Position+1;
-memo1.Lines.Add(PathStatistics+'\Month.dat');
-memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
-memo1.Lines.Add('===');
-memo1.Lines.Add('');
-
-TabControl1.Tabs.Add('Month');
-tabBarVertical.TabVisible:=true;
-TabControl1.OnChange(Self);
-Application.ProcessMessages;
-end;
-
-
-procedure Tfrmosstatistics.ParameterBar;
-Var
-PrfCount:integer;
-k_Prf:integer;
-tblPar:string;
-StartTime:TDateTime;
-begin
-StartTime:=Now;
-Assignfile(f_dat,PathStatistics+'\Parameter.dat'); rewrite(f_dat);
-WriteLn(f_dat, 'Parameter'+#9+'Stations');
-
-memo1.Lines.Add('STATIONS BY PARAMETER:');
-
-{  for k_prf:=0 to frmmain.ListBox2.Items.Count-1 do begin
-    tblPar:=frmmain.ListBox2.Items.Strings[k_prf];
-
-    if odbdm.ib1q1.Active=false then SelectAllFromStation;
-
-     prfCount:=0;
-     odbdm.ib1q1.First;
-   while not odbdm.ib1q1.Eof do begin
-      with odbdm.ib1q2 do begin
-       Close;
-           SQL.Clear;
-           SQL.Add(' select absnum from ');
-           SQL.Add(tblPar);
-           SQL.Add(' where absnum=:absnum ');
-           ParamByName('absnum').AsInteger:=odbdm.ib1q1.FieldByName('absnum').AsInteger;
-       Open;
-         if odbdm.ib1q2.IsEmpty=false then prfCount:=prfCount+1;
-       Close;
-       end;
-     odbdm.ib1q1.Next;
-  end;
-    if prfCount>0 then writeln(f_dat, k_prf, #9, inttostr(PrfCount), #9, Copy(tblPar,3,length(tblpar)));
-  end;
-CloseFile(f_dat);  }
-
-//frmmain.ProgressBar1.Position:=frmmain.ProgressBar1.Position+1;
-memo1.Lines.Add(PathStatistics+'\Parameter.dat');
-memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
-memo1.Lines.Add('===');
-memo1.Lines.Add('');
-
-TabControl1.Tabs.Add('Parameter');
-tabBarVertical.TabVisible:=true;
-TabControl1.OnChange(Self);
 Application.ProcessMessages;
 end;
 

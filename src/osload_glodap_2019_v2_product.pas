@@ -3063,9 +3063,6 @@ begin
 end;
 
 
-
-
-
 procedure TfrmloadGLODAP_2019_v2_product.btnCreateTablesClick(Sender: TObject);
 Var
 TR:TSQLTransaction;
@@ -3078,6 +3075,7 @@ begin
     showmessage('database is not opened');
     exit;
   end;
+
 
   (* Script for parameter tables *)
   ScriptText:=
@@ -3543,22 +3541,27 @@ begin
      'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (11, '+QuotedStr('P_PHTS25P0_BOTTLE')+','    +QuotedStr('PH')+','         +QuotedStr('pH on total scale, 25C, 0dbar')+'); '+LineEnding+
      'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (12, '+QuotedStr('P_PHTSINSITUTP_BOTTLE')+','+QuotedStr('PH')+','         +QuotedStr('pH on total scale, in situ temperature and pressure')+'); '+LineEnding+
      'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (13, '+QuotedStr('P_CFC11_BOTTLE')+','       +QuotedStr('CFC11')+','      +QuotedStr('Halogenated transient tracer CFC11, partial pressure')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (14, '+QuotedStr('P_CFC12_BOTTLE')+','       +QuotedStr('CFC12')+','      +QuotedStr('Halogenated transient tracer CFC12, partial pressure')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (15, '+QuotedStr('P_CFC113_BOTTLE')+','      +QuotedStr('CFC113')+','     +QuotedStr('Halogenated transient tracer CFC113, partial pressure')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (16, '+QuotedStr('P_CC14_BOTTLE')+','        +QuotedStr('CC14,')+','      +QuotedStr('Halogenated transient tracer CC14, partial pressure')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (17, '+QuotedStr('P_SF6_BOTTLE')+','         +QuotedStr('SF6,')+','       +QuotedStr('Sulfur hexafluoride, partial pressure')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (18, '+QuotedStr('P_C13_BOTTLE')+','         +QuotedStr('C13,')+','       +QuotedStr('Stable isotop carbon 13')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (19, '+QuotedStr('P_C14_BOTTLE')+','         +QuotedStr('C14,')+','       +QuotedStr('Radioisotop carbon 14, counting error')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (20, '+QuotedStr('P_H3_BOTTLE')+','          +QuotedStr('H3,')+','        +QuotedStr('Radioisotop hydrogen 3, tritium')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (21, '+QuotedStr('P_HE3_BOTTLE')+','         +QuotedStr('HE3,')+','       +QuotedStr('Radioisotop helium 3, counting error')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (22, '+QuotedStr('P_HE_BOTTLE')+','          +QuotedStr('HE,')+','        +QuotedStr('Helium, counting error')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (23, '+QuotedStr('P_NEON_BOTTLE')+','        +QuotedStr('NEON,')+','      +QuotedStr('Neon, counting error')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (24, '+QuotedStr('P_O18_BOTTLE')+','         +QuotedStr('O18,')+','       +QuotedStr('Stable isotop of oxygen 18')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (25, '+QuotedStr('P_TOC_BOTTLE')+','         +QuotedStr('TOC,')+','       +QuotedStr('Total organic carbon')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (26, '+QuotedStr('P_DOC_BOTTLE')+','         +QuotedStr('DOC,')+','       +QuotedStr('Dissolved organic carbon')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (27, '+QuotedStr('P_DON_BOTTLE')+','         +QuotedStr('DON,')+','       +QuotedStr('Dissolved organic nitrogen')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (28, '+QuotedStr('P_TDN_BOTTLE')+','         +QuotedStr('TDN,')+','       +QuotedStr('Total dissolved nitrogen')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (29, '+QuotedStr('P_CHLA_BOTTLE')+','        +QuotedStr('CHLA,')+','      +QuotedStr('chlorophylla')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (14, '+QuotedStr('P_PCFC11_BOTTLE')+','      +QuotedStr('PCFC11')+','     +QuotedStr('Halogenated transient tracer CFC11')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (15, '+QuotedStr('P_CFC12_BOTTLE')+','       +QuotedStr('CFC12')+','      +QuotedStr('Halogenated transient tracer CFC12, partial pressure')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (16, '+QuotedStr('P_PCFC12_BOTTLE')+','      +QuotedStr('CFC12')+','      +QuotedStr('Halogenated transient tracer CFC12')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (17, '+QuotedStr('P_CFC113_BOTTLE')+','      +QuotedStr('CFC113')+','     +QuotedStr('Halogenated transient tracer CFC113, partial pressure')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (18, '+QuotedStr('P_PCFC113_BOTTLE')+','     +QuotedStr('PCFC113')+','    +QuotedStr('Halogenated transient tracer CFC113')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (19, '+QuotedStr('P_CC14_BOTTLE')+','        +QuotedStr('CC14')+','       +QuotedStr('Halogenated transient tracer CC14, partial pressure')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (20, '+QuotedStr('P_PCC14_BOTTLE')+','       +QuotedStr('PCC14')+','      +QuotedStr('Halogenated transient tracer CC14')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (21, '+QuotedStr('P_SF6_BOTTLE')+','         +QuotedStr('SF6')+','        +QuotedStr('Sulfur hexafluoride, partial pressure')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (22, '+QuotedStr('P_PSF6_BOTTLE')+','        +QuotedStr('PSF6')+','       +QuotedStr('Sulfur hexafluoride')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (23, '+QuotedStr('P_C13_BOTTLE')+','         +QuotedStr('C13')+','        +QuotedStr('Stable isotop carbon 13')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (24, '+QuotedStr('P_C14_BOTTLE')+','         +QuotedStr('C14')+','        +QuotedStr('Radioisotop carbon 14, counting error')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (25, '+QuotedStr('P_H3_BOTTLE')+','          +QuotedStr('H3')+','         +QuotedStr('Radioisotop hydrogen 3, tritium')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (26, '+QuotedStr('P_HE3_BOTTLE')+','         +QuotedStr('HE3')+','        +QuotedStr('Radioisotop helium 3, counting error')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (27, '+QuotedStr('P_HE_BOTTLE')+','          +QuotedStr('HE')+','         +QuotedStr('Helium, counting error')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (28, '+QuotedStr('P_NEON_BOTTLE')+','        +QuotedStr('NEON,')+','      +QuotedStr('Neon, counting error')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (29, '+QuotedStr('P_O18_BOTTLE')+','         +QuotedStr('O18')+','        +QuotedStr('Stable isotop of oxygen 18')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (30, '+QuotedStr('P_TOC_BOTTLE')+','         +QuotedStr('TOC')+','        +QuotedStr('Total organic carbon')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (31, '+QuotedStr('P_DOC_BOTTLE')+','         +QuotedStr('DOC')+','        +QuotedStr('Dissolved organic carbon')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (32, '+QuotedStr('P_DON_BOTTLE')+','         +QuotedStr('DON')+','        +QuotedStr('Dissolved organic nitrogen')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (33, '+QuotedStr('P_TDN_BOTTLE')+','         +QuotedStr('TDN')+','        +QuotedStr('Total dissolved nitrogen')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (34, '+QuotedStr('P_CHLA_BOTTLE')+','        +QuotedStr('CHLA')+','       +QuotedStr('Chlorophylla')+'); '+LineEnding+
 
      'COMMIT WORK '+LineEnding+
      'SET TERM ; '+LineEnding;
