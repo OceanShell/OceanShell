@@ -2979,7 +2979,11 @@ begin
   +#9+'Down level[dbar]'
   +#9+'Average'
   +#9+'Minimum'
-  +#9+'Maximum';
+  +#9+'Maximum'
+  +#9+'Unit'
+  +#9+'Unit short'
+  +#9+'Unit ID'
+  ;
   memo1.Lines.Add(first_str);
 
   path_out:='c:\Users\ako071\AK\OceanShell-GIT\OceanShell\unload\statistics\GLODAP_statistics.dat';
