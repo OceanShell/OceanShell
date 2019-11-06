@@ -517,7 +517,11 @@ begin
      CDS_DSC.Free;
   closefile(outMD);
 
+  frmdm.IBDB.Close;
+  frmosmain.OpenDatabase;
+
   memo1.Lines.Add('Profiles in file: '+inttostr(PRF_count));
+  memo1.Lines.Add('Database        : '+IBName);
   btnDownloadData.Visible:=true;
 end;
 
@@ -2341,8 +2345,8 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
 
 
     PRF_count:=0;
-//{ST}for kst:=1 to RSt-1 do begin        //GLODAP Stations
-{ST}for kst:=1 to 1000 do begin        //GLODAP Stations
+{ST}for kst:=1 to RSt-1 do begin        //GLODAP Stations
+//{ST}for kst:=1 to 1000 do begin        //GLODAP Stations
 
     if CDS_DSC.Active then CDS_DSC.Close;
       CDS_DSC.Open;
@@ -2804,6 +2808,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
 
 
    //divide station on casts
+     CDS_DSC.First;
 {CN}for c:=1 to cast_maxN do begin       //cast number
      CDS_DSC.Filter:='CAST='+inttostr(c);
      CDS_DSC.Filtered:=true;            //filter by cast
@@ -2820,7 +2825,8 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
 
 //write if value exists
 //on disk
-{V}if (CDS_DSC.FieldByName('Val').AsFloat<>-9999) and (ktbl<=29) then begin
+{V}if (ktbl<=29) and (CDS_DSC.FieldByName('Val').AsFloat<>-9999) then begin
+
        writeln(out,inttostr(PRF_count),
        #9,floattostr(CDS_DSC.FieldByName('Pres').AsFloat),
        #9,floattostr(CDS_DSC.FieldByName('Val').AsFloat),
@@ -2829,8 +2835,9 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
        #9,inttostr(CDS_DSC.FieldByName('SQF').AsInteger),
        #9,inttostr(CDS_DSC.FieldByName('Bottle').AsInteger),
        #9,inttostr(CDS_DSC.FieldByName('Units_ID').AsInteger));
+
 //write into DB
-   if CheckBox2.Checked then
+{w}if CheckBox2.Checked then begin
        with frmdm.q3 do begin
          Close;
          SQL.Clear;
@@ -2849,10 +2856,12 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          ParamByName('UNITS_ID').AsInteger:=CDS_DSC.FieldByName('Units_ID').AsInteger;
          ExecSQL;
        end;
-       frmdm.TR.CommitRetaining;
+       //frmdm.TR.CommitRetaining;
+{w}end;
+
 {V}end;
 
-{V}if (CDS_DSC.FieldByName('Val').AsFloat<>-9999) and (ktbl>29) then begin
+{V}if (ktbl>29) and (CDS_DSC.FieldByName('Val').AsFloat<>-9999) then begin
        writeln(out,inttostr(PRF_count),
        #9,floattostr(CDS_DSC.FieldByName('Pres').AsFloat),
        #9,floattostr(CDS_DSC.FieldByName('Val').AsFloat),
@@ -2864,7 +2873,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
        #9,inttostr(CDS_DSC.FieldByName('Units_ID').AsInteger));
        if CheckBox2.Checked then
 //write into DB
-   if CheckBox2.Checked then
+{w}if CheckBox2.Checked then begin
        with frmdm.q3 do begin
          Close;
          SQL.Clear;
@@ -2884,16 +2893,20 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          ParamByName('UNITS_ID').AsInteger:=CDS_DSC.FieldByName('Units_ID').AsInteger;
          ExecSQL;
        end;
-       frmdm.TR.CommitRetaining;
+       //frmdm.TR.CommitRetaining;
+{w}end;
 {V}end;
-
-
      CDS_DSC.Next;
 {PRF}end; //filtered by cast number and sorted station
+       frmdm.TR.CommitRetaining;
+
 {CAST}end; //if cast exists
 {CN}end; // 1..cast_maxN
 
-      CDS_DSC.Filtered:=false;
+     CDS_DSC.Filtered:=false;
+
+     if CDS_DSC.Active=true then CDS_DSC.Close;
+
 {ST}end; //GLODAP stations
 
    if CDS_DSC.Active=true then CDS_DSC.Close;
@@ -2907,6 +2920,10 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
       memo1.Lines.Add('');
       memo1.Lines.Add('Loading completed');
       memo1.Lines.Add('End:'+datetimetostr(NOW));
+
+      frmdm.IBDB.Close;
+      frmosmain.OpenDatabase;
+
 
 end;
 
@@ -3035,7 +3052,7 @@ begin
      'CREATE TABLE P_TEMPERATURE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3047,7 +3064,7 @@ begin
      'CREATE TABLE P_SALINITY_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3059,7 +3076,7 @@ begin
      'CREATE TABLE P_OXYGEN_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(8,4) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3071,7 +3088,7 @@ begin
      'CREATE TABLE P_AOU_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3083,7 +3100,7 @@ begin
      'CREATE TABLE P_NITRATE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3095,7 +3112,7 @@ begin
      'CREATE TABLE P_NITRITE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3107,7 +3124,7 @@ begin
      'CREATE TABLE P_SILICATE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3119,7 +3136,7 @@ begin
      'CREATE TABLE P_PHOSPHATE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3132,7 +3149,7 @@ begin
      'CREATE TABLE P_TCO2_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3144,7 +3161,7 @@ begin
      'CREATE TABLE P_TALK_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3156,7 +3173,7 @@ begin
      'CREATE TABLE P_PHTS25P0_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3168,7 +3185,7 @@ begin
      'CREATE TABLE P_PHTSINSITUTP_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3180,7 +3197,7 @@ begin
      'CREATE TABLE P_CFC11_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3192,7 +3209,7 @@ begin
      'CREATE TABLE P_PCFC11_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3204,7 +3221,7 @@ begin
      'CREATE TABLE P_CFC12_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3216,7 +3233,7 @@ begin
      'CREATE TABLE P_PCFC12_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3228,7 +3245,7 @@ begin
      'CREATE TABLE P_CFC113_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3240,7 +3257,7 @@ begin
      'CREATE TABLE P_PCFC113_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3252,7 +3269,7 @@ begin
      'CREATE TABLE P_CC14_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3264,7 +3281,7 @@ begin
      'CREATE TABLE P_PCC14_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3276,7 +3293,7 @@ begin
      'CREATE TABLE P_SF6_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3288,7 +3305,7 @@ begin
      'CREATE TABLE P_PSF6_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3300,7 +3317,7 @@ begin
      'CREATE TABLE P_C13_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3312,8 +3329,8 @@ begin
      'CREATE TABLE P_C14_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
-     '   VALERR         DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+     '   VALERR         DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3325,8 +3342,8 @@ begin
      'CREATE TABLE P_H3_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
-     '   VALERR         DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+     '   VALERR         DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3338,8 +3355,8 @@ begin
      'CREATE TABLE P_HE3_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
-     '   VALERR         DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+     '   VALERR         DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3351,8 +3368,8 @@ begin
      'CREATE TABLE P_HE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
-     '   VALERR         DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+     '   VALERR         DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3364,8 +3381,8 @@ begin
      'CREATE TABLE P_NEON_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
-     '   VALERR         DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+     '   VALERR         DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3377,7 +3394,7 @@ begin
      'CREATE TABLE P_O18_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3389,7 +3406,7 @@ begin
      'CREATE TABLE P_TOC_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3401,7 +3418,7 @@ begin
      'CREATE TABLE P_DOC_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3413,7 +3430,7 @@ begin
      'CREATE TABLE P_DON_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3425,7 +3442,7 @@ begin
      'CREATE TABLE P_TDN_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3437,7 +3454,7 @@ begin
      'CREATE TABLE P_CHLA_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
-     '   VAL            DECIMAL(18,10) NOT NULL, '+LineEnding+
+     '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
      '   sQF            SMALLINT, '+LineEnding+
@@ -3539,6 +3556,11 @@ begin
   ST.Free;
   TR.Free;
  end;
+     Showmessage('DB name: '+IBName);
+
+     frmdm.IBDB.Close;
+     frmosmain.OpenDatabase;
+
 end;
 
 
