@@ -1,7 +1,7 @@
 object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
-  Left = 970
+  Left = 977
   Height = 473
-  Top = 150
+  Top = 194
   Width = 683
   Caption = 'frmloadGLODAP_2019_v2_product'
   ClientHeight = 473
@@ -133,5 +133,13 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
       ParentFont = False
       TabOrder = 3
     end
+  end
+  object Q: TSQLQuery
+    FieldDefs = <>
+    Database = frmdm.SupportDB
+    Transaction = frmdm.SupportTR
+    Params = <>
+    left = 170
+    top = 204
   end
 end

@@ -47,6 +47,7 @@ type
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
     Memo1: TMemo;
+    Q: TSQLQuery;
     procedure btnDataSourceClick(Sender: TObject);
     procedure btnDownloadMDClick(Sender: TObject);
     procedure btnDownloadDataClick(Sender: TObject);
@@ -2932,8 +2933,8 @@ end;
 
 procedure TfrmloadGLODAP_2019_v2_product.btnGetDBStatisticsClick(Sender: TObject);
 var
-ktbl:integer;
-first_str:string;
+ktbl,UID:integer;
+first_str,UName,UNameShort:string;
 TblName:array[1..34] of string;
 begin
 
@@ -2992,6 +2993,8 @@ begin
 
 
 {TBL}for ktbl:=1 to 34 do begin
+
+
 {w}with frmdm.q1 do begin
      Close;
      SQL.Clear;
@@ -2999,10 +3002,28 @@ begin
      SQL.Add(' min(pres) as pres_min, max(pres) as pres_max, ');
      SQL.Add(' avg(val) as val_avg, ');
      SQL.Add(' min(val) as val_min, ');
-     SQL.Add(' max(val) as val_max ');
+     SQL.Add(' max(val) as val_max, ');
+     SQL.Add(' min(units_ID) as units_min, ');
+     SQL.Add(' max(units_ID) as units_max ');
      SQL.Add(' from ');
      SQL.Add(trim(TblName[ktbl]));
      Open;
+
+
+     with Q do begin
+      SQL.Clear;
+      SQL.Add(' Select * from UNITS ');
+      SQL.Add(' where ID=:ID ');
+      //check if multiple units in table
+      Q.ParamByName('ID').AsInteger:=frmdm.q1.FieldByName('units_min').AsInteger;
+      Open;
+      UName :=q.FieldByName('Name').AsString;
+      UNameShort:=q.FieldByName('Name_Short').AsString;
+      UID:=q.FieldByName('ID').AsInteger;
+      Close;
+     end;
+
+
 
      memo1.Lines.Add(TblName[ktbl]
      +#9+inttostr(frmdm.q1.FieldByName('samples_num').AsInteger)
@@ -3010,7 +3031,11 @@ begin
      +#9+floattostr(frmdm.q1.FieldByName('pres_max').AsFloat)
      +#9+floattostr(frmdm.q1.FieldByName('val_avg').AsFloat)
      +#9+floattostr(frmdm.q1.FieldByName('val_min').AsFloat)
-     +#9+floattostr(frmdm.q1.FieldByName('val_max').AsFloat));
+     +#9+floattostr(frmdm.q1.FieldByName('val_max').AsFloat)
+     +#9+UName
+     +#9+UNameShort
+     +#9+inttostr(UID)
+     );
 
      writeln(out,TblName[ktbl],
      #9,inttostr(frmdm.q1.FieldByName('samples_num').AsInteger),
@@ -3018,7 +3043,11 @@ begin
      #9,floattostr(frmdm.q1.FieldByName('pres_max').AsFloat),
      #9,floattostr(frmdm.q1.FieldByName('val_avg').AsFloat),
      #9,floattostr(frmdm.q1.FieldByName('val_min').AsFloat),
-     #9,floattostr(frmdm.q1.FieldByName('val_max').AsFloat));
+     #9,floattostr(frmdm.q1.FieldByName('val_max').AsFloat),
+     #9,UName,
+     #9,UNameShort,
+     #9,inttostr(UID)
+     );
 
      Close;
 {w}end;
