@@ -1,11 +1,11 @@
 object frmcodes: Tfrmcodes
-  Left = 260
+  Left = 429
   Height = 550
-  Top = 168
+  Top = 161
   Width = 1000
   Caption = 'Codes'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 550
+  ClientWidth = 1000
   Color = clBtnFace
   Constraints.MinHeight = 550
   Constraints.MinWidth = 1000
@@ -23,9 +23,9 @@ object frmcodes: Tfrmcodes
     Height = 528
     Top = 22
     Width = 1000
-    ActivePage = tbCruiseGLODAP
+    ActivePage = tbPlatform
     Align = alClient
-    TabIndex = 3
+    TabIndex = 0
     TabOrder = 0
     OnChange = PageControl1Change
     object tbPlatform: TTabSheet

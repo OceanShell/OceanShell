@@ -46,3 +46,48 @@ GFI6100290	Wed Nov 06 13:22:41 2019
 	Database "C:\USERS\AKO071\AK\OCEANSHELL-GIT\OCEANSHELL\DATABASES\GLODAPV2_2019_PRODUCT.FDB" 
 	OIT 647879, OAT 647880, OST 647880, Next 647882
 
+
+SASHA-UX330	Thu Nov 07 11:30:11 2019
+	LockManager::LockManager()
+	Database is probably already opened by another engine instance in another Windows session
+
+
+SASHA-UX330	Thu Nov 07 11:35:26 2019
+	LockManager::LockManager()
+	Database is probably already opened by another engine instance in another Windows session
+
+
+SASHA-UX330	Thu Nov 07 11:49:42 2019
+	LockManager::LockManager()
+	Database is probably already opened by another engine instance in another Windows session
+
+
+SASHA-UX330	Thu Nov 07 12:09:15 2019
+	LockManager::LockManager()
+	Database is probably already opened by another engine instance in another Windows session
+
+
+SASHA-UX330	Thu Nov 07 12:09:22 2019
+	LockManager::LockManager()
+	Database is probably already opened by another engine instance in another Windows session
+
+
+SASHA-UX330	Thu Nov 07 12:32:50 2019
+	LockManager::LockManager()
+	Database is probably already opened by another engine instance in another Windows session
+
+
+SASHA-UX330	Thu Nov 07 12:35:58 2019
+	LockManager::LockManager()
+	Database is probably already opened by another engine instance in another Windows session
+
+
+SASHA-UX330	Thu Nov 07 12:49:57 2019
+	LockManager::LockManager()
+	Database is probably already opened by another engine instance in another Windows session
+
+
+SASHA-UX330	Thu Nov 07 12:52:38 2019
+	LockManager::LockManager()
+	Database is probably already opened by another engine instance in another Windows session
+
