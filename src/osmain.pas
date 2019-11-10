@@ -35,8 +35,12 @@ type
     DS: TDataSource;
     DBGridPlatform: TDBGrid;
     GroupBox2: TGroupBox;
+    GroupBox3: TGroupBox;
     Label1: TLabel;
     Label2: TLabel;
+    iProfilesAll: TMenuItem;
+    PM1: TPopupMenu;
+    seIDMax: TSpinEdit;
     seLonMin: TFloatSpinEdit;
     seLonMax: TFloatSpinEdit;
     seLatMax: TFloatSpinEdit;
@@ -58,8 +62,8 @@ type
     MenuItem4: TMenuItem;
     OD: TOpenDialog;
     PageControl1: TPageControl;
-    Panel1: TPanel;
     pnl2: TPanel;
+    seIDMin: TSpinEdit;
     Splitter1: TSplitter;
     StatusBar2: TStatusBar;
     IL2: TImageList;
@@ -83,6 +87,10 @@ type
     tsMainData: TTabSheet;
 
     procedure btnSelectionClick(Sender: TObject);
+    procedure DBGridPlatformCellClick(Column: TColumn);
+    procedure DBGridPlatformKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure DBGridPlatformTitleClick(Column: TColumn);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -93,6 +101,7 @@ type
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
     procedure iMapClick(Sender: TObject);
+    procedure iProfilesAllClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
 
@@ -107,6 +116,7 @@ type
     procedure ItemsVisibility;
     procedure DatabaseInfo;
     procedure SelectionInfo;
+    procedure CDSNavigation;
     procedure RunScript(ExeFlag:integer; cmd:string; Sender:TMemo);
   end;
 
@@ -135,7 +145,7 @@ var
 
   IBLatMin,IBLatMax,IBLonMin,IBLonMax,SLatMin,SLatMax,SLonMin,SLonMax:Real;
   IBDateMin, IBDateMax, SDateMin, SDateMax :TDateTime;
-  IBCount, SCount:Integer; //number od stations in database and selection
+  IBCount, SCount, IDMin, IDMax:Integer; //number od stations in database and selection
 
 
   NavigationOrder:boolean=true; //Stop navigation until all modules responded
@@ -144,7 +154,7 @@ var
   SLonP_arr:array[0..20000] of real;
   Length_arr:integer;
 
-  frmcodes_open, frmcodesQC_open:boolean;
+  frmcodes_open, frmcodesQC_open, frmparametersall_open:boolean;
 
 
 const
@@ -159,7 +169,7 @@ const
 implementation
 
 
-uses dm, oscreatenewdb, settings, codes, osabout,
+uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
   //loading data
   osload_itp,
   osload_GLODAP_2019_v2_product,
@@ -167,6 +177,7 @@ uses dm, oscreatenewdb, settings, codes, osabout,
   //QC
   //tools
   osmap_kml,
+  osparameters_all,
 
   //statistics
   osstatistics
@@ -228,7 +239,7 @@ IBName:='';
   end;
 
  (* flags on open forms *)
-  frmcodes_open:=false; frmcodesQC_open:=false;
+  frmcodes_open:=false; frmcodesQC_open:=false; frmparametersall_open:=false;
 
 SetFocus;
 end;
@@ -243,22 +254,19 @@ NotCondCruise, NotCondInstr, NotCondOrigin, NotCondCountryC, NotCondVesselC, ins
 MinDay, MaxDay, cnt:integer;
 Lat, Lon:real;
 begin
-
-  SSYearMin := strtoint(copy(datetostr(dtpDateMin.Date),7,4));
-  SSYearMax := strtoint(copy(datetostr(dtpDateMax.Date),7,4));
-  SSMonthMin:= strtoint(copy(datetostr(dtpDateMin.Date),4,2));
-  SSMonthMax:= strtoint(copy(datetostr(dtpDateMax.Date),4,2));
-  SSDayMin  := strtoint(copy(datetostr(dtpDateMin.Date),1,2));
-  SSDayMax  := strtoint(copy(datetostr(dtpDateMax.Date),1,2));
+DecodeDate(dtpDateMin.Date, SSYearMin, SSMonthMin, SSDayMin);
+DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
 
  with frmdm.Q do begin
    Close;
     SQL.Clear;
     SQL.Add(' SELECT * FROM STATION ');
     SQL.Add(' WHERE ');
+     (* Coordinates *)
+    SQL.Add(' (ID BETWEEN :SSIDMin AND :SSIDMax) ');
 
     (* Coordinates *)
-    SQL.Add(' (LATITUDE BETWEEN :SSLatMin AND :SSLatMax) ');
+    SQL.Add(' and (LATITUDE BETWEEN :SSLatMin AND :SSLatMax) ');
      if seLonMax.Value>=seLonMin.Value then
       SQL.Add(' and (LONGITUDE BETWEEN :SSLonMin AND :SSLonMax) ');
      if seLonMax.Value<seLonMin.Value then
@@ -289,6 +297,8 @@ begin
 
     SQL.Add(' ORDER BY DATEANDTIME ' );
 
+    ParamByName('SSIDMin').AsInteger:=seIDMin.Value;
+    ParamByName('SSIDMax').AsInteger:=seIDMax.Value;
 
     ParamByName('SSLatMin').AsFloat:=seLatMin.Value;
     ParamByName('SSLatMax').AsFloat:=seLatMax.Value;
@@ -313,6 +323,52 @@ begin
  SelectionInfo;
 end;
 
+
+
+procedure Tfrmosmain.CDSNavigation;
+Var
+ID:integer;
+begin
+ID:=frmdm.Q.FieldByName('ID').AsInteger;
+if (ID=0) or (NavigationOrder=false) then exit;
+
+ If NavigationOrder=true then begin
+  NavigationOrder:=false; //blocking everthing until previous operations have been completed
+ //  if MapOpen       =true then Map.ChangeID;
+ //  if InfoOpen      =true then Info.ChangeID;
+ //  if QProfilesOpen =true then QProfiles.ChangeStation(ID);
+ //  if DensOpen      =true then QDensity.ChangeDensStation(ID);
+ //  if TSOPen        =true then frmToolTSDiagram.ChangeID;
+ //  if SinglePrfOpen =true then SingleParameter.TblChange(ID);
+   if frmparametersall_open  =true then frmparametersall.ShowAllProf(ID);
+ //  if MeteoOpen     =true then Meteo.ChangeAbsnum;
+ //  if MLDOpen       =true then MLD.ChangeID;
+ //  if TrackOpen     =true then frmVesselSpeed.ChangeID;
+ //  if RossbyOpen    =true then Rossby.ChangeID;
+ //  if QCTDOpen      =true then QCTD.ChangeID;
+ //  if VertIntOpen   =true then VertInt.TblChange(ID)
+
+  NavigationOrder:=true; //Завершили, открываем доступ к навигации
+ end;
+end;
+
+
+procedure Tfrmosmain.DBGridPlatformCellClick(Column: TColumn);
+begin
+   CDSNavigation;
+end;
+
+procedure Tfrmosmain.DBGridPlatformKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (key=VK_UP) or (key=VK_DOWN) then CDSNavigation;
+end;
+
+
+procedure Tfrmosmain.DBGridPlatformTitleClick(Column: TColumn);
+begin
+  sortbufds.SortBufDataSet(frmdm.Q, Column.FieldName);
+end;
 
 
 procedure Tfrmosmain.iDBStatisticsClick(Sender: TObject);
@@ -410,6 +466,7 @@ Qt_DB2.Transaction:=TRt_DB2;
     Close;
         SQL.Clear;
         SQL.Add(' select count(ID) as StCount, ');
+        SQL.Add(' min(ID) as IDMin, max(ID) as IDMax, ');
         SQL.Add(' min(LATITUDE) as StLatMin, max(LATITUDE) as StLatMax, ');
         SQL.Add(' min(LONGITUDE) as StLonMin, max(LONGITUDE) as StLonMax, ');
         SQL.Add(' min(DATEANDTIME) as StDateMin, ');
@@ -418,6 +475,8 @@ Qt_DB2.Transaction:=TRt_DB2;
     Open;
       IBCount:=FieldByName('StCount').AsInteger;
        if IBCount>0 then begin
+         IDMin     :=FieldByName('IDMin').AsInteger;
+         IDMax     :=FieldByName('IDMax').AsInteger;
          IBLatMin  :=FieldByName('StLatMin').AsFloat;
          IBLatMax  :=FieldByName('StLatMax').AsFloat;
          IBLonMin  :=FieldByName('StLonMin').AsFloat;
@@ -433,6 +492,8 @@ Qt_DB2.Transaction:=TRt_DB2;
          StatusBar2.Panels[6].Text:='DateMax: '+datetostr(IBDateMax);
          StatusBar2.Panels[7].Text:='Stations: '+inttostr(IBCount);
 
+         seIDMin.Value:=IDMin;
+         seIdMax.Value:=IDMax;
          seLatMin.Value:=IBLatMin;
          seLatMax.Value:=IBLatMax;
          seLonMin.Value:=IBLonMin;
@@ -569,6 +630,7 @@ begin
 end;
 
 
+
 procedure Tfrmosmain.ItemsVisibility;
 Var
   Ini:TIniFile;
@@ -637,6 +699,18 @@ end;
 procedure Tfrmosmain.iMapClick(Sender: TObject);
 begin
    ExportKML_;
+end;
+
+
+
+procedure Tfrmosmain.iProfilesAllClick(Sender: TObject);
+begin
+ if frmparametersall_open=true then frmparametersall.SetFocus else
+    begin
+      frmparametersall := Tfrmparametersall.Create(Self);
+      frmparametersall.Show;
+    end;
+ frmparametersall_open:=true;
 end;
 
 

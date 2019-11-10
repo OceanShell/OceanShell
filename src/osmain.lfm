@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 400
+  Left = 389
   Height = 465
-  Top = 162
+  Top = 220
   Width = 900
   BorderStyle = bsSingle
   Caption = 'OceanShell'
@@ -190,7 +190,7 @@ object frmosmain: Tfrmosmain
             Left = 112
             Height = 21
             Top = 37
-            Width = 83
+            Width = 82
             Alignment = taCenter
             Font.Color = clWindowText
             Font.Height = -11
@@ -249,7 +249,7 @@ object frmosmain: Tfrmosmain
             Left = 48
             Height = 21
             Top = 5
-            Width = 127
+            Width = 133
             CenturyFrom = 1941
             MaxDate = 2958465
             MinDate = -53780
@@ -275,7 +275,7 @@ object frmosmain: Tfrmosmain
             Left = 48
             Height = 21
             Top = 37
-            Width = 127
+            Width = 133
             CenturyFrom = 1941
             MaxDate = 2958465
             MinDate = -53780
@@ -334,6 +334,36 @@ object frmosmain: Tfrmosmain
             TabOrder = 2
           end
         end
+        object GroupBox3: TGroupBox
+          Left = 16
+          Height = 65
+          Top = 136
+          Width = 214
+          Caption = 'Station ID'
+          ClientHeight = 47
+          ClientWidth = 210
+          TabOrder = 3
+          object seIDMin: TSpinEdit
+            Left = 16
+            Height = 21
+            Top = 10
+            Width = 82
+            MaxValue = 100000000
+            MinValue = 1
+            TabOrder = 0
+            Value = 1
+          end
+          object seIDMax: TSpinEdit
+            Left = 112
+            Height = 21
+            Top = 10
+            Width = 82
+            MaxValue = 100000000
+            MinValue = 1
+            TabOrder = 1
+            Value = 1
+          end
+        end
       end
       object tsMainSelectAdvanced: TTabSheet
         Caption = 'Advanced selection'
@@ -387,7 +417,7 @@ object frmosmain: Tfrmosmain
             ShowCaption = False
           end
           object btnsave: TToolButton
-            Left = 76
+            Left = 78
             Hint = 'Commit changes'
             Top = 0
             Caption = 'Save'
@@ -408,29 +438,83 @@ object frmosmain: Tfrmosmain
             Style = tbsDivider
           end
         end
-        object Panel1: TPanel
-          Left = 648
-          Height = 351
-          Top = 22
-          Width = 244
-          Align = alRight
-          BevelOuter = bvNone
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          ParentFont = False
-          TabOrder = 1
-        end
         object DBGridPlatform: TDBGrid
           Left = 0
           Height = 351
           Top = 22
-          Width = 643
+          Width = 887
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
           Color = 13627366
-          Columns = <>
+          Columns = <          
+            item
+              Title.Caption = 'ID'
+              FieldName = 'ID'
+            end          
+            item
+              Title.Caption = 'QC Flag'
+              Width = 50
+              FieldName = 'QCFLAG'
+            end          
+            item
+              Title.Caption = 'Latitude'
+              FieldName = 'LATITUDE'
+            end          
+            item
+              Title.Caption = 'Longitude'
+              FieldName = 'LONGITUDE'
+            end          
+            item
+              Title.Caption = 'Date'
+              Width = 120
+              FieldName = 'DATEANDTIME'
+            end          
+            item
+              Title.Caption = 'Depth, m'
+              Width = 50
+              FieldName = 'BOTTOMDEPTH'
+            end          
+            item
+              Title.Caption = 'Last lev., m'
+              Width = 60
+              FieldName = 'LASTLEVEL_M'
+            end          
+            item
+              Title.Caption = 'Last lev., dBar'
+              Width = 75
+              FieldName = 'LASTLEVEL_DBAR'
+            end          
+            item
+              Title.Caption = 'Cruise ID'
+              FieldName = 'CRUISE_ID'
+            end          
+            item
+              Title.Caption = 'Station #'
+              Width = 70
+              FieldName = 'ST_NUMBER_ORIGIN'
+            end          
+            item
+              Title.Caption = 'Cast'
+              FieldName = 'CAST_NUMBER'
+            end          
+            item
+              Title.Caption = 'Station orig. ID'
+              Width = 80
+              FieldName = 'ST_ID_ORIGIN'
+            end          
+            item
+              Title.Caption = 'Instr. ID'
+              FieldName = 'INSTRUMENT_ID'
+            end          
+            item
+              Title.Caption = 'Version'
+              FieldName = 'STVERSION'
+            end          
+            item
+              Title.Caption = 'Merged'
+              FieldName = 'MERGED'
+            end>
           DataSource = DS
           FixedCols = 0
           Flat = True
@@ -439,14 +523,18 @@ object frmosmain: Tfrmosmain
           Font.Name = 'MS Sans Serif'
           Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
           ParentFont = False
+          PopupMenu = PM1
           Scrollbars = ssAutoBoth
-          TabOrder = 2
+          TabOrder = 1
           TitleFont.Color = clWindowText
           TitleFont.Height = -11
           TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridPlatformTitleClick
         end
         object Splitter1: TSplitter
-          Left = 643
+          Left = 887
           Height = 351
           Top = 22
           Width = 5
@@ -34274,5 +34362,14 @@ object frmosmain: Tfrmosmain
   object DS: TDataSource
     DataSet = frmdm.Q
     left = 720
+  end
+  object PM1: TPopupMenu
+    Images = IL2
+    left = 760
+    object iProfilesAll: TMenuItem
+      Caption = 'All profiles'
+      ImageIndex = 6
+      OnClick = iProfilesAllClick
+    end
   end
 end

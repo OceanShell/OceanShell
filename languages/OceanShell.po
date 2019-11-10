@@ -2,6 +2,7 @@ msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
 #: osmain.sdelete
+msgctxt "osmain.sdelete"
 msgid "Delete"
 msgstr ""
 
@@ -759,6 +760,80 @@ msgctxt "tfrmosmain.chkperiod.caption"
 msgid "Period"
 msgstr ""
 
+#: tfrmosmain.dbgridplatform.columns[0].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[0].title.caption"
+msgid "ID"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[10].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[10].title.caption"
+msgid "Cast"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[11].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[11].title.caption"
+msgid "Station orig. ID"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[12].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[12].title.caption"
+msgid "Instr. ID"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[13].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[13].title.caption"
+msgid "Version"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[14].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[14].title.caption"
+msgid "Merged"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[1].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[1].title.caption"
+msgid "QC Flag"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[2].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[2].title.caption"
+msgid "Latitude"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[3].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[3].title.caption"
+msgid "Longitude"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[4].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[4].title.caption"
+msgid "Date"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[5].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[5].title.caption"
+msgid "Depth, m"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[6].title.caption
+msgid "Last lev., m"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[7].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[7].title.caption"
+msgid "Last lev., dBar"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[8].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[8].title.caption"
+msgid "Cruise ID"
+msgstr ""
+
+#: tfrmosmain.dbgridplatform.columns[9].title.caption
+msgctxt "tfrmosmain.dbgridplatform.columns[9].title.caption"
+msgid "Station #"
+msgstr ""
+
 #: tfrmosmain.dtpdatemax.textfornulldate
 msgctxt "tfrmosmain.dtpdatemax.textfornulldate"
 msgid "NULL"
@@ -775,6 +850,10 @@ msgstr ""
 
 #: tfrmosmain.groupbox2.caption
 msgid "Date and Time"
+msgstr ""
+
+#: tfrmosmain.groupbox3.caption
+msgid "Station ID"
 msgstr ""
 
 #: tfrmosmain.iabout.caption
@@ -835,6 +914,10 @@ msgstr ""
 #: tfrmosmain.iopendatabase.caption
 msgctxt "tfrmosmain.iopendatabase.caption"
 msgid "Open database"
+msgstr ""
+
+#: tfrmosmain.iprofilesall.caption
+msgid "All profiles"
 msgstr ""
 
 #: tfrmosmain.isettings.caption
@@ -930,6 +1013,81 @@ msgstr ""
 
 #: tfrmosstatistics.tabselection.caption
 msgid "Selection"
+msgstr ""
+
+#: tfrmparametersall.btnadd.caption
+msgctxt "tfrmparametersall.btnadd.caption"
+msgid "Add"
+msgstr ""
+
+#: tfrmparametersall.btnadd.hint
+msgctxt "tfrmparametersall.btnadd.hint"
+msgid "Add level"
+msgstr ""
+
+#: tfrmparametersall.btncommit.caption
+msgctxt "tfrmparametersall.btncommit.caption"
+msgid "Commit"
+msgstr ""
+
+#: tfrmparametersall.btncommit.hint
+msgctxt "tfrmparametersall.btncommit.hint"
+msgid "Commit changes"
+msgstr ""
+
+#: tfrmparametersall.btndelete.caption
+msgctxt "tfrmparametersall.btndelete.caption"
+msgid "Delete"
+msgstr ""
+
+#: tfrmparametersall.btndelete.hint
+msgctxt "tfrmparametersall.btndelete.hint"
+msgid "Delete level"
+msgstr ""
+
+#: tfrmparametersall.btndeletepar.caption
+msgctxt "tfrmparametersall.btndeletepar.caption"
+msgid "Delete parameter"
+msgstr ""
+
+#: tfrmparametersall.btnsetflag.caption
+msgctxt "tfrmparametersall.btnsetflag.caption"
+msgid "Flag"
+msgstr ""
+
+#: tfrmparametersall.btnsetflag.hint
+msgctxt "tfrmparametersall.btnsetflag.hint"
+msgid "Set flag on all parameters"
+msgstr ""
+
+#: tfrmparametersall.caption
+msgctxt "tfrmparametersall.caption"
+msgid "All parameters"
+msgstr ""
+
+#: tfrmparametersall.copyparameterstoanotherstation1.caption
+msgctxt "tfrmparametersall.copyparameterstoanotherstation1.caption"
+msgid "Copy parameter to another station"
+msgstr ""
+
+#: tfrmparametersall.setflag1.caption
+msgctxt "tfrmparametersall.setflag1.caption"
+msgid "Set flag"
+msgstr ""
+
+#: tfrmparametersall.toolbar1.caption
+msgctxt "tfrmparametersall.toolbar1.caption"
+msgid "ToolBar1"
+msgstr ""
+
+#: tfrmparametersall.toolbutton2.caption
+msgctxt "tfrmparametersall.toolbutton2.caption"
+msgid "ToolButton2"
+msgstr ""
+
+#: tfrmparametersall.toolbutton3.caption
+msgctxt "tfrmparametersall.toolbutton3.caption"
+msgid "ToolButton3"
 msgstr ""
 
 #: tfrmsettings.btngrapherpath.caption

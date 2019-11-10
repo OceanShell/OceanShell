@@ -8,8 +8,8 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, osmain, dm, procedures, osload_itp, osstandartqueries, codesupdateqc,
-  osload_GLODAP_2019_v2_product, oscreatenewdb, osstatistics, tachartlazaruspkg,
-  datetimectrls;
+  osload_GLODAP_2019_v2_product, oscreatenewdb, osstatistics, osparameters_all,
+  tachartlazaruspkg, datetimectrls;
 
 {$R *.res}
 
