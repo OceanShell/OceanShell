@@ -206,7 +206,7 @@ CheckListBox1.Clear;
 
       Lev:=Qt.FieldByName('PRES').AsFloat;
       Val:=Qt.FieldByName('VAL').AsFloat;
-      Flag_:=Qt.FieldByName('PQF1').AsFloat;
+      Flag_:=Qt.FieldByName('PQF2').AsFloat;
 
  //     showmessage(par+#9+floattostr(lev)+#9+floattostr(val));
 
@@ -319,13 +319,13 @@ ID:=frmdm.Q.FieldByName('ID').AsInteger;
               Sql.Clear;
               SQL.Add('insert into');
               SQL.Add(tbl);
-              SQL.Add(' (ID, PRES, VAL, PQF1) ');
+              SQL.Add(' (ID, PRES, VAL, PQF2) ');
               SQL.Add(' VALUES ' );
-              SQL.Add(' (:ID, :PRES, :VAL, :PQF1) ');
+              SQL.Add(' (:ID, :PRES, :VAL, :PQF2) ');
               ParamByName('ID').AsInteger:=ID;
               ParamByName('PRES').AsFloat:=CDS.FieldByName('level').AsFloat;
               ParamByName('VAL').AsFloat:=CDS.FieldByName(tbl).AsFloat;
-              ParamByName('PQF1').AsFloat:=CDS.FieldByName(tbl+'_FL').AsFloat;
+              ParamByName('PQF2').AsFloat:=CDS.FieldByName(tbl+'_FL').AsFloat;
            ExecSQL;
         end;
        end;
