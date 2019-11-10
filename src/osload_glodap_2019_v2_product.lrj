@@ -1,6 +1,6 @@
 {"version":1,"strings":[
 {"hash":238171124,"name":"tfrmloadglodap_2019_v2_product.caption","sourcebytes":[102,114,109,108,111,97,100,71,76,79,68,65,80,95,50,48,49,57,95,118,50,95,112,114,111,100,117,99,116],"value":"frmloadGLODAP_2019_v2_product"},
-{"hash":215358937,"name":"tfrmloadglodap_2019_v2_product.btndatasource.caption","sourcebytes":[80,114,101,112,114,111,99,101,115,115,105,110,103,32,40,114,101,113,117,105,114,101,100,41],"value":"Preprocessing (required)"},
+{"hash":236169833,"name":"tfrmloadglodap_2019_v2_product.btndatasource.caption","sourcebytes":[80,114,101,112,114,111,99,101,115,115,105,110,103,32,40,114,101,113,117,105,114,101,100,32,98,101,102,111,114,101,32,77,68,32,111,114,32,68,97,116,97,32,100,111,119,110,108,111,97,100,41],"value":"Preprocessing (required before MD or Data download)"},
 {"hash":191681538,"name":"tfrmloadglodap_2019_v2_product.groupbox1.caption","sourcebytes":[68,111,119,110,108,111,97,100,32,105,110,116,111,32,68,66],"value":"Download into DB"},
 {"hash":52169540,"name":"tfrmloadglodap_2019_v2_product.btndownloadmd.caption","sourcebytes":[68,111,119,110,108,111,97,100,32,77,68],"value":"Download MD"},
 {"hash":30297489,"name":"tfrmloadglodap_2019_v2_product.btndownloaddata.caption","sourcebytes":[68,111,119,110,108,111,97,100,68,97,116,97],"value":"DownloadData"},
@@ -10,5 +10,6 @@
 {"hash":249505459,"name":"tfrmloadglodap_2019_v2_product.btnsplitonmdandprofiles.caption","sourcebytes":[83,112,108,105,116,32,79,110,32,77,68,32,97,110,100,32,80,114,111,102,105,108,101,115],"value":"Split On MD and Profiles"},
 {"hash":183925875,"name":"tfrmloadglodap_2019_v2_product.btncreatetables.caption","sourcebytes":[65,100,100,32,86,97,114,105,97,98,108,101,32,84,97,98,108,101,115],"value":"Add Variable Tables"},
 {"hash":196085460,"name":"tfrmloadglodap_2019_v2_product.btnsavestationmdondisk.caption","sourcebytes":[83,97,118,101,32,71,76,79,68,65,80,32,83,116,97,116,105,111,110,32,77,68],"value":"Save GLODAP Station MD"},
-{"hash":50512739,"name":"tfrmloadglodap_2019_v2_product.btngetdbstatistics.caption","sourcebytes":[71,101,116,32,68,66,32,83,116,97,116,105,115,116,105,99,115],"value":"Get DB Statistics"}
+{"hash":50512739,"name":"tfrmloadglodap_2019_v2_product.btngetdbstatistics.caption","sourcebytes":[71,101,116,32,68,66,32,83,116,97,116,105,115,116,105,99,115],"value":"Get DB Statistics"},
+{"hash":144869666,"name":"tfrmloadglodap_2019_v2_product.btnupdatekdb.caption","sourcebytes":[85,112,100,97,116,101,32,75,68,66],"value":"Update KDB"}
 ]}

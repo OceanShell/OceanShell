@@ -35,6 +35,7 @@ type
   { TfrmloadGLODAP_2019_v2_product }
 
   TfrmloadGLODAP_2019_v2_product = class(TForm)
+    btnUpdateKDB: TBitBtn;
     btnGetDBStatistics: TBitBtn;
     btnDataSource: TButton;
     btnSaveStationMDonDisk: TButton;
@@ -58,6 +59,7 @@ type
     procedure btnCreateTablesClick(Sender: TObject);        //add variable tables to DB
     //неудачная попытка записать все за один проход текстового файла
     procedure btnSplitOnMDandProfilesClick(Sender: TObject);
+    procedure btnUpdateKDBClick(Sender: TObject);
 
   private
 
@@ -518,7 +520,6 @@ begin
      CDS_DSC.Free;
   closefile(outMD);
 
-  frmdm.IBDB.Close;
   frmosmain.OpenDatabase;
 
   memo1.Lines.Add('Profiles in file: '+inttostr(PRF_count));
@@ -2197,6 +2198,95 @@ end;
 
 
 
+procedure TfrmloadGLODAP_2019_v2_product.btnUpdateKDBClick(Sender: TObject);
+var
+CruiseN,CruiseID,StationCount,StationsTotal:integer;
+str_out:string;
+CruiseStart,CruiseEnd,StationStart,StationEnd:TDateTime;
+begin
+
+     str_out:='Cruise#'+#9+'ID'
+     +#9+'CruiseStart'+#9+'CruiseEnd'
+     +#9+'FistStation'+#9+'LastStation'
+     +#9+'StationCount'
+     +#9+'Cruise[days]'+#9+'Stations[days]';
+
+     path_out:='c:\Users\ako071\AK\datasets\GLODAP\updateKDB.dat';
+     AssignFile(out, Path_out); Rewrite(out);
+     memo1.Lines.Add('path_out='+path_out);
+     writeln(out,str_out);
+
+     memo1.Clear;
+     memo1.Lines.Add(str_out);
+
+
+     with Q do begin
+      SQL.Clear;
+      SQL.Add(' Select * from CRUISE_GLODAP ');
+      Open;
+     end;
+
+     CruiseN:=0;
+     StationsTotal:=0;
+     Q.First;
+{CR}while not Q.EOF do begin
+
+      CruiseN:=CruiseN+1;
+      CruiseID :=q.FieldByName('ID').AsInteger;
+      CruiseStart :=q.FieldByName('Date_Start').AsDateTime;
+      CruiseEnd :=q.FieldByName('Date_End').AsDateTime;
+      StationCount:=0;
+
+      with frmdm.q1 do begin
+        Close;
+         SQL.Clear;
+         SQL.Add(' Select count(*) as StationCount, ');
+         SQL.Add('        min(DateAndTime) as StationStart, ');
+         SQL.Add('        max(DateAndTime) as StationEnd ');
+         SQL.Add(' from STATION ');
+         SQL.Add(' where CRUISE_ID=:CruiseID ');
+         ParamByName('CruiseID').AsDateTime:=CruiseID;
+         Open;
+           StationStart:=FieldByName('StationSTART').AsDateTime;
+           StationEnd:=FieldByName('StationEnd').AsDateTime;
+           StationCount:=FieldByName('StationCount').AsInteger;
+         Close;
+      end;
+
+      StationsTotal:=StationsTotal+StationCount;
+
+      memo1.Lines.Add(inttostr(CruiseN)
+      +#9+inttostr(CruiseID)
+      +#9+datetimetostr(CruiseStart)
+      +#9+datetimetostr(CruiseEnd)
+      +#9+datetimetostr(StationStart)
+      +#9+datetimetostr(StationEnd)
+      +#9+inttostr(StationCount)
+      +#9+inttostr(DaysBetween(CruiseEnd,CruiseStart))
+      +#9+inttostr(DaysBetween(StationEnd,StationStart))
+      );
+
+      writeln(out,inttostr(CruiseN),
+      #9,inttostr(CruiseID),
+      #9,datetimetostr(CruiseStart),
+      #9,datetimetostr(CruiseEnd),
+      #9,datetimetostr(StationStart),
+      #9,datetimetostr(StationEnd),
+      #9,inttostr(StationCount),
+      #9,inttostr(DaysBetween(CruiseEnd,CruiseStart)),
+      #9,inttostr(DaysBetween(StationEnd,StationStart))
+      );
+
+      Q.Next;
+{CR}end;
+      Q.Close;
+      closefile(out);
+      frmosmain.OpenDatabase;
+      memo1.Lines.Add('Stations total='+inttostr(StationsTotal));
+end;
+
+
+
 
 
 procedure TfrmloadGLODAP_2019_v2_product.btnDownloadDataClick(Sender: TObject);
@@ -2922,7 +3012,6 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
       memo1.Lines.Add('Loading completed');
       memo1.Lines.Add('End:'+datetimetostr(NOW));
 
-      frmdm.IBDB.Close;
       frmosmain.OpenDatabase;
 
 
@@ -3594,7 +3683,6 @@ begin
  end;
      Showmessage('DB name: '+IBName);
 
-     frmdm.IBDB.Close;
      frmosmain.OpenDatabase;
 
 end;

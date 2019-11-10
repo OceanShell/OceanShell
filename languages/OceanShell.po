@@ -639,7 +639,7 @@ msgid "Add Variable Tables"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.btndatasource.caption
-msgid "Preprocessing (required)"
+msgid "Preprocessing (required before MD or Data download)"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.btndownloaddata.caption
@@ -660,6 +660,10 @@ msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.btnsplitonmdandprofiles.caption
 msgid "Split On MD and Profiles"
+msgstr ""
+
+#: tfrmloadglodap_2019_v2_product.btnupdatekdb.caption
+msgid "Update KDB"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.caption
