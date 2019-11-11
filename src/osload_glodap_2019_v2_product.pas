@@ -212,7 +212,7 @@ begin
        9: stlat:=strtofloat(buf_str);
       10: stlon:=strtofloat(buf_str);
       11: stBD:=strtofloat(buf_str);                    //bottom depth m
-      12: stPDS:=strtofloat(buf_str);                   //pressure of the deepest sample
+      12: stPDS:=strtofloat(buf_str);                   //pres of the deepest sample
       13: stNBNum:=trunc(strtofloat(buf_str));          //Niskin bottle number
        end; {case}
 
@@ -2322,6 +2322,8 @@ var
   TPQF1,TPQF2,TSQF,TBottle,TUnit:integer;
   TPres,TVAL,TVALERR:real;
 
+  Lev_dbar, Lev_m:real;
+
 begin
 
 TblName[1]:='P_AOU_BOTTLE';
@@ -2409,9 +2411,9 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
      AssignFile(out,path_tbl);
      Rewrite(out);
 
-     str_out:='ID'+#9+'Pres'+#9+'VAL'+#9+'PQF1'+#9+'PQF2'+#9+'SQF'+#9+'BOTTLE_NUMBER'+#9+'UNITS_ID';
+     str_out:='ID'+#9+'Lev_dbar'+#9+'Lev_m'+#9+'VAL'+#9+'PQF1'+#9+'PQF2'+#9+'SQF'+#9+'BOTTLE_NUMBER'+#9+'UNITS_ID';
      if (ktbl>29) then
-     str_out:='ID'+#9+'Pres'+#9+'VAL'+#9+'VALERR'+#9+'PQF1'+#9+'PQF2'+#9+'SQF'+#9+'BOTTLE_NUMBER'+#9+'UNITS_ID';
+     str_out:='ID'+#9+'Lev_dbar'+#9+'Lev_m'+#9+'VAL'+#9+'VALERR'+#9+'PQF1'+#9+'PQF2'+#9+'SQF'+#9+'BOTTLE_NUMBER'+#9+'UNITS_ID';
      writeln(out,str_out);
 
      memo1.Lines.Add(inttostr(ktbl)+#9+path_TBL);
@@ -2913,13 +2915,18 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
       CDS_DSC.First;
 {PRF}while not CDS_DSC.EOF do begin
 
+       Lev_dbar:=CDS_DSC.FieldByName('Pres').AsFloat;
+       //TEOS: dbar to meters
+       Lev_m:=declarations_gsw.gsw_z_from_p(Lev_dbar,stlat);
+       Lev_m:=-Lev_m;
 
 //write if value exists
 //on disk
 {V}if (ktbl<=29) and (CDS_DSC.FieldByName('Val').AsFloat<>-9999) then begin
 
        writeln(out,inttostr(PRF_count),
-       #9,floattostr(CDS_DSC.FieldByName('Pres').AsFloat),
+       #9,floattostr(Lev_dbar),
+       #9,floattostrF(Lev_m,FFFixed,9,1),
        #9,floattostr(CDS_DSC.FieldByName('Val').AsFloat),
        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
        #9,inttostr(CDS_DSC.FieldByName('PQF2').AsInteger),
@@ -2934,11 +2941,12 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          SQL.Clear;
          SQL.Add(' insert into ');
          SQL.Add('"'+GLODAP_TBL+'"');
-         SQL.Add(' (ID, PRES, VAL, PQF1, PQF2, SQF, BOTTLE_NUMBER, UNITS_ID) ');
+         SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF1, PQF2, SQF, BOTTLE_NUMBER, UNITS_ID) ');
          SQL.Add(' values ');
-         SQL.Add(' (:ID, :PRES, :VAL, :PQF1, :PQF2, :SQF, :BOTTLE_NUMBER, :UNITS_ID) ');
+         SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF1, :PQF2, :SQF, :BOTTLE_NUMBER, :UNITS_ID) ');
          ParamByName('ID').AsInteger:=PRF_count;
-         ParamByName('PRES').AsFloat:=CDS_DSC.FieldByName('Pres').AsFloat;
+         ParamByName('LEV_DBAR').AsFloat:=Lev_dbar;
+         ParamByName('LEV_M').AsFloat:=Lev_m;
          ParamByName('VAL').AsFloat:=CDS_DSC.FieldByName('Val').AsFloat;
          ParamByName('PQF1').AsInteger:=CDS_DSC.FieldByName('PQF1').AsInteger;
          ParamByName('PQF2').AsInteger:=CDS_DSC.FieldByName('PQF2').AsInteger;
@@ -2954,7 +2962,8 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
 
 {V}if (ktbl>29) and (CDS_DSC.FieldByName('Val').AsFloat<>-9999) then begin
        writeln(out,inttostr(PRF_count),
-       #9,floattostr(CDS_DSC.FieldByName('Pres').AsFloat),
+       #9,floattostr(Lev_dbar),
+       #9,floattostrF(Lev_m,FFFixed,9,1),
        #9,floattostr(CDS_DSC.FieldByName('Val').AsFloat),
        #9,floattostr(CDS_DSC.FieldByName('ValErr').AsFloat),
        #9,inttostr(CDS_DSC.FieldByName('PQF1').AsInteger),
@@ -2970,11 +2979,12 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
          SQL.Clear;
          SQL.Add(' insert into ');
          SQL.Add('"'+GLODAP_TBL+'"');
-         SQL.Add(' (ID, PRES, VAL, VALERR, PQF1, PQF2, SQF, BOTTLE_NUMBER, UNITS_ID) ');
+         SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, VALERR, PQF1, PQF2, SQF, BOTTLE_NUMBER, UNITS_ID) ');
          SQL.Add(' values ');
-         SQL.Add(' (:ID, :PRES, :VAL, :VALERR, :PQF1, :PQF2, :SQF, :BOTTLE_NUMBER, :UNITS_ID) ');
+         SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :VALERR, :PQF1, :PQF2, :SQF, :BOTTLE_NUMBER, :UNITS_ID) ');
          ParamByName('ID').AsInteger:=PRF_count;
-         ParamByName('PRES').AsFloat:=CDS_DSC.FieldByName('Pres').AsFloat;
+         ParamByName('LEV_DBAR').AsFloat:=Lev_dbar;
+         ParamByName('LEV_M').AsFloat:=Lev_m;
          ParamByName('VAL').AsFloat:=CDS_DSC.FieldByName('Val').AsFloat;
          ParamByName('VALERR').AsFloat:=CDS_DSC.FieldByName('ValErr').AsFloat;
          ParamByName('PQF1').AsInteger:=CDS_DSC.FieldByName('PQF1').AsInteger;
@@ -3092,7 +3102,7 @@ begin
      Close;
      SQL.Clear;
      SQL.Add(' Select count(*) as samples_num, ');
-     SQL.Add(' min(pres) as pres_min, max(pres) as pres_max, ');
+     SQL.Add(' min(lev_dbar) as dbar_min, max(lev_dbar) as dbar_max, ');
      SQL.Add(' avg(val) as val_avg, ');
      SQL.Add(' min(val) as val_min, ');
      SQL.Add(' max(val) as val_max, ');
@@ -3120,8 +3130,8 @@ begin
 
      memo1.Lines.Add(TblName[ktbl]
      +#9+inttostr(frmdm.q1.FieldByName('samples_num').AsInteger)
-     +#9+floattostr(frmdm.q1.FieldByName('pres_min').AsFloat)
-     +#9+floattostr(frmdm.q1.FieldByName('pres_max').AsFloat)
+     +#9+floattostr(frmdm.q1.FieldByName('dbar_min').AsFloat)
+     +#9+floattostr(frmdm.q1.FieldByName('dbar_max').AsFloat)
      +#9+floattostr(frmdm.q1.FieldByName('val_avg').AsFloat)
      +#9+floattostr(frmdm.q1.FieldByName('val_min').AsFloat)
      +#9+floattostr(frmdm.q1.FieldByName('val_max').AsFloat)
@@ -3132,8 +3142,8 @@ begin
 
      writeln(out,TblName[ktbl],
      #9,inttostr(frmdm.q1.FieldByName('samples_num').AsInteger),
-     #9,floattostr(frmdm.q1.FieldByName('pres_min').AsFloat),
-     #9,floattostr(frmdm.q1.FieldByName('pres_max').AsFloat),
+     #9,floattostr(frmdm.q1.FieldByName('dbar_min').AsFloat),
+     #9,floattostr(frmdm.q1.FieldByName('dbar_max').AsFloat),
      #9,floattostr(frmdm.q1.FieldByName('val_avg').AsFloat),
      #9,floattostr(frmdm.q1.FieldByName('val_min').AsFloat),
      #9,floattostr(frmdm.q1.FieldByName('val_max').AsFloat),
@@ -3168,10 +3178,11 @@ begin
 
   (* Script for parameter tables *)
   ScriptText:=
-  (* 1	P_TEMPERATURE_BOTTLE	5	pres val         pQF1      sQF		TEMPERATURE	Sea water temperture *)
+  (* 1	P_TEMPERATURE_BOTTLE Sea water temperture *)
      'CREATE TABLE P_TEMPERATURE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3180,10 +3191,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 2	P_SALINITY_BOTTLE	5	pres val         pQF1 pQF2 sQF	CV	SALINITY	Sea water salinity *)
+  (* 2	P_SALINITY_BOTTLE Sea water salinity *)
      'CREATE TABLE P_SALINITY_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3192,10 +3204,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 3	P_OXYGEN_BOTTLE		5	pres val         pQF1 pQF2 sQF	CV	OXYGEN		Dissolved Oxygen *)
+  (* 3	P_OXYGEN_BOTTLE Dissolved Oxygen *)
      'CREATE TABLE P_OXYGEN_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3204,10 +3217,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 4	P_AOU_BOTTLE		5	pres val         pQF1 pQF2 sQF		AOU		Apparent oxygen utilization  *)
+  (* 4	P_AOU_BOTTLE Apparent oxygen utilization  *)
      'CREATE TABLE P_AOU_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3216,10 +3230,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 5	P_NITRATE_BOTTLE	5	pres val         pQF1 pQF2 sQF	CV	NITRATE		Nitrate *)
+  (* 5	P_NITRATE_BOTTLE Nitrate *)
      'CREATE TABLE P_NITRATE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3228,10 +3243,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 6	P_NITRITE_BOTTLE	5	pres val         pQF1 pQF2 sQF		NITRITE		Nitrite *)
+  (* 6	P_NITRITE_BOTTLE Nitrite *)
      'CREATE TABLE P_NITRITE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3240,10 +3256,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 7	P_SILICATE_BOTTLE	5	pres val         pQF1 pQF2 sQF	CV	SILICATE	Silicate *)
+  (* 7	P_SILICATE_BOTTLE Silicate *)
      'CREATE TABLE P_SILICATE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3252,10 +3269,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 8	P_PHOSPHATE_BOTTLE	5	pres val         pQF1 pQF2 sQF	CV	PHOSPHATE	Phosphate  *)
+  (* 8	P_PHOSPHATE_BOTTLE Phosphate  *)
      'CREATE TABLE P_PHOSPHATE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3265,10 +3283,11 @@ begin
      '); '+LineEnding+
 
 
-  (* 9	P_TCO2_BOTTLE		5	pres val         pQF1 pQF2 sQF	CV	TCO2		Dissolved inorganic carbon *)
+  (* 9	P_TCO2_BOTTLE Dissolved inorganic carbon *)
      'CREATE TABLE P_TCO2_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3277,10 +3296,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 10	P_TALK_BOTTLE		5	pres val         pQF1 pQF2 sQF	CV	TALK		Total alkalinity *)
+  (* 10	P_TALK_BOTTLE Total alkalinity *)
      'CREATE TABLE P_TALK_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3289,10 +3309,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 11	P_PHTS25P0_BOTTLE	5	pres val         pQF1 pQF2 sQF	CV	PH		pH on total scale, 25C, 0dbar *)
+  (* 11	P_PHTS25P0_BOTTLE pH on total scale, 25C, 0dbar *)
      'CREATE TABLE P_PHTS25P0_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3301,10 +3322,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 12	P_PHTSINSITUTP_BOTTLE	5	pres val         pQF1 pQF2 sQF		PH		pH on total scale, in situ temperature and pressure *)
+  (* 12	P_PHTSINSITUTP_BOTTLE pH on total scale, in situ temperature and pressure *)
      'CREATE TABLE P_PHTSINSITUTP_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3313,10 +3335,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 13	P_CFC11_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CFC11		Halogenated transient tracer CFC11  *)
+  (* 13	P_CFC11_BOTTLE Halogenated transient tracer CFC11  *)
      'CREATE TABLE P_CFC11_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3325,10 +3348,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 13a P_PCFC11_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CFC11		Halogenated transient tracer CFC11  *)
+  (* 13a P_PCFC11_BOTTLE Halogenated transient tracer CFC11  *)
      'CREATE TABLE P_PCFC11_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3337,10 +3361,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 14	P_CFC12_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CFC12		Halogenated transient tracer CFC12 *)
+  (* 14	P_CFC12_BOTTLE Halogenated transient tracer CFC12 *)
      'CREATE TABLE P_CFC12_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3349,10 +3374,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 14	P_PCFC12_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CFC12		Halogenated transient tracer CFC12 *)
+  (* 14	P_PCFC12_BOTTLE Halogenated transient tracer CFC12 *)
      'CREATE TABLE P_PCFC12_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3361,10 +3387,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 15	P_CFC113_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CFC113		Halogenated transient tracer CFC113 *)
+  (* 15	P_CFC113_BOTTLE Halogenated transient tracer CFC113 *)
      'CREATE TABLE P_CFC113_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3373,10 +3400,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 15a	P_PCFC113_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CFC113		Halogenated transient tracer CFC113 *)
+  (* 15a	P_PCFC113_BOTTLE Halogenated transient tracer CFC113 *)
      'CREATE TABLE P_PCFC113_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3385,10 +3413,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (*16	P_CC14_BOTTLE		6	pres val pval    pQF1 pQF2 sQF	CV	CC14		Halogenated transient tracer CC14 *)
+  (*16	P_CC14_BOTTLE Halogenated transient tracer CC14 *)
      'CREATE TABLE P_CC14_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3397,10 +3426,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (*16a	P_CC14_BOTTLE		6	pres val    pQF1 pQF2 sQF	CV	CC14		Halogenated transient tracer CC14 *)
+  (*16a	P_CC14_BOTTLE Halogenated transient tracer CC14 *)
      'CREATE TABLE P_PCC14_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3409,10 +3439,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 17	P_SF6_BOTTLE		6	pres val    pQF1 pQF2 sQF		SF6		Sulfur hexafluoride  *)
+  (* 17	P_SF6_BOTTLE Sulfur hexafluoride  *)
      'CREATE TABLE P_SF6_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3421,10 +3452,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 17a P_PSF6_BOTTLE		6	pres val    pQF1 pQF2 sQF		SF6		Sulfur hexafluoride  *)
+  (* 17a P_PSF6_BOTTLE Sulfur hexafluoride  *)
      'CREATE TABLE P_PSF6_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3433,10 +3465,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 18	P_C13_BOTTLE		5	pres val         pQF1 pQF2 sQF		C13		Stable isotop carbon 13 *)
+  (* 18	P_C13_BOTTLE Stable isotop carbon 13 *)
      'CREATE TABLE P_C13_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3445,10 +3478,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 19	P_C14_BOTTLE		6	pres val valerr  pQF1 pQF2 sQF		C14		Radioisotop carbon 14  *)
+  (* 19	P_C14_BOTTLE Radioisotop carbon 14  *)
      'CREATE TABLE P_C14_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   VALERR         DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
@@ -3458,10 +3492,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 20	P_H3_BOTTLE		6	press val valerr  pQF1 pQF2 sQF		H3		Radioisotop hydrogen 3, tritium *)
+  (* 20	P_H3_BOTTLE Radioisotop hydrogen 3, tritium *)
      'CREATE TABLE P_H3_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   VALERR         DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
@@ -3471,10 +3506,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 21	P_HE3_BOTTLE		6	pres val valerr  pQF1 pQF2 sQF		HE3		Radioisotop helium 3, counting error  *)
+  (* 21	P_HE3_BOTTLE Radioisotop helium 3, counting error  *)
      'CREATE TABLE P_HE3_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   VALERR         DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
@@ -3484,10 +3520,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 22	P_HE_BOTTLE		6	pres val valerr  pQF1 pQF2 sQF		HE		Helium, counting error  *)
+  (* 22	P_HE_BOTTLE Helium, counting error  *)
      'CREATE TABLE P_HE_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   VALERR         DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
@@ -3497,10 +3534,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 23	P_NEON_BOTTLE		6	pres val valerr  pQF1 pQF2 sQF		NEON		Neon, counting error *)
+  (* 23	P_NEON_BOTTLE Neon, counting error *)
      'CREATE TABLE P_NEON_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   VALERR         DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
@@ -3510,10 +3548,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 24	P_O18_BOTTLE		5	pres val         pQF1 pQF2 sQF		O18		Stable isotop of oxygen 18 *)
+  (* 24	P_O18_BOTTLE Stable isotop of oxygen 18 *)
      'CREATE TABLE P_O18_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3522,10 +3561,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 25	P_TOC_BOTTLE		5	pres val         pQF1 pQF2 sQF		TOC		Total organic carbon *)
+  (* 25	P_TOC_BOTTLE Total organic carbon *)
      'CREATE TABLE P_TOC_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3534,10 +3574,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 26	P_DOC_BOTTLE		5	pres val         pQF1 pQF2 sQF		DOC		Dissolved organic carbon  *)
+  (* 26	P_DOC_BOTTLE Dissolved organic carbon  *)
      'CREATE TABLE P_DOC_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3546,10 +3587,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 27	P_DON_BOTTLE		5	pres val         pQF1 pQF2 sQF		DON		Dissolved organic nitrogen *)
+  (* 27	P_DON_BOTTLE Dissolved organic nitrogen *)
      'CREATE TABLE P_DON_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3558,10 +3600,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 28	P_TDN_BOTTLE		5	pres val         pQF1 pQF2 sQF		TDN		Total dissolved nitrogen *)
+  (* 28	P_TDN_BOTTLE Total dissolved nitrogen *)
      'CREATE TABLE P_TDN_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+
@@ -3570,10 +3613,11 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (* 29	P_CHLA_BOTTLE		5	pres val         pQF1 pQF2 sQF		CHLA		chlorophylla *)
+  (* 29	P_CHLA_BOTTLE chlorophylla *)
      'CREATE TABLE P_CHLA_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
-     '   PRES           DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+     '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
      '   pQF1           SMALLINT, '+LineEnding+
      '   pQF2           SMALLINT, '+LineEnding+

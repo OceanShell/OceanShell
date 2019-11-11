@@ -1045,11 +1045,6 @@ msgctxt "tfrmparametersall.btndelete.hint"
 msgid "Delete level"
 msgstr ""
 
-#: tfrmparametersall.btndeletepar.caption
-msgctxt "tfrmparametersall.btndeletepar.caption"
-msgid "Delete parameter"
-msgstr ""
-
 #: tfrmparametersall.btnsetflag.caption
 msgctxt "tfrmparametersall.btnsetflag.caption"
 msgid "Flag"
@@ -1065,13 +1060,13 @@ msgctxt "tfrmparametersall.caption"
 msgid "All parameters"
 msgstr ""
 
-#: tfrmparametersall.copyparameterstoanotherstation1.caption
-msgctxt "tfrmparametersall.copyparameterstoanotherstation1.caption"
-msgid "Copy parameter to another station"
+#: tfrmparametersall.ideleteparameter.caption
+msgctxt "tfrmparametersall.ideleteparameter.caption"
+msgid "Delete parameter"
 msgstr ""
 
-#: tfrmparametersall.setflag1.caption
-msgctxt "tfrmparametersall.setflag1.caption"
+#: tfrmparametersall.isetflagparameter.caption
+msgctxt "tfrmparametersall.isetflagparameter.caption"
 msgid "Set flag"
 msgstr ""
 
