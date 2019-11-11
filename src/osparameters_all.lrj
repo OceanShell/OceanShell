@@ -11,7 +11,6 @@
 {"hash":160486418,"name":"tfrmparametersall.toolbutton2.caption","sourcebytes":[84,111,111,108,66,117,116,116,111,110,50],"value":"ToolButton2"},
 {"hash":262426371,"name":"tfrmparametersall.btncommit.hint","sourcebytes":[67,111,109,109,105,116,32,99,104,97,110,103,101,115],"value":"Commit changes"},
 {"hash":78005252,"name":"tfrmparametersall.btncommit.caption","sourcebytes":[67,111,109,109,105,116],"value":"Commit"},
-{"hash":208066535,"name":"tfrmparametersall.setflag1.caption","sourcebytes":[83,101,116,32,102,108,97,103],"value":"Set flag"},
-{"hash":171737822,"name":"tfrmparametersall.copyparameterstoanotherstation1.caption","sourcebytes":[67,111,112,121,32,112,97,114,97,109,101,116,101,114,32,116,111,32,97,110,111,116,104,101,114,32,115,116,97,116,105,111,110],"value":"Copy parameter to another station"},
-{"hash":81793122,"name":"tfrmparametersall.btndeletepar.caption","sourcebytes":[68,101,108,101,116,101,32,112,97,114,97,109,101,116,101,114],"value":"Delete parameter"}
+{"hash":208066535,"name":"tfrmparametersall.isetflagparameter.caption","sourcebytes":[83,101,116,32,102,108,97,103],"value":"Set flag"},
+{"hash":81793122,"name":"tfrmparametersall.ideleteparameter.caption","sourcebytes":[68,101,108,101,116,101,32,112,97,114,97,109,101,116,101,114],"value":"Delete parameter"}
 ]}

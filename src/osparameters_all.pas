@@ -5,8 +5,8 @@ unit osparameters_all;
 interface
 
 uses
-  LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, ExtCtrls, DB, StdCtrls, ComCtrls, ToolWin, CheckLst,
+  LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics,
+  Controls, Forms, ExtCtrls, DB, StdCtrls, ComCtrls, CheckLst,
   BufDataSet, IniFiles, Dialogs, Menus, DBGrids, SQLDB;
 
 type
@@ -23,16 +23,16 @@ type
     ToolButton2: TToolButton;
     btnCommit: TToolButton;
     DS1: TDataSource;
-    PopupMenu1: TPopupMenu;
+    PM: TPopupMenu;
     Splitter1: TSplitter;
-    btnDeletePar: TMenuItem;
+    iDeleteParameter: TMenuItem;
     btnSetFlag: TToolButton;
     ToolButton3: TToolButton;
-    Setflag1: TMenuItem;
+    iSetFlagParameter: TMenuItem;
     N1: TMenuItem;
-    Copyparameterstoanotherstation1: TMenuItem;
-    N2: TMenuItem;
 
+    procedure DBGrid1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure ShowAllProf(ID:integer);
@@ -42,7 +42,7 @@ type
     procedure CheckListBox1Click(Sender: TObject);
  {   procedure DBGridEh1GetCellParams(Sender: TObject; Column: TColumnEh;
       AFont: TFont; var Background: TColor; State: TGridDrawState); }
-    procedure btnDeleteParClick(Sender: TObject);
+    procedure iDeleteParameterClick(Sender: TObject);
 {    procedure SeriesClick(Sender: TChartSeries; ValueIndex: Integer;
     Button: TMouseButton; Shift: TShiftState; X,Y: Integer);  }
     procedure DBGridEh1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -50,7 +50,7 @@ type
  {   procedure DBGridEh1DrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumnEh; State: TGridDrawState);  }
     procedure btnSetFlagClick(Sender: TObject);
-    procedure Setflag1Click(Sender: TObject);
+    procedure iSetFlagParameterClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure DBGridEh1KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -87,6 +87,7 @@ begin
     CDS.FieldDefs.Add('Level',ftFloat,0,true);
      for ks:=0 to frmosmain.ListBox1.Items.Count-1 do begin
       Par:=frmosmain.ListBox1.Items.Strings[ks];
+
        CDS.FieldDefs.Add(Par,ftFloat,0,false);
        CDS.FieldDefs.Add(Par+'_FL',ftInteger,0,false);
 
@@ -132,11 +133,11 @@ end;
 procedure Tfrmparametersall.FormShow(Sender: TObject);
 Var
   Ini:TInifile;
-  m, x, y, i:integer;
 begin
 Ini := TIniFile.Create(IniFileName);
   try
-   (* Задаем положение формы *)
+    Top   :=Ini.ReadInteger( 'AllPar', 'Top',    50);
+    Left  :=Ini.ReadInteger( 'AllPar', 'Left',   50);
     Width :=Ini.ReadInteger( 'AllPar', 'Width',  900);
     Height:=Ini.ReadInteger( 'AllPar', 'Height', 500);
     CheckListBox1.Width :=Ini.ReadInteger( 'AllPar', 'listbox1', 200 );
@@ -157,7 +158,7 @@ procedure Tfrmparametersall.ShowAllProf(ID:integer);
 Var
 k, fl,count_st:integer;
 cur_l, lev, Val, Flag_:real;
-Units, par, par_name:string;
+Units, par, par_name, col_title:string;
 
 TRt:TSQLTransaction;
 Qt:TSQLQuery;
@@ -246,6 +247,8 @@ CheckListBox1.Clear;
 
     if Count_st>0 then begin
        CheckListBox1.Checked[k]:=true;
+       CDS.FieldByName(par).visible:=true;
+       CDS.FieldByName(par+'_FL').visible:=true;
  //      Charts[k].Visible:=true;
     end;
 
@@ -257,17 +260,20 @@ CheckListBox1.Clear;
 
    Application.ProcessMessages;
   end;
- finally
-  TRt.Commit;
-  CDS.First;
-  CDS.EnableControls;
-  Qt.Free;
-  Trt.Free;
- end;
 
+ (* settings for the grid *)
   for k:=0 to DBGrid1.Columns.Count-1 do begin
+   col_title:=DBGrid1.Columns[k].Title.Caption;
+
+    if (k>0) and (k mod 2=1) then begin
+      col_title:=Copy(col_title, 3, length(col_title));
+      col_title:=Copy(col_title, 1, Pos('_', col_title)+3);
+      DBGrid1.Columns[k].Title.Caption:=col_title;
+    end;
+
     if (k>0) and (k mod 2<>1) then begin
-      DBGrid1.Columns[k].Title.Caption:='Flag';
+      DBGrid1.Columns[k].Title.Caption:='QF';
+      DBGrid1.Columns[k].Width:=40;
       with DBGrid1.Columns[k].PickList do begin  //Добавляем флаги в список
         Add('0');
         Add('16384');
@@ -276,6 +282,15 @@ CheckListBox1.Clear;
      // DBGrid1.Columns[k].Footer.ValueType:=fvtAvg;
     end;
   end;
+
+ finally
+  TRt.Commit;
+  CDS.First;
+  CDS.EnableControls;
+  Qt.Free;
+  Trt.Free;
+ end;
+
  // DBGridEh1.SumList.RecalcAll;
   CheckChartSize;
 end;
@@ -305,8 +320,8 @@ ID:=frmdm.Q.FieldByName('ID').AsInteger;
     tbl:=frmosmain.listbox1.Items.Strings[k];
 
     Qt.Close;
-    Qt.SQL.Text:='Delete from '+tbl+' where absnum=:absnum';
-    Qt.ParamByName('absnum').AsInteger:=ID;
+    Qt.SQL.Text:='Delete from '+tbl+' where ID=:ID';
+    Qt.ParamByName('ID').AsInteger:=ID;
     Qt.ExecSQL;
     Trt.CommitRetaining;
 
@@ -349,7 +364,7 @@ k, CountChecked:integer;
 begin
   CountChecked:=0;
    for k:=0 to CheckListBox1.Count-1 do if CheckListBox1.Checked[k]=true then inc(CountChecked);
-    if CountChecked>0 then
+  //  if CountChecked>0 then
   //   for k:=0 to frmosmain.listbox1.Items.Count-1 do Charts[k].Width:=round(pCharts.Width/CountChecked);
  //  if memo1.Lines.Count>0 then memo1.Visible:=true;
 end;
@@ -382,7 +397,7 @@ try
      CDS.FieldByName(Par).Visible:=true;
      CDS.FieldByName(Par+'_FL').Visible:=true;
        for k:=0 to DBGrid1.Columns.Count-1 do begin
-          if (k>0) and (k mod 2<>1) then DBGrid1.Columns[k].Title.Caption:='Flag';
+          if (k>0) and (k mod 2<>1) then DBGrid1.Columns[k].Title.Caption:='QF';
      //      DBGrid1.Columns[k].Footer.ValueType:=fvtAvg;
      //      DBGrid1.SumList.RecalcAll;
        end;
@@ -462,28 +477,43 @@ begin
   if (key=VK_DELETE) and (DelEnable=true) then btnDelete.OnClick(self);
 end;
 
-procedure Tfrmparametersall.btnDeleteParClick(Sender: TObject);
+procedure Tfrmparametersall.iDeleteParameterClick(Sender: TObject);
 Var
 ID:integer;
 Par:string;
+
+TRt:TSQLTransaction;
+Qt:TSQLQuery;
 begin
 ID:=frmdm.Q.FieldByName('ID').AsInteger;
 
-{
-par:=DBGrid1.SelectedField.FieldName;
-if Copy(par,1,2)<>'P_' then exit;
-if Copy(par,length(par)-2,3)='_FL' then Delete(par,length(par)-2,length(par));
- //par:='P_'+ComboBox1.Text;
- if Messagedlg('Delete '+par+' ?',mtconfirmation, [mbYes,mbNo],0)=mrYes then begin
-  ODBDM.IBTransaction1.StartTransaction;
-    with ODBDM.ib1qq1 do begin
+ TRt:=TSQLTransaction.Create(self);
+ TRt.DataBase:=frmdm.IBDB;
+
+ Qt :=TSQLQuery.Create(self);
+ Qt.Database:=frmdm.IBDB;
+ Qt.Transaction:=TRt;
+
+ try
+   par:=DBGrid1.SelectedField.FieldName;
+   if Copy(par,1,2)<>'P_' then exit;
+   if Copy(par,length(par)-2,3)='_FL' then Delete(par,length(par)-2,length(par));
+
+   if Messagedlg('Delete '+par+' ?',mtconfirmation, [mbYes,mbNo],0)=mrYes then begin
+    with Qt do begin
       Close;
-        SQL.Text:='Delete from '+Par+' where absnum='+inttostr(ID);
-      ExecQuery;
+        SQL.Text:='Delete from '+Par+' where ID='+inttostr(ID);
+      ExecSQL;
     end;
-  ODBDM.IBTransaction1.Commit;
-  ShowAllProf(ID);
- end;  }
+    Trt.Commit;
+   end;
+ finally
+  Qt.Close;
+  Qt.Free;
+  TRt.Free;
+ end;
+
+ ShowAllProf(ID);
 end;
 
 
@@ -560,7 +590,7 @@ end;
 
 
 (* Ставим флаг на отдельный профиль *)
-procedure Tfrmparametersall.Setflag1Click(Sender: TObject);
+procedure Tfrmparametersall.iSetFlagParameterClick(Sender: TObject);
 Var
 Par:string;
 Coord: TPoint;
@@ -608,6 +638,22 @@ begin
 end;
 
 
+procedure Tfrmparametersall.DBGrid1MouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+Var
+  Par:string;
+begin
+  if Button=mbRight then begin
+   par:=DBGrid1.SelectedColumn.Title.Caption;
+    if (Par<>'Level') and (Par<>'QF') then begin
+       iSetFlagParameter.Caption:='Set flag for '+Par;
+       iDeleteParameter.Caption:='Delete '+Par;
+       PM.PopUp;
+    end;
+  end;
+end;
+
+
 procedure Tfrmparametersall.FormClose(Sender: TObject;
   var CloseAction: TCloseAction);
 var
@@ -619,14 +665,15 @@ Ini := TIniFile.Create(IniFileName);
     Ini.WriteInteger( 'AllPar', 'Left',     Left);
     Ini.WriteInteger( 'AllPar', 'Height',   Height);
     Ini.WriteInteger( 'AllPar', 'Width',    Width);
-    Ini.WriteInteger( 'AllPar', 'List box', CheckListBox1.Width);
-//    Ini.WriteInteger( 'AllPar', 'Panel2',   Panel2.Height);
+    Ini.WriteInteger( 'AllPar', 'listbox1', CheckListBox1.Width);
    finally
     ini.Free;
   end;
-//DBGridEh1.SumList.Active:=false;
 CDS.Free;
-//AllParamOpen:=false;
-//action:=cafree;
+
+frmparametersall_open:=false;
 end;
+
+
+
 end.

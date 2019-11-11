@@ -115,37 +115,36 @@ object frmparametersall: Tfrmparametersall
     FixedCols = 0
     Flat = True
     Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+    PopupMenu = PM
     Scrollbars = ssAutoBoth
     TabOrder = 3
     TitleFont.Color = clWindowText
     TitleFont.Height = -11
     TitleFont.Name = 'MS Sans Serif'
+    OnMouseDown = DBGrid1MouseDown
   end
   object DS1: TDataSource
     left = 240
     top = 112
   end
-  object PopupMenu1: TPopupMenu
-    left = 176
+  object PM: TPopupMenu
+    Images = frmosmain.IL1
+    AutoPopup = False
+    left = 192
     top = 112
-    object Setflag1: TMenuItem
+    object iSetFlagParameter: TMenuItem
       Caption = 'Set flag'
-      ImageIndex = 43
-      OnClick = Setflag1Click
+      Enabled = False
+      ImageIndex = 973
+      OnClick = iSetFlagParameterClick
     end
     object N1: TMenuItem
       Caption = '-'
     end
-    object Copyparameterstoanotherstation1: TMenuItem
-      Caption = 'Copy parameter to another station'
-    end
-    object N2: TMenuItem
-      Caption = '-'
-    end
-    object btnDeletePar: TMenuItem
+    object iDeleteParameter: TMenuItem
       Caption = 'Delete parameter'
-      ImageIndex = 13
-      OnClick = btnDeleteParClick
+      ImageIndex = 293
+      OnClick = iDeleteParameterClick
     end
   end
 end

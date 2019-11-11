@@ -1,21 +1,22 @@
 object frmosmain: Tfrmosmain
-  Left = 389
+  Left = 465
   Height = 465
-  Top = 220
+  Top = 158
   Width = 900
-  BorderStyle = bsSingle
   Caption = 'OceanShell'
   ClientHeight = 445
   ClientWidth = 900
   Color = clBtnFace
+  Constraints.MinHeight = 465
+  Constraints.MinWidth = 900
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Menu = MM1
+  OnClose = FormClose
   OnCreate = FormCreate
   OnResize = FormResize
   OnShow = FormShow
-  Position = poScreenCenter
   LCLVersion = '2.0.2.0'
   object Memo1: TMemo
     Left = 552
@@ -432,7 +433,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton1: TToolButton
             Left = 73
-            Height = 22
+            Height = 5
             Top = 0
             Caption = 'ToolButton1'
             Style = tbsDivider

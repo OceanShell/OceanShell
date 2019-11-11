@@ -91,6 +91,7 @@ type
     procedure DBGridPlatformKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure DBGridPlatformTitleClick(Column: TColumn);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -221,6 +222,11 @@ IBName:='';
  (* Check for existing essencial program folders *)
   Ini := TIniFile.Create(IniFileName);
   try
+    Top   :=Ini.ReadInteger( 'osmain', 'top',    50);
+    Left  :=Ini.ReadInteger( 'osmain', 'left',   50);
+    Width :=Ini.ReadInteger( 'osmain', 'width',  900);
+    Height:=Ini.ReadInteger( 'osmain', 'weight', 500);
+
     GlobalSupportPath := Ini.ReadString('main', 'SupportPath', GlobalPath+'support'+PathDelim);
       if not DirectoryExists(GlobalSupportPath) then CreateDir(GlobalSupportPath);
     GlobalUnloadPath  := Ini.ReadString('main', 'UnloadPath', GlobalPath+'unload'+PathDelim);
@@ -813,9 +819,26 @@ finally
 end;
 end;
 
+
 procedure Tfrmosmain.iAboutClick(Sender: TObject);
 begin
   if messagedlg(AboutProgram, mtInformation, [mbOk], 0)=mrOk then exit;
+end;
+
+
+procedure Tfrmosmain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+Var
+  Ini:TIniFile;
+begin
+  Ini := TIniFile.Create(IniFileName);
+   try
+    Ini.WriteInteger( 'osmain', 'top',    Top);
+    Ini.WriteInteger( 'osmain', 'left',   Left);
+    Ini.WriteInteger( 'osmain', 'width',  Width);
+    Ini.WriteInteger( 'osmain', 'weight', Height);
+   finally
+     Ini.Free;
+   end;
 end;
 
 end.
