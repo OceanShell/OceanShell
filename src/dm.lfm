@@ -70,6 +70,7 @@ object frmdm: Tfrmdm
     top = 88
   end
   object Q: TSQLQuery
+    MaxIndexesCount = 100
     FieldDefs = <>
     Database = IBDB
     Transaction = TR

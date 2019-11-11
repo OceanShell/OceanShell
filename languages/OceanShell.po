@@ -372,6 +372,14 @@ msgctxt "tfrmcodes.dbgridsource.columns[1].title.caption"
 msgid "Source name"
 msgstr ""
 
+#: tfrmcodes.dbgridsource.columns[2].title.caption
+msgid "Min ID"
+msgstr ""
+
+#: tfrmcodes.dbgridsource.columns[3].title.caption
+msgid "Max ID"
+msgstr ""
+
 #: tfrmcodes.dbgridunits.columns[0].title.caption
 msgctxt "tfrmcodes.dbgridunits.columns[0].title.caption"
 msgid "ID"

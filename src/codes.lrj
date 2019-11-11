@@ -52,6 +52,8 @@
 {"hash":92579445,"name":"tfrmcodes.tbsource.caption","sourcebytes":[83,79,85,82,67,69],"value":"SOURCE"},
 {"hash":1236,"name":"tfrmcodes.dbgridsource.columns[0].title.caption","sourcebytes":[73,68],"value":"ID"},
 {"hash":153955509,"name":"tfrmcodes.dbgridsource.columns[1].title.caption","sourcebytes":[83,111,117,114,99,101,32,110,97,109,101],"value":"Source name"},
+{"hash":88081620,"name":"tfrmcodes.dbgridsource.columns[2].title.caption","sourcebytes":[77,105,110,32,73,68],"value":"Min ID"},
+{"hash":87598292,"name":"tfrmcodes.dbgridsource.columns[3].title.caption","sourcebytes":[77,97,120,32,73,68],"value":"Max ID"},
 {"hash":89082932,"name":"tfrmcodes.tbpi_wod.caption","sourcebytes":[80,73,95,87,79,68],"value":"PI_WOD"},
 {"hash":1236,"name":"tfrmcodes.dbgridpi.columns[0].title.caption","sourcebytes":[73,68],"value":"ID"},
 {"hash":720005,"name":"tfrmcodes.dbgridpi.columns[1].title.caption","sourcebytes":[80,114,105,109,97,114,121,32,73,110,118,101,115,116,105,103,97,116,111,114,32,110,97,109,101],"value":"Primary Investigator name"},

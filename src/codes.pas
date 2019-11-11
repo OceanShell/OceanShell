@@ -345,7 +345,7 @@ begin
      end;
   5: begin
        CodesTblName:='SOURCE';
-       Q.SQL.text:='Select ID, NAME as SOURCENAME '+
+       Q.SQL.text:='Select ID, ID_MIN, ID_MAX, NAME '+
                    'FROM SOURCE ORDER BY ID';
      end;
   6: begin
@@ -515,8 +515,11 @@ begin
  end;
  if CodesTblName='SOURCE' then begin
     occup:=trunc(DBGridSource.Width-20-
-           (DBGridSource.Columns[0].Width));
+           (DBGridSource.Columns[0].Width+
+            DBGridSource.Columns[2].Width+
+            DBGridSource.Columns[3].Width));
     DBGridSource.Columns[1].Width:=occup+1;
+    eSource_Name.Width:=DBGridSource.Columns[1].Width;
  end;
  if CodesTblName='PI' then begin
     occup:=trunc(DBGridPI.Width-20-

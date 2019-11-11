@@ -84,7 +84,8 @@ begin
   SetLength(TMPSeries, frmosmain.listbox1Count); }
 
    CDS:=TBufDataSet.Create(nil);
-    CDS.FieldDefs.Add('Level',ftFloat,0,true);
+    CDS.FieldDefs.Add('Lev_dbar',ftFloat,0,true);
+    CDS.FieldDefs.Add('Lev_m',ftFloat,0,true);
      for ks:=0 to frmosmain.ListBox1.Items.Count-1 do begin
       Par:=frmosmain.ListBox1.Items.Strings[ks];
 
@@ -122,7 +123,8 @@ begin
 
      CDS.CreateDataSet;
  //   CDS.LogChanges:=false;
-    CDS.IndexFieldNames:=CDS.FieldbyName('Level').FieldName;
+    CDS.IndexFieldNames:=CDS.FieldbyName('Lev_dbar').FieldName+';'+
+                         CDS.FieldbyName('Lev_m').FieldName;
 
  ID:=frmdm.Q.FieldByName('ID').AsInteger;
 // showmessage('here');
@@ -157,7 +159,7 @@ end;
 procedure Tfrmparametersall.ShowAllProf(ID:integer);
 Var
 k, fl,count_st:integer;
-cur_l, lev, Val, Flag_:real;
+cur_l, lev_dbar, lev_m, Val, Flag_:real;
 Units, par, par_name, col_title:string;
 
 TRt:TSQLTransaction;
@@ -194,7 +196,7 @@ CheckListBox1.Clear;
          SQL.Add('select * from ');
          SQL.Add( par );
          SQL.Add(' where ID=:ID ');
-         SQL.Add(' order by PRES');
+         SQL.Add(' order by LEV_DBAR, LEV_M');
          ParamByName('ID').AsInteger:=ID;
        //  showmessage(Sql.Text);
        Open;
@@ -204,10 +206,10 @@ CheckListBox1.Clear;
   Qt.First;
   Count_st:=0; cur_l:=-9;
     while not Qt.eof do begin
-
-      Lev:=Qt.FieldByName('PRES').AsFloat;
-      Val:=Qt.FieldByName('VAL').AsFloat;
-      Flag_:=Qt.FieldByName('PQF2').AsFloat;
+      Lev_m   :=Qt.FieldByName('LEV_M').AsFloat;
+      Lev_dbar:=Qt.FieldByName('LEV_DBAR').AsFloat;
+      Val     :=Qt.FieldByName('VAL').AsFloat;
+      Flag_   :=Qt.FieldByName('PQF2').AsFloat;
 
  //     showmessage(par+#9+floattostr(lev)+#9+floattostr(val));
 
@@ -216,7 +218,8 @@ CheckListBox1.Clear;
 
       CDS.First; Fl:=1;
       while not CDS.Eof do begin
-        if CDS.Fields[0].AsFloat=Lev then begin
+        if (CDS.FieldByName('LEV_DBAR').AsFloat=Lev_dbar) or
+           (CDS.FieldByName('LEV_M').AsFloat=Lev_m) then begin
             CDS.edit;
              CDS.FieldByName(par).AsFloat:=Val;
              CDS.FieldByName(par+'_FL').AsFloat:=Flag_;
@@ -227,13 +230,14 @@ CheckListBox1.Clear;
 
       if fl=1 then begin
          CDS.Append;
-         CDS.Fields[0].AsFloat:=Lev;
+         CDS.FieldByName('LEV_DBAR').AsFloat:=Lev_dbar;
+         CDS.FieldByName('LEV_M').AsFloat:=Lev_m;
          CDS.FieldByName(par).AsFloat:=Val;
          CDS.FieldByName(par+'_FL').AsFloat:=Flag_;
          CDS.Post;
       end;
       inc(Count_st);
-      cur_l:=lev;
+     // cur_l:=lev;
       //TMPSeries[k].AddXY(val, lev);
       Qt.Next;
     end;
@@ -262,16 +266,18 @@ CheckListBox1.Clear;
   end;
 
  (* settings for the grid *)
-  for k:=0 to DBGrid1.Columns.Count-1 do begin
+  DBGrid1.Columns[0].Title.Caption:='Level, dBar';
+  DBGrid1.Columns[1].Title.Caption:='Level, m';
+  for k:=2 to DBGrid1.Columns.Count-1 do begin
    col_title:=DBGrid1.Columns[k].Title.Caption;
 
-    if (k>0) and (k mod 2=1) then begin
+    if (k mod 2<>1) then begin
       col_title:=Copy(col_title, 3, length(col_title));
       col_title:=Copy(col_title, 1, Pos('_', col_title)+3);
       DBGrid1.Columns[k].Title.Caption:=col_title;
     end;
 
-    if (k>0) and (k mod 2<>1) then begin
+    if (k mod 2=1) then begin
       DBGrid1.Columns[k].Title.Caption:='QF';
       DBGrid1.Columns[k].Width:=40;
       with DBGrid1.Columns[k].PickList do begin  //Добавляем флаги в список
@@ -334,11 +340,12 @@ ID:=frmdm.Q.FieldByName('ID').AsInteger;
               Sql.Clear;
               SQL.Add('insert into');
               SQL.Add(tbl);
-              SQL.Add(' (ID, PRES, VAL, PQF2) ');
+              SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF2) ');
               SQL.Add(' VALUES ' );
-              SQL.Add(' (:ID, :PRES, :VAL, :PQF2) ');
+              SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF2) ');
               ParamByName('ID').AsInteger:=ID;
-              ParamByName('PRES').AsFloat:=CDS.FieldByName('level').AsFloat;
+              ParamByName('LEV_DBAR').AsFloat:=CDS.FieldByName('lev_dbar').AsFloat;
+              ParamByName('LEV_M').AsFloat:=CDS.FieldByName('lev_m').AsFloat;
               ParamByName('VAL').AsFloat:=CDS.FieldByName(tbl).AsFloat;
               ParamByName('PQF2').AsFloat:=CDS.FieldByName(tbl+'_FL').AsFloat;
            ExecSQL;
@@ -396,8 +403,8 @@ try
    if CheckListBox1.Checked[CheckListBox1.ItemIndex]= true then begin
      CDS.FieldByName(Par).Visible:=true;
      CDS.FieldByName(Par+'_FL').Visible:=true;
-       for k:=0 to DBGrid1.Columns.Count-1 do begin
-          if (k>0) and (k mod 2<>1) then DBGrid1.Columns[k].Title.Caption:='QF';
+       for k:=2 to DBGrid1.Columns.Count-1 do begin
+          if (k>0) and (k mod 2=1) then DBGrid1.Columns[k].Title.Caption:='QF';
      //      DBGrid1.Columns[k].Footer.ValueType:=fvtAvg;
      //      DBGrid1.SumList.RecalcAll;
        end;
@@ -645,7 +652,7 @@ Var
 begin
   if Button=mbRight then begin
    par:=DBGrid1.SelectedColumn.Title.Caption;
-    if (Par<>'Level') and (Par<>'QF') then begin
+    if (Par<>'Lev_dbar') and (Par<>'Lev_m') and (Par<>'QF') then begin
        iSetFlagParameter.Caption:='Set flag for '+Par;
        iDeleteParameter.Caption:='Delete '+Par;
        PM.PopUp;
