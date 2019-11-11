@@ -2876,9 +2876,9 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
       FieldByName('Pres').AsFloat:=TPres;
       FieldByName('Val').AsFloat:=TVal;
       if (kTBL>29) then FieldByName('ValErr').AsFloat:=TValErr;
-      FieldByName('PQF1').AsInteger:=0;
+      FieldByName('PQF1').AsInteger:=TPQF1;
       FieldByName('PQF2').AsInteger:=0;
-      FieldByName('SQF').AsInteger:=0;
+      FieldByName('SQF').AsInteger:=TSQF;
       FieldByName('Bottle').AsInteger:=stNBNum;
       FieldByName('Station').AsInteger:=stationN;
       FieldByName('Cast').AsInteger:=castN;
@@ -3074,8 +3074,8 @@ begin
 
   first_str:='Table header'
   +#9+'samples#'
-  +#9+'Upper level[dbar]'
-  +#9+'Down level[dbar]'
+  +#9+'dbar_min'
+  +#9+'dbar_max'
   +#9+'Average'
   +#9+'Minimum'
   +#9+'Maximum'
