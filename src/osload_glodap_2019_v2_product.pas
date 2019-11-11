@@ -3033,6 +3033,7 @@ end;
 procedure TfrmloadGLODAP_2019_v2_product.btnGetDBStatisticsClick(Sender: TObject);
 var
 ktbl,UID:integer;
+PQF1_0_count,PQF1_2_count,PQF1_9_count,SQF_0_count,SQF_1_count:integer;
 first_str,UName,UNameShort:string;
 TblName:array[1..34] of string;
 begin
@@ -3074,6 +3075,11 @@ begin
 
   first_str:='Table header'
   +#9+'samples#'
+  +#9+'PQF1=0#'
+  +#9+'PQF1=2#'
+  +#9+'PQF1=9#'
+  +#9+'SQF=0#'
+  +#9+'SQF=1#'
   +#9+'dbar_min'
   +#9+'dbar_max'
   +#9+'Average'
@@ -3113,6 +3119,63 @@ begin
      Open;
 
 
+     with frmdm.q2 do begin
+       Close;
+       SQL.Clear;
+       SQL.Add(' Select count(PQF1) as QF_count ');
+       SQL.Add(' from ');
+       SQL.Add(trim(TblName[ktbl]));
+       SQL.Add(' where PQF1=0 ');
+       Open;
+       PQF1_0_count:=frmdm.q2.FieldByName('QF_count').AsInteger;
+       Close;
+     end;
+     with frmdm.q2 do begin
+       Close;
+       SQL.Clear;
+       SQL.Add(' Select count(PQF1) as QF_count ');
+       SQL.Add(' from ');
+       SQL.Add(trim(TblName[ktbl]));
+       SQL.Add(' where PQF1=2 ');
+       Open;
+       PQF1_2_count:=frmdm.q2.FieldByName('QF_count').AsInteger;
+       Close;
+     end;
+     with frmdm.q2 do begin
+       Close;
+       SQL.Clear;
+       SQL.Add(' Select count(PQF1) as QF_count ');
+       SQL.Add(' from ');
+       SQL.Add(trim(TblName[ktbl]));
+       SQL.Add(' where PQF1=9 ');
+       Open;
+       PQF1_9_count:=frmdm.q2.FieldByName('QF_count').AsInteger;
+       Close;
+     end;
+     with frmdm.q2 do begin
+       Close;
+       SQL.Clear;
+       SQL.Add(' Select count(SQF) as QF_count ');
+       SQL.Add(' from ');
+       SQL.Add(trim(TblName[ktbl]));
+       SQL.Add(' where SQF=0 ');
+       Open;
+       SQF_0_count:=frmdm.q2.FieldByName('QF_count').AsInteger;
+       Close;
+     end;
+     with frmdm.q2 do begin
+       Close;
+       SQL.Clear;
+       SQL.Add(' Select count(SQF) as QF_count ');
+       SQL.Add(' from ');
+       SQL.Add(trim(TblName[ktbl]));
+       SQL.Add(' where SQF=1 ');
+       Open;
+       SQF_1_count:=frmdm.q2.FieldByName('QF_count').AsInteger;
+       Close;
+     end;
+
+
      with Q do begin
       SQL.Clear;
       SQL.Add(' Select * from UNITS ');
@@ -3130,6 +3193,11 @@ begin
 
      memo1.Lines.Add(TblName[ktbl]
      +#9+inttostr(frmdm.q1.FieldByName('samples_num').AsInteger)
+     +#9+inttostr(PQF1_0_count)
+     +#9+inttostr(PQF1_2_count)
+     +#9+inttostr(PQF1_9_count)
+     +#9+inttostr(SQF_0_count)
+     +#9+inttostr(SQF_1_count)
      +#9+floattostr(frmdm.q1.FieldByName('dbar_min').AsFloat)
      +#9+floattostr(frmdm.q1.FieldByName('dbar_max').AsFloat)
      +#9+floattostr(frmdm.q1.FieldByName('val_avg').AsFloat)
@@ -3142,6 +3210,11 @@ begin
 
      writeln(out,TblName[ktbl],
      #9,inttostr(frmdm.q1.FieldByName('samples_num').AsInteger),
+     #9+inttostr(PQF1_0_count),
+     #9+inttostr(PQF1_2_count),
+     #9+inttostr(PQF1_9_count),
+     #9+inttostr(SQF_0_count),
+     #9+inttostr(SQF_1_count),
      #9,floattostr(frmdm.q1.FieldByName('dbar_min').AsFloat),
      #9,floattostr(frmdm.q1.FieldByName('dbar_max').AsFloat),
      #9,floattostr(frmdm.q1.FieldByName('val_avg').AsFloat),
