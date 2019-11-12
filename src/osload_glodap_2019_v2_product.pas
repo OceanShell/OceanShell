@@ -548,18 +548,18 @@ str_out:string;
 
 //values
 pres,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
-cfc11,pcfc11,cfc12,pcfc12,cfc113,pcfc113,cc14,pcc14,sf6,psf6,c13,c14:real;
+cfc11,pcfc11,cfc12,pcfc12,cfc113,pcfc113,ccL4,pccL4,sf6,psf6,c13,c14:real;
 h3,he3,he,neon,O18,toc,doc,don,tdn,chla:real;
 //errors
 c14_err,h3_err,he3_err,he_err,neon_err:real;
 //QF primary 1
 salt_pQF1,oxy_pQF1,aou_pQF1,nat_pQF1,nit_pQF1,sil_pQF1,pho_pQF1:integer;
 tco2_pQF1,talk_pQF1,phtsinsitutp_pQF1,cfc11_pQF1,cfc12_pQF1,cfc113_pQF1:integer;
-cc14_pQF1,c13_pQF1,c14_pQF1,h3_pQF1,he3_pQF1,he_pQF1,neon_pQF1:integer;
+ccL4_pQF1,c13_pQF1,c14_pQF1,h3_pQF1,he3_pQF1,he_pQF1,neon_pQF1:integer;
 O18_pQF1,toc_pQF1,doc_pQF1,don_pQF1,tdn_pQF1,chla_pQF1,phts25p0_pQF1:integer;
 //QF secondary
 salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF:integer;
-cfc11_sQF,cfc12_sQF,cfc113_sQF,cc14_sQF,sf6_pQF1,c13_sQF,phts25p0_sQF:integer;
+cfc11_sQF,cfc12_sQF,cfc113_sQF,ccL4_sQF,sf6_pQF1,c13_sQF,phts25p0_sQF:integer;
 //divide file on stations/casts
 cast_count:Integer;
 //download
@@ -702,10 +702,10 @@ begin
    64: cfc113_pQF1:=trunc(strtofloat(buf_str));        //pQF1
    65: cfc113_sQF:=trunc(strtofloat(buf_str));         //sQF
 
-   66: cc14:=strtofloat(buf_str);                    //cc14:transient tracer
-   67: pcc14:=strtofloat(buf_str);                   //pcc14
-   68: cc14_pQF1:=trunc(strtofloat(buf_str));        //pQF1
-   69: cc14_sQF:=trunc(strtofloat(buf_str));         //sQF
+   66: ccL4:=strtofloat(buf_str);                    //ccL4:carbone tetrachloride
+   67: pccL4:=strtofloat(buf_str);                   //pcL14
+   68: ccL4_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+   69: ccL4_sQF:=trunc(strtofloat(buf_str));         //sQF
 
    70: sf6:=strtofloat(buf_str);                    //sf6:Sulfur hexafluoride
    71: psf6:=strtofloat(buf_str);                   //psf6
@@ -896,18 +896,18 @@ var
 
   //values
   pres,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
-  cfc11,pcfc11,cfc12,pcfc12,cfc113,pcfc113,cc14,pcc14,sf6,psf6,c13,c14:real;
+  cfc11,pcfc11,cfc12,pcfc12,cfc113,pcfc113,ccL4,pccL4,sf6,psf6,c13,c14:real;
   h3,he3,he,neon,O18,toc,doc,don,tdn,chla:real;
   //errors
   c14_err,h3_err,he3_err,he_err,neon_err:real;
   //QF primary 1
   salt_pQF1,oxy_pQF1,aou_pQF1,nat_pQF1,nit_pQF1,sil_pQF1,pho_pQF1:integer;
   tco2_pQF1,talk_pQF1,phtsinsitutp_pQF1,cfc11_pQF1,cfc12_pQF1,cfc113_pQF1:integer;
-  cc14_pQF1,c13_pQF1,c14_pQF1,h3_pQF1,he3_pQF1,he_pQF1,neon_pQF1:integer;
+  ccL4_pQF1,c13_pQF1,c14_pQF1,h3_pQF1,he3_pQF1,he_pQF1,neon_pQF1:integer;
   O18_pQF1,toc_pQF1,doc_pQF1,don_pQF1,tdn_pQF1,chla_pQF1,phts25p0_pQF1:integer;
   //QF secondary
   salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF:integer;
-  cfc11_sQF,cfc12_sQF,cfc113_sQF,cc14_sQF,sf6_pQF1,c13_sQF,phts25p0_sQF:integer;
+  cfc11_sQF,cfc12_sQF,cfc113_sQF,ccL4_sQF,sf6_pQF1,c13_sQF,phts25p0_sQF:integer;
   //divide file on stations/casts
   cast_count:Integer;
   //download
@@ -939,7 +939,7 @@ begin
       TNames1_arr[17]:='P_TDN_BOTTLE';
       TNames1_arr[18]:='P_TOC_BOTTLE';
       TNames1_arr[19]:='P_TEMPERATURE_BOTTLE';
-      TNames1_arr[20]:='P_CC14_BOTTLE';
+      TNames1_arr[20]:='P_CCL4_BOTTLE';
       TNames1_arr[21]:='P_PCCL4_BOTTLE';
       TNames1_arr[22]:='P_CFC113_BOTTLE';
       TNames1_arr[23]:='P_PCFC113_BOTTLE';
@@ -1067,7 +1067,7 @@ begin
                   AssignFile(outPRF19, path_TBL);
                      Rewrite(outPRF19);
                      writeln(outPRF19,str_PRF1);
-    // 20 P_CC14_BOTTLE
+    // 20 P_CCL4_BOTTLE
     path_TBL:=path_PRF+TNames1_arr[20]+'.dat';
                   AssignFile(outPRF20, path_TBL);
                      Rewrite(outPRF20);
@@ -1295,10 +1295,10 @@ end;
     64: cfc113_pQF1:=trunc(strtofloat(buf_str));        //pQF1
     65: cfc113_sQF:=trunc(strtofloat(buf_str));         //sQF
 
-    66: cc14:=strtofloat(buf_str);                    //cc14:transient tracer
-    67: pcc14:=strtofloat(buf_str);                   //pcc14
-    68: cc14_pQF1:=trunc(strtofloat(buf_str));        //pQF1
-    69: cc14_sQF:=trunc(strtofloat(buf_str));         //sQF
+    66: ccL4:=strtofloat(buf_str);                    //ccL4:carbone tetrachloride
+    67: pccL4:=strtofloat(buf_str);                   //pccL4
+    68: ccL4_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+    69: ccL4_sQF:=trunc(strtofloat(buf_str));         //sQF
 
     70: sf6:=strtofloat(buf_str);                    //sf6:Sulfur hexafluoride
     71: psf6:=strtofloat(buf_str);                   //psf6
@@ -1510,18 +1510,18 @@ end;
        TUNIT:=1;  //Degree centigrade
        end;
    20: begin
-      TName:='P_CC14_BOTTLE';
-      Tval:=cc14;
-      TPQF1:=cc14_pQF1;
-      TSQF:=cc14_SQF;
+      TName:='P_CCL4_BOTTLE';
+      Tval:=ccL4;
+      TPQF1:=ccL4_pQF1;
+      TSQF:=ccL4_SQF;
       TBottle:=stNBNum;
       TUNIT:=13;  //Pico-mole per kilogram
       end;
    21: begin
        TName:='P_PCCL4_BOTTLE';
-       Tval:=pcc14;
-       TPQF1:=cc14_pQF1;
-       TSQF:=cc14_SQF;
+       Tval:=pccL4;
+       TPQF1:=ccL4_pQF1;
+       TSQF:=ccL4_SQF;
        TBottle:=stNBNum;
        TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
        end;
@@ -2304,18 +2304,18 @@ var
   TblName:array[1..34] of string;
   //values
   pres,temp,salt,oxy,aou,nat,nit,sil,pho,tco2,talk,phts25p0,phtsinsitutp:real;
-  cfc11,pcfc11,cfc12,pcfc12,cfc113,pcfc113,cc14,pcc14,sf6,psf6,c13,c14:real;
+  cfc11,pcfc11,cfc12,pcfc12,cfc113,pcfc113,ccL4,pccL4,sf6,psf6,c13,c14:real;
   h3,he3,he,neon,O18,toc,doc,don,tdn,chla:real;
   //errors
   c14_err,h3_err,he3_err,he_err,neon_err:real;
   //QF primary 1
   salt_pQF1,oxy_pQF1,aou_pQF1,nat_pQF1,nit_pQF1,sil_pQF1,pho_pQF1:integer;
   tco2_pQF1,talk_pQF1,phtsinsitutp_pQF1,cfc11_pQF1,cfc12_pQF1,cfc113_pQF1:integer;
-  cc14_pQF1,c13_pQF1,c14_pQF1,h3_pQF1,he3_pQF1,he_pQF1,neon_pQF1:integer;
+  ccL4_pQF1,c13_pQF1,c14_pQF1,h3_pQF1,he3_pQF1,he_pQF1,neon_pQF1:integer;
   O18_pQF1,toc_pQF1,doc_pQF1,don_pQF1,tdn_pQF1,chla_pQF1,phts25p0_pQF1:integer;
   //QF secondary
   salt_sQF,oxy_sQF,nat_sQF,sil_sQF,pho_sQF,tco2_sQF,talk_sQF,phtsinsitutp_sQF:integer;
-  cfc11_sQF,cfc12_sQF,cfc113_sQF,cc14_sQF,sf6_pQF1,c13_sQF,phts25p0_sQF:integer;
+  cfc11_sQF,cfc12_sQF,cfc113_sQF,ccL4_sQF,sf6_pQF1,c13_sQF,phts25p0_sQF:integer;
   //divide file on stations/casts
   cast_count:Integer;
 
@@ -2345,8 +2345,8 @@ TblName[16]:='P_TCO2_BOTTLE';
 TblName[17]:='P_TDN_BOTTLE';
 TblName[18]:='P_TOC_BOTTLE';
 TblName[19]:='P_TEMPERATURE_BOTTLE';
-TblName[20]:='P_CC14_BOTTLE';
-TblName[21]:='P_PCC14_BOTTLE';
+TblName[20]:='P_CCL4_BOTTLE';
+TblName[21]:='P_PCCL4_BOTTLE';
 TblName[22]:='P_CFC113_BOTTLE';
 TblName[23]:='P_PCFC113_BOTTLE';
 TblName[24]:='P_CFC11_BOTTLE';
@@ -2380,7 +2380,7 @@ UnitID[16]:=3;             //'P_TCO2_BOTTLE'  Micro-mole per kilogram
 UnitID[17]:=15;            //'P_TDN_BOTTLE' Micro-mole per liter
 UnitID[18]:=15;            //'P_TOC_BOTTLE'  Micro-mole per liter
 UnitID[19]:=1;             //'P_TEMPERATURE_BOTTLE'  Degree centigrade
-UnitID[20]:=13;            //'P_CC14_BOTTLE'  Pico-mole per kilogram
+UnitID[20]:=13;            //'P_CCL4_BOTTLE'  Pico-mole per kilogram
 UnitID[21]:=18;            //'P_PCCL4_BOTTLE'  Parts per thousand (16) or trillion (18) ???
 UnitID[22]:=13;            //'P_CFC113_BOTTLE'  Pico-mole per kilogram
 UnitID[23]:=18;            //'P_PCFC113_BOTTLE'  Parts per thousand (16) or trillion (18) ???
@@ -2542,10 +2542,10 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
      64: cfc113_pQF1:=trunc(strtofloat(buf_str));        //pQF1
      65: cfc113_sQF:=trunc(strtofloat(buf_str));         //sQF
 
-     66: cc14:=strtofloat(buf_str);                    //cc14:transient tracer
-     67: pcc14:=strtofloat(buf_str);                   //pcc14
-     68: cc14_pQF1:=trunc(strtofloat(buf_str));        //pQF1
-     69: cc14_sQF:=trunc(strtofloat(buf_str));         //sQF
+     66: ccL4:=strtofloat(buf_str);                    //ccL4:carbone tetrachloride
+     67: pccL4:=strtofloat(buf_str);                   //pccL4
+     68: ccL4_pQF1:=trunc(strtofloat(buf_str));        //pQF1
+     69: ccL4_sQF:=trunc(strtofloat(buf_str));         //sQF
 
      70: sf6:=strtofloat(buf_str);                    //sf6:Sulfur hexafluoride
      71: psf6:=strtofloat(buf_str);                   //psf6
@@ -2749,17 +2749,17 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
           end;
       20: begin
          TPres:=pres;
-         Tval:=cc14;
-         TPQF1:=cc14_pQF1;
-         TSQF:=cc14_SQF;
+         Tval:=ccL4;
+         TPQF1:=ccL4_pQF1;
+         TSQF:=ccL4_SQF;
          TBottle:=stNBNum;
          TUNIT:=13;  //Pico-mole per kilogram
          end;
       21: begin
           TPres:=pres;
-          Tval:=pcc14;
-          TPQF1:=cc14_pQF1;
-          TSQF:=cc14_SQF;
+          Tval:=pccL4;
+          TPQF1:=ccL4_pQF1;
+          TSQF:=ccL4_SQF;
           TBottle:=stNBNum;
           TUNIT:=18;  //Parts per thousand (16) or trillion (18) ???
           end;
@@ -3057,8 +3057,8 @@ begin
   TblName[17]:='P_TDN_BOTTLE';
   TblName[18]:='P_TOC_BOTTLE';
   TblName[19]:='P_TEMPERATURE_BOTTLE';
-  TblName[20]:='P_CC14_BOTTLE';
-  TblName[21]:='P_PCC14_BOTTLE';
+  TblName[20]:='P_CCL4_BOTTLE';
+  TblName[21]:='P_PCCL4_BOTTLE';
   TblName[22]:='P_CFC113_BOTTLE';
   TblName[23]:='P_PCFC113_BOTTLE';
   TblName[24]:='P_CFC11_BOTTLE';
@@ -3486,8 +3486,8 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (*16	P_CC14_BOTTLE Halogenated transient tracer CC14 *)
-     'CREATE TABLE P_CC14_BOTTLE ( '+LineEnding+
+  (*16	P_CCL4_BOTTLE Carbone Tetrachloride CCL4 *)
+     'CREATE TABLE P_CCL4_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -3499,8 +3499,8 @@ begin
      '   UNITS_ID        BIGINT '+LineEnding+
      '); '+LineEnding+
 
-  (*16a	P_CC14_BOTTLE Halogenated transient tracer CC14 *)
-     'CREATE TABLE P_PCC14_BOTTLE ( '+LineEnding+
+  (*16a	P_CCL4_BOTTLE Carbone Tetrachloride tracer CCL4 *)
+     'CREATE TABLE P_PCCL4_BOTTLE ( '+LineEnding+
      '   ID             BIGINT NOT NULL, '+LineEnding+
      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -3717,8 +3717,8 @@ begin
      'ALTER TABLE P_PCFC12_BOTTLE ADD CONSTRAINT FK_P_PCFC12_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_CFC113_BOTTLE ADD CONSTRAINT FK_P_CFC113_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_PCFC113_BOTTLE ADD CONSTRAINT FK_P_PCFC113_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-     'ALTER TABLE P_CC14_BOTTLE ADD CONSTRAINT FK_P_CC14_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-     'ALTER TABLE P_PCC14_BOTTLE ADD CONSTRAINT FK_P_PCC14_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+     'ALTER TABLE P_CCL4_BOTTLE ADD CONSTRAINT FK_P_CCL4_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+     'ALTER TABLE P_PCCL4_BOTTLE ADD CONSTRAINT FK_P_PCCL4_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_SF6_BOTTLE ADD CONSTRAINT FK_P_SF6_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_PSF6_BOTTLE ADD CONSTRAINT FK_P_PSF6_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_C13_BOTTLE ADD CONSTRAINT FK_P_C13_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
@@ -3734,40 +3734,40 @@ begin
      'ALTER TABLE P_TDN_BOTTLE ADD CONSTRAINT FK_P_TDN_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
      'ALTER TABLE P_CHLA_BOTTLE ADD CONSTRAINT FK_P_CHLA_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
 
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (1, '+QuotedStr('P_TEMPERATURE_BOTTLE')+','  +QuotedStr('TEMPERATURE')+','+QuotedStr('Sea water temperture')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (2, '+QuotedStr('P_SALINITY_BOTTLE')+','     +QuotedStr('SALINITY')+','   +QuotedStr('Sea water salinity')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (3, '+QuotedStr('P_OXYGEN_BOTTLE')+','       +QuotedStr('OXYGEN')+','     +QuotedStr('Dissolved Oxygen')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (4, '+QuotedStr('P_AOU_BOTTLE')+','          +QuotedStr('AOU')+','        +QuotedStr('Apparent oxygen utilization')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (5, '+QuotedStr('P_NITRATE_BOTTLE')+','      +QuotedStr('NITRATE')+','    +QuotedStr('Nitrate')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (6, '+QuotedStr('P_NITRITE_BOTTLE')+','      +QuotedStr('NITRITE')+','    +QuotedStr('Nitrite')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (7, '+QuotedStr('P_SILICATE_BOTTLE')+','     +QuotedStr('SILICATE')+','   +QuotedStr('Silicate')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (8, '+QuotedStr('P_PHOSPHATE_BOTTLE')+','    +QuotedStr('PHOSPHATE')+','  +QuotedStr('Phosphate')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (9, '+QuotedStr('P_TCO2_BOTTLE')+','         +QuotedStr('TCO2')+','       +QuotedStr('Dissolved inorganic carbon')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (10, '+QuotedStr('P_TALK_BOTTLE')+','        +QuotedStr('TALK')+','       +QuotedStr('Total alkalinity')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (1, '+QuotedStr('P_AOU_BOTTLE')+','          +QuotedStr('AOU')+','        +QuotedStr('Apparent oxygen utilization')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (2, '+QuotedStr('P_C13_BOTTLE')+','         +QuotedStr('C13')+','        +QuotedStr('Stable isotop carbon 13')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (3, '+QuotedStr('P_CHLA_BOTTLE')+','        +QuotedStr('CHLA')+','       +QuotedStr('Chlorophylla')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (4, '+QuotedStr('P_DOC_BOTTLE')+','         +QuotedStr('DOC')+','        +QuotedStr('Dissolved organic carbon')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (5, '+QuotedStr('P_DON_BOTTLE')+','         +QuotedStr('DON')+','        +QuotedStr('Dissolved organic nitrogen')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (6, '+QuotedStr('P_NITRATE_BOTTLE')+','      +QuotedStr('NITRATE')+','    +QuotedStr('Nitrate')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (7, '+QuotedStr('P_NITRITE_BOTTLE')+','      +QuotedStr('NITRITE')+','    +QuotedStr('Nitrite')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (8, '+QuotedStr('P_O18_BOTTLE')+','         +QuotedStr('O18')+','        +QuotedStr('Stable isotop of oxygen 18')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (9, '+QuotedStr('P_OXYGEN_BOTTLE')+','       +QuotedStr('OXYGEN')+','     +QuotedStr('Dissolved Oxygen')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (10, '+QuotedStr('P_PHOSPHATE_BOTTLE')+','    +QuotedStr('PHOSPHATE')+','  +QuotedStr('Phosphate')+'); '+LineEnding+
      'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (11, '+QuotedStr('P_PHTS25P0_BOTTLE')+','    +QuotedStr('PH')+','         +QuotedStr('pH on total scale, 25C, 0dbar')+'); '+LineEnding+
      'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (12, '+QuotedStr('P_PHTSINSITUTP_BOTTLE')+','+QuotedStr('PH')+','         +QuotedStr('pH on total scale, in situ temperature and pressure')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (13, '+QuotedStr('P_CFC11_BOTTLE')+','       +QuotedStr('CFC11')+','      +QuotedStr('Halogenated transient tracer CFC11, partial pressure')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (14, '+QuotedStr('P_PCFC11_BOTTLE')+','      +QuotedStr('PCFC11')+','     +QuotedStr('Halogenated transient tracer CFC11')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (15, '+QuotedStr('P_CFC12_BOTTLE')+','       +QuotedStr('CFC12')+','      +QuotedStr('Halogenated transient tracer CFC12, partial pressure')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (16, '+QuotedStr('P_PCFC12_BOTTLE')+','      +QuotedStr('CFC12')+','      +QuotedStr('Halogenated transient tracer CFC12')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (17, '+QuotedStr('P_CFC113_BOTTLE')+','      +QuotedStr('CFC113')+','     +QuotedStr('Halogenated transient tracer CFC113, partial pressure')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (18, '+QuotedStr('P_PCFC113_BOTTLE')+','     +QuotedStr('PCFC113')+','    +QuotedStr('Halogenated transient tracer CFC113')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (19, '+QuotedStr('P_CC14_BOTTLE')+','        +QuotedStr('CC14')+','       +QuotedStr('Halogenated transient tracer CC14, partial pressure')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (20, '+QuotedStr('P_PCC14_BOTTLE')+','       +QuotedStr('PCC14')+','      +QuotedStr('Halogenated transient tracer CC14')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (21, '+QuotedStr('P_SF6_BOTTLE')+','         +QuotedStr('SF6')+','        +QuotedStr('Sulfur hexafluoride, partial pressure')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (22, '+QuotedStr('P_PSF6_BOTTLE')+','        +QuotedStr('PSF6')+','       +QuotedStr('Sulfur hexafluoride')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (23, '+QuotedStr('P_C13_BOTTLE')+','         +QuotedStr('C13')+','        +QuotedStr('Stable isotop carbon 13')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (24, '+QuotedStr('P_C14_BOTTLE')+','         +QuotedStr('C14')+','        +QuotedStr('Radioisotop carbon 14, counting error')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (25, '+QuotedStr('P_H3_BOTTLE')+','          +QuotedStr('H3')+','         +QuotedStr('Radioisotop hydrogen 3, tritium')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (26, '+QuotedStr('P_HE3_BOTTLE')+','         +QuotedStr('HE3')+','        +QuotedStr('Radioisotop helium 3, counting error')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (27, '+QuotedStr('P_HE_BOTTLE')+','          +QuotedStr('HE')+','         +QuotedStr('Helium, counting error')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (28, '+QuotedStr('P_NEON_BOTTLE')+','        +QuotedStr('NEON,')+','      +QuotedStr('Neon, counting error')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (29, '+QuotedStr('P_O18_BOTTLE')+','         +QuotedStr('O18')+','        +QuotedStr('Stable isotop of oxygen 18')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (30, '+QuotedStr('P_TOC_BOTTLE')+','         +QuotedStr('TOC')+','        +QuotedStr('Total organic carbon')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (31, '+QuotedStr('P_DOC_BOTTLE')+','         +QuotedStr('DOC')+','        +QuotedStr('Dissolved organic carbon')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (32, '+QuotedStr('P_DON_BOTTLE')+','         +QuotedStr('DON')+','        +QuotedStr('Dissolved organic nitrogen')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (33, '+QuotedStr('P_TDN_BOTTLE')+','         +QuotedStr('TDN')+','        +QuotedStr('Total dissolved nitrogen')+'); '+LineEnding+
-     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (34, '+QuotedStr('P_CHLA_BOTTLE')+','        +QuotedStr('CHLA')+','       +QuotedStr('Chlorophylla')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (13, '+QuotedStr('P_SALINITY_BOTTLE')+','     +QuotedStr('SALINITY')+','   +QuotedStr('Sea water salinity')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (14, '+QuotedStr('P_SILICATE_BOTTLE')+','     +QuotedStr('SILICATE')+','   +QuotedStr('Silicate')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (15, '+QuotedStr('P_TALK_BOTTLE')+','        +QuotedStr('TALK')+','       +QuotedStr('Total alkalinity')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (16, '+QuotedStr('P_TCO2_BOTTLE')+','         +QuotedStr('TCO2')+','       +QuotedStr('Dissolved inorganic carbon')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (17, '+QuotedStr('P_TDN_BOTTLE')+','         +QuotedStr('TDN')+','        +QuotedStr('Total dissolved nitrogen')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (18, '+QuotedStr('P_TOC_BOTTLE')+','         +QuotedStr('TOC')+','        +QuotedStr('Total organic carbon')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (19, '+QuotedStr('P_TEMPERATURE_BOTTLE')+','  +QuotedStr('TEMPERATURE')+','+QuotedStr('Sea water temperture')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (20, '+QuotedStr('P_CCL4_BOTTLE')+','        +QuotedStr('CCL4')+','       +QuotedStr('Carbone tetrachloride CCL4')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (21, '+QuotedStr('P_PCCL4_BOTTLE')+','       +QuotedStr('PCCL4')+','      +QuotedStr('Carbone tetrachloride, partial pressure CCL4')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (22, '+QuotedStr('P_CFC113_BOTTLE')+','      +QuotedStr('CFC113')+','     +QuotedStr('Halogenated transient tracer CFC113')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (23, '+QuotedStr('P_PCFC113_BOTTLE')+','     +QuotedStr('PCFC113')+','    +QuotedStr('Halogenated transient tracer CFC113, partial pressure')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (24, '+QuotedStr('P_CFC11_BOTTLE')+','       +QuotedStr('CFC11')+','      +QuotedStr('Halogenated transient tracer CFC11')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (25, '+QuotedStr('P_PCFC11_BOTTLE')+','      +QuotedStr('PCFC11')+','     +QuotedStr('Halogenated transient tracer CFC11, partial pressure')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (26, '+QuotedStr('P_CFC12_BOTTLE')+','       +QuotedStr('CFC12')+','      +QuotedStr('Halogenated transient tracer CFC12')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (27, '+QuotedStr('P_PCFC12_BOTTLE')+','      +QuotedStr('CFC12')+','      +QuotedStr('Halogenated transient tracer CFC12, partial pressure')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (28, '+QuotedStr('P_SF6_BOTTLE')+','         +QuotedStr('SF6')+','        +QuotedStr('Sulfur hexafluoride, partial pressure')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (29, '+QuotedStr('P_PSF6_BOTTLE')+','        +QuotedStr('PSF6')+','       +QuotedStr('Sulfur hexafluoride')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (30, '+QuotedStr('P_C14_BOTTLE')+','         +QuotedStr('C14')+','        +QuotedStr('Radioisotop carbon 14, counting error')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (31, '+QuotedStr('P_HE3_BOTTLE')+','         +QuotedStr('HE3')+','        +QuotedStr('Radioisotop helium 3, counting error')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (32, '+QuotedStr('P_HE_BOTTLE')+','          +QuotedStr('HE')+','         +QuotedStr('Helium, counting error')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (33, '+QuotedStr('P_NEON_BOTTLE')+','        +QuotedStr('NEON,')+','      +QuotedStr('Neon, counting error')+'); '+LineEnding+
+     'INSERT INTO DATABASE_TABLES (ID, TABLENAME, VARIABLENAME, DESCRIPTION) VALUES (34, '+QuotedStr('P_H3_BOTTLE')+','          +QuotedStr('H3')+','         +QuotedStr('Radioisotop hydrogen 3, tritium')+'); '+LineEnding+
 
      'COMMIT WORK '+LineEnding+
      'SET TERM ; '+LineEnding;

@@ -151,6 +151,7 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
     end
   end
   object Q: TSQLQuery
+    MaxIndexesCount = 100
     FieldDefs = <>
     Database = frmdm.SupportDB
     Transaction = frmdm.SupportTR
