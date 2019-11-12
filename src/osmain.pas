@@ -324,6 +324,7 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
      end;
 
    Open;
+   //Last changes
    Last;
    First;
  end;
