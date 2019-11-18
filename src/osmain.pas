@@ -39,6 +39,9 @@ type
     Label1: TLabel;
     Label2: TLabel;
     iProfilesAll: TMenuItem;
+    MenuItem2: TMenuItem;
+    iLoad_WOD18: TMenuItem;
+    iLoad_WOD: TMenuItem;
     PM1: TPopupMenu;
     seIDMax: TSpinEdit;
     seLonMin: TFloatSpinEdit;
@@ -101,6 +104,8 @@ type
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
+    procedure iLoad_WOD18Click(Sender: TObject);
+    procedure iLoad_WODClick(Sender: TObject);
     procedure iMapClick(Sender: TObject);
     procedure iProfilesAllClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
@@ -174,6 +179,8 @@ uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
   //loading data
   osload_itp,
   osload_GLODAP_2019_v2_product,
+  osload_WOD18,
+  loadwod,
   //export
   //QC
   //tools
@@ -696,13 +703,35 @@ end;
 
 procedure Tfrmosmain.iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
 begin
-    frmloadGLODAP_2019_v2_product := TfrmloadGLODAP_2019_v2_product.Create(Self);
-   try
-    if not frmloadGLODAP_2019_v2_product.ShowModal = mrOk then exit;
-   finally
-     frmloadGLODAP_2019_v2_product.Free;
-     frmloadGLODAP_2019_v2_product := nil;
-   end;
+  frmloadGLODAP_2019_v2_product := TfrmloadGLODAP_2019_v2_product.Create(Self);
+ try
+  if not frmloadGLODAP_2019_v2_product.ShowModal = mrOk then exit;
+ finally
+   frmloadGLODAP_2019_v2_product.Free;
+   frmloadGLODAP_2019_v2_product := nil;
+ end;
+end;
+
+procedure Tfrmosmain.iLoad_WOD18Click(Sender: TObject);
+begin
+ frmloadWOD18 := TfrmloadWOD18.Create(Self);
+try
+ if not frmloadWOD18.ShowModal = mrOk then exit;
+finally
+  frmloadWOD18.Free;
+  frmloadWOD18 := nil;
+end;
+end;
+
+procedure Tfrmosmain.iLoad_WODClick(Sender: TObject);
+begin
+  frmLoadASC_WOD := TfrmLoadASC_WOD.Create(Self);
+ try
+  if not frmLoadASC_WOD.ShowModal = mrOk then exit;
+ finally
+   frmLoadASC_WOD.Free;
+   frmLoadASC_WOD := nil;
+ end;
 end;
 
 procedure Tfrmosmain.iMapClick(Sender: TObject);

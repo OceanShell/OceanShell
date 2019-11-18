@@ -719,6 +719,14 @@ msgctxt "tfrmloaditp.chkwrite.caption"
 msgid "Write"
 msgstr ""
 
+#: tfrmloadwod18.btnpreprocessing.caption
+msgid "btnPreprocessing"
+msgstr ""
+
+#: tfrmloadwod18.caption
+msgid "frmloadWOD18"
+msgstr ""
+
 #: tfrmosmain.btnadd.caption
 msgctxt "tfrmosmain.btnadd.caption"
 msgid "btnadd"
@@ -910,6 +918,15 @@ msgstr ""
 msgid "ITP"
 msgstr ""
 
+#: tfrmosmain.iload_wod.caption
+msgctxt "tfrmosmain.iload_wod.caption"
+msgid "WOD"
+msgstr ""
+
+#: tfrmosmain.iload_wod18.caption
+msgid "WOD18"
+msgstr ""
+
 #: tfrmosmain.imap.caption
 msgid "Map"
 msgstr ""
@@ -952,6 +969,11 @@ msgstr ""
 
 #: tfrmosmain.menuitem1.caption
 msgid "GLODAP"
+msgstr ""
+
+#: tfrmosmain.menuitem2.caption
+msgctxt "tfrmosmain.menuitem2.caption"
+msgid "WOD"
 msgstr ""
 
 #: tfrmosmain.statusbar2.panels[0].text

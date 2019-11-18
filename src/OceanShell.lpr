@@ -9,7 +9,7 @@ uses
   Interfaces, // this includes the LCL widgetset
   Forms, osmain, dm, procedures, osload_itp, osstandartqueries, codesupdateqc,
   osload_GLODAP_2019_v2_product, oscreatenewdb, osstatistics, osparameters_all,
-  tachartlazaruspkg, datetimectrls;
+  tachartlazaruspkg, datetimectrls, osload_WOD18;
 
 {$R *.res}
 
