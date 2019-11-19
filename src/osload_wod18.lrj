@@ -1,4 +1,5 @@
 {"version":1,"strings":[
 {"hash":21197848,"name":"tfrmloadwod18.caption","sourcebytes":[102,114,109,108,111,97,100,87,79,68,49,56],"value":"frmloadWOD18"},
-{"hash":239107111,"name":"tfrmloadwod18.btnpreprocessing.caption","sourcebytes":[98,116,110,80,114,101,112,114,111,99,101,115,115,105,110,103],"value":"btnPreprocessing"}
+{"hash":239107111,"name":"tfrmloadwod18.btnpreprocessing.caption","sourcebytes":[98,116,110,80,114,101,112,114,111,99,101,115,115,105,110,103],"value":"btnPreprocessing"},
+{"hash":195026769,"name":"tfrmloadwod18.checkbox1.caption","sourcebytes":[67,104,101,99,107,66,111,120,49],"value":"CheckBox1"}
 ]}

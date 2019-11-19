@@ -727,6 +727,10 @@ msgstr ""
 msgid "frmloadWOD18"
 msgstr ""
 
+#: tfrmloadwod18.checkbox1.caption
+msgid "CheckBox1"
+msgstr ""
+
 #: tfrmosmain.btnadd.caption
 msgctxt "tfrmosmain.btnadd.caption"
 msgid "btnadd"

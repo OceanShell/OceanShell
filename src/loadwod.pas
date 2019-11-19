@@ -165,7 +165,7 @@ begin
     line:=line+1;
     wst:=st;   {whole station}
     BP:=strtoint(copy(st,2,1));
-    SL :=strtoint(copy(st,3,BP));
+    SL :=strtoint(copy(st,3,BP));  //bytes in profile
     mik_line:=trunc(SL/80);
     if (SL MOD 80 = 0) then mik_line:=mik_line-1;
 
