@@ -168,9 +168,11 @@ begin
     for kb:=1 to 80 do begin read(f_dat,buf); st:=concat(st,buf); end;
     readln(f_dat);
     line:=line+1;
-    wst:=st; //Whole Station -string containing whole stations' bytes/symbols
-    {...reading starts from the second symbol}
-    BNF:=strtoint(copy(st,2,1));    //BNF -number of bytes/symbols to read in the next field
+    {...Whole Station (WST) -string containing all stations' bytes/symbols}
+    wst:=st;
+    {...Bytes in Next Field (BNF)}
+    {...first BNF in the second symbol}
+    BNF:=strtoint(copy(st,2,1));
     SL :=strtoint(copy(st,3,BNF));  //WST length
     mik_line:=trunc(SL/80);
     if (SL MOD 80 = 0) then mik_line:=mik_line-1; //number of lines at a station
@@ -273,9 +275,7 @@ begin
   if TimeErr=true  then  StFlag:=StFlag+64; {if date changed hour 24 or minutes 60}
 
 
-
-   {variable codes, quality flags, metadata}
-
+   {...variable codes, quality flags, metadata}
 {v}if (varnum>0) and (levnum>0) then begin
 {c}for k_var:=1 to VarNum do begin
      BNF:=strtoint(copy(wst,NC,1));
