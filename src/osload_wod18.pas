@@ -22,7 +22,7 @@ type
     procedure FormShow(Sender: TObject);
 
     procedure btnPreprocessingClick(Sender: TObject);
-    procedure ConvertOSD;
+    procedure ConvertOSD(var StInFile:integer);
     procedure ConvertToFloat(Str:string; var ParVal:real);
 
   private
@@ -33,8 +33,9 @@ type
 
 var
   frmloadWOD18: TfrmloadWOD18;
+  mik_stTotal:integer;
   VarCount_arr :array [1..50] of integer;    //count variables appearance
-  f_dat, f_out: text;
+  f_dat, f_statistics: text;
 
 implementation
 
@@ -47,6 +48,7 @@ uses procedures;
 procedure TfrmloadWOD18.FormShow(Sender: TObject);
 begin
   memo1.Clear;
+  memo2.Clear;
   FileListBox1.Clear;
 end;
 
@@ -56,7 +58,7 @@ end;
 procedure TfrmloadWOD18.btnPreprocessingClick(Sender: TObject);
 var
 i: integer;
-count_st,StInFile,StInDataset:integer;
+StInFile,StInDataset:integer;
 sym:char;
 PathSource,FileForRead,PathOut,FileOut:string;
 
@@ -64,9 +66,19 @@ PathSource,FileForRead,PathOut,FileOut:string;
 begin
 
    PathOut:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\Output\';
-   FileOut:=PathOut+'WOD18_output.dat';
-   AssignFile(f_out,FileOut);
-   rewrite(f_out);
+   FileOut:=PathOut+'Statistics.dat';
+   AssignFile(f_statistics,FileOut);
+   rewrite(f_statistics);
+   writeln(f_statistics,'Cast#',
+   #9,'Cast#File',
+   #9,'WOD_cast_num',
+   #9,'DateTime',
+   #9,'Latitude',
+   #9,'Longitude',
+   #9,'VarNum',
+   #9,'VarCodes');
+
+
 
 
    //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
@@ -74,6 +86,7 @@ begin
    FileListBox1.Directory:=PathSource;
 
       for i:=1 to 50 do VarCount_arr[i]:=0;
+      mik_stTotal:=0;
       StInDataset:=0;
 {..........processing files from FileListBox..........}
 {FLB}for i:=0 to (FileListBox1.Items.Count-1) do begin
@@ -81,40 +94,42 @@ begin
       AssignFile(f_dat,FileForRead);
       reset(f_dat);
 
-      count_st:=0;
-      while not EOF(f_dat) do begin
-       readln(f_dat,sym);
-       if sym='C' then count_st:=count_st+1;
-      end;
-       closefile(f_dat);
-       StInFile:=count_st;
-       StInDataset:=StInDataset+StInFile;
+      {!!!counting number of casts by WOD version identifier in the first position}
+      {...actually not correct since the identifier 'C' can be inside the station}
+      {...also at the first position}
 
-      Application.ProcessMessages;
+      {...start file conversion}
+      ConvertOSD(StInFile);
+
+      StInDataset:=StInDataset+StInFile;
 
       memo1.Lines.Add(inttostr(i)
       +#9+FileForRead
       +#9+inttostr(StInFile)
       );
 
-      reset(f_dat);
-      ConvertOSD;
       closefile(f_dat);
+      Application.ProcessMessages;
 {FLB}end;    {end files processing}
-      closefile(f_out);
 
-    memo1.Lines.Add('StInDataset='+inttostr(StInDataset));
     //maximum variable code in WOD18 seems to be 43 (table 3 in user manual)
+    writeln(f_statistics, '');
+    writeln(f_statistics, 'VarCode',#9,'Stations with variable');
     for i:=1 to 50 do begin
-       if VarCount_arr[i]<>0 then
+    if VarCount_arr[i]<>0 then begin
        memo1.Lines.Add(inttostr(i)+#9+inttostr(VarCount_arr[i]));
+       writeln(f_statistics,inttostr(i),#9,inttostr(VarCount_arr[i]));
     end;
+    end;
+    memo1.Lines.Add('StInDataset='+inttostr(StInDataset));
+    writeln(f_statistics,'StInDataset=',inttostr(StInDataset));
 
+    closefile(f_statistics);
 end;
 
 
 {convert WOD2018 Ocean Station data}
-procedure TfrmloadWOD18.ConvertOSD;
+procedure TfrmloadWOD18.ConvertOSD(var StInFile:integer);
 var
 k,kb,kL,k_var,mik_line,mik_st,s,k_lev,k_par:integer;
 BNF,SL,line,NC,RC,TF,BSH,SHNC,BBH:integer;
@@ -132,7 +147,7 @@ StCountryCode :string[2];
 NODCShipCode :string;
 StCountryName :string[40];
 StVesselName :string[40];
-StCountryCode_Platform,CountryName_Platform:string;
+StCountryCode_Platform,CountryName_Platform,VarAtSt:string;
 VarCode_arr :array [1..50] of integer;
 lev_arr :array[1..50000] of real;
 count_temperature,count_salinity,count_oxygen:integer;
@@ -183,6 +198,12 @@ begin
    end;
     wst:=trim(wst);
     mik_st:=mik_st+1;  //count stations in file
+    mik_stTotal:=mik_stTotal+1;  //count stations in all files
+
+    {...find C in the first position inside station string}
+     //for i:=2 to length(wst) do begin
+     // if wst[i]='C' then showmessage('C found around line='+inttostr(line));
+     //end;
 
    //memo1.Lines.Add('mik_st='+inttostr(mik_st));
    //memo1.Lines.Add(wst);
@@ -495,17 +516,23 @@ begin
 {memo}end;
 
 //file output
-   writeln(f_out,inttostr(mik_st),
-   #9,inttostr(OCLStNum),
-   #9,floattostr(StLat),
-   #9,floattostr(StLon),
-   #9,datetimetostr(StDateTime));
 
+   VarAtSt:='';
    for k_par:=1 to VarNum do begin
-       writeln(f_out,'VarCode=',inttostr(VarCode_arr[k_Par]));
-       VarCount_arr[VarCode_arr[k_Par]]:=VarCount_arr[VarCode_arr[k_Par]]+1;
+    VarAtSt:=VarAtSt+' '+inttostr(VarCode_arr[k_Par]);
+    //writeln(f_statistics,'VarCode=',inttostr(VarCode_arr[k_Par]));
+    VarCount_arr[VarCode_arr[k_Par]]:=VarCount_arr[VarCode_arr[k_Par]]+1;
    end;
 
+
+   writeln(f_statistics,inttostr(mik_stTotal),
+   #9,inttostr(mik_st),
+   #9,inttostr(OCLStNum),
+   #9,datetimetostr(StDateTime),
+   #9,floattostr(StLat),
+   #9,floattostr(StLon),
+   #9,inttostr(VarNum),    //number of variables at station
+   #9,VarAtSt);            //variables codes at station
 
 
      {...Profile Data}
@@ -678,6 +705,9 @@ begin
 {p1}end;
 {PD}end;
 {WFR}until eof(f_dat); {end of file}
+
+     StInFile:=mik_st;
+     //memo1.Lines.Add('mik_st='+inttostr(mik_st));
 
 end;
 
