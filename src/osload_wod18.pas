@@ -6,19 +6,23 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Buttons,
-  FileCtrl, Variants;
+  FileCtrl, Variants, IBConnection, DB, sqldb, SQLScript;
+
 
 type
 
   { TfrmloadWOD18 }
 
   TfrmloadWOD18 = class(TForm)
+    btnCreateWOD: TBitBtn;
     btnPreprocessing: TBitBtn;
     CheckBox1: TCheckBox;
     FileListBox1: TFileListBox;
+    GroupBox1: TGroupBox;
     Memo1: TMemo;
     Memo2: TMemo;
 
+    procedure btnCreateWODClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
 
     procedure btnPreprocessingClick(Sender: TObject);
@@ -55,9 +59,168 @@ end;
 
 
 
+procedure TfrmloadWOD18.btnCreateWODClick(Sender: TObject);
+Var
+DB:TIBConnection;
+TR:TSQLTransaction;
+ST:TSQLScript;
+
+(* Script for main tables *)
+const ScriptText=
+   (* STATION *)
+   'CREATE TABLE STATION ('+LineEnding+
+   '    ID                  BIGINT NOT NULL, '+LineEnding+
+   '    LATITUDE            DECIMAL(8,5) NOT NULL, '+LineEnding+
+   '    LONGITUDE           DECIMAL(9,5) NOT NULL, '+LineEnding+
+   '    DATEANDTIME         TIMESTAMP NOT NULL, '+LineEnding+
+   '    BOTTOMDEPTH         INTEGER, '+LineEnding+
+   '    LASTLEVEL_M         INTEGER, '+LineEnding+
+   '    LASTLEVEL_DBAR      INTEGER, '+LineEnding+
+   '    CRUISE_ID           BIGINT NOT NULL, '+LineEnding+
+   '    INSTRUMENT_ID       BIGINT NOT NULL, '+LineEnding+
+   '    ST_NUMBER_ORIGIN    VARCHAR(50), '+LineEnding+
+   '    ST_ID_ORIGIN        BIGINT, '+LineEnding+
+   '    CAST_NUMBER         SMALLINT DEFAULT 1 NOT NULL, '+LineEnding+
+   '    QCFLAG              SMALLINT NOT NULL, '+LineEnding+
+   '    STVERSION           SMALLINT NOT NULL, '+LineEnding+
+   '    MERGED              SMALLINT DEFAULT 0 NOT NULL, '+LineEnding+
+   '    DATE_ADDED          TIMESTAMP NOT NULL, '+LineEnding+
+   '    DATE_UPDATED        TIMESTAMP, '+LineEnding+
+   '    CONSTRAINT STATION_PK PRIMARY KEY (ID) '+LineEnding+
+   '); '+LineEnding+
+
+   //   '    SOURCE_ID           BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+//   '    COUNTRY_ID          BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+//   '    PLATFORM_ID         BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+   //   '    INSTRUMENT_ID       BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+
+   (* ENTRY *)
+   'CREATE TABLE ENTRY ('+LineEnding+
+   '    ID               BIGINT NOT NULL, '+LineEnding+
+   '    ENTRIES_TYPE_ID  BIGINT NOT NULL, '+LineEnding+
+   '    TITLE            VARCHAR(100) NOT NULL, '+LineEnding+
+   '    DATE_BEGIN       TIMESTAMP NOT NULL, '+LineEnding+
+   '    DATE_END         TIMESTAMP NOT NULL, '+LineEnding+
+   '    STATIONS_NUMBER  BIGINT, '+LineEnding+
+   '    DATE_ADDED       TIMESTAMP NOT NULL, '+LineEnding+
+   '    DATE_UPDATED     TIMESTAMP, '+LineEnding+
+   '    CONSTRAINT ENTRY_PK PRIMARY KEY (ID) '+LineEnding+
+   '); '+LineEnding+
+
+   (* ENTRY_TYPE *)
+   'CREATE TABLE ENTRY_TYPE ('+LineEnding+
+   '    ID           BIGINT NOT NULL, '+LineEnding+
+   '    NAME         VARCHAR(255) NOT NULL, '+LineEnding+
+   '    DESCRIPTION  BLOB SUB_TYPE 1 SEGMENT SIZE 16384, '+LineEnding+
+   '    CONSTRAINT ENTRY_TYPE_PK PRIMARY KEY (ID) '+LineEnding+
+   '); '+LineEnding+
+
+   (* STATION_ENTRY *)
+   'CREATE TABLE STATION_ENTRY ('+LineEnding+
+   '    STATION_ID  BIGINT NOT NULL, '+LineEnding+
+   '    ENTRY_ID    BIGINT NOT NULL '+LineEnding+
+   '); '+LineEnding+
+
+   (* METEO *)
+   'CREATE TABLE METEO ('+LineEnding+
+   '    ID           BIGINT NOT NULL, '+LineEnding+
+   '    TEMPDRY      DECIMAL(5,2), '+LineEnding+
+   '    TEMPWET      DECIMAL(5,2), '+LineEnding+
+   '    PRESSURE     DECIMAL(5,1), '+LineEnding+
+   '    WINDDIR      SMALLINT, '    +LineEnding+
+   '    WINDSPEED    DECIMAL(5,1), '+LineEnding+
+   '    CLOUDCOMMON  SMALLINT, '    +LineEnding+
+   '    CLOUDLOW     SMALLINT, '    +LineEnding+
+   '    CLOUDTYPE    VARCHAR(20), ' +LineEnding+
+   '    VISIBILITY   SMALLINT, '    +LineEnding+
+   '    HUMABS       DECIMAL(4,1), '+LineEnding+
+   '    HUMREL       SMALLINT, '    +LineEnding+
+   '    WAVEHEIGHT   DECIMAL(5,1), '+LineEnding+
+   '    WAVEDIR      SMALLINT, '    +LineEnding+
+   '    WAVEPERIOD   SMALLINT, '    +LineEnding+
+   '    SEASTATE     SMALLINT, '    +LineEnding+
+   '    WEATHER      SMALLINT, '    +LineEnding+
+   '    WATERCOLOR   SMALLINT, '    +LineEnding+
+   '    WATERTRANSP  SMALLINT, '    +LineEnding+
+   '    SURFTEMP     DECIMAL(5,2), '+LineEnding+
+   '    SURFSALT     DECIMAL(5,2) ' +LineEnding+
+   '); '+LineEnding+
+
+   (* PARAMETERS *)
+   'CREATE TABLE DATABASE_TABLES ('+LineEnding+
+   '    ID            BIGINT NOT NULL, '+LineEnding+
+   '    TABLENAME     VARCHAR(255) NOT NULL, '+LineEnding+
+   '    VARIABLENAME  VARCHAR(255) NOT NULL, '+LineEnding+
+   '    DESCRIPTION   VARCHAR(255), '+LineEnding+
+   '    CONSTRAINT DATABASE_TABLES_PK PRIMARY KEY (ID) '+LineEnding+
+   '); '+LineEnding+
+
+   'ALTER TABLE STATION ADD CONSTRAINT UNQ1_STATION UNIQUE (LATITUDE,LONGITUDE,DATEANDTIME,CAST_NUMBER,STVERSION); '+LineEnding+
+   'ALTER TABLE METEO ADD CONSTRAINT FK_METEO FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE ENTRY ADD CONSTRAINT FK_ENTRY FOREIGN KEY (ENTRIES_TYPE_ID) REFERENCES ENTRY_TYPE (ID); '+LineEnding+
+   'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_1 FOREIGN KEY (STATION_ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_2 FOREIGN KEY (ENTRY_ID) REFERENCES ENTRY (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+
+   'COMMIT WORK '+LineEnding+
+   'SET TERM ; '+LineEnding;
+
+begin
+
+// showmessage(ScriptText);
+ try
+   DB:=TIBConnection.Create(nil);
+   TR:=TSQLTransaction.Create(nil);
+   ST:=TSQLScript.Create(nil);
+
+    DB.Transaction:=TR;
+    TR.Database:=DB;
+    ST.Transaction:=TR;
+    ST.Database:=DB;
+    ST.CommentsInSQL:=false;
+
+    //DB.DatabaseName:=(dbname);
+    DB.DatabaseName:='c:\Users\ako071\AK\OceanShell-GIT\OceanShell\databases\WOD18.fdb';
+    DB.UserName:='SYSDBA';
+    DB.Password:='masterkey';
+     With DB.Params do begin
+      Clear;
+       Add('SET SQL DIALECT 3');
+       Add('SET NAMES UTF8');
+       Add('PAGE_SIZE 16384');
+       Add('DEFAULT CHARACTER SET UTF8 COLLATION UTF8');
+     end;
+    DB.CreateDB;
+    DB.Connected:=False;
+    DB.LoginPrompt:=False;
+    DB.Open;
+
+    ST.Script.Text:=ScriptText;
+    ST.UseCommit:=true;
+    ST.UseSetTerm:=true; // for Firebird ONLY
+    ST.CommentsInSQL:=false;
+     try
+      ST.Execute;
+      TR.Commit;
+     except
+      on E: EDataBaseError do begin
+        ShowMessage('Error running script: '+E.Message);
+        TR.Rollback;
+      end;
+     end;
+ finally
+  ST.Free;
+  TR.Free;
+  DB.Free;
+ end;
+
+end;
+
+
+
+
 procedure TfrmloadWOD18.btnPreprocessingClick(Sender: TObject);
 var
-i: integer;
+i,mik: integer;
 StInFile,StInDataset:integer;
 sym:char;
 PathSource,FileForRead,PathOut,FileOut:string;
@@ -113,14 +276,21 @@ begin
 {FLB}end;    {end files processing}
 
     //maximum variable code in WOD18 seems to be 43 (table 3 in user manual)
+    memo1.Lines.Add('');
+    memo1.Lines.Add('#'+#9+'VarCode'+#9+'Stations with variable');
+
     writeln(f_statistics, '');
-    writeln(f_statistics, 'VarCode',#9,'Stations with variable');
+    writeln(f_statistics, '#',#9,'VarCode',#9,'StationsWithVariable');
+
+      mik:=0;
     for i:=1 to 50 do begin
     if VarCount_arr[i]<>0 then begin
-       memo1.Lines.Add(inttostr(i)+#9+inttostr(VarCount_arr[i]));
-       writeln(f_statistics,inttostr(i),#9,inttostr(VarCount_arr[i]));
+      mik:=mik+1;
+      memo1.Lines.Add(inttostr(mik)+#9+inttostr(i)+#9+inttostr(VarCount_arr[i]));
+      writeln(f_statistics,inttostr(mik),#9,inttostr(i),#9,inttostr(VarCount_arr[i]));
     end;
     end;
+
     memo1.Lines.Add('StInDataset='+inttostr(StInDataset));
     writeln(f_statistics,'StInDataset=',inttostr(StInDataset));
 

@@ -116,6 +116,8 @@ const ScriptText=
 
 begin
 
+
+
 // showmessage(ScriptText);
  try
    DB:=TIBConnection.Create(nil);
@@ -128,7 +130,7 @@ begin
     ST.Database:=DB;
     ST.CommentsInSQL:=false;
 
-    DB.DatabaseName:=(dbname);
+    //DB.DatabaseName:=(dbname);
     DB.UserName:='SYSDBA';
     DB.Password:='masterkey';
      With DB.Params do begin

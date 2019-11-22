@@ -694,6 +694,7 @@ msgid "Download into DB"
 msgstr ""
 
 #: tfrmloadglodap_2019_v2_product.groupbox2.caption
+msgctxt "tfrmloadglodap_2019_v2_product.groupbox2.caption"
 msgid "Auxiliary procedures"
 msgstr ""
 
@@ -719,6 +720,10 @@ msgctxt "tfrmloaditp.chkwrite.caption"
 msgid "Write"
 msgstr ""
 
+#: tfrmloadwod18.btncreatewod.caption
+msgid "Create WOD"
+msgstr ""
+
 #: tfrmloadwod18.btnpreprocessing.caption
 msgid "btnPreprocessing"
 msgstr ""
@@ -729,6 +734,11 @@ msgstr ""
 
 #: tfrmloadwod18.checkbox1.caption
 msgid "Show output details"
+msgstr ""
+
+#: tfrmloadwod18.groupbox1.caption
+msgctxt "tfrmloadwod18.groupbox1.caption"
+msgid "Auxiliary procedures"
 msgstr ""
 
 #: tfrmosmain.btnadd.caption
