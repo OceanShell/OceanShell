@@ -5,7 +5,7 @@ unit dm;
 interface
 
 uses
-  Classes, SysUtils, Dialogs, Controls, IBConnection, sqldb, BufDataset;
+  Classes, SysUtils, Dialogs, Controls, IBConnection, sqldb, BufDataset, db;
 
 type
 

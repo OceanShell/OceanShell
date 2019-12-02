@@ -1,0 +1,7 @@
+{"version":1,"strings":[
+{"hash":21376,"name":"tfrmmap.caption","sourcebytes":[77,97,112],"value":"Map"},
+{"hash":488320,"name":"tfrmmap.pmap.caption","sourcebytes":[112,109,97,112],"value":"pmap"},
+{"hash":106991073,"name":"tfrmmap.toolbar1.caption","sourcebytes":[84,111,111,108,66,97,114,49],"value":"ToolBar1"},
+{"hash":43,"name":"tfrmmap.toolbutton1.caption","sourcebytes":[43],"value":"+"},
+{"hash":45,"name":"tfrmmap.toolbutton2.caption","sourcebytes":[45],"value":"-"}
+]}

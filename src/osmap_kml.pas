@@ -12,7 +12,6 @@ uses
 
 implementation
 
-{$R *.lfm}
 
 procedure ExportKML_;
 Var

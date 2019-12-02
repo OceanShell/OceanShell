@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 481
+  Left = 347
   Height = 465
-  Top = 368
+  Top = 199
   Width = 900
   Caption = 'OceanShell'
   ClientHeight = 445
@@ -17,7 +17,7 @@ object frmosmain: Tfrmosmain
   OnCreate = FormCreate
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.6.0'
   object Memo1: TMemo
     Left = 552
     Height = 49
@@ -343,14 +343,22 @@ object frmosmain: Tfrmosmain
           Caption = 'Station ID'
           ClientHeight = 47
           ClientWidth = 210
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
           TabOrder = 3
           object seIDMin: TSpinEdit
             Left = 16
             Height = 21
             Top = 10
             Width = 82
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
             MaxValue = 100000000
             MinValue = 1
+            ParentFont = False
             TabOrder = 0
             Value = 1
           end
@@ -359,8 +367,12 @@ object frmosmain: Tfrmosmain
             Height = 21
             Top = 10
             Width = 82
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
             MaxValue = 100000000
             MinValue = 1
+            ParentFont = False
             TabOrder = 1
             Value = 1
           end
@@ -433,17 +445,30 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton1: TToolButton
             Left = 73
-            Height = 5
+            Height = 22
             Top = 0
             Caption = 'ToolButton1'
             Style = tbsDivider
+          end
+          object pSelectedDataGap: TPanel
+            Left = 129
+            Height = 22
+            Top = 0
+            Width = 169
+            BevelOuter = bvNone
+            TabOrder = 0
+          end
+          object btnMap: TToolButton
+            Left = 298
+            Top = 0
+            Action = aMap
           end
         end
         object DBGridPlatform: TDBGrid
           Left = 0
           Height = 351
           Top = 22
-          Width = 887
+          Width = 892
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
@@ -533,14 +558,6 @@ object frmosmain: Tfrmosmain
           OnCellClick = DBGridPlatformCellClick
           OnKeyUp = DBGridPlatformKeyUp
           OnTitleClick = DBGridPlatformTitleClick
-        end
-        object Splitter1: TSplitter
-          Left = 887
-          Height = 351
-          Top = 22
-          Width = 5
-          Align = alRight
-          ResizeAnchor = akRight
         end
       end
     end
@@ -2337,10 +2354,14 @@ object frmosmain: Tfrmosmain
     object iTools: TMenuItem
       Caption = 'Tools'
       object iMap: TMenuItem
+        Action = aMap
         Caption = 'Map'
+        OnClick = aMapExecute
+      end
+      object iMapKML: TMenuItem
+        Caption = 'Map [KML]'
         Enabled = False
-        ImageIndex = 984
-        OnClick = iMapClick
+        OnClick = iMapKMLClick
       end
     end
     object iStatistics: TMenuItem
@@ -34382,6 +34403,16 @@ object frmosmain: Tfrmosmain
       Caption = 'All profiles'
       ImageIndex = 6
       OnClick = iProfilesAllClick
+    end
+  end
+  object AL1: TActionList
+    Images = IL1
+    left = 800
+    object aMap: TAction
+      Category = 'Tools'
+      Enabled = False
+      ImageIndex = 984
+      OnExecute = aMapExecute
     end
   end
 end

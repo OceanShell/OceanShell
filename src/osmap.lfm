@@ -1,0 +1,51 @@
+object frmmap: Tfrmmap
+  Left = 465
+  Height = 391
+  Top = 197
+  Width = 509
+  Caption = 'Map'
+  ClientHeight = 391
+  ClientWidth = 509
+  OnClose = FormClose
+  OnCreate = FormCreate
+  LCLVersion = '2.0.6.0'
+  object pmap: TPanel
+    Left = 0
+    Height = 391
+    Top = 0
+    Width = 482
+    Align = alClient
+    BevelOuter = bvNone
+    Caption = 'pmap'
+    ParentFont = False
+    TabOrder = 0
+  end
+  object ToolBar1: TToolBar
+    Left = 482
+    Height = 391
+    Top = 0
+    Width = 27
+    Align = alRight
+    Caption = 'ToolBar1'
+    EdgeBorders = [ebLeft]
+    Images = frmosmain.IL1
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 1
+    object btnZoomIn: TToolButton
+      Left = 3
+      Hint = 'Zoom In'
+      Top = 0
+      ImageIndex = 998
+      OnClick = btnZoomInClick
+    end
+    object btnZoomOut: TToolButton
+      Left = 3
+      Hint = 'Zoom Out'
+      Top = 22
+      ImageIndex = 999
+      OnClick = btnZoomOutClick
+    end
+  end
+end
