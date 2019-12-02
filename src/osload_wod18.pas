@@ -39,7 +39,7 @@ var
   frmloadWOD18: TfrmloadWOD18;
   mik_stTotal:integer;
   VarCount_arr :array [1..50] of integer;    //count variables appearance
-  f_dat, f_statistics: text;
+  f_dat, f_statistics, f_station: text;
 
 implementation
 
@@ -59,193 +59,40 @@ end;
 
 
 
-procedure TfrmloadWOD18.btnCreateWODClick(Sender: TObject);
-Var
-DB:TIBConnection;
-TR:TSQLTransaction;
-ST:TSQLScript;
-
-(* Script for main tables *)
-const ScriptText=
-   (* STATION *)
-   'CREATE TABLE STATION ('+LineEnding+
-   '    ID                  BIGINT NOT NULL, '+LineEnding+
-   '    LATITUDE            DECIMAL(8,5) NOT NULL, '+LineEnding+
-   '    LONGITUDE           DECIMAL(9,5) NOT NULL, '+LineEnding+
-   '    DATEANDTIME         TIMESTAMP NOT NULL, '+LineEnding+
-   '    BOTTOMDEPTH         INTEGER, '+LineEnding+
-   '    LASTLEVEL_M         INTEGER, '+LineEnding+
-   '    LASTLEVEL_DBAR      INTEGER, '+LineEnding+
-   '    CRUISE_ID           BIGINT NOT NULL, '+LineEnding+
-   '    INSTRUMENT_ID       BIGINT NOT NULL, '+LineEnding+
-   '    ST_NUMBER_ORIGIN    VARCHAR(50), '+LineEnding+
-   '    ST_ID_ORIGIN        BIGINT, '+LineEnding+
-   '    CAST_NUMBER         SMALLINT DEFAULT 1 NOT NULL, '+LineEnding+
-   '    QCFLAG              SMALLINT NOT NULL, '+LineEnding+
-   '    STVERSION           SMALLINT NOT NULL, '+LineEnding+
-   '    MERGED              SMALLINT DEFAULT 0 NOT NULL, '+LineEnding+
-   '    DATE_ADDED          TIMESTAMP NOT NULL, '+LineEnding+
-   '    DATE_UPDATED        TIMESTAMP, '+LineEnding+
-   '    CONSTRAINT STATION_PK PRIMARY KEY (ID) '+LineEnding+
-   '); '+LineEnding+
-
-   //   '    SOURCE_ID           BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-//   '    COUNTRY_ID          BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-//   '    PLATFORM_ID         BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-   //   '    INSTRUMENT_ID       BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-
-   (* ENTRY *)
-   'CREATE TABLE ENTRY ('+LineEnding+
-   '    ID               BIGINT NOT NULL, '+LineEnding+
-   '    ENTRIES_TYPE_ID  BIGINT NOT NULL, '+LineEnding+
-   '    TITLE            VARCHAR(100) NOT NULL, '+LineEnding+
-   '    DATE_BEGIN       TIMESTAMP NOT NULL, '+LineEnding+
-   '    DATE_END         TIMESTAMP NOT NULL, '+LineEnding+
-   '    STATIONS_NUMBER  BIGINT, '+LineEnding+
-   '    DATE_ADDED       TIMESTAMP NOT NULL, '+LineEnding+
-   '    DATE_UPDATED     TIMESTAMP, '+LineEnding+
-   '    CONSTRAINT ENTRY_PK PRIMARY KEY (ID) '+LineEnding+
-   '); '+LineEnding+
-
-   (* ENTRY_TYPE *)
-   'CREATE TABLE ENTRY_TYPE ('+LineEnding+
-   '    ID           BIGINT NOT NULL, '+LineEnding+
-   '    NAME         VARCHAR(255) NOT NULL, '+LineEnding+
-   '    DESCRIPTION  BLOB SUB_TYPE 1 SEGMENT SIZE 16384, '+LineEnding+
-   '    CONSTRAINT ENTRY_TYPE_PK PRIMARY KEY (ID) '+LineEnding+
-   '); '+LineEnding+
-
-   (* STATION_ENTRY *)
-   'CREATE TABLE STATION_ENTRY ('+LineEnding+
-   '    STATION_ID  BIGINT NOT NULL, '+LineEnding+
-   '    ENTRY_ID    BIGINT NOT NULL '+LineEnding+
-   '); '+LineEnding+
-
-   (* METEO *)
-   'CREATE TABLE METEO ('+LineEnding+
-   '    ID           BIGINT NOT NULL, '+LineEnding+
-   '    TEMPDRY      DECIMAL(5,2), '+LineEnding+
-   '    TEMPWET      DECIMAL(5,2), '+LineEnding+
-   '    PRESSURE     DECIMAL(5,1), '+LineEnding+
-   '    WINDDIR      SMALLINT, '    +LineEnding+
-   '    WINDSPEED    DECIMAL(5,1), '+LineEnding+
-   '    CLOUDCOMMON  SMALLINT, '    +LineEnding+
-   '    CLOUDLOW     SMALLINT, '    +LineEnding+
-   '    CLOUDTYPE    VARCHAR(20), ' +LineEnding+
-   '    VISIBILITY   SMALLINT, '    +LineEnding+
-   '    HUMABS       DECIMAL(4,1), '+LineEnding+
-   '    HUMREL       SMALLINT, '    +LineEnding+
-   '    WAVEHEIGHT   DECIMAL(5,1), '+LineEnding+
-   '    WAVEDIR      SMALLINT, '    +LineEnding+
-   '    WAVEPERIOD   SMALLINT, '    +LineEnding+
-   '    SEASTATE     SMALLINT, '    +LineEnding+
-   '    WEATHER      SMALLINT, '    +LineEnding+
-   '    WATERCOLOR   SMALLINT, '    +LineEnding+
-   '    WATERTRANSP  SMALLINT, '    +LineEnding+
-   '    SURFTEMP     DECIMAL(5,2), '+LineEnding+
-   '    SURFSALT     DECIMAL(5,2) ' +LineEnding+
-   '); '+LineEnding+
-
-   (* PARAMETERS *)
-   'CREATE TABLE DATABASE_TABLES ('+LineEnding+
-   '    ID            BIGINT NOT NULL, '+LineEnding+
-   '    TABLENAME     VARCHAR(255) NOT NULL, '+LineEnding+
-   '    VARIABLENAME  VARCHAR(255) NOT NULL, '+LineEnding+
-   '    DESCRIPTION   VARCHAR(255), '+LineEnding+
-   '    CONSTRAINT DATABASE_TABLES_PK PRIMARY KEY (ID) '+LineEnding+
-   '); '+LineEnding+
-
-   'ALTER TABLE STATION ADD CONSTRAINT UNQ1_STATION UNIQUE (LATITUDE,LONGITUDE,DATEANDTIME,CAST_NUMBER,STVERSION); '+LineEnding+
-   'ALTER TABLE METEO ADD CONSTRAINT FK_METEO FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-   'ALTER TABLE ENTRY ADD CONSTRAINT FK_ENTRY FOREIGN KEY (ENTRIES_TYPE_ID) REFERENCES ENTRY_TYPE (ID); '+LineEnding+
-   'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_1 FOREIGN KEY (STATION_ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-   'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_2 FOREIGN KEY (ENTRY_ID) REFERENCES ENTRY (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-
-   'COMMIT WORK '+LineEnding+
-   'SET TERM ; '+LineEnding;
-
-begin
-
-// showmessage(ScriptText);
- try
-   DB:=TIBConnection.Create(nil);
-   TR:=TSQLTransaction.Create(nil);
-   ST:=TSQLScript.Create(nil);
-
-    DB.Transaction:=TR;
-    TR.Database:=DB;
-    ST.Transaction:=TR;
-    ST.Database:=DB;
-    ST.CommentsInSQL:=false;
-
-    //DB.DatabaseName:=(dbname);
-    DB.DatabaseName:='c:\Users\ako071\AK\OceanShell-GIT\OceanShell\databases\WOD18.fdb';
-    DB.UserName:='SYSDBA';
-    DB.Password:='masterkey';
-     With DB.Params do begin
-      Clear;
-       Add('SET SQL DIALECT 3');
-       Add('SET NAMES UTF8');
-       Add('PAGE_SIZE 16384');
-       Add('DEFAULT CHARACTER SET UTF8 COLLATION UTF8');
-     end;
-    DB.CreateDB;
-    DB.Connected:=False;
-    DB.LoginPrompt:=False;
-    DB.Open;
-
-    ST.Script.Text:=ScriptText;
-    ST.UseCommit:=true;
-    ST.UseSetTerm:=true; // for Firebird ONLY
-    ST.CommentsInSQL:=false;
-     try
-      ST.Execute;
-      TR.Commit;
-     except
-      on E: EDataBaseError do begin
-        ShowMessage('Error running script: '+E.Message);
-        TR.Rollback;
-      end;
-     end;
- finally
-  ST.Free;
-  TR.Free;
-  DB.Free;
- end;
-
-end;
-
-
-
-
 procedure TfrmloadWOD18.btnPreprocessingClick(Sender: TObject);
 var
 i,mik: integer;
 StInFile,StInDataset:integer;
 sym:char;
+StrOut:string;
 PathSource,FileForRead,PathOut,FileOut:string;
 
 
 begin
 
    PathOut:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\Output\';
+
    FileOut:=PathOut+'Statistics.dat';
+   StrOut:= 'Cast#'+#9+'Cast#File'+#9+'WOD_cast_num'+#9+'DateTime'+
+   #9+'Latitude'+#9+'Longitude'+#9+'VarNum'+#9+'VarCodes';
    AssignFile(f_statistics,FileOut);
    rewrite(f_statistics);
-   writeln(f_statistics,'Cast#',
-   #9,'Cast#File',
-   #9,'WOD_cast_num',
-   #9,'DateTime',
-   #9,'Latitude',
-   #9,'Longitude',
-   #9,'VarNum',
-   #9,'VarCodes');
+   writeln(f_statistics,StrOut);
+
+   FileOut:=PathOut+'Station.dat';
+   StrOut:='ID'+#9+'LATITUDE'+#9+'LONGITUDE'+#9+'DATEANDTIME'+#9+'BOTTOMDEPTH'
+   +#9+'LASTLEV_M'+#9+'LASTLEV_DBAR'+#9+'CRUISE_ID'+#9+'INSTRUMENT_ID'
+   +#9+'ST_NUM_ORIGIN'+#9+'ST_ID_ORIGIN'+#9+'CAST_NUMBER'
+   +#9+'QCFLAG'+#9+'STVERSION'+#9+'MERGED'+#9+'DATE_ADDED'+#9+'DATE_UPDATED';
+   AssignFile(f_station,FileOut);
+   rewrite(f_station);
+   writeln(f_station,StrOut);
 
 
 
 
-   //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
-   PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
+   PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
+   //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
    FileListBox1.Directory:=PathSource;
 
       for i:=1 to 50 do VarCount_arr[i]:=0;
@@ -295,6 +142,7 @@ begin
     writeln(f_statistics,'StInDataset=',inttostr(StInDataset));
 
     closefile(f_statistics);
+    closefile(f_station);
 end;
 
 
@@ -369,6 +217,7 @@ begin
     wst:=trim(wst);
     mik_st:=mik_st+1;  //count stations in file
     mik_stTotal:=mik_stTotal+1;  //count stations in all files
+    absnum:=mik_stTotal;
 
     {...find C in the first position inside station string}
      //for i:=2 to length(wst) do begin
@@ -643,28 +492,29 @@ begin
 
 
 {memo}if checkbox1.Checked then begin
-   memo1.Lines.Add(inttostr(OCLStNum)
-    +#9+inttostr(absnum)
+   memo1.Lines.Add(inttostr(absnum)
+    +#9+inttostr(OCLStNum)
     +#9+inttostr(StFlag)
     +#9+floattostr(StLat)
     +#9+floattostr(StLon)
     +#9+datetostr(StDateTime)
     +#9+timetostr(StDateTime)
-    +#9+StSource
-    +#9+inttostr(StVersion)
-    +#9+CountryName
-    +#9+ShipName
-    +#9+inttostr(StDepthSource)
-    +#9+StCountryCode
-    +#9+inttostr(OCLShipCode)+' -> '+NODCShipCode
-    +#9+OrStNum
-    +#9+inttostr(StProjectCode)
-    +#9+inttostr(StInstituteCode)
-    +#9+inttostr(TSProbeType)
-    +#9+inttostr(OCLStNum)
-    +#9+VesselCruiseID);
+//    +#9+StSource
+//    +#9+inttostr(StVersion)
+//    +#9+CountryName
+//    +#9+ShipName
+//    +#9+inttostr(StDepthSource)
+//    +#9+StCountryCode
+//    +#9+inttostr(OCLShipCode)+' -> '+NODCShipCode
+//    +#9+OrStNum
+//    +#9+inttostr(StProjectCode)
+//    +#9+inttostr(StInstituteCode)
+//    +#9+inttostr(TSProbeType)
+//    +#9+inttostr(OCLStNum)
+//    +#9+VesselCruiseID
+    );
 
-   memo2.Lines.Add(
+   {memo2.Lines.Add(
         vartostr(WaterColor)
     +#9+vartostr(WaterTransp)
     +#9+vartostr(WaveDir)
@@ -682,7 +532,7 @@ begin
     +#9+vartostr(Visibility)
     +#9+vartostr(AbsHum)
     +#9+vartostr(SurfTemp)
-    +#9+vartostr(SurfSalt));
+    +#9+vartostr(SurfSalt));}
 {memo}end;
 
 //file output
@@ -882,8 +732,6 @@ begin
 end;
 
 
-
-
 procedure TfrmloadWOD18.ConvertToFloat(Str:string; var ParVal:real);
     var
      PF,TF,RB,k :integer;
@@ -903,6 +751,508 @@ procedure TfrmloadWOD18.ConvertToFloat(Str:string; var ParVal:real);
        end;
        if (SF='-') then ParVal:=ErrVal;
     end;
+
+
+
+procedure TfrmloadWOD18.btnCreateWODClick(Sender: TObject);
+Var
+DB:TIBConnection;
+TR:TSQLTransaction;
+ST:TSQLScript;
+
+(* Script for main tables *)
+const ScriptText=
+   (* STATION *)
+   'CREATE TABLE STATION ('+LineEnding+
+   '    ID                  BIGINT NOT NULL, '+LineEnding+
+   '    LATITUDE            DECIMAL(8,5) NOT NULL, '+LineEnding+
+   '    LONGITUDE           DECIMAL(9,5) NOT NULL, '+LineEnding+
+   '    DATEANDTIME         TIMESTAMP NOT NULL, '+LineEnding+
+   '    BOTTOMDEPTH         INTEGER, '+LineEnding+
+   '    LASTLEVEL_M         INTEGER, '+LineEnding+
+   '    LASTLEVEL_DBAR      INTEGER, '+LineEnding+
+   '    CRUISE_ID           BIGINT NOT NULL, '+LineEnding+
+   '    INSTRUMENT_ID       BIGINT NOT NULL, '+LineEnding+
+   '    ST_NUMBER_ORIGIN    VARCHAR(50), '+LineEnding+
+   '    ST_ID_ORIGIN        BIGINT, '+LineEnding+
+   '    CAST_NUMBER         SMALLINT DEFAULT 1 NOT NULL, '+LineEnding+
+   '    QCFLAG              SMALLINT NOT NULL, '+LineEnding+
+   '    STVERSION           SMALLINT NOT NULL, '+LineEnding+
+   '    MERGED              SMALLINT DEFAULT 0 NOT NULL, '+LineEnding+
+   '    DATE_ADDED          TIMESTAMP NOT NULL, '+LineEnding+
+   '    DATE_UPDATED        TIMESTAMP, '+LineEnding+
+   '    CONSTRAINT STATION_PK PRIMARY KEY (ID) '+LineEnding+
+   '); '+LineEnding+
+
+   //   '    SOURCE_ID           BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+//   '    COUNTRY_ID          BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+//   '    PLATFORM_ID         BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+   //   '    INSTRUMENT_ID       BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
+
+   (* ENTRY *)
+   'CREATE TABLE ENTRY ('+LineEnding+
+   '    ID               BIGINT NOT NULL, '+LineEnding+
+   '    ENTRIES_TYPE_ID  BIGINT NOT NULL, '+LineEnding+
+   '    TITLE            VARCHAR(100) NOT NULL, '+LineEnding+
+   '    DATE_BEGIN       TIMESTAMP NOT NULL, '+LineEnding+
+   '    DATE_END         TIMESTAMP NOT NULL, '+LineEnding+
+   '    STATIONS_NUMBER  BIGINT, '+LineEnding+
+   '    DATE_ADDED       TIMESTAMP NOT NULL, '+LineEnding+
+   '    DATE_UPDATED     TIMESTAMP, '+LineEnding+
+   '    CONSTRAINT ENTRY_PK PRIMARY KEY (ID) '+LineEnding+
+   '); '+LineEnding+
+
+   (* ENTRY_TYPE *)
+   'CREATE TABLE ENTRY_TYPE ('+LineEnding+
+   '    ID           BIGINT NOT NULL, '+LineEnding+
+   '    NAME         VARCHAR(255) NOT NULL, '+LineEnding+
+   '    DESCRIPTION  BLOB SUB_TYPE 1 SEGMENT SIZE 16384, '+LineEnding+
+   '    CONSTRAINT ENTRY_TYPE_PK PRIMARY KEY (ID) '+LineEnding+
+   '); '+LineEnding+
+
+   (* STATION_ENTRY *)
+   'CREATE TABLE STATION_ENTRY ('+LineEnding+
+   '    STATION_ID  BIGINT NOT NULL, '+LineEnding+
+   '    ENTRY_ID    BIGINT NOT NULL '+LineEnding+
+   '); '+LineEnding+
+
+   (* METEO *)
+   'CREATE TABLE METEO ('+LineEnding+
+   '    ID           BIGINT NOT NULL, '+LineEnding+
+   '    TEMPDRY      DECIMAL(5,2), '+LineEnding+
+   '    TEMPWET      DECIMAL(5,2), '+LineEnding+
+   '    PRESSURE     DECIMAL(5,1), '+LineEnding+
+   '    WINDDIR      SMALLINT, '    +LineEnding+
+   '    WINDSPEED    DECIMAL(5,1), '+LineEnding+
+   '    CLOUDCOMMON  SMALLINT, '    +LineEnding+
+   '    CLOUDLOW     SMALLINT, '    +LineEnding+
+   '    CLOUDTYPE    VARCHAR(20), ' +LineEnding+
+   '    VISIBILITY   SMALLINT, '    +LineEnding+
+   '    HUMABS       DECIMAL(4,1), '+LineEnding+
+   '    HUMREL       SMALLINT, '    +LineEnding+
+   '    WAVEHEIGHT   DECIMAL(5,1), '+LineEnding+
+   '    WAVEDIR      SMALLINT, '    +LineEnding+
+   '    WAVEPERIOD   SMALLINT, '    +LineEnding+
+   '    SEASTATE     SMALLINT, '    +LineEnding+
+   '    WEATHER      SMALLINT, '    +LineEnding+
+   '    WATERCOLOR   SMALLINT, '    +LineEnding+
+   '    WATERTRANSP  SMALLINT, '    +LineEnding+
+   '    SURFTEMP     DECIMAL(5,2), '+LineEnding+
+   '    SURFSALT     DECIMAL(5,2) ' +LineEnding+
+   '); '+LineEnding+
+
+   (* PARAMETERS *)
+   'CREATE TABLE DATABASE_TABLES ('+LineEnding+
+   '    ID            BIGINT NOT NULL, '+LineEnding+
+   '    TABLENAME     VARCHAR(255) NOT NULL, '+LineEnding+
+   '    VARIABLENAME  VARCHAR(255) NOT NULL, '+LineEnding+
+   '    DESCRIPTION   VARCHAR(255), '+LineEnding+
+   '    CONSTRAINT DATABASE_TABLES_PK PRIMARY KEY (ID) '+LineEnding+
+   '); '+LineEnding+
+
+   (* 1	P_TEMPERATURE_OSD *)
+      'CREATE TABLE P_TEMPERATURE_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 2	P_SALINITY_OSD *)
+      'CREATE TABLE P_SALINITY_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 3	P_OXYGEN_OSD *)
+      'CREATE TABLE P_OXYGEN_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 4	P_PHOSPHATE_OSD *)
+      'CREATE TABLE P_PHOSPHATE_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 5	P_SILICATE_OSD *)
+      'CREATE TABLE P_SILICATE_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 6	P_NITRATE_OSD *)
+   (* 6	Nitrate and Nitrate+Nitrite *)
+      'CREATE TABLE P_NITRATE_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 7	P_PH_OSD *)
+      'CREATE TABLE P_PH_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 8	P_TCHL_OSD *)
+   (* 8	Total Chlorophyll [Chl] unless specified *)
+      'CREATE TABLE P_TCHL_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 9	P_ALK_OSD *)
+   (* 9	Alkalinity *)
+      'CREATE TABLE P_ALK_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 10 P_PCO2_OSD *)
+   (* 10 Partial pressure of carbon dioxide [pCO2] *)
+      'CREATE TABLE P_PCO2_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 11 P_DIC_OSD *)
+   (* 11 Dissolved Inorganic carbon *)
+      'CREATE TABLE P_DIC_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 12 P_WPRES_OSD *)
+   (* 12 Water pressure *)
+      'CREATE TABLE P_WPRES_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+
+   (* 13 P_H3_OSD *)
+   (* 13   Tritium *)
+      'CREATE TABLE P_H3_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 14 P_HE_OSD *)
+   (* 14   Helium *)
+      'CREATE TABLE P_HE_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+
+   (* 15 P_HE3_OSD *)
+   (* 15   Delta Helium-3 *)
+      'CREATE TABLE P_HE3_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 16 P_C14_OSD *)
+   (* 16   Delta Carbon-14 *)
+      'CREATE TABLE P_C14_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 17 P_C13_OSD *)
+   (* 17 Delta Carbon-13 *)
+      'CREATE TABLE P_C13_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+
+   (* 18 P_ARGON_OSD *)
+      'CREATE TABLE P_ARGON_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 19 P_NEON_OSD *)
+      'CREATE TABLE P_NEON_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 20 P_CFC11_OSD *)
+   (* 20 Chlorofluorocarbon 11 *)
+      'CREATE TABLE P_CFC11_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 21 P_CFC12_OSD *)
+   (* 21 Chlorofluorocarbon 12 *)
+      'CREATE TABLE P_CFC12_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 22 P_CFC113_OSD *)
+   (* 22 Chlorofluorocarbon 113 *)
+      'CREATE TABLE P_CFC113_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+   (* 23 P_O18_OSD *)
+   (* 23 Delta Oxygen-18 *)
+      'CREATE TABLE P_O18_OSD ( '+LineEnding+
+      '   ID             BIGINT NOT NULL, '+LineEnding+
+      '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+      '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+      '   pQF1           SMALLINT, '+LineEnding+
+      '   pQF2           SMALLINT, '+LineEnding+
+      '   sQF            SMALLINT, '+LineEnding+
+      '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+      '   UNITS_ID        BIGINT '+LineEnding+
+      '); '+LineEnding+
+
+
+
+   'ALTER TABLE STATION ADD CONSTRAINT UNQ1_STATION UNIQUE (LATITUDE,LONGITUDE,DATEANDTIME,CAST_NUMBER,STVERSION); '+LineEnding+
+   'ALTER TABLE METEO ADD CONSTRAINT FK_METEO FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE ENTRY ADD CONSTRAINT FK_ENTRY FOREIGN KEY (ENTRIES_TYPE_ID) REFERENCES ENTRY_TYPE (ID); '+LineEnding+
+   'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_1 FOREIGN KEY (STATION_ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_2 FOREIGN KEY (ENTRY_ID) REFERENCES ENTRY (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+
+   'ALTER TABLE P_TEMPERATURE_OSD ADD CONSTRAINT FK_P_TEMPERATURE_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_SALINITY_OSD ADD CONSTRAINT FK_P_SALINITY_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_OXYGEN_OSD ADD CONSTRAINT FK_P_OXYGEN_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_PHOSPHATE_OSD ADD CONSTRAINT FK_P_PHOSPHATE_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_SILICATE_OSD ADD CONSTRAINT FK_P_SILICATE_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_NITRATE_OSD ADD CONSTRAINT FK_P_NITRATE_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_PH_OSD ADD CONSTRAINT FK_P_PH_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_TCHL_OSD ADD CONSTRAINT FK_P_TCHL_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_ALK_OSD ADD CONSTRAINT FK_P_ALK_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_PCO2_OSD ADD CONSTRAINT FK_P_PCO2_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_DIC_OSD ADD CONSTRAINT FK_P_DIC_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_WPRES_OSD ADD CONSTRAINT FK_P_WPRES_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_H3_OSD ADD CONSTRAINT FK_P_H3_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_HE_OSD ADD CONSTRAINT FK_P_HE_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_HE3_OSD ADD CONSTRAINT FK_P_HE3_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_C14_OSD ADD CONSTRAINT FK_P_C14_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_C13_OSD ADD CONSTRAINT FK_P_C13_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_ARGON_OSD ADD CONSTRAINT FK_P_ARGON_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_NEON_OSD ADD CONSTRAINT FK_P_NEON_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_CFC11_OSD ADD CONSTRAINT FK_P_CFC11_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_CFC12_OSD ADD CONSTRAINT FK_P_CFC12_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_CFC113_OSD ADD CONSTRAINT FK_P_CFC113_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE P_O18_OSD ADD CONSTRAINT FK_P_O18_OSD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+
+   'COMMIT WORK '+LineEnding+
+   'SET TERM ; '+LineEnding;
+
+begin
+
+// showmessage(ScriptText);
+ try
+   DB:=TIBConnection.Create(nil);
+   TR:=TSQLTransaction.Create(nil);
+   ST:=TSQLScript.Create(nil);
+
+    DB.Transaction:=TR;
+    TR.Database:=DB;
+    ST.Transaction:=TR;
+    ST.Database:=DB;
+    ST.CommentsInSQL:=false;
+
+    //DB.DatabaseName:=(dbname);
+    DB.DatabaseName:='c:\Users\ako071\AK\OceanShell-GIT\OceanShell\databases\WOD18.fdb';
+    DB.UserName:='SYSDBA';
+    DB.Password:='masterkey';
+     With DB.Params do begin
+      Clear;
+       Add('SET SQL DIALECT 3');
+       Add('SET NAMES UTF8');
+       Add('PAGE_SIZE 16384');
+       Add('DEFAULT CHARACTER SET UTF8 COLLATION UTF8');
+     end;
+    DB.CreateDB;
+    DB.Connected:=False;
+    DB.LoginPrompt:=False;
+    DB.Open;
+
+    ST.Script.Text:=ScriptText;
+    ST.UseCommit:=true;
+    ST.UseSetTerm:=true; // for Firebird ONLY
+    ST.CommentsInSQL:=false;
+     try
+      ST.Execute;
+      TR.Commit;
+     except
+      on E: EDataBaseError do begin
+        ShowMessage('Error running script: '+E.Message);
+        TR.Rollback;
+      end;
+     end;
+ finally
+  ST.Free;
+  TR.Free;
+  DB.Free;
+ end;
+  showmessage('WOD database has been created ');
+end;
+
 
 
 
