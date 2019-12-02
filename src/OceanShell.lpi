@@ -8,6 +8,7 @@
       <MainUnit Value="0"/>
       <Title Value="OceanShell"/>
       <Scaled Value="True"/>
+      <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
       <XPManifest>
@@ -16,7 +17,6 @@
       <Icon Value="0"/>
     </General>
     <i18n>
-      <EnableI18N Value="True"/>
       <OutDir Value="..\languages"/>
     </i18n>
     <BuildModes Count="1">
@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="18">
+    <Units Count="23">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -137,7 +137,7 @@
       <Unit15>
         <Filename Value="osmap_kml.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmexport_KML"/>
+        <ComponentName Value="frmmap"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit15>
@@ -156,6 +156,29 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="osload_WOD18"/>
       </Unit17>
+      <Unit18>
+        <Filename Value="osmap_datastreams.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="osmap_geometry.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="osmap_globctrl.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="osmap_wkt.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="osmap.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmmap"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit22>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -184,6 +207,11 @@
         </Win32>
       </Options>
     </Linking>
+    <Other>
+      <Verbosity>
+        <ShowDebugInfo Value="True"/>
+      </Verbosity>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="4">

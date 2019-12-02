@@ -54,6 +54,7 @@
 {"hash":23604,"name":"tfrmosmain.iload_wod.caption","sourcebytes":[87,79,68],"value":"WOD"},
 {"hash":5989939,"name":"tfrmosmain.itools.caption","sourcebytes":[84,111,111,108,115],"value":"Tools"},
 {"hash":21376,"name":"tfrmosmain.imap.caption","sourcebytes":[77,97,112],"value":"Map"},
+{"hash":39826333,"name":"tfrmosmain.imapkml.caption","sourcebytes":[77,97,112,32,91,75,77,76,93],"value":"Map [KML]"},
 {"hash":185533731,"name":"tfrmosmain.istatistics.caption","sourcebytes":[83,116,97,116,105,115,116,105,99,115],"value":"Statistics"},
 {"hash":55510371,"name":"tfrmosmain.idbstatistics.caption","sourcebytes":[68,66,32,83,116,97,116,105,115,116,105,99,115],"value":"DB Statistics"},
 {"hash":322608,"name":"tfrmosmain.ihelp.caption","sourcebytes":[72,101,108,112],"value":"Help"},

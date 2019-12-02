@@ -7,8 +7,7 @@ interface
 uses
   Windows, SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls,
   Menus, Dialogs, ActnList, StdCtrls, INIFiles, ExtCtrls, DateUtils, sqldb, DB,
-  SHFolder, LCLTranslator, Buttons, DBGrids, Spin, ComboEx, DateTimePicker,
-  Process;
+  LCLTranslator, Buttons, DBGrids, Spin, DateTimePicker, Process, LResources;
 
 type
 
@@ -24,6 +23,8 @@ type
   { Tfrmosmain }
 
   Tfrmosmain = class(TForm)
+    aMap: TAction;
+    AL1: TActionList;
     btnadd: TToolButton;
     btncancel: TToolButton;
     btndelete: TToolButton;
@@ -42,6 +43,8 @@ type
     MenuItem2: TMenuItem;
     iLoad_WOD18: TMenuItem;
     iLoad_WOD: TMenuItem;
+    iMap: TMenuItem;
+    pSelectedDataGap: TPanel;
     PM1: TPopupMenu;
     seIDMax: TSpinEdit;
     seLonMin: TFloatSpinEdit;
@@ -54,7 +57,7 @@ type
     iLoad: TMenuItem;
     iTools: TMenuItem;
     iLoad_ITP: TMenuItem;
-    iMap: TMenuItem;
+    iMapKML: TMenuItem;
     MenuItem1: TMenuItem;
     iLoad_GLODAP_2019_v2_product: TMenuItem;
     iKnowledgeDBOpen: TMenuItem;
@@ -67,7 +70,6 @@ type
     PageControl1: TPageControl;
     pnl2: TPanel;
     seIDMin: TSpinEdit;
-    Splitter1: TSplitter;
     StatusBar2: TStatusBar;
     IL2: TImageList;
     SD: TSaveDialog;
@@ -85,10 +87,12 @@ type
     ListBox1: TListBox;
     ToolBar1: TToolBar;
     ToolButton1: TToolButton;
+    btnMap: TToolButton;
     tsMainSelect: TTabSheet;
     tsMainSelectAdvanced: TTabSheet;
     tsMainData: TTabSheet;
 
+    procedure aMapExecute(Sender: TObject);
     procedure btnSelectionClick(Sender: TObject);
     procedure DBGridPlatformCellClick(Column: TColumn);
     procedure DBGridPlatformKeyUp(Sender: TObject; var Key: Word;
@@ -106,12 +110,10 @@ type
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
     procedure iLoad_WODClick(Sender: TObject);
-    procedure iMapClick(Sender: TObject);
+    procedure iMapKMLClick(Sender: TObject);
     procedure iProfilesAllClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
-
-    (*File*)
     procedure iOpenDatabaseClick(Sender: TObject);
 
 
@@ -160,7 +162,9 @@ var
   SLonP_arr:array[0..20000] of real;
   Length_arr:integer;
 
-  frmcodes_open, frmcodesQC_open, frmparametersall_open:boolean;
+  Lar_arr, Lon_arr: array of real; // arrays with cordinates for
+
+  frmcodes_open, frmcodesQC_open, frmparametersall_open, frmmap_open:boolean;
 
 
 const
@@ -176,34 +180,41 @@ implementation
 
 
 uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
-  //loading data
+(* loading data *)
   osload_itp,
   osload_GLODAP_2019_v2_product,
   osload_WOD18,
   loadwod,
-  //export
-  //QC
-  //tools
+(* export *)
+(* QC *)
+(* tools *)
+  osmap,
   osmap_kml,
   osparameters_all,
 
-  //statistics
+(* statistics *)
   osstatistics
-  ;
+;
 
 {$R *.lfm}
-
 
 procedure Tfrmosmain.FormCreate(Sender: TObject);
 begin
 // StatusBar1.Panels[2].Style := psOwnerDraw;
  //ProgressBar1.Parent:=StatusBar1;
+
 end;
 
 
 procedure Tfrmosmain.FormResize(Sender: TObject);
 begin
  //StatusBar1.Panels[1].Width:=Width-(statusbar1.Panels[0].Width+statusbar1.Panels[2].Width+75);
+  pSelectedDataGap.Width:=Toolbar1.width-10-
+                          (btnAdd.Width+
+                           btnDelete.Width+
+                           btnCancel.Width+
+                           btnSave.Width+
+                           btnMap.Width);
 end;
 
 procedure Tfrmosmain.FormShow(Sender: TObject);
@@ -253,8 +264,11 @@ IBName:='';
 
  (* flags on open forms *)
   frmcodes_open:=false; frmcodesQC_open:=false; frmparametersall_open:=false;
+  frmmap_open:=false;
 
-SetFocus;
+ OnResize(Self);
+ SetFocus;
+ Application.ProcessMessages;
 end;
 
 
@@ -340,7 +354,6 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
 end;
 
 
-
 procedure Tfrmosmain.CDSNavigation;
 Var
 ID:integer;
@@ -350,7 +363,7 @@ if (ID=0) or (NavigationOrder=false) then exit;
 
  If NavigationOrder=true then begin
   NavigationOrder:=false; //blocking everthing until previous operations have been completed
- //  if MapOpen       =true then Map.ChangeID;
+   if frmmap_open     =true then frmmap.ChangeID;
  //  if InfoOpen      =true then Info.ChangeID;
  //  if QProfilesOpen =true then QProfiles.ChangeStation(ID);
  //  if DensOpen      =true then QDensity.ChangeDensStation(ID);
@@ -610,6 +623,7 @@ begin
   SLatMin:=90;  SLatMax:=-90;
   SLonMin:=180; SLonMax:=-180;
   SDateMin:=Now;
+
   frmdm.Q.First;
   while not frmdm.Q.EOF do begin
    lat1:=frmdm.Q.FieldByName('LATITUDE').AsFloat;
@@ -625,6 +639,8 @@ begin
 
     frmdm.Q.Next;
   end;
+  frmdm.Q.First;
+
      SCount   :=frmdm.Q.RecordCount;
      if SCount>0 then begin
        with StatusBar3 do begin
@@ -642,7 +658,8 @@ begin
   if SCount>0 then items_enabled:=true else items_enabled:=false;
 
   iDBStatistics.Enabled:=items_enabled;
-  iMap.Enabled:=items_enabled;
+  iMapKML.Enabled:=items_enabled;
+  aMap.Enabled:=items_enabled;
 end;
 
 
@@ -734,7 +751,19 @@ begin
  end;
 end;
 
-procedure Tfrmosmain.iMapClick(Sender: TObject);
+
+procedure Tfrmosmain.aMapExecute(Sender: TObject);
+begin
+ if frmmap_open=true then frmmap.SetFocus else
+    begin
+       frmmap := Tfrmmap.Create(Self);
+       frmmap.Show;
+    end;
+  frmmap_open:=true;
+end;
+
+
+procedure Tfrmosmain.iMapKMLClick(Sender: TObject);
 begin
    ExportKML_;
 end;
@@ -872,6 +901,11 @@ begin
      Ini.Free;
    end;
 end;
+
+
+initialization
+  {$I flags.lrs}
+
 
 end.
 
