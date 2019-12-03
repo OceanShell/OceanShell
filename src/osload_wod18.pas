@@ -40,6 +40,7 @@ var
   mik_stTotal:integer;
   VarCount_arr :array [1..50] of integer;    //count variables appearance
   f_dat, f_statistics, f_station: text;
+  f_temp: text;
 
 implementation
 
@@ -66,6 +67,7 @@ StInFile,StInDataset:integer;
 sym:char;
 StrOut:string;
 PathSource,FileForRead,PathOut,FileOut:string;
+WOD18Var:array[1..45] of string;
 
 
 begin
@@ -88,12 +90,25 @@ begin
    rewrite(f_station);
    writeln(f_station,StrOut);
 
+   FileOut:=PathOut+'TEMPERATURE.dat';
+   StrOut:='ID'+#9+'DBAR'+#9+'M'+#9+'VAL'+#9+'PQF1'
+   +#9+'PQF2'+#9+'SQF'+#9+'BOTTLE_NUMBER'+#9+'UNITS_ID';
+   AssignFile(f_temp,FileOut);
+   rewrite(f_temp);
+   writeln(f_temp,StrOut);
+
 
 
 
    PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
    //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
    FileListBox1.Directory:=PathSource;
+
+   if checkbox1.Checked then
+   memo1.Lines.Add('absnum'+#9+'WODCastNum'+#9+'StFlag'+#9+'StLat'
+      +#9+'StLon'+#9+'DateTime'+#9+'ShipCode');
+
+
 
       for i:=1 to 50 do VarCount_arr[i]:=0;
       mik_stTotal:=0;
@@ -122,7 +137,35 @@ begin
       Application.ProcessMessages;
 {FLB}end;    {end files processing}
 
-    //maximum variable code in WOD18 seems to be 43 (table 3 in user manual)
+
+{..........VARIABLES STATIASTICS..........}
+//maximum variable code in WOD18 is 43 (table 3 in user manual)
+   for i:=1 to 45 do WOD18Var[i]:='RESERVED';
+   WOD18Var[1]:='TEMPERATURE';
+   WOD18Var[2]:='SALINITY';
+   WOD18Var[3]:='OXYGEN';
+   WOD18Var[4]:='PHOSPHATE';
+   WOD18Var[6]:='SILICATE';
+   WOD18Var[8]:='NITRATE';
+   WOD18Var[9]:='PH';
+   WOD18Var[11]:='TCHL';
+   WOD18Var[17]:='ALK';
+   WOD18Var[20]:='PCO2';
+   WOD18Var[21]:='DIC';
+   WOD18Var[25]:='WPRES';
+   WOD18Var[33]:='H3';
+   WOD18Var[34]:='HE';
+   WOD18Var[35]:='HE3';
+   WOD18Var[36]:='C14';
+   WOD18Var[37]:='C13';
+   WOD18Var[38]:='ARGON';
+   WOD18Var[39]:='NEON';
+   WOD18Var[40]:='CFC11';
+   WOD18Var[41]:='CFC12';
+   WOD18Var[42]:='CFC113';
+   WOD18Var[43]:='O18';
+
+
     memo1.Lines.Add('');
     memo1.Lines.Add('#'+#9+'VarCode'+#9+'Stations with variable');
 
@@ -133,8 +176,10 @@ begin
     for i:=1 to 50 do begin
     if VarCount_arr[i]<>0 then begin
       mik:=mik+1;
-      memo1.Lines.Add(inttostr(mik)+#9+inttostr(i)+#9+inttostr(VarCount_arr[i]));
-      writeln(f_statistics,inttostr(mik),#9,inttostr(i),#9,inttostr(VarCount_arr[i]));
+      memo1.Lines.Add(inttostr(mik)+#9+inttostr(i)+#9+inttostr(VarCount_arr[i])
+      +#9+WOD18Var[i]);
+      writeln(f_statistics,inttostr(mik),#9,inttostr(i),#9,inttostr(VarCount_arr[i])
+      ,#9,WOD18Var[i]);
     end;
     end;
 
@@ -143,6 +188,7 @@ begin
 
     closefile(f_statistics);
     closefile(f_station);
+    closefile(f_temp);
 end;
 
 
@@ -151,7 +197,7 @@ procedure TfrmloadWOD18.ConvertOSD(var StInFile:integer);
 var
 k,kb,kL,k_var,mik_line,mik_st,s,k_lev,k_par:integer;
 BNF,SL,line,NC,RC,TF,BSH,SHNC,BBH:integer;
-OCLStNum,StCruise,mEx,ParFlag:integer;
+WODCastNum,WODCruiseNum,mEx,ParFlag:integer;
 levnum,proftype,varnum,qflag,mdatnum,m,varcode,varspcode,OCLShipCode:integer;
 StProjectCode,StInstituteCode,SHCode:integer;
 StDepthSource,DepthErFlag1,DepthErFlag2,ParErFlag1,ParErFlag2:integer;
@@ -182,6 +228,12 @@ StAirTemp, StTWet, StAirPressure, WindDir, WindSpeed,
 CloudCover, CloudType, Visibility, AbsHum,
 WHeight, Wavedir, Waveperiod, Seastate, StWeather, Watercolor,
 WaterTransp, SurfTemp, SurfSalt:Variant;
+
+//ocean.fdb
+Lev_m,Lev_dbar,LastLev_m,LastLev_dbar:real;
+PQF1,PQF2,SQF,BNum,UID:integer; //primary QF1,QF2, secondary QF, Niskin bottle, our unit ID
+OrCastNum:integer;
+
 begin
 
     line:=0;
@@ -228,19 +280,20 @@ begin
    //memo1.Lines.Add(wst);
 
 
+{..........PRIMARY HEADER..........}
 {..........WST analysis..........}
 //(column to read) = (number of symbols for a station length)+ A1(C) + I1(BNF) + I1(BNF)
    NC:=BNF+3;
    BNF:=strtoint(copy(wst,NC,1)); {bytes in WOD unique cast number}
    NC:=NC+1;
-   OCLStNum:=strtoint(copy(wst,NC,BNF));   {WOD unique cast number}
+   WODCastNum:=strtoint(copy(wst,NC,BNF));   {WOD unique cast number identification}
    NC:=NC+BNF;
    StCountryCode:=copy(wst,NC,2);            {country code}
 
    NC:=NC+2;
-   BNF:=strtoint(copy(wst,NC,1)); {bytes in StCruise}
+   BNF:=strtoint(copy(wst,NC,1)); {bytes in Cruise Number}
    NC:=NC+1;
-   StCruise:=strtoint(copy(wst,NC,BNF));  {cruise number}
+   WODCruiseNum:=strtoint(copy(wst,NC,BNF));  {WOD Cruise Number identification}
    VesselCruiseID:=copy(wst,NC,BNF);
    NC:=NC+BNF;
    StYear:=strtoint(copy(wst,NC,4));       {year}
@@ -364,7 +417,7 @@ begin
 {cd}end;
 
 
-    {...secondary header}
+    {...SECONDARY HEADER}
     BNF:=strtoint(copy(wst,NC,1)); {showmessage(inttostr(NC)+'  NewBNF: '+inttostr(BNF));}
 {sh}if BNF>0 then begin
      BNF:=strtoint(copy(wst,NC,1));
@@ -425,6 +478,7 @@ begin
               end;
            end;
       4:  StInstituteCode:=round(SHCodeValue); //Код института
+      5:  OrCastNum:=round(SHCodeValue);       //Cast/Tow number
       7:  OrStNum:=floattostr(SHCodeValue);    //Номер из источника
       10: StDepthSource:=round(SHCodeValue);   //Глубина из источника
       14: WaterColor:=round(SHCodeValue);      //Код цвета воды
@@ -490,27 +544,28 @@ begin
     end;
 
 
-
 {memo}if checkbox1.Checked then begin
    memo1.Lines.Add(inttostr(absnum)
-    +#9+inttostr(OCLStNum)
+    +#9+inttostr(WODCastNum)
     +#9+inttostr(StFlag)
     +#9+floattostr(StLat)
     +#9+floattostr(StLon)
-    +#9+datetostr(StDateTime)
-    +#9+timetostr(StDateTime)
+    +#9+datetimetostr(StDateTime)
+//    +#9+datetostr(StDateTime)
+//    +#9+timetostr(StDateTime)
 //    +#9+StSource
 //    +#9+inttostr(StVersion)
 //    +#9+CountryName
 //    +#9+ShipName
 //    +#9+inttostr(StDepthSource)
 //    +#9+StCountryCode
+    +#9+inttostr(OCLShipCode)
 //    +#9+inttostr(OCLShipCode)+' -> '+NODCShipCode
 //    +#9+OrStNum
 //    +#9+inttostr(StProjectCode)
 //    +#9+inttostr(StInstituteCode)
 //    +#9+inttostr(TSProbeType)
-//    +#9+inttostr(OCLStNum)
+//    +#9+inttostr(WODCastNum)
 //    +#9+VesselCruiseID
     );
 
@@ -535,7 +590,6 @@ begin
     +#9+vartostr(SurfSalt));}
 {memo}end;
 
-//file output
 
    VarAtSt:='';
    for k_par:=1 to VarNum do begin
@@ -547,7 +601,7 @@ begin
 
    writeln(f_statistics,inttostr(mik_stTotal),
    #9,inttostr(mik_st),
-   #9,inttostr(OCLStNum),
+   #9,inttostr(WODCastNum),
    #9,datetimetostr(StDateTime),
    #9,floattostr(StLat),
    #9,floattostr(StLon),
@@ -555,7 +609,7 @@ begin
    #9,VarAtSt);            //variables codes at station
 
 
-     {...Profile Data}
+{..........PROFILE DATA.........}
 {PD}if LevNum>0 then begin
    count_temperature:=0;
    count_salinity:=0;
@@ -571,6 +625,7 @@ begin
    count_NaNi:=0;
    mEx:=0;
 
+    LastLev_m:=-9;
 {p1}for k_lev:=1 to LevNum do begin
      {read in depth}
       NC:=NC+1;
@@ -611,18 +666,45 @@ begin
 
        ParFlag:=0;
       case VarCode_arr[k_par] of
-      1: begin
+      1: begin //TEMPERATURE
          if ParErFlag2>0 then ParFlag:=2;
 
          if ParVal<>-9 then begin
          mEx:=1;
          count_temperature:=count_temperature+1;
-    if CheckBox1.Checked then
-    memo1.Lines.Add('lev temp QF '+#9+floattostr(stLev)+#9+floattostr(ParVal)+#9+floattostr(ParFlag));
+
+         //if CheckBox1.Checked then
+         //memo1.Lines.Add('lev temp QF '+#9+floattostr(stLev)+#9+floattostr(ParVal)+#9+floattostr(ParFlag));
+
+         //TEOS: dbar to meters  ONLY
+         //Lev_m:=declarations_gsw.gsw_z_from_p(Lev_dbar,stlat);
+         //Lev_m:=-Lev_m;
+
+         {m=0- depth to pressure, 1- pressure to depth}
+         Lev_m:=stLev;
+         procedures.Depth_to_Pressure(Lev_m,stLat,0,Lev_dbar);
+
+         StDateTime:=Procedures.DateEncode(StYear,StMonth,StDay,StHour,StMin,MonthErr,TimeErr);
+
+         PQF1:=ParErFlag1;  //??? should be WOD18 QF
+         PQF2:=ParErFlag2;  //should be our QF
+         SQF:=0;            //should be secondary QF
+         BNum:=0;           //should be secondary QF
+         UID:=1;            //our unit ID: Degrees Celsius
+
+         writeln(f_temp,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),#9,inttostr(PQF2),#9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+
          //if Checkbox2.Checked then
          //InsertParameters('P_TEMPERATURE', Absnum, {count_temperature,} stLev, ParVal, ParFlag);
          end;
-         end;
+         end; {1}
+
       2: begin
          if ParErFlag2>0 then ParFlag:=2;
          if ParVal<>-9 then begin
@@ -723,7 +805,33 @@ begin
 
 {p2}end;
 {p1}end;
+     LastLev_m:=StLev;
+     {m=0- depth to pressure, 1- pressure to depth}
+     procedures.Depth_to_Pressure(LastLev_m,stLat,0,LastLev_dbar);
 {PD}end;
+
+
+//output into file
+//STATION
+writeln(f_station,inttostr(absnum),
+#9,floattostr(StLat),
+#9,floattostr(StLon),
+#9,datetimetostr(StDateTime),
+#9,inttostr(StDepthSource),
+#9,floattostr(LastLev_m),           //LASTLEVEL_M
+#9,floattostrF(LastLev_dbar,ffFixed,7,1),        //LASTLEVEL_DBAR
+#9,inttostr(WODCruiseNum),         //CRUISEID
+#9,inttostr(TSProbeType),           //INSTRUMENT_ID
+#9,OrStNum,                         //ST_NUM_ORIGIN
+#9,inttostr(WODCastNum),            //ST_ID_ORIGIN
+#9,inttostr(OrCastNum),             //CAST_NUMBER
+#9,inttostr(0),                     //QCFLAG There is no QF on whole station in WOD
+#9,inttostr(1),                     //STVERSION
+#9,inttostr(0),                    //MERGED
+#9,datetimetostr(NOW),        //DATE_ADDED
+#9,datetimetostr(NOW));      //DATE_UPDATED
+
+
 {WFR}until eof(f_dat); {end of file}
 
      StInFile:=mik_st;
