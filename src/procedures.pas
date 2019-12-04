@@ -33,6 +33,7 @@ procedure ODBPr_RR(level:real; l_arr,p_arr:array of real;    var value:real);
 procedure Potential_Temperature(press,t1,s1:real;var tpot:real);
 Procedure IEOS80(press,t,s:real;var svan,dens:real);
 Procedure Distance(ln0,ln1,lt0,lt1:real; var Dist:real);
+procedure Depth_to_Pressure(z,lt_real:real; m:integer; var press:real);
 Function  Cond2Sal78 (aConductivity, Temp, Press : Double; Var aSalinity: Double) : Boolean;
 
 { Aligning MessageDlg to the center of the active window}
