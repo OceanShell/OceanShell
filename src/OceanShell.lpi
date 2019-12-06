@@ -90,8 +90,9 @@
         <ResourceBaseClass Value="Form"/>
       </Unit6>
       <Unit7>
-        <Filename Value="declarations_gsw.pas"/>
+        <Filename Value="gibbsseawater.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="GibbsSeaWater"/>
       </Unit7>
       <Unit8>
         <Filename Value="declarations_netcdf.pas"/>
