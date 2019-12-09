@@ -44,7 +44,7 @@ var
 
 implementation
 
-uses procedures;
+uses osmain, procedures, GibbsSeaWater;
 
 {$R *.lfm}
 
@@ -100,8 +100,8 @@ begin
 
 
 
-   PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
-   //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
+   //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
+   PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
    FileListBox1.Directory:=PathSource;
 
    if checkbox1.Checked then
@@ -442,6 +442,7 @@ begin
        OCLShipCode:=9999;
        ShipName:='UNKNOWN';
        OrStNum:='';
+       OrCastNum:=1;
 
        StAirTemp:=null; StTWet:=null; StAirPressure:=null; WindDir:=null;
        WindSpeed:=null; CloudCover:=null; CloudType:=null; Visibility:=null;
@@ -658,8 +659,16 @@ begin
       ConvertToFloat(str,ParVal);
       {populate parameter arrays}
       NC:=RC+TF+3;
-                  ParErFlag1:=strtoint(copy(wst,NC,1));     {Par Error Flag}
-      NC:=NC+1;   ParErFlag2:=strtoint(copy(wst,NC,1));     {Par Error Flag Originator's}
+                  ParErFlag1:=strtoint(copy(wst,NC,1));     {Value quality control flag}
+      NC:=NC+1;   ParErFlag2:=strtoint(copy(wst,NC,1));     {Originator's flag}
+
+      //...assign DB QC flags
+      PQF1:=ParErFlag1;  //primary QF1
+      PQF2:=ParErFlag2;  //primary QF1
+      SQF:=0;            //secondary QF
+      BNum:=0;           //'NISKIN bottle number' UNKNOWN in WOD ???
+
+
 {p3}end;
 
       if(SF='-') then ParVal:=-9;
@@ -668,7 +677,6 @@ begin
       case VarCode_arr[k_par] of
       1: begin //TEMPERATURE
          if ParErFlag2>0 then ParFlag:=2;
-
          if ParVal<>-9 then begin
          mEx:=1;
          count_temperature:=count_temperature+1;
@@ -676,27 +684,27 @@ begin
          //if CheckBox1.Checked then
          //memo1.Lines.Add('lev temp QF '+#9+floattostr(stLev)+#9+floattostr(ParVal)+#9+floattostr(ParFlag));
 
-         //TEOS: dbar to meters  ONLY
-         //Lev_m:=declarations_gsw.gsw_z_from_p(Lev_dbar,stlat);
-         //Lev_m:=-Lev_m;
+         //TEOS: meters to dbar
+         Lev_m:=-stLev;
+         Lev_dbar:=GibbsSeaWater.gsw_p_from_z(Lev_m,stlat);
+         Lev_m:=stLev;
+
 
          {m=0- depth to pressure, 1- pressure to depth}
-         Lev_m:=stLev;
-         procedures.Depth_to_Pressure(Lev_m,stLat,0,Lev_dbar);
+         //Lev_m:=stLev;
+         //procedures.Depth_to_Pressure(Lev_m,stLat,0,Lev_dbar);
 
          StDateTime:=Procedures.DateEncode(StYear,StMonth,StDay,StHour,StMin,MonthErr,TimeErr);
 
-         PQF1:=ParErFlag1;  //??? should be WOD18 QF
-         PQF2:=ParErFlag2;  //should be our QF
-         SQF:=0;            //should be secondary QF
-         BNum:=0;           //should be secondary QF
          UID:=1;            //our unit ID: Degrees Celsius
 
          writeln(f_temp,inttostr(absnum),
          #9,floattostrF(Lev_dbar,ffFixed,7,1),
          #9,floattostr(Lev_m),
          #9,floattostr(ParVal),
-         #9,inttostr(PQF1),#9,inttostr(PQF2),#9,inttostr(SQF),
+         #9,inttostr(PQF1),     //  Profile data, field 11: value quality control flag
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
          #9,inttostr(BNum),
          #9,UID);
 
@@ -805,26 +813,32 @@ begin
 
 {p2}end;
 {p1}end;
-     LastLev_m:=StLev;
      {m=0- depth to pressure, 1- pressure to depth}
-     procedures.Depth_to_Pressure(LastLev_m,stLat,0,LastLev_dbar);
+     //LastLev_m:=StLev;
+     //procedures.Depth_to_Pressure(LastLev_m,stLat,0,LastLev_dbar);
+
+     //TEOS: meters to dbar
+     LastLev_m:=-StLev;
+     LastLev_dbar:=GibbsSeaWater.gsw_p_from_z(LastLev_m,stlat);
+     LastLev_m:=StLev;
+
 {PD}end;
 
 
 //output into file
-//STATION
+//STATION             NCEI Accession Number ???
 writeln(f_station,inttostr(absnum),
 #9,floattostr(StLat),
 #9,floattostr(StLon),
 #9,datetimetostr(StDateTime),
 #9,inttostr(StDepthSource),
-#9,floattostr(LastLev_m),           //LASTLEVEL_M
-#9,floattostrF(LastLev_dbar,ffFixed,7,1),        //LASTLEVEL_DBAR
-#9,inttostr(WODCruiseNum),         //CRUISEID
+#9,floattostr(LastLev_m),                //LASTLEVEL_M
+#9,floattostrF(LastLev_dbar,ffFixed,7,1),//LASTLEVEL_DBAR
+#9,inttostr(WODCruiseNum),         //CRUISEID = WOD cruise number identification (Primary Header/Field 8: 'Cruise number'). Integer
 #9,inttostr(TSProbeType),           //INSTRUMENT_ID
-#9,OrStNum,                         //ST_NUM_ORIGIN
-#9,inttostr(WODCastNum),            //ST_ID_ORIGIN
-#9,inttostr(OrCastNum),             //CAST_NUMBER
+#9,OrStNum,                         //ST_NUM_ORIGIN = station number assigned during the cruise (Secondary Header/Field 7: 'Originator's station number'). String
+#9,inttostr(WODCastNum),            //ST_ID_ORIGIN = WOD cast identification (Primary header/Field 5: 'WOD unique cast number'). Integer
+#9,inttostr(OrCastNum),             //CAST_NUMBER = station number assigned during the cruise (Secondary Header/Field 5: 'Cast/Tow number'). integer?
 #9,inttostr(0),                     //QCFLAG There is no QF on whole station in WOD
 #9,inttostr(1),                     //STVERSION
 #9,inttostr(0),                    //MERGED
