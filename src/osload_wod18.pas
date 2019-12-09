@@ -100,8 +100,8 @@ begin
 
 
 
-   //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
-   PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
+   PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
+   //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
    FileListBox1.Directory:=PathSource;
 
    if checkbox1.Checked then
@@ -198,7 +198,7 @@ var
 k,kb,kL,k_var,mik_line,mik_st,s,k_lev,k_par:integer;
 BNF,SL,line,NC,RC,TF,BSH,SHNC,BBH:integer;
 WODCastNum,WODCruiseNum,mEx,ParFlag:integer;
-levnum,proftype,varnum,qflag,mdatnum,m,varcode,varspcode,OCLShipCode:integer;
+levnum,proftype,varnum,V_QF,ST_QF,mdatnum,m,varcode,varspcode,OCLShipCode:integer;
 StProjectCode,StInstituteCode,SHCode:integer;
 StDepthSource,DepthErFlag1,DepthErFlag2,ParErFlag1,ParErFlag2:integer;
 countDup,TSProbeType:integer;
@@ -370,12 +370,17 @@ begin
 
    {...variable codes, quality flags, metadata}
 {v}if (varnum>0) and (levnum>0) then begin
+    ST_QF:=4; //ocean.fdb QF =acceptable (WOD algorithms on variables passed successfully)
 {c}for k_var:=1 to VarNum do begin
      BNF:=strtoint(copy(wst,NC,1));
 {memo1.Lines.Add('>>>>>>>'+inttostr(k_var)+' -> '+copy(wst,NC,BNF)+'  NC:'+inttostr(nc));}
      NC:=NC+1;   VarCode:=strtoint(copy(wst,NC,BNF)); {variable code}
      VarCode_arr[k_var]:=VarCode;
-     NC:=NC+BNF; QFlag  :=strtoint(copy(wst,NC,1));   {quality control flag}
+     NC:=NC+BNF; V_QF  :=strtoint(copy(wst,NC,1));   {quality control flag for variable}
+
+     //if a variable in the cast not accepted by one of WOD QC algorithms QF=2 (ocean.fdb) is set (suspicious cast as a whole)
+     if V_QF>0 then ST_QF:=2;
+
      NC:=NC+1;   BNF    :=strtoint(copy(wst,NC,1));
      NC:=NC+1;   MDatNum:=strtoint(copy(wst,NC,BNF)); {number of variable-specific metadata}
      NC:=NC+BNF;
@@ -383,7 +388,7 @@ begin
   {  if CheckBox1.Checked then
     memo1.Lines.Add('...kvar: '+inttostr(k_var)
      +#9+'...VarCode: '+inttostr(VarCode)
-     +#9+'...QFlag  : '+inttostr(QFlag)
+     +#9+'...V_QF  : '+inttostr(V_QF)
      +#9+'...MDatNum: '+inttostr(MDatNum)); }
 
 
@@ -405,6 +410,7 @@ begin
    end;
 {m}end;
 {c}end;
+    //if ST_QF<>0 then memo1.Lines.Add('ST_QF<>0');
 {v}end;
 
     {...character data and principal investigator}
@@ -663,8 +669,8 @@ begin
       NC:=NC+1;   ParErFlag2:=strtoint(copy(wst,NC,1));     {Originator's flag}
 
       //...assign DB QC flags
-      PQF1:=ParErFlag1;  //primary QF1
-      PQF2:=ParErFlag2;  //primary QF1
+      if ParErFlag1>0 then PQF1:=2 else PQF1:=4;  //primary QF1
+      PQF2:=PQF1;  //PQF2 can be changed afterwards by OceanShell
       SQF:=0;            //secondary QF
       BNum:=0;           //'NISKIN bottle number' UNKNOWN in WOD ???
 
@@ -686,7 +692,7 @@ begin
 
          //TEOS: meters to dbar
          Lev_m:=-stLev;
-         Lev_dbar:=GibbsSeaWater.gsw_p_from_z(Lev_m,stlat);
+         Lev_dbar:=GibbsSeaWater.gsw_p_from_z(Lev_m,stlat,0,0);
          Lev_m:=stLev;
 
 
@@ -819,7 +825,7 @@ begin
 
      //TEOS: meters to dbar
      LastLev_m:=-StLev;
-     LastLev_dbar:=GibbsSeaWater.gsw_p_from_z(LastLev_m,stlat);
+     LastLev_dbar:=GibbsSeaWater.gsw_p_from_z(LastLev_m,stlat,0,0);
      LastLev_m:=StLev;
 
 {PD}end;
@@ -839,7 +845,7 @@ writeln(f_station,inttostr(absnum),
 #9,OrStNum,                         //ST_NUM_ORIGIN = station number assigned during the cruise (Secondary Header/Field 7: 'Originator's station number'). String
 #9,inttostr(WODCastNum),            //ST_ID_ORIGIN = WOD cast identification (Primary header/Field 5: 'WOD unique cast number'). Integer
 #9,inttostr(OrCastNum),             //CAST_NUMBER = station number assigned during the cruise (Secondary Header/Field 5: 'Cast/Tow number'). integer?
-#9,inttostr(0),                     //QCFLAG There is no QF on whole station in WOD
+#9,inttostr(ST_QF),                 //0 - not checked, 2 - suspicious becouse one of WOD algotithms on variables failed
 #9,inttostr(1),                     //STVERSION
 #9,inttostr(0),                    //MERGED
 #9,datetimetostr(NOW),        //DATE_ADDED
