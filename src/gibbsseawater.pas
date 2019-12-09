@@ -1,7 +1,5 @@
 unit GibbsSeaWater;
 
-{$mode objfpc}{$H+}
-
 (*
 Gibbs SeaWater (GSW) Oceanographic Toolbox of TEOS–10 (gsw_c_v3.05)
 http://www.teos-10.org/pubs/gsw/html/gsw_contents.html
@@ -21,6 +19,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.
 *)
+
 
 interface
 
@@ -311,6 +310,7 @@ CT_pt  =  The derivative of Conservative Temperature with respect to
           at constant SA. CT_pt is dimensionless.           [ unitless ]
 *)
 // void   gsw_ct_first_derivatives (double sa, double pt, double *ct_sa, double *ct_pt);
+Procedure gsw_ct_first_derivatives (sa, pt: double; Var ct_sa, ct_pt: double); cdecl; external libgswteos;
 
 
 (*
@@ -333,7 +333,7 @@ function function.
 SA  =  Absolute Salinity                                        [ g/kg ]
 t   =  in-situ temperature (ITS-90)                            [ deg C ]
 p   =  sea pressure                                             [ dbar ]
-( i.e. absolute pressure - 10.1325 dbar)
+       ( i.e. absolute pressure - 10.1325 dbar)
 
 CT_SA_wrt_t  =  The first derivative of Conservative Temperature with
                 respect to Absolute Salinity at constant t and p.
@@ -391,6 +391,7 @@ CTfreezing_P  = the derivative of the Conservative Temperature at
                 fixed Absolute Salinity                         [ K/Pa ]
 *)
 // void   gsw_ct_freezing_first_derivatives(double sa, double p, double saturation_fraction, double *ctfreezing_sa, double *ctfreezing_p);
+Procedure gsw_ct_freezing_first_derivatives(sa, p, saturation_fraction:double; Var ctfreezing_sa, ctfreezing_p:double); cdecl; external libgswteos;
 
 
 (*
@@ -407,14 +408,14 @@ saturation_fraction = the saturation fraction of dissolved air in
 
 CTfreezing_SA = the derivative of the Conservative Temperature at
                 freezing (ITS-90) with respect to Absolute Salinity at
-                fixed pressure              [ K/(g/kg) ] i.e. [ K kg/g ]
+                fixed pressure              [ K/(g/kg) ] i.e. [ K kg/g]
 
 CTfreezing_P  = the derivative of the Conservative Temperature at
                 freezing (ITS-90) with respect to pressure (in Pa) at
-                fixed Absolute Salinity                         [ K/Pa ]
+                fixed Absolute Salinity                         [ K/Pa]
 *)
 // void   gsw_ct_freezing_first_derivatives_poly(double sa, double p, double saturation_fraction, double *ctfreezing_sa, double *ctfreezing_p);
-
+Procedure gsw_ct_freezing_first_derivatives_poly(sa, p, saturation_fraction: double; Var ctfreezing_sa, ctfreezing_p: double); cdecl; external libgswteos;
 
 
 (*
@@ -462,7 +463,7 @@ Salinity, specific enthalpy, h, and pressure p.
 SA  =  Absolute Salinity                                        [ g/kg ]
 h   =  specific enthalpy                                        [ J/kg ]
 p   =  sea pressure                                             [ dbar ]
-( i.e. absolute pressure - 10.1325d0 dbar )
+       ( i.e. absolute pressure - 10.1325d0 dbar )
 
 CT  =  Conservative Temperature ( ITS-90)                      [ deg C ]
 *)
@@ -504,10 +505,11 @@ Note. This input has not had 1000 kg/m^3 subtracted from it.
 That is, it is 'density', not 'density anomaly'.
 SA   =  Absolute Salinity                                       [ g/kg ]
 p    =  sea pressure                                            [ dbar ]
-( i.e. absolute pressure - 10.1325 dbar )
+       ( i.e. absolute pressure - 10.1325 dbar )
 
 CT  =  Conservative Temperature  (ITS-90)                      [ deg C ]
 CT_multiple  =  Conservative Temperature  (ITS-90)             [ deg C ]
+
 Note that at low salinities, in brackish water, there are two possible
 Conservative Temperatures for a single density.  This programme will
 output both valid solutions.  To see this second solution the user
@@ -515,8 +517,8 @@ must call the programme with two outputs (i.e. [CT,CT_multiple]), if
 there is only one possible solution and the programme has been
 called with two outputs the second variable will be set to NaN.
 *)
-//   void   gsw_ct_from_rho(double rho, double sa, double p, double *ct, double *ct_multiple);
-//procedure gsw_ct_from_rho(rho, sa, p:double; Var ct, ct_multiple:double);
+// void   gsw_ct_from_rho(double rho, double sa, double p, double *ct, double *ct_multiple);
+Procedure gsw_ct_from_rho(rho, sa, p:double; Var ct, ct_multiple:double); cdecl; external libgswteos;
 
 
 (*
@@ -1221,13 +1223,12 @@ t   =  in-situ temperature (ITS-90)                            [ deg C ]
 p   =  sea pressure                                             [ dbar ]
 
 gibbs_ice = Specific Gibbs energy of ice or its derivatives.
-          The Gibbs energy (when nt = np = 0) has units of:     [ J/kg ]
-          The temperature derivatives are output in units of:
-                                                    [ (J/kg) (K)^(-nt) ]
-          The pressure derivatives are output in units of:
-                                                   [ (J/kg) (Pa)^(-np) ]
-          The mixed derivatives are output in units of:
-                                         [ (J/kg) (K)^(-nt) (Pa)^(-np) ]
+
+The Gibbs energy (when nt = np = 0) has units of:     [J/kg]
+The temperature derivatives are output in units of:   [(J/kg) (K)^(-nt)]
+The pressure derivatives are output in units of:      [(J/kg) (Pa)^(-np)]
+The mixed derivatives are output in units of:         [(J/kg) (K)^(-nt) (Pa)^(-np)]
+
 Note. The derivatives are taken with respect to pressure in Pa, not
 withstanding that the pressure input into this routine is in dbar.
 *)
@@ -2476,7 +2477,7 @@ function  gsw_saar(p, lon, lat:double):double; cdecl; external libgswteos;
 Form an estimate of SA from a polynomial in CT and p
 *)
 // double gsw_sa_freezing_estimate(double p, double saturation_fraction, double *ct, double *t);
-function gsw_sa_freezing_estimate(p, saturation_fraction:double):double; cdecl; external libgswteos;
+//function gsw_sa_freezing_estimate(p, saturation_fraction:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -2510,18 +2511,18 @@ with ice at Conservative Temperature CT and pressure p.  If the input
 values are such that there is no positive value of Absolute Salinity for
 which seawater is frozen, the output is put equal to Nan.
 
-CT  =  Conservative Temperature (ITS-90)                       [ deg C ]
-p   =  sea pressure                                             [ dbar ]
-( i.e. absolute pressure - 10.1325 dbar )
+CT  =  Conservative Temperature (ITS-90)                        [deg C]
+p   =  sea pressure                                             [dbar ]
+       ( i.e. absolute pressure - 10.1325 dbar )
 saturation_fraction  =  the saturation fraction of dissolved air in
-seawater
+                        seawater
 
 sa_freezing_from_ct  =  Absolute Salinity of seawater when it freezes,
-for given input values of Conservative Temperature
-pressure and air saturation fraction.            [ g/kg ]
+                        for given input values of Conservative Temperature
+                        pressure and air saturation fraction.    [g/kg]
 *)
 // double gsw_sa_freezing_from_ct_poly(double ct, double p, double saturation_fraction);
-function gsw_freezing_from_ct_poly(ct, p, saturation_fraction:double):double; cdecl; external libgswteos;
+function  gsw_sa_freezing_from_ct_poly(ct, p, saturation_fraction:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -2532,17 +2533,17 @@ with ice at in-situ temperature t and pressure p.  If the input values
 are such that there is no positive value of Absolute Salinity for which
 seawater is frozen, the output is set to NaN.
 
-t  =  in-situ Temperature (ITS-90)                             [ deg C ]
-p  =  sea pressure                                              [ dbar ]
-( i.e. absolute pressure - 10.1325 dbar )
+t  =  in-situ Temperature (ITS-90)                              [deg C]
+p  =  sea pressure                                              [dbar]
+      ( i.e. absolute pressure - 10.1325 dbar )
 saturation_fraction = the saturation fraction of dissolved air in
-seawater
-(i.e., saturation_fraction must be between 0 and 1, and the default
-is 1, completely saturated)
+                      seawater (i.e., saturation_fraction must be
+                      between 0 and 1, and the default is 1,
+                      completely saturated)
 
 sa_freezing_from_t  =  Absolute Salinity of seawater when it freezes, for
-given input values of in situ temperature, pressure and
-air saturation fraction.                          [ g/kg ]
+                       given input values of in situ temperature, pressure and
+                       air saturation fraction.                  [g/kg]
 *)
 // double gsw_sa_freezing_from_t(double t, double p, double saturation_fraction);
 function  gsw_sa_freezing_from_t(t, p, saturation_fraction:double):double; cdecl; external libgswteos;
@@ -2556,15 +2557,15 @@ with ice at in-situ temperature t and pressure p.  If the input values
 are such that there is no positive value of Absolute Salinity for which
 seawater is frozen, the output is put equal to Nan.
 
-t  =  in-situ Temperature (ITS-90)                             [ deg C ]
-p  =  sea pressure                                              [ dbar ]
-( i.e. absolute pressure - 10.1325 dbar )
+t  =  in-situ Temperature (ITS-90)                             [deg C]
+p  =  sea pressure                                             [dbar]
+      ( i.e. absolute pressure - 10.1325 dbar )
 saturation_fraction = the saturation fraction of dissolved air in
-seawater
+                      seawater
 
 sa_freezing_from_t_poly  =  Absolute Salinity of seawater when it freezes,
-for given input values of in situ temperature, pressure and
-air saturation fraction.                          [ g/kg ]
+                            for given input values of in situ temperature,
+                            pressure and air saturation fraction. [g/kg]
 *)
 // double gsw_sa_freezing_from_t_poly(double t, double p, double saturation_fraction);
 function  gsw_sa_freezing_from_t_poly(t, p, saturation_fraction:double):double; cdecl; external libgswteos;
@@ -2574,11 +2575,12 @@ function  gsw_sa_freezing_from_t_poly(t, p, saturation_fraction:double):double; 
 Calculates the Absolute Salinity of a seawater sample, for given values
 of its density, Conservative Temperature and sea pressure (in dbar).
 
-rho =  density of a seawater sample (e.g. 1026 kg/m^3).       [ kg/m^3 ]
+rho =  density of a seawater sample (e.g. 1026 kg/m^3).       [kg/m^3]
 Note. This input has not had 1000 kg/m^3 subtracted from it.
 That is, it is 'density', not 'density anomaly'.
-ct  =  Conservative Temperature (ITS-90)                      [ deg C ]
-p   =  sea pressure                                           [ dbar ]
+
+ct  =  Conservative Temperature (ITS-90)                      [deg C]
+p   =  sea pressure                                           [dbar]
 
 sa  =  Absolute Salinity                                      [g/kg]
 *)
@@ -2619,7 +2621,7 @@ Calculates Absolute Salinity, SA, from Preformed Salinity, Sstar.
 
 Sstar  : Preformed Salinity                              [g/kg]
 p      : sea pressure                                    [dbar]
-lon   : longitude                                       [deg E]
+lon   : longitude                                        [deg E]
 lat    : latitude                                        [deg N]
 
 gsw_sa_from_sstar   : Absolute Salinity                  [g/kg]
@@ -3254,7 +3256,7 @@ t_freezing = in-situ temperature at which seawater freezes.    [ deg C ]
 (ITS-90)
 *)
 // double gsw_t_freezing_poly(double sa, double p,double saturation_fraction);
-function  gsw_t_freezing_poly(sa, p, saturation_fraction:double; polynomial:integer):double; cdecl; external libgswteos;
+function  gsw_t_freezing_poly(sa, p, saturation_fraction:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -3377,24 +3379,41 @@ gsw_xinterp1 : Linearly interpolated value
 
 
 (* 
-Calculates the height z from pressure p (75-term equation) 
+Calculates the height z from pressure p
+
 NEGATIVE in the ocean
-p            : sea pressure                                [dbar]
-lat          : latitude                                    [deg]
-gsw_z_from_p : height                                      [m]
+
+p      : sea pressure                                    [dbar]
+lat    : latitude                                        [deg]
+geo_strf_dyn_height : dynamic height anomaly             [m^2/s^2]
+
+Note that the reference pressure, p_ref, of geo_strf_dyn_height must
+be zero (0) dbar.
+
+sea_surface_geopotential : geopotential at zero sea pressure  [m^2/s^2]
+
+gsw_z_from_p : height                                    [m]                                      [m]
 *)
-// double gsw_z_from_p(double p, double lat);
-function  gsw_z_from_p(p, lat:double):double; cdecl; external libgswteos;
+// double gsw_z_from_p(double p, double lat, double geo_strf_dyn_height, double sea_surface_geopotential)
+function  gsw_z_from_p(p, lat, geo_strf_dyn_height, sea_surface_geopotential:double):double; cdecl; external libgswteos;
 
 
 (* 
-Calculates the pressure p from height z (75-term equation) 
-z            : height                                      [m]
-lat          : latitude                                    [deg]
-gsw_p_from_z : pressure                                    [dbar]
+Calculates the pressure p from height z
+
+z      : height                                          [m]
+lat    : latitude                                        [deg]
+geo_strf_dyn_height : dynamic height anomaly             [m^2/s^2]
+
+Note that the reference pressure, p_ref, of geo_strf_dyn_height
+must be zero (0) dbar.
+
+sea_surface_geopotential : geopotential at zero sea pressure  [m^2/s^2]
+
+gsw_p_from_z : pressure                                  [dbar]                                    [dbar]
 *)
-// double gsw_p_from_z(double z, double lat);
-function  gsw_p_from_z(z, lat:double):double; cdecl; external libgswteos;
+
+function  gsw_p_from_z(z, lat, geo_strf_dyn_height, sea_surface_geopotential:double):double; cdecl; external libgswteos;
 
 
 implementation
