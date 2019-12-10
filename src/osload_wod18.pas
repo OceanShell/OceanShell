@@ -40,7 +40,7 @@ var
   mik_stTotal:integer;
   VarCount_arr :array [1..50] of integer;    //count variables appearance
   f_dat, f_statistics, f_station: text;
-  f_temp: text;
+  f_temp, f_salt, f_oxyg: text;
 
 implementation
 
@@ -72,7 +72,10 @@ WOD18Var:array[1..45] of string;
 
 begin
 
-   PathOut:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\Output\';
+ PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
+ //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
+ FileListBox1.Directory:=PathSource;
+ PathOut:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\Output\';
 
    FileOut:=PathOut+'Statistics.dat';
    StrOut:= 'Cast#'+#9+'Cast#File'+#9+'WOD_cast_num'+#9+'DateTime'+
@@ -90,19 +93,17 @@ begin
    rewrite(f_station);
    writeln(f_station,StrOut);
 
-   FileOut:=PathOut+'TEMPERATURE.dat';
    StrOut:='ID'+#9+'DBAR'+#9+'M'+#9+'VAL'+#9+'PQF1'
    +#9+'PQF2'+#9+'SQF'+#9+'BOTTLE_NUMBER'+#9+'UNITS_ID';
-   AssignFile(f_temp,FileOut);
-   rewrite(f_temp);
-   writeln(f_temp,StrOut);
+
+   FileOut:=PathOut+'TEMPERATURE.dat';
+   AssignFile(f_temp,FileOut); rewrite(f_temp); writeln(f_temp,StrOut);
+   FileOut:=PathOut+'SALINITY.dat';
+   AssignFile(f_salt,FileOut); rewrite(f_salt); writeln(f_salt,StrOut);
+   FileOut:=PathOut+'OXYGEN.dat';
+   AssignFile(f_oxyg,FileOut); rewrite(f_oxyg); writeln(f_oxyg,StrOut);
 
 
-
-
-   PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
-   //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
-   FileListBox1.Directory:=PathSource;
 
    if checkbox1.Checked then
    memo1.Lines.Add('absnum'+#9+'WODCastNum'+#9+'StFlag'+#9+'StLat'
@@ -189,6 +190,8 @@ begin
     closefile(f_statistics);
     closefile(f_station);
     closefile(f_temp);
+    closefile(f_salt);
+    closefile(f_oxyg);
 end;
 
 
@@ -679,61 +682,74 @@ begin
 
       if(SF='-') then ParVal:=-9;
 
+
+      //TEOS: meters to dbar
+      Lev_m:=-stLev;
+      Lev_dbar:=GibbsSeaWater.gsw_p_from_z(Lev_m,stlat,0,0);
+      Lev_m:=stLev;
+      {m=0- depth to pressure, 1- pressure to depth}
+      //Lev_m:=stLev;
+      //procedures.Depth_to_Pressure(Lev_m,stLat,0,Lev_dbar);
+
+      StDateTime:=Procedures.DateEncode(StYear,StMonth,StDay,StHour,StMin,MonthErr,TimeErr);
+
        ParFlag:=0;
       case VarCode_arr[k_par] of
-      1: begin //TEMPERATURE
+      1: begin //#TEMPERATURE
          if ParErFlag2>0 then ParFlag:=2;
          if ParVal<>-9 then begin
          mEx:=1;
          count_temperature:=count_temperature+1;
-
          //if CheckBox1.Checked then
          //memo1.Lines.Add('lev temp QF '+#9+floattostr(stLev)+#9+floattostr(ParVal)+#9+floattostr(ParFlag));
-
-         //TEOS: meters to dbar
-         Lev_m:=-stLev;
-         Lev_dbar:=GibbsSeaWater.gsw_p_from_z(Lev_m,stlat,0,0);
-         Lev_m:=stLev;
-
-
-         {m=0- depth to pressure, 1- pressure to depth}
-         //Lev_m:=stLev;
-         //procedures.Depth_to_Pressure(Lev_m,stLat,0,Lev_dbar);
-
-         StDateTime:=Procedures.DateEncode(StYear,StMonth,StDay,StHour,StMin,MonthErr,TimeErr);
-
-         UID:=1;            //our unit ID: Degrees Celsius
-
+         UID:=1; //ocean.fdb unit ID: Degrees Celsius
          writeln(f_temp,inttostr(absnum),
          #9,floattostrF(Lev_dbar,ffFixed,7,1),
          #9,floattostr(Lev_m),
          #9,floattostr(ParVal),
-         #9,inttostr(PQF1),     //  Profile data, field 11: value quality control flag
+         #9,inttostr(PQF1), //Profile data, field 11: value quality control flag
          #9,inttostr(PQF2),
          #9,inttostr(SQF),
          #9,inttostr(BNum),
          #9,UID);
-
          //if Checkbox2.Checked then
          //InsertParameters('P_TEMPERATURE', Absnum, {count_temperature,} stLev, ParVal, ParFlag);
          end;
          end; {1}
-
-      2: begin
+      2: begin //#SALINITY
          if ParErFlag2>0 then ParFlag:=2;
          if ParVal<>-9 then begin
          mEx:=1;
          count_salinity:=count_salinity+1;
+         UID:=2; //ocean.fdb unit ID: Dimensionless (unitless)
+         writeln(f_salt,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1), //Profile data, field 11: value quality control flag
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
          //if Checkbox2.Checked then
          //InsertParameters('P_SALINITY', Absnum, {count_salinity,} stLev, ParVal, ParFlag);
          end;
          end;
-      3: begin
+      3: begin //#OXYGEN
          if ParErFlag2>0 then ParFlag:=2;
          if ParVal<>-9 then begin
          mEx:=1;
          count_oxygen:=count_oxygen+1;
-      //   writeln(fo_oxyg,absnum:8,count_temperature:5,StLev:7:1,ParVal:9:3,ParFlag:6);
+         UID:=3; //ocean.fdb unit ID: Micromole per kilogram
+         writeln(f_oxyg,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),     //Profile data, field 11: value quality control flag
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
          //if Checkbox2.Checked then
          //InsertParameters('P_OXYGEN', Absnum, {count_oxygen,} stLev, ParVal, ParFlag);
          end;
