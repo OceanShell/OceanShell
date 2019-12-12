@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  osmain, dm, osmap_globctrl;
+  osmain, dm, DB, osmap_globctrl;
 
 type
 
@@ -33,6 +33,7 @@ type
 
 var
   frmmap: Tfrmmap;
+  DSMap: TDataSource;
 
 implementation
 
@@ -42,20 +43,19 @@ implementation
 
 procedure Tfrmmap.FormCreate(Sender: TObject);
 begin
+  // Loading the globe
   MainGlobe := TGlobeControl.Create(Self);
   MainGlobe.Align := alClient;
   MainGlobe.Parent := pmap;
-  ChangeID;
+
+  MainGlobe.Marker.Lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
+  MainGlobe.Marker.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
 end;
+
 
 procedure Tfrmmap.ChangeID;
 begin
-  With MainGlobe Do Begin
-     Marker.Lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
-     Marker.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
-     ShowMarker := True;
-     Refresh;
-   End;
+ MainGlobe.ChangeID;
 End;
 
 procedure Tfrmmap.btnZoomInClick(Sender: TObject);

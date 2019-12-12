@@ -23,11 +23,13 @@ type
   { Tfrmosmain }
 
   Tfrmosmain = class(TForm)
+    aOpenDatabase: TAction;
     aMap: TAction;
     AL1: TActionList;
     btnadd: TToolButton;
     btncancel: TToolButton;
     btndelete: TToolButton;
+    btnMap1: TToolButton;
     btnsave: TToolButton;
     btnSelection: TButton;
     chkPeriod: TCheckBox;
@@ -44,7 +46,8 @@ type
     iLoad_WOD18: TMenuItem;
     iLoad_WOD: TMenuItem;
     iMap: TMenuItem;
-    pSelectedDataGap: TPanel;
+    Panel1: TPanel;
+    Panel2: TPanel;
     PM1: TPopupMenu;
     seIDMax: TSpinEdit;
     seLonMin: TFloatSpinEdit;
@@ -68,9 +71,7 @@ type
     MenuItem4: TMenuItem;
     OD: TOpenDialog;
     PageControl1: TPageControl;
-    pnl2: TPanel;
     seIDMin: TSpinEdit;
-    StatusBar2: TStatusBar;
     IL2: TImageList;
     SD: TSaveDialog;
     Memo1: TMemo;
@@ -83,16 +84,19 @@ type
     iAbout: TMenuItem;
     N3: TMenuItem;
     iExit: TMenuItem;
-    StatusBar3: TStatusBar;
     ListBox1: TListBox;
+    StatusBar2: TStatusBar;
+    StatusBar3: TStatusBar;
     ToolBar1: TToolBar;
+    ToolBar2: TToolBar;
     ToolButton1: TToolButton;
-    btnMap: TToolButton;
+    ToolButton2: TToolButton;
     tsMainSelect: TTabSheet;
     tsMainSelectAdvanced: TTabSheet;
     tsMainData: TTabSheet;
 
     procedure aMapExecute(Sender: TObject);
+    procedure aOpenDatabaseExecute(Sender: TObject);
     procedure btnSelectionClick(Sender: TObject);
     procedure DBGridPlatformCellClick(Column: TColumn);
     procedure DBGridPlatformKeyUp(Sender: TObject; var Key: Word;
@@ -114,7 +118,6 @@ type
     procedure iProfilesAllClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
-    procedure iOpenDatabaseClick(Sender: TObject);
 
 
   private
@@ -209,12 +212,12 @@ end;
 procedure Tfrmosmain.FormResize(Sender: TObject);
 begin
  //StatusBar1.Panels[1].Width:=Width-(statusbar1.Panels[0].Width+statusbar1.Panels[2].Width+75);
-  pSelectedDataGap.Width:=Toolbar1.width-10-
+  {pSelectedDataGap.Width:=Toolbar1.width-10-
                           (btnAdd.Width+
                            btnDelete.Width+
                            btnCancel.Width+
                            btnSave.Width+
-                           btnMap.Width);
+                           btnMap.Width); }
 end;
 
 procedure Tfrmosmain.FormShow(Sender: TObject);
@@ -438,7 +441,7 @@ end;
 
 
 (**)
-procedure Tfrmosmain.iOpenDatabaseClick(Sender: TObject);
+procedure Tfrmosmain.aOpenDatabaseExecute(Sender: TObject);
 begin
   OD.Filter:='Firebird Database|*.FDB;*.fdb';
   if OD.Execute then begin

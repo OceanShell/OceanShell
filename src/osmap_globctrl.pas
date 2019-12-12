@@ -4,6 +4,8 @@ Unit osmap_globctrl;
 
   Copyright (C) 2015 Paul Michell, Michell Computing.
 
+  Modified by Alexander Smirnov (axline@mail.ru)
+
   This library is free software; you can redistribute it and/or modify it
   under the terms of the GNU Lesser General Public License as published by
   the Free Software Foundation; either version 2.1 of the License, or (at your
@@ -20,7 +22,7 @@ Interface
 
 Uses
   Classes, SysUtils, Forms, Controls, Graphics, LCLType, Math, ZStream,
-  osmain, dm, osmap_datastreams, osmap_geometry, osmap_wkt;
+  osmain, dm, osmap_datastreams, osmap_geometry, osmap_wkt, Dialogs;
 
 Type
   TPointArray = Array Of TPoint;
@@ -44,12 +46,10 @@ Type
     FCenter: TCoordinates;
     FLocation: TCoordinates;
     FMarker: TCoordinates;
-    FShowMarker: Boolean;
     Function Transform(Lat, Lon: TCoordinate; Out P: TPoint): Boolean;
     Procedure ComputeViewParameters;
     Procedure CreateBackBuffer;
     Procedure DrawGlobe;
-    Procedure SetShowMarker(Value: Boolean);
   Private
     { Private computed view parameters. }
     CX, CY: Integer; { The offset to the control's centre. }
@@ -58,6 +58,7 @@ Type
     HD2: Integer; {Screen space square of the horizon distance. }
     R: Integer; { The projected radius of the globe. }
     VS: TCoordinate; { The view scaling factor. }
+    X_arr, Y_arr, ID_arr: array of integer;
   Protected
     { Protected declarations. }
     OX, OY: Integer; { X,Y coordinates of prior mouse event. }
@@ -79,10 +80,10 @@ Type
     Procedure SetLocation(Lat, Lon: TCoordinate);
     Procedure ZoomIn;
     Procedure ZoomOut;
+    procedure ChangeID;
     Property Center: TCoordinates Read FCenter Write FCenter; { Default view centre in geodesic degrees. }
     Property Location: TCoordinates Read FLocation Write FLocation; { Location of view centre in geodesic degrees. }
     Property Marker: TCoordinates Read FMarker Write FMarker;  { Position of marker in geodesic degrees. }
-    Property ShowMarker: Boolean Read FShowMarker Write SetShowMarker;
   End;
 
 Implementation
@@ -157,6 +158,13 @@ Begin
   AdjustLocation(0, 0);
 End;
 
+Procedure TGlobeControl.ChangeID;
+Begin
+ Marker.Lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
+ Marker.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
+ Refresh;
+end;
+
 Function TGlobeControl.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean;
 Begin
   If WheelDelta<0 Then
@@ -206,9 +214,23 @@ Begin
 End;
 
 Procedure TGlobeControl.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+Var
+  i: integer;
 Begin
   OX := X;
   OY := Y;
+
+  If ssLeft In Shift Then
+    if cursor=crHandPoint then begin
+      for i:=0 to High(X_arr) do begin
+        if (X>=X_arr[i]-3) and (X<=X_arr[i]+3) and
+           (Y>=Y_arr[i]-3) and (Y<=Y_arr[i]+3) then begin
+           frmdm.Q.Locate('ID', ID_arr[i], []);
+        ChangeID;
+        end;
+      end;
+     end;
+
   Inherited MouseDown(Button, Shift, X, Y);
 End;
 
@@ -217,27 +239,29 @@ Var
   DLat, DLon: TCoordinate;
 Begin
  if FBufferBitmap.Canvas.Pixels[X, Y]=clYellow then
-     cursor:=crHandPoint else cursor:=crDefault;
+     cursor:=crHandPoint else
+     cursor:=crDefault;
 
-  If ssLeft In Shift Then
-    If (X<>OX) Or (Y<>OY) Then
-      Begin
+  If ssLeft In Shift Then begin
+    If (X<>OX) Or (Y<>OY) Then Begin
         DLon := (X-OX)*VS;
         DLat := (Y-OY)*VS;
         AdjustLocation(DLat, DLon);
         Update;
         OX := X;
         OY := Y;
-        caption:=inttostr(x)+'   '+inttostr(y);
-      End;
+    End;
+  End;
   Inherited MouseMove(Shift, X, Y);
 End;
+
 
 Procedure TGlobeControl.Paint;
 Begin
   Canvas.Draw(0, 0, BufferBitmap);
   Inherited Paint;
 End;
+
 
 Procedure TGlobeControl.ComputeViewParameters;
 Var
@@ -269,6 +293,7 @@ Begin
     End;
 End;
 
+
 Function DistanceSquare(Start, Finish: TPoint): TCoordinate; Inline;
 Var
   U, V: TCoordinate;
@@ -278,6 +303,7 @@ Begin
   V := Finish.Y-Start.Y;
   Result := U*U+V*V;
 End;
+
 
 Function VertexReduction(Const VertexList: TPointArray; ToleranceSquare: TCoordinate; VertexLoop: Boolean): TPointArray; Inline;
 Var
@@ -310,7 +336,7 @@ End;
 
 Procedure TGlobeControl.DrawGlobe;
 Var
-  cur_id: integer;
+  ID, cur_id, i: integer;
   P: TPoint;
   Lon: TCoordinate;
   Lat: TCoordinate;
@@ -396,14 +422,14 @@ Begin
       Lon := -180;
       While Lon<=180 Do
         Begin
-          Lat := -85;
+          Lat := -89;
           Transform(Lat, Lon, P);
           MoveTo(P);
-          While Lat<85 Do
+          While Lat<89 Do
             Begin
               Lat += StepLat;
-              If Lat>85 Then
-                Lat := 85;
+              If Lat>89 Then
+                Lat := 89;
               If Transform(Lat, Lon, P) Then
                 LineTo(P)
               Else
@@ -431,20 +457,32 @@ Begin
         End;
 
      { Draw stations }
-     // pen.Style:=psDot;
       pen.Color := clBlack;
       pen.Style := psSolid;
       brush.Color := clYellow;
 
       try
        cur_id:=frmdm.Q.FieldByName('ID').AsInteger;
-       frmdm.Q.DisableControls;
-       frmdm.Q.first;
+
+       SetLength(X_arr,  SCount);
+       SetLength(Y_arr,  SCount);
+       SetLength(ID_arr, SCount);
+
+        i:=0;
+        frmdm.Q.DisableControls;
+        frmdm.Q.first;
         while not frmdm.Q.EOF do begin
+          ID :=frmdm.Q.FieldByName('ID').AsInteger;
           Lat:=frmdm.Q.FieldByName('LATITUDE').AsFloat;
           lon:=frmdm.Q.FieldByName('LONGITUDE').AsFloat;
-            Transform(Lat, Lon, P);
-            Ellipse(P.X-3, P.Y-3, P.X+3, P.Y+3);
+
+            if Transform(Lat, Lon, P) then
+              Ellipse(P.X-3, P.Y-3, P.X+3, P.Y+3);
+
+            inc(i);
+            X_arr[i]:=P.X;
+            Y_arr[i]:=P.Y;
+            ID_arr[i]:=ID;
          frmdm.Q.Next;
         end;
       finally
@@ -453,7 +491,6 @@ Begin
       end;
 
       { Draw marker cross. }
-      If ShowMarker Then
         If Transform(Marker.Lat, Marker.Lon, P) Then
         Begin
           Pen.Color := TColor($0000FF); { Red }
@@ -487,6 +524,7 @@ Begin
     End;
 End;
 
+
 Function TGlobeControl.Transform(Lat, Lon: TCoordinate; Out P: TPoint): Boolean;
 Var
   { Extended is explicitly used as SinCos requires this data type on some platforms. }
@@ -514,15 +552,6 @@ Begin
   P.X := CX+Trunc(XP*S);
   P.Y := CY-Trunc(YP*S);
   Result := ((XP*XP+YP*YP+(ZP+EZ)*(ZP+EZ))<=HD2);
-End;
-
-Procedure TGlobeControl.SetShowMarker(Value: Boolean);
-Begin
-  If FShowMarker<>Value Then
-    Begin
-      FShowMarker := Value;
-      Refresh;
-    End;
 End;
 
 Procedure TGlobeControl.AdjustLocation(Lat, Lon: TCoordinate);

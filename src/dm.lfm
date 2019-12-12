@@ -2,11 +2,11 @@ object frmdm: Tfrmdm
   OnCreate = DataModuleCreate
   OnDestroy = DataModuleDestroy
   OldCreateOrder = False
-  Height = 277
-  HorizontalOffset = 685
-  VerticalOffset = 243
-  Width = 373
-  PPI = 96
+  Height = 416
+  HorizontalOffset = 1028
+  VerticalOffset = 365
+  Width = 560
+  PPI = 144
   object IBDB: TIBConnection
     Connected = False
     LoginPrompt = False
@@ -16,39 +16,39 @@ object frmdm: Tfrmdm
     UserName = 'SYSDBA'
     LogEvents = []
     CheckTransactionParams = False
-    left = 24
-    top = 16
+    left = 36
+    top = 24
   end
   object TR: TSQLTransaction
     Active = False
     Action = caNone
     Database = IBDB
-    left = 69
-    top = 16
+    left = 104
+    top = 24
   end
   object q1: TSQLQuery
     FieldDefs = <>
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 192
-    top = 16
+    left = 360
+    top = 24
   end
   object q2: TSQLQuery
     FieldDefs = <>
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 232
-    top = 16
+    left = 408
+    top = 24
   end
   object q3: TSQLQuery
     FieldDefs = <>
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 272
-    top = 16
+    left = 456
+    top = 24
   end
   object SupportDB: TIBConnection
     Connected = False
@@ -59,15 +59,15 @@ object frmdm: Tfrmdm
     UserName = 'SYSDBA'
     LogEvents = []
     CheckTransactionParams = False
-    left = 24
-    top = 88
+    left = 36
+    top = 132
   end
   object SupportTR: TSQLTransaction
     Active = False
     Action = caNone
     Database = SupportDB
-    left = 96
-    top = 88
+    left = 144
+    top = 132
   end
   object Q: TSQLQuery
     MaxIndexesCount = 100
@@ -75,7 +75,7 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 120
-    top = 16
+    left = 180
+    top = 24
   end
 end
