@@ -428,7 +428,7 @@ begin
 
         StDT:= procedures.DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
         //TEOS: dbar to meters
-        stMDS:=GibbsSeaWater.gsw_z_from_p(stPDS,stlat,0,0);
+        stMDS:=GibbsSeaWater.gsw_z_from_p(stPDS, stlat, 0, 0);
         stMDS:=-stMDS;
 
         //memo1.Lines.Add('ID='+inttostr(PRF_count)
@@ -772,7 +772,7 @@ begin
 
 
     (* Last level from dbar to meters TEOS10 *)
-    stMDS:=GibbsSeaWater.gsw_z_from_p(stPDS, stlat,0,0);
+    stMDS:=GibbsSeaWater.gsw_z_from_p(stPDS, stlat, 0, 0);
 
 
       writeln(out,inttostr(st_count),       //stations count
@@ -1703,7 +1703,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     //convert pressure to depth
     //m=1 pressure to depth
     //Depth_to_Pressure(stPDS,stlat,1,stLastLevel_m);
-    stMDS:=GibbsSeaWater.gsw_z_from_p(stPDS,stlat,0,0);
+    stMDS:=GibbsSeaWater.gsw_z_from_p(stPDS,stlat, 0, 0);
 
     //prepare to write into STATION
     writeln(outMD,inttostr(PRF_count),  //ID
@@ -2051,7 +2051,7 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     //convert pressure to depth
     //m=1 pressure to depth
     //Depth_to_Pressure(stPDS,stlat,1,stLastLevel_m);
-    stMDS:=GibbsSeaWater.gsw_z_from_p(stPDS,stlat,0,0);
+    stMDS:=GibbsSeaWater.gsw_z_from_p(stPDS,stlat, 0, 0);
 
     //prepare to write into STATION
     writeln(outMD,inttostr(PRF_count),  //ID
@@ -2917,7 +2917,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
 
        Lev_dbar:=CDS_DSC.FieldByName('Pres').AsFloat;
        //TEOS: dbar to meters
-       Lev_m:=GibbsSeaWater.gsw_z_from_p(Lev_dbar,stlat,0,0);
+       Lev_m:=GibbsSeaWater.gsw_z_from_p(Lev_dbar,stlat, 0, 0);
        Lev_m:=-Lev_m;
 
 //write if value exists

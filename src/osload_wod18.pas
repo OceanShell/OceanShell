@@ -42,9 +42,10 @@ var
   f_dat, f_statistics, f_station, f_meteo: text;
   f_temp, f_salt, f_oxyg: text;
 
+
 implementation
 
-uses osmain, procedures, GibbsSeaWater, osstandartqueries;
+uses procedures;
 
 {$R *.lfm}
 
@@ -72,10 +73,7 @@ WOD18Var:array[1..45] of string;
 
 begin
 
- PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
- //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
- FileListBox1.Directory:=PathSource;
- PathOut:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\Output\';
+   PathOut:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\Output\';
 
    FileOut:=PathOut+'Statistics.dat';
    StrOut:= 'Cast#'+#9+'Cast#File'+#9+'WOD_cast_num'+#9+'DateTime'+
@@ -123,17 +121,19 @@ begin
 
 
    {...variables create output files}
+   FileOut:=PathOut+'TEMPERATURE.dat';
    StrOut:='ID'+#9+'DBAR'+#9+'M'+#9+'VAL'+#9+'PQF1'
    +#9+'PQF2'+#9+'SQF'+#9+'BOTTLE_NUMBER'+#9+'UNITS_ID';
-
-   FileOut:=PathOut+'TEMPERATURE.dat';
-   AssignFile(f_temp,FileOut); rewrite(f_temp); writeln(f_temp,StrOut);
-   FileOut:=PathOut+'SALINITY.dat';
-   AssignFile(f_salt,FileOut); rewrite(f_salt); writeln(f_salt,StrOut);
-   FileOut:=PathOut+'OXYGEN.dat';
-   AssignFile(f_oxyg,FileOut); rewrite(f_oxyg); writeln(f_oxyg,StrOut);
+   AssignFile(f_temp,FileOut);
+   rewrite(f_temp);
+   writeln(f_temp,StrOut);
 
 
+
+
+   PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
+   //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
+   FileListBox1.Directory:=PathSource;
 
    if checkbox1.Checked then
    memo1.Lines.Add('absnum'+#9+'WODCastNum'+#9+'StFlag'+#9+'StLat'
@@ -221,8 +221,6 @@ begin
     closefile(f_station);
     closefile(f_meteo);
     closefile(f_temp);
-    closefile(f_salt);
-    closefile(f_oxyg);
 end;
 
 
@@ -232,7 +230,7 @@ var
 k,kb,kL,k_var,mik_line,mik_st,s,k_lev,k_par:integer;
 BNF,SL,line,NC,RC,TF,BSH,SHNC,BBH:integer;
 WODCastNum,WODCruiseNum,mEx,ParFlag:integer;
-levnum,proftype,varnum,V_QF,ST_QF,mdatnum,m,varcode,varspcode,OCLShipCode:integer;
+levnum,proftype,varnum,qflag,mdatnum,m,varcode,varspcode,OCLShipCode:integer;
 StProjectCode,StInstituteCode,SHCode:integer;
 StDepthSource,DepthErFlag1,DepthErFlag2,ParErFlag1,ParErFlag2:integer;
 countDup,TSProbeType:integer;
@@ -405,17 +403,12 @@ begin
 
    {...variable codes, quality flags, metadata}
 {v}if (varnum>0) and (levnum>0) then begin
-    ST_QF:=4; //ocean.fdb QF =acceptable (WOD algorithms on variables passed successfully)
 {c}for k_var:=1 to VarNum do begin
      BNF:=strtoint(copy(wst,NC,1));
 {memo1.Lines.Add('>>>>>>>'+inttostr(k_var)+' -> '+copy(wst,NC,BNF)+'  NC:'+inttostr(nc));}
      NC:=NC+1;   VarCode:=strtoint(copy(wst,NC,BNF)); {variable code}
      VarCode_arr[k_var]:=VarCode;
-     NC:=NC+BNF; V_QF  :=strtoint(copy(wst,NC,1));   {quality control flag for variable}
-
-     //if a variable in the cast not accepted by one of WOD QC algorithms QF=2 (ocean.fdb) is set (suspicious cast as a whole)
-     if V_QF>0 then ST_QF:=2;
-
+     NC:=NC+BNF; QFlag  :=strtoint(copy(wst,NC,1));   {quality control flag}
      NC:=NC+1;   BNF    :=strtoint(copy(wst,NC,1));
      NC:=NC+1;   MDatNum:=strtoint(copy(wst,NC,BNF)); {number of variable-specific metadata}
      NC:=NC+BNF;
@@ -423,7 +416,7 @@ begin
   {  if CheckBox1.Checked then
     memo1.Lines.Add('...kvar: '+inttostr(k_var)
      +#9+'...VarCode: '+inttostr(VarCode)
-     +#9+'...V_QF  : '+inttostr(V_QF)
+     +#9+'...QFlag  : '+inttostr(QFlag)
      +#9+'...MDatNum: '+inttostr(MDatNum)); }
 
 
@@ -445,7 +438,6 @@ begin
    end;
 {m}end;
 {c}end;
-    //if ST_QF<>0 then memo1.Lines.Add('ST_QF<>0');
 {v}end;
 
     {...character data and principal investigator}
@@ -483,7 +475,6 @@ begin
        OCLShipCode:=9999;
        ShipName:='UNKNOWN';
        OrStNum:='';
-       OrCastNum:=1;
 
        StAirTemp:=null; StTWet:=null; StAirPressure:=null; WindDir:=null;
        WindSpeed:=null; CloudCover:=null; CloudLow:=null; CloudType:=null; Visibility:=null;
@@ -701,88 +692,68 @@ begin
       ConvertToFloat(str,ParVal);
       {populate parameter arrays}
       NC:=RC+TF+3;
-                  ParErFlag1:=strtoint(copy(wst,NC,1));     {Value quality control flag}
-      NC:=NC+1;   ParErFlag2:=strtoint(copy(wst,NC,1));     {Originator's flag}
-
-      //...assign DB QC flags
-      if ParErFlag1>0 then PQF1:=2 else PQF1:=4;  //primary QF1
-      PQF2:=PQF1;  //PQF2 can be changed afterwards by OceanShell
-      SQF:=0;            //secondary QF
-      BNum:=0;           //'NISKIN bottle number' UNKNOWN in WOD ???
-
-
+                  ParErFlag1:=strtoint(copy(wst,NC,1));     {Par Error Flag}
+      NC:=NC+1;   ParErFlag2:=strtoint(copy(wst,NC,1));     {Par Error Flag Originator's}
 {p3}end;
 
       if(SF='-') then ParVal:=-9;
 
-
-      //TEOS: meters to dbar
-      Lev_m:=-stLev;
-      Lev_dbar:=GibbsSeaWater.gsw_p_from_z(Lev_m,stlat,0,0);
-      Lev_m:=stLev;
-      {m=0- depth to pressure, 1- pressure to depth}
-      //Lev_m:=stLev;
-      //procedures.Depth_to_Pressure(Lev_m,stLat,0,Lev_dbar);
-
-      StDateTime:=Procedures.DateEncode(StYear,StMonth,StDay,StHour,StMin,MonthErr,TimeErr);
-
        ParFlag:=0;
       case VarCode_arr[k_par] of
-      1: begin //#TEMPERATURE
+      1: begin //TEMPERATURE
          if ParErFlag2>0 then ParFlag:=2;
+
          if ParVal<>-9 then begin
          mEx:=1;
          count_temperature:=count_temperature+1;
+
          //if CheckBox1.Checked then
          //memo1.Lines.Add('lev temp QF '+#9+floattostr(stLev)+#9+floattostr(ParVal)+#9+floattostr(ParFlag));
-         UID:=1; //ocean.fdb unit ID: Degrees Celsius
+
+         //TEOS: dbar to meters  ONLY
+         //Lev_m:=declarations_gsw.gsw_z_from_p(Lev_dbar,stlat);
+         //Lev_m:=-Lev_m;
+
+         {m=0- depth to pressure, 1- pressure to depth}
+         Lev_m:=stLev;
+         procedures.Depth_to_Pressure(Lev_m,stLat,0,Lev_dbar);
+
+         StDateTime:=Procedures.DateEncode(StYear,StMonth,StDay,StHour,StMin,MonthErr,TimeErr);
+
+         PQF1:=ParErFlag1;  //??? should be WOD18 QF
+         PQF2:=ParErFlag2;  //should be our QF
+         SQF:=0;            //should be secondary QF
+         BNum:=0;           //should be secondary QF
+         UID:=1;            //our unit ID: Degrees Celsius
+
          writeln(f_temp,inttostr(absnum),
          #9,floattostrF(Lev_dbar,ffFixed,7,1),
          #9,floattostr(Lev_m),
          #9,floattostr(ParVal),
-         #9,inttostr(PQF1), //Profile data, field 11: value quality control flag
-         #9,inttostr(PQF2),
-         #9,inttostr(SQF),
+         #9,inttostr(PQF1),#9,inttostr(PQF2),#9,inttostr(SQF),
          #9,inttostr(BNum),
          #9,UID);
+
          //if Checkbox2.Checked then
          //InsertParameters('P_TEMPERATURE', Absnum, {count_temperature,} stLev, ParVal, ParFlag);
          end;
          end; {1}
-      2: begin //#SALINITY
+
+      2: begin
          if ParErFlag2>0 then ParFlag:=2;
          if ParVal<>-9 then begin
          mEx:=1;
          count_salinity:=count_salinity+1;
-         UID:=2; //ocean.fdb unit ID: Dimensionless (unitless)
-         writeln(f_salt,inttostr(absnum),
-         #9,floattostrF(Lev_dbar,ffFixed,7,1),
-         #9,floattostr(Lev_m),
-         #9,floattostr(ParVal),
-         #9,inttostr(PQF1), //Profile data, field 11: value quality control flag
-         #9,inttostr(PQF2),
-         #9,inttostr(SQF),
-         #9,inttostr(BNum),
-         #9,UID);
          //if Checkbox2.Checked then
          //InsertParameters('P_SALINITY', Absnum, {count_salinity,} stLev, ParVal, ParFlag);
          end;
          end;
-      3: begin //#OXYGEN
+      3: begin
          if ParErFlag2>0 then ParFlag:=2;
          if ParVal<>-9 then begin
          mEx:=1;
          count_oxygen:=count_oxygen+1;
-         UID:=3; //ocean.fdb unit ID: Micromole per kilogram
-         writeln(f_oxyg,inttostr(absnum),
-         #9,floattostrF(Lev_dbar,ffFixed,7,1),
-         #9,floattostr(Lev_m),
-         #9,floattostr(ParVal),
-         #9,inttostr(PQF1),     //Profile data, field 11: value quality control flag
-         #9,inttostr(PQF2),
-         #9,inttostr(SQF),
-         #9,inttostr(BNum),
-         #9,UID);
+      //   writeln(fo_oxyg,absnum:8,count_temperature:5,StLev:7:1,ParVal:9:3,ParFlag:6);
          //if Checkbox2.Checked then
          //InsertParameters('P_OXYGEN', Absnum, {count_oxygen,} stLev, ParVal, ParFlag);
          end;
@@ -868,33 +839,27 @@ begin
 
 {p2}end;
 {p1}end;
-     {m=0- depth to pressure, 1- pressure to depth}
-     //LastLev_m:=StLev;
-     //procedures.Depth_to_Pressure(LastLev_m,stLat,0,LastLev_dbar);
-
-     //TEOS: meters to dbar
-     LastLev_m:=-StLev;
-     LastLev_dbar:=GibbsSeaWater.gsw_p_from_z(LastLev_m,stlat,0,0);
      LastLev_m:=StLev;
-
+     {m=0- depth to pressure, 1- pressure to depth}
+     procedures.Depth_to_Pressure(LastLev_m,stLat,0,LastLev_dbar);
 {PD}end;
 
 
 //output into file
-//STATION             NCEI Accession Number ???
+//STATION
 writeln(f_station,inttostr(absnum),
 #9,floattostr(StLat),
 #9,floattostr(StLon),
 #9,datetimetostr(StDateTime),
 #9,inttostr(StDepthSource),
-#9,floattostr(LastLev_m),                //LASTLEVEL_M
-#9,floattostrF(LastLev_dbar,ffFixed,7,1),//LASTLEVEL_DBAR
-#9,inttostr(WODCruiseNum),         //CRUISEID = WOD cruise number identification (Primary Header/Field 8: 'Cruise number'). Integer
+#9,floattostr(LastLev_m),           //LASTLEVEL_M
+#9,floattostrF(LastLev_dbar,ffFixed,7,1),        //LASTLEVEL_DBAR
+#9,inttostr(WODCruiseNum),         //CRUISEID
 #9,inttostr(TSProbeType),           //INSTRUMENT_ID
-#9,OrStNum,                         //ST_NUM_ORIGIN = station number assigned during the cruise (Secondary Header/Field 7: 'Originator's station number'). String
-#9,inttostr(WODCastNum),            //ST_ID_ORIGIN = WOD cast identification (Primary header/Field 5: 'WOD unique cast number'). Integer
-#9,inttostr(OrCastNum),             //CAST_NUMBER = station number assigned during the cruise (Secondary Header/Field 5: 'Cast/Tow number'). integer?
-#9,inttostr(ST_QF),                 //0 - not checked, 2 - suspicious becouse one of WOD algotithms on variables failed
+#9,OrStNum,                         //ST_NUM_ORIGIN
+#9,inttostr(WODCastNum),            //ST_ID_ORIGIN
+#9,inttostr(OrCastNum),             //CAST_NUMBER
+#9,inttostr(0),                     //QCFLAG There is no QF on whole station in WOD
 #9,inttostr(1),                     //STVERSION
 #9,inttostr(0),                    //MERGED
 #9,datetimetostr(NOW),        //DATE_ADDED
