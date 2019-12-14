@@ -21,7 +21,7 @@ Unit osmap_globctrl;
 Interface
 
 Uses
-  Classes, SysUtils, Forms, Controls, Graphics, LCLType, Math, ZStream,
+  Classes, SysUtils, Forms, Controls, Graphics, LCLType, Math,
   osmain, dm, osmap_datastreams, osmap_geometry, osmap_wkt, Dialogs;
 
 Type
@@ -87,12 +87,6 @@ Type
   End;
 
 Implementation
-
-{$IFDEF Darwin}
-  {$R Countries.res}
-{$ELSE}
-  {$R countries.rc}
-{$ENDIF}
 
 Var
   CountryData: TCountryGeometryArray;
@@ -561,31 +555,12 @@ End;
 
 Procedure PrepareCountryData;
 Var
-  ResourceStream: TStream;
-  DecompressionStream: TDecompressionStream;
   DataStream: TDataStream;
-//  FileStream: TFileStream;
   Index, LastIndex: Integer;
 Begin
-  { Load the Area Geometry dataset from its resource object. }
-  ResourceStream := TResourceStream.Create(hInstance, 'COUNTRIES', 'DATA');
-  DecompressionStream := TDecompressionStream.Create(ResourceStream);
-
   DataStream := TDataStream.Create;
   DataStream.FieldTerminator := #9;
-//  DataStream.LoadFromStream(ResourceStream);
-  DataStream.LoadFromStream(DecompressionStream);
-
-
- {  FileStream := TFileStream.Create('test.txt', fmCreate);
-     if DataStream.Size>0 then begin
-      DataStream.Position:=0;
-      FileStream.CopyFrom(DataStream, DataStream.Size);
-     end;
-   FileStream.Write(DataStream, DataStream.Size);
-   FreeAndNil(FileStream);   }
-
-
+  DataStream.LoadFromFile('00000.csv');
 
   SetLength(CountryData, DataStream.RecordCount);
   LastIndex := DataStream.RecordCount-1;
@@ -595,8 +570,6 @@ Begin
       DataStream.Next;
     End;
   FreeAndNil(DataStream);
-  FreeAndNil(DecompressionStream);
-  FreeAndNil(ResourceStream);
 End;
 
 Initialization

@@ -26,8 +26,6 @@ begin
 
  DataFile:=GlobalUnloadPath+'kml'+PathDelim+'stations.kml';
 
- //showmessage(DataFile);
-
  try
   AssignFile(f_out, DataFile); rewrite(f_out);
 
@@ -37,7 +35,7 @@ begin
   Writeln(f_out, '   <Style id="hideLabel">');
   Writeln(f_out, '    <BalloonStyle>');
   Writeln(f_out, '      <text><![CDATA[');
-  Writeln(f_out, '      <p><b>Node=<font color="red">$[name]</b></font></p>]]>');
+  Writeln(f_out, '      <p><b>ID=<font color="red">$[name]</b></font></p>]]>');
   Writeln(f_out, '       $[description]');
   Writeln(f_out, '       </text>');
   Writeln(f_out, '    </BalloonStyle>');

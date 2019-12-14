@@ -1,20 +1,19 @@
 object frmmap: Tfrmmap
   Left = 465
-  Height = 586
+  Height = 391
   Top = 197
-  Width = 764
+  Width = 509
   Caption = 'Map'
-  ClientHeight = 586
-  ClientWidth = 764
-  DesignTimePPI = 144
+  ClientHeight = 391
+  ClientWidth = 509
   OnClose = FormClose
   OnCreate = FormCreate
   LCLVersion = '2.0.6.0'
   object pmap: TPanel
     Left = 0
-    Height = 586
+    Height = 391
     Top = 0
-    Width = 724
+    Width = 482
     Align = alClient
     BevelOuter = bvNone
     Caption = 'pmap'
@@ -22,10 +21,10 @@ object frmmap: Tfrmmap
     TabOrder = 0
   end
   object ToolBar1: TToolBar
-    Left = 724
-    Height = 586
+    Left = 482
+    Height = 391
     Top = 0
-    Width = 40
+    Width = 27
     Align = alRight
     Caption = 'ToolBar1'
     EdgeBorders = [ebLeft]
@@ -44,9 +43,24 @@ object frmmap: Tfrmmap
     object btnZoomOut: TToolButton
       Left = 3
       Hint = 'Zoom Out'
-      Top = 33
+      Top = 22
       ImageIndex = 999
       OnClick = btnZoomOutClick
+    end
+    object ToolButton2: TToolButton
+      Left = 3
+      Top = 44
+      Width = 23
+      Caption = 'ToolButton2'
+      Style = tbsDivider
+    end
+    object btnKMLExport: TToolButton
+      Left = 3
+      Hint = 'Open as KML'
+      Top = 49
+      Caption = 'btnKMLExport'
+      ImageIndex = 1000
+      OnClick = btnKMLExportClick
     end
   end
 end

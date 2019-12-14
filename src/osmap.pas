@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  osmain, dm, DB, osmap_globctrl;
+  osmain, dm, DB, osmap_globctrl, osmap_kml, procedures;
 
 type
 
@@ -18,7 +18,10 @@ type
     ToolBar1: TToolBar;
     btnZoomIn: TToolButton;
     btnZoomOut: TToolButton;
+    btnKMLExport: TToolButton;
+    ToolButton2: TToolButton;
 
+    procedure btnKMLExportClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure btnZoomInClick(Sender: TObject);
@@ -50,6 +53,8 @@ begin
 
   MainGlobe.Marker.Lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
   MainGlobe.Marker.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
+
+  btnKMLExport.Enabled:=CheckKML;
 end;
 
 
@@ -72,6 +77,11 @@ end;
 procedure Tfrmmap.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
  frmmap_open:=false;
+end;
+
+procedure Tfrmmap.btnKMLExportClick(Sender: TObject);
+begin
+  ExportKML_;
 end;
 
 end.

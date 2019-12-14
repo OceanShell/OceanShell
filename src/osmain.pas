@@ -7,7 +7,7 @@ interface
 uses
   Windows, SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls,
   Menus, Dialogs, ActnList, StdCtrls, INIFiles, ExtCtrls, DateUtils, sqldb, DB,
-  LCLTranslator, Buttons, DBGrids, Spin, DateTimePicker, Process, LResources;
+  Buttons, DBGrids, Spin, DateTimePicker, Process;
 
 type
 
@@ -29,7 +29,7 @@ type
     btnadd: TToolButton;
     btncancel: TToolButton;
     btndelete: TToolButton;
-    btnMap1: TToolButton;
+    btnFastAccessOpenMap: TToolButton;
     btnsave: TToolButton;
     btnSelection: TButton;
     chkPeriod: TCheckBox;
@@ -42,13 +42,16 @@ type
     Label1: TLabel;
     Label2: TLabel;
     iProfilesAll: TMenuItem;
+    lbResetArea: TLabel;
+    lbResetDates: TLabel;
     MenuItem2: TMenuItem;
     iLoad_WOD18: TMenuItem;
     iLoad_WOD: TMenuItem;
     iMap: TMenuItem;
     Panel1: TPanel;
-    Panel2: TPanel;
     PM1: TPopupMenu;
+    sbDatabase: TStatusBar;
+    sbSelection: TStatusBar;
     seIDMax: TSpinEdit;
     seLonMin: TFloatSpinEdit;
     seLonMax: TFloatSpinEdit;
@@ -60,7 +63,6 @@ type
     iLoad: TMenuItem;
     iTools: TMenuItem;
     iLoad_ITP: TMenuItem;
-    iMapKML: TMenuItem;
     MenuItem1: TMenuItem;
     iLoad_GLODAP_2019_v2_product: TMenuItem;
     iKnowledgeDBOpen: TMenuItem;
@@ -85,12 +87,10 @@ type
     N3: TMenuItem;
     iExit: TMenuItem;
     ListBox1: TListBox;
-    StatusBar2: TStatusBar;
-    StatusBar3: TStatusBar;
     ToolBar1: TToolBar;
-    ToolBar2: TToolBar;
+    tbFastAccess: TToolBar;
     ToolButton1: TToolButton;
-    ToolButton2: TToolButton;
+    btnFastAccessOpenDB: TToolButton;
     tsMainSelect: TTabSheet;
     tsMainSelectAdvanced: TTabSheet;
     tsMainData: TTabSheet;
@@ -103,7 +103,6 @@ type
       Shift: TShiftState);
     procedure DBGridPlatformTitleClick(Column: TColumn);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
-    procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure iAboutClick(Sender: TObject);
@@ -114,10 +113,11 @@ type
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
     procedure iLoad_WODClick(Sender: TObject);
-    procedure iMapKMLClick(Sender: TObject);
     procedure iProfilesAllClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
+    procedure lbResetAreaClick(Sender: TObject);
+    procedure lbResetDatesClick(Sender: TObject);
 
 
   private
@@ -165,8 +165,6 @@ var
   SLonP_arr:array[0..20000] of real;
   Length_arr:integer;
 
-  Lar_arr, Lon_arr: array of real; // arrays with cordinates for
-
   frmcodes_open, frmcodesQC_open, frmparametersall_open, frmmap_open:boolean;
 
 
@@ -192,7 +190,6 @@ uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
 (* QC *)
 (* tools *)
   osmap,
-  osmap_kml,
   osparameters_all,
 
 (* statistics *)
@@ -201,16 +198,11 @@ uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
 
 {$R *.lfm}
 
-procedure Tfrmosmain.FormCreate(Sender: TObject);
-begin
-// StatusBar1.Panels[2].Style := psOwnerDraw;
- //ProgressBar1.Parent:=StatusBar1;
-
-end;
-
 
 procedure Tfrmosmain.FormResize(Sender: TObject);
 begin
+  tbFastAccess.Top:=PageControl1.Top-2;
+  tbFastAccess.Left:=PageControl1.Width-tbFastAccess.Width;
  //StatusBar1.Panels[1].Width:=Width-(statusbar1.Panels[0].Width+statusbar1.Panels[2].Width+75);
   {pSelectedDataGap.Width:=Toolbar1.width-10-
                           (btnAdd.Width+
@@ -357,6 +349,21 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
 end;
 
 
+procedure Tfrmosmain.lbResetAreaClick(Sender: TObject);
+begin
+  seLatMin.Value:=IBLatMin;
+  seLatMax.Value:=IBLatMax;
+  seLonMin.Value:=IBLonMin;
+  seLonMax.Value:=IBLonMax;
+end;
+
+procedure Tfrmosmain.lbResetDatesClick(Sender: TObject);
+begin
+  dtpDateMin.DateTime:=IBDateMin;
+  dtpDateMax.DateTime:=IBDateMax;
+end;
+
+
 procedure Tfrmosmain.CDSNavigation;
 Var
 ID:integer;
@@ -439,7 +446,6 @@ begin
 end;
 
 
-
 (**)
 procedure Tfrmosmain.aOpenDatabaseExecute(Sender: TObject);
 begin
@@ -516,13 +522,15 @@ Qt_DB2.Transaction:=TRt_DB2;
          IBDateMin :=FieldByName('StDateMin').AsDateTime;
          IBDateMax :=FieldByName('StDateMax').AsDateTime;
 
-         StatusBar2.Panels[1].Text:='LtMin: '+floattostr(IBLatMin);
-         StatusBar2.Panels[2].Text:='LtMax: '+floattostr(IBLatMax);
-         StatusBar2.Panels[3].Text:='LnMin: '+floattostr(IBLonMin);
-         StatusBar2.Panels[4].Text:='LnMax: '+floattostr(IBLonMax);
-         StatusBar2.Panels[5].Text:='DateMin: '+datetostr(IBDateMin);
-         StatusBar2.Panels[6].Text:='DateMax: '+datetostr(IBDateMax);
-         StatusBar2.Panels[7].Text:='Stations: '+inttostr(IBCount);
+         with sbDatabase do begin
+           Panels[1].Text:='LtMin: '+floattostr(IBLatMin);
+           Panels[2].Text:='LtMax: '+floattostr(IBLatMax);
+           Panels[3].Text:='LnMin: '+floattostr(IBLonMin);
+           Panels[4].Text:='LnMax: '+floattostr(IBLonMax);
+           Panels[5].Text:='DateMin: '+datetostr(IBDateMin);
+           Panels[6].Text:='DateMax: '+datetostr(IBDateMax);
+           Panels[7].Text:='Stations: '+inttostr(IBCount);
+         end;
 
          seIDMin.Value:=IDMin;
          seIdMax.Value:=IDMax;
@@ -534,7 +542,7 @@ Qt_DB2.Transaction:=TRt_DB2;
          dtpDateMin.DateTime:=IBDateMin;
          dtpDateMax.DateTime:=IBDateMax;
 
-      end else for k:=1 to 7 do frmosmain.statusbar2.Panels[k].Text:='---';
+      end else for k:=1 to 7 do sbDatabase.Panels[k].Text:='---';
     Close;
    end;
 
@@ -646,45 +654,33 @@ begin
 
      SCount   :=frmdm.Q.RecordCount;
      if SCount>0 then begin
-       with StatusBar3 do begin
-         Panels[1].Text:='           '+floattostr(SLatMin);
-         Panels[2].Text:='            '+floattostr(SLatMax);
-         Panels[3].Text:='            '+floattostr(SLonMin);
-         Panels[4].Text:='             '+floattostr(SLonMax);
-         Panels[5].Text:='               '+datetostr(SDateMin);
-         Panels[6].Text:='                '+datetostr(SDateMax);
-         Panels[7].Text:='               '+inttostr(SCount);
+       with sbSelection do begin
+         Panels[1].Text:='LtMin: '+floattostr(SLatMin);
+         Panels[2].Text:='LtMax: '+floattostr(SLatMax);
+         Panels[3].Text:='LnMin: '+floattostr(SLonMin);
+         Panels[4].Text:='LnMax: '+floattostr(SLonMax);
+         Panels[5].Text:='DateMin: '+datetostr(SDateMin);
+         Panels[6].Text:='DateMax: '+datetostr(SDateMax);
+         Panels[7].Text:='Stations: '+inttostr(SCount);
        end;
-     end else for k:=1 to 7 do statusbar3.Panels[k].Text:='---';
+     end else for k:=1 to 7 do sbSelection.Panels[k].Text:='---';
 
   (* if there are selected station enabling some menu items *)
   if SCount>0 then items_enabled:=true else items_enabled:=false;
 
   iDBStatistics.Enabled:=items_enabled;
-  iMapKML.Enabled:=items_enabled;
+  //iMapKML.Enabled:=items_enabled;
   aMap.Enabled:=items_enabled;
 end;
 
 
-
 procedure Tfrmosmain.ItemsVisibility;
-Var
-  Ini:TIniFile;
 begin
- Ini := TIniFile.Create(IniFileName);
-  try
-   if Ini.ReadInteger( 'main', 'Language', 0)=0 then SetDefaultLang('en') else SetDefaultLang('ru');
-  finally
-   ini.Free;
-  end;
-
  btnSelection.Enabled:=true;
 end;
 
 
 procedure Tfrmosmain.iNewDatabaseClick(Sender: TObject);
-Var
-ScriptPath:string;
 begin
  SD.Filter:='Firebird database|*.FDB';
  SD.DefaultExt:='FDB';
@@ -764,13 +760,6 @@ begin
     end;
   frmmap_open:=true;
 end;
-
-
-procedure Tfrmosmain.iMapKMLClick(Sender: TObject);
-begin
-   ExportKML_;
-end;
-
 
 
 procedure Tfrmosmain.iProfilesAllClick(Sender: TObject);
@@ -904,10 +893,6 @@ begin
      Ini.Free;
    end;
 end;
-
-
-initialization
-  {$I flags.lrs}
 
 
 end.

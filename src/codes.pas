@@ -7,7 +7,7 @@ interface
 uses
   Windows, lclintf, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Buttons, ComCtrls, ExtCtrls, Menus, sqldb, DB, sortbufds,
-  DBGrids, DBCtrls;
+  DBGrids, DBCtrls, LResources;
 
 type
 
@@ -1084,6 +1084,10 @@ begin
  CloseAction:= caFree;
  frmcodes_open:=false;
 end;
+
+
+initialization
+  {$I flags.lrs}
 
 
 end.

@@ -1,11 +1,11 @@
 object frmcodes: Tfrmcodes
-  Left = 670
+  Left = 309
   Height = 550
-  Top = 274
+  Top = 93
   Width = 1000
   Caption = 'Codes'
-  ClientHeight = 550
-  ClientWidth = 1000
+  ClientHeight = 0
+  ClientWidth = 0
   Color = clBtnFace
   Constraints.MinHeight = 550
   Constraints.MinWidth = 1000
@@ -65,49 +65,35 @@ object frmcodes: Tfrmcodes
           Color = 13627366
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ID'
               FieldName = 'ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'NODC'
               Width = 62
               FieldName = 'NODC_CODE'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'WOD'
               Width = 62
               FieldName = 'WOD_ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'IMO'
               Width = 62
               FieldName = 'IMO_ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Callsign'
               Width = 62
               FieldName = 'CALLSIGN'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Platform name'
               Width = 150
               FieldName = 'NAME'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Native platform name'
               Width = 150
               FieldName = 'NAME_NATIVE'
@@ -404,61 +390,43 @@ object frmcodes: Tfrmcodes
           Color = 13627366
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ID'
               Width = 50
               FieldName = 'ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Platform'
               Width = 200
               FieldName = 'PLATFORMNAME'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Cruise #'
               Width = 60
               FieldName = 'CRUISE_NUMBER'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Start date'
               FieldName = 'DATE_START'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'End date'
               FieldName = 'DATE_END'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Stations #'
               Width = 60
               FieldName = 'STATIONS_AMOUNT'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Country'
               FieldName = 'COUNTRYNAME'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Source'
               Width = 100
               FieldName = 'SOURCENAME'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'WOD'
               Width = 50
               FieldName = 'WOD_ID'
@@ -771,61 +739,43 @@ object frmcodes: Tfrmcodes
           Color = 13627366
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ID'
               Width = 50
               FieldName = 'ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'WOD'
               FieldName = 'WOD_CODE'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Platform name'
               Width = 200
               FieldName = 'PLATFORMNAME'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Start date'
               FieldName = 'DATE_START'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'End date'
               FieldName = 'DATE_END'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = '# of stations'
               Width = 60
               FieldName = 'STATIONS_AMOUNT'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Country name'
               Width = 200
               FieldName = 'COUNTRYNAME'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Institute'
               Width = 200
               FieldName = 'INSTITUTENAME'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'WMO'
               Width = 70
               FieldName = 'WMO_CODE'
@@ -1000,61 +950,43 @@ object frmcodes: Tfrmcodes
           Color = 13627366
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ID'
               Width = 50
               FieldName = 'ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'EXPOCODE'
               Width = 100
               FieldName = 'EXPOCODE'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Platform name'
               Width = 150
               FieldName = 'PLATFORMNAME'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Cruise #'
               Width = 150
               FieldName = 'CRUISE_NUMBER'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Start date'
               FieldName = 'DATE_START'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'End date'
               FieldName = 'DATE_END'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = '# of stations'
               FieldName = 'STATIONS_AMOUNT'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Country name'
               Width = 200
               FieldName = 'COUNTRYNAME'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'PI'
               FieldName = 'PI'
             end>
@@ -1320,22 +1252,16 @@ object frmcodes: Tfrmcodes
           Color = 13627366
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ID'
               Width = 63
               FieldName = 'ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ISO3166'
               Width = 63
               FieldName = 'ISO3166_CODE'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Country name'
               Width = 710
               FieldName = 'NAME'
@@ -1437,28 +1363,20 @@ object frmcodes: Tfrmcodes
           Color = 13627366
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ID'
               Width = 63
               FieldName = 'ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Source name'
               Width = 200
               FieldName = 'NAME'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Min ID'
               FieldName = 'ID_MIN'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Max ID'
               FieldName = 'ID_MAX'
             end>
@@ -1574,15 +1492,11 @@ object frmcodes: Tfrmcodes
           Color = 13627366
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ID'
               Width = 63
               FieldName = 'ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Primary Investigator name'
               Width = 300
               FieldName = 'NAME'
@@ -1699,22 +1613,16 @@ object frmcodes: Tfrmcodes
           Color = 13627366
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ID'
               Width = 63
               FieldName = 'ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'WOD'
               Width = 63
               FieldName = 'WOD_ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Project name'
               Width = 760
               FieldName = 'NAME'
@@ -1861,29 +1769,21 @@ object frmcodes: Tfrmcodes
           Color = 13627366
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ID'
               Width = 63
               FieldName = 'ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'NODC'
               Width = 63
               FieldName = 'NODC_CODE'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'WOD'
               Width = 63
               FieldName = 'WOD_ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Institute name'
               Width = 760
               FieldName = 'NAME'
@@ -2069,22 +1969,16 @@ object frmcodes: Tfrmcodes
           Color = 13627366
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ID'
               Width = 63
               FieldName = 'ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'WOD'
               Width = 63
               FieldName = 'WOD_ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Instrument name'
               Width = 760
               FieldName = 'NAME'
@@ -2201,35 +2095,25 @@ object frmcodes: Tfrmcodes
           Color = 13627366
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ID'
               Width = 63
               FieldName = 'ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Full name'
               Width = 200
               FieldName = 'NAME'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Short name'
               Width = 80
               FieldName = 'NAME_SHORT'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Length'
               FieldName = 'LENGTH'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Scale'
               FieldName = 'SCALE'
             end>
@@ -2377,29 +2261,21 @@ object frmcodes: Tfrmcodes
           Color = 13627366
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ID'
               Width = 63
               FieldName = 'ID'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Source name'
               Width = 200
               FieldName = 'SOURCENAME'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Source QC flag'
               Width = 80
               FieldName = 'SOURCEFLAG'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'ODB QC flag'
               Width = 80
               FieldName = 'ODBFLAG'
@@ -2463,7 +2339,7 @@ object frmcodes: Tfrmcodes
       ShowCaption = False
     end
     object btnsave: TToolButton
-      Left = 76
+      Left = 78
       Hint = 'Commit changes'
       Top = 0
       Caption = 'Save'
@@ -2486,7 +2362,7 @@ object frmcodes: Tfrmcodes
       Style = tbsDivider
     end
     object btnUpdateQC: TBitBtn
-      Left = 297
+      Left = 299
       Height = 22
       Top = 0
       Width = 116
@@ -2501,7 +2377,7 @@ object frmcodes: Tfrmcodes
       TabOrder = 0
     end
     object Panel28: TPanel
-      Left = 127
+      Left = 129
       Height = 22
       Top = 0
       Width = 170
