@@ -39,8 +39,9 @@ var
   frmloadWOD18: TfrmloadWOD18;
   mik_stTotal:integer;
   VarCount_arr :array [1..50] of integer;    //count variables appearance
-  f_dat, f_statistics, f_station: text;
-  f_temp: text;
+  f_dat, f_statistics, f_station, f_meteo: text;
+  f_temp, f_salt, f_oxyg: text;
+
 
 implementation
 
@@ -90,6 +91,36 @@ begin
    rewrite(f_station);
    writeln(f_station,StrOut);
 
+   FileOut:=PathOut+'METEO.dat';
+   StrOut:='ID'
+   +#9+'TEMPDRY'
+   +#9+'TEMPWET'
+   +#9+'PRESSURE'
+   +#9+'WINDDIR'
+   +#9+'WINDSPEED'
+   +#9+'CLOUDCOMMON'
+   +#9+'CLOUDLOW'
+   +#9+'CLOUDTYPE'
+   +#9+'VISIBILITY'
+   +#9+'HUMABS'
+   +#9+'HUMREL'
+   +#9+'WAVEHEIGHT'
+   +#9+'WAVEDIR'
+   +#9+'WAVEPERIOD'
+   +#9+'SEASTATE'
+   +#9+'WEATHER'
+   +#9+'WATERCOLOR'
+   +#9+'WATERTRANSP'
+   +#9+'SURFTEMP'
+   +#9+'SURFSALT';
+
+   AssignFile(f_meteo,FileOut);
+   rewrite(f_meteo);
+   writeln(f_meteo,StrOut);
+
+
+
+   {...variables create output files}
    FileOut:=PathOut+'TEMPERATURE.dat';
    StrOut:='ID'+#9+'DBAR'+#9+'M'+#9+'VAL'+#9+'PQF1'
    +#9+'PQF2'+#9+'SQF'+#9+'BOTTLE_NUMBER'+#9+'UNITS_ID';
@@ -188,6 +219,7 @@ begin
 
     closefile(f_statistics);
     closefile(f_station);
+    closefile(f_meteo);
     closefile(f_temp);
 end;
 
@@ -225,7 +257,7 @@ MonthErr,TimeErr:Boolean;
 
 {Meteo}
 StAirTemp, StTWet, StAirPressure, WindDir, WindSpeed,
-CloudCover, CloudType, Visibility, AbsHum,
+CloudCover, CloudLow, CloudType, Visibility, AbsHum, RelHum,
 WHeight, Wavedir, Waveperiod, Seastate, StWeather, Watercolor,
 WaterTransp, SurfTemp, SurfSalt:Variant;
 
@@ -233,6 +265,7 @@ WaterTransp, SurfTemp, SurfSalt:Variant;
 Lev_m,Lev_dbar,LastLev_m,LastLev_dbar:real;
 PQF1,PQF2,SQF,BNum,UID:integer; //primary QF1,QF2, secondary QF, Niskin bottle, our unit ID
 OrCastNum:integer;
+m_exist:integer;
 
 begin
 
@@ -444,10 +477,11 @@ begin
        OrStNum:='';
 
        StAirTemp:=null; StTWet:=null; StAirPressure:=null; WindDir:=null;
-       WindSpeed:=null; CloudCover:=null; CloudType:=null; Visibility:=null;
-       AbsHum:=null; WHeight:=null; Wavedir:=null; Waveperiod:=null;
+       WindSpeed:=null; CloudCover:=null; CloudLow:=null; CloudType:=null; Visibility:=null;
+       AbsHum:=null; RelHum:=null; WHeight:=null; Wavedir:=null; Waveperiod:=null;
        Seastate:=null; StWeather:=null; Watercolor:=null; WaterTransp:=null;
        SurfTemp:=null; SurfSalt:=null;
+
 
 {s}for k:=1 to s do begin
        BNF:=strtoint(copy(SHstr,SHnc,1));
@@ -830,6 +864,42 @@ writeln(f_station,inttostr(absnum),
 #9,inttostr(0),                    //MERGED
 #9,datetimetostr(NOW),        //DATE_ADDED
 #9,datetimetostr(NOW));      //DATE_UPDATED
+
+
+
+//METEO
+        m_exist:=0;
+   if (not VarIsNull(StAirTemp)) or (not VarIsNull(StTWet)) or (not VarIsNull(StAirPressure))
+   or (not VarIsNull(WindDir)) or (not VarIsNull(WindSpeed)) or (not VarIsNull(CloudCover))
+   or (not VarIsNull(CloudLow)) or (not VarIsNull(CloudType)) or (not VarIsNull(Visibility))
+   or (not VarIsNull(AbsHum)) or (not VarIsNull(RelHum)) or (not VarIsNull(WHeight))
+   or (not VarIsNull(WaveDir)) or (not VarIsNull(WavePeriod)) or (not VarIsNull(SeaState))
+   or (not VarIsNull(StWeather)) or (not VarIsNull(WaterColor)) or (not VarIsNull(WaterTransp))
+   or (not VarIsNull(SurfTemp)) or (not VarIsNull(SurfSalt))
+   then m_exist:=1;
+
+if m_exist=1 then
+writeln(f_meteo,inttostr(absnum), //ID
+#9,vartostr(StAirTemp),         //TEMPDRY
+#9,vartostr(StTWet),            //TEMPWET
+#9,vartostr(StAirPressure),     //PRESSURE
+#9,vartostr(WindDir),           //WINDDIR
+#9,vartostr(WindSpeed),         //WINDSPEED
+#9,vartostr(CloudCover),        //CLOUDCOMMON  SH ID=28
+#9,vartostr(CloudLow),          //CLOUDLOW
+#9,vartostr(CloudType),         //CLOUDTYPE  SH ID=27
+#9,vartostr(Visibility),        //VISIBILITY
+#9,vartostr(AbsHum),            //HUMABS   g/m3
+#9,vartostr(RelHum),            //HUMREL
+#9,vartostr(WHeight),           //WAVEHEIGHT
+#9,vartostr(WaveDir),            //WAVEDIR
+#9,vartostr(WavePeriod),         //WAVEPERIOD
+#9,vartostr(SeaState),           //SEASTATE
+#9,vartostr(StWeather),          //WEATHER
+#9,vartostr(WaterColor),         //WATERCOLOR
+#9,vartostr(WaterTransp),        //WATERTRANSP
+#9,vartostr(SurfTemp),           //SURFTEMP
+#9,vartostr(SurfSalt));           //SURFSALT
 
 
 {WFR}until eof(f_dat); {end of file}
