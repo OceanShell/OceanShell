@@ -5,9 +5,12 @@ unit osmain;
 interface
 
 uses
-  Windows, SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls,
+  {$IFDEF WINDOWS}
+  Windows,
+  {$ENDIF}
+  SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, LCLType,
   Menus, Dialogs, ActnList, StdCtrls, INIFiles, ExtCtrls, DateUtils, sqldb, DB,
-  Buttons, DBGrids, Spin, DateTimePicker, Process;
+  Buttons, DBGrids, Spin, DateTimePicker, Process, Math;
 
 type
 
@@ -186,7 +189,7 @@ uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
 (* export *)
 (* QC *)
 (* tools *)
-  osmap,
+ { osmap,}
   osparameters_all,
 
 (* statistics *)
@@ -371,7 +374,7 @@ if (ID=0) or (NavigationOrder=false) then exit;
 
  If NavigationOrder=true then begin
   NavigationOrder:=false; //blocking everthing until previous operations have been completed
-   if frmmap_open     =true then frmmap.ChangeID;
+ //  if frmmap_open     =true then frmmap.ChangeID;
  //  if InfoOpen      =true then Info.ChangeID;
  //  if QProfilesOpen =true then QProfiles.ChangeStation(ID);
  //  if DensOpen      =true then QDensity.ChangeDensStation(ID);
@@ -751,12 +754,12 @@ end;
 
 procedure Tfrmosmain.aMapExecute(Sender: TObject);
 begin
- if frmmap_open=true then frmmap.SetFocus else
+{ if frmmap_open=true then frmmap.SetFocus else
     begin
        frmmap := Tfrmmap.Create(Self);
        frmmap.Show;
     end;
-  frmmap_open:=true;
+  frmmap_open:=true; }
 end;
 
 

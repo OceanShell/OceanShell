@@ -5,7 +5,10 @@ unit codes;
 interface
 
 uses
-  Windows, lclintf, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  {$IFDEF WINDOWS}
+  Windows,
+  {$ENDIF}
+  lclintf, SysUtils, Variants, Classes, Graphics, Controls, Forms, LCLType,
   Dialogs, StdCtrls, Buttons, ComCtrls, ExtCtrls, Menus, sqldb, DB, sortbufds,
   DBGrids, DBCtrls, LResources;
 

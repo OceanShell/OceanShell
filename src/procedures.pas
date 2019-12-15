@@ -7,8 +7,9 @@ interface
 uses
 {$ifdef WINDOWS}
   Windows, Registry,
-{$endif}
+{$ENDIF}
   SysUtils, Variants, Dialogs, DateUtils, Forms, osmain, declarations_netcdf;
+
 
 function CheckKML:boolean;
 function ClearDir(Dir:string ): boolean;
@@ -44,12 +45,15 @@ function MessageDlgCtr(const Msg: string; DlgType: TMsgDlgType;
 implementation
 
 
-{$IFDEF WINDOWS}
+
 function CheckKML:boolean;
 var
-  FileClass: string;
+ FileClass: string;
+ {$IFDEF WINDOWS}
   Reg: TRegistry;
+ {$ENDIF}
 begin
+{$IFDEF WINDOWS}
   Reg := TRegistry.Create(KEY_EXECUTE);
   Reg.RootKey := HKEY_CLASSES_ROOT;
   FileClass := '';
@@ -66,35 +70,8 @@ begin
     end;
   end;
   Reg.Free;
+  {$ENDIF}
 end;
-
-function LinesCount(const Filename: string): Integer;
-var
-  HFile: THandle;
-  FSize, WasRead, i: Cardinal;
-  Buf: array[1..4096] of byte;
-begin
-  Result := 0;
-  HFile := CreateFile(Pchar(FileName), GENERIC_READ, FILE_SHARE_READ, nil,
-    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-  if HFile <> INVALID_HANDLE_VALUE then
-  begin
-    FSize := GetFileSize(HFile, nil);
-    if FSize > 0 then
-    begin
-      Inc(Result);
-      ReadFile(HFile, Buf, 4096, WasRead, nil);
-      repeat
-        for i := WasRead downto 1 do
-          if Buf[i] = 10 then
-            Inc(Result);
-        ReadFile(HFile, Buf, 4096, WasRead, nil);
-      until WasRead = 0;
-    end;
-  end;
-  CloseHandle(HFile);
-end;
-{$ENDIF}
 
 
 (* Кодируем текстовую строку *)

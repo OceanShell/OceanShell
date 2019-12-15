@@ -5,8 +5,11 @@ unit codesupdateqc;
 interface
 
 uses
+  {$IFDEF WINDOWS}
+  ComObj,
+  {$ENDIF}
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  ComCtrls, sqldb, ComObj, Variants, lclintf;
+  ComCtrls, sqldb, Variants, lclintf;
 
 type
 
@@ -117,6 +120,7 @@ RString, src, shipname:String;
 TRt:TSQLTransaction;
 Qt1, Qt2, Qt3:TSQLQuery;
 begin
+{$IFDEF WINDOWS}
  mLog.Clear;
 
  frmosmain.OD.Filter:='*.xls;*.xlsx|*.xls;*.xlsx';
@@ -342,6 +346,7 @@ if frmosmain.OD.Execute then begin
  end;
   Showmessage('Update finished. Stations processed: '+inttostr(k-5));
 end; // if file is open   }
+{$ENDIF}
 end;
 
 
@@ -1492,7 +1497,7 @@ date1, date2:TDateTime;
 TRt:TSQLTransaction;
 Qt1, Qt2, Qt3:TSQLQuery;
 begin
-
+{$IFDEF WINDOWS}
 try
 mLog.Clear;
 
@@ -1744,6 +1749,7 @@ mLog.Clear;
   if frmcodes_open=true then frmcodes.PageControl1.OnChange(self);
   Showmessage(SDone);
  end;
+{$ENDIF}
 end;
 
 
