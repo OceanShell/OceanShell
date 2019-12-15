@@ -189,7 +189,7 @@ uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
 (* export *)
 (* QC *)
 (* tools *)
- { osmap,}
+  osmap,
   osmap_kml,
   osparameters_all,
 
@@ -748,13 +748,12 @@ end;
 
 procedure Tfrmosmain.aMapExecute(Sender: TObject);
 begin
-   ExportKML_;
-{ if frmmap_open=true then frmmap.SetFocus else
+ if frmmap_open=true then frmmap.SetFocus else
     begin
        frmmap := Tfrmmap.Create(Self);
        frmmap.Show;
     end;
-  frmmap_open:=true; }
+  frmmap_open:=true;
 end;
 
 
