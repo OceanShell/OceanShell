@@ -28,7 +28,7 @@ object frmmap: Tfrmmap
     Align = alRight
     Caption = 'ToolBar1'
     EdgeBorders = [ebLeft]
-    Images = frmosmain.IL1
+    Images = frmicons.IL1
     ParentFont = False
     ParentShowHint = False
     ShowHint = True
@@ -36,20 +36,20 @@ object frmmap: Tfrmmap
     object btnZoomIn: TToolButton
       Left = 3
       Hint = 'Zoom In'
-      Top = 0
+      Top = 22
       ImageIndex = 998
       OnClick = btnZoomInClick
     end
     object btnZoomOut: TToolButton
       Left = 3
       Hint = 'Zoom Out'
-      Top = 22
+      Top = 44
       ImageIndex = 999
       OnClick = btnZoomOutClick
     end
     object ToolButton2: TToolButton
       Left = 3
-      Top = 44
+      Top = 66
       Width = 23
       Caption = 'ToolButton2'
       Style = tbsDivider
@@ -57,10 +57,18 @@ object frmmap: Tfrmmap
     object btnKMLExport: TToolButton
       Left = 3
       Hint = 'Open as KML'
-      Top = 49
+      Top = 71
       Caption = 'btnKMLExport'
       ImageIndex = 1000
       OnClick = btnKMLExportClick
+    end
+    object btnShowSelected: TToolButton
+      Left = 3
+      Hint = 'Center at selected station'
+      Top = 0
+      Caption = 'btnShowSelected'
+      ImageIndex = 1001
+      OnClick = btnShowSelectedClick
     end
   end
 end

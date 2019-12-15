@@ -14,7 +14,7 @@ object frmparametersall: Tfrmparametersall
   OnCreate = FormCreate
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '2.0.2.0'
+  LCLVersion = '2.0.6.0'
   object ToolBar1: TToolBar
     Left = 0
     Height = 24
@@ -24,7 +24,7 @@ object frmparametersall: Tfrmparametersall
     ButtonHeight = 22
     ButtonWidth = 62
     Caption = 'ToolBar1'
-    Images = frmosmain.IL1
+    Images = frmicons.IL1
     List = True
     ParentShowHint = False
     ShowCaptions = True
@@ -46,16 +46,8 @@ object frmparametersall: Tfrmparametersall
       ImageIndex = 334
       OnClick = btnDeleteClick
     end
-    object ToolButton3: TToolButton
-      Left = 125
-      Height = 22
-      Top = 2
-      Caption = 'ToolButton3'
-      ImageIndex = 29
-      Style = tbsSeparator
-    end
     object btnSetFlag: TToolButton
-      Left = 133
+      Left = 130
       Hint = 'Set flag on all parameters'
       Top = 2
       AutoSize = True
@@ -64,22 +56,28 @@ object frmparametersall: Tfrmparametersall
       ImageIndex = 973
       OnClick = btnSetFlagClick
     end
-    object ToolButton2: TToolButton
-      Left = 195
-      Height = 22
-      Top = 2
-      Caption = 'ToolButton2'
-      ImageIndex = 28
-      Style = tbsSeparator
-    end
     object btnCommit: TToolButton
-      Left = 203
+      Left = 197
       Hint = 'Commit changes'
       Top = 2
       AutoSize = True
       Caption = 'Commit'
       ImageIndex = 940
       OnClick = btnCommitClick
+    end
+    object ToolButton1: TToolButton
+      Left = 125
+      Height = 22
+      Top = 2
+      Caption = 'ToolButton1'
+      Style = tbsDivider
+    end
+    object ToolButton3: TToolButton
+      Left = 192
+      Height = 22
+      Top = 2
+      Caption = 'ToolButton3'
+      Style = tbsDivider
     end
   end
   object Splitter1: TSplitter
@@ -128,7 +126,6 @@ object frmparametersall: Tfrmparametersall
     top = 112
   end
   object PM: TPopupMenu
-    Images = frmosmain.IL1
     AutoPopup = False
     left = 192
     top = 112

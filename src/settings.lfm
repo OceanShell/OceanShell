@@ -11,7 +11,7 @@ object frmsettings: Tfrmsettings
   ClientWidth = 511
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.6.0'
   object btnOk: TButton
     Left = 416
     Height = 25
@@ -184,31 +184,6 @@ object frmsettings: Tfrmsettings
           ParentColor = False
           ParentFont = False
         end
-      end
-      object rgLanguage: TRadioGroup
-        Left = 192
-        Height = 56
-        Top = 296
-        Width = 208
-        AutoFill = True
-        Caption = 'Language'
-        ChildSizing.LeftRightSpacing = 6
-        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
-        ChildSizing.EnlargeVertical = crsHomogenousChildResize
-        ChildSizing.ShrinkHorizontal = crsScaleChilds
-        ChildSizing.ShrinkVertical = crsScaleChilds
-        ChildSizing.Layout = cclLeftToRightThenTopToBottom
-        ChildSizing.ControlsPerLine = 2
-        ClientHeight = 36
-        ClientWidth = 204
-        Columns = 2
-        ItemIndex = 0
-        Items.Strings = (
-          'English'
-          'Русский'
-        )
-        ParentFont = False
-        TabOrder = 5
       end
     end
     object TabSheet4: TTabSheet

@@ -20,16 +20,16 @@ type
     ToolBar1: TToolBar;
     btnAdd: TToolButton;
     btnDelete: TToolButton;
-    ToolButton2: TToolButton;
+    ToolButton1: TToolButton;
     btnCommit: TToolButton;
     DS1: TDataSource;
     PM: TPopupMenu;
     Splitter1: TSplitter;
     iDeleteParameter: TMenuItem;
     btnSetFlag: TToolButton;
-    ToolButton3: TToolButton;
     iSetFlagParameter: TMenuItem;
     N1: TMenuItem;
+    ToolButton3: TToolButton;
 
     procedure DBGrid1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);

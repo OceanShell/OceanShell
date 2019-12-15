@@ -58,7 +58,6 @@ type
     seLatMax: TFloatSpinEdit;
     seLatMin: TFloatSpinEdit;
     GroupBox1: TGroupBox;
-    IL1: TImageList;
     iSettings: TMenuItem;
     iLoad: TMenuItem;
     iTools: TMenuItem;
@@ -74,7 +73,6 @@ type
     OD: TOpenDialog;
     PageControl1: TPageControl;
     seIDMin: TSpinEdit;
-    IL2: TImageList;
     SD: TSaveDialog;
     Memo1: TMemo;
     MM1: TMainMenu;
@@ -99,8 +97,7 @@ type
     procedure aOpenDatabaseExecute(Sender: TObject);
     procedure btnSelectionClick(Sender: TObject);
     procedure DBGridPlatformCellClick(Column: TColumn);
-    procedure DBGridPlatformKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure DBGridPlatformKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure DBGridPlatformTitleClick(Column: TColumn);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormResize(Sender: TObject);
@@ -199,19 +196,6 @@ uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
 {$R *.lfm}
 
 
-procedure Tfrmosmain.FormResize(Sender: TObject);
-begin
-  tbFastAccess.Top:=PageControl1.Top-2;
-  tbFastAccess.Left:=PageControl1.Width-tbFastAccess.Width;
- //StatusBar1.Panels[1].Width:=Width-(statusbar1.Panels[0].Width+statusbar1.Panels[2].Width+75);
-  {pSelectedDataGap.Width:=Toolbar1.width-10-
-                          (btnAdd.Width+
-                           btnDelete.Width+
-                           btnCancel.Width+
-                           btnSave.Width+
-                           btnMap.Width); }
-end;
-
 procedure Tfrmosmain.FormShow(Sender: TObject);
 Var
   Ini:TINIFile;
@@ -267,14 +251,28 @@ IBName:='';
 end;
 
 
+procedure Tfrmosmain.FormResize(Sender: TObject);
+begin
+  tbFastAccess.Top:=PageControl1.Top-2;
+  tbFastAccess.Left:=PageControl1.Width-tbFastAccess.Width;
+ //StatusBar1.Panels[1].Width:=Width-(statusbar1.Panels[0].Width+statusbar1.Panels[2].Width+75);
+  {pSelectedDataGap.Width:=Toolbar1.width-10-
+                          (btnAdd.Width+
+                           btnDelete.Width+
+                           btnCancel.Width+
+                           btnSave.Width+
+                           btnMap.Width); }
+end;
+
+
 procedure Tfrmosmain.btnSelectionClick(Sender: TObject);
 var
-i, k, fl:integer;
+//i, k, fl:integer;
 SSYearMin,SSYearMax,SSMonthMin,SSMonthMax,SSDayMin,SSDayMax :Word;
-NotCondCountry, NotCondVessel, NotCondSource, SBordersFile, str, buf_str:string;
+{NotCondCountry, NotCondVessel, NotCondSource, SBordersFile, str, buf_str:string;
 NotCondCruise, NotCondInstr, NotCondOrigin, NotCondCountryC, NotCondVesselC, instr:string;
 MinDay, MaxDay, cnt:integer;
-Lat, Lon:real;
+Lat, Lon:real; }
 begin
 DecodeDate(dtpDateMin.Date, SSYearMin, SSMonthMin, SSDayMin);
 DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);

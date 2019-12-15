@@ -4,8 +4,8 @@ object frmcodes: Tfrmcodes
   Top = 93
   Width = 1000
   Caption = 'Codes'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 550
+  ClientWidth = 1000
   Color = clBtnFace
   Constraints.MinHeight = 550
   Constraints.MinWidth = 1000
@@ -2313,7 +2313,7 @@ object frmcodes: Tfrmcodes
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
-    Images = frmosmain.IL1
+    Images = frmicons.IL1
     List = True
     ParentFont = False
     ParentShowHint = False
@@ -2370,7 +2370,6 @@ object frmcodes: Tfrmcodes
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
-      Images = frmosmain.IL1
       ImageIndex = 321
       OnClick = btnUpdateQCClick
       ParentFont = False

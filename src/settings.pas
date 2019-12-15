@@ -39,7 +39,6 @@ type
     memo2: TMemo;
     PageControl1: TPageControl;
     rgBathymetry: TRadioGroup;
-    rgLanguage: TRadioGroup;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet4: TTabSheet;
@@ -90,7 +89,7 @@ begin
    eSurferPath.Text       :=Ini.ReadString  ( 'main', 'SurferPath',       SurferDefault);
    eGrapherPath.Text      :=Ini.ReadString  ( 'main', 'GrapherPath',      GrapherDefault);
    ePythonPath.Text       :=Ini.ReadString  ( 'main', 'PythonPath',       PythonDefault);
-   rgLanguage.ItemIndex   :=Ini.ReadInteger ( 'main', 'Language',         0);
+   //rgLanguage.ItemIndex   :=Ini.ReadInteger ( 'main', 'Language',         0);
    rgBathymetry.ItemIndex :=Ini.ReadInteger ( 'main', 'Bathymetry',       0);
   finally
     ini.Free;
@@ -205,7 +204,7 @@ begin
    Ini.WriteString ( 'Main', 'SurferPath',       eSurferPath.Text);
    Ini.WriteString ( 'Main', 'GrapherPath',      eGrapherPath.Text);
    Ini.WriteString ( 'main', 'PythonPath',       ePythonPath.Text);
-   Ini.WriteInteger( 'main', 'Language',         rgLanguage.ItemIndex);
+ //  Ini.WriteInteger( 'main', 'Language',         rgLanguage.ItemIndex);
    Ini.WriteInteger( 'main', 'Bathymetry',       rgBathymetry.ItemIndex);
   finally
     ini.Free;

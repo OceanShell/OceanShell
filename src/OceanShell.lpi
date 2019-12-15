@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="23">
+    <Units Count="24">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -180,6 +180,12 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit22>
+      <Unit23>
+        <Filename Value="icons.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmicons"/>
+        <ResourceBaseClass Value="DataModule"/>
+      </Unit23>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
