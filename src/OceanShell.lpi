@@ -2,10 +2,10 @@
 <CONFIG>
   <ProjectOptions>
     <Version Value="11"/>
-    <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
+      <AutoCreateForms Value="False"/>
       <Title Value="OceanShell"/>
       <Scaled Value="True"/>
       <UseAppBundle Value="False"/>
@@ -17,7 +17,7 @@
       <Icon Value="0"/>
     </General>
     <i18n>
-      <OutDir Value="..\languages"/>
+      <OutDir Value="../languages"/>
     </i18n>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -219,6 +219,7 @@
       <Verbosity>
         <ShowDebugInfo Value="True"/>
       </Verbosity>
+      <CompilerPath Value="\usr\bin\fpc"/>
     </Other>
   </CompilerOptions>
   <Debugging>

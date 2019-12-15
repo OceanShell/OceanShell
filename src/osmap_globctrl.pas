@@ -1,5 +1,7 @@
 Unit osmap_globctrl;
 
+{$mode objfpc}{$H+}
+
 { Globe Display Control.
 
   Copyright (C) 2015 Paul Michell, Michell Computing.
@@ -15,8 +17,6 @@ Unit osmap_globctrl;
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
   FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
   for more details. }
-
-{$mode objfpc}{$H+}
 
 Interface
 

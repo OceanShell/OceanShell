@@ -1,10 +1,10 @@
 object frmosmain: Tfrmosmain
-  Left = 350
+  Left = 374
   Height = 465
-  Top = 198
+  Top = 197
   Width = 800
   Caption = 'OceanShell'
-  ClientHeight = 445
+  ClientHeight = 441
   ClientWidth = 800
   Color = clBtnFace
   Constraints.MinHeight = 465
@@ -16,7 +16,7 @@ object frmosmain: Tfrmosmain
   OnClose = FormClose
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.4.0'
   object Memo1: TMemo
     Left = 552
     Height = 49
@@ -45,12 +45,13 @@ object frmosmain: Tfrmosmain
     ParentFont = False
     ScrollWidth = 119
     TabOrder = 1
+    TopIndex = -1
     Visible = False
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 395
-    Top = 50
+    Height = 397
+    Top = 44
     Width = 800
     ActivePage = tsMainSelect
     Align = alClient
@@ -63,15 +64,15 @@ object frmosmain: Tfrmosmain
     object tsMainSelect: TTabSheet
       Caption = 'Select data'
       ClientHeight = 369
-      ClientWidth = 792
+      ClientWidth = 790
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       ParentFont = False
       object btnSelection: TButton
-        Left = 459
+        Left = 472
         Height = 25
-        Top = 16
+        Top = 24
         Width = 109
         Caption = 'Select'
         Enabled = False
@@ -88,8 +89,8 @@ object frmosmain: Tfrmosmain
         Top = 11
         Width = 213
         Caption = 'Area'
-        ClientHeight = 99
-        ClientWidth = 209
+        ClientHeight = 102
+        ClientWidth = 211
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'MS Sans Serif'
@@ -97,7 +98,7 @@ object frmosmain: Tfrmosmain
         TabOrder = 1
         object seLonMin: TFloatSpinEdit
           Left = 16
-          Height = 21
+          Height = 26
           Top = 37
           Width = 82
           Alignment = taCenter
@@ -112,7 +113,7 @@ object frmosmain: Tfrmosmain
         end
         object seLonMax: TFloatSpinEdit
           Left = 112
-          Height = 21
+          Height = 26
           Top = 37
           Width = 82
           Alignment = taCenter
@@ -127,7 +128,7 @@ object frmosmain: Tfrmosmain
         end
         object seLatMax: TFloatSpinEdit
           Left = 69
-          Height = 21
+          Height = 26
           Top = 5
           Width = 82
           Alignment = taCenter
@@ -142,7 +143,7 @@ object frmosmain: Tfrmosmain
         end
         object seLatMin: TFloatSpinEdit
           Left = 69
-          Height = 21
+          Height = 26
           Top = 69
           Width = 82
           Alignment = taCenter
@@ -158,9 +159,9 @@ object frmosmain: Tfrmosmain
         object lbResetArea: TLabel
           Cursor = crHandPoint
           Left = 162
-          Height = 13
+          Height = 14
           Top = 75
-          Width = 28
+          Width = 32
           Caption = 'Reset'
           Font.Color = clBlue
           Font.Height = -11
@@ -175,10 +176,10 @@ object frmosmain: Tfrmosmain
         Left = 245
         Height = 117
         Top = 11
-        Width = 196
+        Width = 211
         Caption = 'Date and Time'
-        ClientHeight = 99
-        ClientWidth = 192
+        ClientHeight = 102
+        ClientWidth = 209
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'MS Sans Serif'
@@ -186,9 +187,9 @@ object frmosmain: Tfrmosmain
         TabOrder = 2
         object dtpDateMin: TDateTimePicker
           Left = 48
-          Height = 21
+          Height = 20
           Top = 5
-          Width = 133
+          Width = 151
           CenturyFrom = 1941
           MaxDate = 2958465
           MinDate = -53780
@@ -212,9 +213,9 @@ object frmosmain: Tfrmosmain
         end
         object dtpDateMax: TDateTimePicker
           Left = 48
-          Height = 21
+          Height = 20
           Top = 37
-          Width = 133
+          Width = 151
           CenturyFrom = 1941
           MaxDate = 2958465
           MinDate = -53780
@@ -238,9 +239,9 @@ object frmosmain: Tfrmosmain
         end
         object Label1: TLabel
           Left = 11
-          Height = 13
+          Height = 14
           Top = 11
-          Width = 23
+          Width = 28
           Caption = 'From'
           Font.Color = clWindowText
           Font.Height = -11
@@ -250,9 +251,9 @@ object frmosmain: Tfrmosmain
         end
         object Label2: TLabel
           Left = 11
-          Height = 13
+          Height = 14
           Top = 43
-          Width = 13
+          Width = 12
           Caption = 'To'
           Font.Color = clWindowText
           Font.Height = -11
@@ -262,9 +263,9 @@ object frmosmain: Tfrmosmain
         end
         object chkPeriod: TCheckBox
           Left = 11
-          Height = 19
+          Height = 23
           Top = 69
-          Width = 50
+          Width = 62
           Caption = 'Period'
           Font.Color = clWindowText
           Font.Height = -11
@@ -274,10 +275,10 @@ object frmosmain: Tfrmosmain
         end
         object lbResetDates: TLabel
           Cursor = crHandPoint
-          Left = 149
-          Height = 13
+          Left = 167
+          Height = 14
           Top = 75
-          Width = 28
+          Width = 32
           Caption = 'Reset'
           Font.Color = clBlue
           Font.Height = -11
@@ -294,8 +295,8 @@ object frmosmain: Tfrmosmain
         Top = 136
         Width = 213
         Caption = 'Station ID'
-        ClientHeight = 47
-        ClientWidth = 209
+        ClientHeight = 50
+        ClientWidth = 211
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'MS Sans Serif'
@@ -303,7 +304,7 @@ object frmosmain: Tfrmosmain
         TabOrder = 3
         object seIDMin: TSpinEdit
           Left = 16
-          Height = 21
+          Height = 26
           Top = 10
           Width = 82
           Font.Color = clWindowText
@@ -317,7 +318,7 @@ object frmosmain: Tfrmosmain
         end
         object seIDMax: TSpinEdit
           Left = 112
-          Height = 21
+          Height = 26
           Top = 10
           Width = 82
           Font.Color = clWindowText
@@ -340,7 +341,7 @@ object frmosmain: Tfrmosmain
     end
     object tsMainData: TTabSheet
       Caption = 'Selected data'
-      ClientHeight = 363
+      ClientHeight = 369
       ClientWidth = 790
       Font.Color = clWindowText
       Font.Height = -11
@@ -350,7 +351,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 22
         Top = 0
-        Width = 792
+        Width = 790
         AutoSize = True
         Caption = 'ToolBar1'
         EdgeBorders = []
@@ -398,7 +399,7 @@ object frmosmain: Tfrmosmain
         end
         object ToolButton1: TToolButton
           Left = 73
-          Height = 5
+          Height = 22
           Top = 0
           Caption = 'ToolButton1'
           Style = tbsDivider
@@ -408,7 +409,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 347
         Top = 22
-        Width = 792
+        Width = 790
         Align = alClient
         AlternateColor = 13631478
         AutoAdvance = aaNone
@@ -540,20 +541,20 @@ object frmosmain: Tfrmosmain
   end
   object Panel1: TPanel
     Left = 0
-    Height = 50
+    Height = 44
     Top = 0
     Width = 800
     Align = alTop
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 46
-    ClientWidth = 796
+    ClientHeight = 42
+    ClientWidth = 798
     TabOrder = 4
     object sbDatabase: TStatusBar
       Left = 0
-      Height = 23
+      Height = 18
       Top = 0
-      Width = 796
+      Width = 798
       Align = alTop
       Font.Color = clWindowText
       Font.Height = -11
@@ -576,10 +577,10 @@ object frmosmain: Tfrmosmain
           Width = 100
         end      
         item
-          Width = 120
+          Width = 140
         end      
         item
-          Width = 120
+          Width = 145
         end      
         item
           Width = 33
@@ -589,9 +590,9 @@ object frmosmain: Tfrmosmain
     end
     object sbSelection: TStatusBar
       Left = 0
-      Height = 23
-      Top = 23
-      Width = 796
+      Height = 18
+      Top = 18
+      Width = 798
       Align = alTop
       BorderSpacing.Bottom = 1
       Font.Color = clWindowText
@@ -615,10 +616,10 @@ object frmosmain: Tfrmosmain
           Width = 100
         end      
         item
-          Width = 120
+          Width = 140
         end      
         item
-          Width = 120
+          Width = 145
         end      
         item
           Width = 160

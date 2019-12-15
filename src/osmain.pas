@@ -190,7 +190,6 @@ uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
 (* QC *)
 (* tools *)
   osmap,
-  osmap_kml,
   osparameters_all,
 
 (* statistics *)
@@ -237,7 +236,7 @@ IBName:='';
   end;
 
 
- (* открываем ассоциированный файл (nc или ib) *)
+ (* Works on double click *)
   If ParamCount<>0 then begin
    if uppercase(ExtractFileExt(ParamStr(1)))='.FDB' then begin
       IBName:=ParamStr(1);
@@ -257,8 +256,10 @@ end;
 
 procedure Tfrmosmain.FormResize(Sender: TObject);
 begin
-  tbFastAccess.Top:=PageControl1.Top-2;
+  tbFastAccess.Top:=PageControl1.Top;
   tbFastAccess.Left:=PageControl1.Width-tbFastAccess.Width;
+
+  panel1.Height:=sbDatabase.Height+sbSelection.Height;
 end;
 
 

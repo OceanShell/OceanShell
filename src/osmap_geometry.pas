@@ -1,5 +1,7 @@
 Unit osmap_geometry;
 
+{$mode objfpc}{$H+}
+
 { Geometry Computation Library.
 
   Copyright (C) 2015 Paul Michell, Michell Computing.
@@ -14,7 +16,6 @@ Unit osmap_geometry;
   FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
   for more details. }
 
-{$mode objfpc}{$H+}
 
 { Define only one of the following symbols. }
 //{$DEFINE SINGLE_GEOMETRY}

@@ -1,5 +1,7 @@
 Unit osmap_wkt;
 
+{$mode objfpc}{$H+}
+
 { Well Known Text Support Unit.
 
   Copyright (C) 2015 Paul Michell, Michell Computing.
@@ -14,10 +16,6 @@ Unit osmap_wkt;
   FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
   for more details. }
 
-{$IFDEF FPC}
-  {$MODE OBJFPC}
-  {$LONGSTRINGS ON}
-{$ENDIF}
 
 Interface
 
