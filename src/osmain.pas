@@ -190,6 +190,7 @@ uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
 (* QC *)
 (* tools *)
  { osmap,}
+  osmap_kml,
   osparameters_all,
 
 (* statistics *)
@@ -747,6 +748,7 @@ end;
 
 procedure Tfrmosmain.aMapExecute(Sender: TObject);
 begin
+   ExportKML_;
 { if frmmap_open=true then frmmap.SetFocus else
     begin
        frmmap := Tfrmmap.Create(Self);
