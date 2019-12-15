@@ -258,13 +258,6 @@ procedure Tfrmosmain.FormResize(Sender: TObject);
 begin
   tbFastAccess.Top:=PageControl1.Top-2;
   tbFastAccess.Left:=PageControl1.Width-tbFastAccess.Width;
- //StatusBar1.Panels[1].Width:=Width-(statusbar1.Panels[0].Width+statusbar1.Panels[2].Width+75);
-  {pSelectedDataGap.Width:=Toolbar1.width-10-
-                          (btnAdd.Width+
-                           btnDelete.Width+
-                           btnCancel.Width+
-                           btnSave.Width+
-                           btnMap.Width); }
 end;
 
 
