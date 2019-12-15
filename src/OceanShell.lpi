@@ -184,6 +184,7 @@
         <Filename Value="icons.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmicons"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="DataModule"/>
       </Unit23>
     </Units>
