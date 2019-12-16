@@ -4,8 +4,8 @@ object frmosmain: Tfrmosmain
   Top = 197
   Width = 1200
   Caption = 'OceanShell'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 668
+  ClientWidth = 1200
   Color = clBtnFace
   Constraints.MinHeight = 698
   Constraints.MinWidth = 1200
@@ -556,7 +556,7 @@ object frmosmain: Tfrmosmain
     object btnFastAccessOpenMap: TToolButton
       Left = 36
       Top = 0
-      Action = aMap
+      Action = aMapAllStations
       AutoSize = True
       Caption = 'Map'
       ShowCaption = False
@@ -773,7 +773,7 @@ object frmosmain: Tfrmosmain
     object iTools: TMenuItem
       Caption = 'Tools'
       object iMap: TMenuItem
-        Action = aMap
+        Action = aMapAllStations
         Caption = 'Map'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -811,7 +811,7 @@ object frmosmain: Tfrmosmain
           FF00FFFFFF00FFFFFF0061C46E3D61C46EAA61C46EDF61C46EF461C46EF861C4
           6EE961C46EB260C26D48FFFFFF00FFFFFF00FFFFFF00FFFFFF00
         }
-        OnClick = aMapExecute
+        OnClick = aMapAllStationsExecute
       end
       object MenuItem5: TMenuItem
         Action = aMapKML
@@ -852,7 +852,10 @@ object frmosmain: Tfrmosmain
           0000262626327171718570707085707070856F6F6F856F6F6F856E6D6D844140
           4056000000020000000000000000000000000000000000000000
         }
-        ImageIndex = 1000
+      end
+      object MenuItem6: TMenuItem
+        Action = aProfilesStationAll
+        Caption = 'All Profiles for Station'
       end
     end
     object iStatistics: TMenuItem
@@ -882,21 +885,29 @@ object frmosmain: Tfrmosmain
     left = 660
   end
   object PM1: TPopupMenu
+    Images = frmicons.IL1
     left = 720
+    object MenuItem7: TMenuItem
+      Action = aMapSelectedStation
+      Caption = 'Show on map'
+    end
+    object MenuItem8: TMenuItem
+      Caption = '-'
+    end
     object iProfilesAll: TMenuItem
+      Action = aProfilesStationAll
       Caption = 'All profiles'
-      ImageIndex = 6
-      OnClick = iProfilesAllClick
+      Hint = 'Show all profiles'
     end
   end
   object AL1: TActionList
     left = 780
-    object aMap: TAction
+    object aMapAllStations: TAction
       Category = 'Tools'
       Enabled = False
       Hint = 'Show map'
       ImageIndex = 984
-      OnExecute = aMapExecute
+      OnExecute = aMapAllStationsExecute
     end
     object aOpenDatabase: TAction
       Category = 'File'
@@ -908,8 +919,21 @@ object frmosmain: Tfrmosmain
     object aMapKML: TAction
       Category = 'Tools'
       Enabled = False
-      ImageIndex = 1001
+      ImageIndex = 1000
       OnExecute = aMapKMLExecute
+    end
+    object aProfilesStationAll: TAction
+      Category = 'Tools'
+      Caption = 'aProfilesStationAll'
+      Enabled = False
+      ImageIndex = 1002
+      OnExecute = aProfilesStationAllExecute
+    end
+    object aMapSelectedStation: TAction
+      Category = 'Tools'
+      Hint = 'Show selected station'
+      ImageIndex = 984
+      OnExecute = aMapSelectedStationExecute
     end
   end
 end

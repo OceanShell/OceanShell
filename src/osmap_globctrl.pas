@@ -77,6 +77,8 @@ Type
     Destructor Destroy; Override;
     Procedure ReCenter;
     Procedure Refresh;
+    Procedure ShowAllStations;
+    Procedure ShowSelectedStation;
     Procedure SetLocation(Lat, Lon: TCoordinate);
     Procedure ZoomIn;
     Procedure ZoomOut;
@@ -95,13 +97,11 @@ Constructor TGlobeControl.Create(AOwner: TComponent);
 Begin
   Inherited Create(AOwner);
   CreateBackBuffer;
+
   { Set initial view parameters. }
-  Location.Lat := (SLatMin+SLatMax)/2;
-  Location.Lon := (SLonMin+SLonMax)/2;
-  Center := Location;
-  EZ := 1000;
+  EZ := 1000;  //1000
   GZ := 300;
-  GR := 1000;
+  GR := 1000;  //1000
 End;
 
 Destructor TGlobeControl.Destroy;
@@ -109,6 +109,30 @@ Begin
   FreeAndNil(FBufferBitmap);
   Inherited Destroy;
 End;
+
+Procedure TGlobeControl.ShowAllStations;
+Begin
+  EZ := 500; //1000
+  GZ := 300;
+  GR := 500; //1000
+
+  Location.Lat := (SLatMin+SLatMax)/2;
+  Location.Lon := (SLonMin+SLonMax)/2;
+  Center := Location;
+  ReCenter;
+end;
+
+Procedure TGlobeControl.ShowSelectedStation;
+Begin
+  EZ := 1200; //1000
+  GZ := 300;
+  GR := 1200; //1000
+
+  Location.Lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
+  Location.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
+  Center := Location;
+  ReCenter;
+end;
 
 Procedure TGlobeControl.ReCenter;
 Begin
@@ -190,13 +214,13 @@ Begin
   DLat := 0;
   Case Key Of
   vk_Left, vk_NUMPAD4:
-    DLon := 2.5;
+    DLon :=  25E-1;
   vk_Right, vk_NUMPAD6:
-    DLon := -2.5;
+    DLon := -25E-1;
   vk_Up, vk_NUMPAD8:
-    DLat := 2.5;
+    DLat :=  25E-1;
   vk_Down, vk_NUMPAD2:
-    DLat := -2.5;
+    DLat := -25E-1;
   vk_Add:
     If GZ>50 Then
       GZ -= 25;
@@ -220,7 +244,7 @@ Begin
         if (X>=X_arr[i]-3) and (X<=X_arr[i]+3) and
            (Y>=Y_arr[i]-3) and (Y<=Y_arr[i]+3) then begin
            frmdm.Q.Locate('ID', ID_arr[i], []);
-        ChangeID;
+           frmosmain.CDSNavigation;
         end;
       end;
      end;
@@ -412,7 +436,7 @@ Begin
       Pen.Style := psDot;
       Brush.Style := bsClear;
       StepLon := 15;
-      StepLat := 2.5*VS;
+      StepLat := 25E-1*VS;
       Lon := -180;
       While Lon<=180 Do
         Begin
@@ -431,7 +455,7 @@ Begin
             End;
           Lon += StepLon;
         End;
-      StepLon := 2.5*VS;
+      StepLon := 25E-1*VS;
       StepLat := 10;
       Lat := -80;
       While Lat<=80 Do

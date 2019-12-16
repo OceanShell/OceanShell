@@ -20,9 +20,11 @@ type
     btnZoomOut: TToolButton;
     btnKMLExport: TToolButton;
     btnShowSelected: TToolButton;
+    btnShowAllStations: TToolButton;
     ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
 
-    procedure btnKMLExportClick(Sender: TObject);
+    procedure btnShowAllStationsClick(Sender: TObject);
     procedure btnShowSelectedClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -63,14 +65,14 @@ begin
   MainGlobe.ChangeID;
 End;
 
+procedure Tfrmmap.btnShowAllStationsClick(Sender: TObject);
+begin
+  MainGlobe.ShowAllStations;
+end;
+
 procedure Tfrmmap.btnShowSelectedClick(Sender: TObject);
 begin
- With MainGlobe do begin
-   Location.Lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
-   Location.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
-   Center := Location;
-   ReCenter;
- end;
+  MainGlobe.ShowSelectedStation;
 end;
 
 procedure Tfrmmap.btnZoomInClick(Sender: TObject);
@@ -89,10 +91,6 @@ begin
  frmmap_open:=false;
 end;
 
-procedure Tfrmmap.btnKMLExportClick(Sender: TObject);
-begin
-  ExportKML_;
-end;
 
 end.
 
