@@ -219,7 +219,6 @@
       <Verbosity>
         <ShowDebugInfo Value="True"/>
       </Verbosity>
-      <CompilerPath Value="\usr\bin\fpc"/>
     </Other>
   </CompilerOptions>
   <Debugging>
