@@ -51,6 +51,7 @@ type
     iLoad_WOD18: TMenuItem;
     iLoad_WOD: TMenuItem;
     iMap: TMenuItem;
+    MenuItem5: TMenuItem;
     Panel1: TPanel;
     PM1: TPopupMenu;
     sbDatabase: TStatusBar;
@@ -118,6 +119,7 @@ type
     procedure iNewDatabaseClick(Sender: TObject);
     procedure lbResetAreaClick(Sender: TObject);
     procedure lbResetDatesClick(Sender: TObject);
+    procedure MenuItem5Click(Sender: TObject);
 
 
   private
@@ -190,6 +192,7 @@ uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
 (* QC *)
 (* tools *)
   osmap,
+  osmap_kml,
   osparameters_all,
 
 (* statistics *)
@@ -357,6 +360,11 @@ procedure Tfrmosmain.lbResetDatesClick(Sender: TObject);
 begin
   dtpDateMin.DateTime:=IBDateMin;
   dtpDateMax.DateTime:=IBDateMax;
+end;
+
+procedure Tfrmosmain.MenuItem5Click(Sender: TObject);
+begin
+  ExportKML_;
 end;
 
 
