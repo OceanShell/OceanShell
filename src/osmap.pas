@@ -6,14 +6,14 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  osmain, dm, DB, osmap_kml, procedures {, osmap_globctrl, };
+  osmain, dm, DB, osmap_kml, procedures, osmap_globctrl;
 
 type
 
   { Tfrmmap }
 
   Tfrmmap = class(TForm)
-//    MainGlobe : TGlobeControl;
+    MainGlobe : TGlobeControl;
     pmap: TPanel;
     ToolBar1: TToolBar;
     btnZoomIn: TToolButton;
@@ -48,39 +48,39 @@ implementation
 procedure Tfrmmap.FormCreate(Sender: TObject);
 begin
   // Loading the globe
-  {MainGlobe := TGlobeControl.Create(Self);
+  MainGlobe := TGlobeControl.Create(Self);
   MainGlobe.Align := alClient;
   MainGlobe.Parent := pmap;
 
   MainGlobe.Marker.Lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
   MainGlobe.Marker.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
 
-  btnKMLExport.Enabled:=CheckKML;  }
+  btnKMLExport.Enabled:=CheckKML;
 end;
 
 procedure Tfrmmap.ChangeID;
 begin
-//  MainGlobe.ChangeID;
+  MainGlobe.ChangeID;
 End;
 
 procedure Tfrmmap.btnShowSelectedClick(Sender: TObject);
 begin
-{ With MainGlobe do begin
+ With MainGlobe do begin
    Location.Lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
    Location.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
    Center := Location;
    ReCenter;
- end;  }
+ end;
 end;
 
 procedure Tfrmmap.btnZoomInClick(Sender: TObject);
 begin
-//  MainGlobe.ZoomIn;
+  MainGlobe.ZoomIn;
 end;
 
 procedure Tfrmmap.btnZoomOutClick(Sender: TObject);
 begin
-//  MainGlobe.ZoomOut;
+  MainGlobe.ZoomOut;
 end;
 
 

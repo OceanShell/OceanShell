@@ -26,6 +26,7 @@ type
   { Tfrmosmain }
 
   Tfrmosmain = class(TForm)
+    aMapKML: TAction;
     aOpenDatabase: TAction;
     aMap: TAction;
     AL1: TActionList;
@@ -98,6 +99,7 @@ type
     tsMainData: TTabSheet;
 
     procedure aMapExecute(Sender: TObject);
+    procedure aMapKMLExecute(Sender: TObject);
     procedure aOpenDatabaseExecute(Sender: TObject);
     procedure btnSelectionClick(Sender: TObject);
     procedure DBGridPlatformCellClick(Column: TColumn);
@@ -119,7 +121,6 @@ type
     procedure iNewDatabaseClick(Sender: TObject);
     procedure lbResetAreaClick(Sender: TObject);
     procedure lbResetDatesClick(Sender: TObject);
-    procedure MenuItem5Click(Sender: TObject);
 
 
   private
@@ -220,7 +221,7 @@ IBName:='';
   end;
 
   (* Define global delimiter *)
-//  DefaultFormatSettings.DecimalSeparator := '.';
+  DefaultFormatSettings.DecimalSeparator := '.';
 
  (* Check for existing essencial program folders *)
   Ini := TIniFile.Create(IniFileName);
@@ -360,11 +361,6 @@ procedure Tfrmosmain.lbResetDatesClick(Sender: TObject);
 begin
   dtpDateMin.DateTime:=IBDateMin;
   dtpDateMax.DateTime:=IBDateMax;
-end;
-
-procedure Tfrmosmain.MenuItem5Click(Sender: TObject);
-begin
-  ExportKML_;
 end;
 
 
@@ -675,6 +671,7 @@ begin
   iDBStatistics.Enabled:=items_enabled;
   //iMapKML.Enabled:=items_enabled;
   aMap.Enabled:=items_enabled;
+  aMapKML.Enabled:=items_enabled;
 end;
 
 
@@ -763,6 +760,11 @@ begin
        frmmap.Show;
     end;
   frmmap_open:=true;
+end;
+
+procedure Tfrmosmain.aMapKMLExecute(Sender: TObject);
+begin
+  ExportKML_;
 end;
 
 
