@@ -93,9 +93,27 @@ Implementation
 Var
   CountryData: TCountryGeometryArray;
 
+
 Constructor TGlobeControl.Create(AOwner: TComponent);
+Var
+DataStream: TDataStream;
+Index, LastIndex: Integer;
 Begin
   Inherited Create(AOwner);
+
+  DataStream := TDataStream.Create;
+  DataStream.FieldTerminator := #9;
+  DataStream.LoadFromFile('00000.csv');
+
+  SetLength(CountryData, DataStream.RecordCount);
+  LastIndex := DataStream.RecordCount-1;
+  For Index := 0 To LastIndex Do
+    Begin
+      WKTToMultiPolygon(DataStream.Fields[0], CountryData[Index]);
+      DataStream.Next;
+    End;
+  FreeAndNil(DataStream);
+
   CreateBackBuffer;
 
   { Set initial view parameters. }
@@ -106,6 +124,7 @@ End;
 
 Destructor TGlobeControl.Destroy;
 Begin
+  SetLength(CountryData, 0);
   FreeAndNil(FBufferBitmap);
   Inherited Destroy;
 End;
@@ -577,32 +596,6 @@ Begin
   SetLocation(Location.Lat+(Lat/8), Location.Lon-(Lon/8));
 End;
 
-Procedure PrepareCountryData;
-Var
-  DataStream: TDataStream;
-  Index, LastIndex: Integer;
-Begin
-  DataStream := TDataStream.Create;
-  DataStream.FieldTerminator := #9;
-  DataStream.LoadFromFile('00000.csv');
-
-  SetLength(CountryData, DataStream.RecordCount);
-  LastIndex := DataStream.RecordCount-1;
-  For Index := 0 To LastIndex Do
-    Begin
-      WKTToMultiPolygon(DataStream.Fields[0], CountryData[Index]);
-      DataStream.Next;
-    End;
-  FreeAndNil(DataStream);
-End;
-
-Initialization
-
-PrepareCountryData;
-
-Finalization
-
-SetLength(CountryData, 0);
 
 End.
 

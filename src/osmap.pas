@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  osmain, dm, DB, osmap_kml, procedures, osmap_globctrl;
+  osmain, dm, DB, osmap_kml, procedures, osmap_globctrl, osmap_datastreams;
 
 type
 
@@ -41,14 +41,19 @@ type
 var
   frmmap: Tfrmmap;
 
+
 implementation
 
 {$R *.lfm}
 
 { Tfrmmap }
 
+
+
 procedure Tfrmmap.FormCreate(Sender: TObject);
 begin
+
+
   // Loading the globe
   MainGlobe := TGlobeControl.Create(Self);
   MainGlobe.Align := alClient;
