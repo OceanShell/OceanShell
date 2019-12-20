@@ -118,7 +118,7 @@ Begin
 
   { Set initial view parameters. }
   EZ := 1000;  //1000
-  GZ := 300;
+  GZ := 300;   //300
   GR := 1000;  //1000
 End;
 
@@ -155,8 +155,27 @@ end;
 
 Procedure TGlobeControl.ReCenter;
 Begin
-  GZ := 300;
+//  GZ := 300;
   Location := Center;
+  AdjustLocation(0, 0);
+End;
+
+Procedure TGlobeControl.ZoomIn;
+Begin
+  if (EZ<1000) and (GZ=50) then begin
+    EZ:=1200;
+    GR:=1200;
+    GZ:=300;
+  end;
+//  showmessage(inttostr(gz));
+  If GZ>50 Then
+    GZ -= 50; //25
+  AdjustLocation(0, 0);
+End;
+
+Procedure TGlobeControl.ZoomOut;
+Begin
+  GZ += 50;  //25
   AdjustLocation(0, 0);
 End;
 
@@ -180,19 +199,6 @@ Begin
   Location.Lat := Lat;
   Location.Lon := Lon;
   Refresh;
-End;
-
-Procedure TGlobeControl.ZoomIn;
-Begin
-  If GZ>50 Then
-    GZ -= 50; //25
-  AdjustLocation(0, 0);
-End;
-
-Procedure TGlobeControl.ZoomOut;
-Begin
-  GZ += 50;  //25
-  AdjustLocation(0, 0);
 End;
 
 Procedure TGlobeControl.ChangeID;

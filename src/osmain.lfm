@@ -72,7 +72,7 @@ object frmosmain: Tfrmosmain
       object btnSelection: TButton
         Left = 708
         Height = 38
-        Top = 36
+        Top = 24
         Width = 164
         Caption = 'Select'
         Enabled = False
