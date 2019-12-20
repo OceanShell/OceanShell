@@ -26,9 +26,11 @@ type
   { Tfrmosmain }
 
   Tfrmosmain = class(TForm)
+    aMapSelectedStation: TAction;
+    aProfilesStationAll: TAction;
     aMapKML: TAction;
     aOpenDatabase: TAction;
-    aMap: TAction;
+    aMapAllStations: TAction;
     AL1: TActionList;
     btnadd: TToolButton;
     btncancel: TToolButton;
@@ -53,6 +55,9 @@ type
     iLoad_WOD: TMenuItem;
     iMap: TMenuItem;
     MenuItem5: TMenuItem;
+    MenuItem6: TMenuItem;
+    MenuItem7: TMenuItem;
+    MenuItem8: TMenuItem;
     Panel1: TPanel;
     PM1: TPopupMenu;
     sbDatabase: TStatusBar;
@@ -98,9 +103,11 @@ type
     tsMainSelectAdvanced: TTabSheet;
     tsMainData: TTabSheet;
 
-    procedure aMapExecute(Sender: TObject);
+    procedure aMapAllStationsExecute(Sender: TObject);
     procedure aMapKMLExecute(Sender: TObject);
+    procedure aMapSelectedStationExecute(Sender: TObject);
     procedure aOpenDatabaseExecute(Sender: TObject);
+    procedure aProfilesStationAllExecute(Sender: TObject);
     procedure btnSelectionClick(Sender: TObject);
     procedure DBGridPlatformCellClick(Column: TColumn);
     procedure DBGridPlatformKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -116,7 +123,6 @@ type
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
     procedure iLoad_WODClick(Sender: TObject);
-    procedure iProfilesAllClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
     procedure lbResetAreaClick(Sender: TObject);
@@ -373,13 +379,14 @@ if (ID=0) or (NavigationOrder=false) then exit;
 
  If NavigationOrder=true then begin
   NavigationOrder:=false; //blocking everthing until previous operations have been completed
- //  if frmmap_open     =true then frmmap.ChangeID;
+     if frmmap_open     =true then frmmap.ChangeID;
+     if frmparametersall_open  =true then frmparametersall.ShowAllProf(ID);
  //  if InfoOpen      =true then Info.ChangeID;
  //  if QProfilesOpen =true then QProfiles.ChangeStation(ID);
  //  if DensOpen      =true then QDensity.ChangeDensStation(ID);
  //  if TSOPen        =true then frmToolTSDiagram.ChangeID;
  //  if SinglePrfOpen =true then SingleParameter.TblChange(ID);
-   if frmparametersall_open  =true then frmparametersall.ShowAllProf(ID);
+
  //  if MeteoOpen     =true then Meteo.ChangeAbsnum;
  //  if MLDOpen       =true then MLD.ChangeID;
  //  if TrackOpen     =true then frmVesselSpeed.ChangeID;
@@ -454,6 +461,16 @@ begin
    IBName:=OD.FileName;
    OpenDatabase;
   end;
+end;
+
+procedure Tfrmosmain.aProfilesStationAllExecute(Sender: TObject);
+begin
+  if frmparametersall_open=true then frmparametersall.SetFocus else
+     begin
+       frmparametersall := Tfrmparametersall.Create(Self);
+       frmparametersall.Show;
+     end;
+  frmparametersall_open:=true;
 end;
 
 
@@ -670,8 +687,9 @@ begin
 
   iDBStatistics.Enabled:=items_enabled;
   //iMapKML.Enabled:=items_enabled;
-  aMap.Enabled:=items_enabled;
+  aMapAllStations.Enabled:=items_enabled;
   aMapKML.Enabled:=items_enabled;
+  aProfilesStationAll.Enabled:=items_enabled;
 end;
 
 
@@ -752,30 +770,33 @@ begin
 end;
 
 
-procedure Tfrmosmain.aMapExecute(Sender: TObject);
+procedure Tfrmosmain.aMapAllStationsExecute(Sender: TObject);
 begin
  if frmmap_open=true then frmmap.SetFocus else
     begin
        frmmap := Tfrmmap.Create(Self);
        frmmap.Show;
     end;
+  frmmap.btnShowAllStationsClick(self);
   frmmap_open:=true;
 end;
+
+
+procedure Tfrmosmain.aMapSelectedStationExecute(Sender: TObject);
+begin
+ if frmmap_open=true then frmmap.SetFocus else
+    begin
+       frmmap := Tfrmmap.Create(Self);
+       frmmap.Show;
+    end;
+  frmmap.btnShowSelectedClick(self);
+  frmmap_open:=true;
+end;
+
 
 procedure Tfrmosmain.aMapKMLExecute(Sender: TObject);
 begin
   ExportKML_;
-end;
-
-
-procedure Tfrmosmain.iProfilesAllClick(Sender: TObject);
-begin
- if frmparametersall_open=true then frmparametersall.SetFocus else
-    begin
-      frmparametersall := Tfrmparametersall.Create(Self);
-      frmparametersall.Show;
-    end;
- frmparametersall_open:=true;
 end;
 
 

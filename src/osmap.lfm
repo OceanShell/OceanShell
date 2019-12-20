@@ -37,39 +37,51 @@ object frmmap: Tfrmmap
     object btnZoomIn: TToolButton
       Left = 3
       Hint = 'Zoom In'
-      Top = 33
+      Top = 71
       ImageIndex = 998
       OnClick = btnZoomInClick
     end
     object btnZoomOut: TToolButton
       Left = 3
       Hint = 'Zoom Out'
-      Top = 66
+      Top = 104
       ImageIndex = 999
       OnClick = btnZoomOutClick
     end
     object ToolButton2: TToolButton
       Left = 3
-      Top = 99
+      Top = 137
       Width = 35
       Caption = 'ToolButton2'
       Style = tbsDivider
     end
     object btnKMLExport: TToolButton
       Left = 3
-      Hint = 'Open as KML'
-      Top = 107
-      Caption = 'btnKMLExport'
-      ImageIndex = 1000
-      OnClick = btnKMLExportClick
+      Top = 142
+      Action = frmosmain.aMapKML
     end
     object btnShowSelected: TToolButton
       Left = 3
       Hint = 'Center at selected station'
-      Top = 0
+      Top = 33
       Caption = 'btnShowSelected'
       ImageIndex = 1001
       OnClick = btnShowSelectedClick
+    end
+    object btnShowAllStations: TToolButton
+      Left = 3
+      Hint = 'Show all stations'
+      Top = 0
+      Caption = 'btnShowAllStations'
+      ImageIndex = 1003
+      OnClick = btnShowAllStationsClick
+    end
+    object ToolButton3: TToolButton
+      Left = 3
+      Top = 66
+      Width = 35
+      Caption = 'ToolButton3'
+      Style = tbsDivider
     end
   end
 end

@@ -14,15 +14,21 @@ type
   { TfrmloadWOD18 }
 
   TfrmloadWOD18 = class(TForm)
+    btnGetStatistics: TBitBtn;
+    btnDownloadOSDprf: TBitBtn;
     btnCreateWOD: TBitBtn;
     btnPreprocessing: TBitBtn;
     CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
     FileListBox1: TFileListBox;
     GroupBox1: TGroupBox;
     Memo1: TMemo;
-    Memo2: TMemo;
+    Q: TSQLQuery;
+    Q_CruiseID: TSQLQuery;
 
     procedure btnCreateWODClick(Sender: TObject);
+    procedure btnDownloadOSDprfClick(Sender: TObject);
+    procedure btnGetStatisticsClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
 
     procedure btnPreprocessingClick(Sender: TObject);
@@ -38,14 +44,17 @@ type
 var
   frmloadWOD18: TfrmloadWOD18;
   mik_stTotal:integer;
+  WCCisNull:integer;  //count WOD Cruise Code is null
   VarCount_arr :array [1..50] of integer;    //count variables appearance
   f_dat, f_statistics, f_station, f_meteo: text;
-  f_temp, f_salt, f_oxyg: text;
+  f_temp,f_salt,f_oxyg,f_phosphate,f_silicate,f_nitrate,f_ph,f_chlorophyll:text;
+  f_alkalinity,f_pCO2,f_DIC,f_WPRES,f_H3,f_HE,f_HE3,f_C14,f_C13,f_ARGON:text;
+  f_NEON,f_CFC11,f_CFC12,f_CFC113,f_O18:text;
 
 
 implementation
 
-uses procedures;
+uses osmain, procedures, GibbsSeaWater, osstandartqueries, dm;
 
 {$R *.lfm}
 
@@ -54,7 +63,6 @@ uses procedures;
 procedure TfrmloadWOD18.FormShow(Sender: TObject);
 begin
   memo1.Clear;
-  memo2.Clear;
   FileListBox1.Clear;
 end;
 
@@ -73,7 +81,10 @@ WOD18Var:array[1..45] of string;
 
 begin
 
-   PathOut:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\Output\';
+ //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
+ PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
+ FileListBox1.Directory:=PathSource;
+ PathOut:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\Output\';
 
    FileOut:=PathOut+'Statistics.dat';
    StrOut:= 'Cast#'+#9+'Cast#File'+#9+'WOD_cast_num'+#9+'DateTime'+
@@ -92,58 +103,85 @@ begin
    writeln(f_station,StrOut);
 
    FileOut:=PathOut+'METEO.dat';
-   StrOut:='ID'
-   +#9+'TEMPDRY'
-   +#9+'TEMPWET'
-   +#9+'PRESSURE'
-   +#9+'WINDDIR'
-   +#9+'WINDSPEED'
-   +#9+'CLOUDCOMMON'
-   +#9+'CLOUDLOW'
-   +#9+'CLOUDTYPE'
-   +#9+'VISIBILITY'
-   +#9+'HUMABS'
-   +#9+'HUMREL'
-   +#9+'WAVEHEIGHT'
-   +#9+'WAVEDIR'
-   +#9+'WAVEPERIOD'
-   +#9+'SEASTATE'
-   +#9+'WEATHER'
-   +#9+'WATERCOLOR'
-   +#9+'WATERTRANSP'
-   +#9+'SURFTEMP'
-   +#9+'SURFSALT';
-
+   StrOut:='ID'+#9+'TEMPDRY'+#9+'TEMPWET'+#9+'PRESSURE'+#9+'WINDDIR'
+   +#9+'WINDSPEED'+#9+'CLOUDCOMMON'+#9+'CLOUDLOW'+#9+'CLOUDTYPE'
+   +#9+'VISIBILITY'+#9+'HUMABS'+#9+'HUMREL'+#9+'WAVEHEIGHT'+#9+'WAVEDIR'
+   +#9+'WAVEPERIOD'+#9+'SEASTATE'+#9+'WEATHER'+#9+'WATERCOLOR'+#9+'WATERTRANSP'
+   +#9+'SURFTEMP'+#9+'SURFSALT';
    AssignFile(f_meteo,FileOut);
    rewrite(f_meteo);
    writeln(f_meteo,StrOut);
 
-
-
    {...variables create output files}
-   FileOut:=PathOut+'TEMPERATURE.dat';
    StrOut:='ID'+#9+'DBAR'+#9+'M'+#9+'VAL'+#9+'PQF1'
    +#9+'PQF2'+#9+'SQF'+#9+'BOTTLE_NUMBER'+#9+'UNITS_ID';
-   AssignFile(f_temp,FileOut);
-   rewrite(f_temp);
-   writeln(f_temp,StrOut);
 
 
-
-
-   PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\test\';
-   //PathSource:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\data\';
-   FileListBox1.Directory:=PathSource;
+   FileOut:=PathOut+'TEMPERATURE.dat';  //1
+   AssignFile(f_temp,FileOut); rewrite(f_temp); writeln(f_temp,StrOut);
+   FileOut:=PathOut+'SALINITY.dat';     //2
+   AssignFile(f_salt,FileOut); rewrite(f_salt); writeln(f_salt,StrOut);
+   FileOut:=PathOut+'OXYGEN.dat';       //3
+   AssignFile(f_oxyg,FileOut); rewrite(f_oxyg); writeln(f_oxyg,StrOut);
+   FileOut:=PathOut+'PHOSPHATE.dat';    //4
+   AssignFile(f_phosphate,FileOut); rewrite(f_phosphate); writeln(f_phosphate,StrOut);
+   FileOut:=PathOut+'SILICATE.dat';     //5
+   AssignFile(f_silicate,FileOut); rewrite(f_silicate); writeln(f_silicate,StrOut);
+   FileOut:=PathOut+'NITRATE.dat';      //6
+   AssignFile(f_nitrate,FileOut); rewrite(f_nitrate); writeln(f_nitrate,StrOut);
+   FileOut:=PathOut+'PH.dat';           //7
+   AssignFile(f_ph,FileOut); rewrite(f_ph); writeln(f_ph,StrOut);
+   FileOut:=PathOut+'TCHL.dat';         //8
+   AssignFile(f_chlorophyll,FileOut); rewrite(f_chlorophyll); writeln(f_chlorophyll,StrOut);
+   FileOut:=PathOut+'ALK.dat';          //9
+   AssignFile(f_alkalinity,FileOut); rewrite(f_alkalinity); writeln(f_alkalinity,StrOut);
+   FileOut:=PathOut+'PCO2.dat';         //10
+   AssignFile(f_pCO2,FileOut); rewrite(f_pCO2); writeln(f_pCO2,StrOut);
+   FileOut:=PathOut+'DIC.dat';          //11
+   AssignFile(f_DIC,FileOut); rewrite(f_DIC); writeln(f_DIC,StrOut);
+   FileOut:=PathOut+'WPRES.dat';        //12
+   AssignFile(f_wpres,FileOut); rewrite(f_wpres); writeln(f_wpres,StrOut);
+   FileOut:=PathOut+'H3.dat';           //13
+   AssignFile(f_H3,FileOut); rewrite(f_H3); writeln(f_H3,StrOut);
+   FileOut:=PathOut+'HE.dat';           //14
+   AssignFile(f_HE,FileOut); rewrite(f_HE); writeln(f_HE,StrOut);
+   FileOut:=PathOut+'HE3.dat';          //15
+   AssignFile(f_HE3,FileOut); rewrite(f_HE3); writeln(f_HE3,StrOut);
+   FileOut:=PathOut+'C14.dat';          //16
+   AssignFile(f_C14,FileOut); rewrite(f_C14); writeln(f_C14,StrOut);
+   FileOut:=PathOut+'C13.dat';          //17
+   AssignFile(f_C13,FileOut); rewrite(f_C13); writeln(f_C13,StrOut);
+   FileOut:=PathOut+'ARGON.dat';        //18
+   AssignFile(f_ARGON,FileOut); rewrite(f_ARGON); writeln(f_ARGON,StrOut);
+   FileOut:=PathOut+'NEON.dat';         //19
+   AssignFile(f_NEON,FileOut); rewrite(f_NEON); writeln(f_NEON,StrOut);
+   FileOut:=PathOut+'CFC11.dat';        //20
+   AssignFile(f_CFC11,FileOut); rewrite(f_CFC11); writeln(f_CFC11,StrOut);
+   FileOut:=PathOut+'CFC12.dat';        //21
+   AssignFile(f_CFC12,FileOut); rewrite(f_CFC12); writeln(f_CFC12,StrOut);
+   FileOut:=PathOut+'CFC113.dat';       //22
+   AssignFile(f_CFC113,FileOut); rewrite(f_CFC113); writeln(f_CFC113,StrOut);
+   FileOut:=PathOut+'O18.dat';          //23
+   AssignFile(f_O18,FileOut); rewrite(f_O18); writeln(f_O18,StrOut);
 
    if checkbox1.Checked then
    memo1.Lines.Add('absnum'+#9+'WODCastNum'+#9+'StFlag'+#9+'StLat'
       +#9+'StLon'+#9+'DateTime'+#9+'ShipCode');
 
-
-
       for i:=1 to 50 do VarCount_arr[i]:=0;
       mik_stTotal:=0;
       StInDataset:=0;
+
+
+      with Q_CRuiseID do begin
+       SQL.Clear;
+       SQL.Add(' Select ID, WOD_CODE from CRUISE_WOD ');
+       Open;
+      end;
+
+       WCCisNull:=0;
+
+      memo1.Lines.Add(datetimetostr(NOW));
 {..........processing files from FileListBox..........}
 {FLB}for i:=0 to (FileListBox1.Items.Count-1) do begin
       FileForRead:=PathSource+trim(FileListBox1.Items.Strings[i]);
@@ -203,7 +241,8 @@ begin
     writeln(f_statistics, '');
     writeln(f_statistics, '#',#9,'VarCode',#9,'StationsWithVariable');
 
-      mik:=0;
+   {...number of stations with different wariables}
+    mik:=0;
     for i:=1 to 50 do begin
     if VarCount_arr[i]<>0 then begin
       mik:=mik+1;
@@ -217,10 +256,36 @@ begin
     memo1.Lines.Add('StInDataset='+inttostr(StInDataset));
     writeln(f_statistics,'StInDataset=',inttostr(StInDataset));
 
+    Q_CRuiseID.Close;
+
     closefile(f_statistics);
     closefile(f_station);
     closefile(f_meteo);
     closefile(f_temp);
+    closefile(f_salt);
+    closefile(f_oxyg);
+    closefile(f_phosphate);
+    closefile(f_silicate);
+    closefile(f_nitrate);
+    closefile(f_ph);
+    closefile(f_chlorophyll);
+    closefile(f_alkalinity);
+    closefile(f_pCO2);
+    closefile(f_DIC);
+    closefile(f_WPRES);
+    closefile(f_H3);
+    closefile(f_HE);
+    closefile(f_HE3);
+    closefile(f_C14);
+    closefile(f_C13);
+    closefile(f_ARGON);
+    closefile(f_NEON);
+    closefile(f_CFC11);
+    closefile(f_CFC12);
+    closefile(f_CFC113);
+    closefile(f_O18);
+
+    memo1.Lines.Add(datetimetostr(NOW));
 end;
 
 
@@ -229,16 +294,16 @@ procedure TfrmloadWOD18.ConvertOSD(var StInFile:integer);
 var
 k,kb,kL,k_var,mik_line,mik_st,s,k_lev,k_par:integer;
 BNF,SL,line,NC,RC,TF,BSH,SHNC,BBH:integer;
-WODCastNum,WODCruiseNum,mEx,ParFlag:integer;
-levnum,proftype,varnum,qflag,mdatnum,m,varcode,varspcode,OCLShipCode:integer;
-StProjectCode,StInstituteCode,SHCode:integer;
+WODCastNum,WODCruiseNum,CruiseID,mEx,ParFlag:integer;
+levnum,proftype,varnum,V_QF,ST_QF,mdatnum,m,varcode,varspcode,OCLShipCode:integer;
+StProjectCode,AccessionNum,StInstituteCode,SHCode:integer;
 StDepthSource,DepthErFlag1,DepthErFlag2,ParErFlag1,ParErFlag2:integer;
 countDup,TSProbeType:integer;
 StYear,StMonth,StDay,StHour,StMin,StSec,StMSec:word;
 StTime,StLat,StLon,ParMetaData,SHCodeValue,ErrVal,stlev:real;
 ParVal :real;
 buf:char;
-st,wst,sf,str,shstr,countryname,shipname:string;
+st,wst,sf,str,shstr,countryname,shipname,WODcode:string;
 StCountryCode :string[2];
 NODCShipCode :string;
 StCountryName :string[40];
@@ -246,16 +311,13 @@ StVesselName :string[40];
 StCountryCode_Platform,CountryName_Platform,VarAtSt:string;
 VarCode_arr :array [1..50] of integer;
 lev_arr :array[1..50000] of real;
-count_temperature,count_salinity,count_oxygen:integer;
-count_phosphate,count_silicate,count_nitrate,count_pH :integer;
-count_chlorophyll,count_alkalinity,count_pCO2,count_tCO2,count_NaNi:integer;
 
 StDateDT,StTimeDT,StDateTime:TDateTime;
 StFlag,absnum,stversion:integer;
 StSource,OrStNum,VesselCruiseID,SourceDataOrigin:string;
 MonthErr,TimeErr:Boolean;
 
-{Meteo}
+{Meteo  CloudType varchar in DB}
 StAirTemp, StTWet, StAirPressure, WindDir, WindSpeed,
 CloudCover, CloudLow, CloudType, Visibility, AbsHum, RelHum,
 WHeight, Wavedir, Waveperiod, Seastate, StWeather, Watercolor,
@@ -327,7 +389,20 @@ begin
    BNF:=strtoint(copy(wst,NC,1)); {bytes in Cruise Number}
    NC:=NC+1;
    WODCruiseNum:=strtoint(copy(wst,NC,BNF));  {WOD Cruise Number identification}
-   VesselCruiseID:=copy(wst,NC,BNF);
+   VesselCruiseID:=copy(wst,NC,BNF);     //не используется
+
+   {...get integer cruise ID from CRIUISE_WOD table}
+    CruiseID:=215799; //WOD_CODE=ZZ-999999 added for missed codes
+    WODcode:=trim(StCountryCode+'-'+inttostr(WODCruiseNum));
+    if not varisnull(Q_CruiseID.Lookup('WOD_CODE',WODcode,'ID')) then
+    CruiseID:=Q_CruiseID.Lookup('WOD_CODE',WODcode,'ID')
+    else begin
+      WCCisNull:=WCCisNull+1;
+      memo1.Lines.Add(inttostr(WCCisNull)+#9+WODcode+#9+inttostr(CruiseID));
+    end;
+    //memo1.Lines.Add(WODcode+' -> '+inttostr(cruiseID));
+
+
    NC:=NC+BNF;
    StYear:=strtoint(copy(wst,NC,4));       {year}
    NC:=NC+4;
@@ -403,12 +478,17 @@ begin
 
    {...variable codes, quality flags, metadata}
 {v}if (varnum>0) and (levnum>0) then begin
+    ST_QF:=4; //ocean.fdb QF =acceptable (WOD algorithms on variables passed successfully)
 {c}for k_var:=1 to VarNum do begin
      BNF:=strtoint(copy(wst,NC,1));
 {memo1.Lines.Add('>>>>>>>'+inttostr(k_var)+' -> '+copy(wst,NC,BNF)+'  NC:'+inttostr(nc));}
      NC:=NC+1;   VarCode:=strtoint(copy(wst,NC,BNF)); {variable code}
      VarCode_arr[k_var]:=VarCode;
-     NC:=NC+BNF; QFlag  :=strtoint(copy(wst,NC,1));   {quality control flag}
+     NC:=NC+BNF; V_QF  :=strtoint(copy(wst,NC,1));   {quality control flag for variable}
+
+     //if a variable in the cast not accepted by one of WOD QC algorithms QF=2 (ocean.fdb) is set (suspicious cast as a whole)
+     if V_QF>0 then ST_QF:=2;
+
      NC:=NC+1;   BNF    :=strtoint(copy(wst,NC,1));
      NC:=NC+1;   MDatNum:=strtoint(copy(wst,NC,BNF)); {number of variable-specific metadata}
      NC:=NC+BNF;
@@ -416,7 +496,7 @@ begin
   {  if CheckBox1.Checked then
     memo1.Lines.Add('...kvar: '+inttostr(k_var)
      +#9+'...VarCode: '+inttostr(VarCode)
-     +#9+'...QFlag  : '+inttostr(QFlag)
+     +#9+'...V_QF  : '+inttostr(V_QF)
      +#9+'...MDatNum: '+inttostr(MDatNum)); }
 
 
@@ -438,6 +518,7 @@ begin
    end;
 {m}end;
 {c}end;
+    //if ST_QF<>0 then memo1.Lines.Add('ST_QF<>0');
 {v}end;
 
     {...character data and principal investigator}
@@ -469,12 +550,14 @@ begin
      SHnc:=SHnc+BNF;
 
        StProjectCode:=-9;
+       AccessionNum:=-9;
        StInstituteCode:=-9;
        StDepthSource:=-9;
        TSProbeType:=0; {unknown codes from OCL codes 0-8}
        OCLShipCode:=9999;
        ShipName:='UNKNOWN';
        OrStNum:='';
+       OrCastNum:=1;
 
        StAirTemp:=null; StTWet:=null; StAirPressure:=null; WindDir:=null;
        WindSpeed:=null; CloudCover:=null; CloudLow:=null; CloudType:=null; Visibility:=null;
@@ -496,6 +579,7 @@ begin
       SHnc:=SHnc+TF+3;
 
       case SHCode of
+      1:  AccessionNum:=round(SHCodeValue);  //NCEI Accession Number
       2:  StProjectCode:=round(SHCodeValue);  //Код проекта
       3:  begin
            OCLShipCode:=round(SHCodeValue);   //OCL код судна
@@ -639,24 +723,12 @@ begin
    #9,datetimetostr(StDateTime),
    #9,floattostr(StLat),
    #9,floattostr(StLon),
-   #9,inttostr(VarNum),    //number of variables at station
-   #9,VarAtSt);            //variables codes at station
+   #9,inttostr(VarNum),    //number of variables at the station
+   #9,VarAtSt);            //all variable codes available at the station
 
 
 {..........PROFILE DATA.........}
 {PD}if LevNum>0 then begin
-   count_temperature:=0;
-   count_salinity:=0;
-   count_oxygen:=0;
-   count_phosphate:=0;
-   count_silicate:=0;
-   count_nitrate:=0;
-   count_pH:=0;
-   count_chlorophyll:=0;
-   count_alkalinity:=0;
-   count_pCO2:=0;
-   count_tCO2:=0;
-   count_NaNi:=0;
    mEx:=0;
 
     LastLev_m:=-9;
@@ -692,176 +764,425 @@ begin
       ConvertToFloat(str,ParVal);
       {populate parameter arrays}
       NC:=RC+TF+3;
-                  ParErFlag1:=strtoint(copy(wst,NC,1));     {Par Error Flag}
-      NC:=NC+1;   ParErFlag2:=strtoint(copy(wst,NC,1));     {Par Error Flag Originator's}
+                  ParErFlag1:=strtoint(copy(wst,NC,1));     {Value quality control flag}
+      NC:=NC+1;   ParErFlag2:=strtoint(copy(wst,NC,1));     {Originator's flag}
+
+      //...assign DB QC flags
+      if ParErFlag1>0 then PQF1:=2 else PQF1:=4;  //primary QF1 set suspitious(4) if WOD algorithm failed
+      PQF2:=PQF1;  //PQF2 can be changed afterwards by OceanShell
+      SQF:=0;            //secondary QF
+      BNum:=0;           //'NISKIN bottle number' UNKNOWN in WOD ???
+
+
 {p3}end;
 
       if(SF='-') then ParVal:=-9;
 
+
+      //TEOS: meters to dbar
+      Lev_m:=-stLev;
+      Lev_dbar:=GibbsSeaWater.gsw_p_from_z(Lev_m,stlat,0,0);
+      Lev_m:=stLev;
+      {m=0- depth to pressure, 1- pressure to depth}
+      //Lev_m:=stLev;
+      //procedures.Depth_to_Pressure(Lev_m,stLat,0,Lev_dbar);
+
+      StDateTime:=Procedures.DateEncode(StYear,StMonth,StDay,StHour,StMin,MonthErr,TimeErr);
+
        ParFlag:=0;
       case VarCode_arr[k_par] of
-      1: begin //TEMPERATURE
+      1: begin //#TEMPERATURE
          if ParErFlag2>0 then ParFlag:=2;
-
          if ParVal<>-9 then begin
          mEx:=1;
-         count_temperature:=count_temperature+1;
-
-         //if CheckBox1.Checked then
-         //memo1.Lines.Add('lev temp QF '+#9+floattostr(stLev)+#9+floattostr(ParVal)+#9+floattostr(ParFlag));
-
-         //TEOS: dbar to meters  ONLY
-         //Lev_m:=declarations_gsw.gsw_z_from_p(Lev_dbar,stlat);
-         //Lev_m:=-Lev_m;
-
-         {m=0- depth to pressure, 1- pressure to depth}
-         Lev_m:=stLev;
-         procedures.Depth_to_Pressure(Lev_m,stLat,0,Lev_dbar);
-
-         StDateTime:=Procedures.DateEncode(StYear,StMonth,StDay,StHour,StMin,MonthErr,TimeErr);
-
-         PQF1:=ParErFlag1;  //??? should be WOD18 QF
-         PQF2:=ParErFlag2;  //should be our QF
-         SQF:=0;            //should be secondary QF
-         BNum:=0;           //should be secondary QF
-         UID:=1;            //our unit ID: Degrees Celsius
-
+         UID:=1; //ocean.fdb unit ID: Degrees Celsius
          writeln(f_temp,inttostr(absnum),
          #9,floattostrF(Lev_dbar,ffFixed,7,1),
          #9,floattostr(Lev_m),
          #9,floattostr(ParVal),
-         #9,inttostr(PQF1),#9,inttostr(PQF2),#9,inttostr(SQF),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
          #9,inttostr(BNum),
          #9,UID);
-
-         //if Checkbox2.Checked then
-         //InsertParameters('P_TEMPERATURE', Absnum, {count_temperature,} stLev, ParVal, ParFlag);
          end;
          end; {1}
+      2: begin //#SALINITY
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         mEx:=1;
+         UID:=2; //ocean.fdb unit ID: Dimensionless (unitless)
+         writeln(f_salt,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+      3: begin //#OXYGEN
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         mEx:=1;
+         UID:=3; //ocean.fdb unit ID: Micromole per kilogram
+         writeln(f_oxyg,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+      4: begin //PHOSPHATE
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         mEx:=1;
+         UID:=3; //ocean.fdb unit ID: Micromole per kilogram
+         writeln(f_phosphate,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+      6: begin  //SILICATE
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         mEx:=1;
+         UID:=3; //ocean.fdb unit ID: Micromole per kilogram
+         writeln(f_silicate,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+      8: begin  //NITRATE
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         mEx:=1;
+         UID:=3; //ocean.fdb unit ID: Micromole per kilogram
+         writeln(f_nitrate,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+      9: begin  //PH
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         mEx:=1;
+         UID:=2; //ocean.fdb unit ID: Dimensionless
+         writeln(f_ph,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     11: begin  //TCHL
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         mEx:=1;
+         UID:=4; //ocean.fdb unit ID: Microgram per liter
+         writeln(f_chlorophyll,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     17: begin  //ALK
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         mEx:=1;
+         UID:=5; //ocean.fdb unit ID: Milli-equivalent per liter
+         writeln(f_alkalinity,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     20: begin  //PCO2   Partial pressure of carbon dioxide
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         mEx:=1;
+         UID:=5; //ocean.fdb unit ID: Milli-equivalent per liter
+         writeln(f_pCO2,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     21: begin  //DIC  Dissolved Inorganic carbon
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         mEx:=1;
+         UID:=7; //ocean.fdb unit ID: Millimole per liter
+         writeln(f_DIC,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     25: begin //WPRES     Water pressure
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         UID:=20; //ocean.fdb unit ID: decibar
+         writeln(f_WPRES,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     33: begin //H3     Tritium
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         UID:=8; //ocean.fdb unit ID: Tritium Unit
+         writeln(f_H3,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     34: begin //HE     Helium
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         UID:=8; //ocean.fdb unit ID: Tritium Unit
+         writeln(f_HE,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     35: begin //HE3    Delta Helium-3
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         UID:=10; //ocean.fdb unit ID: Percent
+         writeln(f_HE3,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     36: begin //C14    Delta Carbon-14
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         UID:=11; //ocean.fdb unit ID: Per mille
+         writeln(f_C14,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     37: begin //C13    Delta Carbon-13
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         UID:=11; //ocean.fdb unit ID: Per mille
+         writeln(f_C13,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     38: begin //ARGON
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         UID:=12; //ocean.fdb unit ID: Nanomol per kilogram
+         writeln(f_ARGON,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     39: begin //NEON
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         UID:=12; //ocean.fdb unit ID: Nanomol per kilogram
+         writeln(f_NEON,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     40: begin //CFC11  Chlorofluorocarbon 11
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         UID:=13; //ocean.fdb unit ID: Picomole per kilogram
+         writeln(f_CFC11,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     41: begin //CFC12   Chlorofluorocarbon 12
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         UID:=13; //ocean.fdb unit ID: Picomole per kilogram
+         writeln(f_CFC12,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     42: begin //CFC113     Chlorofluorocarbon 113
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         UID:=13; //ocean.fdb unit ID: Picomole per kilogram
+         writeln(f_CFC113,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
+     43: begin //O18     Delta Oxygen-18
+         if ParErFlag2>0 then ParFlag:=2;
+         if ParVal<>-9 then begin
+         UID:=11; //ocean.fdb unit ID: Per mille
+         writeln(f_O18,inttostr(absnum),
+         #9,floattostrF(Lev_dbar,ffFixed,7,1),
+         #9,floattostr(Lev_m),
+         #9,floattostr(ParVal),
+         #9,inttostr(PQF1),
+         #9,inttostr(PQF2),
+         #9,inttostr(SQF),
+         #9,inttostr(BNum),
+         #9,UID);
+         end;
+         end;
 
-      2: begin
-         if ParErFlag2>0 then ParFlag:=2;
-         if ParVal<>-9 then begin
-         mEx:=1;
-         count_salinity:=count_salinity+1;
-         //if Checkbox2.Checked then
-         //InsertParameters('P_SALINITY', Absnum, {count_salinity,} stLev, ParVal, ParFlag);
-         end;
-         end;
-      3: begin
-         if ParErFlag2>0 then ParFlag:=2;
-         if ParVal<>-9 then begin
-         mEx:=1;
-         count_oxygen:=count_oxygen+1;
-      //   writeln(fo_oxyg,absnum:8,count_temperature:5,StLev:7:1,ParVal:9:3,ParFlag:6);
-         //if Checkbox2.Checked then
-         //InsertParameters('P_OXYGEN', Absnum, {count_oxygen,} stLev, ParVal, ParFlag);
-         end;
-         end;
-      4: begin
-         if ParErFlag2>0 then ParFlag:=2;
-         if ParVal<>-9 then begin
-         mEx:=1;
-         count_phosphate:=count_phosphate;
-         //if Checkbox2.Checked then
-         //InsertParameters('P_PHOSPHATE', Absnum, {count_phosphate,} stLev, ParVal, ParFlag);
-         end;
-         end;
-      6: begin
-         if ParErFlag2>0 then ParFlag:=2;
-         if ParVal<>-9 then begin
-         mEx:=1;
-         count_silicate:=count_silicate+1;
-         //if Checkbox2.Checked then
-         //InsertParameters('P_SILICATE', Absnum, {count_silicate,} stLev, ParVal, ParFlag);
-         end;
-         end;
-      8: begin
-         if ParErFlag2>0 then ParFlag:=2;
-         if ParVal<>-9 then begin
-         mEx:=1;
-         count_nitrate:=count_nitrate+1;
-         //if Checkbox2.Checked then
-         //InsertParameters('P_NITRATE', Absnum, {count_nitrate,} stLev, ParVal, ParFlag);
-         end;
-         end;
-      9: begin
-         if ParErFlag2>0 then ParFlag:=2;
-         if ParVal<>-9 then begin
-         mEx:=1;
-         count_ph:=count_ph+1;
-         //if Checkbox2.Checked then
-         //InsertParameters('P_PH', Absnum, {count_ph,} stLev, ParVal, ParFlag);
-         end;
-         end;
-     11: begin
-         if ParErFlag2>0 then ParFlag:=2;
-         if ParVal<>-9 then begin
-         mEx:=1;
-         count_chlorophyll:=count_chlorophyll+1;
-         //if Checkbox2.Checked then
-         //InsertParameters('P_CHLOROPHYLL', Absnum, {count_temperature,} stLev, ParVal, ParFlag);
-         end;
-         end;
-     17: begin
-         if ParErFlag2>0 then ParFlag:=2;
-         if ParVal<>-9 then begin
-         mEx:=1;
-         count_alkalinity:=count_alkalinity+1;
-         //if Checkbox2.Checked then
-         //InsertParameters('P_ALKALINITY', Absnum, {count_temperature,} stLev, ParVal, ParFlag);
-         end;
-         end;
-   {  20: begin
-         if ParErFlag2>0 then ParFlag:=2;
-         if ParVal<>-9 then begin
-         mEx:=1;
-         count_pCO2:=count_pCO2+1;
-         writeln(fo_pCO2,absnum:8,count_temperature:5,StLev:7:1,ParVal:9:3,ParFlag:6);
-         end;
-         end;
-     21: begin
-         if ParErFlag2>0 then ParFlag:=2;
-         if ParVal<>-9 then begin
-         mEx:=1;
-         count_tCO2:=count_tCO2+1;
-         writeln(fo_tCO2,absnum:8,count_temperature:5,StLev:7:1,ParVal:9:3,ParFlag:6);
-         end;
-         end;
-     23: begin
-         if ParErFlag2>0 then ParFlag:=2;
-         if ParVal<>-9 then begin
-         count_NANI:=count_NANI+1;
-         writeln(fo_NANI,absnum:8,count_temperature:5,StLev:7:1,ParVal:9:3,ParFlag:6);
-         end;
-         end; }
-      end;
+end;{case}
 
 {p2}end;
 {p1}end;
-     LastLev_m:=StLev;
      {m=0- depth to pressure, 1- pressure to depth}
-     procedures.Depth_to_Pressure(LastLev_m,stLat,0,LastLev_dbar);
+     //LastLev_m:=StLev;
+     //procedures.Depth_to_Pressure(LastLev_m,stLat,0,LastLev_dbar);
+
+     //TEOS: meters to dbar
+     LastLev_m:=-StLev;
+     LastLev_dbar:=GibbsSeaWater.gsw_p_from_z(LastLev_m,stlat,0,0);
+     LastLev_m:=StLev;
+
 {PD}end;
 
 
 //output into file
-//STATION
-writeln(f_station,inttostr(absnum),
-#9,floattostr(StLat),
-#9,floattostr(StLon),
-#9,datetimetostr(StDateTime),
-#9,inttostr(StDepthSource),
-#9,floattostr(LastLev_m),           //LASTLEVEL_M
-#9,floattostrF(LastLev_dbar,ffFixed,7,1),        //LASTLEVEL_DBAR
-#9,inttostr(WODCruiseNum),         //CRUISEID
+//STATION             NCEI Accession Number has added
+writeln(f_station,inttostr(absnum),      //ID
+#9,floattostr(StLat),                    //LATITUDE
+#9,floattostr(StLon),                    //LONGITUDE
+#9,datetimetostr(StDateTime),            //DATEANDTIME
+#9,inttostr(StDepthSource),              //BOTTOMDEPTH
+#9,floattostr(LastLev_m),                //LASTLEVEL_M
+#9,floattostrF(LastLev_dbar,ffFixed,7,1),//LASTLEVEL_DBAR
+#9,inttostr(CruiseID),         //CRUISEID <> WOD cruise number identification (Primary Header/Field 8: 'Cruise number'). Integer becouse it is NOT UNIQUE
 #9,inttostr(TSProbeType),           //INSTRUMENT_ID
-#9,OrStNum,                         //ST_NUM_ORIGIN
-#9,inttostr(WODCastNum),            //ST_ID_ORIGIN
-#9,inttostr(OrCastNum),             //CAST_NUMBER
-#9,inttostr(0),                     //QCFLAG There is no QF on whole station in WOD
+#9,OrStNum,                         //ST_NUM_ORIGIN = station number assigned during the cruise (Secondary Header/Field 7: 'Originator's station number'). String
+#9,inttostr(WODCastNum),            //ST_ID_ORIGIN = WOD cast identification (Primary header/Field 5: 'WOD unique cast number'). Integer
+#9,inttostr(OrCastNum),             //CAST_NUMBER = station number assigned during the cruise (Secondary Header/Field 5: 'Cast/Tow number'). integer?
+#9,inttostr(ST_QF),                 //0 - not checked, 2 - suspicious becouse one of WOD algotithms on variables failed
 #9,inttostr(1),                     //STVERSION
+#9,inttostr(0),                    //DUPLICATE
 #9,inttostr(0),                    //MERGED
+#9,inttostr(AccessionNum),         //ACCESSION_NUMBER
 #9,datetimetostr(NOW),        //DATE_ADDED
 #9,datetimetostr(NOW));      //DATE_UPDATED
 
@@ -902,12 +1223,398 @@ writeln(f_meteo,inttostr(absnum), //ID
 #9,vartostr(SurfSalt));           //SURFSALT
 
 
+//write MD into WOD.FDB
+{wDB}if CheckBox2.Checked then begin
+
+             StVersion:=0;
+           with frmdm.q1 do begin
+             Close;
+              SQL.Clear;
+              SQL.Add(' Select count(ID) as CountDup from STATION ');
+              SQL.Add(' where DATEANDTIME=:stDT and ');
+              SQL.Add(' Latitude=:stlat and Longitude=:stlon and CAST_NUMBER=:CAST_NUMBER ');
+              ParamByName('stDT').AsDateTime:=StDateTime;
+              ParamByName('stlat' ).Asfloat:=stlat;
+              ParamByName('stlon' ).AsFloat:=stlon;
+              ParamByName('CAST_NUMBER').AsInteger:=OrCastNum;
+              Open;
+                CountDup:=FieldByName('CountDup').AsInteger;
+              Close;
+           end;
+             if CountDup>0 then StVersion:=CountDup+1;
+
+           with frmdm.q2 do begin
+             Close;
+              SQL.Clear;
+              SQL.Add(' INSERT INTO STATION ' );
+              SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, LASTLEVEL_M, ' );
+              SQL.Add('  LASTLEVEL_DBAR, CRUISE_ID, INSTRUMENT_ID, ST_NUMBER_ORIGIN, ST_ID_ORIGIN, ' );
+              SQL.Add('  CAST_NUMBER, QCFLAG, STVERSION, DUPLICATE, MERGED, ACCESSION_NUMBER, DATE_ADDED, DATE_UPDATED ) ' );
+              SQL.Add(' VALUES ' );
+              SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :BOTTOMDEPTH, :LASTLEVEL_M, ' );
+              SQL.Add('  :LASTLEVEL_DBAR, :CRUISE_ID, :INSTRUMENT_ID, :ST_NUMBER_ORIGIN, :ST_ID_ORIGIN, ' );
+              SQL.Add('  :CAST_NUMBER, :QCFLAG, :STVERSION, :DUPLICATE, :MERGED, :ACCESSION_NUMBER, :DATE_ADDED, :DATE_UPDATED ) ' );
+              ParamByName('ID'               ).Value:=absnum;
+              ParamByName('LATITUDE'         ).Value:=stlat;
+              ParamByName('LONGITUDE'        ).Value:=stlon;
+              ParamByName('DATEANDTIME'      ).Value:=StDateTime;
+              ParamByName('BOTTOMDEPTH'      ).Value:=StDepthSource;
+              ParamByName('LASTLEVEL_M'      ).Value:=LastLev_m;
+              ParamByName('LASTLEVEL_DBAR'   ).Value:=LastLev_dbar;
+              ParamByName('CRUISE_ID'        ).Value:=CruiseID; //ID from CRUISE_WOD found by <WOD cruise number identification number>
+              ParamByName('INSTRUMENT_ID'    ).Value:=TSProbeType;
+              ParamByName('ST_NUMBER_ORIGIN' ).Value:=OrStNum;
+              ParamByName('ST_ID_ORIGIN'     ).Value:=WODCastNum;
+              ParamByName('CAST_NUMBER'      ).Value:=OrCastNum;
+              ParamByName('QCFLAG'           ).Value:=ST_QF;
+              ParamByName('STVERSION'        ).Value:=stversion;
+              ParamByName('DUPLICATE'        ).Value:=0;
+              ParamByName('MERGED'           ).Value:=0;
+              ParamByName('ACCESSION_NUMBER' ).Value:=AccessionNum;
+              ParamByName('DATE_ADDED'       ).Value:=Now;
+              ParamByName('DATE_UPDATED'     ).Value:=Now;
+             ExecSQL;
+           end;
+           frmdm.TR.CommitRetaining;
+
+           if m_exist=1 then begin
+              with frmdm.q3 do begin
+                Close;
+                  SQL.Clear;
+                  SQL.Add(' insert into METEO ');
+                  SQL.Add(' (ID, TEMPDRY, TEMPWET, PRESSURE, WINDDIR, WINDSPEED, ');
+                  SQL.Add('  CLOUDCOMMON, CLOUDLOW, CLOUDTYPE, VISIBILITY, HUMABS,  ');
+                  SQL.Add('  HUMREL, WAVEHEIGHT, WAVEDIR, WAVEPERIOD, SEASTATE, WEATHER, ');
+                  SQL.Add('  WATERCOLOR, WATERTRANSP, SURFTEMP, SURFSALT) ');
+                  SQL.Add(' values ');
+                  SQL.Add(' (:ID, :TEMPDRY, :TEMPWET, :PRESSURE, :WINDDIR, :WINDSPEED, ');
+                  SQL.Add('  :CLOUDCOMMON, :CLOUDLOW, :CLOUDTYPE, :VISIBILITY, :HUMABS,  ');
+                  SQL.Add('  :HUMREL, :WAVEHEIGHT, :WAVEDIR, :WAVEPERIOD, :SEASTATE, :WEATHER, ');
+                  SQL.Add('  :WATERCOLOR, :WATERTRANSP, :SURFTEMP, :SURFSALT) ');
+                  ParamByName('ID'     ).AsInteger:=Absnum;
+                  ParamByName('TEMPDRY'    ).Value:=StAirTemp;
+                  ParamByName('TEMPwet'    ).Value:=StTWet;
+                  ParamByName('pressure'   ).Value:=StAirPressure;
+                  ParamByName('winddir'    ).Value:=WindDir;
+                  ParamByName('windspeed'  ).Value:=WindSpeed;
+                  ParamByName('Cloudcommon').Value:=CloudCover;
+                  ParamByName('Cloudlow'   ).Value:=CloudLow;
+                  ParamByName('Cloudtype'  ).Value:=CloudType;
+                  ParamByName('Visibility' ).Value:=Visibility;
+                  ParamByName('Humabs'     ).Value:=AbsHum;
+                  ParamByName('HumRel'     ).Value:=RelHum;
+                  ParamByName('waveheight' ).Value:=WHeight;
+                  ParamByName('wavedir'    ).Value:=WaveDir;
+                  ParamByName('waveperiod' ).Value:=WavePeriod;
+                  ParamByName('Seastate'   ).Value:=SeaState;
+                  ParamByName('weather'    ).Value:=StWeather;
+                  ParamByName('watercolor' ).Value:=WaterColor;
+                  ParamByName('watertransp').Value:=WaterTransp;
+                  ParamByName('SurfTemp'   ).Value:=SurfTemp;
+                  ParamByName('SurfSalt'   ).Value:=SurfSalt;
+                  ExecSQL;
+                  end;
+           frmdm.TR.CommitRetaining;
+           end;
+
+{wDB}end;
 {WFR}until eof(f_dat); {end of file}
 
      StInFile:=mik_st;
      //memo1.Lines.Add('mik_st='+inttostr(mik_st));
+end;
+
+
+
+
+
+procedure TfrmloadWOD18.btnDownloadOSDprfClick(Sender: TObject);
+var
+kv:integer;
+id,pqf1,pqf2,sqf,Nbn,unit_id:integer;
+L_dbar,L_m,val:real;
+tbl_path,tbl,fileN:string;
+varN_arr:array[1..23] of string;
+
+begin
+  tbl_path:='c:\Users\ako071\AK\datasets\WOD18\YEARLY OSD OBS\Output\';
+
+  varN_arr[1]:='TEMPERATURE';
+  varN_arr[2]:='SALINITY';
+  varN_arr[3]:='OXYGEN';
+  varN_arr[4]:='PHOSPHATE';
+  varN_arr[5]:='SILICATE';
+  varN_arr[6]:='NITRATE';
+  varN_arr[7]:='PH';
+  varN_arr[8]:='TCHL';
+  varN_arr[9]:='ALK';
+  varN_arr[10]:='PCO2';
+  varN_arr[11]:='DIC';
+  varN_arr[12]:='WPRES';
+  varN_arr[13]:='H3';
+  varN_arr[14]:='HE';
+  varN_arr[15]:='HE3';
+  varN_arr[16]:='C14';
+  varN_arr[17]:='C13';
+  varN_arr[18]:='ARGON';
+  varN_arr[19]:='NEON';
+  varN_arr[20]:='CFC11';
+  varN_arr[21]:='CFC12';
+  varN_arr[22]:='CFC113';
+  varN_arr[23]:='O18';
+
+  memo1.Lines.Add('start: '+datetimetostr(NOW));
+
+{v}for kv:=1 to 23 do begin
+  fileN:=tbl_path+varN_arr[kv]+'.dat';
+  tbl:='P_'+varN_arr[kv]+'_OSD';
+  memo1.Lines.Add(fileN+' -> '+tbl);
+  Application.ProcessMessages;
+  assignfile(f_dat,fileN);
+  reset(f_dat);
+  readln(f_dat);
+
+{f}while not EOF(f_dat) do begin
+   readln(f_dat,id,L_dbar,L_m,val,pqf1,pqf2,sqf,Nbn,unit_id);
+
+   if CheckBox2.Checked then
+   with frmdm.q3 do begin
+    Close;
+      SQL.Clear;
+      SQL.Add(' insert into ');
+      SQL.Add(tbl);
+      SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF1, PQF2, SQF, BOTTLE_NUMBER, UNITS_ID) ');
+      SQL.Add(' values ');
+      SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF1, :PQF2, :SQF, :BOTTLE_NUMBER, :UNITS_ID) ');
+      ParamByName('ID').AsInteger:=id;
+      ParamByName('LEV_DBAR').AsFloat:=L_dbar;
+      ParamByName('LEV_M').AsFloat:=L_m;
+      ParamByName('VAL').AsFloat:=val;
+      ParamByName('PQF1').AsInteger:=pqf1;
+      ParamByName('PQF2').AsInteger:=pqf2;
+      ParamByName('SQF').AsInteger:=sqf;
+      ParamByName('BOTTLE_NUMBER').AsInteger:=Nbn;
+      ParamByName('UNITS_ID').AsInteger:=unit_id;
+     ExecSQL;
+   end;
+     //frmdm.TR.CommitRetaining;
+
+//   if CheckBox1.Checked then
+//   memo1.Lines.Add(inttostr(id)+#9+floattostr(L_dbar)+#9+floattostr(L_m)
+//   +#9+inttostr(pqf1)+#9+inttostr(pqf2)+#9+inttostr(sqf)
+//   +#9+inttostr(Nbn)+#9+inttostr(unit_id));
+
+{f}end;
+   closefile(f_dat);
+   frmdm.TR.Commit;
+{v}end;
+   memo1.Lines.Add('end: '+datetimetostr(NOW));
 
 end;
+
+
+
+
+procedure TfrmloadWOD18.btnGetStatisticsClick(Sender: TObject);
+ var
+ ktbl,UID:integer;
+ PQF1_0_count,PQF1_2_count,PQF1_9_count,SQF_0_count,SQF_1_count:integer;
+ first_str,UName,UNameShort,path_out,tbl:string;
+ varN_arr:array[1..23] of string;
+ begin
+
+  varN_arr[1]:='TEMPERATURE';
+  varN_arr[2]:='SALINITY';
+  varN_arr[3]:='OXYGEN';
+  varN_arr[4]:='PHOSPHATE';
+  varN_arr[5]:='SILICATE';
+  varN_arr[6]:='NITRATE';
+  varN_arr[7]:='PH';
+  varN_arr[8]:='TCHL';
+  varN_arr[9]:='ALK';
+  varN_arr[10]:='PCO2';
+  varN_arr[11]:='DIC';
+  varN_arr[12]:='WPRES';
+  varN_arr[13]:='H3';
+  varN_arr[14]:='HE';
+  varN_arr[15]:='HE3';
+  varN_arr[16]:='C14';
+  varN_arr[17]:='C13';
+  varN_arr[18]:='ARGON';
+  varN_arr[19]:='NEON';
+  varN_arr[20]:='CFC11';
+  varN_arr[21]:='CFC12';
+  varN_arr[22]:='CFC113';
+  varN_arr[23]:='O18';
+
+
+   first_str:='Table header'
+   +#9+'samples#'
+   +#9+'PQF1=0#'
+   +#9+'PQF1=2#'
+   +#9+'PQF1=9#'
+   +#9+'SQF=0#'
+   +#9+'SQF=1#'
+   +#9+'dbar_min'
+   +#9+'dbar_max'
+   +#9+'Average'
+   +#9+'Minimum'
+   +#9+'Maximum'
+   +#9+'Unit'
+   +#9+'Unit short'
+   +#9+'Unit ID'
+   ;
+   memo1.Lines.Add(first_str);
+
+   path_out:='c:\Users\ako071\AK\OceanShell-GIT\OceanShell\unload\statistics\WOD_statistics.dat';
+   AssignFile(f_statistics, Path_out); Rewrite(f_statistics);
+   memo1.Lines.Add('path_out='+path_out);
+
+   memo1.Lines.Add('');
+   memo1.Lines.Add(first_str);
+   writeln(f_statistics,first_str);
+
+
+
+ {TBL}for ktbl:=1 to 23 do begin
+
+    tbl:='P_'+varN_arr[ktbl]+'_OSD';
+    memo1.Lines.Add(inttostr(ktbl)+#9+tbl);
+    Application.ProcessMessages;
+
+
+ {w}with frmdm.q1 do begin
+      Close;
+      SQL.Clear;
+      SQL.Add(' Select count(*) as samples_num, ');
+      SQL.Add(' min(lev_dbar) as dbar_min, max(lev_dbar) as dbar_max, ');
+      SQL.Add(' avg(val) as val_avg, ');
+      SQL.Add(' min(val) as val_min, ');
+      SQL.Add(' max(val) as val_max, ');
+      SQL.Add(' min(units_ID) as units_min, ');
+      SQL.Add(' max(units_ID) as units_max ');
+      SQL.Add(' from ');
+      SQL.Add(tbl);
+      Open;
+
+
+      with frmdm.q2 do begin
+        Close;
+        SQL.Clear;
+        SQL.Add(' Select count(PQF1) as QF_count ');
+        SQL.Add(' from ');
+        SQL.Add(tbl);
+        SQL.Add(' where PQF1=0 ');
+        Open;
+        PQF1_0_count:=frmdm.q2.FieldByName('QF_count').AsInteger;
+        Close;
+      end;
+      with frmdm.q2 do begin
+        Close;
+        SQL.Clear;
+        SQL.Add(' Select count(PQF1) as QF_count ');
+        SQL.Add(' from ');
+        SQL.Add(tbl);
+        SQL.Add(' where PQF1=2 ');
+        Open;
+        PQF1_2_count:=frmdm.q2.FieldByName('QF_count').AsInteger;
+        Close;
+      end;
+      with frmdm.q2 do begin
+        Close;
+        SQL.Clear;
+        SQL.Add(' Select count(PQF1) as QF_count ');
+        SQL.Add(' from ');
+        SQL.Add(tbl);
+        SQL.Add(' where PQF1=9 ');
+        Open;
+        PQF1_9_count:=frmdm.q2.FieldByName('QF_count').AsInteger;
+        Close;
+      end;
+      with frmdm.q2 do begin
+        Close;
+        SQL.Clear;
+        SQL.Add(' Select count(SQF) as QF_count ');
+        SQL.Add(' from ');
+        SQL.Add(tbl);
+        SQL.Add(' where SQF=0 ');
+        Open;
+        SQF_0_count:=frmdm.q2.FieldByName('QF_count').AsInteger;
+        Close;
+      end;
+      with frmdm.q2 do begin
+        Close;
+        SQL.Clear;
+        SQL.Add(' Select count(SQF) as QF_count ');
+        SQL.Add(' from ');
+        SQL.Add(tbl);
+        SQL.Add(' where SQF=1 ');
+        Open;
+        SQF_1_count:=frmdm.q2.FieldByName('QF_count').AsInteger;
+        Close;
+      end;
+
+
+      with Q do begin
+       SQL.Clear;
+       SQL.Add(' Select * from UNITS ');
+       SQL.Add(' where ID=:ID ');
+       //check if multiple units in table
+       Q.ParamByName('ID').AsInteger:=frmdm.q1.FieldByName('units_min').AsInteger;
+       Open;
+       UName :=q.FieldByName('Name').AsString;
+       UNameShort:=q.FieldByName('Name_Short').AsString;
+       UID:=q.FieldByName('ID').AsInteger;
+       Close;
+      end;
+
+
+
+      memo1.Lines.Add(tbl
+      +#9+inttostr(frmdm.q1.FieldByName('samples_num').AsInteger)
+      +#9+inttostr(PQF1_0_count)
+      +#9+inttostr(PQF1_2_count)
+      +#9+inttostr(PQF1_9_count)
+      +#9+inttostr(SQF_0_count)
+      +#9+inttostr(SQF_1_count)
+      +#9+floattostr(frmdm.q1.FieldByName('dbar_min').AsFloat)
+      +#9+floattostr(frmdm.q1.FieldByName('dbar_max').AsFloat)
+      +#9+floattostr(frmdm.q1.FieldByName('val_avg').AsFloat)
+      +#9+floattostr(frmdm.q1.FieldByName('val_min').AsFloat)
+      +#9+floattostr(frmdm.q1.FieldByName('val_max').AsFloat)
+      +#9+UName
+      +#9+UNameShort
+      +#9+inttostr(UID)
+      );
+
+      writeln(f_statistics,tbl,
+      #9,inttostr(frmdm.q1.FieldByName('samples_num').AsInteger),
+      #9+inttostr(PQF1_0_count),
+      #9+inttostr(PQF1_2_count),
+      #9+inttostr(PQF1_9_count),
+      #9+inttostr(SQF_0_count),
+      #9+inttostr(SQF_1_count),
+      #9,floattostr(frmdm.q1.FieldByName('dbar_min').AsFloat),
+      #9,floattostr(frmdm.q1.FieldByName('dbar_max').AsFloat),
+      #9,floattostr(frmdm.q1.FieldByName('val_avg').AsFloat),
+      #9,floattostr(frmdm.q1.FieldByName('val_min').AsFloat),
+      #9,floattostr(frmdm.q1.FieldByName('val_max').AsFloat),
+      #9,UName,
+      #9,UNameShort,
+      #9,inttostr(UID)
+      );
+
+      Close;
+ {w}end;
+ {TBL}end;
+      closefile(f_statistics);
+      memo1.Lines.Add('');
+      memo1.Lines.Add('...Done');
+
+end;
+
+
+
 
 
 procedure TfrmloadWOD18.ConvertToFloat(Str:string; var ParVal:real);
@@ -956,7 +1663,9 @@ const ScriptText=
    '    CAST_NUMBER         SMALLINT DEFAULT 1 NOT NULL, '+LineEnding+
    '    QCFLAG              SMALLINT NOT NULL, '+LineEnding+
    '    STVERSION           SMALLINT NOT NULL, '+LineEnding+
+   '    DUPLICATE           SMALLINT DEFAULT 0 NOT NULL, '+LineEnding+
    '    MERGED              SMALLINT DEFAULT 0 NOT NULL, '+LineEnding+
+   '    ACCESSION_NUMBER    BIGINT, '+LineEnding+
    '    DATE_ADDED          TIMESTAMP NOT NULL, '+LineEnding+
    '    DATE_UPDATED        TIMESTAMP, '+LineEnding+
    '    CONSTRAINT STATION_PK PRIMARY KEY (ID) '+LineEnding+
@@ -1395,7 +2104,8 @@ begin
     ST.CommentsInSQL:=false;
 
     //DB.DatabaseName:=(dbname);
-    DB.DatabaseName:='c:\Users\ako071\AK\OceanShell-GIT\OceanShell\databases\WOD18.fdb';
+    IBName:='c:\Users\ako071\AK\OceanShell-GIT\OceanShell\databases\WOD18.fdb';
+    DB.DatabaseName:=IBName;
     DB.UserName:='SYSDBA';
     DB.Password:='masterkey';
      With DB.Params do begin
@@ -1428,11 +2138,9 @@ begin
   TR.Free;
   DB.Free;
  end;
-  showmessage('WOD database has been created ');
+   frmosmain.OpenDatabase;
+   showmessage('WOD database has been created ');
 end;
-
-
-
 
 
 end.

@@ -1,16 +1,16 @@
 object frmloadWOD18: TfrmloadWOD18
-  Left = 791
+  Left = 644
   Height = 385
-  Top = 262
+  Top = 327
   Width = 827
   Caption = 'frmloadWOD18'
   ClientHeight = 385
   ClientWidth = 827
   OnShow = FormShow
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.6.0'
   object Memo1: TMemo
     Left = 0
-    Height = 136
+    Height = 232
     Top = 0
     Width = 827
     Align = alTop
@@ -20,51 +20,40 @@ object frmloadWOD18: TfrmloadWOD18
     TabOrder = 0
   end
   object btnPreprocessing: TBitBtn
-    Left = 8
+    Left = 264
     Height = 30
-    Top = 248
+    Top = 245
     Width = 136
-    Caption = 'btnPreprocessing'
+    Caption = 'Download metadata'
     OnClick = btnPreprocessingClick
     TabOrder = 1
   end
   object FileListBox1: TFileListBox
-    Left = 168
+    Left = 16
     Height = 136
     Top = 240
     Width = 100
     Directory = 'C:\lazarus'
-    ItemHeight = 15
+    ItemHeight = 0
     TabOrder = 2
   end
-  object Memo2: TMemo
-    Left = 0
-    Height = 96
-    Top = 136
-    Width = 827
-    Align = alTop
-    Lines.Strings = (
-      'Memo2'
-    )
-    TabOrder = 3
-  end
   object CheckBox1: TCheckBox
-    Left = 16
+    Left = 128
     Height = 19
-    Top = 296
+    Top = 248
     Width = 125
     Caption = 'Show output details'
-    TabOrder = 4
+    TabOrder = 3
   end
   object GroupBox1: TGroupBox
-    Left = 304
+    Left = 600
     Height = 137
     Top = 240
-    Width = 496
+    Width = 216
     Caption = 'Auxiliary procedures'
     ClientHeight = 117
-    ClientWidth = 492
-    TabOrder = 5
+    ClientWidth = 212
+    TabOrder = 4
     object btnCreateWOD: TBitBtn
       Left = 24
       Height = 24
@@ -81,5 +70,49 @@ object frmloadWOD18: TfrmloadWOD18
       ParentFont = False
       TabOrder = 0
     end
+    object btnGetStatistics: TBitBtn
+      Left = 24
+      Height = 22
+      Top = 56
+      Width = 112
+      Caption = 'Get DB Statistics'
+      OnClick = btnGetStatisticsClick
+      TabOrder = 1
+    end
+  end
+  object CheckBox2: TCheckBox
+    Left = 128
+    Height = 19
+    Top = 280
+    Width = 90
+    Caption = 'Write into DB'
+    TabOrder = 5
+  end
+  object btnDownloadOSDprf: TBitBtn
+    Left = 264
+    Height = 30
+    Top = 288
+    Width = 136
+    Caption = 'Download OSD Profiles'
+    OnClick = btnDownloadOSDprfClick
+    TabOrder = 6
+  end
+  object Q: TSQLQuery
+    MaxIndexesCount = 100
+    FieldDefs = <>
+    Database = frmdm.SupportDB
+    Transaction = frmdm.SupportTR
+    Params = <>
+    left = 480
+    top = 256
+  end
+  object Q_CruiseID: TSQLQuery
+    MaxIndexesCount = 100
+    FieldDefs = <>
+    Database = frmdm.SupportDB
+    Transaction = frmdm.SupportTR
+    Params = <>
+    left = 480
+    top = 320
   end
 end
