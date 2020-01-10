@@ -51,6 +51,8 @@ begin
 
   sep:=' &lt;br/&gt;';
 
+  try
+  frmdm.Q.DisableControls;
   frmdm.Q.First;
   while not frmdm.Q.EOF do begin
      ID  :=frmdm.Q.FieldByName('ID').AsInteger;
@@ -74,6 +76,9 @@ begin
        Writeln(f_out, '   </Placemark>');
 
      frmdm.Q.Next;
+  end;
+  finally
+   frmdm.Q.EnableControls;
   end;
 
  Finally
