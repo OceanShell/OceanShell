@@ -281,14 +281,26 @@ SSYearMin,SSYearMax,SSMonthMin,SSMonthMax,SSDayMin,SSDayMax :Word;
 NotCondCruise, NotCondInstr, NotCondOrigin, NotCondCountryC, NotCondVesselC, instr:string;
 MinDay, MaxDay, cnt:integer;
 Lat, Lon:real; }
+time0, time1:TDateTime;
 begin
 DecodeDate(dtpDateMin.Date, SSYearMin, SSMonthMin, SSDayMin);
 DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
 
+//Time0:=now;
+
  with frmdm.Q do begin
    Close;
     SQL.Clear;
-    SQL.Add(' SELECT * FROM STATION ');
+    SQL.Add(' SELECT ');
+    SQL.Add(' ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, ');
+    SQL.Add(' LASTLEVEL_M, LASTLEVEL_DBAR, CRUISE_ID, INSTRUMENT_ID, ');
+    SQL.Add(' ST_NUMBER_ORIGIN, ST_ID_ORIGIN, CAST_NUMBER, QCFLAG, ');
+    SQL.Add(' STVERSION, DUPLICATE, MERGED, ACCESSION_NUMBER, ');
+    SQL.Add(' DATE_ADDED, DATE_UPDATED ');
+ {   SQL.Add(' max(LATITUDE) as LatMax, min(LATITUDE) as LatMin, ');
+    SQL.Add(' max(LONGITUDE) as LonMax, min(LONGITUDE) as LonMin, ');
+    SQL.Add(' max(DATEANDTIME) as DateMax,  min(DATEANDTIME) as DateMin '); }
+    SQL.Add(' FROM STATION ');
     SQL.Add(' WHERE ');
      (* Coordinates *)
     SQL.Add(' (ID BETWEEN :SSIDMin AND :SSIDMax) ');
@@ -350,16 +362,13 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
    Last;
    First;
  end;
+ SelectionInfo;
 
- //SelectionInfo;
- //AK
- //iDBStatistics.Enabled:=items_enabled;
- //iMapKML.Enabled:=items_enabled;
- //aMapAllStations.Enabled:=items_enabled;
- aMapKML.Enabled:=items_enabled;
- aProfilesStationAll.Enabled:=items_enabled;
+// time1:=now;
 
+// showmessage(dateTimetostr(time1-time0));
 
+// SelectionInfo;
 end;
 
 
@@ -589,53 +598,6 @@ Qt_DB2.Transaction:=TRt_DB2;
    end;
 
 
-
-
- {  with Qt_DB1 do begin
-    Close;
-      SQL.Clear;
-      SQL.Add(' select distinct(CRUISE_ID) ');
-      SQL.Add(' from STATION');
-    Open;
-   end;
-
-   Qt_DB1.First;
-   while not Qt_DB1.EOF do begin
-      id_str:=id_str+Qt_DB1.Fields[0].AsInteger+',';
-     Qt_DB1.Next;
-   end;
-   Qt_DB1.Close;
-
-   id_str:=copy(id_str, 1, length(id_str)-1);
-
-     with Qt_DB2 do begin
-       Close;
-         SQL.Clear;
-         SQL.Add(' SELECT distinct(PLATFORM.NAME)');
-         SQL.Add(' from CRUISE_GLODAP, PLATFORM ');
-         SQL.Add(' WHERE ');
-         SQL.Add(' PLAFRORM.ID=CRUISE_GLOBAP.PLATFORM_ID AND ');
-         SQL.Add(' CRUISE_GLODAP.ID IN ('+id_str+');
-       Open;
-      end;
-
-
-      with Qt_DB2 do begin
-       Close;
-         SQL.Clear;
-         SQL.Add(' SELECT ');
-         SQL.Add(' distinct(PLATFORM.NAME) as Platform_name, ');
-         SQL.Add(' distinct(COUNTRY.NAME) as Country_name ');
-         SQL.Add(' from CRUISE_GLODAP, PLATFORM, COUNTRY ');
-         SQL.Add(' WHERE ');
-         SQL.Add(' PLAFRORM.ID=CRUISE_GLOBAP.PLATFORM_ID AND ');
-         SQL.Add(' COUNTRY.ID=CRUISE_GLODAP.COUNTRY_ID AND ');
-         SQL.Add(' CRUISE_GLODAP.ID IN ('+id_str+');
-       Open;
-      end;    }
-
-
-
   TRt_DB1.Commit;
   TRt_DB2.Commit;
 
@@ -655,6 +617,9 @@ var
   dat1:TDateTime;
   items_enabled:boolean;
 begin
+
+ try
+  frmdm.Q.DisableControls;
 
   SLatMin:=90;  SLatMax:=-90;
   SLonMin:=180; SLonMax:=-180;
@@ -692,6 +657,10 @@ begin
 
   (* if there are selected station enabling some menu items *)
   if SCount>0 then items_enabled:=true else items_enabled:=false;
+
+  finally
+     frmdm.Q.EnableControls;
+  end;
 
   iDBStatistics.Enabled:=items_enabled;
   //iMapKML.Enabled:=items_enabled;

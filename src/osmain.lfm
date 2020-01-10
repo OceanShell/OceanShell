@@ -69,10 +69,10 @@ object frmosmain: Tfrmosmain
       Font.Name = 'MS Sans Serif'
       ParentFont = False
       object btnSelection: TButton
-        Left = 472
-        Height = 25
+        Left = 708
+        Height = 38
         Top = 24
-        Width = 109
+        Width = 164
         Caption = 'Select'
         Enabled = False
         Font.Color = clWindowText
