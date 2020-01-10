@@ -351,7 +351,15 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
    First;
  end;
 
- SelectionInfo;
+ //SelectionInfo;
+ //AK
+ //iDBStatistics.Enabled:=items_enabled;
+ //iMapKML.Enabled:=items_enabled;
+ //aMapAllStations.Enabled:=items_enabled;
+ aMapKML.Enabled:=items_enabled;
+ aProfilesStationAll.Enabled:=items_enabled;
+
+
 end;
 
 
