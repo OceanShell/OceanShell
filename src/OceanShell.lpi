@@ -191,6 +191,7 @@
         <Filename Value="osmap_settings.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmosmap_settings"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit24>
     </Units>

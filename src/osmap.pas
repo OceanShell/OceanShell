@@ -26,7 +26,9 @@ type
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     btnSettings: TToolButton;
+    btnSaveMapAs: TToolButton;
 
+    procedure btnSaveMapAsClick(Sender: TObject);
     procedure btnSettingsClick(Sender: TObject);
     procedure btnShowAllStationsClick(Sender: TObject);
     procedure btnShowSelectedClick(Sender: TObject);
@@ -65,6 +67,8 @@ begin
 
   MainGlobe.CheckSettings;
 
+
+
   btnKMLExport.Enabled:=CheckKML;
 end;
 
@@ -93,6 +97,41 @@ end;
 procedure Tfrmmap.btnZoomOutClick(Sender: TObject);
 begin
   MainGlobe.ZoomOut;
+end;
+
+procedure Tfrmmap.btnSaveMapAsClick(Sender: TObject);
+Var
+  bmp : TBitmap;
+  png : TPortableNetworkGraphic;
+  Src: TRect;
+  Dest: TRect;
+begin
+frmosmain.SD.DefaultExt:='.bmp';
+frmosmain.SD.Filter:='Bitmap|*.bmp';
+
+ if frmosmain.SD.Execute then begin
+   try
+     bmp := TBitmap.Create;
+     bmp.Width :=pmap.Width;
+     bmp.Height:=pmap.Height;
+
+     Dest:= Rect(0, 0, pmap.Width, pmap.Height);
+     Src := Rect(0, 0, pmap.Width, pmap.Height);
+
+     bmp.Canvas.CopyRect(Dest, pmap.Canvas, Src);
+     bmp.SaveToFile(frmosmain.SD.FileName);
+  finally
+    bmp.Free;
+  end;
+ end;
+
+{  png := TPortableNetworkGraphic.Create;
+  try
+    png.Assign(FBufferBitmap);
+    png.SaveToFile(fname);
+  finally
+    png.Free;
+  end; }
 end;
 
 
