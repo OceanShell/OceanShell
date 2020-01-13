@@ -21,7 +21,7 @@ Unit osmap_globctrl;
 Interface
 
 Uses
-  Classes, SysUtils, Forms, Controls, Graphics, LCLType, Math,
+  Classes, SysUtils, Forms, Controls, Graphics, LCLType, Math, IniFiles,
   osmain, dm, osmap_datastreams, osmap_geometry, osmap_wkt, Dialogs;
 
 Type
@@ -59,6 +59,11 @@ Type
     R: Integer; { The projected radius of the globe. }
     VS: TCoordinate; { The view scaling factor. }
     X_arr, Y_arr, ID_arr: array of integer;
+    Pointer_Radius:Integer; {Station pointer size in pixels}
+    Color_Pointer_Inner:TColor; {Station pointer color}
+    Color_Pointer_Border:TColor; {Station pointer border color}
+    Color_Selection_Cross:TColor; {Selection cross color}
+    Zoom_step:Integer; {how fast map zooms in/out }
   Protected
     { Protected declarations. }
     OX, OY: Integer; { X,Y coordinates of prior mouse event. }
@@ -82,7 +87,8 @@ Type
     Procedure SetLocation(Lat, Lon: TCoordinate);
     Procedure ZoomIn;
     Procedure ZoomOut;
-    procedure ChangeID;
+    Procedure ChangeID;
+    Procedure CheckSettings;
     Property Center: TCoordinates Read FCenter Write FCenter; { Default view centre in geodesic degrees. }
     Property Location: TCoordinates Read FLocation Write FLocation; { Location of view centre in geodesic degrees. }
     Property Marker: TCoordinates Read FMarker Write FMarker;  { Position of marker in geodesic degrees. }
@@ -179,6 +185,22 @@ Begin
   AdjustLocation(0, 0);
 End;
 
+Procedure TGlobeControl.CheckSettings;
+Var
+  Ini:TIniFile;
+Begin
+  Ini := TIniFile.Create(IniFileName);
+ try
+   Pointer_Radius:=Ini.ReadInteger( 'osmap', 'pointer_size', 4)+1;
+   Zoom_step     :=Ini.ReadInteger( 'osmap', 'zoom_step', 50);
+   Color_Pointer_Inner  :=StringToColor(Ini.ReadString( 'osmap', 'pointer_inner_color',   'clYellow'));
+   Color_Pointer_Border :=StringToColor(Ini.ReadString( 'osmap', 'pointer_border_color',  'clBlack'));
+   Color_Selection_Cross:=StringToColor(Ini.ReadString( 'osmap', 'selection_cross_color', 'clRed'));
+ finally
+   Ini.Free;
+ end;
+end;
+
 Procedure TGlobeControl.Refresh;
 Begin
   ComputeViewParameters;
@@ -211,10 +233,10 @@ end;
 Function TGlobeControl.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean;
 Begin
   If WheelDelta<0 Then
-    GZ += 50 //25
+    GZ += Zoom_Step //25
   Else
-    If GZ>50 Then
-      GZ -= 50; //25
+    If GZ > Zoom_Step Then
+      GZ -= Zoom_Step; //25
   AdjustLocation(0, 0);
   Result := Inherited DoMouseWheel(Shift, WheelDelta, MousePos);
 End;
@@ -247,10 +269,10 @@ Begin
   vk_Down, vk_NUMPAD2:
     DLat := -25E-1;
   vk_Add:
-    If GZ>50 Then
-      GZ -= 25;
+    If GZ > Zoom_Step Then
+      GZ -= Zoom_Step;
   vk_Subtract:
-    GZ += 25;
+    GZ += Zoom_Step;
   End;
   AdjustLocation(DLat, DLon);
   Inherited KeyDown(Key, Shift);
@@ -266,8 +288,8 @@ Begin
   If ssLeft In Shift Then
     if cursor=crHandPoint then begin
       for i:=0 to High(X_arr) do begin
-        if (X>=X_arr[i]-3) and (X<=X_arr[i]+3) and
-           (Y>=Y_arr[i]-3) and (Y<=Y_arr[i]+3) then begin
+        if (X>=X_arr[i]-Pointer_Radius) and (X<=X_arr[i]+Pointer_Radius) and
+           (Y>=Y_arr[i]-Pointer_Radius) and (Y<=Y_arr[i]+Pointer_Radius) then begin
            frmdm.Q.Locate('ID', ID_arr[i], []);
            frmosmain.CDSNavigation;
         end;
@@ -281,7 +303,7 @@ Procedure TGlobeControl.MouseMove(Shift: TShiftState; X, Y: Integer);
 Var
   DLat, DLon: TCoordinate;
 Begin
- if FBufferBitmap.Canvas.Pixels[X, Y]=clYellow then
+ if FBufferBitmap.Canvas.Pixels[X, Y]=Color_Pointer_Inner then
      cursor:=crHandPoint else
      cursor:=crDefault;
 
@@ -500,9 +522,9 @@ Begin
         End;
 
      { Draw stations }
-      pen.Color := clBlack;
+      pen.Color := Color_Pointer_Border;
       pen.Style := psSolid;
-      brush.Color := clYellow;
+      brush.Color := Color_Pointer_Inner;
 
       try
        cur_id:=frmdm.Q.FieldByName('ID').AsInteger;
@@ -520,7 +542,8 @@ Begin
           lon:=frmdm.Q.FieldByName('LONGITUDE').AsFloat;
 
             if Transform(Lat, Lon, P) then
-              Ellipse(P.X-3, P.Y-3, P.X+3, P.Y+3);
+              Ellipse(P.X-Pointer_Radius, P.Y-Pointer_Radius,
+                      P.X+Pointer_Radius, P.Y+Pointer_Radius);
 
             inc(i);
             X_arr[i]:=P.X;
@@ -536,7 +559,7 @@ Begin
       { Draw marker cross. }
         If Transform(Marker.Lat, Marker.Lon, P) Then
         Begin
-          Pen.Color := TColor($0000FF); { Red }
+          Pen.Color := Color_Selection_Cross;
           Pen.Style := psSolid;
           Brush.Style := bsClear;
           MoveTo(P.X-1, P.Y+8);

@@ -1,0 +1,128 @@
+object frmosmap_settings: Tfrmosmap_settings
+  Left = 546
+  Height = 264
+  Top = 240
+  Width = 468
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'Map settings'
+  ClientHeight = 264
+  ClientWidth = 468
+  OnShow = FormShow
+  Position = poOwnerFormCenter
+  LCLVersion = '2.0.6.0'
+  object btnSave: TButton
+    Left = 374
+    Height = 25
+    Top = 216
+    Width = 75
+    Caption = 'Ok'
+    OnClick = btnSaveClick
+    TabOrder = 0
+  end
+  object GroupBox3: TGroupBox
+    Left = 240
+    Height = 64
+    Top = 72
+    Width = 209
+    Caption = 'Selection cross color'
+    ClientHeight = 44
+    ClientWidth = 205
+    TabOrder = 1
+    object ColorSelectionCross: TColorBox
+      Left = 16
+      Height = 22
+      Top = 8
+      Width = 176
+      DefaultColorColor = clYellow
+      Selected = clRed
+      ItemHeight = 16
+      TabOrder = 0
+    end
+  end
+  object rgPointerSize: TRadioGroup
+    Left = 16
+    Height = 56
+    Top = 8
+    Width = 209
+    AutoFill = True
+    Caption = 'Pointer radius, pixels'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 5
+    ClientHeight = 36
+    ClientWidth = 205
+    Columns = 5
+    ItemIndex = 2
+    Items.Strings = (
+      '2'
+      '3'
+      '4'
+      '5'
+      '6'
+    )
+    TabOrder = 2
+  end
+  object GroupBox1: TGroupBox
+    Left = 16
+    Height = 64
+    Top = 72
+    Width = 209
+    Caption = 'Pointer inner color'
+    ClientHeight = 44
+    ClientWidth = 205
+    TabOrder = 3
+    object ColorPointerInner: TColorBox
+      Left = 16
+      Height = 22
+      Top = 8
+      Width = 176
+      DefaultColorColor = clYellow
+      Selected = clYellow
+      ItemHeight = 16
+      TabOrder = 0
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 16
+    Height = 64
+    Top = 144
+    Width = 209
+    Caption = 'Pointer border color'
+    ClientHeight = 44
+    ClientWidth = 205
+    TabOrder = 4
+    object ColorPointerBorder: TColorBox
+      Left = 16
+      Height = 22
+      Top = 8
+      Width = 176
+      DefaultColorColor = clYellow
+      ItemHeight = 16
+      TabOrder = 0
+    end
+  end
+  object GroupBox4: TGroupBox
+    Left = 240
+    Height = 57
+    Top = 7
+    Width = 97
+    Caption = 'Zoom step'
+    ClientHeight = 37
+    ClientWidth = 93
+    TabOrder = 5
+    object seZoomStep: TSpinEdit
+      Left = 16
+      Height = 23
+      Top = 4
+      Width = 58
+      MinValue = 20
+      TabOrder = 0
+      Value = 50
+    end
+  end
+end
