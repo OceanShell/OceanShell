@@ -168,22 +168,23 @@ End;
 
 Procedure TGlobeControl.ZoomIn;
 Begin
-  if (EZ<1000) and (GZ=50) then begin
+  if (EZ<1000) and (GZ=Zoom_Step) then begin
     EZ:=1200;
     GR:=1200;
     GZ:=300;
   end;
 //  showmessage(inttostr(gz));
-  If GZ>50 Then
-    GZ -= 50; //25
+  If GZ>Zoom_Step Then
+    GZ -= Zoom_Step; //25
   AdjustLocation(0, 0);
 End;
 
 Procedure TGlobeControl.ZoomOut;
 Begin
-  GZ += 50;  //25
+  GZ += Zoom_Step;  //25
   AdjustLocation(0, 0);
 End;
+
 
 Procedure TGlobeControl.CheckSettings;
 Var
@@ -525,6 +526,9 @@ Begin
       pen.Color := Color_Pointer_Border;
       pen.Style := psSolid;
       brush.Color := Color_Pointer_Inner;
+
+      (* if marker is too small show the main color *)
+      if Pointer_Radius=1 then pen.Color:=brush.Color;
 
       try
        cur_id:=frmdm.Q.FieldByName('ID').AsInteger;
