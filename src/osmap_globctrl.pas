@@ -63,7 +63,12 @@ Type
     Color_Pointer_Inner:TColor; {Station pointer color}
     Color_Pointer_Border:TColor; {Station pointer border color}
     Color_Selection_Cross:TColor; {Selection cross color}
+    Color_Map_Background:TColor;
+    Color_Globe_Disc: TColor;
+    Color_Land:TColor;
+    Color_Land_Contour:TColor;
     Zoom_step:Integer; {how fast map zooms in/out }
+    Show_Stars:Boolean; {hide/show stars in the background}
   Protected
     { Protected declarations. }
     OX, OY: Integer; { X,Y coordinates of prior mouse event. }
@@ -192,14 +197,20 @@ Var
 Begin
   Ini := TIniFile.Create(IniFileName);
  try
-   Pointer_Radius:=Ini.ReadInteger( 'osmap', 'pointer_size', 4)+1;
-   Zoom_step     :=Ini.ReadInteger( 'osmap', 'zoom_step', 50);
+   Pointer_Radius:=Ini.ReadInteger( 'osmap', 'pointer_size', 2)+1;
+   Zoom_step     :=Ini.ReadInteger( 'osmap', 'zoom_step',  50);
+   Show_Stars     :=Ini.ReadBool   ( 'osmap', 'show_stars', true);
    Color_Pointer_Inner  :=StringToColor(Ini.ReadString( 'osmap', 'pointer_inner_color',   'clYellow'));
    Color_Pointer_Border :=StringToColor(Ini.ReadString( 'osmap', 'pointer_border_color',  'clBlack'));
    Color_Selection_Cross:=StringToColor(Ini.ReadString( 'osmap', 'selection_cross_color', 'clRed'));
+   Color_Map_Background :=StringToColor(Ini.ReadString( 'osmap', 'map_background_color',  'clNavy'));
+   Color_Globe_Disc     :=StringToColor(Ini.ReadString( 'osmap', 'globe_disc_color',      'clAqua'));
+   Color_Land           :=StringToColor(Ini.ReadString( 'osmap', 'land_color',            '$00D000')); //Light Green
+   Color_Land_Contour   :=StringToColor(Ini.ReadString( 'osmap', 'land_contour_color',    '$004000')); //Dark Green
  finally
    Ini.Free;
  end;
+ Randomize;
 end;
 
 Procedure TGlobeControl.Refresh;
@@ -402,7 +413,7 @@ End;
 
 Procedure TGlobeControl.DrawGlobe;
 Var
-  ID, cur_id, i: integer;
+  ID, cur_id, i, k, X, Y: integer;
   P: TPoint;
   Lon: TCoordinate;
   Lat: TCoordinate;
@@ -464,18 +475,29 @@ Begin
     Begin
       { Clear the background. }
       Brush.Style := bsSolid;
-      Brush.Color := clNavy;
+      Brush.Color := Color_Map_background; //clNavy;
       Clear;
+      { Draw stars }
+      if Show_Stars then begin
+       Pen.Color   := clWhite;
+       Pen.Style   := psSolid;
+       Brush.Color := clWhite;
+       for k:=1 to 1000 do begin
+         X:=Random(FBufferBitmap.Width);
+         Y:=Random(FBufferBitmap.Height);
+           Ellipse(X, Y, X+2, Y+2);
+       end;
+      end;
       { Draw the globe's disc. }
-      Brush.Color := clAqua;
+      Brush.Color := Color_Globe_Disc; //clAqua;
       Pen.Style := psSolid;
       Pen.Color := clBlack;
       EllipseC(CX, CY, R, R);
       { Draw country polygons. }
       Brush.Style := bsSolid;
-      Brush.Color := TColor($00D000); { Light Green }
+      Brush.Color := Color_Land; //TColor($00D000); { Light Green }
       Pen.Style := psSolid;
-      Pen.Color := TColor($004000); { Dark Green }
+      Pen.Color := Color_Land_Contour; //TColor($004000); { Dark Green }
       LastIndex := High(CountryData);
       For Index := 0 To LastIndex Do
         DrawMultiPolygon(CountryData[Index]);
