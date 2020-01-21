@@ -50,6 +50,7 @@ type
     iProfilesAll: TMenuItem;
     lbResetArea: TLabel;
     lbResetDates: TLabel;
+    iLoad_Pangaea_CTD_tab: TMenuItem;
     MenuItem2: TMenuItem;
     iLoad_WOD18: TMenuItem;
     iLoad_WOD: TMenuItem;
@@ -58,6 +59,7 @@ type
     MenuItem6: TMenuItem;
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
+    MenuItem9: TMenuItem;
     Panel1: TPanel;
     PM1: TPopupMenu;
     sbDatabase: TStatusBar;
@@ -121,6 +123,7 @@ type
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
+    procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
     procedure iLoad_WODClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
@@ -195,6 +198,7 @@ uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
   osload_GLODAP_2019_v2_product,
   osload_WOD18,
   loadwod,
+  osload_PangaeaTab,
 (* export *)
 (* QC *)
 (* tools *)
@@ -721,6 +725,17 @@ begin
  finally
    frmloadGLODAP_2019_v2_product.Free;
    frmloadGLODAP_2019_v2_product := nil;
+ end;
+end;
+
+procedure Tfrmosmain.iLoad_Pangaea_CTD_tabClick(Sender: TObject);
+begin
+    frmloadPangaeaTab := TfrmloadPangaeaTab.Create(Self);
+ try
+  if not frmloadPangaeaTab.ShowModal = mrOk then exit;
+ finally
+   frmloadPangaeaTab.Free;
+   frmloadPangaeaTab := nil;
  end;
 end;
 
