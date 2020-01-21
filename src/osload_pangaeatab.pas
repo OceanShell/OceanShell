@@ -37,6 +37,8 @@ type
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
     ListBox1: TListBox;
     ListBox2: TListBox;
     Memo1: TMemo;
@@ -68,7 +70,7 @@ var
   PathSource:string;
   PathOut:string;
   fi,f_station:text;
-  f_temp_ctd,f_salt_ctd,f_oxyg_ctd:text;
+  f_temp_ctd,f_salt_ctd,f_oxyg_ctd,f_trans_ctd:text;
 
 implementation
 
@@ -127,6 +129,8 @@ begin
 
    for i:=1 to col do begin
     StringGrid1.Cells[0,i]:=colTitle_arr[i];
+    if (colTitle_arr[i]='Press [dbar]') then Edit3.Text:=inttostr(i);
+    if (colTitle_arr[i]='Depth water [m]') then Edit2.Text:=inttostr(i);
     StringGrid1.Cells[1,i]:=inttostr(i);
    end;
    closefile(fi);
@@ -181,14 +185,16 @@ begin
    StringGrid3.Cells[2,4]:='4';
    StringGrid3.Cells[2,5]:='5';
 
-   StringGrid4.ColCount:=3;
+   StringGrid4.ColCount:=4;
    StringGrid4.RowCount:=3;
    StringGrid4.ColWidths[0]:=40;
    StringGrid4.ColWidths[1]:=200;
    StringGrid4.ColWidths[2]:=40;
+   StringGrid4.ColWidths[3]:=40;
    StringGrid4.Cells[0,0]:='#';
    StringGrid4.Cells[1,0]:='title';
    StringGrid4.Cells[2,0]:='col#';
+   StringGrid4.Cells[3,0]:='unit';
 
 
 
@@ -233,8 +239,17 @@ begin
      memo1.Lines.Add(StringGrid2.Cells[1,i]+' -> '+StringGrid2.Cells[2,i]);
 
      StringGrid4.Cells[0,vcount]:=inttostr(vcount);
-     StringGrid4.Cells[1,vcount]:=StringGrid2.Cells[1,i];
-     StringGrid4.Cells[2,vcount]:=StringGrid2.Cells[2,i];
+     StringGrid4.Cells[1,vcount]:=StringGrid2.Cells[1,i];  //table
+     StringGrid4.Cells[2,vcount]:=StringGrid2.Cells[2,i];  //file col#
+
+     if StringGrid4.Cells[1,vcount]='P_TEMPERATURE_CTD' then StringGrid4.Cells[3,vcount]:='1';
+     if StringGrid4.Cells[1,vcount]='P_TEMPERATURE_BOTTLE' then StringGrid4.Cells[3,vcount]:='1';
+     if StringGrid4.Cells[1,vcount]='P_SALINITY_CTD' then StringGrid4.Cells[3,vcount]:='2';
+     if StringGrid4.Cells[1,vcount]='P_SALINITY_BOTTLE' then StringGrid4.Cells[3,vcount]:='2';
+     if StringGrid4.Cells[1,vcount]='P_OXYGEN_CTD' then StringGrid4.Cells[3,vcount]:='3';
+     if StringGrid4.Cells[1,vcount]='P_OXYGEN_BOTTLE' then StringGrid4.Cells[3,vcount]:='3';
+     if StringGrid4.Cells[1,vcount]='P_TRANSMISSION_CTD' then StringGrid4.Cells[3,vcount]:='10';
+
 
 {v}end;
 {i}end;
@@ -336,14 +351,16 @@ OrStNum,DTst:string;
 StDateTime:TDateTime;
 
 PQF1,PQF2,SQF,BNum,UID:integer;
-lev_m,lev_dbar,tempval_ctd,saltval_ctd,oxygval_ctd:real;
+lev_m,lev_dbar:real;
 
 StVersion, countDup, MaxID:integer;
-TEMPERATURE_CTD_Ex,SALINITY_CTD_Ex,OXYGEN_CTD_Ex:Boolean;
+VVal:real;
 
 
 
 begin
+
+     memo1.Lines.Add('MD start: '+datetimetostr(NOW));
 
      MDnum:=StringGrid3.RowCount-1;
      Vnum :=StringGrid4.RowCount-1;
@@ -364,9 +381,6 @@ begin
      StrOut:='ID'+#9+'DBAR'+#9+'M'+#9+'VAL'+#9+'PQF1'
      +#9+'PQF2'+#9+'SQF'+#9+'BOTTLE_NUMBER'+#9+'UNITS_ID';
 
-     TEMPERATURE_CTD_Ex:=false;
-     SALINITY_CTD_Ex:=false;
-     OXYGEN_CTD_Ex:=false;
 
 {kv}for kv:=1 to vnum do begin
      tbl:=StringGrid4.Cells[1,kv];
@@ -374,21 +388,20 @@ begin
      memo1.Lines.Add(tbl+' -> '+inttostr(fcol));
 
      if tbl='P_TEMPERATURE_CTD' then begin
-       TEMPERATURE_CTD_Ex:=true;
        fn:=PathOut+tbl+'.dat';
        AssignFile(f_temp_ctd,fn); rewrite(f_temp_ctd); writeln(f_temp_ctd,StrOut);
      end;
-
      if tbl='P_SALINITY_CTD' then begin
-       SALINITY_CTD_Ex:=true;
        fn:=PathOut+tbl+'.dat';
        AssignFile(f_salt_ctd,fn); rewrite(f_salt_ctd); writeln(f_salt_ctd,StrOut);
      end;
-
      if tbl='P_OXYGEN_CTD' then begin
-       OXYGEN_CTD_Ex:=true;
        fn:=PathOut+tbl+'.dat';
        AssignFile(f_oxyg_ctd,fn); rewrite(f_oxyg_ctd); writeln(f_oxyg_ctd,StrOut);
+     end;
+     if tbl='P_TRANSMISSION_CTD' then begin
+       fn:=PathOut+tbl+'.dat';
+       AssignFile(f_trans_ctd,fn); rewrite(f_trans_ctd); writeln(f_trans_ctd,StrOut);
      end;
 
 
@@ -536,7 +549,7 @@ begin
           col:=col+1;
           Rec_arr[col]:=buf;
 
-
+//showmessage(Rec_arr[1]+'  '+Rec_arr[2]+'  '+Rec_arr[3]+'  '+Rec_arr[4]+'  '+Rec_arr[5]);
    {...record analysis - MD only}
 {r}for i:=1 to col do begin
          //memo1.Lines.Add(Rec_arr[i]+#9+' /'+colTitle_arr[i]);
@@ -580,10 +593,61 @@ begin
      {kv}for kv:=1 to vnum do begin
           fcol:=strtoint(StringGrid4.Cells[2,kv]);
      {fc}if (fcol=i) then begin
+
         tbl:=StringGrid4.Cells[1,kv];
-        if tbl='P_TEMPERATURE_CTD' then TempVal_CTD:=strtofloat(trim(Rec_arr[i]));
-        if tbl='P_SALINITY_CTD' then SaltVal_CTD:=strtofloat(trim(Rec_arr[i]));
-        if tbl='P_OXYGEN_CTD' then OxygVal_CTD:=strtofloat(trim(Rec_arr[i]));
+
+        if tbl='P_TEMPERATURE_CTD' then begin
+          UID:=strtoint(StringGrid4.Cells[3,kv]); //ocean.fdb unit ID: Degrees Celsius
+          if (trim(Rec_arr[i]))<>'' then VVal:=strtofloat(trim(Rec_arr[i])) else VVal:=-9999;
+          writeln(f_temp_ctd,inttostr(ID),
+          #9,floattostrF(Lev_dbar,ffFixed,7,1),
+          #9,floattostr(Lev_m),
+          #9,floattostr(VVal),
+          #9,inttostr(PQF1),
+          #9,inttostr(PQF2),
+          #9,inttostr(SQF),
+          #9,inttostr(BNum),
+          #9,UID);
+        end;
+        if tbl='P_SALINITY_CTD' then begin
+          UID:=strtoint(StringGrid4.Cells[3,kv]); //ocean.fdb unit ID: Degrees Celsius
+          if (trim(Rec_arr[i]))<>'' then VVal:=strtofloat(trim(Rec_arr[i])) else VVal:=-9999;
+          writeln(f_salt_ctd,inttostr(ID),
+          #9,floattostrF(Lev_dbar,ffFixed,7,1),
+          #9,floattostr(Lev_m),
+          #9,floattostr(VVal),
+          #9,inttostr(PQF1),
+          #9,inttostr(PQF2),
+          #9,inttostr(SQF),
+          #9,inttostr(BNum),
+          #9,UID);
+        end;
+        if tbl='P_OXYGEN_CTD' then begin
+          UID:=strtoint(StringGrid4.Cells[3,kv]); //ocean.fdb unit ID: Degrees Celsius
+          if (trim(Rec_arr[i]))<>'' then VVal:=strtofloat(trim(Rec_arr[i])) else VVal:=-9999;
+          writeln(f_oxyg_ctd,inttostr(ID),
+          #9,floattostrF(Lev_dbar,ffFixed,7,1),
+          #9,floattostr(Lev_m),
+          #9,floattostr(VVal),
+          #9,inttostr(PQF1),
+          #9,inttostr(PQF2),
+          #9,inttostr(SQF),
+          #9,inttostr(BNum),
+          #9,UID);
+        end;
+        if tbl='P_TRANSMISSION_CTD' then begin
+          UID:=strtoint(StringGrid4.Cells[3,kv]); //ocean.fdb unit ID: Degrees Celsius
+          if (trim(Rec_arr[i]))<>'' then VVal:=strtofloat(trim(Rec_arr[i])) else VVal:=-9999;
+          writeln(f_trans_ctd,inttostr(ID),
+          #9,floattostrF(Lev_dbar,ffFixed,7,1),
+          #9,floattostr(Lev_m),
+          #9,floattostr(VVal),
+          #9,inttostr(PQF1),
+          #9,inttostr(PQF2),
+          #9,inttostr(SQF),
+          #9,inttostr(BNum),
+          #9,UID);
+        end;
      {fc}end;
      {kv}end;
 
@@ -689,7 +753,7 @@ begin
 {md}end;
 
 
-     if TEMPERATURE_CTD_Ex=true then begin
+    { if TEMPERATURE_CTD_Ex=true then begin
          UID:=1; //ocean.fdb unit ID: Degrees Celsius
          writeln(f_temp_ctd,inttostr(ID),
          #9,floattostrF(Lev_dbar,ffFixed,7,1),
@@ -700,33 +764,7 @@ begin
          #9,inttostr(SQF),
          #9,inttostr(BNum),
          #9,UID);
-     end;
-
-     if SALINITY_CTD_Ex=true then begin
-         UID:=2; //ocean.fdb unit ID: Dimensionless (unitless)
-         writeln(f_salt_ctd,inttostr(ID),
-         #9,floattostrF(Lev_dbar,ffFixed,7,1),
-         #9,floattostr(Lev_m),
-         #9,floattostr(SaltVal_CTD),
-         #9,inttostr(PQF1),
-         #9,inttostr(PQF2),
-         #9,inttostr(SQF),
-         #9,inttostr(BNum),
-         #9,UID);
-     end;
-
-     if OXYGEN_CTD_Ex=true then begin
-         UID:=3; //ocean.fdb unit ID: Micromole per kilogram
-         writeln(f_oxyg_ctd,inttostr(ID),
-         #9,floattostrF(Lev_dbar,ffFixed,7,1),
-         #9,floattostr(Lev_m),
-         #9,floattostr(OxygVal_CTD),
-         #9,inttostr(PQF1),
-         #9,inttostr(PQF2),
-         #9,inttostr(SQF),
-         #9,inttostr(BNum),
-         #9,UID);
-     end;
+     end; }
 
 
 {pr}end;
@@ -743,6 +781,10 @@ begin
      closefile(f_temp_ctd);
      closefile(f_salt_ctd);
      closefile(f_oxyg_ctd);
+     closefile(f_trans_ctd);
+
+     memo1.Lines.Add('MD end: '+datetimetostr(NOW));
+
 
 end;
 
@@ -757,7 +799,7 @@ L_dbar,L_m,val:real;
 tbl,fn:string;
 
 begin
-     memo1.Lines.Add('start: '+datetimetostr(NOW));
+     memo1.Lines.Add('prf start: '+datetimetostr(NOW));
 
      Vnum :=StringGrid4.RowCount-1;
 
@@ -799,7 +841,7 @@ begin
       closefile(fi);
       frmdm.TR.Commit;
 {v}end;
-      memo1.Lines.Add('end: '+datetimetostr(NOW));
+      memo1.Lines.Add('prf end: '+datetimetostr(NOW));
 
 
 end;
@@ -1097,6 +1139,18 @@ ST:TSQLScript;
        '   UNITS_ID        BIGINT '+LineEnding+
        '); '+LineEnding+
 
+       'CREATE TABLE P_TRANSMISSION_CTD ( '+LineEnding+
+       '   ID             BIGINT NOT NULL, '+LineEnding+
+       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
+       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
+       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
+       '   pQF1           SMALLINT, '+LineEnding+
+       '   pQF2           SMALLINT, '+LineEnding+
+       '   sQF            SMALLINT, '+LineEnding+
+       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
+       '   UNITS_ID        BIGINT '+LineEnding+
+       '); '+LineEnding+
+
        'CREATE TABLE P_AMMONIUM_BOTTLE ( '+LineEnding+
        '   ID             BIGINT NOT NULL, '+LineEnding+
        '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
@@ -1305,6 +1359,7 @@ ST:TSQLScript;
        'ALTER TABLE P_FLUORESCENCE_CTD ADD CONSTRAINT FK_P_FLUORESCENCE_CTD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
        'ALTER TABLE P_RADIATION_CTD ADD CONSTRAINT FK_P_RADIATION_CTD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
        'ALTER TABLE P_TURBIDITY_CTD ADD CONSTRAINT FK_P_TURBIDITY_CTD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+       'ALTER TABLE P_TRANSMISSION_CTD ADD CONSTRAINT FK_P_TRANSMISSION_CTD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
 
        'ALTER TABLE P_TEMPERATURE_BOTTLE ADD CONSTRAINT FK_P_TEMPERATURE_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
        'ALTER TABLE P_SALINITY_BOTTLE ADD CONSTRAINT FK_P_SALINITY_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
