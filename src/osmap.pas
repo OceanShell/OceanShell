@@ -37,6 +37,7 @@ type
     procedure btnZoomInClick(Sender: TObject);
     procedure btnZoomOutClick(Sender: TObject);
     procedure ChangeID;
+    procedure FormDestroy(Sender: TObject);
 
   private
 
@@ -66,8 +67,6 @@ begin
   MainGlobe.Marker.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
 
   MainGlobe.CheckSettings;
-
-
 
   btnKMLExport.Enabled:=CheckKML;
 end;
@@ -135,12 +134,6 @@ frmosmain.SD.Filter:='Bitmap|*.bmp';
 end;
 
 
-procedure Tfrmmap.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-begin
- frmmap_open:=false;
-end;
-
-
 procedure Tfrmmap.btnSettingsClick(Sender: TObject);
 begin
  frmosmap_settings := Tfrmosmap_settings.Create(Self);
@@ -154,6 +147,16 @@ begin
   end;
 end;
 
+
+procedure Tfrmmap.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+ frmmap_open:=false;
+end;
+
+procedure Tfrmmap.FormDestroy(Sender: TObject);
+begin
+ MainGlobe.Destroy;
+end;
 
 end.
 

@@ -362,13 +362,9 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
    Last;
    First;
  end;
+
  SelectionInfo;
-
-// time1:=now;
-
-// showmessage(dateTimetostr(time1-time0));
-
-// SelectionInfo;
+ CDSNavigation;
 end;
 
 
@@ -392,7 +388,7 @@ Var
 ID:integer;
 begin
 ID:=frmdm.Q.FieldByName('ID').AsInteger;
-if (ID=0) or (NavigationOrder=false) then exit;
+if NavigationOrder=false then exit;
 
  If NavigationOrder=true then begin
   NavigationOrder:=false; //blocking everthing until previous operations have been completed
@@ -642,7 +638,7 @@ begin
   end;
   frmdm.Q.First;
 
-     SCount   :=frmdm.Q.RecordCount;
+     SCount:=frmdm.Q.RecordCount;
      if SCount>0 then begin
        with sbSelection do begin
          Panels[1].Text:='LtMin: '+floattostr(SLatMin);
@@ -663,7 +659,6 @@ begin
   end;
 
   iDBStatistics.Enabled:=items_enabled;
-  //iMapKML.Enabled:=items_enabled;
   aMapAllStations.Enabled:=items_enabled;
   aMapKML.Enabled:=items_enabled;
   aProfilesStationAll.Enabled:=items_enabled;

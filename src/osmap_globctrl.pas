@@ -135,7 +135,6 @@ End;
 
 Destructor TGlobeControl.Destroy;
 Begin
-  SetLength(CountryData, 0);
   FreeAndNil(FBufferBitmap);
   Inherited Destroy;
 End;
@@ -149,6 +148,7 @@ Begin
   Location.Lat := (SLatMin+SLatMax)/2;
   Location.Lon := (SLonMin+SLonMax)/2;
   Center := Location;
+
   ReCenter;
 end;
 
@@ -161,6 +161,7 @@ Begin
   Location.Lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
   Location.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
   Center := Location;
+
   ReCenter;
 end;
 
@@ -232,14 +233,18 @@ Begin
     Lat := 90;
   Location.Lat := Lat;
   Location.Lon := Lon;
+
   Refresh;
 End;
 
 Procedure TGlobeControl.ChangeID;
 Begin
- Marker.Lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
- Marker.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
- Refresh;
+ if SCount>0 then begin
+   Marker.Lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
+   Marker.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
+ end;
+
+Refresh;
 end;
 
 Function TGlobeControl.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean;
@@ -273,13 +278,13 @@ Begin
   DLat := 0;
   Case Key Of
   vk_Left, vk_NUMPAD4:
-    DLon :=  25E-1;
+    DLon :=  2.5;
   vk_Right, vk_NUMPAD6:
-    DLon := -25E-1;
+    DLon := -2.5;
   vk_Up, vk_NUMPAD8:
-    DLat :=  25E-1;
+    DLat :=  2.5;
   vk_Down, vk_NUMPAD2:
-    DLat := -25E-1;
+    DLat := -2.5;
   vk_Add:
     If GZ > Zoom_Step Then
       GZ -= Zoom_Step;
@@ -310,6 +315,7 @@ Begin
 
   Inherited MouseDown(Button, Shift, X, Y);
 End;
+
 
 Procedure TGlobeControl.MouseMove(Shift: TShiftState; X, Y: Integer);
 Var
@@ -471,6 +477,7 @@ Var
       End;
   End;
 Begin
+ //showmessage('9.1');
   With FBufferBitmap.Canvas Do
     Begin
       { Clear the background. }
@@ -488,25 +495,30 @@ Begin
            Ellipse(X, Y, X+2, Y+2);
        end;
       end;
+
+ //      showmessage('9.2');
       { Draw the globe's disc. }
       Brush.Color := Color_Globe_Disc; //clAqua;
       Pen.Style := psSolid;
       Pen.Color := clBlack;
       EllipseC(CX, CY, R, R);
+
+  //    showmessage('9.21');
       { Draw country polygons. }
       Brush.Style := bsSolid;
       Brush.Color := Color_Land; //TColor($00D000); { Light Green }
       Pen.Style := psSolid;
       Pen.Color := Color_Land_Contour; //TColor($004000); { Dark Green }
       LastIndex := High(CountryData);
-      For Index := 0 To LastIndex Do
-        DrawMultiPolygon(CountryData[Index]);
+      For Index := 0 To LastIndex Do DrawMultiPolygon(CountryData[Index]);
+
+  //     showmessage('9.22');
       { Draw Lat/Lon grid. }
       Pen.Color := TColor($606060); { Dark Grey }
       Pen.Style := psDot;
       Brush.Style := bsClear;
       StepLon := 15;
-      StepLat := 25E-1*VS;
+      StepLat := 2.5*VS;
       Lon := -180;
       While Lon<=180 Do
         Begin
@@ -525,7 +537,7 @@ Begin
             End;
           Lon += StepLon;
         End;
-      StepLon := 25E-1*VS;
+      StepLon := 2.5*VS;
       StepLat := 10;
       Lat := -80;
       While Lat<=80 Do
@@ -544,6 +556,7 @@ Begin
           Lat += StepLat;
         End;
 
+  //     showmessage('9.3');
      { Draw stations }
       pen.Color := Color_Pointer_Border;
       pen.Style := psSolid;
@@ -552,6 +565,8 @@ Begin
       (* if marker is too small show the main color *)
       if Pointer_Radius=1 then pen.Color:=brush.Color;
 
+      if SCount>0 then begin
+       //showmessage(inttostr(SCount));
       try
        cur_id:=frmdm.Q.FieldByName('ID').AsInteger;
 
@@ -567,14 +582,16 @@ Begin
           Lat:=frmdm.Q.FieldByName('LATITUDE').AsFloat;
           lon:=frmdm.Q.FieldByName('LONGITUDE').AsFloat;
 
-            if Transform(Lat, Lon, P) then
-              Ellipse(P.X-Pointer_Radius, P.Y-Pointer_Radius,
-                      P.X+Pointer_Radius, P.Y+Pointer_Radius);
+            { If transformation successful }
+            if Transform(Lat, Lon, P) then begin
+              Ellipse(P.X-Pointer_Radius, P.Y-Pointer_Radius, P.X+Pointer_Radius, P.Y+Pointer_Radius);
 
-            inc(i);
-            X_arr[i]:=P.X;
-            Y_arr[i]:=P.Y;
-            ID_arr[i]:=ID;
+              inc(i);
+                X_arr[i]:=P.X;
+                Y_arr[i]:=P.Y;
+                ID_arr[i]:=ID;
+            end;
+
          frmdm.Q.Next;
         end;
       finally
@@ -613,7 +630,9 @@ Begin
           MoveTo(P.X-8, P.Y+1);
           LineTo(P.X-3, P.Y+1);
         End;
+      End; // if Q is not empty
     End;
+
 End;
 
 

@@ -9,6 +9,7 @@ object frmmap: Tfrmmap
   DesignTimePPI = 144
   OnClose = FormClose
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   LCLVersion = '2.0.6.0'
   object ToolBar1: TToolBar
     Left = 724
@@ -26,27 +27,27 @@ object frmmap: Tfrmmap
     object btnZoomIn: TToolButton
       Left = 3
       Hint = 'Zoom In'
-      Top = 74
+      Top = 71
       ImageIndex = 998
       OnClick = btnZoomInClick
     end
     object btnZoomOut: TToolButton
       Left = 3
       Hint = 'Zoom Out'
-      Top = 107
+      Top = 104
       ImageIndex = 999
       OnClick = btnZoomOutClick
     end
     object ToolButton2: TToolButton
       Left = 3
-      Top = 140
+      Top = 137
       Width = 35
       Caption = 'ToolButton2'
       Style = tbsDivider
     end
     object btnKMLExport: TToolButton
       Left = 3
-      Top = 181
+      Top = 175
       Action = frmosmain.aMapKML
     end
     object btnShowSelected: TToolButton
@@ -74,7 +75,7 @@ object frmmap: Tfrmmap
     end
     object ToolButton1: TToolButton
       Left = 3
-      Top = 214
+      Top = 208
       Width = 35
       Caption = 'ToolButton1'
       Style = tbsDivider
@@ -82,7 +83,7 @@ object frmmap: Tfrmmap
     object btnSettings: TToolButton
       Left = 3
       Hint = 'Map settings'
-      Top = 222
+      Top = 213
       Caption = 'btnSettings'
       ImageIndex = 235
       OnClick = btnSettingsClick
@@ -90,7 +91,7 @@ object frmmap: Tfrmmap
     object btnSaveMapAs: TToolButton
       Left = 3
       Hint = 'Save map as picture'
-      Top = 148
+      Top = 142
       Caption = 'Save as...'
       ImageIndex = 713
       OnClick = btnSaveMapAsClick

@@ -103,6 +103,7 @@ object frmosmain: Tfrmosmain
           Top = 56
           Width = 123
           Alignment = taCenter
+          DecimalPlaces = 5
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
@@ -118,6 +119,7 @@ object frmosmain: Tfrmosmain
           Top = 56
           Width = 123
           Alignment = taCenter
+          DecimalPlaces = 5
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
@@ -133,6 +135,7 @@ object frmosmain: Tfrmosmain
           Top = 8
           Width = 123
           Alignment = taCenter
+          DecimalPlaces = 5
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
@@ -148,6 +151,7 @@ object frmosmain: Tfrmosmain
           Top = 104
           Width = 123
           Alignment = taCenter
+          DecimalPlaces = 5
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
@@ -400,7 +404,7 @@ object frmosmain: Tfrmosmain
         end
         object ToolButton1: TToolButton
           Left = 110
-          Height = 8
+          Height = 5
           Top = 0
           Caption = 'ToolButton1'
           Style = tbsDivider
