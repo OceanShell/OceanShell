@@ -106,6 +106,7 @@ object frmsettings: Tfrmsettings
         Caption = 'Support files'
         ClientHeight = 44
         ClientWidth = 473
+        ParentFont = False
         TabOrder = 2
         object eSupportPath: TEdit
           Left = 12
@@ -125,6 +126,7 @@ object frmsettings: Tfrmsettings
           Width = 26
           Caption = '...'
           OnClick = btnSurferPathClick
+          ParentFont = False
           TabOrder = 1
         end
       end
@@ -136,6 +138,7 @@ object frmsettings: Tfrmsettings
         Caption = 'Output directory'
         ClientHeight = 44
         ClientWidth = 473
+        ParentFont = False
         TabOrder = 3
         object eUnloadPath: TEdit
           Left = 12
@@ -154,6 +157,7 @@ object frmsettings: Tfrmsettings
           Top = 8
           Width = 26
           Caption = '...'
+          ParentFont = False
           TabOrder = 1
         end
       end
@@ -165,6 +169,7 @@ object frmsettings: Tfrmsettings
         Caption = 'KML'
         ClientHeight = 36
         ClientWidth = 161
+        ParentFont = False
         TabOrder = 4
         object Label1: TLabel
           Left = 8
@@ -173,6 +178,7 @@ object frmsettings: Tfrmsettings
           Width = 71
           Caption = 'KML support:'
           ParentColor = False
+          ParentFont = False
         end
         object lbKML: TLabel
           Left = 112
@@ -269,6 +275,7 @@ object frmsettings: Tfrmsettings
       Caption = 'Bathymetry'
       ClientHeight = 364
       ClientWidth = 503
+      ParentFont = False
       object rgBathymetry: TRadioGroup
         Left = 12
         Height = 136

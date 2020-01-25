@@ -1,25 +1,15 @@
 object frmmap: Tfrmmap
-  Left = 465
+  Left = 482
   Height = 391
-  Top = 197
+  Top = 195
   Width = 509
   Caption = 'Map'
   ClientHeight = 391
   ClientWidth = 509
   OnClose = FormClose
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   LCLVersion = '2.0.6.0'
-  object pmap: TPanel
-    Left = 0
-    Height = 391
-    Top = 0
-    Width = 482
-    Align = alClient
-    BevelOuter = bvNone
-    Caption = 'pmap'
-    ParentFont = False
-    TabOrder = 0
-  end
   object ToolBar1: TToolBar
     Left = 482
     Height = 391
@@ -32,43 +22,89 @@ object frmmap: Tfrmmap
     ParentFont = False
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 1
+    TabOrder = 0
     object btnZoomIn: TToolButton
       Left = 3
       Hint = 'Zoom In'
-      Top = 22
+      Top = 47
       ImageIndex = 998
       OnClick = btnZoomInClick
     end
     object btnZoomOut: TToolButton
       Left = 3
       Hint = 'Zoom Out'
-      Top = 44
+      Top = 69
       ImageIndex = 999
       OnClick = btnZoomOutClick
     end
     object ToolButton2: TToolButton
       Left = 3
-      Top = 66
+      Top = 91
       Width = 23
       Caption = 'ToolButton2'
       Style = tbsDivider
     end
     object btnKMLExport: TToolButton
       Left = 3
-      Hint = 'Open as KML'
-      Top = 71
-      Caption = 'btnKMLExport'
-      ImageIndex = 1000
-      OnClick = btnKMLExportClick
+      Top = 116
+      Action = frmosmain.aMapKML
     end
     object btnShowSelected: TToolButton
       Left = 3
       Hint = 'Center at selected station'
-      Top = 0
+      Top = 22
       Caption = 'btnShowSelected'
       ImageIndex = 1001
       OnClick = btnShowSelectedClick
     end
+    object btnShowAllStations: TToolButton
+      Left = 3
+      Hint = 'Show all stations'
+      Top = 0
+      Caption = 'btnShowAllStations'
+      ImageIndex = 1003
+      OnClick = btnShowAllStationsClick
+    end
+    object ToolButton3: TToolButton
+      Left = 3
+      Top = 44
+      Width = 23
+      Caption = 'ToolButton3'
+      Style = tbsDivider
+    end
+    object ToolButton1: TToolButton
+      Left = 3
+      Top = 138
+      Width = 23
+      Caption = 'ToolButton1'
+      Style = tbsDivider
+    end
+    object btnSettings: TToolButton
+      Left = 3
+      Hint = 'Map settings'
+      Top = 141
+      Caption = 'btnSettings'
+      ImageIndex = 235
+      OnClick = btnSettingsClick
+    end
+    object btnSaveMapAs: TToolButton
+      Left = 3
+      Hint = 'Save map as picture'
+      Top = 94
+      Caption = 'Save as...'
+      ImageIndex = 713
+      OnClick = btnSaveMapAsClick
+    end
+  end
+  object pmap: TPanel
+    Left = 0
+    Height = 391
+    Top = 0
+    Width = 482
+    Align = alClient
+    BevelOuter = bvNone
+    Caption = 'pmap'
+    ParentFont = False
+    TabOrder = 1
   end
 end

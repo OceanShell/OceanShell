@@ -6,11 +6,15 @@ interface
 
 uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, DateUtils, FileCtrl;
+  Dialogs, StdCtrls, DateUtils, FileCtrl, SQLDB;
 
 type
+
+  { TfrmLoadITP }
+
   TfrmLoadITP = class(TForm)
     Button1: TButton;
+    Button3: TButton;
     ListBox1: TListBox;
     Memo1: TMemo;
     Button2: TButton;
@@ -19,6 +23,7 @@ type
 
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -205,6 +210,51 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
   frmosmain.DatabaseInfo;
  end;
 Showmessage('Done!');
+end;
+
+
+
+procedure TfrmLoadITP.Button3Click(Sender: TObject);
+Var
+k: integer;
+TRt:TSQLTransaction;
+Qt1:TSQLQuery;
+begin
+ if MessageDlg('This should be done just ONCE '+
+ '(or when a new ITP buoy is released). Check the DB first. Continue?',
+    mtWarning, [MbYes, MbNo], 0) =mrYes then begin
+
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.SupportDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.SupportDB;
+  Qt1.Transaction:=TRt;
+
+  try
+    for k:=1 to 119 do begin
+
+     with Qt1 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' INSERT INTO PLATFORM ' );
+       SQL.Add(' (ID, NAME) ');
+       SQL.Add(' VALUES ' );
+       SQL.Add(' (:ID, :NAME)');
+       ParamByName('ID').AsInteger:=1000+k;
+       ParamByName('NAME').AsString:='ITP '+inttostr(k);
+      ExecSQL;
+     end;
+   end;
+
+  finally
+   Qt1.Close;
+   Qt1.Free;
+   TrT.Commit;
+   TrT.Free;
+  end;
+ end;
 end;
 
 end.

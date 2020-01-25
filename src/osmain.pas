@@ -5,9 +5,12 @@ unit osmain;
 interface
 
 uses
-  Windows, SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls,
+  {$IFDEF WINDOWS}
+  Windows,
+  {$ENDIF}
+  SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, LCLType,
   Menus, Dialogs, ActnList, StdCtrls, INIFiles, ExtCtrls, DateUtils, sqldb, DB,
-  Buttons, DBGrids, Spin, DateTimePicker, Process;
+  Buttons, DBGrids, Spin, DateTimePicker, Process, Math;
 
 type
 
@@ -23,8 +26,11 @@ type
   { Tfrmosmain }
 
   Tfrmosmain = class(TForm)
+    aMapSelectedStation: TAction;
+    aProfilesStationAll: TAction;
+    aMapKML: TAction;
     aOpenDatabase: TAction;
-    aMap: TAction;
+    aMapAllStations: TAction;
     AL1: TActionList;
     btnadd: TToolButton;
     btncancel: TToolButton;
@@ -44,10 +50,16 @@ type
     iProfilesAll: TMenuItem;
     lbResetArea: TLabel;
     lbResetDates: TLabel;
+    iLoad_Pangaea_CTD_tab: TMenuItem;
     MenuItem2: TMenuItem;
     iLoad_WOD18: TMenuItem;
     iLoad_WOD: TMenuItem;
     iMap: TMenuItem;
+    MenuItem5: TMenuItem;
+    MenuItem6: TMenuItem;
+    MenuItem7: TMenuItem;
+    MenuItem8: TMenuItem;
+    MenuItem9: TMenuItem;
     Panel1: TPanel;
     PM1: TPopupMenu;
     sbDatabase: TStatusBar;
@@ -93,8 +105,11 @@ type
     tsMainSelectAdvanced: TTabSheet;
     tsMainData: TTabSheet;
 
-    procedure aMapExecute(Sender: TObject);
+    procedure aMapAllStationsExecute(Sender: TObject);
+    procedure aMapKMLExecute(Sender: TObject);
+    procedure aMapSelectedStationExecute(Sender: TObject);
     procedure aOpenDatabaseExecute(Sender: TObject);
+    procedure aProfilesStationAllExecute(Sender: TObject);
     procedure btnSelectionClick(Sender: TObject);
     procedure DBGridPlatformCellClick(Column: TColumn);
     procedure DBGridPlatformKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -108,9 +123,10 @@ type
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
+    procedure iLoad_ITPClick(Sender: TObject);
+    procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
     procedure iLoad_WODClick(Sender: TObject);
-    procedure iProfilesAllClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
     procedure lbResetAreaClick(Sender: TObject);
@@ -183,10 +199,12 @@ uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
   osload_GLODAP_2019_v2_product,
   osload_WOD18,
   loadwod,
+  osload_PangaeaTab,
 (* export *)
 (* QC *)
 (* tools *)
   osmap,
+  osmap_kml,
   osparameters_all,
 
 (* statistics *)
@@ -214,7 +232,7 @@ IBName:='';
   end;
 
   (* Define global delimiter *)
-//  DefaultFormatSettings.DecimalSeparator := '.';
+  DefaultFormatSettings.DecimalSeparator := '.';
 
  (* Check for existing essencial program folders *)
   Ini := TIniFile.Create(IniFileName);
@@ -233,7 +251,7 @@ IBName:='';
   end;
 
 
- (* открываем ассоциированный файл (nc или ib) *)
+ (* Works on double click *)
   If ParamCount<>0 then begin
    if uppercase(ExtractFileExt(ParamStr(1)))='.FDB' then begin
       IBName:=ParamStr(1);
@@ -253,8 +271,10 @@ end;
 
 procedure Tfrmosmain.FormResize(Sender: TObject);
 begin
-  tbFastAccess.Top:=PageControl1.Top-2;
+  tbFastAccess.Top:=PageControl1.Top;
   tbFastAccess.Left:=PageControl1.Width-tbFastAccess.Width;
+
+  panel1.Height:=sbDatabase.Height+sbSelection.Height;
 end;
 
 
@@ -266,14 +286,26 @@ SSYearMin,SSYearMax,SSMonthMin,SSMonthMax,SSDayMin,SSDayMax :Word;
 NotCondCruise, NotCondInstr, NotCondOrigin, NotCondCountryC, NotCondVesselC, instr:string;
 MinDay, MaxDay, cnt:integer;
 Lat, Lon:real; }
+time0, time1:TDateTime;
 begin
 DecodeDate(dtpDateMin.Date, SSYearMin, SSMonthMin, SSDayMin);
 DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
 
+//Time0:=now;
+
  with frmdm.Q do begin
    Close;
     SQL.Clear;
-    SQL.Add(' SELECT * FROM STATION ');
+    SQL.Add(' SELECT ');
+    SQL.Add(' ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, ');
+    SQL.Add(' LASTLEVEL_M, LASTLEVEL_DBAR, CRUISE_ID, INSTRUMENT_ID, ');
+    SQL.Add(' ST_NUMBER_ORIGIN, ST_ID_ORIGIN, CAST_NUMBER, QCFLAG, ');
+    SQL.Add(' STVERSION, DUPLICATE, MERGED, ');   {ACCESSION_NUMBER,}
+    SQL.Add(' DATE_ADDED, DATE_UPDATED ');
+ {   SQL.Add(' max(LATITUDE) as LatMax, min(LATITUDE) as LatMin, ');
+    SQL.Add(' max(LONGITUDE) as LonMax, min(LONGITUDE) as LonMin, ');
+    SQL.Add(' max(DATEANDTIME) as DateMax,  min(DATEANDTIME) as DateMin '); }
+    SQL.Add(' FROM STATION ');
     SQL.Add(' WHERE ');
      (* Coordinates *)
     SQL.Add(' (ID BETWEEN :SSIDMin AND :SSIDMax) ');
@@ -337,6 +369,7 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
  end;
 
  SelectionInfo;
+ CDSNavigation;
 end;
 
 
@@ -360,17 +393,18 @@ Var
 ID:integer;
 begin
 ID:=frmdm.Q.FieldByName('ID').AsInteger;
-if (ID=0) or (NavigationOrder=false) then exit;
+if NavigationOrder=false then exit;
 
  If NavigationOrder=true then begin
   NavigationOrder:=false; //blocking everthing until previous operations have been completed
-   if frmmap_open     =true then frmmap.ChangeID;
+     if frmmap_open     =true then frmmap.ChangeID;
+     if frmparametersall_open  =true then frmparametersall.ShowAllProf(ID);
  //  if InfoOpen      =true then Info.ChangeID;
  //  if QProfilesOpen =true then QProfiles.ChangeStation(ID);
  //  if DensOpen      =true then QDensity.ChangeDensStation(ID);
  //  if TSOPen        =true then frmToolTSDiagram.ChangeID;
  //  if SinglePrfOpen =true then SingleParameter.TblChange(ID);
-   if frmparametersall_open  =true then frmparametersall.ShowAllProf(ID);
+
  //  if MeteoOpen     =true then Meteo.ChangeAbsnum;
  //  if MLDOpen       =true then MLD.ChangeID;
  //  if TrackOpen     =true then frmVesselSpeed.ChangeID;
@@ -445,6 +479,16 @@ begin
    IBName:=OD.FileName;
    OpenDatabase;
   end;
+end;
+
+procedure Tfrmosmain.aProfilesStationAllExecute(Sender: TObject);
+begin
+  if frmparametersall_open=true then frmparametersall.SetFocus else
+     begin
+       frmparametersall := Tfrmparametersall.Create(Self);
+       frmparametersall.Show;
+     end;
+  frmparametersall_open:=true;
 end;
 
 
@@ -555,53 +599,6 @@ Qt_DB2.Transaction:=TRt_DB2;
    end;
 
 
-
-
- {  with Qt_DB1 do begin
-    Close;
-      SQL.Clear;
-      SQL.Add(' select distinct(CRUISE_ID) ');
-      SQL.Add(' from STATION');
-    Open;
-   end;
-
-   Qt_DB1.First;
-   while not Qt_DB1.EOF do begin
-      id_str:=id_str+Qt_DB1.Fields[0].AsInteger+',';
-     Qt_DB1.Next;
-   end;
-   Qt_DB1.Close;
-
-   id_str:=copy(id_str, 1, length(id_str)-1);
-
-     with Qt_DB2 do begin
-       Close;
-         SQL.Clear;
-         SQL.Add(' SELECT distinct(PLATFORM.NAME)');
-         SQL.Add(' from CRUISE_GLODAP, PLATFORM ');
-         SQL.Add(' WHERE ');
-         SQL.Add(' PLAFRORM.ID=CRUISE_GLOBAP.PLATFORM_ID AND ');
-         SQL.Add(' CRUISE_GLODAP.ID IN ('+id_str+');
-       Open;
-      end;
-
-
-      with Qt_DB2 do begin
-       Close;
-         SQL.Clear;
-         SQL.Add(' SELECT ');
-         SQL.Add(' distinct(PLATFORM.NAME) as Platform_name, ');
-         SQL.Add(' distinct(COUNTRY.NAME) as Country_name ');
-         SQL.Add(' from CRUISE_GLODAP, PLATFORM, COUNTRY ');
-         SQL.Add(' WHERE ');
-         SQL.Add(' PLAFRORM.ID=CRUISE_GLOBAP.PLATFORM_ID AND ');
-         SQL.Add(' COUNTRY.ID=CRUISE_GLODAP.COUNTRY_ID AND ');
-         SQL.Add(' CRUISE_GLODAP.ID IN ('+id_str+');
-       Open;
-      end;    }
-
-
-
   TRt_DB1.Commit;
   TRt_DB2.Commit;
 
@@ -621,6 +618,9 @@ var
   dat1:TDateTime;
   items_enabled:boolean;
 begin
+
+ try
+  frmdm.Q.DisableControls;
 
   SLatMin:=90;  SLatMax:=-90;
   SLonMin:=180; SLonMax:=-180;
@@ -643,7 +643,7 @@ begin
   end;
   frmdm.Q.First;
 
-     SCount   :=frmdm.Q.RecordCount;
+     SCount:=frmdm.Q.RecordCount;
      if SCount>0 then begin
        with sbSelection do begin
          Panels[1].Text:='LtMin: '+floattostr(SLatMin);
@@ -659,9 +659,14 @@ begin
   (* if there are selected station enabling some menu items *)
   if SCount>0 then items_enabled:=true else items_enabled:=false;
 
+  finally
+     frmdm.Q.EnableControls;
+  end;
+
   iDBStatistics.Enabled:=items_enabled;
-  //iMapKML.Enabled:=items_enabled;
-  aMap.Enabled:=items_enabled;
+  aMapAllStations.Enabled:=items_enabled;
+  aMapKML.Enabled:=items_enabled;
+  aProfilesStationAll.Enabled:=items_enabled;
 end;
 
 
@@ -719,6 +724,28 @@ begin
  end;
 end;
 
+procedure Tfrmosmain.iLoad_ITPClick(Sender: TObject);
+begin
+  frmLoadITP := TfrmLoadITP.Create(Self);
+ try
+  if not frmLoadITP.ShowModal = mrOk then exit;
+ finally
+   frmLoadITP.Free;
+   frmLoadITP := nil;
+ end;
+end;
+
+procedure Tfrmosmain.iLoad_Pangaea_CTD_tabClick(Sender: TObject);
+begin
+    frmloadPangaeaTab := TfrmloadPangaeaTab.Create(Self);
+ try
+  if not frmloadPangaeaTab.ShowModal = mrOk then exit;
+ finally
+   frmloadPangaeaTab.Free;
+   frmloadPangaeaTab := nil;
+ end;
+end;
+
 procedure Tfrmosmain.iLoad_WOD18Click(Sender: TObject);
 begin
  frmloadWOD18 := TfrmloadWOD18.Create(Self);
@@ -742,25 +769,33 @@ begin
 end;
 
 
-procedure Tfrmosmain.aMapExecute(Sender: TObject);
+procedure Tfrmosmain.aMapAllStationsExecute(Sender: TObject);
 begin
  if frmmap_open=true then frmmap.SetFocus else
     begin
        frmmap := Tfrmmap.Create(Self);
        frmmap.Show;
     end;
+  frmmap.btnShowAllStationsClick(self);
   frmmap_open:=true;
 end;
 
 
-procedure Tfrmosmain.iProfilesAllClick(Sender: TObject);
+procedure Tfrmosmain.aMapSelectedStationExecute(Sender: TObject);
 begin
- if frmparametersall_open=true then frmparametersall.SetFocus else
+ if frmmap_open=true then frmmap.SetFocus else
     begin
-      frmparametersall := Tfrmparametersall.Create(Self);
-      frmparametersall.Show;
+       frmmap := Tfrmmap.Create(Self);
+       frmmap.Show;
     end;
- frmparametersall_open:=true;
+  frmmap.btnShowSelectedClick(self);
+  frmmap_open:=true;
+end;
+
+
+procedure Tfrmosmain.aMapKMLExecute(Sender: TObject);
+begin
+  ExportKML_;
 end;
 
 
