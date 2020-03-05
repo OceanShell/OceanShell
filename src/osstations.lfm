@@ -1,11 +1,11 @@
 object frmosstation: Tfrmosstation
-  Left = 349
-  Height = 903
-  Top = 74
+  Left = 314
+  Height = 767
+  Top = 103
   Width = 1416
   Caption = 'Stations'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 767
+  ClientWidth = 1416
   DesignTimePPI = 144
   OnClose = FormClose
   OnCreate = FormCreate
@@ -70,7 +70,7 @@ object frmosstation: Tfrmosstation
   end
   object DBGridStation: TDBGrid
     Left = 0
-    Height = 870
+    Height = 734
     Top = 33
     Width = 1416
     Align = alClient
@@ -148,8 +148,12 @@ object frmosstation: Tfrmosstation
       item
         MinSize = 15
         MaxSize = 300
-        Title.Caption = 'Cast'
+        Title.Caption = 'Cast #'
         FieldName = 'CAST_NUMBER'
+      end    
+      item
+        Title.Caption = 'Accession #'
+        FieldName = 'ACCESSION_NUMBER'
       end    
       item
         MinSize = 15
