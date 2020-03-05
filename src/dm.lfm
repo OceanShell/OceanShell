@@ -2,11 +2,11 @@ object frmdm: Tfrmdm
   OnCreate = DataModuleCreate
   OnDestroy = DataModuleDestroy
   OldCreateOrder = False
-  Height = 416
-  HorizontalOffset = 1028
-  VerticalOffset = 365
-  Width = 560
-  PPI = 144
+  Height = 277
+  HorizontalOffset = 1069
+  VerticalOffset = 291
+  Width = 373
+  PPI = 96
   object IBDB: TIBConnection
     Connected = False
     LoginPrompt = False
@@ -16,39 +16,39 @@ object frmdm: Tfrmdm
     UserName = 'SYSDBA'
     LogEvents = []
     CheckTransactionParams = False
-    left = 36
-    top = 24
+    left = 24
+    top = 16
   end
   object TR: TSQLTransaction
     Active = False
     Action = caNone
     Database = IBDB
-    left = 104
-    top = 24
+    left = 69
+    top = 16
   end
   object q1: TSQLQuery
     FieldDefs = <>
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 360
-    top = 24
+    left = 152
+    top = 216
   end
   object q2: TSQLQuery
     FieldDefs = <>
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 408
-    top = 24
+    left = 200
+    top = 216
   end
   object q3: TSQLQuery
     FieldDefs = <>
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 456
-    top = 24
+    left = 240
+    top = 216
   end
   object SupportDB: TIBConnection
     Connected = False
@@ -59,15 +59,15 @@ object frmdm: Tfrmdm
     UserName = 'SYSDBA'
     LogEvents = []
     CheckTransactionParams = False
-    left = 36
-    top = 132
+    left = 24
+    top = 216
   end
   object SupportTR: TSQLTransaction
     Active = False
     Action = caNone
     Database = SupportDB
-    left = 144
-    top = 132
+    left = 88
+    top = 216
   end
   object Q: TSQLQuery
     MaxIndexesCount = 100
@@ -75,7 +75,40 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 180
-    top = 24
+    left = 120
+    top = 16
+  end
+  object QCruise: TSQLQuery
+    MaxIndexesCount = 100
+    FieldDefs = <>
+    Database = IBDB
+    Transaction = TR
+    Params = <>
+    left = 168
+    top = 16
+  end
+  object QEntry: TSQLQuery
+    MaxIndexesCount = 100
+    FieldDefs = <>
+    Database = IBDB
+    Transaction = TR
+    Params = <>
+    left = 224
+    top = 16
+  end
+  object DSCruise: TDataSource
+    DataSet = QCruise
+    left = 168
+    top = 72
+  end
+  object DSEntry: TDataSource
+    DataSet = QEntry
+    left = 224
+    top = 72
+  end
+  object DS: TDataSource
+    DataSet = Q
+    left = 120
+    top = 72
   end
 end

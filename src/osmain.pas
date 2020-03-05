@@ -5,12 +5,9 @@ unit osmain;
 interface
 
 uses
-  {$IFDEF WINDOWS}
-  Windows,
-  {$ENDIF}
   SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, LCLType,
   Menus, Dialogs, ActnList, StdCtrls, INIFiles, ExtCtrls, DateUtils, sqldb, DB,
-  Buttons, DBGrids, Spin, DateTimePicker, Process, Math;
+  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math, Grids;
 
 type
 
@@ -26,45 +23,70 @@ type
   { Tfrmosmain }
 
   Tfrmosmain = class(TForm)
+    aShowStations: TAction;
     aMapSelectedStation: TAction;
     aProfilesStationAll: TAction;
     aMapKML: TAction;
     aOpenDatabase: TAction;
     aMapAllStations: TAction;
     AL1: TActionList;
-    btnadd: TToolButton;
-    btncancel: TToolButton;
-    btndelete: TToolButton;
     btnFastAccessOpenMap: TToolButton;
-    btnsave: TToolButton;
     btnSelection: TButton;
+    btnAdvancedSelection: TButton;
+    btnCustomSQLQuery: TButton;
+    cbCountry: TComboBox;
+    cbSource: TComboBox;
+    cbInstitute: TComboBox;
+    cbProject: TComboBox;
+    chkNOTPlatform: TCheckBox;
+    chkNOTCountry: TCheckBox;
+    chkNOTSource: TCheckBox;
+    chkNOTInstitute: TCheckBox;
+    chkNOTProject: TCheckBox;
     chkPeriod: TCheckBox;
+    cbPlatform: TComboBox;
+    DBGridEntries: TDBGrid;
+    DBMemoCruises: TDBMemo;
+    DBMemoEntries: TDBMemo;
+    DBGridCruise: TDBGrid;
     dtpDateMin: TDateTimePicker;
     dtpDateMax: TDateTimePicker;
-    DS: TDataSource;
-    DBGridPlatform: TDBGrid;
+    eCruise_COUNTRY: TEdit;
+    eCruise_ID: TEdit;
+    eCruise_Project: TEdit;
+    eCruise_NUMBER: TEdit;
+    eCruise_Institute: TEdit;
+    eCruise_PLATFORM: TEdit;
+    eCruise_SOURCE: TEdit;
+    eCruise_PI: TEdit;
     GroupBox2: TGroupBox;
-    GroupBox3: TGroupBox;
+    gbAuxiliaryParameters: TGroupBox;
     Label1: TLabel;
     Label2: TLabel;
-    iProfilesAll: TMenuItem;
+    Label3: TLabel;
+    Label4: TLabel;
     lbResetArea: TLabel;
     lbResetDates: TLabel;
     iLoad_Pangaea_CTD_tab: TMenuItem;
+    lbResetAux: TLabel;
+    MenuItem10: TMenuItem;
+    MenuItem11: TMenuItem;
     MenuItem2: TMenuItem;
     iLoad_WOD18: TMenuItem;
     iLoad_WOD: TMenuItem;
     iMap: TMenuItem;
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
-    MenuItem7: TMenuItem;
-    MenuItem8: TMenuItem;
+    iSelectCruise: TMenuItem;
     MenuItem9: TMenuItem;
     Panel1: TPanel;
+    pfillercruise: TPanel;
+    Panel22: TPanel;
     PM1: TPopupMenu;
     sbDatabase: TStatusBar;
     sbSelection: TStatusBar;
     seIDMax: TSpinEdit;
+    seIDMin: TSpinEdit;
     seLonMin: TFloatSpinEdit;
     seLonMax: TFloatSpinEdit;
     seLatMax: TFloatSpinEdit;
@@ -84,7 +106,6 @@ type
     MenuItem4: TMenuItem;
     OD: TOpenDialog;
     PageControl1: TPageControl;
-    seIDMin: TSpinEdit;
     SD: TSaveDialog;
     Memo1: TMemo;
     MM1: TMainMenu;
@@ -97,23 +118,29 @@ type
     N3: TMenuItem;
     iExit: TMenuItem;
     ListBox1: TListBox;
-    ToolBar1: TToolBar;
+    Splitter1: TSplitter;
+    Splitter2: TSplitter;
+    tsMainEntries: TTabSheet;
     tbFastAccess: TToolBar;
-    ToolButton1: TToolButton;
     btnFastAccessOpenDB: TToolButton;
+    btnShowStations: TToolButton;
     tsMainSelect: TTabSheet;
-    tsMainSelectAdvanced: TTabSheet;
-    tsMainData: TTabSheet;
+    tsMainCruises: TTabSheet;
 
     procedure aMapAllStationsExecute(Sender: TObject);
     procedure aMapKMLExecute(Sender: TObject);
     procedure aMapSelectedStationExecute(Sender: TObject);
     procedure aOpenDatabaseExecute(Sender: TObject);
     procedure aProfilesStationAllExecute(Sender: TObject);
+    procedure aShowStationsExecute(Sender: TObject);
+    procedure btnAdvancedSelectionClick(Sender: TObject);
     procedure btnSelectionClick(Sender: TObject);
-    procedure DBGridPlatformCellClick(Column: TColumn);
-    procedure DBGridPlatformKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure DBGridPlatformTitleClick(Column: TColumn);
+    procedure DBGridCruiseColumnSized(Sender: TObject);
+    procedure DBGridCruisePrepareCanvas(sender: TObject; DataCol: Integer;
+      Column: TColumn; AState: TGridDrawState);
+    procedure DBGridCruiseTitleClick(Column: TColumn);
+    procedure eCruise_IDClick(Sender: TObject);
+    procedure eCruise_NUMBERChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -123,16 +150,27 @@ type
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
+    procedure iLoad_ITPClick(Sender: TObject);
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
     procedure iLoad_WODClick(Sender: TObject);
+    procedure iSelectCruiseClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
     procedure lbResetAreaClick(Sender: TObject);
+    procedure lbResetAuxClick(Sender: TObject);
     procedure lbResetDatesClick(Sender: TObject);
 
 
   private
+    procedure SearchID(Sender:TObject);
+    procedure SearchPLATFORM(Sender:TObject);
+    procedure SearchCOUNTRY(Sender:TObject);
+    procedure SearchSOURCE(Sender:TObject);
+    procedure SearchPI(Sender:TObject);
+    procedure SearchINSTITUTE(Sender:TObject);
+    procedure SearchPROJECT(Sender:TObject);
+    procedure cbOnDropDown(Sender:TObject);
 
   public
     procedure OpenDatabase;
@@ -178,6 +216,7 @@ var
   Length_arr:integer;
 
   frmcodes_open, frmcodesQC_open, frmparametersall_open, frmmap_open:boolean;
+  frmstations_open: boolean;
 
 
 const
@@ -192,15 +231,28 @@ const
 implementation
 
 
-uses dm, oscreatenewdb, settings, codes, osabout, sortbufds,
+uses
+(* core modules *)
+  osmain_advancedselection,
+  dm,
+  oscreatenewdb,
+  settings,
+  codes,
+  osabout,
+  sortbufds,
+  osstations,
+
 (* loading data *)
   osload_itp,
   osload_GLODAP_2019_v2_product,
   osload_WOD18,
   loadwod,
   osload_PangaeaTab,
+
 (* export *)
+
 (* QC *)
+
 (* tools *)
   osmap,
   osmap_kml,
@@ -217,7 +269,11 @@ procedure Tfrmosmain.FormShow(Sender: TObject);
 Var
   Ini:TINIFile;
 begin
-IBName:='';
+ IBName:='';
+
+(* flags on open forms *)
+ frmcodes_open:=false; frmcodesQC_open:=false; frmparametersall_open:=false;
+ frmmap_open:=false; frmstations_open:=false;
 
  (* Define Global Path *)
   GlobalPath:=ExtractFilePath(Application.ExeName);
@@ -233,14 +289,33 @@ IBName:='';
   (* Define global delimiter *)
   DefaultFormatSettings.DecimalSeparator := '.';
 
- (* Check for existing essencial program folders *)
+  (* Loading settings from INI file *)
   Ini := TIniFile.Create(IniFileName);
   try
+    (* main form sizes *)
     Top   :=Ini.ReadInteger( 'osmain', 'top',    50);
     Left  :=Ini.ReadInteger( 'osmain', 'left',   50);
     Width :=Ini.ReadInteger( 'osmain', 'width',  900);
     Height:=Ini.ReadInteger( 'osmain', 'weight', 500);
 
+    (* cruise table columns *)
+    With DBGridCruise do begin
+     Columns[0].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col00',  50); //ID
+     Columns[1].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col01', 150); //Platform
+     Columns[2].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col02', 100); //Cruise #
+     Columns[3].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col03', 100); //Country
+     Columns[4].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col04',  70); //Start date
+     Columns[5].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col05',  70); //Finish date
+     Columns[6].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col06',  60); //Stations
+     Columns[7].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col07',  70); //Source
+     Columns[8].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col08', 100); //PI
+     Columns[9].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col09', 100); //Institute
+     Columns[10].Width:=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col10', 100); //Project
+     Columns[11].Width:=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col11',  70); //Date_added
+     Columns[12].Width:=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col12',  70); //Date_upfated
+    end;
+
+   (* Essencial program folders *)
     GlobalSupportPath := Ini.ReadString('main', 'SupportPath', GlobalPath+'support'+PathDelim);
       if not DirectoryExists(GlobalSupportPath) then CreateDir(GlobalSupportPath);
     GlobalUnloadPath  := Ini.ReadString('main', 'UnloadPath', GlobalPath+'unload'+PathDelim);
@@ -258,9 +333,22 @@ IBName:='';
    end;
   end;
 
- (* flags on open forms *)
-  frmcodes_open:=false; frmcodesQC_open:=false; frmparametersall_open:=false;
-  frmmap_open:=false;
+   DBGridCruise.OnColumnSized(Self);
+
+   eCruise_ID.OnChange           := @SearchID;
+   eCruise_PLATFORM.OnChange     := @SearchPLATFORM;
+   eCruise_COUNTRY.OnChange      := @SearchCOUNTRY;
+   eCruise_SOURCE.OnChange       := @SearchSOURCE;
+   eCruise_Project.OnChange      := @SearchPROJECT;
+   eCruise_Institute.OnChange    := @SearchINSTITUTE;
+   eCruise_PI.OnChange           := @SearchPI;
+
+   cbPlatform.OnDropDown  := @cbOnDropDown;
+   cbCountry.OnDropDown   := @cbOnDropDown;
+   cbSource.OnDropDown    := @cbOnDropDown;
+   cbProject.OnDropDown   := @cbOnDropDown;
+   cbInstitute.OnDropDown := @cbOnDropDown;
+
 
  OnResize(Self);
  SetFocus;
@@ -279,18 +367,24 @@ end;
 
 procedure Tfrmosmain.btnSelectionClick(Sender: TObject);
 var
-//i, k, fl:integer;
+i, k, fl:integer;
 SSYearMin,SSYearMax,SSMonthMin,SSMonthMax,SSDayMin,SSDayMax :Word;
-{NotCondCountry, NotCondVessel, NotCondSource, SBordersFile, str, buf_str:string;
-NotCondCruise, NotCondInstr, NotCondOrigin, NotCondCountryC, NotCondVesselC, instr:string;
+NotCondCountry, NotCondPlatform, NotCondSource:string;
+NotCondInstitute, NotCondProject, NotCondOrigin, SBordersFile:string;
+{
 MinDay, MaxDay, cnt:integer;
 Lat, Lon:real; }
 time0, time1:TDateTime;
+buf_str: string;
 begin
 DecodeDate(dtpDateMin.Date, SSYearMin, SSMonthMin, SSDayMin);
 DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
 
-//Time0:=now;
+  if chkNOTPlatform.Checked  =true then NotCondCountry   :='NOT' else NotCondCountry   :='';
+  if chkNOTPlatform.Checked  =true then NotCondPlatform  :='NOT' else NotCondPlatform  :='';
+  if chkNOTSource.Checked    =true then NotCondSource    :='NOT' else NotCondSource    :='';
+  if chkNOTInstitute.Checked =true then NotCondInstitute :='NOT' else NotCondInstitute :='';
+  if chkNOTProject.Checked   =true then NotCondProject   :='NOT' else NotCondProject   :='';
 
  with frmdm.Q do begin
    Close;
@@ -299,12 +393,9 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
     SQL.Add(' ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, ');
     SQL.Add(' LASTLEVEL_M, LASTLEVEL_DBAR, CRUISE_ID, INSTRUMENT_ID, ');
     SQL.Add(' ST_NUMBER_ORIGIN, ST_ID_ORIGIN, CAST_NUMBER, QCFLAG, ');
-    SQL.Add(' STVERSION, DUPLICATE, MERGED, ');   {ACCESSION_NUMBER,}
+    SQL.Add(' STVERSION, DUPLICATE, MERGED, ACCESSION_NUMBER, ');
     SQL.Add(' DATE_ADDED, DATE_UPDATED ');
- {   SQL.Add(' max(LATITUDE) as LatMax, min(LATITUDE) as LatMin, ');
-    SQL.Add(' max(LONGITUDE) as LonMax, min(LONGITUDE) as LonMin, ');
-    SQL.Add(' max(DATEANDTIME) as DateMax,  min(DATEANDTIME) as DateMin '); }
-    SQL.Add(' FROM STATION ');
+    SQL.Add(' FROM STATION');
     SQL.Add(' WHERE ');
      (* Coordinates *)
     SQL.Add(' (ID BETWEEN :SSIDMin AND :SSIDMax) ');
@@ -339,7 +430,31 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
     end;
     (* End of Date and Time *)
 
+    (* Platform*)
+    if cbPlatform.text<>'' then
+      SQL.Add(' AND '+NotCondPlatform  +' (STATION.CRUISE_ID IN (SELECT CRUISE.ID '+
+              ' FROM CRUISE WHERE CRUISE.PLATFORM_ID IN (SELECT PLATFORM.ID FROM' +
+              ' PLATFORM WHERE PLATFORM.NAME='+QuotedStr(cbPlatform.text)+'))) ');
+    if cbCountry.text<>'' then
+      SQL.Add(' AND '+NotCondCountry  +' (STATION.CRUISE_ID IN (SELECT CRUISE.ID '+
+              ' FROM CRUISE WHERE CRUISE.COUNTRY_ID IN (SELECT COUNTRY.ID FROM' +
+              ' COUNTRY WHERE COUNTRY.NAME='+QuotedStr(cbCountry.text)+'))) ');
+    if cbSource.text<>'' then
+      SQL.Add(' AND '+NotCondSource  +' (STATION.CRUISE_ID IN (SELECT CRUISE.ID '+
+              ' FROM CRUISE WHERE CRUISE.SOURCE_ID IN (SELECT SOURCE.ID FROM' +
+              ' SOURCE WHERE SOURCE.NAME='+QuotedStr(cbSource.text)+'))) ');
+    if cbInstitute.text<>'' then
+      SQL.Add(' AND '+NotCondInstitute  +' (STATION.CRUISE_ID IN (SELECT CRUISE.ID '+
+              ' FROM CRUISE WHERE CRUISE.INSTITUTE_ID IN (SELECT INSTITUTE.ID FROM' +
+              ' INSTITUTE WHERE INSTITUTE.NAME='+QuotedStr(cbInstitute.text)+'))) ');
+    if cbProject.text<>'' then begin
+      SQL.Add(' AND '+NotCondProject  +' (STATION.CRUISE_ID IN (SELECT CRUISE.ID '+
+              ' FROM CRUISE WHERE CRUISE.PROJECT_ID IN (SELECT PROJECT.ID FROM' +
+              ' PROJECT WHERE PROJECT.NAME='+QuotedStr(cbProject.text)+'))) ');
+    end;
+
     SQL.Add(' ORDER BY DATEANDTIME ' );
+  //  showmessage(SQL.Text);
 
     ParamByName('SSIDMin').AsInteger:=seIDMin.Value;
     ParamByName('SSIDMax').AsInteger:=seIDMax.Value;
@@ -369,6 +484,58 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
 
  SelectionInfo;
  CDSNavigation;
+
+ aShowStations.Execute();
+end;
+
+
+procedure Tfrmosmain.DBGridCruisePrepareCanvas(sender: TObject;
+  DataCol: Integer; Column: TColumn; AState: TGridDrawState);
+begin
+ if (column.FieldName='ID') or
+    (column.FieldName='DATE_ADDED') or
+    (column.FieldName='DATE_UPDATED') then begin
+    TDBGrid(sender).Canvas.Brush.Color := clBtnFace;
+ end;
+
+ if (gdSelected in AState) then begin
+   TDBGrid(Sender).Canvas.Brush.Color := clNavy;
+   TDBGrid(Sender).Canvas.Font.Color  := clYellow;
+   TDBGrid(Sender).Canvas.Font.Style  := [fsBold];
+ end;
+end;
+
+procedure Tfrmosmain.DBGridCruiseTitleClick(Column: TColumn);
+begin
+  sortbufds.SortBufDataSet(frmdm.QCruise, Column.FieldName);
+end;
+
+
+procedure Tfrmosmain.iSelectCruiseClick(Sender: TObject);
+begin
+   with frmdm.Q do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' SELECT ');
+      SQL.Add(' ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, ');
+      SQL.Add(' LASTLEVEL_M, LASTLEVEL_DBAR, CRUISE_ID, INSTRUMENT_ID, ');
+      SQL.Add(' ST_NUMBER_ORIGIN, ST_ID_ORIGIN, CAST_NUMBER, QCFLAG, ');
+      SQL.Add(' STVERSION, DUPLICATE, MERGED, ACCESSION_NUMBER, ');
+      SQL.Add(' DATE_ADDED, DATE_UPDATED ');
+      SQL.Add(' FROM STATION ');
+      SQL.Add(' WHERE ');
+      SQL.Add(' CRUISE_ID=:CRUISE ');
+      ParamByName('CRUISE').AsInteger:=frmdm.QCruise.FieldByName('ID').AsInteger;
+     Open;
+     //Last changes
+     Last;
+     First;
+   end;
+
+   SelectionInfo;
+   CDSNavigation;
+
+   aShowStations.Execute();
 end;
 
 
@@ -378,6 +545,18 @@ begin
   seLatMax.Value:=IBLatMax;
   seLonMin.Value:=IBLonMin;
   seLonMax.Value:=IBLonMax;
+end;
+
+procedure Tfrmosmain.lbResetAuxClick(Sender: TObject);
+begin
+  cbPlatform.Clear;
+  cbCountry.Clear;
+  cbSource.Clear;
+  cbInstitute.Clear;
+  cbProject.Clear;
+
+  seIDMin.Value:=IDMin;
+  seIDMax.Value:=IDMax;
 end;
 
 procedure Tfrmosmain.lbResetDatesClick(Sender: TObject);
@@ -396,6 +575,9 @@ if NavigationOrder=false then exit;
 
  If NavigationOrder=true then begin
   NavigationOrder:=false; //blocking everthing until previous operations have been completed
+     if frmstations_open=true then begin
+       frmdm.QCruise.Locate('ID', frmdm.Q.FieldByName('CRUISE_ID').AsInteger,[]);
+     end;
      if frmmap_open     =true then frmmap.ChangeID;
      if frmparametersall_open  =true then frmparametersall.ShowAllProf(ID);
  //  if InfoOpen      =true then Info.ChangeID;
@@ -413,24 +595,6 @@ if NavigationOrder=false then exit;
 
   NavigationOrder:=true; //Завершили, открываем доступ к навигации
  end;
-end;
-
-
-procedure Tfrmosmain.DBGridPlatformCellClick(Column: TColumn);
-begin
-   CDSNavigation;
-end;
-
-procedure Tfrmosmain.DBGridPlatformKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-begin
-  if (key=VK_UP) or (key=VK_DOWN) then CDSNavigation;
-end;
-
-
-procedure Tfrmosmain.DBGridPlatformTitleClick(Column: TColumn);
-begin
-  sortbufds.SortBufDataSet(frmdm.Q, Column.FieldName);
 end;
 
 
@@ -488,6 +652,28 @@ begin
        frmparametersall.Show;
      end;
   frmparametersall_open:=true;
+end;
+
+
+procedure Tfrmosmain.aShowStationsExecute(Sender: TObject);
+begin
+  if frmstations_open=true then frmosstation.SetFocus else
+     begin
+       frmosstation := Tfrmosstation.Create(Self);
+       frmosstation.Show;
+     end;
+  frmstations_open:=true;
+end;
+
+procedure Tfrmosmain.btnAdvancedSelectionClick(Sender: TObject);
+begin
+  frmadvancedselection := Tfrmadvancedselection.Create(Self);
+   try
+    if not frmadvancedselection.ShowModal = mrOk then exit;
+   finally
+     frmadvancedselection.Free;
+     frmadvancedselection := nil;
+   end;
 end;
 
 
@@ -597,6 +783,38 @@ Qt_DB2.Transaction:=TRt_DB2;
      TempList.Free;
    end;
 
+   with frmdm.QCruise do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' SELECT ');
+     SQL.Add(' CRUISE.ID, PLATFORM.NAME as PLATFORM, COUNTRY.NAME as COUNTRY, ');
+     SQL.Add(' SOURCE.NAME as SOURCE, INSTITUTE.NAME as INSTITUTE, ');
+     SQL.Add(' PROJECT.NAME as PROJECT, CRUISE.DATE_ADDED, CRUISE.DATE_UPDATED, ');
+     SQL.Add(' CRUISE.CRUISE_NUMBER, CRUISE.DATE_START, CRUISE.DATE_END, ');
+     SQL.Add(' CRUISE.STATIONS_AMOUNT, CRUISE.PI, CRUISE.NOTES ');
+     SQL.Add(' FROM CRUISE, PLATFORM, COUNTRY, SOURCE, INSTITUTE, PROJECT ');
+     SQL.Add(' WHERE ');
+     SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID and ');
+     SQL.Add(' CRUISE.COUNTRY_ID=COUNTRY.ID and ');
+     SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID and ');
+     SQL.Add(' CRUISE.INSTITUTE_ID=INSTITUTE.ID and ');
+     SQL.Add(' CRUISE.PROJECT_ID=PROJECT.ID');
+     SQL.Add(' ORDER by PLATFORM.NAME, CRUISE.DATE_START ');
+    Open;
+    Last;
+    First;
+   end;
+
+   with frmdm.QEntry do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' SELECT * ');
+    SQL.Add(' FROM ENTRY ');
+    SQL.Add(' ORDER by ID ');
+   Open;
+   Last;
+   First;
+   end;
 
   TRt_DB1.Commit;
   TRt_DB2.Commit;
@@ -663,6 +881,7 @@ begin
   end;
 
   iDBStatistics.Enabled:=items_enabled;
+  aShowStations.Enabled:=items_enabled;
   aMapAllStations.Enabled:=items_enabled;
   aMapKML.Enabled:=items_enabled;
   aProfilesStationAll.Enabled:=items_enabled;
@@ -671,7 +890,7 @@ end;
 
 procedure Tfrmosmain.ItemsVisibility;
 begin
- btnSelection.Enabled:=true;
+ PageControl1.Enabled:=true;
 end;
 
 
@@ -720,6 +939,17 @@ begin
  finally
    frmloadGLODAP_2019_v2_product.Free;
    frmloadGLODAP_2019_v2_product := nil;
+ end;
+end;
+
+procedure Tfrmosmain.iLoad_ITPClick(Sender: TObject);
+begin
+  frmLoadITP := TfrmLoadITP.Create(Self);
+ try
+  if not frmLoadITP.ShowModal = mrOk then exit;
+ finally
+   frmLoadITP.Free;
+   frmLoadITP := nil;
  end;
 end;
 
@@ -893,6 +1123,126 @@ begin
 end;
 
 
+
+procedure Tfrmosmain.cbOnDropDown(Sender: TObject);
+var
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
+  tbl:string;
+begin
+  if (Sender as TComboBox).Items.Count=0 then begin
+   try
+    TRt:=TSQLTransaction.Create(self);
+    TRt.DataBase:=frmdm.IBDB;
+
+    Qt :=TSQLQuery.Create(self);
+    Qt.Database:=frmdm.IBDB;
+    Qt.Transaction:=TRt;
+
+    tbl:=Copy((Sender as TComboBox).Name, 3, length((Sender as TComboBox).Name));
+
+    Qt.Close;
+    Qt.SQL.Text:=' SELECT DISTINCT NAME FROM '+tbl+' ORDER BY NAME ';
+    Qt.Open;
+
+    while not Qt.Eof do begin
+      (Sender as TComboBox).Items.Add(Qt.Fields[0].AsString);
+     Qt.Next;
+    end;
+    Qt.Close;
+    TRt.Commit;
+   // DBGridCruise.Columns[1].PickList:=cbPlatform.Items;
+   finally
+    Qt.Free;
+    TRt.Free;
+   end;
+ end;
+end;
+
+procedure Tfrmosmain.eCruise_IDClick(Sender: TObject);
+begin
+   eCruise_ID.Clear;
+   eCruise_PLATFORM.Clear;
+   eCruise_COUNTRY.Clear;
+   eCruise_SOURCE.Clear;
+   eCruise_Project.Clear;
+   eCruise_Institute.Clear;
+   eCruise_PI.Clear;
+  frmdm.QCruise.Filtered:=false;
+end;
+
+
+(* ID *)
+procedure Tfrmosmain.SearchID(Sender: TObject);
+Begin
+  if (Sender as TEdit).Text='' then exit;
+    frmdm.QCruise.Locate('ID', StrToInt((Sender as TEdit).Text),[loCaseInsensitive, loPartialKey]);
+end;
+
+(* PLATFORM *)
+procedure Tfrmosmain.SearchPLATFORM(Sender: TObject);
+begin
+  frmdm.QCruise.Filter:='PLATFORM = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+  frmdm.QCruise.Filtered:=true;
+end;
+
+procedure Tfrmosmain.eCruise_NUMBERChange(Sender: TObject);
+begin
+  frmdm.QCruise.Filter:='CRUISE_NUMBER = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+  frmdm.QCruise.Filtered:=true;
+end;
+
+(* SOURCE *)
+procedure Tfrmosmain.SearchSOURCE(Sender: TObject);
+begin
+  frmdm.QCruise.Filter:='SOURCE = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+  frmdm.QCruise.Filtered:=true;
+end;
+
+(* PI *)
+procedure Tfrmosmain.SearchPI(Sender: TObject);
+begin
+  frmdm.QCruise.Filter:='PI = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+  frmdm.QCruise.Filtered:=true;
+end;
+
+(* COUNTRY*)
+procedure Tfrmosmain.SearchCOUNTRY(Sender: TObject);
+begin
+  frmdm.QCruise.Filter:='COUNTRY = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+  frmdm.QCruise.Filtered:=true;
+end;
+
+(* INSTITUTE *)
+procedure Tfrmosmain.SearchINSTITUTE(Sender: TObject);
+begin
+  frmdm.QCruise.Filter:='INSTITUTE = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+  frmdm.QCruise.Filtered:=true;
+end;
+
+(* PROJECT *)
+procedure Tfrmosmain.SearchPROJECT(Sender: TObject);
+begin
+  frmdm.QCruise.Filter:='PROJECT = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+  frmdm.QCruise.Filtered:=true;
+end;
+
+procedure Tfrmosmain.DBGridCruiseColumnSized(Sender: TObject);
+begin
+    eCruise_ID.Width:=DBGridCruise.Columns[0].Width+1;
+    eCruise_PLATFORM.Width:=DBGridCruise.Columns[1].Width;
+    eCruise_NUMBER.Width:=DBGridCruise.Columns[2].Width;
+    eCruise_COUNTRY.Width:=DBGridCruise.Columns[3].Width;
+    pfillercruise.Width:=(DBGridCruise.Columns[4].Width+
+                          DBGridCruise.Columns[5].Width+
+                          DBGridCruise.Columns[6].Width)-1;
+    eCruise_SOURCE.Width:=DBGridCruise.Columns[7].Width;
+    eCruise_PI.Width:=DBGridCruise.Columns[8].Width;
+    eCruise_Institute.Width:=DBGridCruise.Columns[9].Width;
+    eCruise_Project.Width:=DBGridCruise.Columns[10].Width;
+end;
+
+
 procedure Tfrmosmain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 Var
   Ini:TIniFile;
@@ -903,6 +1253,24 @@ begin
     Ini.WriteInteger( 'osmain', 'left',   Left);
     Ini.WriteInteger( 'osmain', 'width',  Width);
     Ini.WriteInteger( 'osmain', 'weight', Height);
+
+    (* cruise table columns *)
+    With DBGridCruise do begin
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col00', Columns[0].Width); //ID
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col01', Columns[1].Width); //Platform
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col02', Columns[2].Width); //Cruise #
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col03', Columns[3].Width); //Country
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col04', Columns[4].Width); //Start date
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col05', Columns[5].Width); //Finish date
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col06', Columns[6].Width); //Stations
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col07', Columns[7].Width); //Source
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col08', Columns[8].Width); //PI
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col09', Columns[9].Width); //Institute
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col10', Columns[10].Width);//Project
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col11', Columns[11].Width);//Date added
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col12', Columns[12].Width);//Date updated
+    end;
+
    finally
      Ini.Free;
    end;

@@ -12,10 +12,15 @@ type
   { Tfrmdm }
 
   Tfrmdm = class(TDataModule)
+    DS: TDataSource;
+    DSEntry: TDataSource;
+    DSCruise: TDataSource;
     q2: TSQLQuery;
     q3: TSQLQuery;
     IBDB: TIBConnection;
     Q: TSQLQuery;
+    QCruise: TSQLQuery;
+    QEntry: TSQLQuery;
     SupportDB: TIBConnection;
     TR: TSQLTransaction;
     q1: TSQLQuery;

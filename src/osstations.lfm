@@ -1,0 +1,212 @@
+object frmosstation: Tfrmosstation
+  Left = 349
+  Height = 903
+  Top = 74
+  Width = 1416
+  Caption = 'Stations'
+  ClientHeight = 0
+  ClientWidth = 0
+  DesignTimePPI = 144
+  OnClose = FormClose
+  OnCreate = FormCreate
+  LCLVersion = '2.0.6.0'
+  object ToolBar1: TToolBar
+    Left = 0
+    Height = 33
+    Top = 0
+    Width = 1416
+    AutoSize = True
+    Caption = 'ToolBar1'
+    EdgeBorders = []
+    EdgeInner = esNone
+    EdgeOuter = esNone
+    Font.Color = clWindowText
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Images = frmicons.IL1
+    List = True
+    ParentFont = False
+    ParentShowHint = False
+    ShowCaptions = True
+    ShowHint = True
+    TabOrder = 0
+    object btnadd: TToolButton
+      Left = 1
+      Hint = 'Add row'
+      Top = 0
+      Caption = 'btnadd'
+      ImageIndex = 1
+      ShowCaption = False
+    end
+    object btndelete: TToolButton
+      Left = 36
+      Hint = 'Remove row'
+      Top = 0
+      Caption = 'btndelete'
+      ImageIndex = 334
+      ShowCaption = False
+    end
+    object btnsave: TToolButton
+      Left = 106
+      Hint = 'Commit changes'
+      Top = 0
+      Caption = 'Save'
+      Enabled = False
+      ImageIndex = 940
+    end
+    object btncancel: TToolButton
+      Left = 71
+      Hint = 'Cancel changes'
+      Top = 0
+      ImageIndex = 53
+    end
+    object ToolButton1: TToolButton
+      Left = 168
+      Height = 33
+      Top = 0
+      Caption = 'ToolButton1'
+      Style = tbsDivider
+    end
+  end
+  object DBGridStation: TDBGrid
+    Left = 0
+    Height = 870
+    Top = 33
+    Width = 1416
+    Align = alClient
+    AlternateColor = 13631478
+    AutoAdvance = aaNone
+    Color = 13627366
+    Columns = <    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Station ID'
+        FieldName = 'ID'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Cruise ID'
+        FieldName = 'CRUISE_ID'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'QC Flag'
+        Width = 75
+        FieldName = 'QCFLAG'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Latitude'
+        FieldName = 'LATITUDE'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Longitude'
+        FieldName = 'LONGITUDE'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Date'
+        Width = 180
+        FieldName = 'DATEANDTIME'
+        DisplayFormat = 'DD.MM.YYYY hh:nn:ss'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Depth, m'
+        Width = 75
+        FieldName = 'BOTTOMDEPTH'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Last lev., m'
+        Width = 90
+        FieldName = 'LASTLEVEL_M'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Last lev., dBar'
+        Width = 112
+        FieldName = 'LASTLEVEL_DBAR'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Station #'
+        Width = 105
+        FieldName = 'ST_NUMBER_ORIGIN'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Cast'
+        FieldName = 'CAST_NUMBER'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Station orig. ID'
+        Width = 120
+        FieldName = 'ST_ID_ORIGIN'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Instr. ID'
+        FieldName = 'INSTRUMENT_ID'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Version'
+        FieldName = 'STVERSION'
+      end    
+      item
+        MinSize = 15
+        MaxSize = 300
+        Title.Caption = 'Merged'
+        FieldName = 'MERGED'
+      end>
+    DataSource = frmdm.DS
+    FixedCols = 0
+    Flat = True
+    Font.Color = clWindowText
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+    ParentFont = False
+    PopupMenu = PM1
+    Scrollbars = ssAutoBoth
+    TabOrder = 1
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -17
+    TitleFont.Name = 'MS Sans Serif'
+    OnCellClick = DBGridStationCellClick
+    OnKeyUp = DBGridStationKeyUp
+    OnPrepareCanvas = DBGridStationPrepareCanvas
+    OnTitleClick = DBGridStationTitleClick
+  end
+  object PM1: TPopupMenu
+    Images = frmicons.IL1
+    left = 600
+    top = 180
+    object ishowselectedstation: TMenuItem
+      Action = frmosmain.aMapSelectedStation
+    end
+    object MenuItem8: TMenuItem
+      Caption = '-'
+    end
+    object iProfilesAll: TMenuItem
+      Action = frmosmain.aProfilesStationAll
+    end
+  end
+end

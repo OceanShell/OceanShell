@@ -1,16 +1,17 @@
 object frmosmain: Tfrmosmain
   Left = 336
-  Height = 465
-  Top = 188
-  Width = 883
+  Height = 698
+  Top = 165
+  Width = 1305
   Caption = 'OceanShell'
-  ClientHeight = 445
-  ClientWidth = 883
+  ClientHeight = 668
+  ClientWidth = 1305
   Color = clBtnFace
-  Constraints.MinHeight = 465
-  Constraints.MinWidth = 800
+  Constraints.MinHeight = 698
+  Constraints.MinWidth = 1305
+  DesignTimePPI = 144
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -17
   Font.Name = 'MS Sans Serif'
   Menu = MM1
   OnClose = FormClose
@@ -18,12 +19,12 @@ object frmosmain: Tfrmosmain
   OnShow = FormShow
   LCLVersion = '2.0.6.0'
   object Memo1: TMemo
-    Left = 552
-    Height = 49
+    Left = 828
+    Height = 74
     Top = 0
-    Width = 121
+    Width = 182
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -17
     Font.Name = 'MS Sans Serif'
     Lines.Strings = (
       'Memo1'
@@ -34,12 +35,12 @@ object frmosmain: Tfrmosmain
     Visible = False
   end
   object ListBox1: TListBox
-    Left = 309
-    Height = 49
-    Top = 37
-    Width = 121
+    Left = 464
+    Height = 74
+    Top = 56
+    Width = 182
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -17
     Font.Name = 'MS Sans Serif'
     ItemHeight = 0
     ParentFont = False
@@ -49,62 +50,61 @@ object frmosmain: Tfrmosmain
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 401
-    Top = 44
-    Width = 883
+    Height = 602
+    Top = 66
+    Width = 1305
     ActivePage = tsMainSelect
     Align = alClient
+    Enabled = False
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -17
     Font.Name = 'MS Sans Serif'
     ParentFont = False
     TabIndex = 0
     TabOrder = 2
     object tsMainSelect: TTabSheet
       Caption = 'Select data'
-      ClientHeight = 375
-      ClientWidth = 875
+      ClientHeight = 569
+      ClientWidth = 1297
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -17
       Font.Name = 'MS Sans Serif'
       ParentFont = False
       object btnSelection: TButton
-        Left = 696
-        Height = 38
-        Top = 16
-        Width = 164
-        Anchors = [akTop, akRight]
+        Left = 767
+        Height = 57
+        Top = 24
+        Width = 228
         Caption = 'Select'
-        Enabled = False
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -17
         Font.Name = 'MS Sans Serif'
         OnClick = btnSelectionClick
         ParentFont = False
         TabOrder = 0
       end
       object GroupBox1: TGroupBox
-        Left = 16
-        Height = 117
-        Top = 11
-        Width = 213
-        Caption = 'Area'
-        ClientHeight = 99
-        ClientWidth = 209
+        Left = 24
+        Height = 168
+        Top = 16
+        Width = 416
+        Caption = 'Region'
+        ClientHeight = 143
+        ClientWidth = 412
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -17
         Font.Name = 'MS Sans Serif'
         ParentFont = False
         TabOrder = 1
         object seLonMin: TFloatSpinEdit
-          Left = 16
-          Height = 21
-          Top = 37
-          Width = 82
+          Left = 22
+          Height = 28
+          Top = 56
+          Width = 123
           Alignment = taCenter
           DecimalPlaces = 5
           Font.Color = clWindowText
-          Font.Height = -11
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           MaxValue = 180
           MinValue = -180
@@ -113,14 +113,14 @@ object frmosmain: Tfrmosmain
           Value = 0
         end
         object seLonMax: TFloatSpinEdit
-          Left = 112
-          Height = 21
-          Top = 37
-          Width = 82
+          Left = 266
+          Height = 28
+          Top = 56
+          Width = 123
           Alignment = taCenter
           DecimalPlaces = 5
           Font.Color = clWindowText
-          Font.Height = -11
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           MaxValue = 180
           MinValue = -180
@@ -129,14 +129,14 @@ object frmosmain: Tfrmosmain
           Value = 0
         end
         object seLatMax: TFloatSpinEdit
-          Left = 69
-          Height = 21
-          Top = 5
-          Width = 82
+          Left = 144
+          Height = 28
+          Top = 16
+          Width = 123
           Alignment = taCenter
           DecimalPlaces = 5
           Font.Color = clWindowText
-          Font.Height = -11
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           MaxValue = 90
           MinValue = -90
@@ -145,14 +145,14 @@ object frmosmain: Tfrmosmain
           Value = 0
         end
         object seLatMin: TFloatSpinEdit
-          Left = 69
-          Height = 21
-          Top = 69
-          Width = 82
+          Left = 144
+          Height = 28
+          Top = 96
+          Width = 123
           Alignment = taCenter
           DecimalPlaces = 5
           Font.Color = clWindowText
-          Font.Height = -11
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           MaxValue = 90
           MinValue = -90
@@ -162,13 +162,13 @@ object frmosmain: Tfrmosmain
         end
         object lbResetArea: TLabel
           Cursor = crHandPoint
-          Left = 162
-          Height = 13
-          Top = 75
-          Width = 28
+          Left = 346
+          Height = 20
+          Top = 104
+          Width = 43
           Caption = 'Reset'
           Font.Color = clBlue
-          Font.Height = -11
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentColor = False
@@ -177,28 +177,28 @@ object frmosmain: Tfrmosmain
         end
       end
       object GroupBox2: TGroupBox
-        Left = 245
-        Height = 117
-        Top = 11
-        Width = 211
+        Left = 456
+        Height = 168
+        Top = 16
+        Width = 292
         Caption = 'Date and Time'
-        ClientHeight = 99
-        ClientWidth = 207
+        ClientHeight = 143
+        ClientWidth = 288
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -17
         Font.Name = 'MS Sans Serif'
         ParentFont = False
         TabOrder = 2
         object dtpDateMin: TDateTimePicker
-          Left = 48
-          Height = 21
-          Top = 5
-          Width = 133
+          Left = 72
+          Height = 28
+          Top = 16
+          Width = 194
           CenturyFrom = 1941
           MaxDate = 2958465
           MinDate = -53780
           Font.Color = clWindowText
-          Font.Height = -11
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           ParentFont = False
           TabOrder = 0
@@ -216,15 +216,15 @@ object frmosmain: Tfrmosmain
           MonthNames = 'Long'
         end
         object dtpDateMax: TDateTimePicker
-          Left = 48
-          Height = 21
-          Top = 37
-          Width = 133
+          Left = 72
+          Height = 28
+          Top = 56
+          Width = 194
           CenturyFrom = 1941
           MaxDate = 2958465
           MinDate = -53780
           Font.Color = clWindowText
-          Font.Height = -11
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           ParentFont = False
           TabOrder = 1
@@ -242,50 +242,50 @@ object frmosmain: Tfrmosmain
           MonthNames = 'Long'
         end
         object Label1: TLabel
-          Left = 11
-          Height = 13
-          Top = 11
-          Width = 23
+          Left = 16
+          Height = 20
+          Top = 24
+          Width = 37
           Caption = 'From'
           Font.Color = clWindowText
-          Font.Height = -11
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           ParentColor = False
           ParentFont = False
         end
         object Label2: TLabel
-          Left = 11
-          Height = 13
-          Top = 43
-          Width = 13
+          Left = 16
+          Height = 20
+          Top = 64
+          Width = 18
           Caption = 'To'
           Font.Color = clWindowText
-          Font.Height = -11
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           ParentColor = False
           ParentFont = False
         end
         object chkPeriod: TCheckBox
-          Left = 11
-          Height = 19
-          Top = 69
-          Width = 50
+          Left = 16
+          Height = 29
+          Top = 95
+          Width = 75
           Caption = 'Period'
           Font.Color = clWindowText
-          Font.Height = -11
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           ParentFont = False
           TabOrder = 2
         end
         object lbResetDates: TLabel
           Cursor = crHandPoint
-          Left = 167
-          Height = 13
-          Top = 75
-          Width = 28
+          Left = 223
+          Height = 20
+          Top = 104
+          Width = 43
           Caption = 'Reset'
           Font.Color = clBlue
-          Font.Height = -11
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentColor = False
@@ -293,224 +293,575 @@ object frmosmain: Tfrmosmain
           OnClick = lbResetDatesClick
         end
       end
-      object GroupBox3: TGroupBox
-        Left = 16
-        Height = 65
-        Top = 136
-        Width = 213
-        Caption = 'Station ID'
-        ClientHeight = 47
-        ClientWidth = 209
+      object gbAuxiliaryParameters: TGroupBox
+        Left = 24
+        Height = 288
+        Top = 192
+        Width = 971
+        Caption = 'Auxiliary parameters'
+        ClientHeight = 263
+        ClientWidth = 967
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -17
         Font.Name = 'MS Sans Serif'
         ParentFont = False
         TabOrder = 3
-        object seIDMin: TSpinEdit
-          Left = 16
-          Height = 21
-          Top = 10
-          Width = 82
+        object cbPlatform: TComboBox
+          Left = 168
+          Height = 28
+          Top = 14
+          Width = 776
           Font.Color = clWindowText
-          Font.Height = -11
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ItemHeight = 20
+          ParentFont = False
+          TabOrder = 0
+        end
+        object chkNOTPlatform: TCheckBox
+          Left = 24
+          Height = 29
+          Top = 16
+          Width = 125
+          Caption = 'NOT Platform'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 1
+        end
+        object cbCountry: TComboBox
+          Left = 168
+          Height = 28
+          Top = 56
+          Width = 776
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ItemHeight = 20
+          ParentFont = False
+          TabOrder = 2
+        end
+        object cbSource: TComboBox
+          Left = 168
+          Height = 28
+          Top = 96
+          Width = 776
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ItemHeight = 20
+          ParentFont = False
+          TabOrder = 3
+        end
+        object cbInstitute: TComboBox
+          Left = 168
+          Height = 28
+          Top = 138
+          Width = 776
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ItemHeight = 20
+          ParentFont = False
+          TabOrder = 4
+        end
+        object cbProject: TComboBox
+          Left = 168
+          Height = 28
+          Top = 180
+          Width = 776
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ItemHeight = 20
+          ParentFont = False
+          TabOrder = 5
+        end
+        object chkNOTCountry: TCheckBox
+          Left = 24
+          Height = 29
+          Top = 56
+          Width = 121
+          Caption = 'NOT Country'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 6
+        end
+        object chkNOTSource: TCheckBox
+          Left = 24
+          Height = 29
+          Top = 99
+          Width = 117
+          Caption = 'NOT Source'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 7
+        end
+        object chkNOTInstitute: TCheckBox
+          Left = 24
+          Height = 29
+          Top = 141
+          Width = 124
+          Caption = 'NOT Institute'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 8
+        end
+        object chkNOTProject: TCheckBox
+          Left = 24
+          Height = 29
+          Top = 183
+          Width = 115
+          Caption = 'NOT Project'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 9
+        end
+        object lbResetAux: TLabel
+          Cursor = crHandPoint
+          Left = 901
+          Height = 20
+          Top = 228
+          Width = 43
+          Caption = 'Reset'
+          Font.Color = clBlue
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsUnderline]
+          ParentColor = False
+          ParentFont = False
+          OnClick = lbResetAuxClick
+        end
+        object Label3: TLabel
+          Left = 48
+          Height = 20
+          Top = 228
+          Width = 67
+          Caption = 'Sation ID'
+          ParentColor = False
+        end
+        object seIDMin: TSpinEdit
+          Left = 168
+          Height = 28
+          Top = 220
+          Width = 160
+          Font.Color = clWindowText
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           MaxValue = 100000000
           MinValue = 1
           ParentFont = False
-          TabOrder = 0
+          TabOrder = 10
           Value = 1
         end
         object seIDMax: TSpinEdit
-          Left = 112
-          Height = 21
-          Top = 10
-          Width = 82
+          Left = 368
+          Height = 28
+          Top = 220
+          Width = 160
           Font.Color = clWindowText
-          Font.Height = -11
+          Font.Height = -17
           Font.Name = 'MS Sans Serif'
           MaxValue = 100000000
           MinValue = 1
           ParentFont = False
-          TabOrder = 1
+          TabOrder = 11
           Value = 1
         end
-      end
-    end
-    object tsMainSelectAdvanced: TTabSheet
-      Caption = 'Advanced selection'
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      ParentFont = False
-    end
-    object tsMainData: TTabSheet
-      Caption = 'Selected data'
-      ClientHeight = 369
-      ClientWidth = 790
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      ParentFont = False
-      object ToolBar1: TToolBar
-        Left = 0
-        Height = 22
-        Top = 0
-        Width = 790
-        AutoSize = True
-        Caption = 'ToolBar1'
-        EdgeBorders = []
-        EdgeInner = esNone
-        EdgeOuter = esNone
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Images = frmicons.IL1
-        List = True
-        ParentFont = False
-        ParentShowHint = False
-        ShowCaptions = True
-        ShowHint = True
-        TabOrder = 0
-        object btnadd: TToolButton
-          Left = 1
-          Hint = 'Add row'
-          Top = 0
-          Caption = 'btnadd'
-          ImageIndex = 1
-          ShowCaption = False
-        end
-        object btndelete: TToolButton
-          Left = 24
-          Hint = 'Remove row'
-          Top = 0
-          Caption = 'btndelete'
-          ImageIndex = 334
-          ShowCaption = False
-        end
-        object btnsave: TToolButton
-          Left = 78
-          Hint = 'Commit changes'
-          Top = 0
-          Caption = 'Save'
-          Enabled = False
-          ImageIndex = 940
-        end
-        object btncancel: TToolButton
-          Left = 47
-          Hint = 'Cancel changes'
-          Top = 0
-          ImageIndex = 53
-        end
-        object ToolButton1: TToolButton
-          Left = 110
-          Height = 5
-          Top = 0
-          Caption = 'ToolButton1'
-          Style = tbsDivider
+        object Label4: TLabel
+          Left = 339
+          Height = 20
+          Top = 228
+          Width = 14
+          Caption = '->'
+          ParentColor = False
         end
       end
-      object DBGridPlatform: TDBGrid
+      object btnAdvancedSelection: TButton
+        Left = 767
+        Height = 38
+        Top = 94
+        Width = 228
+        Caption = 'Advanced Selection'
+        Enabled = False
+        OnClick = btnAdvancedSelectionClick
+        TabOrder = 4
+      end
+      object btnCustomSQLQuery: TButton
+        Left = 767
+        Height = 38
+        Top = 144
+        Width = 228
+        Caption = 'Custom SQL Query'
+        Enabled = False
+        TabOrder = 5
+      end
+    end
+    object tsMainCruises: TTabSheet
+      Caption = 'Cruises'
+      ClientHeight = 569
+      ClientWidth = 1297
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ParentFont = False
+      object DBGridCruise: TDBGrid
         Left = 0
-        Height = 347
-        Top = 22
-        Width = 790
+        Height = 459
+        Top = 32
+        Width = 1297
         Align = alClient
         AlternateColor = 13631478
         AutoAdvance = aaNone
         Color = 13627366
         Columns = <        
           item
-            Title.Caption = 'ID'
+            MinSize = 15
+            MaxSize = 300
+            Title.Caption = 'Cruise ID'
             FieldName = 'ID'
           end        
           item
-            Title.Caption = 'QC Flag'
-            Width = 50
-            FieldName = 'QCFLAG'
+            MinSize = 15
+            MaxSize = 300
+            Title.Caption = 'Platform'
+            FieldName = 'PLATFORM'
           end        
           item
-            Title.Caption = 'Latitude'
-            FieldName = 'LATITUDE'
+            MinSize = 15
+            MaxSize = 300
+            Title.Caption = 'Cruise number'
+            FieldName = 'CRUISE_NUMBER'
           end        
           item
-            Title.Caption = 'Longitude'
-            FieldName = 'LONGITUDE'
+            MinSize = 15
+            MaxSize = 300
+            Title.Caption = 'Country'
+            FieldName = 'COUNTRY'
           end        
           item
-            Title.Caption = 'Date'
-            Width = 120
-            FieldName = 'DATEANDTIME'
+            MinSize = 15
+            MaxSize = 300
+            Title.Caption = 'Start date'
+            FieldName = 'DATE_START'
           end        
           item
-            Title.Caption = 'Depth, m'
-            Width = 50
-            FieldName = 'BOTTOMDEPTH'
+            MinSize = 15
+            MaxSize = 300
+            Title.Caption = 'Finish date'
+            FieldName = 'DATE_END'
           end        
           item
-            Title.Caption = 'Last lev., m'
-            Width = 60
-            FieldName = 'LASTLEVEL_M'
+            MinSize = 15
+            MaxSize = 300
+            Title.Caption = 'Stations'
+            FieldName = 'STATIONS_AMOUNT'
           end        
           item
-            Title.Caption = 'Last lev., dBar'
-            Width = 75
-            FieldName = 'LASTLEVEL_DBAR'
+            MinSize = 15
+            MaxSize = 300
+            Title.Caption = 'Source'
+            FieldName = 'SOURCE'
           end        
           item
-            Title.Caption = 'Cruise ID'
-            FieldName = 'CRUISE_ID'
+            MinSize = 15
+            MaxSize = 300
+            Title.Caption = 'PI'
+            FieldName = 'PI'
           end        
           item
-            Title.Caption = 'Station #'
-            Width = 70
-            FieldName = 'ST_NUMBER_ORIGIN'
+            MinSize = 15
+            MaxSize = 300
+            Title.Caption = 'Institute'
+            FieldName = 'INSTITUTE'
           end        
           item
-            Title.Caption = 'Cast'
-            FieldName = 'CAST_NUMBER'
+            MinSize = 15
+            MaxSize = 300
+            Title.Caption = 'Project'
+            FieldName = 'PROJECT'
           end        
           item
-            Title.Caption = 'Station orig. ID'
-            Width = 80
-            FieldName = 'ST_ID_ORIGIN'
+            Title.Caption = 'Added'
+            FieldName = 'DATE_ADDED'
+            DisplayFormat = 'DD.MM.YYYY'
           end        
           item
-            Title.Caption = 'Instr. ID'
-            FieldName = 'INSTRUMENT_ID'
-          end        
-          item
-            Title.Caption = 'Version'
-            FieldName = 'STVERSION'
-          end        
-          item
-            Title.Caption = 'Merged'
-            FieldName = 'MERGED'
+            Title.Caption = 'Updated'
+            FieldName = 'DATE_UPDATED'
+            DisplayFormat = 'DD.MM.YYYY'
           end>
-        DataSource = DS
+        DataSource = frmdm.DSCruise
         FixedCols = 0
         Flat = True
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -17
         Font.Name = 'MS Sans Serif'
         Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
         ParentFont = False
         PopupMenu = PM1
         Scrollbars = ssAutoBoth
-        TabOrder = 1
+        TabOrder = 0
         TitleFont.Color = clWindowText
-        TitleFont.Height = -11
+        TitleFont.Height = -17
         TitleFont.Name = 'MS Sans Serif'
-        OnCellClick = DBGridPlatformCellClick
-        OnKeyUp = DBGridPlatformKeyUp
-        OnTitleClick = DBGridPlatformTitleClick
+        TitleStyle = tsStandard
+        OnColumnSized = DBGridCruiseColumnSized
+        OnPrepareCanvas = DBGridCruisePrepareCanvas
+        OnTitleClick = DBGridCruiseTitleClick
+      end
+      object DBMemoCruises: TDBMemo
+        Left = 0
+        Height = 70
+        Top = 499
+        Width = 1297
+        Align = alBottom
+        DataField = 'NOTES'
+        DataSource = frmdm.DSCruise
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        ScrollBars = ssBoth
+        TabOrder = 1
+      end
+      object Splitter1: TSplitter
+        Cursor = crVSplit
+        Left = 0
+        Height = 8
+        Top = 491
+        Width = 1297
+        Align = alBottom
+        ResizeAnchor = akBottom
+      end
+      object Panel22: TPanel
+        Left = 0
+        Height = 32
+        Top = 0
+        Width = 1297
+        Align = alTop
+        BevelOuter = bvNone
+        ClientHeight = 32
+        ClientWidth = 1297
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 3
+        object eCruise_PLATFORM: TEdit
+          Left = 96
+          Height = 32
+          Top = 0
+          Width = 96
+          Align = alLeft
+          CharCase = ecUppercase
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          OnClick = eCruise_IDClick
+          ParentFont = False
+          TabOrder = 0
+        end
+        object eCruise_NUMBER: TEdit
+          Left = 192
+          Height = 32
+          Top = 0
+          Width = 96
+          Align = alLeft
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          OnChange = eCruise_NUMBERChange
+          OnClick = eCruise_IDClick
+          ParentFont = False
+          TabOrder = 1
+        end
+        object eCruise_COUNTRY: TEdit
+          Left = 288
+          Height = 32
+          Top = 0
+          Width = 96
+          Align = alLeft
+          CharCase = ecUppercase
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          OnClick = eCruise_IDClick
+          ParentFont = False
+          TabOrder = 2
+        end
+        object eCruise_ID: TEdit
+          Left = 0
+          Height = 32
+          Top = 0
+          Width = 96
+          Align = alLeft
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          OnClick = eCruise_IDClick
+          ParentFont = False
+          TabOrder = 3
+        end
+        object eCruise_PI: TEdit
+          Left = 822
+          Height = 32
+          Top = 0
+          Width = 75
+          Align = alLeft
+          CharCase = ecUppercase
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          OnClick = eCruise_IDClick
+          ParentFont = False
+          TabOrder = 4
+        end
+        object eCruise_SOURCE: TEdit
+          Left = 672
+          Height = 32
+          Top = 0
+          Width = 150
+          Align = alLeft
+          CharCase = ecUppercase
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          OnClick = eCruise_IDClick
+          ParentFont = False
+          TabOrder = 5
+        end
+        object eCruise_Institute: TEdit
+          Left = 897
+          Height = 32
+          Top = 0
+          Width = 75
+          Align = alLeft
+          CharCase = ecUppercase
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          OnClick = eCruise_IDClick
+          ParentFont = False
+          TabOrder = 6
+        end
+        object eCruise_Project: TEdit
+          Left = 972
+          Height = 32
+          Top = 0
+          Width = 75
+          Align = alLeft
+          CharCase = ecUppercase
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          OnClick = eCruise_IDClick
+          ParentFont = False
+          TabOrder = 7
+        end
+        object pfillercruise: TPanel
+          Left = 384
+          Height = 32
+          Top = 0
+          Width = 288
+          Align = alLeft
+          BevelOuter = bvNone
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 8
+        end
+      end
+    end
+    object tsMainEntries: TTabSheet
+      Caption = 'Entries'
+      ClientHeight = 569
+      ClientWidth = 1297
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ParentFont = False
+      object DBGridEntries: TDBGrid
+        Left = 0
+        Height = 491
+        Top = 0
+        Width = 1297
+        Align = alClient
+        AlternateColor = 13631478
+        AutoAdvance = aaNone
+        Color = 13627366
+        Columns = <        
+          item
+            Title.Caption = 'Title'
+          end        
+          item
+            Title.Caption = 'Title'
+          end        
+          item
+            Title.Caption = 'Title'
+          end>
+        DataSource = frmdm.DSEntry
+        FixedCols = 0
+        Flat = True
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+        ParentFont = False
+        Scrollbars = ssAutoBoth
+        TabOrder = 0
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -17
+        TitleFont.Name = 'MS Sans Serif'
+        OnPrepareCanvas = DBGridCruisePrepareCanvas
+      end
+      object DBMemoEntries: TDBMemo
+        Left = 0
+        Height = 70
+        Top = 499
+        Width = 1297
+        Align = alBottom
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        ScrollBars = ssBoth
+        TabOrder = 1
+      end
+      object Splitter2: TSplitter
+        Cursor = crVSplit
+        Left = 0
+        Height = 8
+        Top = 491
+        Width = 1297
+        Align = alBottom
+        ResizeAnchor = akBottom
       end
     end
   end
   object tbFastAccess: TToolBar
-    Left = 700
-    Height = 22
-    Top = 45
-    Width = 47
+    Left = 1050
+    Height = 33
+    Top = 68
+    Width = 106
     Align = alNone
     AutoSize = True
     Caption = 'tbFastAccess'
@@ -518,7 +869,7 @@ object frmosmain: Tfrmosmain
     EdgeInner = esNone
     EdgeOuter = esNone
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -17
     Font.Name = 'MS Sans Serif'
     Images = frmicons.IL1
     List = True
@@ -528,7 +879,7 @@ object frmosmain: Tfrmosmain
     ShowHint = True
     TabOrder = 3
     object btnFastAccessOpenMap: TToolButton
-      Left = 24
+      Left = 71
       Top = 0
       Action = aMapAllStations
       AutoSize = True
@@ -542,95 +893,102 @@ object frmosmain: Tfrmosmain
       AutoSize = True
       ShowCaption = False
     end
+    object btnShowStations: TToolButton
+      Left = 36
+      Hint = 'Show selected stations'
+      Top = 0
+      Action = aShowStations
+      ShowCaption = False
+    end
   end
   object Panel1: TPanel
     Left = 0
-    Height = 44
+    Height = 66
     Top = 0
-    Width = 883
+    Width = 1305
     Align = alTop
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 40
-    ClientWidth = 879
+    ClientHeight = 62
+    ClientWidth = 1301
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -17
     Font.Name = 'MS Sans Serif'
     ParentFont = False
     TabOrder = 4
     object sbDatabase: TStatusBar
       Left = 0
-      Height = 23
+      Height = 36
       Top = 0
-      Width = 879
+      Width = 1301
       Align = alTop
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -17
       Font.Name = 'MS Sans Serif'
       Panels = <      
         item
           Text = '[Database]'
-          Width = 70
+          Width = 105
         end      
         item
-          Width = 100
+          Width = 150
         end      
         item
-          Width = 100
+          Width = 150
         end      
         item
-          Width = 100
+          Width = 150
         end      
         item
-          Width = 100
+          Width = 150
         end      
         item
-          Width = 140
+          Width = 210
         end      
         item
-          Width = 145
+          Width = 218
         end      
         item
-          Width = 33
+          Width = 50
         end>
       ParentFont = False
       SimplePanel = False
     end
     object sbSelection: TStatusBar
       Left = 0
-      Height = 23
-      Top = 23
-      Width = 879
+      Height = 36
+      Top = 36
+      Width = 1301
       Align = alTop
-      BorderSpacing.Bottom = 1
+      BorderSpacing.Bottom = 2
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -17
       Font.Name = 'MS Sans Serif'
       Panels = <      
         item
           Text = '[Selection]'
-          Width = 70
+          Width = 105
         end      
         item
-          Width = 100
+          Width = 150
         end      
         item
-          Width = 100
+          Width = 150
         end      
         item
-          Width = 100
+          Width = 150
         end      
         item
-          Width = 100
+          Width = 150
         end      
         item
-          Width = 140
+          Width = 210
         end      
         item
-          Width = 145
+          Width = 218
         end      
         item
-          Width = 160
+          Width = 240
         end>
       ParentFont = False
       SimplePanel = False
@@ -638,15 +996,15 @@ object frmosmain: Tfrmosmain
   end
   object OD: TOpenDialog
     Options = [ofHideReadOnly, ofEnableSizing, ofDontAddToRecent]
-    left = 320
+    left = 480
   end
   object SD: TSaveDialog
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    left = 360
+    left = 540
   end
   object MM1: TMainMenu
     Images = frmicons.IL1
-    left = 400
+    left = 600
     object iFile: TMenuItem
       Caption = 'File'
       object iNewDatabase: TMenuItem
@@ -656,42 +1014,6 @@ object frmosmain: Tfrmosmain
       end
       object iOpenDatabase: TMenuItem
         Action = aOpenDatabase
-        Bitmap.Data = {
-          36040000424D3604000000000000360000002800000010000000100000000100
-          2000000000000004000064000000640000000000000000000000B06F4000AB66
-          3CB7A45D38FA9E543406FFFFFF00FFFFFF00FFFFFF00FFFFFF009999990D9595
-          95319191912F8C8C8C07FFFFFF00FFFFFF00FFFFFF00FFFFFF00BA7C4AB7BF87
-          5CFFB97E56FFA7623AFA9F5735749D644C659D857DB39D9390F2A19F9FFFABAB
-          ABFFA7A7A7FF959595FF8D8D8DE78989898A86868616FFFFFF00C4885AFAC692
-          68FFCDA280FFC59670FFB67B53FFAB6A46FFA35E3DFF9C5235FFA76B59FFF1EF
-          EEFFF4F4F4FFEFEFEFFFE2E2E2FFBABABAFF8A8A8AE786868635CD956A06C68C
-          60FAD1A683FFCC9F7BFFCB9E7BFFC79974FFC3926CFFBE8D65FFA86945FFBA97
-          8BFFD6D6D6FFC0C0C0FFC9C9C9FFE6E6E6FFC4C4C4FF8B8B8BEAFFFFFF00CE98
-          7074D0A17CFFD7AE8FFFC9976FFFC38F66FFBD885CFFC08C64FFBC8861FF8554
-          3FFFD3D1D0FFBFBFBFFFB0B0B0FFB3B3B3FFDEDEDEFF909090EAFFFFFF00D7A5
-          7F4ED7A682FFDCB699FFD0A17DFFCB9A73FFCFA482FFC79974FF896C58FF8787
-          87FF828282FFC0C0C0FFB3B3B3FFB7B7B7FFE0E0E0FF969696EAFFFFFF00E0AE
-          8C39DDAE8CFFE2BEA4FFD8AB89FFD9B394FFCF9F7AFFA47A5BFF939393FFA9A9
-          A9FF696969FFC3C3C3FFB8B8B8FFBBBBBBFFE1E1E1FF9B9B9BEAFFFFFF00E6B8
-          981EE3B493FFE8C6ADFFE3C0A6FFDBB08FFFB58F74FFD9CBC1FF9A9A9AFF7A7A
-          7AFFDCDCDCFFC9C9C9FFBDBDBDFFBFBFBFFFE2E2E2FF9E9E9EEAFFFFFF00ECC0
-          A104E7BB9CDAE8C0A3FFE5BFA3FFB69E8CFFAEAEAEFFA8A8A8FFE1E1E1FFE5E5
-          E5FFE1E1E1FFCDCDCDFFC2C2C2FFC2C2C2FFE3E3E3FFA0A0A0EAFFFFFF00FFFF
-          FF00EDC3A509EABE9FAFCDAF9BFEB7B7B7FFBCBCBCFFABABABFFD6D6D6FFD5D5
-          D5FFD1D1D1FFC3C3C3FFBCBCBCFFC0C0C0FFE5E5E5FFA3A3A3EAFFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00BEB8B4ECC1C1C1FFB6B6B6FFEFEFEFFFF6F6F6FFFBFB
-          FBFFFAFAFAFFF0F0F0FFDEDEDEFFC3C3C3FFE6E6E6FFA5A5A5EAFFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00B9B9B9EAF8F8F8FFFEFEFEFFFFFFFFFFFFFFFFFFFFFF
-          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFBFBFBFFEAEAEAFFA7A7A7EAFFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00BABABABFE1E1E1FFFEFEFEFFFFFFFFFFFFFFFFFFFFFF
-          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFBFBFBFFCFCFCFFFA9A9A9A1FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00BCBCBC2ABBBBBBD1D0D0D0FFE8E8E8FFF3F3F3FFFDFD
-          FDFFFCFCFCFFEDEDEDFFE0E0E0FFC2C2C2FFADADADC3ACACAC1BFFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00BCBCBC07BBBBBB55BABABAAEB8B8B8D6B7B7
-          B7FBB6B6B6F9B4B4B4CDB3B3B3A9B1B1B146AFAFAF03FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
-        }
       end
       object N3: TMenuItem
         Caption = '-'
@@ -721,6 +1043,7 @@ object frmosmain: Tfrmosmain
       Caption = 'Load'
       object iLoad_ITP: TMenuItem
         Caption = 'ITP'
+        OnClick = iLoad_ITPClick
       end
       object MenuItem1: TMenuItem
         Caption = 'GLODAP'
@@ -751,128 +1074,26 @@ object frmosmain: Tfrmosmain
         end
       end
     end
+    object MenuItem10: TMenuItem
+      Caption = 'Metadata'
+      object MenuItem11: TMenuItem
+        Action = aShowStations
+      end
+    end
     object iTools: TMenuItem
       Caption = 'Tools'
       object iMap: TMenuItem
         Action = aMapAllStations
         Caption = 'Map'
-        Bitmap.Data = {
-          36040000424D3604000000000000360000002800000010000000100000000100
-          2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF0036843A51338037B7317D34E42F7A32F52F7A32F52F7A
-          32E62F7A32BD2F7A325CFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF004194470D3D8F43B63A8A3FFB9BC59DFFB3C29DFFBDC19CFFBEC39DFFB0D2
-          B1FF7EC09AFF2F7A32FC2F7A32BF2F7A3217FFFFFF00FFFFFF00FFFFFF0049A1
-          520D469B4DD170B786FFAEE8C7FFC0D2A0FFC5B381FFCAB47DFFCCAF78FFB9A7
-          78FF80CC95FFA0DABCFF66A87AFF2F7A32DA2F7A3218FFFFFF00FFFFFF004EA8
-          57B176C08DFF99D7B3FF79C080FFBCC27EFFC6A96AFFD7B169FFD6AD65FFBC9B
-          5EFF60AD6AFF599768FF81C199FF67A97BFF2F7A32BFFFFFFF0056B4614653AF
-          5DFBB5EAD3FF69BC74FF6EBD71FFBEB66DFFC9A35BFFDFAB5BFFDDA858FFC192
-          4EFF9DA958FF78B166FF5A9667FFA6DCC0FF2F7A32FE2F7A325A5ABA66B292D7
-          AFFFA0DEB4FF84C670FFA8D080FFC5A55CFFD0A757FFE0AA56FFDAA651FFC798
-          4AFFB98C47FFB69B57FF819F65FF79BF90FF81BE9CFF2F7A32BF5EBF6AE4B0E9
-          CFFF83D490FFBFDC8AFFC3CB82FFCCA256FFDAAF5CFFDCAF5BFFC99A4BFFBF86
-          43FFB78443FFB99A52FF96A562FF65A676FFA2D8BDFF2F7A32E860C36DF6BEEF
-          DDFF73D17DFF90D16CFFBCE09EFFC7A75EFFD3B05EFFC69953FFC6BC6EFFAFD1
-          7AFFB4C46DFFAFA95FFF7BA957FF5AA367FFB1E3CEFF317E35F761C46EF5BEF0
-          DCFF81D883FF77DB6DFFBFE59AFFCCDFA7FFCAA85DFFC2BD6CFFB8DA8BFFA6D8
-          60FF77D13FFF6AD046FF59BC50FF63AB6CFFB2E4CEFF358239F661C46EE2B3EC
-          D2FF9BE2A2FF9DEA8DFFD4EDB7FFD0EAC7FFCFB96EFFCCB166FFCBC975FF76DB
-          67FF66D94DFF65D74DFF6CD35DFF73BB7EFFA5DBC2FF39883EE661C46EAD98DE
-          B5FFB5EBCCFFB1EFA7FFC9EEA9FFD1EAC9FFD5CF8DFFD9CB8BFFCDB466FFBCBC
-          67FF9AD671FF82DE73FF7ADC71FF91D0A3FF88C8A4FF3D8F43B961C46E3C61C4
-          6EFAC0F3E2FFB5EFB4FFB5F0ACFFC1EDB7FFD4E3B7FFD9D89CFFDAD395FFCDB5
-          6DFFC7B36DFFB5CB84FF94DF9AFFAFE7CDFF469B4DFC4296494FFFFFFF0061C4
-          6EA587D7A0FFC0F2DEFFC7F2D6FFD5EFD5FFD0E9CFFFD5DBA6FFDCDEABFFDBCD
-          90FFD7C88BFFC9C18EFFBDD5AFFF7AC791FF4AA353B6FFFFFF00FFFFFF0061C4
-          6E0561C46EC48CD8A2FFCDF5E8FFD4EDDAFFCEEDD3FFCFDFAFFFD6DEB5FFD4D4
-          A2FFCED0A1FFC4D0AAFF87C991FF53AF5DD14FAA590FFFFFFF00FFFFFF00FFFF
-          FF0061C46E0461C46EA461C46EF8A5E1BBFFBAEACCFFC5E0BEFFC5DAB4FFBDD7
-          B0FFA6D7ACFF5DBE69FB5ABA66B657B6620CFFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF0061C46E3D61C46EAA61C46EDF61C46EF461C46EF861C4
-          6EE961C46EB260C26D48FFFFFF00FFFFFF00FFFFFF00FFFFFF00
-        }
         OnClick = aMapAllStationsExecute
       end
       object MenuItem5: TMenuItem
         Action = aMapKML
         Caption = 'Map [KML]'
-        Bitmap.Data = {
-          36040000424D3604000000000000360000002800000010000000100000000100
-          2000000000000004000064000000640000000000000000000000000000000000
-          0000030303160A0A0A3E0A0A0A3F0A0A0A3F0A0A0A3F0A0A0A3F0A0A0A3F0A0A
-          0A3F0A0A0A3F0A0A0A3F0A0A0A3F060606250000000000000000000000000000
-          00005656566BFDFCFCFFFCFBFBFFF4F3F3FFE0E0E0FFE6E6E6FFE1E1E1FFDCDB
-          DBFFE0E0E0FFF4F4F4FFF3F3F3FF8E8E8EAA0000000000000000000000000000
-          00005555556BFCFBFBFFFBFAFAFFE3E2E2FFA0A0A0FFB7B7B7FF959494FFB2B2
-          B2FFF3F3F3FFF2F2F2FFF1F1F1FF8D8D8DAA0000000100000000000000000000
-          00005554546BFAF9F9FFF9F8F8FFF0EFEFFFDDDDDDFFD7D7D7FFDEDDDDFFDCDB
-          DBFFF1F1F1FFF0F0F0FFEFEFEFFF8C8C8CAA0000000100000000000000000000
-          00005454546BF8F7F7FFF6F6F6FFCDC2BFFFB27262FFB34927FFB44623FFAE56
-          3FFFB49994FFEAE9E9FFEDEDEDFF8B8B8BAA0000000100000000000000000000
-          00005353536BF5F5F5FFEFE6E5FFD8BBB7FFDDBFB3FFE1C5BAFFDFC2B7FFD5AC
-          9BFFC89081FFE0CCCAFFEBEBEBFF8A8A8AAA0000000100000000000000000000
-          00005353536BF3F3F3FFD4AAA2FFDDC2B7FFD99073FFD26236FFD15727FFCB4F
-          1EFFBF400DFFB64728FFE9E8E8FF898989AA0000000100000000000000000000
-          00005252526BF1F1F1FFB33A14FFC64715FFD25A2BFFD46134FFD46133FFD566
-          3BFFDFA189FFD1A798FFDAC4C1FF888888AA0000000100000000000000000000
-          00005151516BEFEFEFFFAB330CFFCB5A2CFFD4693EFFD66E45FFE4A288FFFAF2
-          EFFFDEA188FFB13B0EFFD1B4AFFF878787AA0000000100000000000000000000
-          00005151516BEDEDEDFFBE7155FFC6643BFFD4815FFFEFD2C6FFFDFAF8FFDB9A
-          7FFFCA6E48FFD5A999FFDDD4D3FF858585AA0000000000000000000000000000
-          00005050506BECECECFFDBC7BFFFE2D0C9FFF9F6F5FFFBF7F5FFDDAD99FFCE85
-          66FFE6CBC0FFD4B9AEFFE0E0E0FF818181A60000000000000000000000000000
-          00004F4F4F6BEAEAEAFFE9E9E9FFD6BEB5FFD4AD9CFFDCB19FFFDFB8A7FFDFC4
-          B9FFBBA69EFFB5B1B0FFB4B4B3FF434342660000000000000000000000000000
-          00004F4F4F6BE8E8E8FFE7E7E7FFE6E6E6FFE1DBD9FFD9CDC8FFD9CDC8FFD6CD
-          C9FFC4C4C4FFD0CFCFFF706F6EA3010101040000000000000000000000000000
-          00004E4E4E6BE6E6E6FFE5E5E5FFE4E4E4FFE3E3E3FFE1E1E1FFE0E0E0FFD9D9
-          D9FFCCCBCBFF7675749D01010104000000000000000000000000000000000000
-          00004D4D4D6BE4E4E4FFE3E3E3FFE2E2E2FFE1E1E1FFE0E0E0FFDEDEDEFFD1D1
-          D0FF676665970000000300000000000000000000000000000000000000000000
-          0000262626327171718570707085707070856F6F6F856F6F6F856E6D6D844140
-          4056000000020000000000000000000000000000000000000000
-        }
       end
       object MenuItem6: TMenuItem
         Action = aProfilesStationAll
         Caption = 'All Profiles for Station'
-        Bitmap.Data = {
-          36040000424D3604000000000000360000002800000010000000100000000100
-          2000000000000004000064000000640000000000000000000000000000000000
-          0000000000FF00000000000000000000000000FF00FF00000000000000000000
-          FFFF000000000000000000000000FF0000FF0000000000000000000000000000
-          0000000000FF0000000000000000000000000000000000FF00FF000000000000
-          00000000FFFF00000000FF0000FF000000000000000000000000000000000000
-          0000000000FF000000000000000000000000000000000000000000FF00FF0000
-          FFFFFF0000FFFF0000FF00000000000000000000000000000000000000007F7F
-          7FFF000000FF00000000000000000000000000000000FF0000FF0000FFFFFF00
-          00FF000000000000000000000000000000000000000000000000000000000000
-          0000000000FF0000000000000000FF0000FFFF0000FF0000000000FF00FF0000
-          FFFF000000000000000000000000000000000000000000000000000000000000
-          0000000000FF00000000FF0000FF0000000000000000000000000000000000FF
-          00FF0000FFFF0000000000000000000000000000000000000000000000000000
-          0000000000FF0000000000000000FF0000FF00000000000000000000FFFF0000
-          FFFF00FF00FF0000000000000000000000000000000000000000000000007F7F
-          7FFF000000FF0000000000000000000000000000FFFF0000FFFF000000000000
-          00000000000000FF00FF00FF00FF000000000000000000000000000000000000
-          0000000000FF00000000000000000000FFFF0000000000000000FF0000FF0000
-          000000000000000000000000000000FF00FF0000000000000000000000000000
-          0000000000FF0000000000000000000000000000FFFF0000000000000000FF00
-          00FFFF0000FF00000000000000000000000000FF00FF00000000000000000000
-          0000000000FF000000000000000000000000000000000000FFFF000000000000
-          000000000000FF0000FF0000000000FF00FF0000000000000000000000007F7F
-          7FFF000000FF00000000000000000000FFFF0000FFFF0000000000000000FF00
-          00FFFF0000FF0000000000FF00FF000000000000000000000000000000000000
-          0000000000FF000000000000FFFF000000000000000000000000FF0000FF0000
-          0000000000000000000000FF00FF000000000000000000000000000000000000
-          0000000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
-          00FF000000FF000000FF000000FF000000FF000000FF00000000000000000000
-          00000000000000000000808080FF000000000000000000000000808080FF0000
-          00000000000000000000808080FF000000000000000000000000000000000000
-          0000000000000000000000000000000000000000000000000000000000000000
-          0000000000000000000000000000000000000000000000000000
-        }
       end
     end
     object iStatistics: TMenuItem
@@ -897,100 +1118,9 @@ object frmosmain: Tfrmosmain
       end
     end
   end
-  object DS: TDataSource
-    DataSet = frmdm.Q
-    left = 440
-  end
-  object PM1: TPopupMenu
-    Images = frmicons.IL1
-    left = 480
-    object MenuItem7: TMenuItem
-      Action = aMapSelectedStation
-      Caption = 'Show on map'
-      Bitmap.Data = {
-        36040000424D3604000000000000360000002800000010000000100000000100
-        2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
-        FF00FFFFFF00FFFFFF0036843A51338037B7317D34E42F7A32F52F7A32F52F7A
-        32E62F7A32BD2F7A325CFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-        FF004194470D3D8F43B63A8A3FFB9BC59DFFB3C29DFFBDC19CFFBEC39DFFB0D2
-        B1FF7EC09AFF2F7A32FC2F7A32BF2F7A3217FFFFFF00FFFFFF00FFFFFF0049A1
-        520D469B4DD170B786FFAEE8C7FFC0D2A0FFC5B381FFCAB47DFFCCAF78FFB9A7
-        78FF80CC95FFA0DABCFF66A87AFF2F7A32DA2F7A3218FFFFFF00FFFFFF004EA8
-        57B176C08DFF99D7B3FF79C080FFBCC27EFFC6A96AFFD7B169FFD6AD65FFBC9B
-        5EFF60AD6AFF599768FF81C199FF67A97BFF2F7A32BFFFFFFF0056B4614653AF
-        5DFBB5EAD3FF69BC74FF6EBD71FFBEB66DFFC9A35BFFDFAB5BFFDDA858FFC192
-        4EFF9DA958FF78B166FF5A9667FFA6DCC0FF2F7A32FE2F7A325A5ABA66B292D7
-        AFFFA0DEB4FF84C670FFA8D080FFC5A55CFFD0A757FFE0AA56FFDAA651FFC798
-        4AFFB98C47FFB69B57FF819F65FF79BF90FF81BE9CFF2F7A32BF5EBF6AE4B0E9
-        CFFF83D490FFBFDC8AFFC3CB82FFCCA256FFDAAF5CFFDCAF5BFFC99A4BFFBF86
-        43FFB78443FFB99A52FF96A562FF65A676FFA2D8BDFF2F7A32E860C36DF6BEEF
-        DDFF73D17DFF90D16CFFBCE09EFFC7A75EFFD3B05EFFC69953FFC6BC6EFFAFD1
-        7AFFB4C46DFFAFA95FFF7BA957FF5AA367FFB1E3CEFF317E35F761C46EF5BEF0
-        DCFF81D883FF77DB6DFFBFE59AFFCCDFA7FFCAA85DFFC2BD6CFFB8DA8BFFA6D8
-        60FF77D13FFF6AD046FF59BC50FF63AB6CFFB2E4CEFF358239F661C46EE2B3EC
-        D2FF9BE2A2FF9DEA8DFFD4EDB7FFD0EAC7FFCFB96EFFCCB166FFCBC975FF76DB
-        67FF66D94DFF65D74DFF6CD35DFF73BB7EFFA5DBC2FF39883EE661C46EAD98DE
-        B5FFB5EBCCFFB1EFA7FFC9EEA9FFD1EAC9FFD5CF8DFFD9CB8BFFCDB466FFBCBC
-        67FF9AD671FF82DE73FF7ADC71FF91D0A3FF88C8A4FF3D8F43B961C46E3C61C4
-        6EFAC0F3E2FFB5EFB4FFB5F0ACFFC1EDB7FFD4E3B7FFD9D89CFFDAD395FFCDB5
-        6DFFC7B36DFFB5CB84FF94DF9AFFAFE7CDFF469B4DFC4296494FFFFFFF0061C4
-        6EA587D7A0FFC0F2DEFFC7F2D6FFD5EFD5FFD0E9CFFFD5DBA6FFDCDEABFFDBCD
-        90FFD7C88BFFC9C18EFFBDD5AFFF7AC791FF4AA353B6FFFFFF00FFFFFF0061C4
-        6E0561C46EC48CD8A2FFCDF5E8FFD4EDDAFFCEEDD3FFCFDFAFFFD6DEB5FFD4D4
-        A2FFCED0A1FFC4D0AAFF87C991FF53AF5DD14FAA590FFFFFFF00FFFFFF00FFFF
-        FF0061C46E0461C46EA461C46EF8A5E1BBFFBAEACCFFC5E0BEFFC5DAB4FFBDD7
-        B0FFA6D7ACFF5DBE69FB5ABA66B657B6620CFFFFFF00FFFFFF00FFFFFF00FFFF
-        FF00FFFFFF00FFFFFF0061C46E3D61C46EAA61C46EDF61C46EF461C46EF861C4
-        6EE961C46EB260C26D48FFFFFF00FFFFFF00FFFFFF00FFFFFF00
-      }
-    end
-    object MenuItem8: TMenuItem
-      Caption = '-'
-    end
-    object iProfilesAll: TMenuItem
-      Action = aProfilesStationAll
-      Caption = 'All profiles'
-      Bitmap.Data = {
-        36040000424D3604000000000000360000002800000010000000100000000100
-        2000000000000004000064000000640000000000000000000000000000000000
-        0000000000FF00000000000000000000000000FF00FF00000000000000000000
-        FFFF000000000000000000000000FF0000FF0000000000000000000000000000
-        0000000000FF0000000000000000000000000000000000FF00FF000000000000
-        00000000FFFF00000000FF0000FF000000000000000000000000000000000000
-        0000000000FF000000000000000000000000000000000000000000FF00FF0000
-        FFFFFF0000FFFF0000FF00000000000000000000000000000000000000007F7F
-        7FFF000000FF00000000000000000000000000000000FF0000FF0000FFFFFF00
-        00FF000000000000000000000000000000000000000000000000000000000000
-        0000000000FF0000000000000000FF0000FFFF0000FF0000000000FF00FF0000
-        FFFF000000000000000000000000000000000000000000000000000000000000
-        0000000000FF00000000FF0000FF0000000000000000000000000000000000FF
-        00FF0000FFFF0000000000000000000000000000000000000000000000000000
-        0000000000FF0000000000000000FF0000FF00000000000000000000FFFF0000
-        FFFF00FF00FF0000000000000000000000000000000000000000000000007F7F
-        7FFF000000FF0000000000000000000000000000FFFF0000FFFF000000000000
-        00000000000000FF00FF00FF00FF000000000000000000000000000000000000
-        0000000000FF00000000000000000000FFFF0000000000000000FF0000FF0000
-        000000000000000000000000000000FF00FF0000000000000000000000000000
-        0000000000FF0000000000000000000000000000FFFF0000000000000000FF00
-        00FFFF0000FF00000000000000000000000000FF00FF00000000000000000000
-        0000000000FF000000000000000000000000000000000000FFFF000000000000
-        000000000000FF0000FF0000000000FF00FF0000000000000000000000007F7F
-        7FFF000000FF00000000000000000000FFFF0000FFFF0000000000000000FF00
-        00FFFF0000FF0000000000FF00FF000000000000000000000000000000000000
-        0000000000FF000000000000FFFF000000000000000000000000FF0000FF0000
-        0000000000000000000000FF00FF000000000000000000000000000000000000
-        0000000000FF000000FF000000FF000000FF000000FF000000FF000000FF0000
-        00FF000000FF000000FF000000FF000000FF000000FF00000000000000000000
-        00000000000000000000808080FF000000000000000000000000808080FF0000
-        00000000000000000000808080FF000000000000000000000000000000000000
-        0000000000000000000000000000000000000000000000000000000000000000
-        0000000000000000000000000000000000000000000000000000
-      }
-      Hint = 'Show all profiles'
-    end
-  end
   object AL1: TActionList
-    left = 520
+    Images = frmicons.IL1
+    left = 660
     object aMapAllStations: TAction
       Category = 'Tools'
       Enabled = False
@@ -1013,16 +1143,33 @@ object frmosmain: Tfrmosmain
     end
     object aProfilesStationAll: TAction
       Category = 'Tools'
-      Caption = 'aProfilesStationAll'
+      Caption = 'All profiles'
       Enabled = False
       ImageIndex = 1002
       OnExecute = aProfilesStationAllExecute
     end
     object aMapSelectedStation: TAction
       Category = 'Tools'
-      Hint = 'Show selected station'
+      Caption = 'Show selected station on map'
+      Hint = 'Show selected station on map'
       ImageIndex = 984
       OnExecute = aMapSelectedStationExecute
+    end
+    object aShowStations: TAction
+      Caption = 'Show Stations'
+      Enabled = False
+      Hint = 'Show stations'
+      ImageIndex = 33
+      OnExecute = aShowStationsExecute
+    end
+  end
+  object PM1: TPopupMenu
+    Images = frmicons.IL1
+    left = 720
+    object iSelectCruise: TMenuItem
+      Caption = 'Select'
+      ImageIndex = 14
+      OnClick = iSelectCruiseClick
     end
   end
 end
