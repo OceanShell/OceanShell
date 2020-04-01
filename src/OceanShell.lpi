@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="28">
+    <Units Count="29">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -213,8 +213,16 @@
         <Filename Value="osmain_advancedselection.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmadvancedselection"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit27>
+      <Unit28>
+        <Filename Value="exportdivand.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmexportdivand"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit28>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
