@@ -54,7 +54,7 @@ implementation
 
 {$R *.lfm}
 
-uses osmain, Procedures, dm, osstandartqueries;
+uses osmain, Procedures, dm;
 
 
 procedure TfrmLoadITP.Button1Click(Sender: TObject);

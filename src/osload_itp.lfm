@@ -5,8 +5,8 @@ object frmLoadITP: TfrmLoadITP
   Width = 1309
   BorderStyle = bsSingle
   Caption = 'Load ITP'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 684
+  ClientWidth = 1309
   Color = clBtnFace
   DesignTimePPI = 144
   Font.Color = clWindowText

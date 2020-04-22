@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 309
+  Left = 336
   Height = 699
-  Top = 105
+  Top = 172
   Width = 1306
   Caption = 'OceanShell'
   ClientHeight = 669
@@ -13,7 +13,7 @@ object frmosmain: Tfrmosmain
   Font.Color = clWindowText
   Font.Height = -17
   Font.Name = 'MS Sans Serif'
-  Menu = MM1
+  Menu = MM
   OnClose = FormClose
   OnResize = FormResize
   OnShow = FormShow
@@ -50,8 +50,8 @@ object frmosmain: Tfrmosmain
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 603
-    Top = 66
+    Height = 595
+    Top = 74
     Width = 1306
     ActivePage = tsMainSelect
     Align = alClient
@@ -64,7 +64,7 @@ object frmosmain: Tfrmosmain
     TabOrder = 2
     object tsMainSelect: TTabSheet
       Caption = 'Select data'
-      ClientHeight = 570
+      ClientHeight = 562
       ClientWidth = 1298
       Font.Color = clWindowText
       Font.Height = -17
@@ -608,7 +608,7 @@ object frmosmain: Tfrmosmain
         Font.Name = 'MS Sans Serif'
         Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
         ParentFont = False
-        PopupMenu = PM1
+        PopupMenu = PMCruise
         Scrollbars = ssAutoBoth
         TabOrder = 0
         TitleFont.Color = clWindowText
@@ -903,13 +903,13 @@ object frmosmain: Tfrmosmain
   end
   object Panel1: TPanel
     Left = 0
-    Height = 66
+    Height = 74
     Top = 0
     Width = 1306
     Align = alTop
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 62
+    ClientHeight = 70
     ClientWidth = 1302
     Font.Color = clWindowText
     Font.Height = -17
@@ -1002,7 +1002,7 @@ object frmosmain: Tfrmosmain
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     left = 540
   end
-  object MM1: TMainMenu
+  object MM: TMainMenu
     Images = frmicons.IL1
     left = 600
     object iFile: TMenuItem
@@ -1016,14 +1016,6 @@ object frmosmain: Tfrmosmain
         Action = aOpenDatabase
       end
       object N3: TMenuItem
-        Caption = '-'
-      end
-      object iKnowledgeDBOpen: TMenuItem
-        Caption = 'Knowledge DB'
-        ImageIndex = 323
-        OnClick = iKnowledgeDBOpenClick
-      end
-      object MenuItem4: TMenuItem
         Caption = '-'
       end
       object iSettings: TMenuItem
@@ -1055,16 +1047,9 @@ object frmosmain: Tfrmosmain
           Caption = '2019.v2'
         end
       end
-      object MenuItem2: TMenuItem
-        Caption = 'WOD'
-        object iLoad_WOD18: TMenuItem
-          Caption = 'WOD18'
-          OnClick = iLoad_WOD18Click
-        end
-        object iLoad_WOD: TMenuItem
-          Caption = 'WOD'
-          OnClick = iLoad_WODClick
-        end
+      object iLoad_WOD18: TMenuItem
+        Caption = 'WOD18'
+        OnClick = iLoad_WOD18Click
       end
       object MenuItem9: TMenuItem
         Caption = 'PANGAEA'
@@ -1076,13 +1061,31 @@ object frmosmain: Tfrmosmain
     end
     object iService: TMenuItem
       Caption = 'Service'
+      object iSupportTables: TMenuItem
+        Caption = 'Support Tables'
+        ImageIndex = 323
+        OnClick = iSupportTablesClick
+      end
+      object MenuItem12: TMenuItem
+        Caption = '-'
+      end
       object btnUpdateLastLEvel: TMenuItem
         Caption = 'Update Last Level'
         OnClick = btnUpdateLastLEvelClick
       end
-      object btnUpdateCruiseStatistics: TMenuItem
-        Caption = 'Update Cruise Statistics'
-        OnClick = btnUpdateCruiseStatisticsClick
+      object btnUpdateCruiseStartFinishDates: TMenuItem
+        Caption = 'Update Cruise Start and Finish Dates'
+        OnClick = btnUpdateCruiseStartFinishDatesClick
+      end
+      object iUpdateCruiseStations: TMenuItem
+        Caption = 'Update Cruise Stations'
+        OnClick = iUpdateCruiseStationsClick
+      end
+    end
+    object iImport: TMenuItem
+      Caption = 'Import'
+      object iInitialDatabase: TMenuItem
+        Caption = 'Initial Database (*.fdb)'
       end
     end
     object MenuItem7: TMenuItem
@@ -1139,7 +1142,7 @@ object frmosmain: Tfrmosmain
       end
     end
   end
-  object AL1: TActionList
+  object AL: TActionList
     Images = frmicons.IL1
     left = 660
     object aOpenDatabase: TAction
@@ -1191,11 +1194,11 @@ object frmosmain: Tfrmosmain
       OnExecute = aProfilesSelectedAllPlotExecute
     end
   end
-  object PM1: TPopupMenu
+  object PMCruise: TPopupMenu
     Images = frmicons.IL1
     left = 720
     object iSelectCruise: TMenuItem
-      Caption = 'Select'
+      Caption = 'Select Cruise'
       ImageIndex = 14
       OnClick = iSelectCruiseClick
     end

@@ -9,8 +9,7 @@ uses
     {$ENDIF}
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, osmain, dm, icons, osmap_settings, osload_PangaeaTab,
-  osmain_advancedselection, osservice, osparameters_list, osparameters_allprofiles;
+  Forms, osmain, dm, icons;
 
 {$R *.res}
 

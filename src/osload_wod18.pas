@@ -54,7 +54,7 @@ var
 
 implementation
 
-uses osmain, procedures, GibbsSeaWater, osstandartqueries, dm;
+uses osmain, procedures, GibbsSeaWater, dm;
 
 {$R *.lfm}
 

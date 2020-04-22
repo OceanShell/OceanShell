@@ -30,7 +30,7 @@ type
     aMapKML: TAction;
     aOpenDatabase: TAction;
     aMapAllStations: TAction;
-    AL1: TActionList;
+    AL: TActionList;
     btnFastAccessOpenMap: TToolButton;
     btnSelection: TButton;
     btnAdvancedSelection: TButton;
@@ -72,11 +72,14 @@ type
     lbResetAux: TLabel;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
-    btnUpdateCruiseStatistics: TMenuItem;
-    MenuItem2: TMenuItem;
+    btnUpdateCruiseStartFinishDates: TMenuItem;
     iLoad_WOD18: TMenuItem;
-    iLoad_WOD: TMenuItem;
     iMap: TMenuItem;
+    MenuItem12: TMenuItem;
+    iSupportTables: TMenuItem;
+    iUpdateCruiseStations: TMenuItem;
+    iImport: TMenuItem;
+    iInitialDatabase: TMenuItem;
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
     iSelectCruise: TMenuItem;
@@ -89,7 +92,7 @@ type
     Panel1: TPanel;
     pfillercruise: TPanel;
     Panel22: TPanel;
-    PM1: TPopupMenu;
+    PMCruise: TPopupMenu;
     sbDatabase: TStatusBar;
     sbSelection: TStatusBar;
     seIDMax: TSpinEdit;
@@ -105,17 +108,15 @@ type
     iLoad_ITP: TMenuItem;
     MenuItem1: TMenuItem;
     iLoad_GLODAP_2019_v2_product: TMenuItem;
-    iKnowledgeDBOpen: TMenuItem;
     iStatistics: TMenuItem;
     iDBStatistics: TMenuItem;
     MenuItem3: TMenuItem;
     iLoad_GLODAP_2019_v2: TMenuItem;
-    MenuItem4: TMenuItem;
     OD: TOpenDialog;
     PageControl1: TPageControl;
     SD: TSaveDialog;
     Memo1: TMemo;
-    MM1: TMainMenu;
+    MM: TMainMenu;
     iFile: TMenuItem;
     iNewDatabase: TMenuItem;
     iOpenDatabase: TMenuItem;
@@ -156,21 +157,21 @@ type
     procedure iAboutClick(Sender: TObject);
     procedure iDBStatisticsClick(Sender: TObject);
     procedure iDIVAndClick(Sender: TObject);
-    procedure iKnowledgeDBOpenClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
     procedure iLoad_ITPClick(Sender: TObject);
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
-    procedure iLoad_WODClick(Sender: TObject);
     procedure iSelectCruiseClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
+    procedure iSupportTablesClick(Sender: TObject);
+    procedure iUpdateCruiseStationsClick(Sender: TObject);
     procedure lbResetAreaClick(Sender: TObject);
     procedure lbResetAuxClick(Sender: TObject);
     procedure lbResetDatesClick(Sender: TObject);
-    procedure btnUpdateCruiseStatisticsClick(Sender: TObject);
+    procedure btnUpdateCruiseStartFinishDatesClick(Sender: TObject);
 
 
   private
@@ -185,7 +186,6 @@ type
 
   public
     procedure OpenDatabase;
-    procedure ItemsVisibility;
     procedure DatabaseInfo;
     procedure SelectionInfo;
     procedure CDSNavigation;
@@ -227,8 +227,8 @@ var
   SLonP_arr:array[0..20000] of real;
   Length_arr:integer;
 
-  frmcodes_open, frmcodesQC_open, frmparameters_station_open, frmmap_open:boolean;
-  frmstations_open, frmparameters_allprofiles_open, frmparameters_list_open: boolean;
+  frmparameters_station_open, frmmap_open, frmstations_open :boolean;
+  frmparameters_allprofiles_open, frmparameters_list_open: boolean;
 
 
 const
@@ -249,7 +249,7 @@ uses
   dm,
   oscreatenewdb,
   settings,
-  codes,
+  ossupporttables,
   osabout,
   sortbufds,
   osstations,
@@ -258,7 +258,6 @@ uses
   osload_itp,
   osload_GLODAP_2019_v2_product,
   osload_WOD18,
-  loadwod,
   osload_PangaeaTab,
 
 (* database service procedures *)
@@ -285,14 +284,14 @@ uses
 
 procedure Tfrmosmain.FormShow(Sender: TObject);
 Var
-  Ini:TINIFile;
+  Ini:TIniFile;
+  k:integer;
 begin
  IBName:='';
 
 (* flags on open forms *)
- frmcodes_open:=false; frmcodesQC_open:=false; frmparameters_station_open:=false;
- frmmap_open:=false; frmstations_open:=false; frmparameters_allprofiles_open:=false;
- frmparameters_list_open:=false;
+ frmparameters_station_open:=false; frmmap_open:=false; frmstations_open:=false;
+ frmparameters_allprofiles_open:=false; frmparameters_list_open:=false;
 
  (* Define Global Path *)
   GlobalPath:=ExtractFilePath(Application.ExeName);
@@ -369,6 +368,9 @@ begin
    cbInstitute.OnDropDown := @cbOnDropDown;
 
 
+   for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
+
+
  OnResize(Self);
  SetFocus;
  Application.ProcessMessages;
@@ -378,7 +380,7 @@ end;
 procedure Tfrmosmain.FormResize(Sender: TObject);
 begin
   tbFastAccess.Top:=PageControl1.Top;
-  tbFastAccess.Left:=PageControl1.Width-tbFastAccess.Width;
+  tbFastAccess.Left:=Width-10-tbFastAccess.Width;
 
   panel1.Height:=sbDatabase.Height+sbSelection.Height;
 end;
@@ -653,18 +655,6 @@ begin
 end;
 
 
-(* Open SupportTables.FDB *)
-procedure Tfrmosmain.iKnowledgeDBOpenClick(Sender: TObject);
-begin
- if frmcodes_open=true then frmcodes.SetFocus else
-    begin
-      frmcodes := Tfrmcodes.Create(Self);
-      frmcodes.Show;
-    end;
- frmcodes_open:=true;
-end;
-
-
 (**)
 procedure Tfrmosmain.aOpenDatabaseExecute(Sender: TObject);
 begin
@@ -722,6 +712,8 @@ end;
 
 (* Open local database *)
 procedure Tfrmosmain.OpenDatabase;
+Var
+  k:integer;
 begin
    try
     frmdm.IBDB.Close(false);
@@ -732,15 +724,17 @@ begin
        if MessageDlg(E.Message, mtWarning, [mbOk], 0)=mrOk then exit;
    end;
   DatabaseInfo;
-  ItemsVisibility;
+
+  for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=true;
+  PageControl1.Enabled:=true;
 end;
 
 
 (* gathering info about the database *)
 procedure Tfrmosmain.DatabaseInfo;
 var
-TRt_DB1, TRt_DB2:TSQLTransaction;
-Qt_DB1, Qt_DB2:TSQLQuery;
+TRt_DB1:TSQLTransaction;
+Qt_DB1:TSQLQuery;
 TempList:TListBox;
 
 k:integer;
@@ -753,16 +747,7 @@ TRt_DB1.DataBase:=frmdm.IBDB;
 Qt_DB1 :=TSQLQuery.Create(self);
 Qt_DB1.Database:=frmdm.IBDB;
 Qt_DB1.Transaction:=TRt_DB1;
-
-(* temporary transaction for support database *)
-TRt_DB2:=TSQLTransaction.Create(self);
-TRt_DB2.DataBase:=frmdm.SupportDB;
-
-(* temporary query for support database *)
-Qt_DB2 :=TSQLQuery.Create(self);
-Qt_DB2.Database:=frmdm.SupportDB;
-Qt_DB2.Transaction:=TRt_DB2;
-
+ try
    with Qt_DB1 do begin
     Close;
         SQL.Clear;
@@ -858,15 +843,11 @@ Qt_DB2.Transaction:=TRt_DB2;
    Last;
    First;
    end;
-
+ Finally
   TRt_DB1.Commit;
-  TRt_DB2.Commit;
-
   Qt_DB1.Free;
-  Qt_DB2.Free;
-
   TRt_DB1.free;
-  TRt_DB2.free;
+ end;
 end;
 
 
@@ -932,12 +913,6 @@ begin
 end;
 
 
-procedure Tfrmosmain.ItemsVisibility;
-begin
- PageControl1.Enabled:=true;
-end;
-
-
 procedure Tfrmosmain.iNewDatabaseClick(Sender: TObject);
 begin
  SD.Filter:='Firebird database|*.FDB';
@@ -949,6 +924,17 @@ begin
     IBName:=frmdm.IBDB.DatabaseName;
   OpenDatabase;
  end;
+end;
+
+procedure Tfrmosmain.iSupportTablesClick(Sender: TObject);
+begin
+  frmsupporttables := Tfrmsupporttables.Create(Self);
+    try
+     if not frmsupporttables.ShowModal = mrOk then exit;
+    finally
+      frmsupporttables.Free;
+      frmsupporttables := nil;
+    end;
 end;
 
 
@@ -1017,17 +1003,6 @@ finally
   frmloadWOD18.Free;
   frmloadWOD18 := nil;
 end;
-end;
-
-procedure Tfrmosmain.iLoad_WODClick(Sender: TObject);
-begin
-  frmLoadASC_WOD := TfrmLoadASC_WOD.Create(Self);
- try
-  if not frmLoadASC_WOD.ShowModal = mrOk then exit;
- finally
-   frmLoadASC_WOD.Free;
-   frmLoadASC_WOD := nil;
- end;
 end;
 
 
@@ -1272,15 +1247,20 @@ begin
 end;
 
 (* Call for procedure to update dates and amount of stations for every cruise *)
-procedure Tfrmosmain.btnUpdateCruiseStatisticsClick(Sender: TObject);
+procedure Tfrmosmain.btnUpdateCruiseStartFinishDatesClick(Sender: TObject);
 begin
- osservice.UpdateCruiseStatistics;
+ osservice.UpdateCruiseStartFinishDates;
 end;
 
 (* Call for procedure to update last level *)
 procedure Tfrmosmain.btnUpdateLastLEvelClick(Sender: TObject);
 begin
  osservice.UpdateLastLevel;
+end;
+
+procedure Tfrmosmain.iUpdateCruiseStationsClick(Sender: TObject);
+begin
+ osservice.UpdateCruiseStations;
 end;
 
 

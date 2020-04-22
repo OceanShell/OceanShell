@@ -212,8 +212,6 @@ begin
 
   GlobalSupportPath:=eSupportPath.Text;
   GlobalUnloadPath:=eUnloadPath.Text;
-
- frmosmain.ItemsVisibility;
  Close;
 end;
 

@@ -1,0 +1,1433 @@
+object frmsupporttables: Tfrmsupporttables
+  Left = 357
+  Height = 825
+  Top = 93
+  Width = 1500
+  Caption = 'Support tables'
+  ClientHeight = 825
+  ClientWidth = 1500
+  Color = clBtnFace
+  Constraints.MinHeight = 825
+  Constraints.MinWidth = 1500
+  DesignTimePPI = 144
+  Font.Color = clWindowText
+  Font.Height = -17
+  Font.Name = 'MS Sans Serif'
+  OnClose = FormClose
+  OnResize = FormResize
+  OnShow = FormShow
+  Position = poOwnerFormCenter
+  LCLVersion = '2.0.6.0'
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 792
+    Top = 33
+    Width = 1500
+    ActivePage = tbPlatform
+    Align = alClient
+    Font.Color = clWindowText
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    ParentFont = False
+    TabIndex = 0
+    TabOrder = 0
+    OnChange = PageControl1Change
+    object tbPlatform: TTabSheet
+      Caption = 'PLATFORM'
+      ClientHeight = 759
+      ClientWidth = 1492
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ParentFont = False
+      object Panel2: TPanel
+        Left = 0
+        Height = 759
+        Top = 0
+        Width = 982
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 759
+        ClientWidth = 982
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 0
+        object DBGridPlatform: TDBGrid
+          Left = 0
+          Height = 727
+          Top = 32
+          Width = 982
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'ID'
+              FieldName = 'ID'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'NODC'
+              Width = 93
+              FieldName = 'NODC_CODE'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'WOD'
+              Width = 93
+              FieldName = 'WOD_ID'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'IMO'
+              Width = 93
+              FieldName = 'IMO_ID'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Callsign'
+              Width = 93
+              FieldName = 'CALLSIGN'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Platform name'
+              Width = 225
+              FieldName = 'NAME'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Native platform name'
+              Width = 225
+              FieldName = 'NAME_NATIVE'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          Scrollbars = ssVertical
+          TabOrder = 0
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyPress = DBGridPlatformKeyPress
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridPlatformTitleClick
+        end
+        object Panel3: TPanel
+          Left = 0
+          Height = 32
+          Top = 0
+          Width = 982
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 32
+          ClientWidth = 982
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 1
+          object ePlatform_Name: TEdit
+            Left = 469
+            Height = 32
+            Top = 0
+            Width = 225
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object ePlatform_NODC: TEdit
+            Left = 96
+            Height = 32
+            Top = 0
+            Width = 94
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 1
+          end
+          object ePlatform_WOD: TEdit
+            Left = 190
+            Height = 32
+            Top = 0
+            Width = 93
+            Align = alLeft
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 2
+          end
+          object ePlatform_IMO: TEdit
+            Left = 283
+            Height = 32
+            Top = 0
+            Width = 93
+            Align = alLeft
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnChange = ePlatfo
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 3
+          end
+          object ePlatform_Callsign: TEdit
+            Left = 376
+            Height = 32
+            Top = 0
+            Width = 93
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnChange = ePlatform_
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 4
+          end
+          object ePlatform_NameNative: TEdit
+            Left = 694
+            Height = 32
+            Top = 0
+            Width = 225
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnChange = ePlatform_NameNativeChange
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 5
+          end
+          object ePlatform_ID: TEdit
+            Left = 0
+            Height = 32
+            Top = 0
+            Width = 96
+            Align = alLeft
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 6
+          end
+        end
+      end
+      object Panel1: TPanel
+        Left = 982
+        Height = 759
+        Top = 0
+        Width = 510
+        Align = alRight
+        BevelOuter = bvNone
+        ClientHeight = 759
+        ClientWidth = 510
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 1
+        object Splitter1: TSplitter
+          Cursor = crVSplit
+          Left = 0
+          Height = 4
+          Top = 274
+          Width = 510
+          Align = alTop
+          Beveled = True
+          ResizeAnchor = akTop
+        end
+        object Splitter3: TSplitter
+          Cursor = crVSplit
+          Left = 0
+          Height = 4
+          Top = 358
+          Width = 510
+          Align = alTop
+          Beveled = True
+          ResizeAnchor = akTop
+        end
+        object mNotesICES: TMemo
+          Left = 0
+          Height = 236
+          Top = 38
+          Width = 510
+          Align = alTop
+          Color = clBtnFace
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          ReadOnly = True
+          ScrollBars = ssVertical
+          TabOrder = 0
+        end
+        object mNotesPlatform: TMemo
+          Left = 0
+          Height = 397
+          Top = 362
+          Width = 510
+          Align = alClient
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          OnKeyUp = mNotesPlatformKeyUp
+          ParentFont = False
+          ScrollBars = ssVertical
+          TabOrder = 1
+        end
+        object mNotesWOD: TMemo
+          Left = 0
+          Height = 80
+          Top = 278
+          Width = 510
+          Align = alTop
+          Color = clBtnFace
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          ReadOnly = True
+          ScrollBars = ssVertical
+          TabOrder = 2
+        end
+        object Panel8: TPanel
+          Left = 0
+          Height = 38
+          Top = 0
+          Width = 510
+          Align = alTop
+          BevelOuter = bvNone
+          BorderStyle = bsSingle
+          ClientHeight = 34
+          ClientWidth = 506
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 5
+          object imgFlagPlatform: TImage
+            Left = 0
+            Height = 34
+            Top = 0
+            Width = 35
+            AntialiasingMode = amOn
+            Align = alLeft
+            AutoSize = True
+            Center = True
+          end
+          object lbCountryPlatform: TLabel
+            Left = 60
+            Height = 20
+            Top = 6
+            Width = 144
+            Caption = 'lbCountryPlatform'
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            ParentColor = False
+            ParentFont = False
+          end
+        end
+      end
+    end
+    object tbSource: TTabSheet
+      Caption = 'SOURCE'
+      ClientHeight = 759
+      ClientWidth = 1492
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ParentFont = False
+      object Panel20: TPanel
+        Left = 0
+        Height = 759
+        Top = 0
+        Width = 982
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 759
+        ClientWidth = 982
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 0
+        object Panel21: TPanel
+          Left = 0
+          Height = 32
+          Top = 0
+          Width = 982
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 32
+          ClientWidth = 982
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
+          object eSource_NAME: TEdit
+            Left = 94
+            Height = 32
+            Top = 0
+            Width = 308
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object eSource_ID: TEdit
+            Left = 0
+            Height = 32
+            Top = 0
+            Width = 94
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 1
+          end
+        end
+        object DBGridSource: TDBGrid
+          Left = 0
+          Height = 727
+          Top = 32
+          Width = 982
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'ID'
+              Width = 94
+              FieldName = 'ID'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Source name'
+              Width = 300
+              FieldName = 'NAME'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Min ID'
+              FieldName = 'ID_MIN'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Max ID'
+              FieldName = 'ID_MAX'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
+      object mNotesSource: TMemo
+        Left = 982
+        Height = 759
+        Top = 0
+        Width = 510
+        Align = alRight
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnKeyUp = mNotesPlatformKeyUp
+        ParentFont = False
+        ScrollBars = ssVertical
+        TabOrder = 1
+      end
+    end
+    object tbUnits: TTabSheet
+      Caption = 'UNITS'
+      ClientHeight = 759
+      ClientWidth = 1492
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ParentFont = False
+      object Panel18: TPanel
+        Left = 0
+        Height = 759
+        Top = 0
+        Width = 982
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 759
+        ClientWidth = 982
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 0
+        object Panel19: TPanel
+          Left = 0
+          Height = 32
+          Top = 0
+          Width = 982
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 32
+          ClientWidth = 982
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
+          object eUnits_Name: TEdit
+            Left = 96
+            Height = 32
+            Top = 0
+            Width = 302
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object eUnits_ID: TEdit
+            Left = 0
+            Height = 32
+            Top = 0
+            Width = 96
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 1
+          end
+        end
+        object DBGridUnits: TDBGrid
+          Left = 0
+          Height = 727
+          Top = 32
+          Width = 982
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'ID'
+              Width = 94
+              FieldName = 'ID'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Full name'
+              Width = 300
+              FieldName = 'NAME'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Short name'
+              Width = 120
+              FieldName = 'NAME_SHORT'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Length'
+              FieldName = 'LENGTH'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Scale'
+              FieldName = 'SCALE'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
+      object mNotesUnits: TMemo
+        Left = 982
+        Height = 759
+        Top = 0
+        Width = 510
+        Align = alRight
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnKeyUp = mNotesPlatformKeyUp
+        ParentFont = False
+        ScrollBars = ssVertical
+        TabOrder = 1
+      end
+    end
+    object tbInstrument: TTabSheet
+      Caption = 'INSTRUMENT'
+      ClientHeight = 759
+      ClientWidth = 1492
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ParentFont = False
+      object Panel16: TPanel
+        Left = 0
+        Height = 759
+        Top = 0
+        Width = 982
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 759
+        ClientWidth = 982
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 0
+        object Panel17: TPanel
+          Left = 0
+          Height = 32
+          Top = 0
+          Width = 982
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 32
+          ClientWidth = 982
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
+          object eInstrument_Name: TEdit
+            Left = 188
+            Height = 32
+            Top = 0
+            Width = 794
+            Align = alClient
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object eInstrument_WOD: TEdit
+            Left = 94
+            Height = 32
+            Top = 0
+            Width = 94
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 1
+          end
+          object eInstrument_ID: TEdit
+            Left = 0
+            Height = 32
+            Top = 0
+            Width = 94
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 2
+          end
+        end
+        object DBGridInstrument: TDBGrid
+          Left = 0
+          Height = 727
+          Top = 32
+          Width = 982
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'ID'
+              Width = 94
+              FieldName = 'ID'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'WOD'
+              Width = 94
+              FieldName = 'WOD_ID'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Instrument name'
+              Width = 1140
+              FieldName = 'NAME'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
+      object mNotesInstrument: TMemo
+        Left = 982
+        Height = 759
+        Top = 0
+        Width = 510
+        Align = alRight
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnKeyUp = mNotesPlatformKeyUp
+        ParentFont = False
+        ScrollBars = ssVertical
+        TabOrder = 1
+      end
+    end
+    object tbProject: TTabSheet
+      Caption = 'PROJECT'
+      ClientHeight = 759
+      ClientWidth = 1492
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ParentFont = False
+      object Panel7: TPanel
+        Left = 0
+        Height = 759
+        Top = 0
+        Width = 982
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 759
+        ClientWidth = 982
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 0
+        object Panel9: TPanel
+          Left = 0
+          Height = 32
+          Top = 0
+          Width = 982
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 32
+          ClientWidth = 982
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
+          object eProject_Name: TEdit
+            Left = 188
+            Height = 32
+            Top = 0
+            Width = 794
+            Align = alClient
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object eProject_WOD: TEdit
+            Left = 94
+            Height = 32
+            Top = 0
+            Width = 94
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 1
+          end
+          object eProject_ID: TEdit
+            Left = 0
+            Height = 32
+            Top = 0
+            Width = 94
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 2
+          end
+        end
+        object DBGridProject: TDBGrid
+          Left = 0
+          Height = 727
+          Top = 32
+          Width = 982
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'ID'
+              Width = 94
+              FieldName = 'ID'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'WOD'
+              Width = 94
+              FieldName = 'WOD_ID'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Project name'
+              Width = 1140
+              FieldName = 'NAME'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
+      object mNotesProject: TMemo
+        Left = 982
+        Height = 759
+        Top = 0
+        Width = 510
+        Align = alRight
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnKeyUp = mNotesPlatformKeyUp
+        ParentFont = False
+        ScrollBars = ssVertical
+        TabOrder = 1
+      end
+    end
+    object tbInstitute: TTabSheet
+      Caption = 'INSTITUTE'
+      ClientHeight = 759
+      ClientWidth = 1492
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ParentFont = False
+      object Panel10: TPanel
+        Left = 0
+        Height = 759
+        Top = 0
+        Width = 982
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 759
+        ClientWidth = 982
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 0
+        object Panel11: TPanel
+          Left = 0
+          Height = 32
+          Top = 0
+          Width = 982
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 32
+          ClientWidth = 982
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
+          object eInstitute_Name: TEdit
+            Left = 282
+            Height = 32
+            Top = 0
+            Width = 700
+            Align = alClient
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object eInstitute_NODC: TEdit
+            Left = 94
+            Height = 32
+            Top = 0
+            Width = 94
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 1
+          end
+          object eInstitute_ID: TEdit
+            Left = 0
+            Height = 32
+            Top = 0
+            Width = 94
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 2
+          end
+          object eInstitute_WOD: TEdit
+            Left = 188
+            Height = 32
+            Top = 0
+            Width = 94
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 3
+          end
+        end
+        object DBGridInstitute: TDBGrid
+          Left = 0
+          Height = 727
+          Top = 32
+          Width = 982
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'ID'
+              Width = 94
+              FieldName = 'ID'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'NODC'
+              Width = 94
+              FieldName = 'NODC_CODE'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'WOD'
+              Width = 94
+              FieldName = 'WOD_ID'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Institute name'
+              Width = 1140
+              FieldName = 'NAME'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
+      object Panel14: TPanel
+        Left = 982
+        Height = 759
+        Top = 0
+        Width = 510
+        Align = alRight
+        BevelOuter = bvNone
+        ClientHeight = 759
+        ClientWidth = 510
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 1
+        object mNotesInstitute: TMemo
+          Left = 0
+          Height = 721
+          Top = 38
+          Width = 510
+          Align = alClient
+          Color = clWhite
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          OnKeyUp = mNotesPlatformKeyUp
+          ParentFont = False
+          ScrollBars = ssVertical
+          TabOrder = 0
+        end
+        object Panel15: TPanel
+          Left = 0
+          Height = 38
+          Top = 0
+          Width = 510
+          Align = alTop
+          BevelOuter = bvNone
+          BorderStyle = bsSingle
+          ClientHeight = 34
+          ClientWidth = 506
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 1
+          object ImgFlagInstitute: TImage
+            Left = 0
+            Height = 34
+            Top = 0
+            Width = 35
+            AntialiasingMode = amOn
+            Align = alLeft
+            AutoSize = True
+            Center = True
+          end
+          object lbCountryInstitute: TLabel
+            Left = 60
+            Height = 20
+            Top = 6
+            Width = 144
+            Caption = 'lbCountryInstitute'
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            ParentColor = False
+            ParentFont = False
+          end
+        end
+      end
+    end
+    object tbCountry: TTabSheet
+      Caption = 'COUNTRY'
+      ClientHeight = 759
+      ClientWidth = 1492
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ImageIndex = 1
+      ParentFont = False
+      object Panel5: TPanel
+        Left = 0
+        Height = 759
+        Top = 0
+        Width = 982
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 759
+        ClientWidth = 982
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 0
+        object Panel6: TPanel
+          Left = 0
+          Height = 32
+          Top = 0
+          Width = 982
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 32
+          ClientWidth = 982
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
+          object eCountry_Name: TEdit
+            Left = 188
+            Height = 32
+            Top = 0
+            Width = 794
+            Align = alClient
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object eCountry_ISO: TEdit
+            Left = 94
+            Height = 32
+            Top = 0
+            Width = 94
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnChange = eCountry_ISOChange
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 1
+          end
+          object eCountry_ID: TEdit
+            Left = 0
+            Height = 32
+            Top = 0
+            Width = 94
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 2
+          end
+        end
+        object DBGridCountry: TDBGrid
+          Left = 0
+          Height = 727
+          Top = 32
+          Width = 982
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'ID'
+              Width = 94
+              FieldName = 'ID'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'ISO3166'
+              Width = 94
+              FieldName = 'ISO3166_CODE'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Country name'
+              Width = 1065
+              FieldName = 'NAME'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnKeyUp = DBGridPlatformKeyUp
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
+      object mNotesCountry: TMemo
+        Left = 982
+        Height = 759
+        Top = 0
+        Width = 510
+        Align = alRight
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnKeyUp = mNotesPlatformKeyUp
+        ParentFont = False
+        ScrollBars = ssVertical
+        TabOrder = 1
+      end
+    end
+  end
+  object ToolBar1: TToolBar
+    Left = 0
+    Height = 33
+    Top = 0
+    Width = 1500
+    AutoSize = True
+    Caption = 'ToolBar1'
+    EdgeBorders = []
+    EdgeInner = esNone
+    EdgeOuter = esNone
+    Font.Color = clWindowText
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Images = frmicons.IL1
+    List = True
+    ParentFont = False
+    ParentShowHint = False
+    ShowCaptions = True
+    ShowHint = True
+    TabOrder = 1
+    object btnadd: TToolButton
+      Left = 1
+      Hint = 'Add row'
+      Top = 0
+      Caption = 'btnadd'
+      ImageIndex = 1
+      OnClick = btnaddClick
+      ShowCaption = False
+    end
+    object btndelete: TToolButton
+      Left = 36
+      Hint = 'Remove row'
+      Top = 0
+      Caption = 'btndelete'
+      ImageIndex = 334
+      OnClick = btndeleteClick
+      ShowCaption = False
+    end
+    object btnsave: TToolButton
+      Left = 114
+      Hint = 'Commit changes'
+      Top = 0
+      Caption = 'Save'
+      Enabled = False
+      ImageIndex = 940
+      OnClick = btnsaveClick
+    end
+    object btncancel: TToolButton
+      Left = 71
+      Hint = 'Cancel changes'
+      Top = 0
+      ImageIndex = 53
+      OnClick = btncancelClick
+    end
+    object ToolButton1: TToolButton
+      Left = 106
+      Height = 33
+      Top = 0
+      Caption = 'ToolButton1'
+      Style = tbsDivider
+    end
+    object btnUpdateQC: TBitBtn
+      Left = 431
+      Height = 33
+      Top = 0
+      Width = 105
+      Caption = 'Update'
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ImageIndex = 321
+      OnClick = btnUpdateQCClick
+      ParentFont = False
+      TabOrder = 0
+    end
+    object Panel28: TPanel
+      Left = 176
+      Height = 33
+      Top = 0
+      Width = 255
+      BevelOuter = bvNone
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ParentFont = False
+      TabOrder = 1
+    end
+  end
+  object Q: TSQLQuery
+    PacketRecords = 1
+    MaxIndexesCount = 100
+    FieldDefs = <>
+    AfterEdit = QAfterEdit
+    AfterScroll = QAfterScroll
+    Database = frmdm.IBDB
+    Transaction = frmdm.TR
+    SQL.Strings = (
+      ''
+    )
+    UpdateSQL.Strings = (
+      ''
+    )
+    Params = <>
+    left = 72
+    top = 456
+  end
+  object DS: TDataSource
+    DataSet = Q
+    left = 132
+    top = 456
+  end
+end

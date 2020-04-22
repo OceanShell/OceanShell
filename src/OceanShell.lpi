@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="34">
+    <Units Count="33">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -72,183 +72,179 @@
         <IsPartOfProject Value="True"/>
       </Unit3>
       <Unit4>
-        <Filename Value="osstandartqueries.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit4>
-      <Unit5>
         <Filename Value="osload_itp.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmLoadITP"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit5>
-      <Unit6>
+      </Unit4>
+      <Unit5>
         <Filename Value="settings.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmsettings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit6>
-      <Unit7>
+      </Unit5>
+      <Unit6>
         <Filename Value="gibbsseawater.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GibbsSeaWater"/>
-      </Unit7>
-      <Unit8>
+      </Unit6>
+      <Unit7>
         <Filename Value="declarations_netcdf.pas"/>
         <IsPartOfProject Value="True"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="ossupporttables.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmsupporttables"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit8>
       <Unit9>
-        <Filename Value="codes.pas"/>
+        <Filename Value="ossupporttables_update.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmcodes"/>
+        <ComponentName Value="frmsupporttables_update"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit9>
       <Unit10>
-        <Filename Value="codesupdateqc.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmcodesQC"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-      </Unit10>
-      <Unit11>
         <Filename Value="osabout.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit11>
-      <Unit12>
+      </Unit10>
+      <Unit11>
         <Filename Value="osload_glodap_2019_v2_product.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmloadGLODAP_2019_v2_product"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="osload_GLODAP_2019_v2_product"/>
-      </Unit12>
-      <Unit13>
+      </Unit11>
+      <Unit12>
         <Filename Value="oscreatenewdb.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit13>
-      <Unit14>
+      </Unit12>
+      <Unit13>
         <Filename Value="osstatistics.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmosstatistics"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit14>
-      <Unit15>
+      </Unit13>
+      <Unit14>
         <Filename Value="osmap_kml.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmmap"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit15>
-      <Unit16>
+      </Unit14>
+      <Unit15>
         <Filename Value="osparameters_station.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmparameters_station"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit16>
-      <Unit17>
+      </Unit15>
+      <Unit16>
         <Filename Value="osload_wod18.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmloadWOD18"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="osload_WOD18"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="osmap_datastreams.pas"/>
+        <IsPartOfProject Value="True"/>
       </Unit17>
       <Unit18>
-        <Filename Value="osmap_datastreams.pas"/>
+        <Filename Value="osmap_geometry.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit18>
       <Unit19>
-        <Filename Value="osmap_geometry.pas"/>
+        <Filename Value="osmap_globctrl.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit19>
       <Unit20>
-        <Filename Value="osmap_globctrl.pas"/>
+        <Filename Value="osmap_wkt.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit20>
       <Unit21>
-        <Filename Value="osmap_wkt.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit21>
-      <Unit22>
         <Filename Value="osmap.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmmap"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit22>
-      <Unit23>
+      </Unit21>
+      <Unit22>
         <Filename Value="icons.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmicons"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="DataModule"/>
-      </Unit23>
-      <Unit24>
+      </Unit22>
+      <Unit23>
         <Filename Value="osmap_settings.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmosmap_settings"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit24>
-      <Unit25>
+      </Unit23>
+      <Unit24>
         <Filename Value="osload_pangaeatab.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmloadPangaeaTab"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="osload_PangaeaTab"/>
-      </Unit25>
-      <Unit26>
+      </Unit24>
+      <Unit25>
         <Filename Value="osstations.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmosstation"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit26>
-      <Unit27>
+      </Unit25>
+      <Unit26>
         <Filename Value="osmain_advancedselection.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmadvancedselection"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit27>
-      <Unit28>
+      </Unit26>
+      <Unit27>
         <Filename Value="osexport_divand.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmosexport_divand"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="bathymetry.pas"/>
+        <IsPartOfProject Value="True"/>
       </Unit28>
       <Unit29>
-        <Filename Value="bathymetry.pas"/>
+        <Filename Value="arbytraryregion.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit29>
       <Unit30>
-        <Filename Value="arbytraryregion.pas"/>
+        <Filename Value="osservice.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit30>
       <Unit31>
-        <Filename Value="osservice.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit31>
-      <Unit32>
         <Filename Value="osparameters_list.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmparameters_list"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit32>
-      <Unit33>
+      </Unit31>
+      <Unit32>
         <Filename Value="osparameters_allprofiles.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmparameters_allprofiles"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit33>
+      </Unit32>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

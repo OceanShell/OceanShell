@@ -1,7 +1,0 @@
-{"version":1,"strings":[
-{"hash":91638688,"name":"tfrmloaditp.caption","sourcebytes":[76,111,97,100,32,73,84,80],"value":"Load ITP"},
-{"hash":305313,"name":"tfrmloaditp.button1.caption","sourcebytes":[68,97,116,97],"value":"Data"},
-{"hash":5941396,"name":"tfrmloaditp.button2.caption","sourcebytes":[83,116,97,114,116],"value":"Start"},
-{"hash":368487,"name":"tfrmloaditp.chkshow.caption","sourcebytes":[83,104,111,119],"value":"Show"},
-{"hash":6197413,"name":"tfrmloaditp.chkwrite.caption","sourcebytes":[87,114,105,116,101],"value":"Write"}
-]}
