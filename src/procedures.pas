@@ -6,7 +6,7 @@ interface
 
 uses
 {$ifdef WINDOWS}
-  Windows, Registry,
+  Windows, Registry, ShlObj, comobj, Win32Int, InterfaceBase,
 {$ENDIF}
   SysUtils, Variants, Dialogs, DateUtils, Forms, osmain, declarations_netcdf;
 
@@ -19,6 +19,9 @@ function US80(t,s,p:real):real;
 (* Date encoding function *)
 function DateEncode(Year,Month,Day,Hour,Minutes:word;
  Var DaysInAMonthFlag,DateChangedFlag:Boolean):TDateTime;
+
+(* ProgressBar on taskbar in WINDOWS *)
+procedure ProgressTaskbar(k, max_k : integer);
 
 
 
@@ -44,6 +47,18 @@ function MessageDlgCtr(const Msg: string; DlgType: TMsgDlgType;
 
 implementation
 
+{$ifdef WINDOWS}
+procedure ProgressTaskbar(k, max_k : integer);
+Var
+ FTaskBarList: ITaskbarList3;
+ AppHandle: THandle;
+begin
+ AppHandle := TWin32WidgetSet(WidgetSet).AppHandle;
+ FTaskBarList := CreateComObject(CLSID_TaskbarList) as ITaskbarList3;
+ FTaskBarList.SetProgressState(AppHandle, TBPF_Normal);
+ FTaskBarList.SetProgressValue(AppHandle, k, max_k);
+end;
+{$ENDIF}
 
 
 function CheckKML:boolean;
@@ -145,60 +160,6 @@ begin
  DecodeTime(StTime, hh, mm, ss, mss);
   Result:=yy+(mn-1)/12+(dd-1)/(12*DaysInAMonth(yy,mn))+(hh+mn/60+ss/3600)/(12*DaysInAMonth(yy,mn)*24);
 end;
-
-
-
-(* Вставляем последний горизонт для выборки *)
-procedure InsertLastLevel;
-var
-  ci1, CurrentID:integer;
-  AbsNum:integer;
-  Max_Level, result:real;
-begin
-{Main.ProgressBar1.Position:=0;
-Main.ProgressBar1.Max:=ODBDM.CDSMD.RecordCount;
-try
- CurrentID:=ODBDM.CDSMD.FieldByName('Absnum').AsInteger;
- ODBDM.CDSMD.DisableControls;
- ODBDM.CDSMD.First;
- ODBDM.IBTransaction1.StartTransaction;
- While not ODBDM.CDSMD.Eof do begin
-  AbsNum:=ODBDM.CDSMD.FieldByName('Absnum').AsInteger;
-    Max_Level:=-9;
-    for ci1:=0 to Main.ListBox2.Count-1 do
-    begin
-      With ODBDM.Ib1q2 do begin
-       Close;
-        SQL.Clear;
-        SQL.Add(' Select max(Level_) from ');
-        SQL.Add(Main.ListBox2.Items.Strings[ci1]);
-        SQL.Add(' where AbsNum=:pAbsNum ');
-       Prepare;
-         Parambyname('pAbsnum').asInteger:=AbsNum;
-       Open;
-          Result:=ODBDM.ib1q2.Fields[0].asFloat;
-        Close;
-      end;
-        Max_Level:=Max(Max_Level,Result);
-    end;
-
-    with ODBDM.CDSMD do begin
-       Edit;
-         FieldByName('STLASTLEVEL').AsInteger:=Round(Max_Level);
-       Post;
-     end;
-
-    Main.ProgressBar1.Position:=Main.ProgressBar1.Position+1;
-    Application.ProcessMessages;
-   ODBDM.CDSMD.Next;
- end;
-finally
- ODBDM.CDSMD.Locate('absnum',CurrentID,[loCaseInsensitive]);
- ODBDM.CDSMD.EnableControls;
- ODBDM.IBTransaction1.Commit;
-end;    }
-end;
-
 
 
 { Distance [km] calculation between two points input}

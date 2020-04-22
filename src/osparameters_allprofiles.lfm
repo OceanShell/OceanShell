@@ -1,0 +1,121 @@
+object frmparameters_allprofiles: Tfrmparameters_allprofiles
+  Left = 709
+  Height = 541
+  Top = 256
+  Width = 704
+  Caption = 'frmparameters_allprofiles'
+  ClientHeight = 541
+  ClientWidth = 704
+  DesignTimePPI = 144
+  OnShow = FormShow
+  Position = poOwnerFormCenter
+  LCLVersion = '2.0.6.0'
+  Visible = True
+  object ToolBar1: TToolBar
+    Left = 0
+    Height = 35
+    Top = 0
+    Width = 704
+    ButtonHeight = 33
+    ButtonWidth = 33
+    Caption = 'ToolBar1'
+    EdgeBorders = [ebTop, ebBottom]
+    Font.Color = clWindowText
+    Font.Height = -17
+    Font.Name = 'Tahoma'
+    Images = frmicons.IL1
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 0
+    object btnPrior: TToolButton
+      Left = 1
+      Top = 2
+      Caption = 'btnPrior'
+      ImageIndex = 749
+      OnClick = btnPriorClick
+    end
+    object btnNext: TToolButton
+      Left = 34
+      Top = 2
+      Caption = 'btnNext'
+      ImageIndex = 748
+      OnClick = btnNextClick
+    end
+    object ToolButton3: TToolButton
+      Left = 72
+      Top = 2
+      Action = frmosmain.aProfilesStationAll
+    end
+    object ToolButton4: TToolButton
+      Left = 138
+      Height = 33
+      Top = 2
+      Caption = 'ToolButton4'
+      Style = tbsDivider
+    end
+    object ToolButton5: TToolButton
+      Left = 143
+      Top = 2
+      Action = frmosmain.aMapSelectedStation
+    end
+    object ToolButton6: TToolButton
+      Left = 67
+      Height = 33
+      Top = 2
+      Caption = 'ToolButton6'
+      Style = tbsDivider
+    end
+    object ToolButton7: TToolButton
+      Left = 105
+      Top = 2
+      Caption = 'ToolButton7'
+    end
+  end
+  object Chart1: TChart
+    Left = 0
+    Height = 506
+    Top = 35
+    Width = 704
+    AxisList = <    
+      item
+        Grid.Visible = False
+        Arrow.Inverted = True
+        Inverted = True
+        Marks.LabelBrush.Style = bsClear
+        Minors = <>
+        Title.LabelFont.Orientation = 900
+        Title.Visible = True
+        Title.LabelBrush.Style = bsClear
+      end    
+      item
+        Grid.Visible = False
+        Alignment = calTop
+        Marks.LabelBrush.Style = bsClear
+        Minors = <>
+        Title.LabelBrush.Style = bsClear
+      end>
+    BackColor = clWhite
+    Foot.Brush.Color = clBtnFace
+    Foot.Font.Color = clBlue
+    Title.Brush.Color = clBtnFace
+    Title.Font.Color = clBlue
+    Title.Text.Strings = (
+      'TAChart'
+    )
+    Align = alClient
+  end
+  object ChartToolset1: TChartToolset
+    left = 128
+    top = 131
+    object ChartToolset1ZoomDragTool1: TZoomDragTool
+      Brush.Style = bsClear
+    end
+    object ChartToolset1ZoomMouseWheelTool1: TZoomMouseWheelTool
+    end
+    object ChartToolset1DataPointClickTool1: TDataPointClickTool
+      ActiveCursor = crHandPoint
+      OnPointClick = ChartToolset1DataPointClickTool1PointClick
+    end
+  end
+end

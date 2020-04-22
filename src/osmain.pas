@@ -23,6 +23,7 @@ type
   { Tfrmosmain }
 
   Tfrmosmain = class(TForm)
+    aProfilesSelectedAllPlot: TAction;
     aShowStations: TAction;
     aMapSelectedStation: TAction;
     aProfilesStationAll: TAction;
@@ -71,6 +72,7 @@ type
     lbResetAux: TLabel;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
+    btnUpdateCruiseStatistics: TMenuItem;
     MenuItem2: TMenuItem;
     iLoad_WOD18: TMenuItem;
     iLoad_WOD: TMenuItem;
@@ -78,6 +80,11 @@ type
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
     iSelectCruise: TMenuItem;
+    MenuItem7: TMenuItem;
+    iDIVAnd: TMenuItem;
+    iService: TMenuItem;
+    btnUpdateLastLEvel: TMenuItem;
+    MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     Panel1: TPanel;
     pfillercruise: TPanel;
@@ -131,10 +138,12 @@ type
     procedure aMapKMLExecute(Sender: TObject);
     procedure aMapSelectedStationExecute(Sender: TObject);
     procedure aOpenDatabaseExecute(Sender: TObject);
+    procedure aProfilesSelectedAllPlotExecute(Sender: TObject);
     procedure aProfilesStationAllExecute(Sender: TObject);
     procedure aShowStationsExecute(Sender: TObject);
     procedure btnAdvancedSelectionClick(Sender: TObject);
     procedure btnSelectionClick(Sender: TObject);
+    procedure btnUpdateLastLEvelClick(Sender: TObject);
     procedure DBGridCruiseColumnSized(Sender: TObject);
     procedure DBGridCruisePrepareCanvas(sender: TObject; DataCol: Integer;
       Column: TColumn; AState: TGridDrawState);
@@ -146,6 +155,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure iAboutClick(Sender: TObject);
     procedure iDBStatisticsClick(Sender: TObject);
+    procedure iDIVAndClick(Sender: TObject);
     procedure iKnowledgeDBOpenClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
@@ -160,6 +170,7 @@ type
     procedure lbResetAreaClick(Sender: TObject);
     procedure lbResetAuxClick(Sender: TObject);
     procedure lbResetDatesClick(Sender: TObject);
+    procedure btnUpdateCruiseStatisticsClick(Sender: TObject);
 
 
   private
@@ -203,6 +214,7 @@ var
 
   IBName, IniFileName:string;
   GlobalPath, GlobalUnloadPath, GlobalSupportPath:string; //global paths for the app
+  CurrentParTable: string;
 
   IBLatMin,IBLatMax,IBLonMin,IBLonMax,SLatMin,SLatMax,SLonMin,SLonMax:Real;
   IBDateMin, IBDateMax, SDateMin, SDateMax :TDateTime;
@@ -215,8 +227,8 @@ var
   SLonP_arr:array[0..20000] of real;
   Length_arr:integer;
 
-  frmcodes_open, frmcodesQC_open, frmparametersall_open, frmmap_open:boolean;
-  frmstations_open: boolean;
+  frmcodes_open, frmcodesQC_open, frmparameters_station_open, frmmap_open:boolean;
+  frmstations_open, frmparameters_allprofiles_open, frmparameters_list_open: boolean;
 
 
 const
@@ -249,14 +261,20 @@ uses
   loadwod,
   osload_PangaeaTab,
 
-(* export *)
+(* database service procedures *)
+  osservice,
+
+(* data export *)
+  osexport_divand,
 
 (* QC *)
 
 (* tools *)
   osmap,
   osmap_kml,
-  osparameters_all,
+  osparameters_list,
+  osparameters_station,
+  osparameters_allprofiles,
 
 (* statistics *)
   osstatistics
@@ -272,8 +290,9 @@ begin
  IBName:='';
 
 (* flags on open forms *)
- frmcodes_open:=false; frmcodesQC_open:=false; frmparametersall_open:=false;
- frmmap_open:=false; frmstations_open:=false;
+ frmcodes_open:=false; frmcodesQC_open:=false; frmparameters_station_open:=false;
+ frmmap_open:=false; frmstations_open:=false; frmparameters_allprofiles_open:=false;
+ frmparameters_list_open:=false;
 
  (* Define Global Path *)
   GlobalPath:=ExtractFilePath(Application.ExeName);
@@ -498,10 +517,10 @@ begin
     TDBGrid(sender).Canvas.Brush.Color := clBtnFace;
  end;
 
- if (gdSelected in AState) then begin
-   TDBGrid(Sender).Canvas.Brush.Color := clNavy;
-   TDBGrid(Sender).Canvas.Font.Color  := clYellow;
-   TDBGrid(Sender).Canvas.Font.Style  := [fsBold];
+ if (gdRowHighlight in AState) then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clNavy;
+    TDBGrid(Sender).Canvas.Font.Color  := clYellow;
+    TDBGrid(Sender).Canvas.Font.Style  := [fsBold];
  end;
 end;
 
@@ -578,8 +597,9 @@ if NavigationOrder=false then exit;
      if frmstations_open=true then begin
        frmdm.QCruise.Locate('ID', frmdm.Q.FieldByName('CRUISE_ID').AsInteger,[]);
      end;
-     if frmmap_open     =true then frmmap.ChangeID;
-     if frmparametersall_open  =true then frmparametersall.ShowAllProf(ID);
+     if frmmap_open=true then frmmap.ChangeID(ID); //Map
+     if frmparameters_station_open=true then frmparameters_station.ChangeID(ID);
+     if frmparameters_allprofiles_open=true then frmparameters_allprofiles.ChangeID(ID);
  //  if InfoOpen      =true then Info.ChangeID;
  //  if QProfilesOpen =true then QProfiles.ChangeStation(ID);
  //  if DensOpen      =true then QDensity.ChangeDensStation(ID);
@@ -607,6 +627,17 @@ frmosstatistics := Tfrmosstatistics.Create(Self);
    frmosstatistics.Free;
    frmosstatistics := nil;
  end;
+end;
+
+procedure Tfrmosmain.iDIVAndClick(Sender: TObject);
+begin
+  frmosexport_divand := Tfrmosexport_divand.Create(Self);
+   try
+    if not frmosexport_divand.ShowModal = mrOk then exit;
+   finally
+     frmosexport_divand.Free;
+     frmosexport_divand := nil;
+   end;
 end;
 
 
@@ -646,12 +677,24 @@ end;
 
 procedure Tfrmosmain.aProfilesStationAllExecute(Sender: TObject);
 begin
-  if frmparametersall_open=true then frmparametersall.SetFocus else
+  if frmparameters_station_open=true then frmparameters_station.SetFocus else
      begin
-       frmparametersall := Tfrmparametersall.Create(Self);
-       frmparametersall.Show;
+       frmparameters_station := Tfrmparameters_station.Create(Self);
+       frmparameters_station.Show;
      end;
-  frmparametersall_open:=true;
+  frmparameters_station_open:=true;
+end;
+
+
+procedure Tfrmosmain.aProfilesSelectedAllPlotExecute(Sender: TObject);
+begin
+  if frmparameters_list_open=true then frmparameters_list.SetFocus else
+     begin
+       frmparameters_list := Tfrmparameters_list.Create(Self);
+       frmparameters_list.Show;
+     end;
+  frmparameters_list.Caption:='PROFILES';
+  frmparameters_list_open:=true;
 end;
 
 
@@ -885,6 +928,7 @@ begin
   aMapAllStations.Enabled:=items_enabled;
   aMapKML.Enabled:=items_enabled;
   aProfilesStationAll.Enabled:=items_enabled;
+  aProfilesSelectedAllPlot.Enabled:=items_enabled;
 end;
 
 
@@ -1226,6 +1270,19 @@ begin
   frmdm.QCruise.Filter:='PROJECT = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
   frmdm.QCruise.Filtered:=true;
 end;
+
+(* Call for procedure to update dates and amount of stations for every cruise *)
+procedure Tfrmosmain.btnUpdateCruiseStatisticsClick(Sender: TObject);
+begin
+ osservice.UpdateCruiseStatistics;
+end;
+
+(* Call for procedure to update last level *)
+procedure Tfrmosmain.btnUpdateLastLEvelClick(Sender: TObject);
+begin
+ osservice.UpdateLastLevel;
+end;
+
 
 procedure Tfrmosmain.DBGridCruiseColumnSized(Sender: TObject);
 begin

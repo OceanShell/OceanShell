@@ -1,7 +1,7 @@
 object frmsettings: Tfrmsettings
-  Left = 934
+  Left = 945
   Height = 654
-  Top = 186
+  Top = 195
   Width = 766
   ActiveControl = btnOk
   BorderIcons = [biSystemMenu]

@@ -1,7 +1,7 @@
 object frmmap: Tfrmmap
-  Left = 482
+  Left = 492
   Height = 586
-  Top = 195
+  Top = 205
   Width = 764
   Caption = 'Map'
   ClientHeight = 586

@@ -1,0 +1,47 @@
+object frmparameters_flag: Tfrmparameters_flag
+  Left = 688
+  Height = 248
+  Top = 317
+  Width = 355
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsNone
+  Caption = 'Set flag'
+  ClientHeight = 248
+  ClientWidth = 355
+  Color = clBtnFace
+  DesignTimePPI = 144
+  Font.Color = clWindowText
+  Font.Height = -17
+  Font.Name = 'MS Sans Serif'
+  OnShow = FormShow
+  LCLVersion = '2.0.6.0'
+  object ListBox1: TListBox
+    Left = 0
+    Height = 248
+    Top = 0
+    Width = 355
+    Align = alClient
+    Font.Color = clWindowText
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Items.Strings = (
+      '[0]   Not checked'
+      '[1]   Bad      '
+      '[2]   Suspicious        '
+      '[3]   Calculated'
+      '[4]   Acceptable'
+      '[5]   Passed primary QC'
+      '[6]   Passed expert control'
+      '[7]   Passed secondary QC and quality confirmed'
+      '[8]   Passed secondary QC and adjusted'
+      '================================'
+      'Set [2] BELOW selected level'
+      'Set [2] ABOVE selected level'
+    )
+    ItemHeight = 20
+    OnClick = ListBox1Click
+    OnMouseLeave = ListBox1MouseLeave
+    ParentFont = False
+    TabOrder = 0
+  end
+end

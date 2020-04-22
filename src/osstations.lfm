@@ -1,20 +1,22 @@
 object frmosstation: Tfrmosstation
-  Left = 314
-  Height = 767
-  Top = 103
-  Width = 1416
+  Left = 160
+  Height = 768
+  Top = 190
+  Width = 1417
   Caption = 'Stations'
-  ClientHeight = 767
-  ClientWidth = 1416
+  ClientHeight = 768
+  ClientWidth = 1417
   DesignTimePPI = 144
   OnClose = FormClose
   OnCreate = FormCreate
+  OnResize = FormResize
+  OnShow = FormShow
   LCLVersion = '2.0.6.0'
   object ToolBar1: TToolBar
     Left = 0
     Height = 33
     Top = 0
-    Width = 1416
+    Width = 1417
     AutoSize = True
     Caption = 'ToolBar1'
     EdgeBorders = []
@@ -47,7 +49,7 @@ object frmosstation: Tfrmosstation
       ShowCaption = False
     end
     object btnsave: TToolButton
-      Left = 106
+      Left = 111
       Hint = 'Commit changes'
       Top = 0
       Caption = 'Save'
@@ -61,18 +63,38 @@ object frmosstation: Tfrmosstation
       ImageIndex = 53
     end
     object ToolButton1: TToolButton
-      Left = 168
+      Left = 106
       Height = 33
       Top = 0
       Caption = 'ToolButton1'
       Style = tbsDivider
     end
+    object Panel1: TPanel
+      Left = 173
+      Height = 33
+      Top = 0
+      Width = 255
+      BevelOuter = bvNone
+      TabOrder = 0
+    end
+    object btnMap: TToolButton
+      Left = 428
+      Top = 0
+      Action = frmosmain.aMapSelectedStation
+      ShowCaption = False
+    end
+    object btnAllProfiles: TToolButton
+      Left = 463
+      Top = 0
+      Action = frmosmain.aProfilesStationAll
+      ShowCaption = False
+    end
   end
   object DBGridStation: TDBGrid
     Left = 0
-    Height = 734
+    Height = 735
     Top = 33
-    Width = 1416
+    Width = 1417
     Align = alClient
     AlternateColor = 13631478
     AutoAdvance = aaNone
@@ -186,7 +208,7 @@ object frmosstation: Tfrmosstation
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
-    Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+    Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
     ParentFont = False
     PopupMenu = PM1
     Scrollbars = ssAutoBoth
@@ -203,14 +225,14 @@ object frmosstation: Tfrmosstation
     Images = frmicons.IL1
     left = 600
     top = 180
-    object ishowselectedstation: TMenuItem
-      Action = frmosmain.aMapSelectedStation
+    object iProfilesAll: TMenuItem
+      Action = frmosmain.aProfilesStationAll
     end
     object MenuItem8: TMenuItem
       Caption = '-'
     end
-    object iProfilesAll: TMenuItem
-      Action = frmosmain.aProfilesStationAll
+    object ishowselectedstation: TMenuItem
+      Action = frmosmain.aMapSelectedStation
     end
   end
 end

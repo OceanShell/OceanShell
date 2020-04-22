@@ -1,11 +1,11 @@
 object frmosmain: Tfrmosmain
-  Left = 312
-  Height = 698
-  Top = 310
-  Width = 1305
+  Left = 309
+  Height = 699
+  Top = 105
+  Width = 1306
   Caption = 'OceanShell'
-  ClientHeight = 668
-  ClientWidth = 1305
+  ClientHeight = 669
+  ClientWidth = 1306
   Color = clBtnFace
   Constraints.MinHeight = 698
   Constraints.MinWidth = 1305
@@ -50,9 +50,9 @@ object frmosmain: Tfrmosmain
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 602
+    Height = 603
     Top = 66
-    Width = 1305
+    Width = 1306
     ActivePage = tsMainSelect
     Align = alClient
     Enabled = False
@@ -64,8 +64,8 @@ object frmosmain: Tfrmosmain
     TabOrder = 2
     object tsMainSelect: TTabSheet
       Caption = 'Select data'
-      ClientHeight = 569
-      ClientWidth = 1297
+      ClientHeight = 570
+      ClientWidth = 1298
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -508,17 +508,17 @@ object frmosmain: Tfrmosmain
     end
     object tsMainCruises: TTabSheet
       Caption = 'Cruises'
-      ClientHeight = 569
-      ClientWidth = 1297
+      ClientHeight = 570
+      ClientWidth = 1298
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
       ParentFont = False
       object DBGridCruise: TDBGrid
         Left = 0
-        Height = 459
+        Height = 460
         Top = 32
-        Width = 1297
+        Width = 1298
         Align = alClient
         AlternateColor = 13631478
         AutoAdvance = aaNone
@@ -606,7 +606,7 @@ object frmosmain: Tfrmosmain
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
-        Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+        Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
         ParentFont = False
         PopupMenu = PM1
         Scrollbars = ssAutoBoth
@@ -622,8 +622,8 @@ object frmosmain: Tfrmosmain
       object DBMemoCruises: TDBMemo
         Left = 0
         Height = 70
-        Top = 499
-        Width = 1297
+        Top = 500
+        Width = 1298
         Align = alBottom
         DataField = 'NOTES'
         DataSource = frmdm.DSCruise
@@ -638,8 +638,8 @@ object frmosmain: Tfrmosmain
         Cursor = crVSplit
         Left = 0
         Height = 8
-        Top = 491
-        Width = 1297
+        Top = 492
+        Width = 1298
         Align = alBottom
         ResizeAnchor = akBottom
       end
@@ -647,11 +647,11 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 32
         Top = 0
-        Width = 1297
+        Width = 1298
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 32
-        ClientWidth = 1297
+        ClientWidth = 1298
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -905,12 +905,12 @@ object frmosmain: Tfrmosmain
     Left = 0
     Height = 66
     Top = 0
-    Width = 1305
+    Width = 1306
     Align = alTop
     BevelOuter = bvNone
     BorderStyle = bsSingle
     ClientHeight = 62
-    ClientWidth = 1301
+    ClientWidth = 1302
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
@@ -920,7 +920,7 @@ object frmosmain: Tfrmosmain
       Left = 0
       Height = 36
       Top = 0
-      Width = 1301
+      Width = 1302
       Align = alTop
       Font.Color = clWindowText
       Font.Height = -17
@@ -958,7 +958,7 @@ object frmosmain: Tfrmosmain
       Left = 0
       Height = 36
       Top = 36
-      Width = 1301
+      Width = 1302
       Align = alTop
       BorderSpacing.Bottom = 2
       Font.Color = clWindowText
@@ -1074,6 +1074,24 @@ object frmosmain: Tfrmosmain
         end
       end
     end
+    object iService: TMenuItem
+      Caption = 'Service'
+      object btnUpdateLastLEvel: TMenuItem
+        Caption = 'Update Last Level'
+        OnClick = btnUpdateLastLEvelClick
+      end
+      object btnUpdateCruiseStatistics: TMenuItem
+        Caption = 'Update Cruise Statistics'
+        OnClick = btnUpdateCruiseStatisticsClick
+      end
+    end
+    object MenuItem7: TMenuItem
+      Caption = 'Export'
+      object iDIVAnd: TMenuItem
+        Caption = 'DIVAnd'
+        OnClick = iDIVAndClick
+      end
+    end
     object MenuItem10: TMenuItem
       Caption = 'Metadata'
       object MenuItem11: TMenuItem
@@ -1093,7 +1111,10 @@ object frmosmain: Tfrmosmain
       end
       object MenuItem6: TMenuItem
         Action = aProfilesStationAll
-        Caption = 'All Profiles for Station'
+        Caption = 'Show/edit all profiles for selected station'
+      end
+      object MenuItem8: TMenuItem
+        Action = aProfilesSelectedAllPlot
       end
     end
     object iStatistics: TMenuItem
@@ -1121,6 +1142,13 @@ object frmosmain: Tfrmosmain
   object AL1: TActionList
     Images = frmicons.IL1
     left = 660
+    object aOpenDatabase: TAction
+      Category = 'File'
+      Caption = 'Open database'
+      Hint = 'Open database'
+      ImageIndex = 312
+      OnExecute = aOpenDatabaseExecute
+    end
     object aMapAllStations: TAction
       Category = 'Tools'
       Enabled = False
@@ -1128,12 +1156,12 @@ object frmosmain: Tfrmosmain
       ImageIndex = 984
       OnExecute = aMapAllStationsExecute
     end
-    object aOpenDatabase: TAction
-      Category = 'File'
-      Caption = 'Open database'
-      Hint = 'Open database'
-      ImageIndex = 312
-      OnExecute = aOpenDatabaseExecute
+    object aMapSelectedStation: TAction
+      Category = 'Tools'
+      Caption = 'Show selected station on map'
+      Hint = 'Show selected station on map'
+      ImageIndex = 984
+      OnExecute = aMapSelectedStationExecute
     end
     object aMapKML: TAction
       Category = 'Tools'
@@ -1143,17 +1171,10 @@ object frmosmain: Tfrmosmain
     end
     object aProfilesStationAll: TAction
       Category = 'Tools'
-      Caption = 'All profiles'
+      Caption = 'All profiles for selected station'
       Enabled = False
       ImageIndex = 1002
       OnExecute = aProfilesStationAllExecute
-    end
-    object aMapSelectedStation: TAction
-      Category = 'Tools'
-      Caption = 'Show selected station on map'
-      Hint = 'Show selected station on map'
-      ImageIndex = 984
-      OnExecute = aMapSelectedStationExecute
     end
     object aShowStations: TAction
       Caption = 'Show Stations'
@@ -1161,6 +1182,13 @@ object frmosmain: Tfrmosmain
       Hint = 'Show stations'
       ImageIndex = 33
       OnExecute = aShowStationsExecute
+    end
+    object aProfilesSelectedAllPlot: TAction
+      Category = 'Tools'
+      Caption = 'Plot profiles for all selected stations'
+      Enabled = False
+      ImageIndex = 1002
+      OnExecute = aProfilesSelectedAllPlotExecute
     end
   end
   object PM1: TPopupMenu

@@ -92,7 +92,7 @@ Type
     Procedure SetLocation(Lat, Lon: TCoordinate);
     Procedure ZoomIn;
     Procedure ZoomOut;
-    Procedure ChangeID;
+    Procedure ChangeID(ID:integer);
     Procedure CheckSettings;
     Property Center: TCoordinates Read FCenter Write FCenter; { Default view centre in geodesic degrees. }
     Property Location: TCoordinates Read FLocation Write FLocation; { Location of view centre in geodesic degrees. }
@@ -237,13 +237,12 @@ Begin
   Refresh;
 End;
 
-Procedure TGlobeControl.ChangeID;
+Procedure TGlobeControl.ChangeID(ID:integer);
 Begin
  if SCount>0 then begin
    Marker.Lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
    Marker.Lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
  end;
-
 Refresh;
 end;
 

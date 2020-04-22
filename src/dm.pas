@@ -49,13 +49,13 @@ uses osmain;
 
 procedure Tfrmdm.DataModuleCreate(Sender: TObject);
 begin
-   (* if there's no support database then exit *)
+{   (* if there's no support database then exit *)
  if not FileExists(GlobalPath+'SUPPORTTABLES.FDB') then
    if MessageDlg(SNoSupportDB, mtError, [mbOK], 0)=mrOk  then Exit;
 
  (* opening the support database *)
  SupportDB.DatabaseName:=GlobalPath+'SUPPORTTABLES.FDB';
- SupportDB.Open;
+ SupportDB.Open; }
 end;
 
 

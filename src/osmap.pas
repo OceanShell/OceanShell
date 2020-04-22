@@ -36,7 +36,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure btnZoomInClick(Sender: TObject);
     procedure btnZoomOutClick(Sender: TObject);
-    procedure ChangeID;
+    procedure ChangeID(ID:integer);
     procedure FormDestroy(Sender: TObject);
 
   private
@@ -71,9 +71,9 @@ begin
   btnKMLExport.Enabled:=CheckKML;
 end;
 
-procedure Tfrmmap.ChangeID;
+procedure Tfrmmap.ChangeID(ID:integer);
 begin
-  MainGlobe.ChangeID;
+  MainGlobe.ChangeID(ID);
 End;
 
 procedure Tfrmmap.btnShowAllStationsClick(Sender: TObject);
@@ -143,7 +143,7 @@ begin
     frmosmap_settings.Free;
     frmosmap_settings := nil;
     MainGlobe.CheckSettings;
-    ChangeID;
+    ChangeID(frmdm.Q.FieldByName('ID').AsInteger);
   end;
 end;
 
