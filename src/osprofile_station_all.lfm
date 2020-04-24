@@ -1,7 +1,7 @@
-object frmparameters_station: Tfrmparameters_station
-  Left = 435
+object frmprofile_station_all: Tfrmprofile_station_all
+  Left = 502
   Height = 621
-  Top = 240
+  Top = 255
   Width = 1069
   Caption = 'All parameters'
   ClientHeight = 621
@@ -88,7 +88,7 @@ object frmparameters_station: Tfrmparameters_station
   end
   object Splitter1: TSplitter
     Left = 777
-    Height = 586
+    Height = 341
     Top = 35
     Width = 8
     Align = alRight
@@ -97,7 +97,7 @@ object frmparameters_station: Tfrmparameters_station
   end
   object CheckListBox1: TCheckListBox
     Left = 785
-    Height = 586
+    Height = 341
     Top = 35
     Width = 284
     Align = alRight
@@ -111,7 +111,7 @@ object frmparameters_station: Tfrmparameters_station
   end
   object DBGrid1: TDBGrid
     Left = 0
-    Height = 586
+    Height = 341
     Top = 35
     Width = 777
     Align = alClient
@@ -135,6 +135,25 @@ object frmparameters_station: Tfrmparameters_station
     TitleFont.Name = 'MS Sans Serif'
     OnMouseDown = DBGrid1MouseDown
     OnPrepareCanvas = DBGrid1PrepareCanvas
+  end
+  object pCharts: TPanel
+    Left = 0
+    Height = 237
+    Top = 384
+    Width = 1069
+    Align = alBottom
+    BevelOuter = bvNone
+    TabOrder = 4
+    Visible = False
+  end
+  object Splitter2: TSplitter
+    Cursor = crVSplit
+    Left = 0
+    Height = 8
+    Top = 376
+    Width = 1069
+    Align = alBottom
+    ResizeAnchor = akBottom
   end
   object DS1: TDataSource
     left = 360

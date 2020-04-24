@@ -6,7 +6,7 @@ interface
 
 uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes, Controls,
-  StdCtrls, CheckLst, ComCtrls, Forms, Dialogs, IniFiles;
+  StdCtrls, CheckLst, ComCtrls, Forms, Dialogs, IniFiles, SQLDB;
 
 type
 
@@ -41,7 +41,7 @@ var
 
 implementation
 
-uses osmain, dm, osparameters_allprofiles;
+uses osmain, dm, osprofile_plot_all;
 
     {QProfilesFRM, QDensityFRM, ToolTSDiagramFRM,
      ToolFields,  SelectionFRM, ToolTimeDepthDiagram, SectionsFRM,
@@ -153,12 +153,12 @@ begin
 
     // All profiles for selected stations
     if Caption='PROFILES' then begin
-      if frmparameters_allprofiles_open=true then begin
-        frmparameters_allprofiles_open:=false;
-        frmparameters_allprofiles.Close;
+      if frmprofile_plot_all_open=true then begin
+        frmprofile_plot_all_open:=false;
+        frmprofile_plot_all.Close;
       end;
-      frmparameters_allprofiles:= Tfrmparameters_allprofiles.Create(nil);
-      frmparameters_allprofiles_open:=true;
+      frmprofile_plot_all:= Tfrmprofile_plot_all.Create(nil);
+      frmprofile_plot_all_open:=true;
     end;
 
     {
@@ -195,40 +195,49 @@ procedure Tfrmparameters_list.btnAmountOfProfilesClick(Sender: TObject);
 Var
 prfCount,k_prf:integer;
 tblPar:string;
+
+TRt:TSQLTransaction;
+Qt:TSQLQuery;
 begin
-{btnAmountOfProfiles.Enabled:=false;
+TRt:=TSQLTransaction.Create(self);
+TRt.DataBase:=frmdm.IBDB;
+
+Qt:=TSQLQuery.Create(self);
+Qt.Database:=frmdm.IBDB;
+Qt.Transaction:=TRt;
+
+btnAmountOfProfiles.Enabled:=false;
 lbParameters.Enabled:=false;
 try
-ODBDM.IBTransaction1.StartTransaction;
- ODBDM.CDSMD.DisableControls;
+ frmdm.Q.DisableControls;
   for k_prf:=0 to lbParameters.Items.Count-1 do begin
    tblPar:=lbParameters.Items.Strings[k_prf];
    Application.ProcessMessages;
 
    if (cancel_fl=false) and (copy(TblPar, 1, 1)<>'-') then begin
     prfCount:=0;
-    ODBDM.CDSMD.First;
-     while not ODBDM.CDSMD.Eof do begin
-      with ODBDM.ib1q1 do begin
+    frmdm.Q.First;
+     while not frmdm.Q.Eof do begin
+      with Qt do begin
        Close;
            SQL.Clear;
-           SQL.Add(' select absnum from ');
-           SQL.Add(tblPar);
-           SQL.Add(' where absnum=:absnum ');
-           ParamByName('absnum').AsInteger:=ODBDM.CDSMD.FieldByName('absnum').AsInteger;
+           SQL.Add(' select ID from ');
+           SQL.Add( tblPar );
+           SQL.Add(' where ID=:ID ');
+           ParamByName('ID').AsInteger:=frmdm.Q.FieldByName('ID').AsInteger;
          Open;
-          if ODBDM.ib1q1.IsEmpty=false then prfCount:=prfCount+1;
+          if not Qt.IsEmpty then prfCount:=prfCount+1;
        Close;
       end;
-      ODBDM.CDSMD.Next;
+      frmdm.Q.Next;
     end;
 
     lbParameters.Items.Strings[k_prf]:=tblPar+'   ['+inttostr(prfCount)+']';
     Application.ProcessMessages;
    end;
 
-   if copy(TblPar, 1, 1)='-' then begin
-  {  prfCount:=0;
+ {  if copy(TblPar, 1, 1)='-' then begin
+    prfCount:=0;
     ODBDM.CDSMD.First;
      while not ODBDM.CDSMD.Eof do begin
       with ODBDM.ib1q1 do begin
@@ -248,14 +257,19 @@ ODBDM.IBTransaction1.StartTransaction;
 {      lbParameters.Items.Strings[k_prf+1]:='DENSITY';//+'   ['+inttostr(prfCount)+']';
       lbParameters.Items.Strings[k_prf+2]:='BUOYANCY';//+'   ['+inttostr(prfCount)+']';
       break;
-   end;
+   end;  }
  end;
  Finally
-  ODBDM.IBTransaction1.Commit;
   btnAmountOfProfiles.Enabled:=true;
   lbParameters.Enabled:=true;
-  ODBDM.CDSMD.EnableControls;
- end;    } }
+
+  Qt.Close;
+  Trt.Commit;
+  Qt.Free;
+  TrT.Free;
+
+  frmdm.Q.EnableControls;
+ end;
 end;
 
 procedure Tfrmparameters_list.FormClose(Sender: TObject; var CloseAction: TCloseAction);

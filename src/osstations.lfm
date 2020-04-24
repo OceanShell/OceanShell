@@ -4,8 +4,8 @@ object frmosstation: Tfrmosstation
   Top = 190
   Width = 1417
   Caption = 'Stations'
-  ClientHeight = 768
-  ClientWidth = 1417
+  ClientHeight = 0
+  ClientWidth = 0
   DesignTimePPI = 144
   OnClose = FormClose
   OnCreate = FormCreate
@@ -233,6 +233,13 @@ object frmosstation: Tfrmosstation
     end
     object ishowselectedstation: TMenuItem
       Action = frmosmain.aMapSelectedStation
+    end
+    object MenuItem1: TMenuItem
+      Caption = '-'
+    end
+    object iUpdateLastLevel: TMenuItem
+      Caption = 'Update Last Level'
+      OnClick = iUpdateLastLevelClick
     end
   end
 end

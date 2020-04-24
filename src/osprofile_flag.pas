@@ -1,4 +1,4 @@
-unit osparameters_flag;
+unit osprofile_flag;
 
 {$mode objfpc}{$H+}
 

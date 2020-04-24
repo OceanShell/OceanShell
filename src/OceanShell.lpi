@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="33">
+    <Units Count="34">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -139,9 +139,9 @@
         <ResourceBaseClass Value="Form"/>
       </Unit14>
       <Unit15>
-        <Filename Value="osparameters_station.pas"/>
+        <Filename Value="osprofile_station_all.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmparameters_station"/>
+        <ComponentName Value="frmprofile_station_all"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit15>
@@ -239,12 +239,19 @@
         <ResourceBaseClass Value="Form"/>
       </Unit31>
       <Unit32>
-        <Filename Value="osparameters_allprofiles.pas"/>
+        <Filename Value="osprofile_plot_all.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmparameters_allprofiles"/>
+        <ComponentName Value="frmprofile_plot_all"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit32>
+      <Unit33>
+        <Filename Value="osprofile_station_single.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmprofile_station_single"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit33>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

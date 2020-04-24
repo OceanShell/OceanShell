@@ -23,6 +23,7 @@ type
   { Tfrmosmain }
 
   Tfrmosmain = class(TForm)
+    aProfilesStationSingle: TAction;
     aProfilesSelectedAllPlot: TAction;
     aShowStations: TAction;
     aMapSelectedStation: TAction;
@@ -72,21 +73,23 @@ type
     lbResetAux: TLabel;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
-    btnUpdateCruiseStartFinishDates: TMenuItem;
     iLoad_WOD18: TMenuItem;
     iMap: TMenuItem;
-    MenuItem12: TMenuItem;
     iSupportTables: TMenuItem;
-    iUpdateCruiseStations: TMenuItem;
     iImport: TMenuItem;
     iInitialDatabase: TMenuItem;
+    iUpdateCruiseStations: TMenuItem;
+    iUpdateCruiseStationsSelected: TMenuItem;
+    iUpdateCruiseStationsAll: TMenuItem;
+    iUpdateCruiseStartFinishSelected: TMenuItem;
+    iUpdateCruiseStartFinishAll: TMenuItem;
+    MenuItem2: TMenuItem;
+    iUpdateCruiseStartFinish: TMenuItem;
     MenuItem5: TMenuItem;
-    MenuItem6: TMenuItem;
     iSelectCruise: TMenuItem;
     MenuItem7: TMenuItem;
     iDIVAnd: TMenuItem;
     iService: TMenuItem;
-    btnUpdateLastLEvel: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     Panel1: TPanel;
@@ -141,6 +144,7 @@ type
     procedure aOpenDatabaseExecute(Sender: TObject);
     procedure aProfilesSelectedAllPlotExecute(Sender: TObject);
     procedure aProfilesStationAllExecute(Sender: TObject);
+    procedure aProfilesStationSingleExecute(Sender: TObject);
     procedure aShowStationsExecute(Sender: TObject);
     procedure btnAdvancedSelectionClick(Sender: TObject);
     procedure btnSelectionClick(Sender: TObject);
@@ -167,11 +171,14 @@ type
     procedure iSettingsClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
     procedure iSupportTablesClick(Sender: TObject);
-    procedure iUpdateCruiseStationsClick(Sender: TObject);
+    procedure iUpdateCruiseStartFinishSelectedClick(Sender: TObject);
+    procedure iUpdateCruiseStationsAllClick(Sender: TObject);
+    procedure iUpdateCruiseStationsSelectedClick(Sender: TObject);
     procedure lbResetAreaClick(Sender: TObject);
     procedure lbResetAuxClick(Sender: TObject);
     procedure lbResetDatesClick(Sender: TObject);
     procedure btnUpdateCruiseStartFinishDatesClick(Sender: TObject);
+    procedure iUpdateCruiseStartFinishAllClick(Sender: TObject);
 
 
   private
@@ -227,8 +234,9 @@ var
   SLonP_arr:array[0..20000] of real;
   Length_arr:integer;
 
-  frmparameters_station_open, frmmap_open, frmstations_open :boolean;
-  frmparameters_allprofiles_open, frmparameters_list_open: boolean;
+  frmprofile_station_all_open, frmprofile_station_single_open :boolean;
+  frmmap_open, frmstations_open :boolean;
+  frmprofile_plot_all_open, frmparameters_list_open: boolean;
 
 
 const
@@ -272,8 +280,9 @@ uses
   osmap,
   osmap_kml,
   osparameters_list,
-  osparameters_station,
-  osparameters_allprofiles,
+  osprofile_station_all,
+  osprofile_station_single,
+  osprofile_plot_all,
 
 (* statistics *)
   osstatistics
@@ -290,8 +299,9 @@ begin
  IBName:='';
 
 (* flags on open forms *)
- frmparameters_station_open:=false; frmmap_open:=false; frmstations_open:=false;
- frmparameters_allprofiles_open:=false; frmparameters_list_open:=false;
+ frmprofile_station_all_open:=false; frmprofile_station_single_open:=false;
+ frmmap_open:=false; frmstations_open:=false; frmparameters_list_open:=false;
+ frmprofile_plot_all_open:=false;
 
  (* Define Global Path *)
   GlobalPath:=ExtractFilePath(Application.ExeName);
@@ -509,6 +519,11 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
  aShowStations.Execute();
 end;
 
+procedure Tfrmosmain.btnUpdateLastLEvelClick(Sender: TObject);
+begin
+
+end;
+
 
 procedure Tfrmosmain.DBGridCruisePrepareCanvas(sender: TObject;
   DataCol: Integer; Column: TColumn; AState: TGridDrawState);
@@ -586,6 +601,11 @@ begin
   dtpDateMax.DateTime:=IBDateMax;
 end;
 
+procedure Tfrmosmain.btnUpdateCruiseStartFinishDatesClick(Sender: TObject);
+begin
+
+end;
+
 
 procedure Tfrmosmain.CDSNavigation;
 Var
@@ -600,8 +620,8 @@ if NavigationOrder=false then exit;
        frmdm.QCruise.Locate('ID', frmdm.Q.FieldByName('CRUISE_ID').AsInteger,[]);
      end;
      if frmmap_open=true then frmmap.ChangeID(ID); //Map
-     if frmparameters_station_open=true then frmparameters_station.ChangeID(ID);
-     if frmparameters_allprofiles_open=true then frmparameters_allprofiles.ChangeID(ID);
+     if frmprofile_station_all_open=true then frmprofile_station_all.ChangeID(ID);
+     if frmprofile_plot_all_open=true then frmprofile_plot_all.ChangeID(ID);
  //  if InfoOpen      =true then Info.ChangeID;
  //  if QProfilesOpen =true then QProfiles.ChangeStation(ID);
  //  if DensOpen      =true then QDensity.ChangeDensStation(ID);
@@ -667,12 +687,22 @@ end;
 
 procedure Tfrmosmain.aProfilesStationAllExecute(Sender: TObject);
 begin
-  if frmparameters_station_open=true then frmparameters_station.SetFocus else
+  if frmprofile_station_all_open=true then frmprofile_station_all.SetFocus else
      begin
-       frmparameters_station := Tfrmparameters_station.Create(Self);
-       frmparameters_station.Show;
+       frmprofile_station_all := Tfrmprofile_station_all.Create(Self);
+       frmprofile_station_all.Show;
      end;
-  frmparameters_station_open:=true;
+  frmprofile_station_all_open:=true;
+end;
+
+procedure Tfrmosmain.aProfilesStationSingleExecute(Sender: TObject);
+begin
+  if frmprofile_station_single_open=true then frmprofile_station_single.SetFocus else
+     begin
+       frmprofile_station_single := Tfrmprofile_station_single.Create(Self);
+       frmprofile_station_single.Show;
+     end;
+  frmprofile_station_single_open:=true;
 end;
 
 
@@ -935,6 +965,57 @@ begin
       frmsupporttables.Free;
       frmsupporttables := nil;
     end;
+end;
+
+procedure Tfrmosmain.iUpdateCruiseStartFinishSelectedClick(Sender: TObject);
+Var
+  ID: integer;
+begin
+  ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
+  osservice.UpdateCruiseStartFinishDates(ID);
+end;
+
+procedure Tfrmosmain.iUpdateCruiseStationsSelectedClick(Sender: TObject);
+Var
+  ID: integer;
+begin
+  ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
+  osservice.UpdateCruiseStations(ID);
+end;
+
+
+procedure Tfrmosmain.iUpdateCruiseStationsAllClick(Sender: TObject);
+Var
+  ID: integer;
+begin
+  try
+    frmdm.QCruise.DisableControls;
+    frmdm.QCruise.First;
+    while not frmdm.QCruise.EOF do begin
+      ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
+        osservice.UpdateCruiseStations(ID);
+      frmdm.QCruise.Next;
+    end;
+  finally
+   frmdm.QCruise.EnableControls;
+  end;
+end;
+
+procedure Tfrmosmain.iUpdateCruiseStartFinishAllClick(Sender: TObject);
+Var
+  ID: integer;
+begin
+  try
+    frmdm.QCruise.DisableControls;
+    frmdm.QCruise.First;
+    while not frmdm.QCruise.EOF do begin
+      ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
+        osservice.UpdateCruiseStartFinishDates(ID);
+      frmdm.QCruise.Next;
+    end;
+  finally
+   frmdm.QCruise.EnableControls;
+  end;
 end;
 
 
@@ -1244,23 +1325,6 @@ procedure Tfrmosmain.SearchPROJECT(Sender: TObject);
 begin
   frmdm.QCruise.Filter:='PROJECT = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
   frmdm.QCruise.Filtered:=true;
-end;
-
-(* Call for procedure to update dates and amount of stations for every cruise *)
-procedure Tfrmosmain.btnUpdateCruiseStartFinishDatesClick(Sender: TObject);
-begin
- osservice.UpdateCruiseStartFinishDates;
-end;
-
-(* Call for procedure to update last level *)
-procedure Tfrmosmain.btnUpdateLastLEvelClick(Sender: TObject);
-begin
- osservice.UpdateLastLevel;
-end;
-
-procedure Tfrmosmain.iUpdateCruiseStationsClick(Sender: TObject);
-begin
- osservice.UpdateCruiseStations;
 end;
 
 

@@ -1,4 +1,4 @@
-unit osparameters_station;
+unit osprofile_station_all;
 
 {$mode objfpc}{$H+}
 
@@ -7,16 +7,18 @@ interface
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics,
   Controls, Forms, ExtCtrls, DB, StdCtrls, ComCtrls, CheckLst,
-  BufDataSet, IniFiles, Dialogs, Menus, DBGrids, SQLDB, Grids;
+  BufDataSet, IniFiles, Dialogs, Menus, DBGrids, SQLDB, Grids,
+  TAGraph, TATools, TASeries, TATypes;
 
 type
 
-  { Tfrmparameters_station }
+  { Tfrmprofile_station_all }
 
-  Tfrmparameters_station = class(TForm)
+  Tfrmprofile_station_all = class(TForm)
     CheckListBox1: TCheckListBox;
     DBGrid1: TDBGrid;
-  //  DBGridEh1: TDBGridEh;
+    pCharts: TPanel;
+    Splitter2: TSplitter;
     ToolBar1: TToolBar;
     btnAdd: TToolButton;
     btnDelete: TToolButton;
@@ -42,15 +44,11 @@ type
     procedure btnAddClick(Sender: TObject);
     procedure btnDeleteClick(Sender: TObject);
     procedure CheckListBox1Click(Sender: TObject);
- {   procedure DBGridEh1GetCellParams(Sender: TObject; Column: TColumnEh;
-      AFont: TFont; var Background: TColor; State: TGridDrawState); }
     procedure iDeleteParameterClick(Sender: TObject);
 {    procedure SeriesClick(Sender: TChartSeries; ValueIndex: Integer;
     Button: TMouseButton; Shift: TShiftState; X,Y: Integer);  }
     procedure DBGridEh1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
- {   procedure DBGridEh1DrawColumnCell(Sender: TObject; const Rect: TRect;
-      DataCol: Integer; Column: TColumnEh; State: TGridDrawState);  }
     procedure iSetFlagParameterClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure DBGridEh1KeyUp(Sender: TObject; var Key: Word;
@@ -64,25 +62,24 @@ type
   end;
 
 var
-  frmparameters_station: Tfrmparameters_station;
+  frmprofile_station_all: Tfrmprofile_station_all;
   CDS:TBufDataSet;
-//  Charts:array of TChart;
-//  TMPSeries:array of TChartSeries;
+//  Charts:array of TAChart;
   Ks:integer;
 
 implementation
 
-uses osmain, dm, osparameters_flag, osparameters_allprofiles;
+uses osmain, dm, osprofile_flag, osprofile_plot_all;
 
 {$R *.lfm}
 
-procedure Tfrmparameters_station.FormCreate(Sender: TObject);
+procedure Tfrmprofile_station_all.FormCreate(Sender: TObject);
 Var
 ID:Integer;
 par:string;
 begin
- { SetLength(Charts,    frmosmain.listbox1Count);
-  SetLength(TMPSeries, frmosmain.listbox1Count); }
+ // SetLength(Charts,    frmosmain.listbox1Count);
+ // SetLength(TMPSeries, frmosmain.listbox1Count); }
 
    CDS:=TBufDataSet.Create(nil);
     CDS.FieldDefs.Add('Lev_dbar',ftFloat,0,false);
@@ -103,9 +100,9 @@ begin
              Title.Caption:=Copy(Par, 3, length(Par));
              Walls.Back.Color:=clWhite;
              Walls.Back.Transparent:=false;
-          end;
+          end;   }
 
-        TMPSeries[ks]:=TLineSeries.Create(Charts[ks]);
+     {   TMPSeries[ks]:=TLineSeries.Create(Charts[ks]);
           with TMPSeries[ks] as TLineSeries  do begin
              Color:=clBlue;
              ParentChart:=Charts[ks];
@@ -133,7 +130,7 @@ begin
 end;
 
 
-procedure Tfrmparameters_station.FormShow(Sender: TObject);
+procedure Tfrmprofile_station_all.FormShow(Sender: TObject);
 Var
   Ini:TInifile;
 begin
@@ -149,13 +146,13 @@ Ini := TIniFile.Create(IniFileName);
 end;
 
 
-procedure Tfrmparameters_station.FormResize(Sender: TObject);
+procedure Tfrmprofile_station_all.FormResize(Sender: TObject);
 begin
   CheckChartSize;
 end;
 
 
-procedure Tfrmparameters_station.ChangeID(ID:integer);
+procedure Tfrmprofile_station_all.ChangeID(ID:integer);
 Var
 k, fl,count_st:integer;
 cur_l, Val, Flag_:real;
@@ -302,7 +299,7 @@ CheckListBox1.Clear;
 end;
 
 
-procedure Tfrmparameters_station.btnCommitClick(Sender: TObject);
+procedure Tfrmprofile_station_all.btnCommitClick(Sender: TObject);
 Var
 ID, k, levnum:integer;
 tbl:string;
@@ -361,11 +358,11 @@ ID:=frmdm.Q.FieldByName('ID').AsInteger;
    TrT.Free;
   end;
 ChangeID(ID);
-if frmparameters_allprofiles_open=true then frmparameters_allprofiles.UpdateProfile(ID);
+if frmprofile_plot_all_open=true then frmprofile_plot_all.UpdateProfile(ID);
 end;
 
 
-procedure Tfrmparameters_station.CheckChartSize;
+procedure Tfrmprofile_station_all.CheckChartSize;
 Var
 k, CountChecked:integer;
 begin
@@ -376,18 +373,18 @@ begin
  //  if memo1.Lines.Count>0 then memo1.Visible:=true;
 end;
 
-procedure Tfrmparameters_station.btnAddClick(Sender: TObject);
+procedure Tfrmprofile_station_all.btnAddClick(Sender: TObject);
 begin
   CDS.Insert;
 end;
 
-procedure Tfrmparameters_station.btnDeleteClick(Sender: TObject);
+procedure Tfrmprofile_station_all.btnDeleteClick(Sender: TObject);
 begin
   CDS.Delete;
 end;
 
 
-procedure Tfrmparameters_station.CheckListBox1Click(Sender: TObject);
+procedure Tfrmprofile_station_all.CheckListBox1Click(Sender: TObject);
 var
 k:integer;
 cap_par, par:string;
@@ -421,7 +418,7 @@ end;
 end;
 
 
-{procedure Tfrmparameters_station.SeriesClick(Sender: TChartSeries; ValueIndex: Integer;
+{procedure Tfrmprofile_station_all.SeriesClick(Sender: TChartSeries; ValueIndex: Integer;
     Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 Var
 Num_Clicked:int64;
@@ -430,8 +427,8 @@ begin
 with Sender do begin
   Num_Clicked:=Clicked(X,Y);
     if Num_Clicked<>-1 then begin
-    //  if X>=Sender.ParentChart.Width-Panel1.Width then Panel1.Left:=X-Panel1.Width else Panel1.Left:=X;
-    //  if Y>=Sender.ParentChart.Height-Panel1.Height-20 then Panel1.Top:=Y-Panel1.Height else Panel1.Top:=Y;
+    //  if X>=Sender.ParentChart.Width-pCharts.Width then pCharts.Left:=X-pCharts.Width else pCharts.Left:=X;
+    //  if Y>=Sender.ParentChart.Height-pCharts.Height-20 then pCharts.Top:=Y-pCharts.Height else pCharts.Top:=Y;
       CDS.Locate('Level', YValues[Num_clicked], [loCaseInsensitive]);
   //    lbLevel.Caption:='Level='+floattostr(YValues[Num_clicked]);
   //    lbValue.Caption:='Value='+floattostr(XValues[Num_clicked]);
@@ -440,7 +437,7 @@ with Sender do begin
 end; }
 
 
-{procedure Tfrmparameters_station.DBGridEh1DrawColumnCell(Sender: TObject;
+{procedure Tfrmprofile_station_all.DBGridEh1DrawColumnCell(Sender: TObject;
   const Rect: TRect; DataCol: Integer; Column: TColumnEh;
   State: TGridDrawState);
 begin
@@ -459,7 +456,7 @@ TDBGridEh(sender).DefaultDrawColumnCell(Rect,DataCol,Column,State);
 end;     }
 
 {
-procedure Tfrmparameters_station.DBGridEh1GetCellParams(Sender: TObject;
+procedure Tfrmprofile_station_all.DBGridEh1GetCellParams(Sender: TObject;
   Column: TColumnEh; AFont: TFont; var Background: TColor;
   State: TGridDrawState);
 begin
@@ -468,7 +465,7 @@ begin
 end;
 }
 
-procedure Tfrmparameters_station.DBGridEh1KeyUp(Sender: TObject; var Key: Word;
+procedure Tfrmprofile_station_all.DBGridEh1KeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 Var
 Ini:TIniFile;
@@ -484,7 +481,7 @@ begin
   if (key=VK_DELETE) and (DelEnable=true) then btnDelete.OnClick(self); }
 end;
 
-procedure Tfrmparameters_station.iDeleteParameterClick(Sender: TObject);
+procedure Tfrmprofile_station_all.iDeleteParameterClick(Sender: TObject);
 Var
 ID:integer;
 Par:string;
@@ -525,7 +522,7 @@ end;
 
 
 (* Setting flags for EVERY parameter *)
-procedure Tfrmparameters_station.btnSetFlagArrowClick(Sender: TObject);
+procedure Tfrmprofile_station_all.btnSetFlagArrowClick(Sender: TObject);
 Var
 k, cur_pos:integer;
 tbl:string;
@@ -599,7 +596,7 @@ end;
 
 
 (* Ставим флаг на отдельный профиль *)
-procedure Tfrmparameters_station.iSetFlagParameterClick(Sender: TObject);
+procedure Tfrmprofile_station_all.iSetFlagParameterClick(Sender: TObject);
 Var
 Par:string;
 Coord: TPoint;
@@ -640,14 +637,14 @@ begin
 end;
 
 
-procedure Tfrmparameters_station.DBGridEh1MouseDown(Sender: TObject;
+procedure Tfrmprofile_station_all.DBGridEh1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   //if (ssAlt in Shift) then Main.DBGridSaveAsActExecute(Sender);
 end;
 
 
-procedure Tfrmparameters_station.DBGrid1MouseDown(Sender: TObject;
+procedure Tfrmprofile_station_all.DBGrid1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 Var
   Par:string;
@@ -662,7 +659,7 @@ begin
   end;
 end;
 
-procedure Tfrmparameters_station.DBGrid1PrepareCanvas(sender: TObject;
+procedure Tfrmprofile_station_all.DBGrid1PrepareCanvas(sender: TObject;
   DataCol: Integer; Column: TColumn; AState: TGridDrawState);
 begin
   if gdRowHighlight in AState then begin
@@ -673,7 +670,7 @@ begin
 end;
 
 
-procedure Tfrmparameters_station.FormClose(Sender: TObject;
+procedure Tfrmprofile_station_all.FormClose(Sender: TObject;
   var CloseAction: TCloseAction);
 var
 Ini:TIniFile;
@@ -688,7 +685,7 @@ Ini := TIniFile.Create(IniFileName);
   end;
 CDS.Free;
 
-frmparameters_station_open:=false;
+frmprofile_station_all_open:=false;
 end;
 
 

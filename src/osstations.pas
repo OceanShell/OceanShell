@@ -20,6 +20,8 @@ type
     DBGridStation: TDBGrid;
     iProfilesAll: TMenuItem;
     ishowselectedstation: TMenuItem;
+    MenuItem1: TMenuItem;
+    iUpdateLastLevel: TMenuItem;
     MenuItem8: TMenuItem;
     Panel1: TPanel;
     PM1: TPopupMenu;
@@ -38,6 +40,7 @@ type
     procedure DBGridStationTitleClick(Column: TColumn);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormResize(Sender: TObject);
+    procedure iUpdateLastLevelClick(Sender: TObject);
 
 
   private
@@ -55,7 +58,7 @@ implementation
 
 { Tfrmosstation }
 
-uses osmain, dm;
+uses osmain, dm, osservice;
 
 procedure Tfrmosstation.FormCreate(Sender: TObject);
 Var
@@ -139,6 +142,11 @@ procedure Tfrmosstation.FormResize(Sender: TObject);
 begin
  panel1.Width:=frmosstation.Width-250;
  Application.ProcessMessages;
+end;
+
+procedure Tfrmosstation.iUpdateLastLevelClick(Sender: TObject);
+begin
+  osservice.UpdateLastLevel;
 end;
 
 

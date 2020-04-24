@@ -8,8 +8,8 @@ uses
   Classes, SysUtils, Variants, Math, DB, SQLDB, osmain, dm, procedures, Dialogs;
 
 procedure UpdateLastLevel;
-procedure UpdateCruiseStartFinishDates;
-procedure UpdateCruiseStations;
+procedure UpdateCruiseStartFinishDates(ID: integer);
+procedure UpdateCruiseStations(ID: integer);
 
 
 implementation
@@ -94,7 +94,7 @@ end;
 
 
 
-procedure UpdateCruiseStartFinishDates;
+procedure UpdateCruiseStartFinishDates(ID: integer);
 Var
   TRt:TSQLTransaction;
   Qt1, Qt2:TSQLQuery;
@@ -160,7 +160,7 @@ begin
 end;
 
 
-procedure UpdateCruiseStations;
+procedure UpdateCruiseStations(ID: integer);
 Var
   TRt:TSQLTransaction;
   Qt1, Qt2:TSQLQuery;

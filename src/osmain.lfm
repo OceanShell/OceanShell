@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 336
+  Left = 438
   Height = 699
-  Top = 172
+  Top = 307
   Width = 1306
   Caption = 'OceanShell'
   ClientHeight = 669
@@ -1066,21 +1066,6 @@ object frmosmain: Tfrmosmain
         ImageIndex = 323
         OnClick = iSupportTablesClick
       end
-      object MenuItem12: TMenuItem
-        Caption = '-'
-      end
-      object btnUpdateLastLEvel: TMenuItem
-        Caption = 'Update Last Level'
-        OnClick = btnUpdateLastLEvelClick
-      end
-      object btnUpdateCruiseStartFinishDates: TMenuItem
-        Caption = 'Update Cruise Start and Finish Dates'
-        OnClick = btnUpdateCruiseStartFinishDatesClick
-      end
-      object iUpdateCruiseStations: TMenuItem
-        Caption = 'Update Cruise Stations'
-        OnClick = iUpdateCruiseStationsClick
-      end
     end
     object iImport: TMenuItem
       Caption = 'Import'
@@ -1111,10 +1096,6 @@ object frmosmain: Tfrmosmain
       object MenuItem5: TMenuItem
         Action = aMapKML
         Caption = 'Map [KML]'
-      end
-      object MenuItem6: TMenuItem
-        Action = aProfilesStationAll
-        Caption = 'Show/edit all profiles for selected station'
       end
       object MenuItem8: TMenuItem
         Action = aProfilesSelectedAllPlot
@@ -1186,6 +1167,12 @@ object frmosmain: Tfrmosmain
       ImageIndex = 33
       OnExecute = aShowStationsExecute
     end
+    object aProfilesStationSingle: TAction
+      Category = 'Tools'
+      Caption = 'aProfilesStationSingle'
+      ImageIndex = 1006
+      OnExecute = aProfilesStationSingleExecute
+    end
     object aProfilesSelectedAllPlot: TAction
       Category = 'Tools'
       Caption = 'Plot profiles for all selected stations'
@@ -1201,6 +1188,31 @@ object frmosmain: Tfrmosmain
       Caption = 'Select Cruise'
       ImageIndex = 14
       OnClick = iSelectCruiseClick
+    end
+    object MenuItem2: TMenuItem
+      Caption = '-'
+    end
+    object iUpdateCruiseStations: TMenuItem
+      Caption = 'Update Cruise Stations'
+      object iUpdateCruiseStationsSelected: TMenuItem
+        Caption = 'Selected Cruise'
+        OnClick = iUpdateCruiseStationsSelectedClick
+      end
+      object iUpdateCruiseStationsAll: TMenuItem
+        Caption = 'All Cruises'
+        OnClick = iUpdateCruiseStationsAllClick
+      end
+    end
+    object iUpdateCruiseStartFinish: TMenuItem
+      Caption = 'Update Cruise Period'
+      object iUpdateCruiseStartFinishSelected: TMenuItem
+        Caption = 'Selected Cruise'
+        OnClick = iUpdateCruiseStartFinishSelectedClick
+      end
+      object iUpdateCruiseStartFinishAll: TMenuItem
+        Caption = 'All Cruises'
+        OnClick = iUpdateCruiseStartFinishAllClick
+      end
     end
   end
 end

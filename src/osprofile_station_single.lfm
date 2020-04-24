@@ -1,0 +1,10 @@
+object frmprofile_station_single: Tfrmprofile_station_single
+  Left = 543
+  Height = 598
+  Top = 203
+  Width = 753
+  Caption = 'frmprofile_station_single'
+  DesignTimePPI = 144
+  Position = poOwnerFormCenter
+  LCLVersion = '2.0.6.0'
+end

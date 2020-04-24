@@ -1,23 +1,28 @@
-unit osparameters_allprofiles;
+unit osprofile_plot_all;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, TAGraph,
-  TASeries, TATypes, TATools, IniFiles, SQLDB, Variants, Types;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, IniFiles,
+  SQLDB, Variants, Types,
+  TAGraph, TATools, TASeries, TATypes,
+  TACustomSeries,  // for TChartSeries
+  TAChartUtils,    // for nptCustom
+  TAEnumerators;   // for CustomSeries(Chart) ;
 
 type
 
-  { Tfrmparameters_allprofiles }
+  { Tfrmprofile_plot_all }
 
-  Tfrmparameters_allprofiles = class(TForm)
+  Tfrmprofile_plot_all = class(TForm)
     Chart1: TChart;
     ChartToolset1: TChartToolset;
-    ChartToolset1DataPointClickTool1: TDataPointClickTool;
-    ChartToolset1ZoomDragTool1: TZoomDragTool;
-    ChartToolset1ZoomMouseWheelTool1: TZoomMouseWheelTool;
+    DPH: TDataPointHintTool;
+    DPC: TDataPointClickTool;
+    ZD: TZoomDragTool;
+    ZMW: TZoomMouseWheelTool;
     ToolBar1: TToolBar;
     btnPrior: TToolButton;
     btnNext: TToolButton;
@@ -27,18 +32,20 @@ type
     ToolButton6: TToolButton;
     ToolButton7: TToolButton;
 
+
+    procedure FormShow(Sender: TObject);
     procedure btnNextClick(Sender: TObject);
     procedure btnPriorClick(Sender: TObject);
-    procedure ChartToolset1DataPointClickTool1PointClick(ATool: TChartTool;
+    procedure DPCPointClick(ATool: TChartTool;
       APoint: TPoint);
-    procedure FormShow(Sender: TObject);
-
+    procedure DPHAfterMouseMove(ATool: TChartTool; APoint: TPoint);
 
   private
     function AddLineSeries (AChart: TChart; ATitle: String;
       AColor:TColor; sName:string):TLineSeries;
     function AddPointSeries(AChart: TChart; ATitle: String;
       AColor:TColor; sName:string):TLineSeries;
+    procedure HighlightSeries(ASeries: TBasicChartSeries);
     procedure SelectProfile(sname:string);
   public
     procedure AddToPlot(ID:integer);
@@ -47,9 +54,8 @@ type
   end;
 
 var
-  frmparameters_allprofiles: Tfrmparameters_allprofiles;
+  frmprofile_plot_all: Tfrmprofile_plot_all;
 
-  TMPSeries:TBasicChartSeries;
   mik:integer;
   ismeters: boolean=false;
 
@@ -57,12 +63,12 @@ implementation
 
 {$R *.lfm}
 
-{ Tfrmparameters_allprofiles }
+{ Tfrmprofile_plot_all }
 
 uses osmain, dm, osparameters_list;
 
 
-function Tfrmparameters_allprofiles.AddLineSeries(AChart: TChart;
+function Tfrmprofile_plot_all.AddLineSeries(AChart: TChart;
   ATitle: String; AColor:TColor; sName:string): TLineSeries;
 begin
  Result := TLineSeries.Create(AChart.Owner);
@@ -73,12 +79,13 @@ begin
     LinePen.Style := psSolid;
     SeriesColor := AColor;
     Name := sName;
+    ToolTargets := [nptPoint, nptYList, nptCustom];
   end;
  AChart.AddSeries(Result);
 end;
 
 
-function Tfrmparameters_allprofiles.AddPointSeries(AChart: TChart;
+function Tfrmprofile_plot_all.AddPointSeries(AChart: TChart;
   ATitle: String; AColor:TColor; sName:string): TLineSeries;
 begin
  Result := TLineSeries.Create(AChart.Owner);
@@ -95,10 +102,9 @@ begin
 end;
 
 
-procedure Tfrmparameters_allprofiles.FormShow(Sender: TObject);
+procedure Tfrmprofile_plot_all.FormShow(Sender: TObject);
 var
-k, ID, CurrentID:integer;
-sName:TComponentName;
+ID, CurrentID:integer;
 Ini:TInifile;
 LeftAxisTitle:string;
 begin
@@ -136,16 +142,13 @@ Ini := TIniFile.Create(IniFileName);
 end;
 
 
-procedure Tfrmparameters_allprofiles.ChangeID(ID:integer);
-var
-sname, stnum:string;
+procedure Tfrmprofile_plot_all.ChangeID(ID:integer);
 begin
- sName:='s'+inttostr(ID);
- SelectProfile(sname);
+ SelectProfile('s'+inttostr(ID));
 end;
 
 
-procedure Tfrmparameters_allprofiles.AddToPlot(ID:integer);
+procedure Tfrmprofile_plot_all.AddToPlot(ID:integer);
 Var
 flag:integer;
 lev, val:real;
@@ -180,7 +183,7 @@ try
    inc(mik);
    sName:='s'+inttostr(ID);
 
-    if Qt.RecordCount=1 then AddPointSeries(Chart1, sName, clYellow, sName);
+    if Qt.RecordCount=1 then AddPointSeries(Chart1, sName, clGray, sName);
     if Qt.RecordCount>1 then AddLineSeries(Chart1, sName, clGray, sName);
 
     Qt.First;
@@ -211,7 +214,7 @@ end;
 
 
 
-procedure Tfrmparameters_allprofiles.SelectProfile(sName:string);
+procedure Tfrmprofile_plot_all.SelectProfile(sName:string);
 var
 k,cs:integer;
 begin
@@ -240,7 +243,7 @@ begin
 end;
 
 
-procedure Tfrmparameters_allprofiles.UpdateProfile(ID:integer);
+procedure Tfrmprofile_plot_all.UpdateProfile(ID:integer);
 Var
 sname:string;
 k, flag:integer;
@@ -271,37 +274,23 @@ for k:=0 to Chart1.SeriesList.Count-1 do
 end;
 
 
-procedure Tfrmparameters_allprofiles.ChartToolset1DataPointClickTool1PointClick(
+procedure Tfrmprofile_plot_all.DPCPointClick(
   ATool: TChartTool; APoint: TPoint);
 Var
- sName:string;
  ID:integer;
-  tool: TDataPointClicktool;
-  series: TLineSeries;
+ tool: TDataPointClicktool;
+ series: TLineSeries;
 begin
-showmessage('here');
-
-  if not (ATool is TDataPointClickTool) then exit;
-
-  tool := TDatapointClickTool(ATool);
-  if tool <> nil then begin
-   showmessage('here2');
-
-    if not (tool.Series is TLineSeries) then exit;
+  tool := ATool as TDataPointClickTool;
+  if tool.Series is TLineSeries then begin
     series := TLineSeries(tool.Series);
-
-    showmessage('here3');
-    if series <> nil then begin
-      sName := series.Name;
-      SelectProfile(sname);
-      ID:=strtoint(copy(sname,2,length(sname)));
+      SelectProfile(series.Name);
+      ID:=strtoint(copy(series.Name,2,length(series.Name)));
       frmdm.Q.Locate('ID', ID, []);
-      frmosmain.CDSNavigation;
-   end
   end;
 end;
 
-procedure Tfrmparameters_allprofiles.btnPriorClick(Sender: TObject);
+procedure Tfrmprofile_plot_all.btnPriorClick(Sender: TObject);
 begin
  btnNext.Enabled:=true;
  frmdm.Q.Prior;
@@ -310,12 +299,37 @@ begin
 end;
 
 
-procedure Tfrmparameters_allprofiles.btnNextClick(Sender: TObject);
+procedure Tfrmprofile_plot_all.btnNextClick(Sender: TObject);
 begin
  btnPrior.Enabled:=true;
  frmdm.Q.Next;
  if frmdm.Q.Eof then btnNext.Enabled:=false;
  frmosmain.CDSNavigation;
+end;
+
+procedure Tfrmprofile_plot_all.HighlightSeries(ASeries: TBasicChartSeries);
+var
+  series: TCustomChartSeries;
+  w: Integer;
+begin
+  for series in CustomSeries(Chart1) do
+    if series is TLineSeries then
+    begin
+      if (series = ASeries) and ( TLineSeries(series).SeriesColor<>clRed) then begin
+        TLineSeries(series).LinePen.Width:=2;
+        TLineSeries(series).SeriesColor:=clBlack;
+      end;
+      if (series <> ASeries) and ( TLineSeries(series).SeriesColor<>clRed) then begin
+        TLineSeries(series).LinePen.Width:=1;
+        TLineSeries(series).SeriesColor:=clGray;
+      end;
+    end;
+end;
+
+procedure Tfrmprofile_plot_all.DPHAfterMouseMove(ATool: TChartTool;
+  APoint: TPoint);
+begin
+  HighlightSeries(TDatapointHintTool(ATool).Series);
 end;
 
 

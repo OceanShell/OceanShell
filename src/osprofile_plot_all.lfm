@@ -1,9 +1,9 @@
-object frmparameters_allprofiles: Tfrmparameters_allprofiles
+object frmprofile_plot_all: Tfrmprofile_plot_all
   Left = 709
   Height = 541
   Top = 256
   Width = 704
-  Caption = 'frmparameters_allprofiles'
+  Caption = 'frmprofile_plot_all'
   ClientHeight = 541
   ClientWidth = 704
   DesignTimePPI = 144
@@ -32,14 +32,14 @@ object frmparameters_allprofiles: Tfrmparameters_allprofiles
       Left = 1
       Top = 2
       Caption = 'btnPrior'
-      ImageIndex = 749
+      ImageIndex = 1007
       OnClick = btnPriorClick
     end
     object btnNext: TToolButton
       Left = 34
       Top = 2
       Caption = 'btnNext'
-      ImageIndex = 748
+      ImageIndex = 1008
       OnClick = btnNextClick
     end
     object ToolButton3: TToolButton
@@ -69,7 +69,7 @@ object frmparameters_allprofiles: Tfrmparameters_allprofiles
     object ToolButton7: TToolButton
       Left = 105
       Top = 2
-      Caption = 'ToolButton7'
+      Action = frmosmain.aProfilesStationSingle
     end
   end
   object Chart1: TChart
@@ -103,19 +103,29 @@ object frmparameters_allprofiles: Tfrmparameters_allprofiles
     Title.Text.Strings = (
       'TAChart'
     )
+    Toolset = ChartToolset1
     Align = alClient
   end
   object ChartToolset1: TChartToolset
-    left = 128
-    top = 131
-    object ChartToolset1ZoomDragTool1: TZoomDragTool
-      Brush.Style = bsClear
-    end
-    object ChartToolset1ZoomMouseWheelTool1: TZoomMouseWheelTool
-    end
-    object ChartToolset1DataPointClickTool1: TDataPointClickTool
+    left = 160
+    top = 224
+    object DPC: TDataPointClickTool
+      Shift = [ssLeft]
+      GrabRadius = 12
       ActiveCursor = crHandPoint
-      OnPointClick = ChartToolset1DataPointClickTool1PointClick
+      OnPointClick = DPCPointClick
+    end
+    object DPH: TDataPointHintTool
+      OnAfterMouseMove = DPHAfterMouseMove
+      GrabRadius = 12
+      ActiveCursor = crHandPoint
+    end
+    object ZD: TZoomDragTool
+      Shift = [ssLeft]
+      Brush.Style = bsClear
+      RestoreExtentOn = [zreDragTopLeft, zreDragTopRight, zreDragBottomLeft]
+    end
+    object ZMW: TZoomMouseWheelTool
     end
   end
 end

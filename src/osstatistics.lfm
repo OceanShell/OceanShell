@@ -1,48 +1,61 @@
 object frmosstatistics: Tfrmosstatistics
-  Left = 499
-  Height = 603
-  Top = 144
-  Width = 892
+  Left = 231
+  Height = 904
+  Top = 62
+  Width = 1338
   Caption = 'Statistics'
-  ClientHeight = 603
-  ClientWidth = 892
+  ClientHeight = 904
+  ClientWidth = 1338
   Color = clBtnFace
-  Constraints.MinHeight = 580
-  Constraints.MinWidth = 892
+  Constraints.MinHeight = 870
+  Constraints.MinWidth = 1338
+  DesignTimePPI = 144
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -17
   Font.Name = 'MS Sans Serif'
   OnShow = FormShow
   Position = poScreenCenter
   LCLVersion = '2.0.6.0'
   object PageControl1: TPageControl
     Left = 0
-    Height = 603
+    Height = 904
     Top = 0
-    Width = 892
+    Width = 1338
     ActivePage = tabBarVertical
     Align = alClient
+    Font.Color = clWindowText
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    ParentFont = False
     TabIndex = 2
     TabOrder = 0
     object tabSelection: TTabSheet
       Caption = 'Selection'
       ClientHeight = 577
       ClientWidth = 884
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ParentFont = False
       object btnGetStatistics: TButton
-        Left = 8
-        Height = 25
-        Top = 376
-        Width = 209
+        Left = 12
+        Height = 38
+        Top = 564
+        Width = 314
         Caption = 'Get Statistics'
         Enabled = False
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
         OnClick = btnGetStatisticsClick
+        ParentFont = False
         TabOrder = 0
       end
       object clbStatList: TCheckGroup
-        Left = 8
-        Height = 360
-        Top = 8
-        Width = 209
+        Left = 12
+        Height = 540
+        Top = 12
+        Width = 314
         AutoFill = True
         Caption = 'Statistics'
         ChildSizing.LeftRightSpacing = 6
@@ -53,8 +66,11 @@ object frmosstatistics: Tfrmosstatistics
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 342
-        ClientWidth = 205
+        ClientHeight = 515
+        ClientWidth = 310
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
         Items.Strings = (
           'Stations by year'
           'Stations by month'
@@ -72,6 +88,7 @@ object frmosstatistics: Tfrmosstatistics
           'Stations in a month in a year'
         )
         OnItemClick = clbStatListItemClick
+        ParentFont = False
         TabOrder = 1
         Data = {
           0E0000000202020202020202020202020202
@@ -82,49 +99,65 @@ object frmosstatistics: Tfrmosstatistics
       Caption = 'Log'
       ClientHeight = 577
       ClientWidth = 884
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
       ImageIndex = 5
+      ParentFont = False
       object Memo1: TMemo
-        Left = 3
-        Height = 543
-        Top = 3
-        Width = 866
+        Left = 4
+        Height = 527
+        Top = 4
+        Width = 858
         Anchors = [akTop, akLeft, akRight, akBottom]
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
         Lines.Strings = (
           ''
         )
+        ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
       end
       object Memo4: TMemo
-        Left = 44
-        Height = 380
-        Top = 36
-        Width = 89
+        Left = 66
+        Height = 570
+        Top = 54
+        Width = 134
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
         Lines.Strings = (
           'Memo4'
         )
+        ParentFont = False
         TabOrder = 1
         Visible = False
       end
     end
     object tabBarVertical: TTabSheet
       Caption = 'Bar plots [vertical]'
-      ClientHeight = 577
-      ClientWidth = 884
+      ClientHeight = 871
+      ClientWidth = 1330
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
       ImageIndex = 1
+      ParentFont = False
       object Splitter1: TSplitter
-        Left = 589
-        Height = 371
+        Left = 884
+        Height = 556
         Top = 0
-        Width = 5
+        Width = 8
         Align = alNone
         Beveled = True
       end
       object TabControl1: TTabControl
         Left = 0
-        Height = 577
+        Height = 871
         Top = 0
-        Width = 756
+        Width = 1138
         OnChange = TabControl1Change
         TabIndex = 0
         Tabs.Strings = (
@@ -134,17 +167,25 @@ object frmosstatistics: Tfrmosstatistics
           'Vessel'
         )
         Align = alClient
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
         TabOrder = 0
       end
       object Memo2: TMemo
-        Left = 756
-        Height = 577
+        Left = 1138
+        Height = 871
         Top = 0
-        Width = 128
+        Width = 192
         Align = alRight
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
         Lines.Strings = (
           'Memo2'
         )
+        ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 1
       end
@@ -153,7 +194,11 @@ object frmosstatistics: Tfrmosstatistics
       Caption = 'Bar plots [horizontal]'
       ClientHeight = 577
       ClientWidth = 884
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
       ImageIndex = 2
+      ParentFont = False
       object TabControl3: TTabControl
         Left = 0
         Height = 577
@@ -161,6 +206,10 @@ object frmosstatistics: Tfrmosstatistics
         Width = 884
         OnChange = TabControl3Change
         Align = alClient
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
         TabOrder = 0
       end
     end
@@ -168,7 +217,11 @@ object frmosstatistics: Tfrmosstatistics
       Caption = 'Point plots'
       ClientHeight = 577
       ClientWidth = 884
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
       ImageIndex = 3
+      ParentFont = False
       object TabControl2: TTabControl
         Left = 0
         Height = 577
@@ -180,14 +233,18 @@ object frmosstatistics: Tfrmosstatistics
           'Time->Day Diagram'
         )
         Align = alClient
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
         TabOrder = 0
       end
     end
   end
   object PopupMenu1: TPopupMenu
     Images = frmicons.IL1
-    left = 508
-    top = 196
+    left = 762
+    top = 294
     object Preferences1: TMenuItem
     end
     object Standardchartsettings1: TMenuItem
