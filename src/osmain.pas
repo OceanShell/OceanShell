@@ -23,6 +23,7 @@ type
   { Tfrmosmain }
 
   Tfrmosmain = class(TForm)
+    aSettings: TAction;
     aProfilesStationSingle: TAction;
     aProfilesSelectedAllPlot: TAction;
     aShowStations: TAction;
@@ -145,6 +146,7 @@ type
     procedure aProfilesSelectedAllPlotExecute(Sender: TObject);
     procedure aProfilesStationAllExecute(Sender: TObject);
     procedure aProfilesStationSingleExecute(Sender: TObject);
+    procedure aSettingsExecute(Sender: TObject);
     procedure aShowStationsExecute(Sender: TObject);
     procedure btnAdvancedSelectionClick(Sender: TObject);
     procedure btnSelectionClick(Sender: TObject);
@@ -168,8 +170,8 @@ type
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
     procedure iSelectCruiseClick(Sender: TObject);
-    procedure iSettingsClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
+    procedure iSettingsClick(Sender: TObject);
     procedure iSupportTablesClick(Sender: TObject);
     procedure iUpdateCruiseStartFinishSelectedClick(Sender: TObject);
     procedure iUpdateCruiseStationsAllClick(Sender: TObject);
@@ -620,13 +622,14 @@ if NavigationOrder=false then exit;
        frmdm.QCruise.Locate('ID', frmdm.Q.FieldByName('CRUISE_ID').AsInteger,[]);
      end;
      if frmmap_open=true then frmmap.ChangeID(ID); //Map
-     if frmprofile_station_all_open=true then frmprofile_station_all.ChangeID(ID);
+     if frmprofile_station_all_open=true then frmprofile_station_all.ChangeID(ID); //
+     if frmprofile_station_single_open =true then frmprofile_station_single.ChangeID(ID);
      if frmprofile_plot_all_open=true then frmprofile_plot_all.ChangeID(ID);
  //  if InfoOpen      =true then Info.ChangeID;
  //  if QProfilesOpen =true then QProfiles.ChangeStation(ID);
  //  if DensOpen      =true then QDensity.ChangeDensStation(ID);
  //  if TSOPen        =true then frmToolTSDiagram.ChangeID;
- //  if SinglePrfOpen =true then SingleParameter.TblChange(ID);
+
 
  //  if MeteoOpen     =true then Meteo.ChangeAbsnum;
  //  if MLDOpen       =true then MLD.ChangeID;
@@ -663,7 +666,7 @@ begin
 end;
 
 
-procedure Tfrmosmain.iSettingsClick(Sender: TObject);
+procedure Tfrmosmain.aSettingsExecute(Sender: TObject);
 begin
  frmsettings := Tfrmsettings.Create(Self);
   try
@@ -672,6 +675,11 @@ begin
     frmsettings.Free;
     frmsettings := nil;
   end;
+end;
+
+procedure Tfrmosmain.iSettingsClick(Sender: TObject);
+begin
+  aSettings.Execute;
 end;
 
 

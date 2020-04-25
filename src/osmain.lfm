@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 438
+  Left = 336
   Height = 699
-  Top = 307
+  Top = 162
   Width = 1306
   Caption = 'OceanShell'
   ClientHeight = 669
@@ -508,7 +508,7 @@ object frmosmain: Tfrmosmain
     end
     object tsMainCruises: TTabSheet
       Caption = 'Cruises'
-      ClientHeight = 570
+      ClientHeight = 562
       ClientWidth = 1298
       Font.Color = clWindowText
       Font.Height = -17
@@ -516,7 +516,7 @@ object frmosmain: Tfrmosmain
       ParentFont = False
       object DBGridCruise: TDBGrid
         Left = 0
-        Height = 460
+        Height = 452
         Top = 32
         Width = 1298
         Align = alClient
@@ -622,7 +622,7 @@ object frmosmain: Tfrmosmain
       object DBMemoCruises: TDBMemo
         Left = 0
         Height = 70
-        Top = 500
+        Top = 492
         Width = 1298
         Align = alBottom
         DataField = 'NOTES'
@@ -638,7 +638,7 @@ object frmosmain: Tfrmosmain
         Cursor = crVSplit
         Left = 0
         Height = 8
-        Top = 492
+        Top = 484
         Width = 1298
         Align = alBottom
         ResizeAnchor = akBottom
@@ -1169,7 +1169,7 @@ object frmosmain: Tfrmosmain
     end
     object aProfilesStationSingle: TAction
       Category = 'Tools'
-      Caption = 'aProfilesStationSingle'
+      Caption = 'Single profile for selected station'
       ImageIndex = 1006
       OnExecute = aProfilesStationSingleExecute
     end
@@ -1179,6 +1179,12 @@ object frmosmain: Tfrmosmain
       Enabled = False
       ImageIndex = 1002
       OnExecute = aProfilesSelectedAllPlotExecute
+    end
+    object aSettings: TAction
+      Category = 'File'
+      Caption = 'Settings'
+      ImageIndex = 235
+      OnExecute = aSettingsExecute
     end
   end
   object PMCruise: TPopupMenu

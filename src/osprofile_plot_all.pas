@@ -108,7 +108,7 @@ ID, CurrentID:integer;
 Ini:TInifile;
 LeftAxisTitle:string;
 begin
-Ini := TIniFile.Create(IniFileName);
+ Ini := TIniFile.Create(IniFileName);
   try
     Width :=Ini.ReadInteger( 'Profiles', 'Width',  600);
     Height:=Ini.ReadInteger( 'Profiles', 'Height', 600);
@@ -287,6 +287,7 @@ begin
       SelectProfile(series.Name);
       ID:=strtoint(copy(series.Name,2,length(series.Name)));
       frmdm.Q.Locate('ID', ID, []);
+      frmosmain.CDSNavigation;
   end;
 end;
 
@@ -315,11 +316,11 @@ begin
   for series in CustomSeries(Chart1) do
     if series is TLineSeries then
     begin
-      if (series = ASeries) and ( TLineSeries(series).SeriesColor<>clRed) then begin
+      if (series = ASeries) and (TLineSeries(series).SeriesColor<>clRed) then begin
         TLineSeries(series).LinePen.Width:=2;
         TLineSeries(series).SeriesColor:=clBlack;
       end;
-      if (series <> ASeries) and ( TLineSeries(series).SeriesColor<>clRed) then begin
+      if (series <> ASeries) and (TLineSeries(series).SeriesColor<>clRed) then begin
         TLineSeries(series).LinePen.Width:=1;
         TLineSeries(series).SeriesColor:=clGray;
       end;

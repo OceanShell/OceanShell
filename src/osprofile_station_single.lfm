@@ -1,10 +1,307 @@
 object frmprofile_station_single: Tfrmprofile_station_single
-  Left = 543
-  Height = 598
-  Top = 203
-  Width = 753
+  Left = 643
+  Height = 634
+  Top = 180
+  Width = 1040
   Caption = 'frmprofile_station_single'
+  ClientHeight = 634
+  ClientWidth = 1040
   DesignTimePPI = 144
+  OnClose = FormClose
+  OnShow = FormShow
   Position = poOwnerFormCenter
   LCLVersion = '2.0.6.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 562
+    Top = 0
+    Width = 327
+    Align = alLeft
+    BevelOuter = bvNone
+    Caption = 'Panel1'
+    ClientHeight = 562
+    ClientWidth = 327
+    TabOrder = 0
+    object cbParameters: TComboBox
+      Left = 0
+      Height = 33
+      Top = 0
+      Width = 327
+      Align = alTop
+      ItemHeight = 25
+      OnChange = cbParametersChange
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object Chart1: TChart
+      Left = 0
+      Height = 529
+      Top = 33
+      Width = 327
+      AxisList = <      
+        item
+          Grid.Visible = False
+          Arrow.Inverted = True
+          Inverted = True
+          Marks.LabelBrush.Style = bsClear
+          Minors = <>
+          Title.LabelFont.Orientation = 900
+          Title.Visible = True
+          Title.LabelBrush.Style = bsClear
+        end      
+        item
+          Grid.Visible = False
+          Alignment = calTop
+          Marks.LabelBrush.Style = bsClear
+          Minors = <>
+          Title.LabelBrush.Style = bsClear
+        end>
+      BackColor = clWhite
+      Foot.Brush.Color = clBtnFace
+      Foot.Font.Color = clBlue
+      Title.Brush.Color = clBtnFace
+      Title.Font.Color = clBlue
+      Title.Text.Strings = (
+        'TAChart'
+      )
+      Toolset = ChartToolset1
+      Align = alClient
+      object Series1: TLineSeries
+        LinePen.Color = clNavy
+        LinePen.Width = 2
+        Pointer.Brush.Color = clNavy
+        Pointer.Style = psCircle
+        Pointer.Visible = True
+        ShowPoints = True
+      end
+    end
+  end
+  object Splitter1: TSplitter
+    Left = 327
+    Height = 562
+    Top = 0
+    Width = 8
+    Beveled = True
+  end
+  object Panel2: TPanel
+    Left = 335
+    Height = 562
+    Top = 0
+    Width = 705
+    Align = alClient
+    BevelOuter = bvNone
+    Caption = 'Panel2'
+    ClientHeight = 562
+    ClientWidth = 705
+    TabOrder = 2
+    object ToolBar1: TToolBar
+      Left = 0
+      Height = 35
+      Top = 0
+      Width = 705
+      AutoSize = True
+      ButtonHeight = 33
+      ButtonWidth = 93
+      Caption = 'ToolBar1'
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'Tahoma'
+      Images = frmicons.IL1
+      List = True
+      ParentFont = False
+      ParentShowHint = False
+      ShowCaptions = True
+      ShowHint = True
+      TabOrder = 0
+      object btnAdd: TToolButton
+        Left = 1
+        Hint = 'Add level'
+        Top = 2
+        Caption = 'Add'
+        ImageIndex = 1
+      end
+      object btnDelete: TToolButton
+        Left = 94
+        Hint = 'Delete level'
+        Top = 2
+        Caption = 'Delete'
+        ImageIndex = 334
+      end
+      object btnSetFlag: TToolButton
+        Left = 192
+        Hint = 'Set flag on all parameters'
+        Top = 2
+        AutoSize = True
+        Caption = 'Flag'
+        ImageIndex = 420
+        Style = tbsDropDown
+      end
+      object btnCommit: TToolButton
+        Left = 308
+        Hint = 'Commit changes'
+        Top = 2
+        AutoSize = True
+        Caption = 'Commit'
+        ImageIndex = 940
+      end
+      object ToolButton1: TToolButton
+        Left = 187
+        Height = 33
+        Top = 2
+        Caption = 'ToolButton1'
+        Style = tbsDivider
+      end
+      object ToolButton3: TToolButton
+        Left = 303
+        Height = 33
+        Top = 2
+        Caption = 'ToolButton3'
+        Style = tbsDivider
+      end
+    end
+    object DBGrid1: TDBGrid
+      Left = 0
+      Height = 527
+      Top = 35
+      Width = 705
+      Align = alClient
+      AlternateColor = 13631478
+      AutoAdvance = aaNone
+      Color = 13627366
+      Columns = <      
+        item
+          Title.Caption = 'Level [dBar]'
+          FieldName = 'LEV_DBAR'
+        end      
+        item
+          Title.Caption = 'Level [m]'
+          FieldName = 'LEV_M'
+        end      
+        item
+          Title.Caption = 'Value'
+          FieldName = 'VAL'
+        end      
+        item
+          Title.Caption = 'PQF1'
+          Width = 60
+          FieldName = 'PQF1'
+        end      
+        item
+          Title.Caption = 'PQF2'
+          Width = 60
+          FieldName = 'PQF2'
+        end      
+        item
+          Title.Caption = 'SQF'
+          Width = 60
+          FieldName = 'SQF'
+        end      
+        item
+          Title.Caption = 'Bottle'
+          Width = 60
+          FieldName = 'BOTTLE_NUMBER'
+        end>
+      DataSource = DS
+      FixedCols = 0
+      Flat = True
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'Tahoma'
+      Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+      ParentFont = False
+      Scrollbars = ssAutoBoth
+      TabOrder = 1
+      TitleFont.Color = clWindowText
+      TitleFont.Height = -11
+      TitleFont.Name = 'MS Sans Serif'
+      OnPrepareCanvas = DBGrid1PrepareCanvas
+    end
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 36
+    Top = 562
+    Width = 1040
+    Panels = <    
+      item
+        Text = 'Level'
+        Width = 65
+      end    
+      item
+        Width = 150
+      end    
+      item
+        Width = 150
+      end    
+      item
+        Width = 150
+      end    
+      item
+        Width = 150
+      end    
+      item
+        Width = 50
+      end>
+    SimplePanel = False
+    SizeGrip = False
+  end
+  object StatusBar2: TStatusBar
+    Left = 0
+    Height = 36
+    Top = 598
+    Width = 1040
+    Panels = <    
+      item
+        Text = 'Value'
+        Width = 65
+      end    
+      item
+        Width = 150
+      end    
+      item
+        Width = 150
+      end    
+      item
+        Width = 150
+      end    
+      item
+        Width = 150
+      end    
+      item
+        Width = 150
+      end>
+    SimplePanel = False
+    SizeGrip = False
+  end
+  object Qt: TSQLQuery
+    FieldDefs = <>
+    Database = frmdm.IBDB
+    Transaction = frmdm.TR
+    Params = <>
+    left = 457
+    top = 179
+  end
+  object DS: TDataSource
+    DataSet = Qt
+    left = 520
+    top = 179
+  end
+  object ChartToolset1: TChartToolset
+    left = 140
+    top = 139
+    object ChartToolset1DataPointClickTool1: TDataPointClickTool
+      Shift = [ssLeft]
+      ActiveCursor = crHandPoint
+      OnPointClick = ChartToolset1DataPointClickTool1PointClick
+    end
+    object ChartToolset1ZoomDragTool1: TZoomDragTool
+      Brush.Style = bsClear
+      RestoreExtentOn = [zreDragTopLeft, zreDragTopRight, zreDragBottomLeft]
+    end
+    object ChartToolset1ZoomMouseWheelTool1: TZoomMouseWheelTool
+    end
+    object ChartToolset1DataPointHintTool1: TDataPointHintTool
+      ActiveCursor = crHandPoint
+    end
+  end
 end

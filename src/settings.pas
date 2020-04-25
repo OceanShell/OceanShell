@@ -38,11 +38,13 @@ type
     Memo1: TMemo;
     memo2: TMemo;
     PageControl1: TPageControl;
+    rgDepth: TRadioGroup;
     rgBathymetry: TRadioGroup;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet3: TTabSheet;
+    tsUnits: TTabSheet;
 
     procedure btnInstallMissingClick(Sender: TObject);
     procedure btnPythonPathClick(Sender: TObject);
@@ -91,6 +93,7 @@ begin
    ePythonPath.Text       :=Ini.ReadString  ( 'main', 'PythonPath',       PythonDefault);
    //rgLanguage.ItemIndex   :=Ini.ReadInteger ( 'main', 'Language',         0);
    rgBathymetry.ItemIndex :=Ini.ReadInteger ( 'main', 'Bathymetry',       0);
+   rgDepth.ItemIndex      :=Ini.ReadInteger ( 'main', 'Depth_units',      0);
   finally
     ini.Free;
   end;
@@ -201,11 +204,12 @@ begin
   try
    Ini.WriteString ( 'main', 'SupportPath',      eSupportPath.Text);
    Ini.WriteString ( 'main', 'UnloadPath',       eUnloadPath.Text);
-   Ini.WriteString ( 'Main', 'SurferPath',       eSurferPath.Text);
-   Ini.WriteString ( 'Main', 'GrapherPath',      eGrapherPath.Text);
+   Ini.WriteString ( 'main', 'SurferPath',       eSurferPath.Text);
+   Ini.WriteString ( 'main', 'GrapherPath',      eGrapherPath.Text);
    Ini.WriteString ( 'main', 'PythonPath',       ePythonPath.Text);
  //  Ini.WriteInteger( 'main', 'Language',         rgLanguage.ItemIndex);
    Ini.WriteInteger( 'main', 'Bathymetry',       rgBathymetry.ItemIndex);
+   Ini.WriteInteger( 'main', 'Depth_units',      rgDepth.ItemIndex);
   finally
     ini.Free;
   end;

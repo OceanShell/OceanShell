@@ -4,8 +4,8 @@ object frmosstation: Tfrmosstation
   Top = 190
   Width = 1417
   Caption = 'Stations'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 768
+  ClientWidth = 1417
   DesignTimePPI = 144
   OnClose = FormClose
   OnCreate = FormCreate
@@ -227,6 +227,10 @@ object frmosstation: Tfrmosstation
     top = 180
     object iProfilesAll: TMenuItem
       Action = frmosmain.aProfilesStationAll
+    end
+    object MenuItem2: TMenuItem
+      Action = frmosmain.aProfilesStationSingle
+      Caption = 'Single profile for selected station'
     end
     object MenuItem8: TMenuItem
       Caption = '-'

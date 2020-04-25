@@ -116,9 +116,20 @@ par:string;
 begin
  try
    Par:=lbParameters.Items.Strings[lbParameters.ItemIndex];
-   if Copy(par,1,1)='-' then exit; //Выходим, если разделитель
+   if Copy(par,1,1)='-' then exit;
 
    CurrentParTable:=trim(copy(Par,1,LastDelimiter(' ',Par)));
+
+
+    // All profiles for selected stations
+    if Caption='PROFILES' then begin
+      if frmprofile_plot_all_open=true then begin
+        frmprofile_plot_all_open:=false;
+        frmprofile_plot_all.Close;
+      end;
+      frmprofile_plot_all:= Tfrmprofile_plot_all.Create(nil);
+      frmprofile_plot_all_open:=true;
+    end;
 
     //Запускаем временные серии
  {   if Caption='TDDIAGRAMS' then begin
@@ -150,16 +161,6 @@ begin
         MeanProfile := nil;
        end;
      end;     }
-
-    // All profiles for selected stations
-    if Caption='PROFILES' then begin
-      if frmprofile_plot_all_open=true then begin
-        frmprofile_plot_all_open:=false;
-        frmprofile_plot_all.Close;
-      end;
-      frmprofile_plot_all:= Tfrmprofile_plot_all.Create(nil);
-      frmprofile_plot_all_open:=true;
-    end;
 
     {
     //Разрезы

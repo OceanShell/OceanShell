@@ -22,6 +22,7 @@ type
     ishowselectedstation: TMenuItem;
     MenuItem1: TMenuItem;
     iUpdateLastLevel: TMenuItem;
+    MenuItem2: TMenuItem;
     MenuItem8: TMenuItem;
     Panel1: TPanel;
     PM1: TPopupMenu;
