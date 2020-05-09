@@ -158,6 +158,15 @@ object frmLoadITP: TfrmLoadITP
         OnClick = Button4Click
         TabOrder = 4
       end
+      object Button5: TButton
+        Left = 11
+        Height = 38
+        Top = 256
+        Width = 249
+        Caption = 'dBar -> m'
+        OnClick = Button5Click
+        TabOrder = 5
+      end
     end
   end
   object Memo1: TMemo

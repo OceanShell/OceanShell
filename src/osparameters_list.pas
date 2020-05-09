@@ -5,7 +5,7 @@ unit osparameters_list;
 interface
 
 uses
-  LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes, Controls,
+  LCLIntf, LCLType, SysUtils, Variants, Classes, Controls,
   StdCtrls, CheckLst, ComCtrls, Forms, Dialogs, IniFiles, SQLDB;
 
 type
@@ -31,6 +31,7 @@ type
 
   private
     { Private declarations }
+    procedure SaveSettings;
   public
     { Public declarations }
   end;
@@ -114,6 +115,9 @@ procedure Tfrmparameters_list.lbParametersClick(Sender: TObject);
 var
 par:string;
 begin
+
+ SaveSettings;
+
  try
    Par:=lbParameters.Items.Strings[lbParameters.ItemIndex];
    if Copy(par,1,1)='-' then exit;
@@ -273,23 +277,30 @@ try
  end;
 end;
 
-procedure Tfrmparameters_list.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+
+procedure Tfrmparameters_list.SaveSettings;
 Var
-  Ini:TIniFile;
   k :integer;
+  Ini:TIniFile;
 begin
   Ini := TIniFile.Create(IniFileName);
-   try
-    Ini.WriteInteger( 'osparameters_list', 'top',    Top);
-    Ini.WriteInteger( 'osparameters_list', 'left',   Left);
-    Ini.WriteInteger( 'osparameters_list', 'width',  Width);
-    Ini.WriteInteger( 'osparameters_list', 'weight', Height);
+  try
+   Ini.WriteInteger( 'osparameters_list', 'top',    Top);
+   Ini.WriteInteger( 'osparameters_list', 'left',   Left);
+   Ini.WriteInteger( 'osparameters_list', 'width',  Width);
+   Ini.WriteInteger( 'osparameters_list', 'weight', Height);
 
-    for k:=0 to chklQCFlags.Count-1 do
-      Ini.WriteBool( 'osparameters_list', 'QCF'+inttostr(k), chklQCFlags.Checked[k]);
-   finally
-     Ini.Free;
-   end;
+   for k:=0 to chklQCFlags.Count-1 do
+     Ini.WriteBool( 'osparameters_list', 'QCF'+inttostr(k), chklQCFlags.Checked[k]);
+
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure Tfrmparameters_list.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  SaveSettings;
   frmparameters_list_open:=false;
 end;
 

@@ -21,6 +21,7 @@ type
     Button3: TButton;
     btnTimeReapload: TButton;
     Button4: TButton;
+    Button5: TButton;
     chkShowMetadata: TCheckBox;
     chkShowProfiles: TCheckBox;
     chkWrite: TCheckBox;
@@ -38,6 +39,7 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -54,7 +56,7 @@ implementation
 
 {$R *.lfm}
 
-uses osmain, Procedures, dm;
+uses osmain, Procedures, dm, GibbsSeaWater;
 
 
 procedure TfrmLoadITP.Button1Click(Sender: TObject);
@@ -87,7 +89,7 @@ k,yyyy, ndepth, id, row, levnum, p, oxy_fl, c, ff, cast, pp, units_id:integer;
 yy, mn, dd, hour, min, sec, msec:word;
 hh,mm,ss,mss:real;
 date1, lon, lat:real;
-pres, lev, temp, sal, oxy, u, v, w, turb, chl, cdom, par, nobs, val:real;
+pres, lev, temp, sal, oxy, u, v, w, turb, chl, cdom, par, nobs, val, lev_m:real;
 st, CurFile, tbl:string;
 stDate, StTime:TDateTime;
 stvessel, stnumincruise, st_param, buf_str:string;
@@ -293,12 +295,12 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
             4: begin
               tbl:='P_CDOM_ITP';
                if not isNaN(cdom)then val:=cdom else val:=-9999;
-              units_id:=23;
+              units_id:=24;
             end;
             5: begin
               tbl:='P_TURBIDITY_ITP';
                if not isNaN(turb)then val:=turb else val:=-9999;
-              units_id:=21;
+              units_id:=22;
             end;
             6: begin
               tbl:='P_CHLA_ITP';
@@ -308,7 +310,7 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
             7: begin
               tbl:='P_PAR_ITP';
                if not isNaN(par)then val:=par else val:=-9999;
-              units_id:=22;
+              units_id:=21;
             end;
           end;
          //  showmessage('here2'+'   '+floattostr(val));
@@ -317,17 +319,19 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
 
 
           if (val<>-9999) then begin
+          lev_m:=-gibbsseawater.gsw_z_from_p(pres, lat, 0, 0);
           try
            with Qt do begin
             Close;
              SQL.Clear;
              SQL.Add(' insert into ');
              SQL.Add(tbl);
-             SQL.Add(' (ID, LEV_DBAR, VAL, PQF1, PQF2, UNITS_ID) ');
+             SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF1, PQF2, UNITS_ID) ');
              SQL.Add(' values ');
-             SQL.Add(' (:ID, :LEV_DBAR, :VAL, :PQF1, :PQF2, :UNITS_ID) ');
+             SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF1, :PQF2, :UNITS_ID) ');
              ParamByName('ID').AsInteger:=id;
              ParamByName('LEV_DBAR').AsFloat:=pres;
+             ParamByName('LEV_DBAR').AsFloat:=lev_m;
              ParamByName('VAL').AsFloat:=val;
              ParamByName('PQF1').AsInteger:=4;
              ParamByName('PQF2').AsInteger:=4;
@@ -380,7 +384,7 @@ k,yyyy, ndepth, id, row, levnum, p, oxy_fl, c, ff, cast, pp, units_id:integer;
 yy, mn, dd, hour, min, sec, msec:word;
 hh,mm,ss,mss:real;
 date1, lon, lat, tmp1, tmp2 :real;
-pres, lev, temp, sal, oxy, u, v, w, turb, chl, cdom, par, nobs, val:real;
+pres, lev, temp, sal, oxy, u, v, w, turb, chl, cdom, par, nobs, val, lev_m:real;
 st, CurFile, tbl:string;
 stDate, StTime:TDateTime;
 stvessel, stnumincruise, st_param, buf_str:string;
@@ -587,12 +591,12 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
             4: begin
               tbl:='P_CDOM_ITP';
                if not isNaN(cdom)then val:=cdom else val:=-9999;
-              units_id:=23;
+              units_id:=24;
             end;
             5: begin
               tbl:='P_TURBIDITY_ITP';
                if not isNaN(turb)then val:=turb else val:=-9999;
-              units_id:=21;
+              units_id:=22;
             end;
             6: begin
               tbl:='P_CHLA_ITP';
@@ -602,7 +606,7 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
             7: begin
               tbl:='P_PAR_ITP';
                if not isNaN(par)then val:=par else val:=-9999;
-              units_id:=22;
+              units_id:=23;
             end;
           end;
          //  showmessage('here2'+'   '+floattostr(val));
@@ -611,17 +615,20 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
 
 
           if (val<>-9999) then begin
+
+          lev_m:=-gibbsseawater.gsw_z_from_p(pres, lat, 0, 0);
           try
            with Qt do begin
             Close;
              SQL.Clear;
              SQL.Add(' insert into ');
              SQL.Add(tbl);
-             SQL.Add(' (ID, LEV_DBAR, VAL, PQF1, PQF2, UNITS_ID) ');
+             SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF1, PQF2, UNITS_ID) ');
              SQL.Add(' values ');
-             SQL.Add(' (:ID, :LEV_DBAR, :VAL, :PQF1, :PQF2, :UNITS_ID) ');
+             SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF1, :PQF2, :UNITS_ID) ');
              ParamByName('ID').AsInteger:=id;
              ParamByName('LEV_DBAR').AsFloat:=pres;
+             ParamByName('LEV_M').AsFloat:=lev_m;
              ParamByName('VAL').AsFloat:=val;
              ParamByName('PQF1').AsInteger:=4;
              ParamByName('PQF2').AsInteger:=4;
@@ -832,7 +839,80 @@ begin
 
  until eof(dat);
  closefile(dat);
+end;
 
+
+
+procedure TfrmLoadITP.Button5Click(Sender: TObject);
+Var
+  ff, ID: integer;
+  tbl: string;
+  Lat, lev_d, lev_m: real;
+  TRt:TSQLTransaction;
+  Qt1, Qt2:TSQLQuery;
+begin
+   TRt:=TSQLTransaction.Create(self);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt1:=TSQLQuery.Create(self);
+   Qt1.Database:=frmdm.IBDB;
+   Qt1.Transaction:=TRt;
+
+   Qt2:=TSQLQuery.Create(self);
+   Qt2.Database:=frmdm.IBDB;
+   Qt2.Transaction:=TRt;
+
+  try
+  For ff:=1 to frmosmain.ListBox1.Count-1 do begin
+    tbl:=frmosmain.ListBox1.Items.Strings[ff];
+
+  with Qt1 do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' SELECT ');
+    SQL.Add(' STATION.ID, STATION.LATITUDE, '+tbl+'.LEV_DBAR ');
+    SQL.Add(' FROM STATION, '+tbl);
+    SQL.Add(' WHERE STATION.ID='+tbl+'.ID ');
+    SQL.Add(' ORDER BY STATION.ID, '+tbl+'.ID ');
+   Open;
+  end;
+
+  while not Qt1.EOF do begin
+   ID:=Qt1.FieldByName('ID').AsInteger;
+   lat:=Qt1.FieldByName('LATITUDE').AsFloat;
+   lev_d:=Qt1.FieldByName('LEV_DBAR').AsFloat;
+
+    lev_m:=-gibbsseawater.gsw_z_from_p(lev_d, lat, 0, 0);
+
+   with Qt2 do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' UPDATE '+tbl);
+    SQL.Add(' SET LEV_M=:lev_m ');
+    SQL.Add(' WHERE ID=:ID and LEV_DBAR=:lev_d ');
+    ParamByName('ID').AsInteger:=ID;
+    ParamByName('lev_m').AsFloat:=lev_m;
+    ParamByName('lev_d').AsFloat:=lev_d;
+   ExecSqL;
+  end;
+
+
+
+  //  memo1.Lines.Add(inttostr(ID)+'   '+floattostr(lev_d)+'   '+floattostr(lev_m));
+  //  Application.ProcessMessages;
+    Qt1.Next;
+  end;
+  TrT.CommitRetaining;
+  end;
+
+  finally
+  Qt1.close;
+  Qt2.Close;
+  Trt.Commit;
+  Qt1.Free;
+  Qt2.Free;
+  TrT.Free;
+  end;
 end;
 
 end.

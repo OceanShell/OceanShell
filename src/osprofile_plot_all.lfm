@@ -7,8 +7,8 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
   ClientHeight = 541
   ClientWidth = 704
   DesignTimePPI = 144
+  OnClose = FormClose
   OnShow = FormShow
-  Position = poOwnerFormCenter
   LCLVersion = '2.0.6.0'
   Visible = True
   object ToolBar1: TToolBar
@@ -111,13 +111,13 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
     top = 224
     object DPC: TDataPointClickTool
       Shift = [ssLeft]
-      GrabRadius = 12
+      GrabRadius = 2
       ActiveCursor = crHandPoint
       OnPointClick = DPCPointClick
     end
     object DPH: TDataPointHintTool
       OnAfterMouseMove = DPHAfterMouseMove
-      GrabRadius = 12
+      GrabRadius = 2
       ActiveCursor = crHandPoint
     end
     object ZD: TZoomDragTool

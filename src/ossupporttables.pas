@@ -10,7 +10,7 @@ uses
   {$ENDIF}
   lclintf, SysUtils, Variants, Classes, Graphics, Controls, Forms, LCLType,
   Dialogs, StdCtrls, Buttons, ComCtrls, ExtCtrls, Menus, sqldb, DB, sortbufds,
-  DBGrids, DBCtrls, LResources;
+  DBGrids, DBCtrls, LResources, Grids;
 
 type
 
@@ -102,6 +102,8 @@ type
 
     procedure btnUpdateQCClick(Sender: TObject);
     procedure DBGridPlatformKeyPress(Sender: TObject; var Key: char);
+    procedure DBGridPlatformPrepareCanvas(sender: TObject; DataCol: Integer;
+      Column: TColumn; AState: TGridDrawState);
     procedure ePlatform_IDClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -221,7 +223,7 @@ begin
      end;
   1: begin
        CodesTblName:='SOURCE';
-       Q.SQL.text:='Select ID, ID_MIN, ID_MAX, NAME '+
+       Q.SQL.text:='Select ID, STATION_ID_MIN, STATION_ID_MAX, NAME '+
                    'FROM SOURCE ORDER BY ID';
      end;
   2: begin
@@ -689,6 +691,16 @@ end;
 procedure Tfrmsupporttables.DBGridPlatformKeyPress(Sender: TObject; var Key: char);
 begin
  Key := UpCase(Key); //only capital letters
+end;
+
+procedure Tfrmsupporttables.DBGridPlatformPrepareCanvas(sender: TObject;
+  DataCol: Integer; Column: TColumn; AState: TGridDrawState);
+begin
+ if (gdRowHighlight in AState) then begin
+   TDBGrid(Sender).Canvas.Brush.Color := clNavy;
+   TDBGrid(Sender).Canvas.Font.Color  := clYellow;
+   TDBGrid(Sender).Canvas.Font.Style  := [fsBold];
+ end;
 end;
 
 

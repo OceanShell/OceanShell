@@ -128,6 +128,7 @@ object frmsupporttables: Tfrmsupporttables
           OnCellClick = DBGridPlatformCellClick
           OnKeyPress = DBGridPlatformKeyPress
           OnKeyUp = DBGridPlatformKeyUp
+          OnPrepareCanvas = DBGridPlatformPrepareCanvas
           OnTitleClick = DBGridPlatformTitleClick
         end
         object Panel3: TPanel
@@ -489,6 +490,7 @@ object frmsupporttables: Tfrmsupporttables
           TitleFont.Name = 'MS Sans Serif'
           OnCellClick = DBGridPlatformCellClick
           OnKeyUp = DBGridPlatformKeyUp
+          OnPrepareCanvas = DBGridPlatformPrepareCanvas
           OnTitleClick = DBGridCountryTitleClick
         end
       end
@@ -633,6 +635,7 @@ object frmsupporttables: Tfrmsupporttables
           TitleFont.Name = 'MS Sans Serif'
           OnCellClick = DBGridPlatformCellClick
           OnKeyUp = DBGridPlatformKeyUp
+          OnPrepareCanvas = DBGridPlatformPrepareCanvas
           OnTitleClick = DBGridCountryTitleClick
         end
       end
@@ -780,6 +783,7 @@ object frmsupporttables: Tfrmsupporttables
           TitleFont.Name = 'MS Sans Serif'
           OnCellClick = DBGridPlatformCellClick
           OnKeyUp = DBGridPlatformKeyUp
+          OnPrepareCanvas = DBGridPlatformPrepareCanvas
           OnTitleClick = DBGridCountryTitleClick
         end
       end
@@ -927,6 +931,7 @@ object frmsupporttables: Tfrmsupporttables
           TitleFont.Name = 'MS Sans Serif'
           OnCellClick = DBGridPlatformCellClick
           OnKeyUp = DBGridPlatformKeyUp
+          OnPrepareCanvas = DBGridPlatformPrepareCanvas
           OnTitleClick = DBGridCountryTitleClick
         end
       end
@@ -1096,6 +1101,7 @@ object frmsupporttables: Tfrmsupporttables
           TitleFont.Name = 'MS Sans Serif'
           OnCellClick = DBGridPlatformCellClick
           OnKeyUp = DBGridPlatformKeyUp
+          OnPrepareCanvas = DBGridPlatformPrepareCanvas
           OnTitleClick = DBGridCountryTitleClick
         end
       end
@@ -1299,6 +1305,7 @@ object frmsupporttables: Tfrmsupporttables
           TitleFont.Name = 'MS Sans Serif'
           OnCellClick = DBGridPlatformCellClick
           OnKeyUp = DBGridPlatformKeyUp
+          OnPrepareCanvas = DBGridPlatformPrepareCanvas
           OnTitleClick = DBGridCountryTitleClick
         end
       end
@@ -1358,7 +1365,7 @@ object frmsupporttables: Tfrmsupporttables
       ShowCaption = False
     end
     object btnsave: TToolButton
-      Left = 114
+      Left = 111
       Hint = 'Commit changes'
       Top = 0
       Caption = 'Save'
@@ -1381,7 +1388,7 @@ object frmsupporttables: Tfrmsupporttables
       Style = tbsDivider
     end
     object btnUpdateQC: TBitBtn
-      Left = 431
+      Left = 428
       Height = 33
       Top = 0
       Width = 105
@@ -1395,7 +1402,7 @@ object frmsupporttables: Tfrmsupporttables
       TabOrder = 0
     end
     object Panel28: TPanel
-      Left = 176
+      Left = 173
       Height = 33
       Top = 0
       Width = 255

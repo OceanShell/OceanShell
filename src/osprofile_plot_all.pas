@@ -33,6 +33,7 @@ type
     ToolButton7: TToolButton;
 
 
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormShow(Sender: TObject);
     procedure btnNextClick(Sender: TObject);
     procedure btnPriorClick(Sender: TObject);
@@ -48,16 +49,16 @@ type
     procedure HighlightSeries(ASeries: TBasicChartSeries);
     procedure SelectProfile(sname:string);
   public
-    procedure AddToPlot(ID:integer);
+    procedure AddToPlot(ID:integer; ToUpdate:boolean);
     procedure ChangeID(ID:integer);
-    procedure UpdateProfile(ID:integer);
+   // procedure UpdateProfile(ID:integer);
   end;
 
 var
   frmprofile_plot_all: Tfrmprofile_plot_all;
+  mik, depth_units:integer;
+  flag_st:string;
 
-  mik:integer;
-  ismeters: boolean=false;
 
 implementation
 
@@ -104,27 +105,41 @@ end;
 
 procedure Tfrmprofile_plot_all.FormShow(Sender: TObject);
 var
-ID, CurrentID:integer;
+ID, CurrentID, k:integer;
 Ini:TInifile;
-LeftAxisTitle:string;
+LeftAxisTitle :string;
 begin
  Ini := TIniFile.Create(IniFileName);
   try
-    Width :=Ini.ReadInteger( 'Profiles', 'Width',  600);
-    Height:=Ini.ReadInteger( 'Profiles', 'Height', 600);
+    Top   :=Ini.ReadInteger( 'osprofile_plot_all', 'Top',  100);
+    Left  :=Ini.ReadInteger( 'osprofile_plot_all', 'Left', 100);
+    Width :=Ini.ReadInteger( 'osprofile_plot_all', 'Width',  600);
+    Height:=Ini.ReadInteger( 'osprofile_plot_all', 'Height', 600);
+
+    Depth_units:=Ini.ReadInteger ( 'osmain', 'depth_units', 0);
+
+    flag_st:='';
+    for k:=0 to 8 do
+      if Ini.ReadBool('osparameters_list', 'QCF'+inttostr(k), true) then
+         flag_st:=flag_st+','+inttostr(k);
+
   finally
    Ini.Free;
   end;
 
+  flag_st:=copy(flag_st, 2, length(flag_st));
+  if trim(flag_st)='' then
+   if MessageDlg('Select at least one QF', mtWarning, [mbOk], 0)=mrOk then exit;
+
+
     mik:=-1;
-    ismeters:=false;
      try
       CurrentID:=frmdm.Q.FieldByName('ID').AsInteger;
       frmdm.Q.DisableControls;
       frmdm.Q.First;
         While not frmdm.Q.Eof do begin
          ID:=frmdm.Q.FieldByName('ID').AsInteger;
-           AddToPlot(ID);
+           AddToPlot(ID, false);
          frmdm.Q.Next;
         end;
       finally
@@ -132,7 +147,7 @@ begin
         frmdm.Q.EnableControls;
       end;
 
-    if ismeters then LeftAxisTitle:='Depth, [m]' else LeftAxisTitle:='Depth, [dBar]';
+    if depth_units=0 then LeftAxisTitle:='Depth, [m]' else LeftAxisTitle:='Depth, [dBar]';
 
     Chart1.AxisList.LeftAxis.Title.Caption:=LeftAxisTitle;
     ChangeID(CurrentID);
@@ -148,9 +163,9 @@ begin
 end;
 
 
-procedure Tfrmprofile_plot_all.AddToPlot(ID:integer);
+procedure Tfrmprofile_plot_all.AddToPlot(ID:integer; ToUpdate:boolean);
 Var
-flag:integer;
+k, flag:integer;
 lev, val:real;
 sName:TComponentName;
 lev_m, lev_d:Variant;
@@ -165,13 +180,15 @@ Qt:=TSQLQuery.Create(self);
 Qt.Database:=frmdm.IBDB;
 Qt.Transaction:=TRt;
 
+sName:='s'+inttostr(ID);
+
 try
  with Qt do begin
   Close;
    SQL.Clear;
    SQL.Add(' select LEV_DBAR, LEV_M, VAL, PQF2 from ');
    SQL.Add( CurrentParTable );
-   SQL.Add(' where ID=:ID ');
+   SQL.Add(' where ID=:ID AND PQF2 in ('+flag_st+')');
    SQL.Add(' order by LEV_DBAR, LEV_M ');
    ParamByName('ID').AsInteger:=ID;
   Open;
@@ -179,12 +196,26 @@ try
   First;
  end;
 
-  if not Qt.IsEmpty then begin
-   inc(mik);
-   sName:='s'+inttostr(ID);
+   if ToUpdate = true then begin
+    for k:=0 to Chart1.SeriesCount-1 do
+     if Chart1.Series[k].Name=sName then begin
+       TLineSeries(Chart1.Series[k]).Clear;
+       mik:=k;
+       break;
+     end;
+   end;
 
+  if (ToUpdate = true) and (Qt.IsEmpty=true) then
+      TLineSeries(Chart1.Series[mik]).Free;
+
+
+  if not Qt.IsEmpty then begin
+   if ToUpdate = false then begin
+    inc(mik);
     if Qt.RecordCount=1 then AddPointSeries(Chart1, sName, clGray, sName);
     if Qt.RecordCount>1 then AddLineSeries(Chart1, sName, clGray, sName);
+   end;
+
 
     Qt.First;
     while not Qt.Eof do begin
@@ -193,17 +224,14 @@ try
      val :=Qt.FieldByName('VAL').AsFloat;
      flag:=Qt.FieldByName('PQF2').AsInteger;
 
-     if not VarIsNull(lev_m) then begin
-       lev:=lev_m;
-       ismeters:=true;
-     end else lev:=lev_d;
+        if depth_units=0 then lev:=lev_m else lev:=lev_d;
 
-     if frmparameters_list.chklQCFlags.Checked[flag]=true then
         TLineSeries(Chart1.Series[mik]).AddXY(val,lev);
       Qt.Next;
     end;
     Qt.Close;
-  end;
+   end;
+
 finally
  Qt.Close;
  Qt.Free;
@@ -240,37 +268,6 @@ begin
     ZPosition:=1;
    end;
   end;
-end;
-
-
-procedure Tfrmprofile_plot_all.UpdateProfile(ID:integer);
-Var
-sname:string;
-k, flag:integer;
-Empty, FlagIsSet:boolean;
-val, lev:real;
-begin
-{sName:='s'+inttostr(ID);
-for k:=0 to Chart1.SeriesList.Count-1 do
-  if Chart1.SeriesList[k].Name=sName then begin
-     Chart1[k].Clear;
-     ODBDM.IBTransaction1.StartTransaction;
-     SelectData(ID, Empty);
-     if Empty=false then begin
-        ODBDM.ib1q2.First;
-        while not ODBDM.ib1q2.Eof do begin
-           lev:=ODBDM.ib1q2.FieldByName('Level_').AsFloat;
-           val:=ODBDM.ib1q2.FieldByName('Value_').AsFloat;
-           flag:=ODBDM.ib1q2.FieldByName('Flag_').AsInteger;
-             FlagIsSet:=false;
-              if flag>0 then ProfilesSelection.FlagAnalysis(flag,FlagIsSet);
-              if FlagIsSet=false then Chart1.Series[mik].AddXY(val,lev);
-         ODBDM.ib1q2.Next;
-        end;
-        ODBDM.ib1q2.Close;
-    end;
-    ODBDM.IBTransaction1.Commit;
- end;   }
 end;
 
 
@@ -311,7 +308,6 @@ end;
 procedure Tfrmprofile_plot_all.HighlightSeries(ASeries: TBasicChartSeries);
 var
   series: TCustomChartSeries;
-  w: Integer;
 begin
   for series in CustomSeries(Chart1) do
     if series is TLineSeries then
@@ -331,6 +327,22 @@ procedure Tfrmprofile_plot_all.DPHAfterMouseMove(ATool: TChartTool;
   APoint: TPoint);
 begin
   HighlightSeries(TDatapointHintTool(ATool).Series);
+end;
+
+procedure Tfrmprofile_plot_all.FormClose(Sender: TObject;
+  var CloseAction: TCloseAction);
+Var
+  Ini:TIniFile;
+begin
+ Ini := TIniFile.Create(IniFileName);
+   try
+     Ini.WriteInteger( 'osprofile_plot_all', 'Top',    Top);
+     Ini.WriteInteger( 'osprofile_plot_all', 'Left',   Left);
+     Ini.WriteInteger( 'osprofile_plot_all', 'Width',  Width);
+     Ini.WriteInteger( 'osprofile_plot_all', 'Height', Height);
+   finally
+    Ini.Free;
+   end;
 end;
 
 

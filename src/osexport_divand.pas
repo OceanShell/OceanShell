@@ -71,7 +71,7 @@ begin
 
    parname:='P_SALINITY';
 
-    for dec:=5 to 6 do begin
+    for dec:=6 to 6 do begin
       case dec of
         1: begin
            yymin:=1960;
@@ -114,7 +114,8 @@ begin
    SQL.Add(' Extract(Year from STATION.DATEANDTIME)>=:SSYear1 and ');
    SQL.Add(' Extract(Year from STATION.DATEANDTIME)<=:SSYear2 and ');
    SQL.Add(  parname+'.PQF2<=:QFL and ');
-   SQL.Add(' STATION.LASTLEVEL_M>=100 and '+parname+'.LEV_M<=150 and ');
+  // SQL.Add(' STATION.LASTLEVEL_M >=800 and ');
+   SQL.Add(  parname+'.LEV_M>=100 and '+parname+'.LEV_M<=900 and ');
    SQL.Add(' STATION.INSTRUMENT_ID in (0,4,7,9,11,12) ');
    SQL.Add(' order by STATION.DATEANDTIME, STATION.ID, '+parname+'.LEV_M');
    ParamByName('SSYear1').AsInteger:=yymin;

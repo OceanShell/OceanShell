@@ -1,8 +1,8 @@
 object frmprofile_station_all: Tfrmprofile_station_all
-  Left = 502
+  Left = 443
   Height = 621
-  Top = 255
-  Width = 1069
+  Top = 246
+  Width = 1099
   Caption = 'All parameters'
   ClientHeight = 0
   ClientWidth = 0
@@ -13,6 +13,7 @@ object frmprofile_station_all: Tfrmprofile_station_all
   Font.Name = 'Tahoma'
   OnClose = FormClose
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
@@ -21,7 +22,7 @@ object frmprofile_station_all: Tfrmprofile_station_all
     Left = 0
     Height = 35
     Top = 0
-    Width = 1069
+    Width = 1099
     AutoSize = True
     ButtonHeight = 33
     ButtonWidth = 93
@@ -41,6 +42,7 @@ object frmprofile_station_all: Tfrmprofile_station_all
       Hint = 'Add level'
       Top = 2
       Caption = 'Add'
+      Enabled = False
       ImageIndex = 1
       OnClick = btnAddClick
     end
@@ -49,6 +51,7 @@ object frmprofile_station_all: Tfrmprofile_station_all
       Hint = 'Delete level'
       Top = 2
       Caption = 'Delete'
+      Enabled = False
       ImageIndex = 334
       OnClick = btnDeleteClick
     end
@@ -87,7 +90,7 @@ object frmprofile_station_all: Tfrmprofile_station_all
     end
   end
   object Splitter1: TSplitter
-    Left = 777
+    Left = 807
     Height = 586
     Top = 35
     Width = 8
@@ -96,7 +99,7 @@ object frmprofile_station_all: Tfrmprofile_station_all
     ResizeAnchor = akRight
   end
   object CheckListBox1: TCheckListBox
-    Left = 785
+    Left = 815
     Height = 586
     Top = 35
     Width = 284
@@ -113,17 +116,17 @@ object frmprofile_station_all: Tfrmprofile_station_all
     Left = 0
     Height = 586
     Top = 35
-    Width = 777
+    Width = 807
     Align = alClient
     BevelOuter = bvNone
     ClientHeight = 586
-    ClientWidth = 777
+    ClientWidth = 807
     TabOrder = 3
     object DBGrid1: TDBGrid
       Left = 0
       Height = 353
       Top = 0
-      Width = 777
+      Width = 807
       Align = alClient
       AlternateColor = 13631478
       AutoAdvance = aaNone
@@ -144,6 +147,7 @@ object frmprofile_station_all: Tfrmprofile_station_all
       TitleFont.Height = -11
       TitleFont.Name = 'MS Sans Serif'
       OnCellClick = DBGrid1CellClick
+      OnColumnSized = DBGrid1ColumnSized
       OnMouseDown = DBGrid1MouseDown
       OnPrepareCanvas = DBGrid1PrepareCanvas
     end
@@ -152,7 +156,7 @@ object frmprofile_station_all: Tfrmprofile_station_all
       Left = 0
       Height = 8
       Top = 353
-      Width = 777
+      Width = 807
       Align = alBottom
       ResizeAnchor = akBottom
     end
@@ -160,7 +164,7 @@ object frmprofile_station_all: Tfrmprofile_station_all
       Left = 0
       Height = 225
       Top = 361
-      Width = 777
+      Width = 807
       HorzScrollBar.Page = 1
       VertScrollBar.Page = 1
       VertScrollBar.Visible = False
@@ -178,16 +182,20 @@ object frmprofile_station_all: Tfrmprofile_station_all
     AutoPopup = False
     left = 288
     top = 168
-    object iSetFlagParameter: TMenuItem
-      Caption = 'Set flag for parameter'
-      ImageIndex = 420
-      OnClick = iSetFlagParameterClick
+    object SetFlagBelow: TMenuItem
+      Caption = 'Set selected flag BELOW this level'
+      OnClick = SetFlagBelowClick
+    end
+    object SetFlagAbove: TMenuItem
+      Caption = 'Set selected flag ABOVE this level'
+      OnClick = SetFlagAboveClick
     end
     object N1: TMenuItem
       Caption = '-'
     end
     object iDeleteParameter: TMenuItem
       Caption = 'Delete parameter'
+      Enabled = False
       ImageIndex = 293
       OnClick = iDeleteParameterClick
     end
