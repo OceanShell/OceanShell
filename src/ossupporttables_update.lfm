@@ -1,11 +1,11 @@
 object frmsupporttables_update: Tfrmsupporttables_update
-  Left = 83
+  Left = 423
   Height = 825
-  Top = 74
-  Width = 1536
+  Top = 199
+  Width = 1537
   Caption = 'Support tables update and QC'
   ClientHeight = 825
-  ClientWidth = 1536
+  ClientWidth = 1537
   DesignTimePPI = 144
   Position = poOwnerFormCenter
   LCLVersion = '2.0.6.0'
@@ -13,11 +13,11 @@ object frmsupporttables_update: Tfrmsupporttables_update
     Left = 0
     Height = 592
     Top = 0
-    Width = 1536
-    ActivePage = TabSheet1
+    Width = 1537
+    ActivePage = TabSheet3
     Align = alTop
     ParentFont = False
-    TabIndex = 0
+    TabIndex = 2
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Update'
@@ -384,12 +384,98 @@ object frmsupporttables_update: Tfrmsupporttables_update
         Visible = False
       end
     end
+    object TabSheet3: TTabSheet
+      Caption = 'Auxiliary procedures'
+      ClientHeight = 554
+      ClientWidth = 1529
+      object Button2: TButton
+        Left = 40
+        Height = 38
+        Top = 40
+        Width = 209
+        Caption = 'Vessel IDs by name'
+        OnClick = Button2Click
+        TabOrder = 0
+      end
+      object Button3: TButton
+        Left = 40
+        Height = 38
+        Top = 96
+        Width = 209
+        Caption = 'AARI_Raid to platforms'
+        OnClick = Button3Click
+        TabOrder = 1
+      end
+      object Button4: TButton
+        Left = 272
+        Height = 38
+        Top = 40
+        Width = 280
+        Caption = 'COUNTRY_ID to PLATFORMS'
+        OnClick = Button4Click
+        TabOrder = 2
+      end
+      object Button5: TButton
+        Left = 32
+        Height = 38
+        Top = 368
+        Width = 337
+        Caption = 'All parameters instrument = 7'
+        OnClick = Button5Click
+        TabOrder = 3
+      end
+      object Button6: TButton
+        Left = 32
+        Height = 38
+        Top = 408
+        Width = 337
+        Caption = 'All parameters CAST_NUMBER = 1'
+        OnClick = Button6Click
+        TabOrder = 4
+      end
+      object Button7: TButton
+        Left = 32
+        Height = 38
+        Top = 448
+        Width = 337
+        Caption = 'CAST_NUMBER from STATION if >1'
+        OnClick = Button7Click
+        TabOrder = 5
+      end
+      object Button8: TButton
+        Left = 32
+        Height = 38
+        Top = 224
+        Width = 338
+        Caption = 'All param FOREIGN KEYS SCRIPT'
+        OnClick = Button8Click
+        TabOrder = 6
+      end
+      object Button9: TButton
+        Left = 32
+        Height = 38
+        Top = 328
+        Width = 338
+        Caption = 'Default instrument = 0'
+        OnClick = Button9Click
+        TabOrder = 7
+      end
+      object Button10: TButton
+        Left = 32
+        Height = 38
+        Top = 264
+        Width = 337
+        Caption = 'Units_id not null'
+        OnClick = Button10Click
+        TabOrder = 8
+      end
+    end
   end
   object mLog: TMemo
     Left = 0
     Height = 229
     Top = 596
-    Width = 1536
+    Width = 1537
     Align = alClient
     ParentFont = False
     ScrollBars = ssBoth
@@ -400,7 +486,7 @@ object frmsupporttables_update: Tfrmsupporttables_update
     Left = 0
     Height = 4
     Top = 592
-    Width = 1536
+    Width = 1537
     Align = alTop
     ResizeAnchor = akTop
   end

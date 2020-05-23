@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="34">
+    <Units Count="37">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -79,7 +79,7 @@
         <ResourceBaseClass Value="Form"/>
       </Unit4>
       <Unit5>
-        <Filename Value="settings.pas"/>
+        <Filename Value="ossettings.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmsettings"/>
         <HasResources Value="True"/>
@@ -199,7 +199,7 @@
         <UnitName Value="osload_PangaeaTab"/>
       </Unit24>
       <Unit25>
-        <Filename Value="osmain_advancedselection.pas"/>
+        <Filename Value="osselection_advanced.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmadvancedselection"/>
         <HasResources Value="True"/>
@@ -252,6 +252,22 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit33>
+      <Unit34>
+        <Filename Value="osqc_test.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmQC_test"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="osQC_test"/>
+      </Unit34>
+      <Unit35>
+        <Filename Value="osexport_ascii.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit35>
+      <Unit36>
+        <Filename Value="test_excel_nabos.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit36>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

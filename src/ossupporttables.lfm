@@ -1,11 +1,11 @@
 object frmsupporttables: Tfrmsupporttables
-  Left = 357
+  Left = 293
   Height = 825
-  Top = 93
-  Width = 1500
+  Top = 95
+  Width = 1501
   Caption = 'Support tables'
   ClientHeight = 825
-  ClientWidth = 1500
+  ClientWidth = 1501
   Color = clBtnFace
   Constraints.MinHeight = 825
   Constraints.MinWidth = 1500
@@ -22,8 +22,8 @@ object frmsupporttables: Tfrmsupporttables
     Left = 0
     Height = 792
     Top = 33
-    Width = 1500
-    ActivePage = tbPlatform
+    Width = 1501
+    ActivePage = tsTables
     Align = alClient
     Font.Color = clWindowText
     Font.Height = -17
@@ -32,10 +32,156 @@ object frmsupporttables: Tfrmsupporttables
     TabIndex = 0
     TabOrder = 0
     OnChange = PageControl1Change
+    object tsTables: TTabSheet
+      Caption = 'DATABASE_TABLES'
+      ClientHeight = 759
+      ClientWidth = 1493
+      object Panel12: TPanel
+        Left = 0
+        Height = 759
+        Top = 0
+        Width = 983
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 759
+        ClientWidth = 983
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 0
+        object Panel13: TPanel
+          Left = 0
+          Height = 32
+          Top = 0
+          Width = 983
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 32
+          ClientWidth = 983
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
+          object eTables_NAME: TEdit
+            Left = 214
+            Height = 32
+            Top = 0
+            Width = 675
+            Align = alLeft
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object eTables_ID: TEdit
+            Left = 0
+            Height = 32
+            Top = 0
+            Width = 94
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 1
+          end
+          object eTables_TABLENAME: TEdit
+            Left = 94
+            Height = 32
+            Top = 0
+            Width = 120
+            Align = alLeft
+            CharCase = ecUppercase
+            OnChange = eTables_TABLENAMEChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 2
+          end
+        end
+        object DBGridTables: TDBGrid
+          Left = 0
+          Height = 727
+          Top = 32
+          Width = 983
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'ID'
+              Width = 94
+              FieldName = 'ID'
+            end          
+            item
+              Title.Caption = 'Table name'
+              FieldName = 'NAME_TABLE'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Description'
+              Width = 300
+              FieldName = 'NAME'
+            end          
+            item
+              ButtonStyle = cbsPickList
+              DropDownRows = 20
+              Title.Caption = 'Default units'
+              Width = 150
+              FieldName = 'DEFAULT_UNITS'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnColumnSized = FormResize
+          OnEditingDone = DBGridTablesEditingDone
+          OnKeyUp = DBGridPlatformKeyUp
+          OnPrepareCanvas = DBGridPlatformPrepareCanvas
+          OnSelectEditor = DBGridTablesSelectEditor
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
+      object mNotesTables: TMemo
+        Left = 983
+        Height = 759
+        Top = 0
+        Width = 510
+        Align = alRight
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnKeyUp = mNotesPlatformKeyUp
+        ParentFont = False
+        ScrollBars = ssVertical
+        TabOrder = 1
+      end
+    end
     object tbPlatform: TTabSheet
       Caption = 'PLATFORM'
       ClientHeight = 759
-      ClientWidth = 1492
+      ClientWidth = 1493
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -44,11 +190,11 @@ object frmsupporttables: Tfrmsupporttables
         Left = 0
         Height = 759
         Top = 0
-        Width = 982
+        Width = 983
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 759
-        ClientWidth = 982
+        ClientWidth = 983
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -58,7 +204,7 @@ object frmsupporttables: Tfrmsupporttables
           Left = 0
           Height = 727
           Top = 32
-          Width = 982
+          Width = 983
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
@@ -111,6 +257,11 @@ object frmsupporttables: Tfrmsupporttables
               Title.Caption = 'Native platform name'
               Width = 225
               FieldName = 'NAME_NATIVE'
+            end          
+            item
+              DropDownRows = 25
+              Title.Caption = 'Country'
+              FieldName = 'CTRY'
             end>
           DataSource = DS
           FixedCols = 0
@@ -126,20 +277,23 @@ object frmsupporttables: Tfrmsupporttables
           TitleFont.Height = -17
           TitleFont.Name = 'MS Sans Serif'
           OnCellClick = DBGridPlatformCellClick
+          OnColumnSized = FormResize
+          OnEditingDone = DBGridPlatformEditingDone
           OnKeyPress = DBGridPlatformKeyPress
           OnKeyUp = DBGridPlatformKeyUp
           OnPrepareCanvas = DBGridPlatformPrepareCanvas
+          OnSelectEditor = DBGridPlatformSelectEditor
           OnTitleClick = DBGridPlatformTitleClick
         end
         object Panel3: TPanel
           Left = 0
           Height = 32
           Top = 0
-          Width = 982
+          Width = 983
           Align = alTop
           BevelOuter = bvNone
           ClientHeight = 32
-          ClientWidth = 982
+          ClientWidth = 983
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
@@ -250,10 +404,26 @@ object frmsupporttables: Tfrmsupporttables
             ParentFont = False
             TabOrder = 6
           end
+          object ePlatform_Country: TEdit
+            Left = 919
+            Height = 32
+            Top = 0
+            Width = 225
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnChange = ePlatform_CountryChange
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 7
+          end
         end
       end
       object Panel1: TPanel
-        Left = 982
+        Left = 983
         Height = 759
         Top = 0
         Width = 510
@@ -375,7 +545,7 @@ object frmsupporttables: Tfrmsupporttables
     object tbSource: TTabSheet
       Caption = 'SOURCE'
       ClientHeight = 759
-      ClientWidth = 1492
+      ClientWidth = 1493
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -384,11 +554,11 @@ object frmsupporttables: Tfrmsupporttables
         Left = 0
         Height = 759
         Top = 0
-        Width = 982
+        Width = 983
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 759
-        ClientWidth = 982
+        ClientWidth = 983
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -398,11 +568,11 @@ object frmsupporttables: Tfrmsupporttables
           Left = 0
           Height = 32
           Top = 0
-          Width = 982
+          Width = 983
           Align = alTop
           BevelOuter = bvNone
           ClientHeight = 32
-          ClientWidth = 982
+          ClientWidth = 983
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
@@ -443,7 +613,7 @@ object frmsupporttables: Tfrmsupporttables
           Left = 0
           Height = 727
           Top = 32
-          Width = 982
+          Width = 983
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
@@ -467,13 +637,13 @@ object frmsupporttables: Tfrmsupporttables
               MinSize = 15
               MaxSize = 300
               Title.Caption = 'Min ID'
-              FieldName = 'ID_MIN'
+              FieldName = 'STATION_ID_MIN'
             end          
             item
               MinSize = 15
               MaxSize = 300
               Title.Caption = 'Max ID'
-              FieldName = 'ID_MAX'
+              FieldName = 'STATION_ID_MAX'
             end>
           DataSource = DS
           FixedCols = 0
@@ -495,7 +665,7 @@ object frmsupporttables: Tfrmsupporttables
         end
       end
       object mNotesSource: TMemo
-        Left = 982
+        Left = 983
         Height = 759
         Top = 0
         Width = 510
@@ -513,7 +683,7 @@ object frmsupporttables: Tfrmsupporttables
     object tbUnits: TTabSheet
       Caption = 'UNITS'
       ClientHeight = 759
-      ClientWidth = 1492
+      ClientWidth = 1493
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -522,11 +692,11 @@ object frmsupporttables: Tfrmsupporttables
         Left = 0
         Height = 759
         Top = 0
-        Width = 982
+        Width = 983
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 759
-        ClientWidth = 982
+        ClientWidth = 983
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -536,11 +706,11 @@ object frmsupporttables: Tfrmsupporttables
           Left = 0
           Height = 32
           Top = 0
-          Width = 982
+          Width = 983
           Align = alTop
           BevelOuter = bvNone
           ClientHeight = 32
-          ClientWidth = 982
+          ClientWidth = 983
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
@@ -581,7 +751,7 @@ object frmsupporttables: Tfrmsupporttables
           Left = 0
           Height = 727
           Top = 32
-          Width = 982
+          Width = 983
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
@@ -640,7 +810,7 @@ object frmsupporttables: Tfrmsupporttables
         end
       end
       object mNotesUnits: TMemo
-        Left = 982
+        Left = 983
         Height = 759
         Top = 0
         Width = 510
@@ -658,7 +828,7 @@ object frmsupporttables: Tfrmsupporttables
     object tbInstrument: TTabSheet
       Caption = 'INSTRUMENT'
       ClientHeight = 759
-      ClientWidth = 1492
+      ClientWidth = 1493
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -667,11 +837,11 @@ object frmsupporttables: Tfrmsupporttables
         Left = 0
         Height = 759
         Top = 0
-        Width = 982
+        Width = 983
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 759
-        ClientWidth = 982
+        ClientWidth = 983
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -681,11 +851,11 @@ object frmsupporttables: Tfrmsupporttables
           Left = 0
           Height = 32
           Top = 0
-          Width = 982
+          Width = 983
           Align = alTop
           BevelOuter = bvNone
           ClientHeight = 32
-          ClientWidth = 982
+          ClientWidth = 983
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
@@ -695,7 +865,7 @@ object frmsupporttables: Tfrmsupporttables
             Left = 188
             Height = 32
             Top = 0
-            Width = 794
+            Width = 795
             Align = alClient
             CharCase = ecUppercase
             Color = clWhite
@@ -741,7 +911,7 @@ object frmsupporttables: Tfrmsupporttables
           Left = 0
           Height = 727
           Top = 32
-          Width = 982
+          Width = 983
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
@@ -788,7 +958,7 @@ object frmsupporttables: Tfrmsupporttables
         end
       end
       object mNotesInstrument: TMemo
-        Left = 982
+        Left = 983
         Height = 759
         Top = 0
         Width = 510
@@ -806,7 +976,7 @@ object frmsupporttables: Tfrmsupporttables
     object tbProject: TTabSheet
       Caption = 'PROJECT'
       ClientHeight = 759
-      ClientWidth = 1492
+      ClientWidth = 1493
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -815,11 +985,11 @@ object frmsupporttables: Tfrmsupporttables
         Left = 0
         Height = 759
         Top = 0
-        Width = 982
+        Width = 983
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 759
-        ClientWidth = 982
+        ClientWidth = 983
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -829,11 +999,11 @@ object frmsupporttables: Tfrmsupporttables
           Left = 0
           Height = 32
           Top = 0
-          Width = 982
+          Width = 983
           Align = alTop
           BevelOuter = bvNone
           ClientHeight = 32
-          ClientWidth = 982
+          ClientWidth = 983
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
@@ -843,7 +1013,7 @@ object frmsupporttables: Tfrmsupporttables
             Left = 188
             Height = 32
             Top = 0
-            Width = 794
+            Width = 795
             Align = alClient
             CharCase = ecUppercase
             Color = clWhite
@@ -889,7 +1059,7 @@ object frmsupporttables: Tfrmsupporttables
           Left = 0
           Height = 727
           Top = 32
-          Width = 982
+          Width = 983
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
@@ -936,7 +1106,7 @@ object frmsupporttables: Tfrmsupporttables
         end
       end
       object mNotesProject: TMemo
-        Left = 982
+        Left = 983
         Height = 759
         Top = 0
         Width = 510
@@ -954,7 +1124,7 @@ object frmsupporttables: Tfrmsupporttables
     object tbInstitute: TTabSheet
       Caption = 'INSTITUTE'
       ClientHeight = 759
-      ClientWidth = 1492
+      ClientWidth = 1493
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -963,11 +1133,11 @@ object frmsupporttables: Tfrmsupporttables
         Left = 0
         Height = 759
         Top = 0
-        Width = 982
+        Width = 983
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 759
-        ClientWidth = 982
+        ClientWidth = 983
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -977,11 +1147,11 @@ object frmsupporttables: Tfrmsupporttables
           Left = 0
           Height = 32
           Top = 0
-          Width = 982
+          Width = 983
           Align = alTop
           BevelOuter = bvNone
           ClientHeight = 32
-          ClientWidth = 982
+          ClientWidth = 983
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
@@ -991,7 +1161,7 @@ object frmsupporttables: Tfrmsupporttables
             Left = 282
             Height = 32
             Top = 0
-            Width = 700
+            Width = 701
             Align = alClient
             CharCase = ecUppercase
             Color = clWhite
@@ -1052,7 +1222,7 @@ object frmsupporttables: Tfrmsupporttables
           Left = 0
           Height = 727
           Top = 32
-          Width = 982
+          Width = 983
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
@@ -1106,7 +1276,7 @@ object frmsupporttables: Tfrmsupporttables
         end
       end
       object Panel14: TPanel
-        Left = 982
+        Left = 983
         Height = 759
         Top = 0
         Width = 510
@@ -1178,7 +1348,7 @@ object frmsupporttables: Tfrmsupporttables
     object tbCountry: TTabSheet
       Caption = 'COUNTRY'
       ClientHeight = 759
-      ClientWidth = 1492
+      ClientWidth = 1493
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -1188,11 +1358,11 @@ object frmsupporttables: Tfrmsupporttables
         Left = 0
         Height = 759
         Top = 0
-        Width = 982
+        Width = 983
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 759
-        ClientWidth = 982
+        ClientWidth = 983
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -1202,21 +1372,21 @@ object frmsupporttables: Tfrmsupporttables
           Left = 0
           Height = 32
           Top = 0
-          Width = 982
+          Width = 983
           Align = alTop
           BevelOuter = bvNone
           ClientHeight = 32
-          ClientWidth = 982
+          ClientWidth = 983
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
           ParentFont = False
           TabOrder = 0
           object eCountry_Name: TEdit
-            Left = 188
+            Left = 308
             Height = 32
             Top = 0
-            Width = 794
+            Width = 675
             Align = alClient
             CharCase = ecUppercase
             Color = clWhite
@@ -1228,7 +1398,7 @@ object frmsupporttables: Tfrmsupporttables
             TabOrder = 0
           end
           object eCountry_ISO: TEdit
-            Left = 94
+            Left = 214
             Height = 32
             Top = 0
             Width = 94
@@ -1258,12 +1428,22 @@ object frmsupporttables: Tfrmsupporttables
             ParentFont = False
             TabOrder = 2
           end
+          object eCountry_NODC: TEdit
+            Left = 94
+            Height = 32
+            Top = 0
+            Width = 120
+            Align = alLeft
+            OnChange = eCountry_NODCChange
+            OnClick = ePlatform_IDClick
+            TabOrder = 3
+          end
         end
         object DBGridCountry: TDBGrid
           Left = 0
           Height = 727
           Top = 32
-          Width = 982
+          Width = 983
           Align = alClient
           AlternateColor = 13631478
           AutoAdvance = aaNone
@@ -1275,6 +1455,10 @@ object frmsupporttables: Tfrmsupporttables
               Title.Caption = 'ID'
               Width = 94
               FieldName = 'ID'
+            end          
+            item
+              Title.Caption = 'NODC'
+              FieldName = 'NODC_CODE'
             end          
             item
               MinSize = 15
@@ -1310,7 +1494,7 @@ object frmsupporttables: Tfrmsupporttables
         end
       end
       object mNotesCountry: TMemo
-        Left = 982
+        Left = 983
         Height = 759
         Top = 0
         Width = 510
@@ -1330,7 +1514,7 @@ object frmsupporttables: Tfrmsupporttables
     Left = 0
     Height = 33
     Top = 0
-    Width = 1500
+    Width = 1501
     AutoSize = True
     Caption = 'ToolBar1'
     EdgeBorders = []

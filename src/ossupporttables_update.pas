@@ -28,6 +28,15 @@ type
     Button1: TButton;
     btnCountryISO: TButton;
     btnCruiseGLODAP: TButton;
+    Button10: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    Button5: TButton;
+    Button6: TButton;
+    Button7: TButton;
+    Button8: TButton;
+    Button9: TButton;
     chkShowLog: TCheckBox;
     GroupBox1: TGroupBox;
     GroupBox3: TGroupBox;
@@ -51,6 +60,7 @@ type
     Splitter1: TSplitter;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
+    TabSheet3: TTabSheet;
 
     procedure btnCountryDuplicatesClick(Sender: TObject);
     procedure btnCountryISOClick(Sender: TObject);
@@ -63,7 +73,16 @@ type
     procedure btnPlatformICESClick(Sender: TObject);
     procedure btnPlatformDuplicatesClick(Sender: TObject);
     procedure btnPlatformWOD2013Click(Sender: TObject);
+    procedure Button10Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
+    procedure Button8Click(Sender: TObject);
+    procedure Button9Click(Sender: TObject);
     procedure Label12Click(Sender: TObject);
     procedure Label1Click(Sender: TObject);
     procedure Label7Click(Sender: TObject);
@@ -1750,6 +1769,400 @@ mLog.Clear;
  end;
 {$ENDIF}
 end;
+
+procedure Tfrmsupporttables_update.Button2Click(Sender: TObject);
+Var
+  dat:text;
+  st, vesselname:string;
+  TRt:TSQLTransaction;
+  Qt1:TSQLQuery;
+begin
+try
+mLog.Clear;
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
+
+ AssignFile(dat, 'X:\OceanShell_old\databases\ODB\AARI_vessels_combined.txt'); reset(dat);
+
+ repeat
+   readln(dat, st);
+   vesselname:=copy(st, 1, pos(#9,st)-1);
+
+    with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID from PLATFORM');
+     SQL.Add(' where NAME=:VN ');
+     ParamByName('VN').AsString:=vesselname;
+    Open;
+     if Qt1.IsEmpty=false then begin
+       mlog.Lines.Add(vesselname+#9+inttostr(Qt1.Fields[0].AsInteger));
+     end else
+       mlog.Lines.Add(vesselname+#9+'-9');
+    Close;
+   end;
+
+ until eof(dat);
+
+finally
+ TrT.Commit;
+ Qt1.Free;
+ Trt.Free;
+end;
+end;
+
+procedure Tfrmsupporttables_update.Button3Click(Sender: TObject);
+Var
+  dat:text;
+  st, vesselname:string;
+  TRt:TSQLTransaction;
+  Qt1:TSQLQuery;
+  ID: integer;
+begin
+try
+mLog.Clear;
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
+
+ AssignFile(dat, 'X:\OceanShell_old\databases\ODB\AARI_RAID.txt'); reset(dat);
+
+ ID:=1;
+ repeat
+   readln(dat, st);
+   inc(ID);
+
+    with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' INSERT INTO PLATFORM ');
+     SQL.Add(' (ID, NAME)');
+     SQL.Add(' values ');
+     SQL.Add(' (:ID, :NAME)');
+     ParamByName('ID').AsInteger:=ID;
+     ParamByName('NAME').AsString:=trim(ST);
+    ExecSQL;
+   end;
+
+ until eof(dat);
+
+finally
+ TrT.Commit;
+ Qt1.Free;
+ Trt.Free;
+end;
+end;
+
+procedure Tfrmsupporttables_update.Button4Click(Sender: TObject);
+Var
+  TRt:TSQLTransaction;
+  Qt1, Qt2:TSQLQuery;
+  ID: integer;
+  cc:string;
+  country_id:integer;
+begin
+try
+mLog.Clear;
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.IBDB;
+  Qt2.Transaction:=TRt;
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' SELECT id, NODC_CODE FROM PLATFORM ORDER BY ID ');
+    Open;
+   end;
+
+   while not Qt1.EOF do begin
+    id:=Qt1.Fields[0].AsInteger;
+    cc:= copy(Qt1.Fields[1].AsString, 1, 2);
+
+    if trim(cc)<>'' then begin
+
+   with Qt2 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' SELECT ID FROM COUNTRY WHERE NODC_CODE='+QuotedStr(cc));
+    Open;
+     if not Qt2.IsEmpty then country_id:=Qt2.Fields[0].AsInteger else country_id:=-9;
+    Close;
+   end;
+
+   if country_id=-9 then begin
+      with Qt2 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' SELECT ID FROM COUNTRY WHERE ISO3166_CODE='+QuotedStr(cc));
+    Open;
+     if not Qt2.IsEmpty then country_id:=Qt2.Fields[0].AsInteger else country_id:=-9;
+    Close;
+   end;
+   end;
+
+  if country_id<>-9 then begin
+    with Qt2 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' UPDATE PLATFORM SET COUNTRY_ID='+inttostr(country_id)+' WHERE ID='+Inttostr(ID));
+    ExecSQL;
+   end;
+  end;
+ end;
+
+   qt1.Next;
+end;
+
+finally
+ TrT.Commit;
+ Qt1.Free;
+ Trt.Free;
+end;
+end;
+
+procedure Tfrmsupporttables_update.Button5Click(Sender: TObject);
+Var
+  TRt:TSQLTransaction;
+  Qt1, Qt2:TSQLQuery;
+  pp: integer;
+  tbl:string;
+begin
+try
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
+
+  for pp:=0 to frmosmain.ListBox1.Count-1 do begin
+   tbl:=frmosmain.ListBox1.Items.Strings[pp];
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' ALTER TABLE '+tbl+' ADD INSTRUMENT_ID BIGINT DEFAULT 0 ');
+    ExecSQL;
+   end;
+   Trt.CommitRetaining;
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' UPDATE '+tbl+' SET INSTRUMENT_ID=7');
+    ExecSQL;
+   end;
+   Trt.CommitRetaining;
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' ALTER TABLE '+tbl+' ALTER INSTRUMENT_ID SET NOT NULL');
+    ExecSQL;
+   end;
+   Trt.CommitRetaining;
+  end;
+
+finally
+ TrT.Commit;
+ Qt1.Free;
+ Trt.Free;
+end;
+end;
+
+procedure Tfrmsupporttables_update.Button6Click(Sender: TObject);
+Var
+  TRt:TSQLTransaction;
+  Qt1, Qt2:TSQLQuery;
+  pp: integer;
+  tbl:string;
+begin
+try
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.IBDB;
+  Qt2.Transaction:=TRt;
+
+  for pp:=0 to frmosmain.ListBox1.Count-1 do begin
+   tbl:=frmosmain.ListBox1.Items.Strings[pp];
+
+   mlog.Lines.add(tbl);
+   application.ProcessMessages;
+
+   try
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add('   ALTER TABLE '+tbl+' ADD CAST_NUMBER SMALLINT DEFAULT 1');
+    ExecSQL;
+   end;
+   Trt.CommitRetaining;
+   except
+     Trt.RollbackRetaining;
+   end;
+
+   try
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' UPDATE '+tbl+' SET CAST_NUMBER=1');
+    ExecSQL;
+   end;
+   Trt.CommitRetaining;
+   except
+     Trt.RollbackRetaining;
+   end;
+
+
+   try
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' ALTER TABLE '+tbl+' ALTER CAST_NUMBER SET NOT NULL');
+    ExecSQL;
+   end;
+   Trt.CommitRetaining;
+   except
+     Trt.RollbackRetaining;
+   end;
+
+  end;
+
+finally
+ TrT.Commit;
+ Qt1.Free;
+ Trt.Free;
+end;
+end;
+
+procedure Tfrmsupporttables_update.Button7Click(Sender: TObject);
+Var
+  TRt:TSQLTransaction;
+  Qt1, Qt2:TSQLQuery;
+  pp, ID, cast_number, cnt, cnt_max: integer;
+  tbl:string;
+begin
+try
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.IBDB;
+  Qt2.Transaction:=TRt;
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID, CAST_NUMBER from STATION order by ID ');
+    Open;
+    Last;
+    First;
+   end;
+
+   cnt_max:=Qt1.RecordCount;
+   cnt:=0;
+   while not Qt1.EOF do begin
+    ID:=Qt1.FieldByName('ID').AsInteger;
+    cast_number:=Qt1.FieldByName('CAST_NUMBER').AsInteger;
+
+    if cast_number>1 then begin
+     mlog.Lines.Add(inttostr(iD)+'   '+inttostr(cast_number));
+       for pp:=0 to frmosmain.ListBox1.Count-1 do begin
+        tbl:=frmosmain.ListBox1.Items.Strings[pp];
+
+        with Qt2 do begin
+         Close;
+          SQL.Clear;
+          SQL.Add(' UPDATE '+tbl);
+          SQL.Add(' SET CAST_NUMBER=:CAST ');
+          SQL.Add(' WHERE ID=:ID ');
+          ParamByName('ID').asinteger:=ID;
+          PAramByName('CAST').AsInteger:=cast_number;
+         ExecSQL;
+        end;
+       end;
+    end;
+
+    inc(cnt);
+    ProgressTaskbar(cnt, cnt_max);
+    Application.ProcessMessages;
+
+    Qt1.Next;
+   end;
+finally
+ TrT.Commit;
+ Qt1.Free;
+ Qt2.Free;
+ Trt.Free;
+end;
+end;
+
+procedure Tfrmsupporttables_update.Button8Click(Sender: TObject);
+Var
+  pp: integer;
+  tbl:string;
+begin
+ mLog.Clear;
+  for pp:=0 to frmosmain.ListBox1.Count-1 do begin
+   tbl:=frmosmain.ListBox1.Items.Strings[pp];
+   mLog.Lines.Add('ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_1 FOREIGN KEY (ID) REFERENCES STATION(ID) ON DELETE CASCADE ON UPDATE CASCADE;');
+   mLog.Lines.Add('ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_2 FOREIGN KEY (INSTRUMENT_ID) REFERENCES INSTRUMENT(ID) ON DELETE SET DEFAULT ON UPDATE CASCADE;');
+   mLog.Lines.Add('ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_3 FOREIGN KEY (UNITS_ID) REFERENCES UNITS(ID) ON DELETE SET DEFAULT ON UPDATE CASCADE;');
+  end;
+end;
+
+
+procedure Tfrmsupporttables_update.Button10Click(Sender: TObject);
+Var
+  pp: integer;
+  tbl:string;
+begin
+mLog.Clear;
+ for pp:=0 to frmosmain.ListBox1.Count-1 do begin
+  tbl:=frmosmain.ListBox1.Items.Strings[pp];
+  mLog.Lines.Add('ALTER TABLE '+tbl+' ALTER UNITS_ID SET NOT NULL;');
+
+ end;
+end;
+
+procedure Tfrmsupporttables_update.Button9Click(Sender: TObject);
+Var
+  pp: integer;
+  tbl:string;
+begin
+ mLog.Clear;
+  for pp:=0 to frmosmain.ListBox1.Count-1 do begin
+   tbl:=frmosmain.ListBox1.Items.Strings[pp];
+   mLog.Lines.Add('ALTER TABLE '+tbl+' ALTER COLUMN INSTRUMENT_ID SET DEFAULT 0');
+  end;
+end;
+
 
 end.
 

@@ -1,4 +1,4 @@
-unit osmain_advancedselection;
+unit osselection_advanced;
 
 {$mode objfpc}{$H+}
 

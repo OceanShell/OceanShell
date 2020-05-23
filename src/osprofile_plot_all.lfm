@@ -1,13 +1,14 @@
 object frmprofile_plot_all: Tfrmprofile_plot_all
-  Left = 709
+  Left = 718
   Height = 541
-  Top = 256
+  Top = 266
   Width = 704
   Caption = 'frmprofile_plot_all'
   ClientHeight = 541
   ClientWidth = 704
   DesignTimePPI = 144
   OnClose = FormClose
+  OnDestroy = FormDestroy
   OnShow = FormShow
   LCLVersion = '2.0.6.0'
   Visible = True

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, DBGrids, ColorBox, IniFiles, SQLDB, DB, Grids, Types,
+  ComCtrls, DBGrids, ColorBox, IniFiles, SQLDB, DB, Grids, Menus, Types,
   TAGraph, TATools, TASeries, TATypes, TAChartAxisUtils,
 //  TACustomSeries,  // for TChartSeries
   TAChartUtils,
@@ -20,7 +20,6 @@ type
     btnAdd: TToolButton;
     btnCommit: TToolButton;
     btnDelete: TToolButton;
-    btnSetFlag: TToolButton;
     Chart1: TChart;
     cbParameters: TComboBox;
     ChartToolset1: TChartToolset;
@@ -29,18 +28,23 @@ type
     ChartToolset1ZoomDragTool1: TZoomDragTool;
     ChartToolset1ZoomMouseWheelTool1: TZoomMouseWheelTool;
     DS: TDataSource;
+    PM: TPopupMenu;
     Series1: TLineSeries;
     DBGrid1: TDBGrid;
     Panel1: TPanel;
     Panel2: TPanel;
+    SetFlagAbove: TMenuItem;
+    SetFlagBelow: TMenuItem;
     Splitter1: TSplitter;
     Qt: TSQLQuery;
     StatusBar1: TStatusBar;
     StatusBar2: TStatusBar;
     ToolBar1: TToolBar;
-    ToolButton1: TToolButton;
     ToolButton3: TToolButton;
 
+    procedure btnAddClick(Sender: TObject);
+    procedure btnCommitClick(Sender: TObject);
+    procedure btnDeleteClick(Sender: TObject);
     procedure cbParametersChange(Sender: TObject);
     procedure ChartToolset1DataPointClickTool1PointClick(ATool: TChartTool;
       APoint: TPoint);
@@ -48,6 +52,8 @@ type
       Column: TColumn; AState: TGridDrawState);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormShow(Sender: TObject);
+    procedure SetFlagAboveClick(Sender: TObject);
+    procedure SetFlagBelowClick(Sender: TObject);
 
   private
 
@@ -70,22 +76,26 @@ uses osmain, dm;
 procedure Tfrmprofile_station_single.FormShow(Sender: TObject);
 Var
 Ini:TIniFile;
-m, x, y, i:integer;
+m, x, y, i, ind:integer;
 begin
   Ini := TIniFile.Create(IniFileName);
   try
-   (* form position *)
     Width :=Ini.ReadInteger( 'frmprofile_station_single', 'Width',  600);
     Height:=Ini.ReadInteger( 'frmprofile_station_single', 'Height', 600);
-
-  //  if Ini.ReadBool('SinglePar', 'StayOnTop', false)= true then
-   //    FormStyle:=fsStayOnTop else FormStyle:=fsNormal;
   finally
      Ini.Free;
   end;
 cbParameters.Items:=frmosmain.ListBox1.Items;
 current_index:=-1;
+
+if CurrentParTable<>'' then
+  cbParameters.ItemIndex:=cbParameters.Items.IndexOf(CurrentParTable) else
+  cbParameters.ItemIndex:=0;
+
+cbParameters.OnChange(self);
 end;
+
+
 
 procedure Tfrmprofile_station_single.cbParametersChange(Sender: TObject);
 Var
@@ -94,6 +104,90 @@ begin
  ID:=frmdm.Q.FieldByName('ID').AsInteger;
   CurrentParTable:=cbParameters.Text;
  ChangeID(ID);
+end;
+
+procedure Tfrmprofile_station_single.btnAddClick(Sender: TObject);
+begin
+  Qt.Append;
+end;
+
+procedure Tfrmprofile_station_single.btnDeleteClick(Sender: TObject);
+begin
+  Qt.Delete;
+end;
+
+procedure Tfrmprofile_station_single.btnCommitClick(Sender: TObject);
+Var
+  ID:integer;
+  Qtt:TSQLQuery;
+  TRt:TSQLTransaction;
+begin
+  ID:=frmdm.Q.FieldByName('ID').AsInteger;
+
+  try
+   Qt.DisableControls;
+
+     TRt:=TSQLTransaction.Create(self);
+     TRt.DataBase:=frmdm.IBDB;
+
+     Qtt:=TSQLQuery.Create(self);
+     Qtt.Database:=frmdm.IBDB;
+     Qtt.Transaction:=TRt;
+
+     try
+       with Qtt do begin
+         Close;
+           Sql.Clear;
+           SQL.Add(' DELETE FROM ');
+           SQL.Add(CurrentParTable);
+           SQL.Add(' WHERE ');
+           SQL.Add(' ID=:ID ');
+           ParamByName('ID').AsInteger:=ID;
+         ExecSQL;
+         Close;
+        end;
+     Trt.CommitRetaining;
+
+     Qt.First;
+     while not Qt.Eof do begin
+      with Qtt do begin
+       Close;
+        Sql.Clear;
+        SQL.Add('insert into');
+        SQL.Add(CurrentParTable);
+        SQL.Add(' (ID, lev_m, lev_dbar, val, pqf1, pqf2, sqf, bottle_number, units_id) ');
+        SQL.Add(' VALUES ' );
+        SQL.Add(' (:ID, :lev_m, :lev_dbar, :val, :pqf1, :pqf2, :sqf, :bottle_number, :units_id) ');
+        ParamByName('ID').Value:=Qt.FieldByName('ID').Value;
+        ParamByName('LEV_M').Value:=Qt.FieldByName('LEV_M').Value;
+        ParamByName('LEV_DBAR').Value:=Qt.FieldByName('LEV_DBAR').Value;
+        ParamByName('VAL').Value:=Qt.FieldByName('VAL').Value;
+        ParamByName('PQF1').Value:=Qt.FieldByName('PQF1').Value;
+        ParamByName('PQF2').Value:=Qt.FieldByName('PQF2').Value;
+        ParamByName('SQF').Value:=Qt.FieldByName('SQF').Value;
+        ParamByName('BOTTLE_NUMBER').Value:=Qt.FieldByName('BOTTLE_NUMBER').Value;
+        ParamByName('UNITS_ID').Value:=Qt.FieldByName('UNITS_ID').Value;
+        //showmessage(SQL.Text);
+       ExecSQL;
+      end;
+     Qt.Next;
+   end;
+
+   TRt.Commit;
+   except
+    On E :Exception do begin
+     ShowMessage(E.Message);
+     TRt.Rollback;
+    end;
+   end;
+
+   finally
+     Qtt.Free;
+     Trt.Free;
+     Qt.EnableControls;
+   end;
+
+   ChangeID(ID);
 end;
 
 
@@ -107,6 +201,9 @@ units, tbl, depth_units_str:string;
 
 Ini: TIniFile;
 Depth_units: integer;
+
+TRt:TSQLTransaction;
+Qtt:TSQLQuery;
 begin
 
 Series1.Clear;
@@ -118,41 +215,17 @@ finally
   ini.Free;
 end;
 
-
 if (CurrentParTable='') then CurrentParTable:=cbParameters.Items.Strings[0];
 
-Caption:=CurrentParTable;
+Caption:='Single parameter: '+inttostr(ID);
 Items_id:=cbParameters.ItemIndex;
-
-
- { cbParameters.Clear;
-  for k:=0 to frmosmain.ListBox1.Items.Count-1 do begin
-   tbl:=frmosmain.ListBox1.Items.Strings[k];
-   with Qt do begin
-    Close;
-      Sql.Clear;
-      SQL.Add(' select 1 from ');
-      SQL.Add( tbl );
-      SQL.Add(' where ID=:ID ');
-      ParamByName('ID').AsInteger:=ID;
-    Open;
-       if Qt.IsEmpty=false then cbParameters.Items.Add(tbl);
-    Close;
-   end;
-  end;
-  cbParameters.ItemIndex:=Items_id;  }
 
        with Qt do begin
          Close;
            Sql.Clear;
-           SQL.Add(' SELECT ');
-           SQL.Add( CurrentParTable+'.LEV_DBAR, '+CurrentParTable+'.LEV_M, ');
-           SQL.Add( CurrentParTable+'.VAL, '+CurrentParTable+'.PQF2, ');
-           SQL.Add(' UNITS.NAME_SHORT ');
-           SQL.Add(' FROM ');
-           SQL.Add( CurrentParTable+', UNITS ');
+           SQL.Add(' SELECT * FROM ');
+           SQL.Add( CurrentParTable);
            SQL.Add(' WHERE ');
-           SQL.Add( CurrentParTable+'.UNITS_ID=UNITS.ID AND ');
            SQL.Add( CurrentParTable+'.ID=:ID ');
            SQL.Add(' order by LEV_DBAR, LEV_M');
            ParamByName('ID').AsInteger:=ID;
@@ -180,7 +253,6 @@ Items_id:=cbParameters.ItemIndex;
 
       Val:=Qt.FieldByName('VAL').AsFloat;
       Flag_:=Qt.FieldByName('PQF2').AsFloat;
-      Units   :=Qt.FieldByName('NAME_SHORT').AsString;
 
       Val_sum:=Val_sum+Val;
       Lev_sum:=Lev_sum+Lev;
@@ -207,6 +279,34 @@ Items_id:=cbParameters.ItemIndex;
    end;
    Qt.First;
 
+   try
+     TRt:=TSQLTransaction.Create(self);
+     TRt.DataBase:=frmdm.IBDB;
+
+     Qtt:=TSQLQuery.Create(self);
+     Qtt.Database:=frmdm.IBDB;
+     Qtt.Transaction:=TRt;
+
+       with Qtt do begin
+         Close;
+           Sql.Clear;
+           SQL.Add(' SELECT UNITS.NAME_SHORT FROM ');
+           SQL.Add(CurrentParTable+ ', UNITS ');
+           SQL.Add(' WHERE ');
+           SQL.Add( CurrentParTable+'.UNITS_ID=UNITS.ID AND ');
+           SQL.Add( CurrentParTable+'.ID=:ID ');
+           ParamByName('ID').AsInteger:=ID;
+         Open;
+           Units:=Qtt.Fields[0].AsString;
+         Close;
+        end;
+   finally
+     Trt.Commit;
+     Qtt.Free;
+     Trt.Free;
+   end;
+
+
    SD:=sqrt(sum/count);
 
    StatusBar1.Panels[1].Text:='Count= '+Inttostr(Count);
@@ -224,15 +324,7 @@ Items_id:=cbParameters.ItemIndex;
     Qt.EnableControls;
   end;
 
-DBGrid1.DataSource:=DS;
-
-//btnDeleteProfile.Enabled:=true;
 btnCommit.Enabled:=true;
-//series2.Clear;
-
-//ComboBoxEx1.Text:=copy(CurrentParTable,3,length(CurrentParTable));
-
-//DBChart1.RefreshData;
 Application.ProcessMessages;
 end;
 
@@ -266,6 +358,56 @@ begin
      current_index:=tool.PointIndex;
     end;
   end;
+end;
+
+
+procedure Tfrmprofile_station_single.SetFlagBelowClick(Sender: TObject);
+Var
+  par:string;
+  fl, cur_pos: integer;
+begin
+ Qt.DisableControls;
+ cur_pos:=Qt.RecNo;
+ try
+  fl:=Qt.FieldByName('PQF2').AsInteger;
+   while not Qt.Eof do begin
+    Qt.Edit;
+     Qt.FieldByName('PQF2').AsInteger:=fl;
+     Qt.Post;
+    Qt.Next;
+   end;
+ finally
+   Qt.RecNo:=Cur_pos;
+   Qt.EnableControls;
+ end;
+end;
+
+
+procedure Tfrmprofile_station_single.SetFlagAboveClick(Sender: TObject);
+Var
+  par:string;
+  fl, cur_pos: integer;
+begin
+
+ Qt.DisableControls;
+ cur_pos:=Qt.RecNo;
+ try
+  fl:=Qt.FieldByName('PQF2').AsInteger;
+    repeat
+     Qt.Edit;
+      Qt.FieldByName('PQF2').AsInteger:=fl;
+      Qt.Post;
+     Qt.Prior;
+    until Qt.RecNo=1;
+    Qt.First;
+    Qt.Edit;
+    Qt.FieldByName(par).AsFloat:=fl;
+    Qt.Post;
+ finally
+   Qt.RecNo:=Cur_pos;
+   Qt.EnableControls;
+ end;
+
 end;
 
 procedure Tfrmprofile_station_single.FormClose(Sender: TObject;

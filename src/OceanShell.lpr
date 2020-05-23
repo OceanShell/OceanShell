@@ -9,7 +9,8 @@ uses
     {$ENDIF}
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, osmain, dm, icons, osprofile_station_single, osservicestatistics;
+  Forms, osmain, dm, icons, osprofile_station_single, osservicestatistics,
+  osQC_test, osexport_ascii, test_excel_nabos;
 
 {$R *.res}
 

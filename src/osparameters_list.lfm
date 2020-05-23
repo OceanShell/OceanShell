@@ -1,12 +1,12 @@
 object frmparameters_list: Tfrmparameters_list
-  Left = 746
+  Left = 756
   Height = 525
-  Top = 270
-  Width = 423
+  Top = 280
+  Width = 424
   BorderIcons = [biSystemMenu]
   Caption = 'Profiles selection'
   ClientHeight = 525
-  ClientWidth = 423
+  ClientWidth = 424
   Color = clBtnFace
   Constraints.MinHeight = 525
   Constraints.MinWidth = 375
@@ -24,7 +24,7 @@ object frmparameters_list: Tfrmparameters_list
     Left = 0
     Height = 525
     Top = 0
-    Width = 423
+    Width = 424
     ActivePage = TabSheet1
     Align = alClient
     Font.Color = clWindowText
@@ -36,7 +36,7 @@ object frmparameters_list: Tfrmparameters_list
     object TabSheet1: TTabSheet
       Caption = 'Available tables'
       ClientHeight = 492
-      ClientWidth = 415
+      ClientWidth = 416
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -45,7 +45,7 @@ object frmparameters_list: Tfrmparameters_list
         Left = 12
         Height = 420
         Top = 12
-        Width = 388
+        Width = 389
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
         Font.Height = -17
@@ -64,7 +64,7 @@ object frmparameters_list: Tfrmparameters_list
         Height = 26
         Hint = 'Amount of profiles in tables'
         Top = 448
-        Width = 276
+        Width = 277
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Amount of profiles'
         Font.Color = clWindowText
@@ -75,7 +75,7 @@ object frmparameters_list: Tfrmparameters_list
         TabOrder = 1
       end
       object btnCancel: TButton
-        Left = 303
+        Left = 304
         Height = 26
         Top = 448
         Width = 97

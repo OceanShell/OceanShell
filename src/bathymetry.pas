@@ -33,16 +33,16 @@ begin
 end;
 
 
-(* GEBCO 15" 2019 *)
+(* GEBCO 15" 2020 *)
 Function GEBCO_15(Lon, Lat:real):integer;
 Var
 fname: string;
 ncid:integer;
 start: PArraySize_t;
-sp:array of single;
+sp:array of smallint;
 lat0, lon0, step: real;
 begin
- fname:=GlobalSupportPath+'bathymetry'+PathDelim+'GEBCO_2019.nc';
+ fname:=GlobalSupportPath+'bathymetry'+PathDelim+'GEBCO_2020.nc';
 
  if not FileExists(fname) then begin
    Result:=-99999;
@@ -50,7 +50,7 @@ begin
  end;
 
  try
-  // opening GEBCO_2019.nc
+  // opening GEBCO_2020.nc
    nc_open(pansichar(fname), NC_NOWRITE, ncid);
      start:=GetMemory(SizeOf(TArraySize_t)*2);
 
@@ -63,7 +63,7 @@ begin
      start^[1]:=abs(trunc((lon0-lon)/step)); // lon index
 
      SetLength(sp, 1); // setting an empty array
-      nc_get_var1_float(ncid, 2, start^, sp);  // sending request to the file
+      nc_get_var1_short(ncid, 2, start^, sp);  // sending request to the file
      result:=round(sp[0]); // getting results
    finally
       sp:=nil;

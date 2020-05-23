@@ -34,6 +34,7 @@ type
 
 
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnNextClick(Sender: TObject);
     procedure btnPriorClick(Sender: TObject);
@@ -51,7 +52,6 @@ type
   public
     procedure AddToPlot(ID:integer; ToUpdate:boolean);
     procedure ChangeID(ID:integer);
-   // procedure UpdateProfile(ID:integer);
   end;
 
 var
@@ -250,6 +250,7 @@ begin
   for k:=0 to Chart1.SeriesCount-1 do begin
    with TLineSeries(Chart1.Series[k]) do begin
     SeriesColor:=clGray;
+    Pointer.Brush.Color:=clGray;
     LinePen.Width:=1;
     Pointer.HorizSize:=2;
     Pointer.VertSize:=2;
@@ -262,6 +263,7 @@ begin
   if cs>0 then begin
    with TLineSeries(Chart1.Series[cs]) do begin
     SeriesColor:=clRed;
+    Pointer.Brush.Color:=clRed;
     LinePen.Width:=2;
     Pointer.HorizSize:=3;
     Pointer.VertSize:=3;
@@ -343,6 +345,11 @@ begin
    finally
     Ini.Free;
    end;
+end;
+
+procedure Tfrmprofile_plot_all.FormDestroy(Sender: TObject);
+begin
+ Chart1.Series.Clear;
 end;
 
 

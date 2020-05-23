@@ -17,61 +17,83 @@ ST:TSQLScript;
 
 (* Script for main tables *)
 const ScriptText=
-   (* STATION *)
-   'CREATE TABLE STATION ('+LineEnding+
-   '    ID                  BIGINT NOT NULL, '+LineEnding+
-   '    LATITUDE            DECIMAL(8,5) NOT NULL, '+LineEnding+
-   '    LONGITUDE           DECIMAL(9,5) NOT NULL, '+LineEnding+
-   '    DATEANDTIME         TIMESTAMP NOT NULL, '+LineEnding+
-   '    BOTTOMDEPTH         INTEGER, '+LineEnding+
-   '    LASTLEVEL_M         INTEGER, '+LineEnding+
-   '    LASTLEVEL_DBAR      INTEGER, '+LineEnding+
-   '    CRUISE_ID           BIGINT NOT NULL, '+LineEnding+
-   '    INSTRUMENT_ID       BIGINT NOT NULL, '+LineEnding+
-   '    ST_NUMBER_ORIGIN    VARCHAR(50), '+LineEnding+
-   '    ST_ID_ORIGIN        BIGINT, '+LineEnding+
-   '    CAST_NUMBER         SMALLINT DEFAULT 1 NOT NULL, '+LineEnding+
-   '    QCFLAG              SMALLINT NOT NULL, '+LineEnding+
-   '    STVERSION           SMALLINT NOT NULL, '+LineEnding+
-   '    MERGED              SMALLINT DEFAULT 0 NOT NULL, '+LineEnding+
-   '    DATE_ADDED          TIMESTAMP NOT NULL, '+LineEnding+
-   '    DATE_UPDATED        TIMESTAMP, '+LineEnding+
-   '    CONSTRAINT STATION_PK PRIMARY KEY (ID) '+LineEnding+
+
+   'CREATE TABLE COUNTRY ('+LineEnding+
+   '   ID            BIGINT NOT NULL,'+LineEnding+
+   '   NODC_CODE     VARCHAR(4) CHARACTER SET UTF8,'+LineEnding+
+   '   ISO3166_CODE  VARCHAR(2) CHARACTER SET UTF8 NOT NULL,'+LineEnding+
+   '   NAME          VARCHAR(50) CHARACTER SET UTF8 NOT NULL,'+LineEnding+
+   '   DATE_ADDED    TIMESTAMP NOT NULL,'+LineEnding+
+   '   DATE_UPDATED  TIMESTAMP,'+LineEnding+
+   '   NOTES         BLOB SUB_TYPE 1 SEGMENT SIZE 8192 CHARACTER SET UTF8'+LineEnding+
+   ');'+LineEnding+
+
+
+   'CREATE TABLE CRUISE ('+LineEnding+
+   '   ID               BIGINT NOT NULL,'+LineEnding+
+   '   PLATFORM_ID      BIGINT DEFAULT -9 NOT NULL,'+LineEnding+
+   '   COUNTRY_ID       BIGINT DEFAULT -9 NOT NULL,'+LineEnding+
+   '   SOURCE_ID        BIGINT DEFAULT 1 NOT NULL,'+LineEnding+
+   '   INSTITUTE_ID     BIGINT DEFAULT 1 NOT NULL,'+LineEnding+
+   '   PROJECT_ID       BIGINT DEFAULT 445 NOT NULL,'+LineEnding+
+   '   EXPOCODE         VARCHAR(50) CHARACTER SET UTF8,'+LineEnding+
+   '   CRUISE_NUMBER    VARCHAR(100) CHARACTER SET UTF8,'+LineEnding+
+   '   DATE_START       TIMESTAMP NOT NULL,'+LineEnding+
+   '   DATE_END         TIMESTAMP NOT NULL,'+LineEnding+
+   '   STATIONS_AMOUNT  BIGINT,'+LineEnding+
+   '   "PI"             VARCHAR(255) CHARACTER SET UTF8 DEFAULT -9,'+LineEnding+
+   '   NOTES            BLOB SUB_TYPE 1 SEGMENT SIZE 16384 CHARACTER SET UTF8,'+LineEnding+
+   '   DATE_ADDED       TIMESTAMP NOT NULL,'+LineEnding+
+   '   DATE_UPDATED     TIMESTAMP,'+LineEnding+
+   '   COMPLETE         BOOLEAN DEFAULT false NOT NULL'+LineEnding+
+   ');'+LineEnding+
+
+   'CREATE TABLE DATABASE_TABLES ('+LineEnding+
+   '    ID            BIGINT NOT NULL, '+LineEnding+
+   '    TABLENAME     VARCHAR(255) NOT NULL, '+LineEnding+
+   '    VARIABLENAME  VARCHAR(255) NOT NULL, '+LineEnding+
+   '    DESCRIPTION   VARCHAR(255) '+LineEnding+
    '); '+LineEnding+
 
-   //   '    SOURCE_ID           BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-//   '    COUNTRY_ID          BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-//   '    PLATFORM_ID         BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-   //   '    INSTRUMENT_ID       BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-
-   (* ENTRY *)
    'CREATE TABLE ENTRY ('+LineEnding+
    '    ID               BIGINT NOT NULL, '+LineEnding+
-   '    ENTRIES_TYPE_ID  BIGINT NOT NULL, '+LineEnding+
+   '    ENTRY_TYPE_ID    BIGINT NOT NULL, '+LineEnding+
    '    TITLE            VARCHAR(100) NOT NULL, '+LineEnding+
-   '    DATE_BEGIN       TIMESTAMP NOT NULL, '+LineEnding+
+   '    DATE_START       TIMESTAMP NOT NULL, '+LineEnding+
    '    DATE_END         TIMESTAMP NOT NULL, '+LineEnding+
-   '    STATIONS_NUMBER  BIGINT, '+LineEnding+
+   '    STATIONS_AMOUNT  BIGINT, '+LineEnding+
+   '    NOTES            BLOB SUB_TYPE 1 SEGMENT SIZE 16384  CHARACTER SET UTF8, '+LineEnding+
    '    DATE_ADDED       TIMESTAMP NOT NULL, '+LineEnding+
-   '    DATE_UPDATED     TIMESTAMP, '+LineEnding+
-   '    CONSTRAINT ENTRY_PK PRIMARY KEY (ID) '+LineEnding+
+   '    DATE_UPDATED     TIMESTAMP '+LineEnding+
    '); '+LineEnding+
 
-   (* ENTRY_TYPE *)
    'CREATE TABLE ENTRY_TYPE ('+LineEnding+
    '    ID           BIGINT NOT NULL, '+LineEnding+
    '    NAME         VARCHAR(255) NOT NULL, '+LineEnding+
-   '    DESCRIPTION  BLOB SUB_TYPE 1 SEGMENT SIZE 16384, '+LineEnding+
-   '    CONSTRAINT ENTRY_TYPE_PK PRIMARY KEY (ID) '+LineEnding+
+   '    DESCRIPTION  BLOB SUB_TYPE 1 SEGMENT SIZE 16384  CHARACTER SET UTF8'+LineEnding+
    '); '+LineEnding+
 
-   (* STATION_ENTRY *)
-   'CREATE TABLE STATION_ENTRY ('+LineEnding+
-   '    STATION_ID  BIGINT NOT NULL, '+LineEnding+
-   '    ENTRY_ID    BIGINT NOT NULL '+LineEnding+
-   '); '+LineEnding+
 
-   (* METEO *)
+   'CREATE TABLE INSTITUTE ('+LineEnding+
+   '    ID            BIGINT NOT NULL,'+LineEnding+
+   '    NODC_CODE     VARCHAR(4) CHARACTER SET UTF8,'+LineEnding+
+   '    WOD_ID        BIGINT DEFAULT -9,'+LineEnding+
+   '    NAME          VARCHAR(255) CHARACTER SET UTF8 NOT NULL,'+LineEnding+
+   '    NOTES         BLOB SUB_TYPE 1 SEGMENT SIZE 16384 CHARACTER SET UTF8,'+LineEnding+
+   '    DATE_ADDED    TIMESTAMP NOT NULL,'+LineEnding+
+   '    DATE_UPDATED  TIMESTAMP'+LineEnding+
+   ');'+LineEnding+
+
+
+   'CREATE TABLE INSTRUMENT ('+LineEnding+
+   '    ID            BIGINT NOT NULL,'+LineEnding+
+   '    WOD_ID        BIGINT DEFAULT -9 NOT NULL,'+LineEnding+
+   '    NAME          VARCHAR(255) CHARACTER SET UTF8 NOT NULL,'+LineEnding+
+   '    NOTES         BLOB SUB_TYPE 1 SEGMENT SIZE 16384 CHARACTER SET UTF8,'+LineEnding+
+   '    DATE_ADDED    TIMESTAMP NOT NULL,'+LineEnding+
+   '    DATE_UPDATED  TIMESTAMP'+LineEnding+
+   ');'+LineEnding+
+
    'CREATE TABLE METEO ('+LineEnding+
    '    ID           BIGINT NOT NULL, '+LineEnding+
    '    TEMPDRY      DECIMAL(5,2), '+LineEnding+
@@ -96,20 +118,112 @@ const ScriptText=
    '    SURFSALT     DECIMAL(5,2) ' +LineEnding+
    '); '+LineEnding+
 
-   (* PARAMETERS *)
-   'CREATE TABLE DATABASE_TABLES ('+LineEnding+
-   '    ID            BIGINT NOT NULL, '+LineEnding+
-   '    TABLENAME     VARCHAR(255) NOT NULL, '+LineEnding+
-   '    VARIABLENAME  VARCHAR(255) NOT NULL, '+LineEnding+
-   '    DESCRIPTION   VARCHAR(255), '+LineEnding+
-   '    CONSTRAINT DATABASE_TABLES_PK PRIMARY KEY (ID) '+LineEnding+
-   '); '+LineEnding+
+   'CREATE TABLE PLATFORM ( '+LineEnding+
+   '    ID            BIGINT NOT NULL,'+LineEnding+
+   '    NODC_CODE     VARCHAR(4) CHARACTER SET UTF8,'+LineEnding+
+   '    WOD_ID        BIGINT DEFAULT -9,'+LineEnding+
+   '    IMO_ID        INTEGER DEFAULT -9,'+LineEnding+
+   '    CALLSIGN      VARCHAR(20) CHARACTER SET UTF8,'+LineEnding+
+   '    NAME          VARCHAR(50) CHARACTER SET UTF8 NOT NULL,'+LineEnding+
+   '    NAME_NATIVE   VARCHAR(50) CHARACTER SET UTF8,'+LineEnding+
+   '    NOTES_ICES    BLOB SUB_TYPE 1 SEGMENT SIZE 16384 CHARACTER SET UTF8,'+LineEnding+
+   '    NOTES_WOD     BLOB SUB_TYPE 1 SEGMENT SIZE 16384 CHARACTER SET UTF8,'+LineEnding+
+   '    NOTES         BLOB SUB_TYPE 1 SEGMENT SIZE 16384 CHARACTER SET UTF8,'+LineEnding+
+   '    DATE_ADDED    TIMESTAMP NOT NULL,'+LineEnding+
+   '    DATE_UPDATED  TIMESTAMP'+LineEnding+
+   ');'+LineEnding+
 
-   'ALTER TABLE STATION ADD CONSTRAINT UNQ1_STATION UNIQUE (LATITUDE,LONGITUDE,DATEANDTIME,CAST_NUMBER,STVERSION); '+LineEnding+
+
+   'CREATE TABLE PROJECT ('+LineEnding+
+   '    ID            BIGINT NOT NULL,'+LineEnding+
+   '    WOD_ID        BIGINT DEFAULT -9 NOT NULL,'+LineEnding+
+   '    NAME          VARCHAR(255) CHARACTER SET UTF8 NOT NULL,'+LineEnding+
+   '    NOTES         BLOB SUB_TYPE 1 SEGMENT SIZE 16384 CHARACTER SET UTF8,'+LineEnding+
+   '    DATE_ADDED    TIMESTAMP NOT NULL,'+LineEnding+
+   '    DATE_UPDATED  TIMESTAMP'+LineEnding+
+   ');'+LineEnding+
+
+
+   'CREATE TABLE SOURCE ( '+LineEnding+
+   '    ID              BIGINT NOT NULL,'+LineEnding+
+   '    NAME            VARCHAR(255) CHARACTER SET UTF8 NOT NULL,'+LineEnding+
+   '    STATION_ID_MIN  BIGINT,'+LineEnding+
+   '    STATION_ID_MAX  BIGINT,'+LineEnding+
+   '    NOTES           BLOB SUB_TYPE 1 SEGMENT SIZE 16384 CHARACTER SET UTF8,'+LineEnding+
+   '    DATE_ADDED      TIMESTAMP NOT NULL,'+LineEnding+
+   '    DATE_UPDATED    TIMESTAMP'+LineEnding+
+   ');'+LineEnding+
+
+
+   'CREATE TABLE STATION ( '+LineEnding+
+   '   ID                BIGINT NOT NULL,'+LineEnding+
+   '   LATITUDE          DECIMAL(8,5) NOT NULL,'+LineEnding+
+   '   LONGITUDE         DECIMAL(9,5) NOT NULL,'+LineEnding+
+   '   DATEANDTIME       TIMESTAMP NOT NULL,'+LineEnding+
+   '   BOTTOMDEPTH       INTEGER,'+LineEnding+
+   '   LASTLEVEL_M       INTEGER,'+LineEnding+
+   '   LASTLEVEL_DBAR    INTEGER,'+LineEnding+
+   '   CRUISE_ID         BIGINT NOT NULL,'+LineEnding+
+   '   INSTRUMENT_ID     BIGINT NOT NULL,'+LineEnding+
+   '   ST_NUMBER_ORIGIN  VARCHAR(50) CHARACTER SET UTF8,'+LineEnding+
+   '   ST_ID_ORIGIN      BIGINT,'+LineEnding+
+   '   CAST_NUMBER       SMALLINT DEFAULT 1 NOT NULL,'+LineEnding+
+   '   QCFLAG            SMALLINT NOT NULL,'+LineEnding+
+   '   STVERSION         SMALLINT NOT NULL,'+LineEnding+
+   '   MERGED            SMALLINT DEFAULT 0 NOT NULL,'+LineEnding+
+   '   DUPLICATE         BOOLEAN DEFAULT false NOT NULL,'+LineEnding+
+   '   ACCESSION_NUMBER  BIGINT,'+LineEnding+
+   '   DATE_ADDED        TIMESTAMP NOT NULL,'+LineEnding+
+   '   DATE_UPDATED      TIMESTAMP'+LineEnding+
+   ');'+LineEnding+
+
+   'CREATE TABLE STATION_ENTRY ('+LineEnding+
+   '    STATION_ID  BIGINT NOT NULL, '+LineEnding+
+   '    ENTRY_ID    BIGINT NOT NULL '+LineEnding+
+   ');'+LineEnding+
+
+   'CREATE TABLE UNITS ('+LineEnding+
+   '   ID            BIGINT NOT NULL,'+LineEnding+
+   '   NAME_SHORT    VARCHAR(20) CHARACTER SET UTF8 NOT NULL,'+LineEnding+
+   '   NAME          VARCHAR(255) CHARACTER SET UTF8 NOT NULL,'+LineEnding+
+   '   "LENGTH"      SMALLINT,'+LineEnding+
+   '   SCALE         SMALLINT,'+LineEnding+
+   '   NOTES         BLOB SUB_TYPE 1 SEGMENT SIZE 16384 CHARACTER SET UTF8,'+LineEnding+
+   '   DATE_ADDED    TIMESTAMP NOT NULL,'+LineEnding+
+   '   DATE_UPDATED  TIMESTAMP'+LineEnding+
+   ');'+LineEnding+
+
+   //UNIQUE
+   'ALTER TABLE ENTRY ADD CONSTRAINT UNQ1_ENTRY UNIQUE (ENTRY_TYPE_ID, TITLE, DATE_START, DATE_END);'+LineEnding+
+   'ALTER TABLE STATION ADD CONSTRAINT UNQ1_STATION UNIQUE (LATITUDE, LONGITUDE, DATEANDTIME, CAST_NUMBER, STVERSION);'+LineEnding+
+   'ALTER TABLE UNITS ADD CONSTRAINT UNQ1_UNITS UNIQUE (NAME_SHORT, NAME);'+LineEnding+
+
+   //PRIMARY
+   'ALTER TABLE COUNTRY ADD CONSTRAINT PK_COUNTRY_1 PRIMARY KEY (ID);'+LineEnding+
+   'ALTER TABLE CRUISE ADD CONSTRAINT PK_CRUISE_1 PRIMARY KEY (ID);'+LineEnding+
+   'ALTER TABLE DATABASE_TABLES ADD CONSTRAINT DATABASE_TABLES_PK PRIMARY KEY (ID);'+LineEnding+
+   'ALTER TABLE ENTRY ADD CONSTRAINT ENTRY_PK PRIMARY KEY (ID);'+LineEnding+
+   'ALTER TABLE ENTRY_TYPE ADD CONSTRAINT ENTRY_TYPE_PK PRIMARY KEY (ID);'+LineEnding+
+   'ALTER TABLE INSTITUTE ADD CONSTRAINT PK_INSTITUTE_1 PRIMARY KEY (ID);'+LineEnding+
+   'ALTER TABLE INSTRUMENT ADD CONSTRAINT PK_INSTRUMENT_1 PRIMARY KEY (ID);'+LineEnding+
+   'ALTER TABLE PLATFORM ADD CONSTRAINT PK_PLATFORM_1 PRIMARY KEY (ID);'+LineEnding+
+   'ALTER TABLE PROJECT ADD CONSTRAINT PK_PROJECT_1 PRIMARY KEY (ID);'+LineEnding+
+   'ALTER TABLE SOURCE ADD CONSTRAINT PK_SOURCE_1 PRIMARY KEY (ID);'+LineEnding+
+   'ALTER TABLE STATION ADD CONSTRAINT STATION_PK PRIMARY KEY (ID);'+LineEnding+
+   'ALTER TABLE UNITS ADD CONSTRAINT PK_UNITS_1 PRIMARY KEY (ID);'+LineEnding+
+
+   //FOREIGN
+   'ALTER TABLE CRUISE ADD CONSTRAINT FK_CRUISE_1 FOREIGN KEY (PLATFORM_ID) REFERENCES PLATFORM (ID); '+LineEnding+
+   'ALTER TABLE CRUISE ADD CONSTRAINT FK_CRUISE_2 FOREIGN KEY (COUNTRY_ID) REFERENCES COUNTRY (ID); '+LineEnding+
+   'ALTER TABLE CRUISE ADD CONSTRAINT FK_CRUISE_3 FOREIGN KEY (SOURCE_ID) REFERENCES SOURCE (ID); '+LineEnding+
+   'ALTER TABLE CRUISE ADD CONSTRAINT FK_CRUISE_4 FOREIGN KEY (INSTITUTE_ID) REFERENCES INSTITUTE (ID); '+LineEnding+
+   'ALTER TABLE CRUISE ADD CONSTRAINT FK_CRUISE_5 FOREIGN KEY (PROJECT_ID) REFERENCES PROJECT (ID); '+LineEnding+
    'ALTER TABLE METEO ADD CONSTRAINT FK_METEO FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-   'ALTER TABLE ENTRY ADD CONSTRAINT FK_ENTRY FOREIGN KEY (ENTRIES_TYPE_ID) REFERENCES ENTRY_TYPE (ID); '+LineEnding+
+   'ALTER TABLE ENTRY ADD CONSTRAINT FK_ENTRY FOREIGN KEY (ENTRY_TYPE_ID) REFERENCES ENTRY_TYPE (ID); '+LineEnding+
    'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_1 FOREIGN KEY (STATION_ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
    'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_2 FOREIGN KEY (ENTRY_ID) REFERENCES ENTRY (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
+   'ALTER TABLE STATION ADD CONSTRAINT FK_STATION_1 FOREIGN KEY (CRUISE_ID) REFERENCES CRUISE (ID) ON DELETE CASCADE ON UPDATE CASCADE;'+LineEnding+
+   'ALTER TABLE STATION ADD CONSTRAINT FK_STATION_2 FOREIGN KEY (INSTRUMENT_ID) REFERENCES INSTRUMENT (ID) ON DELETE CASCADE ON UPDATE CASCADE;'+LineEnding+
 
    'COMMIT WORK '+LineEnding+
    'SET TERM ; '+LineEnding;
@@ -130,7 +244,7 @@ begin
     ST.Database:=DB;
     ST.CommentsInSQL:=false;
 
-    //DB.DatabaseName:=(dbname);
+    DB.DatabaseName:=(dbname);
     DB.UserName:='SYSDBA';
     DB.Password:='masterkey';
      With DB.Params do begin
@@ -149,6 +263,7 @@ begin
     ST.UseCommit:=true;
     ST.UseSetTerm:=true; // for Firebird ONLY
     ST.CommentsInSQL:=false;
+   // St.Script.SaveToFile('X:\test.sql');
      try
       ST.Execute;
       TR.Commit;

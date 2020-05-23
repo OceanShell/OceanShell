@@ -1,7 +1,7 @@
 object frmprofile_station_single: Tfrmprofile_station_single
-  Left = 643
+  Left = 398
   Height = 634
-  Top = 180
+  Top = 139
   Width = 1040
   Caption = 'frmprofile_station_single'
   ClientHeight = 634
@@ -40,7 +40,6 @@ object frmprofile_station_single: Tfrmprofile_station_single
       Width = 327
       AxisList = <      
         item
-          Grid.Visible = False
           Arrow.Inverted = True
           Inverted = True
           Marks.LabelBrush.Style = bsClear
@@ -50,7 +49,6 @@ object frmprofile_station_single: Tfrmprofile_station_single
           Title.LabelBrush.Style = bsClear
         end      
         item
-          Grid.Visible = False
           Alignment = calTop
           Marks.LabelBrush.Style = bsClear
           Minors = <>
@@ -119,6 +117,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
         Top = 2
         Caption = 'Add'
         ImageIndex = 1
+        OnClick = btnAddClick
       end
       object btnDelete: TToolButton
         Left = 94
@@ -126,33 +125,19 @@ object frmprofile_station_single: Tfrmprofile_station_single
         Top = 2
         Caption = 'Delete'
         ImageIndex = 334
-      end
-      object btnSetFlag: TToolButton
-        Left = 192
-        Hint = 'Set flag on all parameters'
-        Top = 2
-        AutoSize = True
-        Caption = 'Flag'
-        ImageIndex = 420
-        Style = tbsDropDown
+        OnClick = btnDeleteClick
       end
       object btnCommit: TToolButton
-        Left = 308
+        Left = 192
         Hint = 'Commit changes'
         Top = 2
         AutoSize = True
-        Caption = 'Commit'
+        Caption = 'Save'
         ImageIndex = 940
-      end
-      object ToolButton1: TToolButton
-        Left = 187
-        Height = 33
-        Top = 2
-        Caption = 'ToolButton1'
-        Style = tbsDivider
+        OnClick = btnCommitClick
       end
       object ToolButton3: TToolButton
-        Left = 303
+        Left = 187
         Height = 33
         Top = 2
         Caption = 'ToolButton3'
@@ -166,7 +151,6 @@ object frmprofile_station_single: Tfrmprofile_station_single
       Width = 705
       Align = alClient
       AlternateColor = 13631478
-      AutoAdvance = aaNone
       Color = 13627366
       Columns = <      
         item
@@ -187,6 +171,18 @@ object frmprofile_station_single: Tfrmprofile_station_single
           FieldName = 'PQF1'
         end      
         item
+          DropDownRows = 8
+          PickList.Strings = (
+            '0'
+            '1'
+            '2'
+            '3'
+            '4'
+            '5'
+            '6'
+            '7'
+            '8'
+          )
           Title.Caption = 'PQF2'
           Width = 60
           FieldName = 'PQF2'
@@ -200,6 +196,10 @@ object frmprofile_station_single: Tfrmprofile_station_single
           Title.Caption = 'Bottle'
           Width = 60
           FieldName = 'BOTTLE_NUMBER'
+        end      
+        item
+          Title.Caption = 'Units ID'
+          FieldName = 'UNITS_ID'
         end>
       DataSource = DS
       FixedCols = 0
@@ -209,6 +209,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
       Font.Name = 'Tahoma'
       Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
       ParentFont = False
+      PopupMenu = PM
       Scrollbars = ssAutoBoth
       TabOrder = 1
       TitleFont.Color = clWindowText
@@ -302,6 +303,19 @@ object frmprofile_station_single: Tfrmprofile_station_single
     end
     object ChartToolset1DataPointHintTool1: TDataPointHintTool
       ActiveCursor = crHandPoint
+    end
+  end
+  object PM: TPopupMenu
+    Images = frmicons.IL1
+    left = 584
+    top = 179
+    object SetFlagBelow: TMenuItem
+      Caption = 'Set selected flag BELOW this level'
+      OnClick = SetFlagBelowClick
+    end
+    object SetFlagAbove: TMenuItem
+      Caption = 'Set selected flag ABOVE this level'
+      OnClick = SetFlagAboveClick
     end
   end
 end

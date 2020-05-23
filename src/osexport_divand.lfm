@@ -1,7 +1,7 @@
 object frmosexport_divand: Tfrmosexport_divand
-  Left = 656
+  Left = 658
   Height = 600
-  Top = 279
+  Top = 280
   Width = 748
   Caption = 'frmosexport_divand'
   ClientHeight = 600

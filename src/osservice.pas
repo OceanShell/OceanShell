@@ -24,8 +24,6 @@ var
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
 begin
-{Main.ProgressBar1.Position:=0;
-Main.ProgressBar1.Max:=ODBDM.CDSMD.RecordCount;}
    TRt:=TSQLTransaction.Create(nil);
    TRt.DataBase:=frmdm.IBDB;
 
@@ -89,6 +87,7 @@ finally
  TrT.Commit;
  TrT.Free;
  frmosmain.DatabaseInfo;
+ showmessage('Last level update completed');
 end;
 end;
 

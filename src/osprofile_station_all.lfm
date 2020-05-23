@@ -1,11 +1,11 @@
 object frmprofile_station_all: Tfrmprofile_station_all
-  Left = 443
+  Left = 453
   Height = 621
-  Top = 246
+  Top = 256
   Width = 1099
   Caption = 'All parameters'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 621
+  ClientWidth = 1099
   Color = clBtnFace
   DesignTimePPI = 144
   Font.Color = clWindowText

@@ -1,7 +1,7 @@
 object frmLoadITP: TfrmLoadITP
-  Left = 319
+  Left = 389
   Height = 684
-  Top = 156
+  Top = 181
   Width = 1309
   BorderStyle = bsSingle
   Caption = 'Load ITP'
@@ -18,9 +18,9 @@ object frmLoadITP: TfrmLoadITP
     Height = 684
     Top = 0
     Width = 288
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Align = alLeft
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Upload data'
@@ -166,6 +166,15 @@ object frmLoadITP: TfrmLoadITP
         Caption = 'dBar -> m'
         OnClick = Button5Click
         TabOrder = 5
+      end
+      object Button6: TButton
+        Left = 12
+        Height = 38
+        Top = 312
+        Width = 248
+        Caption = 'less then 10 obs'
+        OnClick = Button6Click
+        TabOrder = 6
       end
     end
   end

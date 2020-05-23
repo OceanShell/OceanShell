@@ -22,6 +22,7 @@ type
     btnTimeReapload: TButton;
     Button4: TButton;
     Button5: TButton;
+    Button6: TButton;
     chkShowMetadata: TCheckBox;
     chkShowProfiles: TCheckBox;
     chkWrite: TCheckBox;
@@ -40,6 +41,7 @@ type
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -909,6 +911,74 @@ begin
   Qt1.close;
   Qt2.Close;
   Trt.Commit;
+  Qt1.Free;
+  Qt2.Free;
+  TrT.Free;
+  end;
+end;
+
+
+
+procedure TfrmLoadITP.Button6Click(Sender: TObject);
+Var
+  ff, ID: integer;
+  tbl: string;
+  Lat, lev_d, lev_m: real;
+  TRt:TSQLTransaction;
+  Qt1, Qt2:TSQLQuery;
+begin
+   TRt:=TSQLTransaction.Create(self);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt1:=TSQLQuery.Create(self);
+   Qt1.Database:=frmdm.IBDB;
+   Qt1.Transaction:=TRt;
+
+   Qt2:=TSQLQuery.Create(self);
+   Qt2.Database:=frmdm.IBDB;
+   Qt2.Transaction:=TRt;
+
+ try
+  frmdm.Q.First;
+  while not frmdm.Q.EOF do begin
+    ID := frmdm.Q.FieldByName('ID').AsInteger;
+
+    For ff:=1 to frmosmain.ListBox1.Count-1 do begin
+      tbl:=frmosmain.ListBox1.Items.Strings[ff];
+
+      with Qt1 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' SELECT ID, LEV_DBAR FROM ');
+        SQL.Add(tbl);
+        SQL.Add(' WHERE ID=:ID ');
+        ParamByName('ID').AsInteger:=ID;
+       Open;
+       Last;
+       First;
+      end;
+
+      if (Qt1.RecordCount<=10) and (Qt1.FieldByName('LEV_DBAR').AsFloat>10) then begin
+       with Qt2 do begin
+        Close;
+         SQL.Clear;
+         SQL.Add(' UPDATE '+tbl);
+         SQL.Add(' SET PQF2=2 ');
+         SQL.Add(' WHERE ID=:ID ');
+         ParamByName('ID').AsInteger:=ID;
+        ExecSqL;
+       end;
+     // memo1.Lines.Add(inttostr(ID));
+      end;
+    end; //tbl
+
+    frmdm.Q.Next;
+  end; //Q
+
+  finally
+  Trt.Commit;
+  Qt1.close;
+  Qt2.Close;
   Qt1.Free;
   Qt2.Free;
   TrT.Free;

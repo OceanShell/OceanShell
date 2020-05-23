@@ -1,11 +1,11 @@
 object frmosmain: Tfrmosmain
-  Left = 280
-  Height = 698
-  Top = 109
-  Width = 1305
+  Left = 427
+  Height = 699
+  Top = 134
+  Width = 1306
   Caption = 'OceanShell'
-  ClientHeight = 668
-  ClientWidth = 1305
+  ClientHeight = 669
+  ClientWidth = 1306
   Color = clBtnFace
   Constraints.MinHeight = 698
   Constraints.MinWidth = 1305
@@ -52,22 +52,22 @@ object frmosmain: Tfrmosmain
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 594
+    Height = 595
     Top = 74
-    Width = 1305
-    ActivePage = tsMainCruises
+    Width = 1306
+    ActivePage = tsMainSelect
     Align = alClient
     Enabled = False
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
     ParentFont = False
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 2
     object tsMainSelect: TTabSheet
       Caption = 'Selection'
-      ClientHeight = 561
-      ClientWidth = 1297
+      ClientHeight = 562
+      ClientWidth = 1298
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -447,8 +447,8 @@ object frmosmain: Tfrmosmain
           Left = 48
           Height = 20
           Top = 228
-          Width = 67
-          Caption = 'Sation ID'
+          Width = 72
+          Caption = 'Station ID'
           ParentColor = False
         end
         object seIDMin: TSpinEdit
@@ -480,12 +480,78 @@ object frmosmain: Tfrmosmain
           Value = 1
         end
         object Label4: TLabel
-          Left = 339
+          Left = 344
           Height = 20
-          Top = 228
+          Top = 224
           Width = 14
           Caption = '->'
           ParentColor = False
+        end
+        object Label5: TLabel
+          Left = 568
+          Height = 20
+          Top = 228
+          Width = 108
+          Caption = 'Station QC flag'
+          ParentColor = False
+        end
+        object cbQCFlag1: TComboBox
+          Left = 688
+          Height = 28
+          Top = 220
+          Width = 64
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ItemHeight = 20
+          ItemIndex = 0
+          Items.Strings = (
+            '0'
+            '1'
+            '2'
+            '3'
+            '4'
+            '5'
+            '6'
+            '7'
+            '8'
+          )
+          ParentFont = False
+          TabOrder = 12
+          Text = '0'
+        end
+        object Label6: TLabel
+          Left = 768
+          Height = 20
+          Top = 224
+          Width = 14
+          Caption = '->'
+          ParentColor = False
+        end
+        object cbQCFlag2: TComboBox
+          Left = 800
+          Height = 28
+          Top = 220
+          Width = 64
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ItemHeight = 20
+          ItemIndex = 8
+          Items.Strings = (
+            '0'
+            '1'
+            '2'
+            '3'
+            '4'
+            '5'
+            '6'
+            '7'
+            '8'
+          )
+          ParentFont = False
+          TabOrder = 13
+          Text = '8'
         end
       end
       object btnAdvancedSelection: TButton
@@ -504,185 +570,295 @@ object frmosmain: Tfrmosmain
         Top = 144
         Width = 228
         Caption = 'Custom SQL Query'
-        Enabled = False
+        OnClick = btnCustomSQLQueryClick
         TabOrder = 5
       end
     end
     object tsMainCruises: TTabSheet
       Caption = 'Cruises'
-      ClientHeight = 561
-      ClientWidth = 1297
+      ClientHeight = 562
+      ClientWidth = 1298
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
       ParentFont = False
-      object DBGridCruise: TDBGrid
-        Left = 0
-        Height = 451
-        Top = 32
-        Width = 1297
-        Align = alClient
-        AlternateColor = 13631478
-        AutoAdvance = aaNone
-        Color = 13627366
-        Columns = <        
-          item
-            ButtonStyle = cbsCheckboxColumn
-            MaxSize = 30
-            Title.Alignment = taCenter
-            Title.ImageLayout = blGlyphLeft
-            Title.Caption = ''
-            Width = 30
-          end        
-          item
-            MinSize = 15
-            MaxSize = 300
-            ReadOnly = True
-            Title.Caption = 'Cruise ID'
-            FieldName = 'ID'
-          end        
-          item
-            ButtonStyle = cbsPickList
-            DropDownRows = 20
-            MinSize = 15
-            MaxSize = 300
-            Title.Caption = 'Platform'
-            FieldName = 'PLATFORM'
-          end        
-          item
-            MinSize = 15
-            MaxSize = 300
-            Title.Caption = 'Cruise #'
-            FieldName = 'CRUISE_NUMBER'
-          end        
-          item
-            ButtonStyle = cbsPickList
-            DropDownRows = 20
-            MinSize = 15
-            MaxSize = 300
-            Title.Caption = 'Country'
-            FieldName = 'COUNTRY'
-          end        
-          item
-            ButtonStyle = cbsPickList
-            DropDownRows = 20
-            MinSize = 15
-            MaxSize = 300
-            Title.Caption = 'Source'
-            FieldName = 'SOURCE'
-          end        
-          item
-            ButtonStyle = cbsPickList
-            DropDownRows = 20
-            MinSize = 15
-            MaxSize = 300
-            Title.Caption = 'Institute'
-            FieldName = 'INSTITUTE'
-          end        
-          item
-            ButtonStyle = cbsPickList
-            DropDownRows = 20
-            MinSize = 15
-            MaxSize = 300
-            Title.Caption = 'Project'
-            FieldName = 'PROJECT'
-          end        
-          item
-            MinSize = 15
-            MaxSize = 300
-            Title.Caption = 'PI'
-            FieldName = 'PI'
-          end        
-          item
-            MinSize = 15
-            MaxSize = 300
-            Title.Caption = 'Stations'
-            FieldName = 'STATIONS_AMOUNT'
-          end        
-          item
-            MinSize = 15
-            MaxSize = 300
-            Title.Caption = 'Start date'
-            FieldName = 'DATE_START'
-          end        
-          item
-            MinSize = 15
-            MaxSize = 300
-            Title.Caption = 'Finish date'
-            FieldName = 'DATE_END'
-          end        
-          item
-            ReadOnly = True
-            Title.Caption = 'Added'
-            FieldName = 'DATE_ADDED'
-            DisplayFormat = 'DD.MM.YYYY'
-          end        
-          item
-            ReadOnly = True
-            Title.Caption = 'Updated'
-            FieldName = 'DATE_UPDATED'
-            DisplayFormat = 'DD.MM.YYYY'
-          end>
-        DataSource = frmdm.DSCruise
-        FixedCols = 0
-        Flat = True
-        Font.Color = clWindowText
-        Font.Height = -17
-        Font.Name = 'MS Sans Serif'
-        Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
-        ParentFont = False
-        PopupMenu = PMCruise
-        Scrollbars = ssAutoBoth
-        TabOrder = 0
-        TitleFont.Color = clWindowText
-        TitleFont.Height = -17
-        TitleFont.Name = 'MS Sans Serif'
-        TitleImageList = frmicons.IL1
-        TitleStyle = tsStandard
-        OnCellClick = DBGridCruiseCellClick
-        OnColumnSized = DBGridCruiseColumnSized
-        OnPrepareCanvas = DBGridCruisePrepareCanvas
-        OnTitleClick = DBGridCruiseTitleClick
-        OnUserCheckboxState = DBGridCruiseUserCheckboxState
-      end
-      object DBMemoCruises: TDBMemo
-        Left = 0
-        Height = 70
-        Top = 491
-        Width = 1297
-        Align = alBottom
-        DataField = 'NOTES'
-        DataSource = frmdm.DSCruise
-        Font.Color = clWindowText
-        Font.Height = -17
-        Font.Name = 'MS Sans Serif'
-        ParentFont = False
-        ScrollBars = ssBoth
-        TabOrder = 1
-      end
       object Splitter1: TSplitter
-        Cursor = crVSplit
-        Left = 0
-        Height = 8
-        Top = 483
-        Width = 1297
-        Align = alBottom
-        ResizeAnchor = akBottom
+        Left = 976
+        Height = 530
+        Top = 32
+        Width = 8
+        Align = alRight
+        Beveled = True
+        ResizeAnchor = akRight
       end
-      object pCruiseFilter: TPanel
+      object pCruiseGrid: TPanel
+        Left = 0
+        Height = 530
+        Top = 32
+        Width = 976
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 530
+        ClientWidth = 976
+        TabOrder = 1
+        object DBGridCruise1: TDBGrid
+          Left = 0
+          Height = 235
+          Top = 0
+          Width = 976
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              ButtonStyle = cbsCheckboxColumn
+              MaxSize = 30
+              Title.Alignment = taCenter
+              Title.ImageLayout = blGlyphLeft
+              Title.Caption = ''
+              Width = 30
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              ReadOnly = True
+              Title.Caption = 'Cruise ID'
+              FieldName = 'ID'
+            end          
+            item
+              ButtonStyle = cbsPickList
+              DropDownRows = 20
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Platform'
+              FieldName = 'PLATFORM'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Cruise #'
+              FieldName = 'CRUISE_NUMBER'
+            end          
+            item
+              ButtonStyle = cbsPickList
+              DropDownRows = 20
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Source'
+              FieldName = 'SOURCE'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Start date'
+              FieldName = 'DATE_START'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Finish date'
+              FieldName = 'DATE_END'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Stations'
+              FieldName = 'STATIONS_AMOUNT'
+            end>
+          DataSource = frmdm.DSCruise
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          PopupMenu = PMCruise
+          Scrollbars = ssAutoBoth
+          TabOrder = 0
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          TitleImageList = frmicons.IL1
+          TitleStyle = tsStandard
+          OnCellClick = DBGridCruise1CellClick
+          OnColumnSized = DBGridCruise1ColumnSized
+          OnPrepareCanvas = DBGridCruise1PrepareCanvas
+          OnSelectEditor = DBGridCruise1SelectEditor
+          OnTitleClick = DBGridCruise1TitleClick
+          OnUserCheckboxState = DBGridCruise1UserCheckboxState
+        end
+        object Splitter4: TSplitter
+          Cursor = crVSplit
+          Left = 0
+          Height = 8
+          Top = 235
+          Width = 976
+          Align = alBottom
+          ResizeAnchor = akBottom
+        end
+        object DBGridCruise2: TDBGrid
+          Left = 0
+          Height = 255
+          Top = 275
+          Width = 976
+          Align = alBottom
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              Title.Caption = 'Country'
+              FieldName = 'COUNTRY'
+            end          
+            item
+              ButtonStyle = cbsPickList
+              DropDownRows = 20
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Institute'
+              FieldName = 'INSTITUTE'
+            end          
+            item
+              ButtonStyle = cbsPickList
+              DropDownRows = 20
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Project'
+              FieldName = 'PROJECT'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'PI'
+              FieldName = 'PI'
+            end          
+            item
+              ReadOnly = True
+              Title.Caption = 'Added'
+              FieldName = 'DATE_ADDED'
+              DisplayFormat = 'DD.MM.YYYY'
+            end          
+            item
+              ReadOnly = True
+              Title.Caption = 'Updated'
+              FieldName = 'DATE_UPDATED'
+              DisplayFormat = 'DD.MM.YYYY'
+            end>
+          DataSource = frmdm.DSCruise
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          PopupMenu = PMCruise
+          Scrollbars = ssAutoBoth
+          TabOrder = 2
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          TitleImageList = frmicons.IL1
+          TitleStyle = tsStandard
+          OnCellClick = DBGridCruise1CellClick
+          OnColumnSized = DBGridCruise1ColumnSized
+          OnPrepareCanvas = DBGridCruise1PrepareCanvas
+          OnSelectEditor = DBGridCruise2SelectEditor
+          OnTitleClick = DBGridCruise1TitleClick
+          OnUserCheckboxState = DBGridCruise1UserCheckboxState
+        end
+        object pCruiseFilter2: TPanel
+          Left = 0
+          Height = 32
+          Top = 243
+          Width = 976
+          Align = alBottom
+          BevelOuter = bvNone
+          ClientHeight = 32
+          ClientWidth = 976
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 3
+          object eCruise_PI: TEdit
+            Left = 246
+            Height = 32
+            Top = 0
+            Width = 75
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = eCruise_IDClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object eCruise_Institute: TEdit
+            Left = 96
+            Height = 32
+            Top = 0
+            Width = 75
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = eCruise_IDClick
+            ParentFont = False
+            TabOrder = 1
+          end
+          object eCruise_Project: TEdit
+            Left = 171
+            Height = 32
+            Top = 0
+            Width = 75
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = eCruise_IDClick
+            ParentFont = False
+            TabOrder = 2
+          end
+          object eCruise_COUNTRY: TEdit
+            Left = 0
+            Height = 32
+            Top = 0
+            Width = 96
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnClick = eCruise_IDClick
+            ParentFont = False
+            TabOrder = 3
+          end
+        end
+      end
+      object pCruiseFilter1: TPanel
         Left = 0
         Height = 32
         Top = 0
-        Width = 1297
+        Width = 1298
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 32
-        ClientWidth = 1297
+        ClientWidth = 1298
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
         ParentFont = False
-        TabOrder = 3
+        TabOrder = 2
         object eCruise_PLATFORM: TEdit
           Left = 96
           Height = 32
@@ -713,21 +889,6 @@ object frmosmain: Tfrmosmain
           ParentFont = False
           TabOrder = 1
         end
-        object eCruise_COUNTRY: TEdit
-          Left = 288
-          Height = 32
-          Top = 0
-          Width = 96
-          Align = alLeft
-          CharCase = ecUppercase
-          Color = clWhite
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          OnClick = eCruise_IDClick
-          ParentFont = False
-          TabOrder = 2
-        end
         object eCruise_ID: TEdit
           Left = 0
           Height = 32
@@ -740,25 +901,10 @@ object frmosmain: Tfrmosmain
           Font.Name = 'MS Sans Serif'
           OnClick = eCruise_IDClick
           ParentFont = False
-          TabOrder = 3
-        end
-        object eCruise_PI: TEdit
-          Left = 684
-          Height = 32
-          Top = 0
-          Width = 75
-          Align = alLeft
-          CharCase = ecUppercase
-          Color = clWhite
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          OnClick = eCruise_IDClick
-          ParentFont = False
-          TabOrder = 4
+          TabOrder = 2
         end
         object eCruise_SOURCE: TEdit
-          Left = 384
+          Left = 288
           Height = 32
           Top = 0
           Width = 150
@@ -770,89 +916,76 @@ object frmosmain: Tfrmosmain
           Font.Name = 'MS Sans Serif'
           OnClick = eCruise_IDClick
           ParentFont = False
-          TabOrder = 5
+          TabOrder = 3
         end
-        object eCruise_Institute: TEdit
-          Left = 534
-          Height = 32
+        object tbCruise: TToolBar
+          Left = 438
           Top = 0
-          Width = 75
-          Align = alLeft
-          CharCase = ecUppercase
-          Color = clWhite
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          OnClick = eCruise_IDClick
-          ParentFont = False
-          TabOrder = 6
-        end
-        object eCruise_Project: TEdit
-          Left = 609
-          Height = 32
-          Top = 0
-          Width = 75
-          Align = alLeft
-          CharCase = ecUppercase
-          Color = clWhite
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          OnClick = eCruise_IDClick
-          ParentFont = False
-          TabOrder = 7
-        end
-        object ToolBar1: TToolBar
-          Left = 759
-          Top = 0
-          Width = 538
+          Width = 860
           Align = alClient
           AutoSize = True
           ButtonHeight = 33
           ButtonWidth = 50
-          Caption = 'ToolBar1'
+          Caption = 'tbCruise'
           EdgeBorders = []
           Images = frmicons.IL1
           List = True
           ShowCaptions = True
-          TabOrder = 8
+          TabOrder = 4
+          object btnSaveCruise: TToolButton
+            Left = 113
+            Top = 0
+            AutoSize = True
+            Caption = 'Save changes'
+            Enabled = False
+            ImageIndex = 940
+            OnClick = btnSaveCruiseClick
+          end
           object btnAddCruise: TToolButton
             Left = 1
             Top = 0
             AutoSize = True
-            Caption = 'Add new cruise'
+            Caption = 'Add cruise'
             ImageIndex = 1
           end
-          object ToolButton2: TToolButton
-            Left = 135
+          object ToolButton8: TToolButton
+            Left = 102
             Height = 33
             Top = 0
-            Caption = 'ToolButton2'
+            Caption = 'ToolButton8'
             Style = tbsDivider
           end
-          object btnSaveCruise: TToolButton
-            Left = 140
-            Top = 0
-            AutoSize = True
-            Caption = 'Save changes'
-            ImageIndex = 940
-          end
         end
+      end
+      object DBMemoCruises: TDBMemo
+        Left = 984
+        Height = 530
+        Top = 32
+        Width = 314
+        Align = alRight
+        DataField = 'NOTES'
+        DataSource = frmdm.DSCruise
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        ScrollBars = ssBoth
+        TabOrder = 3
       end
     end
     object tsMainEntries: TTabSheet
       Caption = 'Entries'
-      ClientHeight = 561
-      ClientWidth = 1297
+      ClientHeight = 562
+      ClientWidth = 1298
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
       ParentFont = False
       object DBGridEntry: TDBGrid
         Left = 0
-        Height = 451
+        Height = 530
         Top = 32
-        Width = 1297
+        Width = 984
         Align = alClient
         AlternateColor = 13631478
         AutoAdvance = aaNone
@@ -914,16 +1047,16 @@ object frmosmain: Tfrmosmain
         TitleImageList = frmicons.IL1
         OnCellClick = DBGridEntryCellClick
         OnColumnSized = DBGridEntryColumnSized
-        OnPrepareCanvas = DBGridCruisePrepareCanvas
+        OnPrepareCanvas = DBGridCruise1PrepareCanvas
         OnTitleClick = DBGridEntryTitleClick
         OnUserCheckboxState = DBGridEntryUserCheckboxState
       end
       object DBMemoEntriy: TDBMemo
-        Left = 0
-        Height = 70
-        Top = 491
-        Width = 1297
-        Align = alBottom
+        Left = 992
+        Height = 530
+        Top = 32
+        Width = 306
+        Align = alRight
         DataField = 'NOTES'
         DataSource = frmdm.DSEntry
         Font.Color = clWindowText
@@ -934,23 +1067,23 @@ object frmosmain: Tfrmosmain
         TabOrder = 1
       end
       object Splitter2: TSplitter
-        Cursor = crVSplit
-        Left = 0
-        Height = 8
-        Top = 483
-        Width = 1297
-        Align = alBottom
-        ResizeAnchor = akBottom
+        Left = 984
+        Height = 530
+        Top = 32
+        Width = 8
+        Align = alRight
+        Beveled = True
+        ResizeAnchor = akRight
       end
       object pEntryFilter: TPanel
         Left = 0
         Height = 32
         Top = 0
-        Width = 1297
+        Width = 1298
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 32
-        ClientWidth = 1297
+        ClientWidth = 1298
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -1003,7 +1136,7 @@ object frmosmain: Tfrmosmain
         object ToolBar2: TToolBar
           Left = 288
           Top = 0
-          Width = 1009
+          Width = 1010
           Align = alClient
           AutoSize = True
           ButtonHeight = 33
@@ -1018,28 +1151,28 @@ object frmosmain: Tfrmosmain
             Left = 1
             Top = 0
             AutoSize = True
-            Caption = 'Add new entry'
+            Caption = 'Add entry'
             ImageIndex = 1
           end
           object ToolButton3: TToolButton
-            Left = 254
+            Left = 207
             Height = 33
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider
           end
           object btnSaveCruise1: TToolButton
-            Left = 259
+            Left = 212
             Top = 0
             AutoSize = True
             Caption = 'Save changes'
             ImageIndex = 940
           end
           object btnRemoveEntry: TToolButton
-            Left = 128
+            Left = 95
             Top = 0
             AutoSize = True
-            Caption = 'Remove Entry'
+            Caption = 'Delete entry'
             ImageIndex = 334
           end
         end
@@ -1047,14 +1180,14 @@ object frmosmain: Tfrmosmain
     end
     object tsMetadata: TTabSheet
       Caption = 'Metadata'
-      ClientHeight = 561
-      ClientWidth = 1297
+      ClientHeight = 562
+      ClientWidth = 1298
       TabVisible = False
       object ToolBar3: TToolBar
         Left = 0
         Height = 33
         Top = 0
-        Width = 1297
+        Width = 1298
         AutoSize = True
         Caption = 'ToolBar3'
         EdgeBorders = []
@@ -1107,44 +1240,12 @@ object frmosmain: Tfrmosmain
           Caption = 'ToolButton1'
           Style = tbsDivider
         end
-        object pStationFiller: TPanel
-          Left = 173
-          Height = 33
-          Top = 0
-          Width = 255
-          BevelOuter = bvNone
-          TabOrder = 0
-        end
-        object btnMap: TToolButton
-          Left = 428
-          Top = 0
-          Action = aMapSelectedStation
-          ShowCaption = False
-        end
-        object btnAllProfiles: TToolButton
-          Left = 463
-          Top = 0
-          Action = aProfilesStationAll
-          ShowCaption = False
-        end
-        object btnPlotAllProfiles: TToolButton
-          Left = 533
-          Top = 0
-          Action = aProfilesSelectedAllPlot
-          ShowCaption = False
-        end
-        object btnSingleProfile: TToolButton
-          Left = 498
-          Top = 0
-          Action = aProfilesStationSingle
-          ShowCaption = False
-        end
       end
       object DBGridStation2: TDBGrid
         Left = 0
-        Height = 241
+        Height = 242
         Top = 320
-        Width = 1297
+        Width = 1298
         Align = alClient
         AlternateColor = 13631478
         AutoAdvance = aaNone
@@ -1214,6 +1315,10 @@ object frmosmain: Tfrmosmain
             FieldName = 'MERGED'
           end        
           item
+            Title.Caption = 'Duplicate'
+            FieldName = 'DUPLICATE'
+          end        
+          item
             Title.Caption = 'Added'
             FieldName = 'DATE_ADDED'
           end        
@@ -1229,6 +1334,7 @@ object frmosmain: Tfrmosmain
         Font.Name = 'MS Sans Serif'
         Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
         ParentFont = False
+        PopupMenu = PMStation
         Scrollbars = ssAutoBoth
         TabOrder = 1
         TitleFont.Color = clWindowText
@@ -1236,7 +1342,7 @@ object frmosmain: Tfrmosmain
         TitleFont.Name = 'MS Sans Serif'
         OnCellClick = DBGridStation2CellClick
         OnKeyUp = DBGridStation2KeyUp
-        OnPrepareCanvas = DBGridCruisePrepareCanvas
+        OnPrepareCanvas = DBGridCruise1PrepareCanvas
         OnTitleClick = DBGridStation2TitleClick
       end
       object Splitter3: TSplitter
@@ -1244,7 +1350,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 8
         Top = 312
-        Width = 1297
+        Width = 1298
         Align = alTop
         Beveled = True
         ResizeAnchor = akTop
@@ -1253,7 +1359,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 279
         Top = 33
-        Width = 1297
+        Width = 1298
         Align = alTop
         AlternateColor = 13631478
         AutoAdvance = aaNone
@@ -1335,6 +1441,7 @@ object frmosmain: Tfrmosmain
         Font.Name = 'MS Sans Serif'
         Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
         ParentFont = False
+        PopupMenu = PMStation
         Scrollbars = ssAutoBoth
         TabOrder = 3
         TitleFont.Color = clWindowText
@@ -1342,7 +1449,7 @@ object frmosmain: Tfrmosmain
         TitleFont.Name = 'MS Sans Serif'
         OnCellClick = DBGridStation2CellClick
         OnKeyUp = DBGridStation2KeyUp
-        OnPrepareCanvas = DBGridCruisePrepareCanvas
+        OnPrepareCanvas = DBGridCruise1PrepareCanvas
         OnTitleClick = DBGridStation2TitleClick
       end
     end
@@ -1351,12 +1458,12 @@ object frmosmain: Tfrmosmain
     Left = 0
     Height = 74
     Top = 0
-    Width = 1305
+    Width = 1306
     Align = alTop
     BevelOuter = bvNone
     BorderStyle = bsSingle
     ClientHeight = 70
-    ClientWidth = 1301
+    ClientWidth = 1302
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
@@ -1366,7 +1473,7 @@ object frmosmain: Tfrmosmain
       Left = 0
       Height = 36
       Top = 0
-      Width = 1301
+      Width = 1302
       Align = alTop
       Font.Color = clWindowText
       Font.Height = -17
@@ -1404,7 +1511,7 @@ object frmosmain: Tfrmosmain
       Left = 0
       Height = 36
       Top = 36
-      Width = 1301
+      Width = 1302
       Align = alTop
       BorderSpacing.Bottom = 2
       Font.Color = clWindowText
@@ -1438,6 +1545,38 @@ object frmosmain: Tfrmosmain
         end>
       ParentFont = False
       SimplePanel = False
+    end
+  end
+  object tbFastAccess: TToolBar
+    Left = 1056
+    Height = 33
+    Top = 80
+    Width = 141
+    Align = alNone
+    AutoSize = True
+    Caption = 'tbFastAccess'
+    EdgeBorders = []
+    Images = frmicons.IL1
+    TabOrder = 4
+    object ToolButton4: TToolButton
+      Left = 1
+      Top = 0
+      Action = aMapAllStations
+    end
+    object ToolButton5: TToolButton
+      Left = 36
+      Top = 0
+      Action = aProfilesSelectedAllPlot
+    end
+    object ToolButton6: TToolButton
+      Left = 71
+      Top = 0
+      Action = aProfilesStationAll
+    end
+    object ToolButton7: TToolButton
+      Left = 106
+      Top = 0
+      Action = aProfilesStationSingle
     end
   end
   object OD: TOpenDialog
@@ -1506,15 +1645,25 @@ object frmosmain: Tfrmosmain
       end
     end
     object iService: TMenuItem
-      Caption = 'Service'
+      Caption = 'Service and QC'
       object iSupportTables: TMenuItem
         Caption = 'Support Tables'
         ImageIndex = 323
         OnClick = iSupportTablesClick
       end
+      object MenuItem6: TMenuItem
+        Caption = '-'
+      end
       object iServiceStatistics: TMenuItem
         Caption = 'Service Statistics'
         OnClick = iServiceStatisticsClick
+      end
+      object MenuItem13: TMenuItem
+        Caption = '-'
+      end
+      object iQCtest: TMenuItem
+        Caption = 'QC test'
+        OnClick = iQCtestClick
       end
     end
     object iImport: TMenuItem
@@ -1528,6 +1677,10 @@ object frmosmain: Tfrmosmain
       object iDIVAnd: TMenuItem
         Caption = 'DIVAnd'
         OnClick = iDIVAndClick
+      end
+      object iExportASCII: TMenuItem
+        Caption = 'ASCII'
+        OnClick = iExportASCIIClick
       end
     end
     object iTools: TMenuItem
@@ -1695,5 +1848,8 @@ object frmosmain: Tfrmosmain
       Caption = 'Update Last Level'
       OnClick = iUpdateLastLevelClick
     end
+  end
+  object ODir: TSelectDirectoryDialog
+    left = 424
   end
 end
