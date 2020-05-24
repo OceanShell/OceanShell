@@ -331,6 +331,9 @@ begin
         Qt.Database:=frmdm.IBDB;
         Qt.Transaction:=TRt;
 
+        DBGridTables.Columns[1].PickList.Clear;
+        DBGridTables.Columns[1].PickList:=frmosmain.ListBox1.Items;
+
         DBGridTables.Columns[3].PickList.Clear;
         Qt.SQL.Text:=' SELECT DISTINCT NAME FROM UNITS ORDER BY NAME ';
         Qt.Open;
@@ -920,7 +923,7 @@ Var
  TRt:TSQLTransaction;
  Qt:TSQLQuery;
 begin
-  if TDBGrid(Sender).Columns.HasIndex(3) then begin
+  if TDBGrid(Sender).SelectedColumn.Index=3 then begin
     try
      TRt:=TSQLTransaction.Create(self);
      TRt.DataBase:=frmdm.IBDB;
@@ -953,7 +956,7 @@ Var
  TRt:TSQLTransaction;
  Qt:TSQLQuery;
 begin
-  if TDBGrid(Sender).Columns.HasIndex(7) then begin
+  if TDBGrid(Sender).SelectedColumn.Index=7 then begin
     try
      TRt:=TSQLTransaction.Create(self);
      TRt.DataBase:=frmdm.IBDB;
@@ -984,7 +987,7 @@ end;
 procedure Tfrmsupporttables.DBGridTablesSelectEditor(Sender: TObject;
   Column: TColumn; var Editor: TWinControl);
 begin
-  if Column.Index = 3 then begin
+  if (Column.Index = 1) or (Column.Index = 3) then begin
     if (Editor is TCustomComboBox) then
       with Editor as TCustomComboBox do
           Style := csDropDownList;

@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 427
+  Left = 429
   Height = 699
-  Top = 134
+  Top = 135
   Width = 1306
   Caption = 'OceanShell'
   ClientHeight = 669

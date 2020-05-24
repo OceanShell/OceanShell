@@ -2,8 +2,8 @@ object frmdm: Tfrmdm
   OnDestroy = DataModuleDestroy
   OldCreateOrder = False
   Height = 285
-  HorizontalOffset = 728
-  VerticalOffset = 347
+  HorizontalOffset = 729
+  VerticalOffset = 349
   Width = 412
   PPI = 144
   object IBDB: TIBConnection
