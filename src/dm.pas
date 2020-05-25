@@ -25,6 +25,7 @@ type
     TR: TSQLTransaction;
 
     procedure DataModuleDestroy(Sender: TObject);
+    procedure QCruiseAfterEdit(DataSet: TDataSet);
 
   private
     { private declarations }
@@ -42,11 +43,18 @@ implementation
 
 { Tfrmdm }
 
+uses osmain;
+
 
 procedure Tfrmdm.DataModuleDestroy(Sender: TObject);
 begin
  TR.Commit;
  IBDB.Close(true);
+end;
+
+procedure Tfrmdm.QCruiseAfterEdit(DataSet: TDataSet);
+begin
+ frmosmain.btnSaveCruise.Enabled:=true;
 end;
 
 end.

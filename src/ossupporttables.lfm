@@ -4,8 +4,8 @@ object frmsupporttables: Tfrmsupporttables
   Top = 102
   Width = 1501
   Caption = 'Support tables'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 825
+  ClientWidth = 1501
   Color = clBtnFace
   Constraints.MinHeight = 825
   Constraints.MinWidth = 1500
@@ -638,12 +638,14 @@ object frmsupporttables: Tfrmsupporttables
               MaxSize = 300
               Title.Caption = 'Min ID'
               FieldName = 'STATION_ID_MIN'
+              DisplayFormat = '#,###,###'
             end          
             item
               MinSize = 15
               MaxSize = 300
               Title.Caption = 'Max ID'
               FieldName = 'STATION_ID_MAX'
+              DisplayFormat = '#,###,###'
             end>
           DataSource = DS
           FixedCols = 0
@@ -1552,7 +1554,7 @@ object frmsupporttables: Tfrmsupporttables
       Left = 111
       Hint = 'Commit changes'
       Top = 0
-      Caption = 'Save'
+      Caption = 'Save changes'
       Enabled = False
       ImageIndex = 940
       OnClick = btnsaveClick
@@ -1572,7 +1574,7 @@ object frmsupporttables: Tfrmsupporttables
       Style = tbsDivider
     end
     object btnUpdateQC: TBitBtn
-      Left = 428
+      Left = 493
       Height = 33
       Top = 0
       Width = 105
@@ -1586,7 +1588,7 @@ object frmsupporttables: Tfrmsupporttables
       TabOrder = 0
     end
     object Panel28: TPanel
-      Left = 173
+      Left = 238
       Height = 33
       Top = 0
       Width = 255

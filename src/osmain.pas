@@ -121,9 +121,10 @@ type
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     Panel1: TPanel;
+    pCruiseBottom: TPanel;
+    pCruiseFilter2: TPanel;
     pCruiseGrid: TPanel;
     pCruiseFilter1: TPanel;
-    pCruiseFilter2: TPanel;
     pEntryFilter: TPanel;
     PMStation: TPopupMenu;
     PMCruise: TPopupMenu;
@@ -191,12 +192,14 @@ type
     procedure aProfilesStationAllExecute(Sender: TObject);
     procedure aProfilesStationSingleExecute(Sender: TObject);
     procedure aSettingsExecute(Sender: TObject);
+    procedure btnAddCruiseClick(Sender: TObject);
     procedure btnAdvancedSelectionClick(Sender: TObject);
     procedure btnCustomSQLQueryClick(Sender: TObject);
     procedure btnSaveCruiseClick(Sender: TObject);
     procedure btnSelectionClick(Sender: TObject);
     procedure DBGridCruise1CellClick(Column: TColumn);
     procedure DBGridCruise1ColumnSized(Sender: TObject);
+    procedure DBGridCruise1EditingDone(Sender: TObject);
     procedure DBGridCruise1PrepareCanvas(sender: TObject; DataCol: Integer;
       Column: TColumn; AState: TGridDrawState);
     procedure DBGridCruise1SelectEditor(Sender: TObject; Column: TColumn;
@@ -204,6 +207,7 @@ type
     procedure DBGridCruise1TitleClick(Column: TColumn);
     procedure DBGridCruise1UserCheckboxState(Sender: TObject; Column: TColumn;
       var AState: TCheckboxState);
+    procedure DBGridCruise2EditingDone(Sender: TObject);
     procedure DBGridCruise2SelectEditor(Sender: TObject; Column: TColumn;
       var Editor: TWinControl);
     procedure DBGridEntryCellClick(Column: TColumn);
@@ -430,7 +434,8 @@ begin
     dtpDateMax.DateTime:=Ini.ReadDateTime('osmain', 'datemax', now);
 
     (* CRUISE table columns *)
-    DBMemoCruises.width := Ini.ReadInteger( 'osmain', 'pCruiseNotes_Width', 300);
+    DBMemoCruises.width := Ini.ReadInteger( 'osmain', 'pCruiseNotes_Width', 250);
+    pCruiseBottom.Height:= Ini.ReadInteger( 'osmain', 'pCruiseBottom_Height', 200);
     With DBGridCruise1 do begin
      Columns[0].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col00',  30); //CheckBox
      Columns[1].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col01',  50); //ID
@@ -443,7 +448,6 @@ begin
     End;
 
     With DBGridCruise2 do begin
-     Height := Ini.ReadInteger( 'osmain', 'DBGridCruise1_Height', 300);
      Columns[0].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col08',  150); //Country
      Columns[1].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col09',  150); //Institute
      Columns[2].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col10',  150); //Project
@@ -807,6 +811,31 @@ begin
   end;
 end;
 
+procedure Tfrmosmain.btnAddCruiseClick(Sender: TObject);
+Var
+ Qt:TSQLQuery;
+begin
+frmdm.QCruise.Insert;
+
+Qt :=TSQLQuery.Create(self);
+Qt.Database:=frmdm.IBDB;
+Qt.Transaction:=frmdm.TR;
+
+   if frmdm.QCruise.FieldByName('ID').IsNull then begin
+     Qt.Close;
+     Qt.SQL.Text:=' Select max(ID) from CRUISE ';
+     Qt.Open;
+      frmdm.QCruise.Append;
+      frmdm.QCruise.FieldByName('ID').Value:=Qt.Fields[0].AsInteger+1;
+      frmdm.QCruise.FieldByName('DATE_ADDED').Value:=Now;
+     Qt.Close;
+   end;
+
+Qt.Free;
+btnSaveCruise.Enabled:=true;
+end;
+
+
 procedure Tfrmosmain.iSettingsClick(Sender: TObject);
 begin
   aSettings.Execute;
@@ -880,8 +909,9 @@ end;
 
 procedure Tfrmosmain.btnSaveCruiseClick(Sender: TObject);
 begin
-  frmdm.QCruise.ApplyUpdates;
-  //Tr.CommitRetaining;
+   if frmdm.QCruise.Modified then frmdm.QCruise.Post;
+      frmdm.QCruise.ApplyUpdates(0);
+      frmdm.TR.CommitRetaining;
 end;
 
 
@@ -1010,28 +1040,14 @@ end;
 
 procedure Tfrmosmain.FetchCruises;
 begin
+ (* Query text is embedded into the component *)
   with frmdm.QCruise do begin
-   Close;
-    SQL.Clear;
-    SQL.Add(' SELECT ');
-    SQL.Add(' CRUISE.ID, PLATFORM.NAME as PLATFORM, COUNTRY.NAME as COUNTRY, ');
-    SQL.Add(' SOURCE.NAME as SOURCE, INSTITUTE.NAME as INSTITUTE, ');
-    SQL.Add(' PROJECT.NAME as PROJECT, CRUISE.DATE_ADDED, CRUISE.DATE_UPDATED, ');
-    SQL.Add(' CRUISE.CRUISE_NUMBER, CRUISE.DATE_START, CRUISE.DATE_END, ');
-    SQL.Add(' CRUISE.STATIONS_AMOUNT, CRUISE.PI, CRUISE.NOTES ');
-    SQL.Add(' FROM CRUISE, PLATFORM, COUNTRY, SOURCE, INSTITUTE, PROJECT ');
-    SQL.Add(' WHERE ');
-    SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID and ');
-    SQL.Add(' PLATFORM.COUNTRY_ID=COUNTRY.ID and ');
-    SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID and ');
-    SQL.Add(' CRUISE.INSTITUTE_ID=INSTITUTE.ID and ');
-    SQL.Add(' CRUISE.PROJECT_ID=PROJECT.ID');
-    SQL.Add(' ORDER by PLATFORM.NAME, CRUISE.DATE_START ');
    Open;
    Last;
    First;
   end;
 
+  btnAddCruise.Enabled:=true;
   tsMainCruises.Caption:='Cruises: ['+inttostr(frmdm.QCruise.RecordCount)+']';
   Application.ProcessMessages;
 end;
@@ -1623,6 +1639,7 @@ begin
     eCruise_PI.Width:=DBGridCruise2.Columns[3].Width;
 end;
 
+
 procedure Tfrmosmain.DBGridEntryColumnSized(Sender: TObject);
 begin
   eEntry_ID.Width:=DBGridEntry.Columns[0].Width+
@@ -1657,6 +1674,12 @@ begin
       with Editor as TCustomComboBox do
           Style := csDropDownList;
     end;
+
+  {  if (Column.Index=5) or (Column.Index=6) then begin
+     if (Editor is TCustomComboBox) then
+       with Editor as TCustomComboBox do
+          Style := csDropDownList;
+    end; }
 end;
 
 procedure Tfrmosmain.DBGridCruise2SelectEditor(Sender: TObject;
@@ -1666,6 +1689,106 @@ begin
      if (Editor is TCustomComboBox) then
       with Editor as TCustomComboBox do
           Style := csDropDownList;
+  end;
+end;
+
+
+procedure Tfrmosmain.DBGridCruise1EditingDone(Sender: TObject);
+Var
+ TRt:TSQLTransaction;
+ Qt:TSQLQuery;
+ par:string;
+begin
+  par:='';
+  Case TDBGrid(Sender).SelectedColumn.Index of
+    2: par:='PLATFORM';
+    4: par:='SOURCE';
+  end;
+
+  if Par<>'' then begin
+    try
+     TRt:=TSQLTransaction.Create(self);
+     TRt.DataBase:=frmdm.IBDB;
+
+     Qt:=TSQLQuery.Create(self);
+     Qt.Transaction:=TRt;
+
+
+     if Par='SOURCE' then begin
+     With Qt do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' SELECT ID FROM '+Par+' WHERE NAME=:NAME ');
+       ParamByName('NAME').AsString:=frmdm.QCruise.FieldByName(Par).AsString;
+      Open;
+       frmdm.QCruise.Edit;
+       frmdm.QCruise.FieldByName(Par+'_ID').AsInteger:=Qt.Fields[0].AsInteger;
+       //frmdm.QCruise.Post;
+      Close;
+     end;
+     end;
+
+     if Par='PLATFORM' then begin
+      With Qt do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' SELECT PLATFORM.ID, COUNTRY.NAME FROM ');
+       SQL.ADD(' PLATFORM, COUNTRY WHERE ');
+       SQL.Add(' PLATFORM.COUNTRY_ID=COUNTRY.ID AND ');
+       SQL.ADD(' PLATFORM.NAME=:NAME');
+       ParamByName('NAME').AsString:=frmdm.QCruise.FieldByName(Par).AsString;
+      Open;
+       frmdm.QCruise.Edit;
+       frmdm.QCruise.FieldByName(Par+'_ID').AsInteger:=Qt.Fields[0].AsInteger;
+       frmdm.QCruise.FieldByName('COUNTRY').AsString:=Qt.Fields[1].AsString;
+       //frmdm.QCruise.Post;
+      Close;
+     end;
+     end;
+    Finally
+     Qt.Close;
+     TRt.Commit;
+     Qt.Free;
+    end;
+  end;
+end;
+
+
+procedure Tfrmosmain.DBGridCruise2EditingDone(Sender: TObject);
+Var
+ TRt:TSQLTransaction;
+ Qt:TSQLQuery;
+ par:string;
+begin
+  par:='';
+  Case TDBGrid(Sender).SelectedColumn.Index of
+    1: par:='INSTITUTE';
+    2: par:='PROJECT';
+  end;
+
+  if Par<>'' then begin
+    try
+     TRt:=TSQLTransaction.Create(self);
+     TRt.DataBase:=frmdm.IBDB;
+
+     Qt:=TSQLQuery.Create(self);
+     Qt.Transaction:=TRt;
+
+     With Qt do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' SELECT ID FROM '+Par+' WHERE NAME=:NAME ');
+       ParamByName('NAME').AsString:=frmdm.QCruise.FieldByName(Par).AsString;
+      Open;
+       frmdm.QCruise.Edit;
+       frmdm.QCruise.FieldByName(Par+'_ID').AsInteger:=Qt.Fields[0].AsInteger;
+      Close;
+     end;
+    Finally
+     Qt.Close;
+     TRt.Commit;
+     Qt.Free;
+    end;
   end;
 end;
 
@@ -1875,7 +1998,8 @@ begin
     Ini.WriteDateTime( 'osmain', 'datemax',  dtpDateMax.DateTime);
 
     (* cruise table columns *)
-    Ini.WriteInteger( 'osmain', 'pCruiseNotes_Width', DBMemoCruises.width);
+    Ini.WriteInteger( 'osmain', 'pCruiseNotes_Width',   DBMemoCruises.width);
+    Ini.WriteInteger( 'osmain', 'pCruiseBottom_Height', pCruiseBottom.Height);
     With DBGridCruise1 do begin
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col00', Columns[0].Width);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col01', Columns[1].Width);
@@ -1887,7 +2011,6 @@ begin
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col07', Columns[7].Width);
     end;
     With DBGridCruise2 do begin
-     Ini.writeInteger( 'osmain', 'DBGridCruise2_Height', Height);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col08', Columns[0].Width);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col09', Columns[1].Width);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col10', Columns[2].Width);

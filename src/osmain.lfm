@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 429
+  Left = 376
   Height = 699
-  Top = 135
+  Top = 196
   Width = 1306
   Caption = 'OceanShell'
   ClientHeight = 669
@@ -603,7 +603,7 @@ object frmosmain: Tfrmosmain
         TabOrder = 1
         object DBGridCruise1: TDBGrid
           Left = 0
-          Height = 235
+          Height = 320
           Top = 0
           Width = 976
           Align = alClient
@@ -622,7 +622,7 @@ object frmosmain: Tfrmosmain
             item
               MinSize = 15
               MaxSize = 300
-              ReadOnly = True
+              ReadOnly = False
               Title.Caption = 'Cruise ID'
               FieldName = 'ID'
             end          
@@ -684,6 +684,7 @@ object frmosmain: Tfrmosmain
           TitleStyle = tsStandard
           OnCellClick = DBGridCruise1CellClick
           OnColumnSized = DBGridCruise1ColumnSized
+          OnEditingDone = DBGridCruise1EditingDone
           OnPrepareCanvas = DBGridCruise1PrepareCanvas
           OnSelectEditor = DBGridCruise1SelectEditor
           OnTitleClick = DBGridCruise1TitleClick
@@ -693,155 +694,168 @@ object frmosmain: Tfrmosmain
           Cursor = crVSplit
           Left = 0
           Height = 8
-          Top = 235
+          Top = 320
           Width = 976
           Align = alBottom
           ResizeAnchor = akBottom
         end
-        object DBGridCruise2: TDBGrid
+        object pCruiseBottom: TPanel
           Left = 0
-          Height = 255
-          Top = 275
-          Width = 976
-          Align = alBottom
-          AlternateColor = 13631478
-          AutoAdvance = aaNone
-          Color = 13627366
-          Columns = <          
-            item
-              Title.Caption = 'Country'
-              FieldName = 'COUNTRY'
-            end          
-            item
-              ButtonStyle = cbsPickList
-              DropDownRows = 20
-              MinSize = 15
-              MaxSize = 300
-              Title.Caption = 'Institute'
-              FieldName = 'INSTITUTE'
-            end          
-            item
-              ButtonStyle = cbsPickList
-              DropDownRows = 20
-              MinSize = 15
-              MaxSize = 300
-              Title.Caption = 'Project'
-              FieldName = 'PROJECT'
-            end          
-            item
-              MinSize = 15
-              MaxSize = 300
-              Title.Caption = 'PI'
-              FieldName = 'PI'
-            end          
-            item
-              ReadOnly = True
-              Title.Caption = 'Added'
-              FieldName = 'DATE_ADDED'
-              DisplayFormat = 'DD.MM.YYYY'
-            end          
-            item
-              ReadOnly = True
-              Title.Caption = 'Updated'
-              FieldName = 'DATE_UPDATED'
-              DisplayFormat = 'DD.MM.YYYY'
-            end>
-          DataSource = frmdm.DSCruise
-          FixedCols = 0
-          Flat = True
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
-          ParentFont = False
-          PopupMenu = PMCruise
-          Scrollbars = ssAutoBoth
-          TabOrder = 2
-          TitleFont.Color = clWindowText
-          TitleFont.Height = -17
-          TitleFont.Name = 'MS Sans Serif'
-          TitleImageList = frmicons.IL1
-          TitleStyle = tsStandard
-          OnCellClick = DBGridCruise1CellClick
-          OnColumnSized = DBGridCruise1ColumnSized
-          OnPrepareCanvas = DBGridCruise1PrepareCanvas
-          OnSelectEditor = DBGridCruise2SelectEditor
-          OnTitleClick = DBGridCruise1TitleClick
-          OnUserCheckboxState = DBGridCruise1UserCheckboxState
-        end
-        object pCruiseFilter2: TPanel
-          Left = 0
-          Height = 32
-          Top = 243
+          Height = 202
+          Top = 328
           Width = 976
           Align = alBottom
           BevelOuter = bvNone
-          ClientHeight = 32
+          ClientHeight = 202
           ClientWidth = 976
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          ParentFont = False
-          TabOrder = 3
-          object eCruise_PI: TEdit
-            Left = 246
-            Height = 32
-            Top = 0
-            Width = 75
-            Align = alLeft
-            CharCase = ecUppercase
-            Color = clWhite
-            Font.Color = clWindowText
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            OnClick = eCruise_IDClick
-            ParentFont = False
-            TabOrder = 0
-          end
-          object eCruise_Institute: TEdit
-            Left = 96
-            Height = 32
-            Top = 0
-            Width = 75
-            Align = alLeft
-            CharCase = ecUppercase
-            Color = clWhite
-            Font.Color = clWindowText
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            OnClick = eCruise_IDClick
-            ParentFont = False
-            TabOrder = 1
-          end
-          object eCruise_Project: TEdit
-            Left = 171
-            Height = 32
-            Top = 0
-            Width = 75
-            Align = alLeft
-            CharCase = ecUppercase
-            Color = clWhite
-            Font.Color = clWindowText
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            OnClick = eCruise_IDClick
-            ParentFont = False
-            TabOrder = 2
-          end
-          object eCruise_COUNTRY: TEdit
+          TabOrder = 2
+          object pCruiseFilter2: TPanel
             Left = 0
             Height = 32
             Top = 0
-            Width = 96
-            Align = alLeft
-            CharCase = ecUppercase
-            Color = clWhite
+            Width = 976
+            Align = alTop
+            BevelOuter = bvNone
+            ClientHeight = 32
+            ClientWidth = 976
             Font.Color = clWindowText
             Font.Height = -17
             Font.Name = 'MS Sans Serif'
-            OnClick = eCruise_IDClick
             ParentFont = False
-            TabOrder = 3
+            TabOrder = 0
+            object eCruise_PI: TEdit
+              Left = 246
+              Height = 32
+              Top = 0
+              Width = 75
+              Align = alLeft
+              CharCase = ecUppercase
+              Color = clWhite
+              Font.Color = clWindowText
+              Font.Height = -17
+              Font.Name = 'MS Sans Serif'
+              OnClick = eCruise_IDClick
+              ParentFont = False
+              TabOrder = 0
+            end
+            object eCruise_Institute: TEdit
+              Left = 96
+              Height = 32
+              Top = 0
+              Width = 75
+              Align = alLeft
+              CharCase = ecUppercase
+              Color = clWhite
+              Font.Color = clWindowText
+              Font.Height = -17
+              Font.Name = 'MS Sans Serif'
+              OnClick = eCruise_IDClick
+              ParentFont = False
+              TabOrder = 1
+            end
+            object eCruise_Project: TEdit
+              Left = 171
+              Height = 32
+              Top = 0
+              Width = 75
+              Align = alLeft
+              CharCase = ecUppercase
+              Color = clWhite
+              Font.Color = clWindowText
+              Font.Height = -17
+              Font.Name = 'MS Sans Serif'
+              OnClick = eCruise_IDClick
+              ParentFont = False
+              TabOrder = 2
+            end
+            object eCruise_COUNTRY: TEdit
+              Left = 0
+              Height = 32
+              Top = 0
+              Width = 96
+              Align = alLeft
+              CharCase = ecUppercase
+              Color = clWhite
+              Font.Color = clWindowText
+              Font.Height = -17
+              Font.Name = 'MS Sans Serif'
+              OnClick = eCruise_IDClick
+              ParentFont = False
+              TabOrder = 3
+            end
+          end
+          object DBGridCruise2: TDBGrid
+            Left = 0
+            Height = 170
+            Top = 32
+            Width = 976
+            Align = alClient
+            AlternateColor = 13631478
+            AutoAdvance = aaNone
+            Color = 13627366
+            Columns = <            
+              item
+                ReadOnly = True
+                Title.Caption = 'Country'
+                FieldName = 'COUNTRY'
+              end            
+              item
+                ButtonStyle = cbsPickList
+                DropDownRows = 20
+                MinSize = 15
+                MaxSize = 300
+                Title.Caption = 'Institute'
+                FieldName = 'INSTITUTE'
+              end            
+              item
+                ButtonStyle = cbsPickList
+                DropDownRows = 20
+                MinSize = 15
+                MaxSize = 300
+                Title.Caption = 'Project'
+                FieldName = 'PROJECT'
+              end            
+              item
+                MinSize = 15
+                MaxSize = 300
+                Title.Caption = 'PI'
+                FieldName = 'PI'
+              end            
+              item
+                ReadOnly = True
+                Title.Caption = 'Added'
+                FieldName = 'DATE_ADDED'
+                DisplayFormat = 'DD.MM.YYYY'
+              end            
+              item
+                ReadOnly = True
+                Title.Caption = 'Updated'
+                FieldName = 'DATE_UPDATED'
+                DisplayFormat = 'DD.MM.YYYY'
+              end>
+            DataSource = frmdm.DSCruise
+            FixedCols = 0
+            Flat = True
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+            ParentFont = False
+            PopupMenu = PMCruise
+            Scrollbars = ssAutoBoth
+            TabOrder = 1
+            TitleFont.Color = clWindowText
+            TitleFont.Height = -17
+            TitleFont.Name = 'MS Sans Serif'
+            TitleImageList = frmicons.IL1
+            TitleStyle = tsStandard
+            OnCellClick = DBGridCruise1CellClick
+            OnColumnSized = DBGridCruise1ColumnSized
+            OnEditingDone = DBGridCruise2EditingDone
+            OnPrepareCanvas = DBGridCruise1PrepareCanvas
+            OnSelectEditor = DBGridCruise2SelectEditor
+            OnTitleClick = DBGridCruise1TitleClick
+            OnUserCheckboxState = DBGridCruise1UserCheckboxState
           end
         end
       end
@@ -933,7 +947,7 @@ object frmosmain: Tfrmosmain
           ShowCaptions = True
           TabOrder = 4
           object btnSaveCruise: TToolButton
-            Left = 113
+            Left = 107
             Top = 0
             AutoSize = True
             Caption = 'Save changes'
@@ -946,7 +960,9 @@ object frmosmain: Tfrmosmain
             Top = 0
             AutoSize = True
             Caption = 'Add cruise'
+            Enabled = False
             ImageIndex = 1
+            OnClick = btnAddCruiseClick
           end
           object ToolButton8: TToolButton
             Left = 102
@@ -1235,7 +1251,7 @@ object frmosmain: Tfrmosmain
         end
         object ToolButton1: TToolButton
           Left = 106
-          Height = 33
+          Height = 5
           Top = 0
           Caption = 'ToolButton1'
           Style = tbsDivider
