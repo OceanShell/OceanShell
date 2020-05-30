@@ -1,7 +1,7 @@
 object frmselection_customsql: Tfrmselection_customsql
-  Left = 600
+  Left = 603
   Height = 450
-  Top = 312
+  Top = 315
   Width = 751
   BorderIcons = [biSystemMenu]
   Caption = 'Custom SQL query'
@@ -20,8 +20,8 @@ object frmselection_customsql: Tfrmselection_customsql
   LCLVersion = '2.0.6.0'
   object Memo1: TMemo
     Left = 0
-    Height = 415
-    Top = 35
+    Height = 413
+    Top = 37
     Width = 751
     Align = alClient
     BorderStyle = bsNone
@@ -36,7 +36,7 @@ object frmselection_customsql: Tfrmselection_customsql
   end
   object ToolBar2: TToolBar
     Left = 0
-    Height = 35
+    Height = 37
     Top = 0
     Width = 751
     AutoSize = True

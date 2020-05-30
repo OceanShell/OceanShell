@@ -30,6 +30,7 @@ type
     DBGridInstrument: TDBGrid;
     DBGridSource: TDBGrid;
     DS: TDataSource;
+    eProject_NameFull: TEdit;
     eTables_ID: TEdit;
     eTables_NAME: TEdit;
     eCountry_NODC: TEdit;
@@ -123,6 +124,7 @@ type
     procedure eCountry_NODCChange(Sender: TObject);
     procedure ePlatform_CountryChange(Sender: TObject);
     procedure ePlatform_IDClick(Sender: TObject);
+    procedure eProject_NameFullChange(Sender: TObject);
     procedure eTables_TABLENAMEChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -233,6 +235,7 @@ begin
      Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col00',  50);
      Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col01',  50);
      Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col02',  200);
+     Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col03',  200);
     end;
 
     With DBGridInstitute do begin
@@ -427,7 +430,7 @@ begin
      end;
   5: begin
        CodesTblName:='PROJECT';
-       Q.SQL.text:='Select ID, WOD_ID, NAME '+
+       Q.SQL.text:='Select ID, WOD_ID, NAME, NAME_FULL '+
                    'FROM PROJECT ORDER BY NAME';
      end;
   6: begin
@@ -504,10 +507,10 @@ begin
     eSource_Name.Width:=DBGridSource.Columns[1].Width;
  end;
  if CodesTblName='PROJECT' then begin
-    occup:=trunc(DBGridProject.Width-25-
-           (DBGridProject.Columns[0].Width+
-            DBGridProject.Columns[1].Width));
-    DBGridProject.Columns[2].Width:=occup+1;
+   eProject_ID.Width:=DBGridProject.Columns[0].Width;
+   eProject_WOD.Width:=DBGridProject.Columns[1].Width;
+   eProject_NAME.Width:=DBGridProject.Columns[2].Width;
+   eProject_NAMEFULL.Width:=DBGridProject.Columns[3].Width;
  end;
  if CodesTblName='INSTITUTE' then begin
     occup:=trunc(DBGridInstitute.Width-25-
@@ -532,7 +535,12 @@ begin
     eUnits_Name.Width:=DBGridUnits.Columns[1].Width;
  end;
 
-Panel28.Width:=trunc(ToolBar1.Width-70-(btnAdd.Width+btnDelete.Width+btnCancel.Width+btnUpdateQC.Width));
+Panel28.Width:=trunc(ToolBar1.Width-20-
+               (btnAdd.Width+
+                btnDelete.Width+
+                btnCancel.Width+
+                btnSave.Width+
+                btnUpdateQC.Width));
 Application.ProcessMessages;
 end;
 
@@ -887,6 +895,12 @@ begin
   Q.Filtered:=false;
 end;
 
+procedure Tfrmsupporttables.eProject_NameFullChange(Sender: TObject);
+begin
+ Q.Filter:='NAME_FULL = '+QuotedStr('*'+eProject_NAMEFULL.Text+'*');
+ Q.Filtered:=true;
+end;
+
 procedure Tfrmsupporttables.eTables_TABLENAMEChange(Sender: TObject);
 begin
   Q.Filter:='NAME_TABLE = '+QuotedStr('*'+eTables_TABLENAME.Text+'*');
@@ -1117,6 +1131,7 @@ begin
      Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col00', Columns[0].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col01', Columns[1].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col02', Columns[2].Width);
+     Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col03', Columns[3].Width);
     end;
 
     With DBGridInstitute do begin

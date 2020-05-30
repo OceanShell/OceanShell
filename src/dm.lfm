@@ -2,8 +2,8 @@ object frmdm: Tfrmdm
   OnDestroy = DataModuleDestroy
   OldCreateOrder = False
   Height = 285
-  HorizontalOffset = 729
-  VerticalOffset = 349
+  HorizontalOffset = 734
+  VerticalOffset = 353
   Width = 412
   PPI = 144
   object IBDB: TIBConnection
@@ -38,6 +38,7 @@ object frmdm: Tfrmdm
     MaxIndexesCount = 100
     FieldDefs = <>
     AfterEdit = QCruiseAfterEdit
+    BeforePost = QCruiseBeforePost
     Database = IBDB
     Transaction = TR
     SQL.Strings = (
@@ -70,18 +71,18 @@ object frmdm: Tfrmdm
     )
     UpdateSQL.Strings = (
       'UPDATE CRUISE SET'
-      'ID=:ID, PLATFORM_ID=:PLATFORM_ID,'
+      'PLATFORM_ID=:PLATFORM_ID,'
       'INSTITUTE_ID=:INSTITUTE_ID, PROJECT_ID=:PROJECT_ID,'
       'SOURCE_ID=:SOURCE_ID, CRUISE_NUMBER=:CRUISE_NUMBER,'
       'DATE_START=:DATE_START, DATE_END=:DATE_END,'
-      'STATIONS_AMOUNT=:STATIONS_AMOUNT, DATE_ADDED=:DATE_ADDED,'
-      'NOTES=:NOTES'
+      'STATIONS_AMOUNT=:STATIONS_AMOUNT,'
+      'DATE_ADDED=:DATE_ADDED, NOTES=:NOTES'
+      'WHERE ID=:OLD_ID'
     )
     DeleteSQL.Strings = (
       'DELETE FROM CRUISE WHERE ID=:ID'
     )
     Params = <>
-    ParseSQL = False
     left = 252
     top = 24
   end

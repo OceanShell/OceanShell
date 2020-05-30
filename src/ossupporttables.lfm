@@ -1,7 +1,7 @@
 object frmsupporttables: Tfrmsupporttables
-  Left = 333
+  Left = 253
   Height = 825
-  Top = 102
+  Top = 77
   Width = 1501
   Caption = 'Support tables'
   ClientHeight = 825
@@ -23,13 +23,13 @@ object frmsupporttables: Tfrmsupporttables
     Height = 792
     Top = 33
     Width = 1501
-    ActivePage = tsTables
+    ActivePage = tbProject
     Align = alClient
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
     ParentFont = False
-    TabIndex = 0
+    TabIndex = 5
     TabOrder = 0
     OnChange = PageControl1Change
     object tsTables: TTabSheet
@@ -1015,8 +1015,8 @@ object frmsupporttables: Tfrmsupporttables
             Left = 188
             Height = 32
             Top = 0
-            Width = 795
-            Align = alClient
+            Width = 300
+            Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
             Font.Color = clWindowText
@@ -1056,6 +1056,22 @@ object frmsupporttables: Tfrmsupporttables
             ParentFont = False
             TabOrder = 2
           end
+          object eProject_NameFull: TEdit
+            Left = 488
+            Height = 32
+            Top = 0
+            Width = 300
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            OnChange = eProject_NameFullChange
+            OnClick = ePlatform_IDClick
+            ParentFont = False
+            TabOrder = 3
+          end
         end
         object DBGridProject: TDBGrid
           Left = 0
@@ -1084,9 +1100,14 @@ object frmsupporttables: Tfrmsupporttables
             item
               MinSize = 15
               MaxSize = 300
-              Title.Caption = 'Project name'
-              Width = 1140
+              Title.Caption = 'Project abbreviation'
+              Width = 300
               FieldName = 'NAME'
+            end          
+            item
+              Title.Caption = 'Project name'
+              Width = 300
+              FieldName = 'NAME_FULL'
             end>
           DataSource = DS
           FixedCols = 0

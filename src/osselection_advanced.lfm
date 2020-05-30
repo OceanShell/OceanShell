@@ -1,7 +1,7 @@
 object frmadvancedselection: Tfrmadvancedselection
-  Left = 671
+  Left = 675
   Height = 409
-  Top = 300
+  Top = 304
   Width = 568
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle

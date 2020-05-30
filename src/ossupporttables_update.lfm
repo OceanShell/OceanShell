@@ -1,5 +1,5 @@
 object frmsupporttables_update: Tfrmsupporttables_update
-  Left = 371
+  Left = 52
   Height = 825
   Top = 163
   Width = 1537
@@ -407,67 +407,22 @@ object frmsupporttables_update: Tfrmsupporttables_update
         TabOrder = 1
       end
       object Button4: TButton
-        Left = 272
+        Left = 40
         Height = 38
-        Top = 40
+        Top = 152
         Width = 280
         Caption = 'COUNTRY_ID to PLATFORMS'
         OnClick = Button4Click
         TabOrder = 2
       end
       object Button5: TButton
-        Left = 32
+        Left = 40
         Height = 38
-        Top = 368
-        Width = 337
-        Caption = 'All parameters instrument = 7'
+        Top = 208
+        Width = 280
+        Caption = 'Projects-acronyms'
         OnClick = Button5Click
         TabOrder = 3
-      end
-      object Button6: TButton
-        Left = 32
-        Height = 38
-        Top = 408
-        Width = 337
-        Caption = 'All parameters CAST_NUMBER = 1'
-        OnClick = Button6Click
-        TabOrder = 4
-      end
-      object Button7: TButton
-        Left = 32
-        Height = 38
-        Top = 448
-        Width = 337
-        Caption = 'CAST_NUMBER from STATION if >1'
-        OnClick = Button7Click
-        TabOrder = 5
-      end
-      object Button8: TButton
-        Left = 32
-        Height = 38
-        Top = 224
-        Width = 338
-        Caption = 'All param FOREIGN KEYS SCRIPT'
-        OnClick = Button8Click
-        TabOrder = 6
-      end
-      object Button9: TButton
-        Left = 32
-        Height = 38
-        Top = 328
-        Width = 338
-        Caption = 'Default instrument = 0'
-        OnClick = Button9Click
-        TabOrder = 7
-      end
-      object Button10: TButton
-        Left = 32
-        Height = 38
-        Top = 264
-        Width = 337
-        Caption = 'Units_id not null'
-        OnClick = Button10Click
-        TabOrder = 8
       end
     end
   end

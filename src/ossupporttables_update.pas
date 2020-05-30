@@ -28,15 +28,10 @@ type
     Button1: TButton;
     btnCountryISO: TButton;
     btnCruiseGLODAP: TButton;
-    Button10: TButton;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
-    Button6: TButton;
-    Button7: TButton;
-    Button8: TButton;
-    Button9: TButton;
     chkShowLog: TCheckBox;
     GroupBox1: TGroupBox;
     GroupBox3: TGroupBox;
@@ -79,10 +74,6 @@ type
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
-    procedure Button6Click(Sender: TObject);
-    procedure Button7Click(Sender: TObject);
-    procedure Button8Click(Sender: TObject);
-    procedure Button9Click(Sender: TObject);
     procedure Label12Click(Sender: TObject);
     procedure Label1Click(Sender: TObject);
     procedure Label7Click(Sender: TObject);
@@ -554,6 +545,11 @@ mLog.Clear;
 
   Showmessage(SDone);
  end;
+end;
+
+procedure Tfrmsupporttables_update.Button10Click(Sender: TObject);
+begin
+
 end;
 
 
@@ -1937,134 +1933,18 @@ finally
 end;
 end;
 
+
+
 procedure Tfrmsupporttables_update.Button5Click(Sender: TObject);
 Var
   TRt:TSQLTransaction;
   Qt1, Qt2:TSQLQuery;
-  pp: integer;
-  tbl:string;
+  name_full, name_short, name_long, name1, name2:string;
+  ID:integer;
 begin
 try
-  TRt:=TSQLTransaction.Create(self);
-  TRt.DataBase:=frmdm.IBDB;
+mLog.Clear;
 
-  Qt1 :=TSQLQuery.Create(self);
-  Qt1.Database:=frmdm.IBDB;
-  Qt1.Transaction:=TRt;
-
-  for pp:=0 to frmosmain.ListBox1.Count-1 do begin
-   tbl:=frmosmain.ListBox1.Items.Strings[pp];
-   with Qt1 do begin
-    Close;
-     SQL.Clear;
-     SQL.Add(' ALTER TABLE '+tbl+' ADD INSTRUMENT_ID BIGINT DEFAULT 0 ');
-    ExecSQL;
-   end;
-   Trt.CommitRetaining;
-
-   with Qt1 do begin
-    Close;
-     SQL.Clear;
-     SQL.Add(' UPDATE '+tbl+' SET INSTRUMENT_ID=7');
-    ExecSQL;
-   end;
-   Trt.CommitRetaining;
-
-   with Qt1 do begin
-    Close;
-     SQL.Clear;
-     SQL.Add(' ALTER TABLE '+tbl+' ALTER INSTRUMENT_ID SET NOT NULL');
-    ExecSQL;
-   end;
-   Trt.CommitRetaining;
-  end;
-
-finally
- TrT.Commit;
- Qt1.Free;
- Trt.Free;
-end;
-end;
-
-procedure Tfrmsupporttables_update.Button6Click(Sender: TObject);
-Var
-  TRt:TSQLTransaction;
-  Qt1, Qt2:TSQLQuery;
-  pp: integer;
-  tbl:string;
-begin
-try
-  TRt:=TSQLTransaction.Create(self);
-  TRt.DataBase:=frmdm.IBDB;
-
-  Qt1 :=TSQLQuery.Create(self);
-  Qt1.Database:=frmdm.IBDB;
-  Qt1.Transaction:=TRt;
-
-  Qt2 :=TSQLQuery.Create(self);
-  Qt2.Database:=frmdm.IBDB;
-  Qt2.Transaction:=TRt;
-
-  for pp:=0 to frmosmain.ListBox1.Count-1 do begin
-   tbl:=frmosmain.ListBox1.Items.Strings[pp];
-
-   mlog.Lines.add(tbl);
-   application.ProcessMessages;
-
-   try
-   with Qt1 do begin
-    Close;
-     SQL.Clear;
-     SQL.Add('   ALTER TABLE '+tbl+' ADD CAST_NUMBER SMALLINT DEFAULT 1');
-    ExecSQL;
-   end;
-   Trt.CommitRetaining;
-   except
-     Trt.RollbackRetaining;
-   end;
-
-   try
-   with Qt1 do begin
-    Close;
-     SQL.Clear;
-     SQL.Add(' UPDATE '+tbl+' SET CAST_NUMBER=1');
-    ExecSQL;
-   end;
-   Trt.CommitRetaining;
-   except
-     Trt.RollbackRetaining;
-   end;
-
-
-   try
-   with Qt1 do begin
-    Close;
-     SQL.Clear;
-     SQL.Add(' ALTER TABLE '+tbl+' ALTER CAST_NUMBER SET NOT NULL');
-    ExecSQL;
-   end;
-   Trt.CommitRetaining;
-   except
-     Trt.RollbackRetaining;
-   end;
-
-  end;
-
-finally
- TrT.Commit;
- Qt1.Free;
- Trt.Free;
-end;
-end;
-
-procedure Tfrmsupporttables_update.Button7Click(Sender: TObject);
-Var
-  TRt:TSQLTransaction;
-  Qt1, Qt2:TSQLQuery;
-  pp, ID, cast_number, cnt, cnt_max: integer;
-  tbl:string;
-begin
-try
   TRt:=TSQLTransaction.Create(self);
   TRt.DataBase:=frmdm.IBDB;
 
@@ -2079,89 +1959,56 @@ try
    with Qt1 do begin
     Close;
      SQL.Clear;
-     SQL.Add(' select ID, CAST_NUMBER from STATION order by ID ');
+     SQL.Add(' SELECT ID, NAME_FULL FROM PROJECT ');
     Open;
-    Last;
-    First;
    end;
 
-   cnt_max:=Qt1.RecordCount;
-   cnt:=0;
-   while not Qt1.EOF do begin
-    ID:=Qt1.FieldByName('ID').AsInteger;
-    cast_number:=Qt1.FieldByName('CAST_NUMBER').AsInteger;
+   while not Qt1.eof do begin
+    ID:=Qt1.Fields[0].asInteger;
+    name_full:=Qt1.Fields[1].asString;
 
-    if cast_number>1 then begin
-     mlog.Lines.Add(inttostr(iD)+'   '+inttostr(cast_number));
-       for pp:=0 to frmosmain.ListBox1.Count-1 do begin
-        tbl:=frmosmain.ListBox1.Items.Strings[pp];
+    name1:=copy(name_full, 1, pos('(', name_full)-1);
+    name2:=copy(name_full, pos('(', name_full)+1, pos(')', name_full)-1);
 
-        with Qt2 do begin
-         Close;
-          SQL.Clear;
-          SQL.Add(' UPDATE '+tbl);
-          SQL.Add(' SET CAST_NUMBER=:CAST ');
-          SQL.Add(' WHERE ID=:ID ');
-          ParamByName('ID').asinteger:=ID;
-          PAramByName('CAST').AsInteger:=cast_number;
-         ExecSQL;
-        end;
-       end;
+    if (trim(name1)<>'') and (trim(name2)<>'') then begin
+    name1:=stringReplace(name1,'(','',[]);
+    name1:=stringReplace(name1,')','',[]);
+    name2:=stringReplace(name2,'(','',[]);
+    name2:=stringReplace(name2,')','',[]);
+
+    if length(name1)>length(name2) then begin
+     name_short:=name2;
+     name_long:=name1;
+    end else begin
+     name_short:=name1;
+     name_long:=name2;
     end;
 
-    inc(cnt);
-    ProgressTaskbar(cnt, cnt_max);
-    Application.ProcessMessages;
+    mlog.Lines.add(name_short+'   '+name_long);
+    with Qt2 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' UPDATE PROJECT SET ');
+     SQL.Add(' NAME=:name_short, ');
+     SQL.Add(' NAME_FULL=:name_long ');
+     SQL.Add(' WHERE ID=:ID');
+     ParamByName('ID').asinteger:=ID;
+     ParamByName('name_short').asstring:=name_short;
+     ParamByName('name_long').asstring:=name_long;
+    ExecSQL;
+   end;
 
+    end;
     Qt1.Next;
    end;
 finally
  TrT.Commit;
  Qt1.Free;
- Qt2.Free;
  Trt.Free;
 end;
+
 end;
 
-procedure Tfrmsupporttables_update.Button8Click(Sender: TObject);
-Var
-  pp: integer;
-  tbl:string;
-begin
- mLog.Clear;
-  for pp:=0 to frmosmain.ListBox1.Count-1 do begin
-   tbl:=frmosmain.ListBox1.Items.Strings[pp];
-   mLog.Lines.Add('ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_1 FOREIGN KEY (ID) REFERENCES STATION(ID) ON DELETE CASCADE ON UPDATE CASCADE;');
-   mLog.Lines.Add('ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_2 FOREIGN KEY (INSTRUMENT_ID) REFERENCES INSTRUMENT(ID) ON DELETE SET DEFAULT ON UPDATE CASCADE;');
-   mLog.Lines.Add('ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_3 FOREIGN KEY (UNITS_ID) REFERENCES UNITS(ID) ON DELETE SET DEFAULT ON UPDATE CASCADE;');
-  end;
-end;
-
-
-procedure Tfrmsupporttables_update.Button10Click(Sender: TObject);
-Var
-  pp: integer;
-  tbl:string;
-begin
-mLog.Clear;
- for pp:=0 to frmosmain.ListBox1.Count-1 do begin
-  tbl:=frmosmain.ListBox1.Items.Strings[pp];
-  mLog.Lines.Add('ALTER TABLE '+tbl+' ALTER UNITS_ID SET NOT NULL;');
-
- end;
-end;
-
-procedure Tfrmsupporttables_update.Button9Click(Sender: TObject);
-Var
-  pp: integer;
-  tbl:string;
-begin
- mLog.Clear;
-  for pp:=0 to frmosmain.ListBox1.Count-1 do begin
-   tbl:=frmosmain.ListBox1.Items.Strings[pp];
-   mLog.Lines.Add('ALTER TABLE '+tbl+' ALTER COLUMN INSTRUMENT_ID SET DEFAULT 0');
-  end;
-end;
 
 
 end.

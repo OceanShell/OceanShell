@@ -46,22 +46,19 @@ try
       With Qt do begin
        Close;
         SQL.Clear;
-        SQL.Add(' Select max(LEV_m) as LLM, max(LEV_DBAR) as LLD from ');
+        SQL.Add(' Select max(LEV_M) as LLM, max(LEV_DBAR) as LLD from ');
         SQL.Add(frmosmain.ListBox1.Items.Strings[ci1]);
         SQL.Add(' where ID=:pAbsNum ');
-       Prepare;
-         Parambyname('pAbsnum').asInteger:=frmdm.Q.FieldByName('ID').AsInteger;
+        Parambyname('pAbsnum').asInteger:=frmdm.Q.FieldByName('ID').AsInteger;
        Open;
           if not VarIsNull(Qt.Fields[0].AsVariant) then Max_LLM:=Max(Max_LLM,Qt.Fields[0].AsFloat);
           if not VarIsNull(Qt.Fields[1].AsVariant) then Max_LLD:=Max(Max_LLD,Qt.Fields[1].AsFloat);
-        Close;
+       Close;
       end;
     end;
 
     if Max_LLM=-9 then Max_LLM:=Null;
     if Max_LLD=-9 then Max_LLD:=Null;
-
-   // showmessage(vartostr(max_llm)+'   '+vartostr(max_lld));
 
     With Qt do begin
        Close;
@@ -80,13 +77,14 @@ try
  end;
  Procedures.ProgressTaskbar(0, 0);
 finally
+ frmdm.Q.Refresh;
  frmdm.Q.Locate('ID',CurrentID,[loCaseInsensitive]);
  frmdm.Q.EnableControls;
  Qt.Close;
  Qt.free;
  TrT.Commit;
  TrT.Free;
- frmosmain.DatabaseInfo;
+
  showmessage('Last level update completed');
 end;
 end;

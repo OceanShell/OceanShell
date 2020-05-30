@@ -310,3 +310,95 @@ SASHA-UX330	Sun May 10 23:28:51 2020
 	Database "C:\_ITP\FINAL\UNZIPPED\ITP.FDB" 
 	OIT 745399, OAT 745400, OST 745400, Next 745403
 
+
+SASHA-UX330	Sat May 30 02:36:17 2020
+	Sweep is started by SWEEPER
+	Database "X:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 9251, OAT 201577, OST 201577, Next 201578
+
+
+SASHA-UX330	Sat May 30 02:36:29 2020
+	Shutting down the server with 1 active connection(s) to 1 database(s), 0 active service(s)
+
+
+SASHA-UX330	Sat May 30 02:36:29 2020
+	JProvider::shutdown:
+	Firebird shutdown is still in progress after the specified timeout
+
+
+SASHA-UX330	Sat May 30 02:36:30 2020
+	Error during sweep of X:\OCEANSHELL\DATABASES\OCEAN.FDB:
+	connection shutdown
+
+
+SASHA-UX330	Sat May 30 02:36:57 2020
+	Sweep is started by SWEEPER
+	Database "X:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 9251, OAT 201581, OST 201581, Next 201581
+
+
+SASHA-UX330	Sat May 30 02:37:10 2020
+	Shutting down the server with 1 active connection(s) to 1 database(s), 0 active service(s)
+
+
+SASHA-UX330	Sat May 30 02:37:10 2020
+	JProvider::shutdown:
+	Firebird shutdown is still in progress after the specified timeout
+
+
+SASHA-UX330	Sat May 30 02:37:10 2020
+	Error during sweep of X:\OCEANSHELL\DATABASES\OCEAN.FDB:
+	connection shutdown
+
+
+SASHA-UX330	Sat May 30 02:37:42 2020
+	Sweep is started by SWEEPER
+	Database "X:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 9251, OAT 201585, OST 201585, Next 201585
+
+
+SASHA-UX330	Sat May 30 02:40:22 2020
+	Sweep is started by SWEEPER
+	Database "X:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 9251, OAT 201586, OST 201585, Next 201590
+
+
+SASHA-UX330	Sat May 30 02:46:22 2020
+	Sweep is started by SWEEPER
+	Database "X:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 9251, OAT 201590, OST 201590, Next 216610
+
+
+SASHA-UX330	Sat May 30 02:49:57 2020
+	Shutting down the server with 1 active connection(s) to 1 database(s), 0 active service(s)
+
+
+SASHA-UX330	Sat May 30 02:49:58 2020
+	JProvider::shutdown:
+	Firebird shutdown is still in progress after the specified timeout
+
+
+SASHA-UX330	Sat May 30 02:49:59 2020
+	Error during sweep of X:\OCEANSHELL\DATABASES\OCEAN.FDB:
+	connection shutdown
+
+
+SASHA-UX330	Sat May 30 02:53:57 2020
+	Sweep is started by SWEEPER
+	Database "X:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 9251, OAT 220538, OST 220538, Next 220538
+
+
+SASHA-UX330	Sat May 30 02:55:26 2020
+	Shutting down the server with 1 active connection(s) to 1 database(s), 0 active service(s)
+
+
+SASHA-UX330	Sat May 30 02:55:26 2020
+	JProvider::shutdown:
+	Firebird shutdown is still in progress after the specified timeout
+
+
+SASHA-UX330	Sat May 30 02:55:27 2020
+	Error during sweep of X:\OCEANSHELL\DATABASES\OCEAN.FDB:
+	connection shutdown
+

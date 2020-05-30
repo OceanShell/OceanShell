@@ -13,6 +13,7 @@ type
   { Tfrmparameters_list }
 
   Tfrmparameters_list = class(TForm)
+    chklInstrument: TCheckListBox;
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
@@ -20,6 +21,7 @@ type
     lbParameters: TListBox;
     btnAmountOfProfiles: TButton;
     btnCancel: TButton;
+    TabSheet3: TTabSheet;
 
     procedure CheckToolName(ToolName:string);
     procedure FormShow(Sender: TObject);
@@ -56,7 +58,37 @@ procedure Tfrmparameters_list.FormShow(Sender: TObject);
 Var
  Ini:TIniFile;
  k: integer;
+ TRt:TSQLTransaction;
+ Qt:TSQLQuery;
 begin
+TRt:=TSQLTransaction.Create(self);
+TRt.DataBase:=frmdm.IBDB;
+
+Qt:=TSQLQuery.Create(self);
+Qt.Database:=frmdm.IBDB;
+Qt.Transaction:=TRt;
+
+try
+ with Qt do begin
+  Close;
+   SQL.Clear;
+   SQL.Add(' SELECT NAME from INSTRUMENT ');
+   SQL.Add(' ORDER BY ID ');
+  Open;
+ end;
+
+ chklInstrument.Clear;
+ while not Qt.eof do begin
+  chklInstrument.Items.Add(Qt.Fields[0].AsString);
+  Qt.Next;
+ end;
+finally
+  Qt.Close;
+  Trt.Commit;
+  Qt.Free;
+  Trt.Free;
+end;
+
  Ini := TIniFile.Create(IniFileName);
    try
     Width := Ini.ReadInteger( 'osparameters_list', 'width',  423);
@@ -64,6 +96,9 @@ begin
 
     for k:=0 to chklQCFlags.Count-1 do
       chklQCFlags.Checked[k]:=Ini.ReadBool('osparameters_list', 'QCF'+inttostr(k), true);
+
+    for k:=0 to chklInstrument.Count-1 do
+      chklInstrument.Checked[k]:=Ini.ReadBool('osparameters_list', 'Instrument'+inttostr(k), true);
    finally
      Ini.Free;
    end;
@@ -292,6 +327,9 @@ begin
 
    for k:=0 to chklQCFlags.Count-1 do
      Ini.WriteBool( 'osparameters_list', 'QCF'+inttostr(k), chklQCFlags.Checked[k]);
+
+   for k:=0 to chklInstrument.Count-1 do
+     Ini.WriteBool('osparameters_list', 'Instrument'+inttostr(k),  chklInstrument.Checked[k]);
 
   finally
     Ini.Free;

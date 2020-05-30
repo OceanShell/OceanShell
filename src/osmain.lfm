@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 376
+  Left = 222
   Height = 699
-  Top = 196
+  Top = 20
   Width = 1306
   Caption = 'OceanShell'
   ClientHeight = 669
@@ -573,6 +573,25 @@ object frmosmain: Tfrmosmain
         OnClick = btnCustomSQLQueryClick
         TabOrder = 5
       end
+      object chkParameters: TCheckGroup
+        Left = 24
+        Height = 56
+        Top = 488
+        Width = 971
+        Anchors = [akTop, akLeft, akBottom]
+        AutoFill = True
+        Caption = 'Variables'
+        ChildSizing.LeftRightSpacing = 6
+        ChildSizing.TopBottomSpacing = 6
+        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+        ChildSizing.EnlargeVertical = crsHomogenousChildResize
+        ChildSizing.ShrinkHorizontal = crsScaleChilds
+        ChildSizing.ShrinkVertical = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 4
+        Columns = 4
+        TabOrder = 6
+      end
     end
     object tsMainCruises: TTabSheet
       Caption = 'Cruises'
@@ -622,7 +641,6 @@ object frmosmain: Tfrmosmain
             item
               MinSize = 15
               MaxSize = 300
-              ReadOnly = False
               Title.Caption = 'Cruise ID'
               FieldName = 'ID'
             end          
@@ -966,7 +984,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton8: TToolButton
             Left = 102
-            Height = 33
+            Height = 5
             Top = 0
             Caption = 'ToolButton8'
             Style = tbsDivider
@@ -1172,7 +1190,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton3: TToolButton
             Left = 207
-            Height = 33
+            Height = 5
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider
@@ -1395,19 +1413,6 @@ object frmosmain: Tfrmosmain
           item
             MinSize = 15
             MaxSize = 300
-            Title.Caption = 'Cruise ID'
-            FieldName = 'CRUISE_ID'
-          end        
-          item
-            MinSize = 15
-            MaxSize = 300
-            Title.Caption = 'QC Flag'
-            Width = 75
-            FieldName = 'QCFLAG'
-          end        
-          item
-            MinSize = 15
-            MaxSize = 300
             Title.Caption = 'Latitude'
             FieldName = 'LATITUDE'
           end        
@@ -1429,17 +1434,15 @@ object frmosmain: Tfrmosmain
             MinSize = 15
             MaxSize = 300
             ReadOnly = True
-            Title.Caption = 'Source'
-            Width = 75
-            FieldName = 'SRC'
+            Title.Caption = 'Platform'
+            Width = 90
+            FieldName = 'PLATF'
           end        
           item
             MinSize = 15
             MaxSize = 300
-            ReadOnly = True
-            Title.Caption = 'Platform'
-            Width = 90
-            FieldName = 'PLATF'
+            Title.Caption = 'Cruise #'
+            FieldName = 'CRUISE_NUMBER'
           end        
           item
             MinSize = 15
@@ -1448,6 +1451,21 @@ object frmosmain: Tfrmosmain
             Title.Caption = 'Country'
             Width = 112
             FieldName = 'CNTR'
+          end        
+          item
+            MinSize = 15
+            MaxSize = 300
+            ReadOnly = True
+            Title.Caption = 'Source'
+            Width = 75
+            FieldName = 'SRC'
+          end        
+          item
+            MinSize = 15
+            MaxSize = 300
+            Title.Caption = 'QC Flag'
+            Width = 75
+            FieldName = 'QCFLAG'
           end>
         DataSource = frmdm.DS
         FixedCols = 0

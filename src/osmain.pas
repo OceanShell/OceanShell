@@ -49,6 +49,7 @@ type
     cbSource: TComboBox;
     cbInstitute: TComboBox;
     cbProject: TComboBox;
+    chkParameters: TCheckGroup;
     chkNOTPlatform: TCheckBox;
     chkNOTCountry: TCheckBox;
     chkNOTSource: TCheckBox;
@@ -579,10 +580,16 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
     SQL.Add(' STATION.ST_NUMBER_ORIGIN, STATION.ST_ID_ORIGIN, ');
     SQL.Add(' STATION.QCFLAG, STATION.STVERSION, STATION.DUPLICATE, ');
     SQL.Add(' STATION.MERGED, STATION.ACCESSION_NUMBER, STATION.DATE_ADDED, ');
-    SQL.Add(' STATION.DATE_UPDATED, PLATFORM.NAME as PLATF, ');
+    SQL.Add(' STATION.DATE_UPDATED, PLATFORM.NAME as PLATF, CRUISE.CRUISE_NUMBER, ');
     SQL.Add(' COUNTRY.NAME as CNTR, SOURCE.NAME as SRC ');
     SQL.Add(' FROM STATION, CRUISE, PLATFORM, COUNTRY, SOURCE ');
     SQL.Add(' WHERE ');
+
+    (* Parameters *)
+    for k:=0 to chkParameters.Items.Count-1 do
+       if chkParameters.Checked[k] then
+        SQL.Add(' STATION.ID IN (SELECT DISTINCT(ID) FROM '+chkParameters.Items.Strings[k]+') AND ');
+
     SQL.Add(' STATION.CRUISE_ID=CRUISE.ID AND ');
     SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
     SQL.Add(' PLATFORM.COUNTRY_ID=COUNTRY.ID AND ');
@@ -694,7 +701,7 @@ begin
       SQL.Add(' STATION.QCFLAG, STATION.STVERSION, STATION.DUPLICATE, ');
       SQL.Add(' STATION.MERGED, STATION.ACCESSION_NUMBER, STATION.DATE_ADDED, ');
       SQL.Add(' STATION.DATE_UPDATED, PLATFORM.NAME as PLATF, ');
-      SQL.Add(' COUNTRY.NAME as CNTR, SOURCE.NAME as SRC ');
+      SQL.Add(' COUNTRY.NAME as CNTR, SOURCE.NAME as SRC, CRUISE.CRUISE_NUMBER ');
       SQL.Add(' FROM STATION, CRUISE, PLATFORM, COUNTRY, SOURCE ');
       SQL.Add(' WHERE ');
       SQL.Add(' STATION.CRUISE_ID=CRUISE.ID AND ');
@@ -726,13 +733,20 @@ begin
      Close;
       SQL.Clear;
       SQL.Add(' SELECT ');
-      SQL.Add(' ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, ');
-      SQL.Add(' LASTLEVEL_M, LASTLEVEL_DBAR, CRUISE_ID, INSTRUMENT_ID, ');
-      SQL.Add(' ST_NUMBER_ORIGIN, ST_ID_ORIGIN, CAST_NUMBER, QCFLAG, ');
-      SQL.Add(' STVERSION, DUPLICATE, MERGED, ACCESSION_NUMBER, CAST_NUMBER, ');
-      SQL.Add(' DATE_ADDED, DATE_UPDATED ');
-      SQL.Add(' FROM STATION, STATION_ENTRY ');
+      SQL.Add(' STATION.ID, STATION.LATITUDE, STATION.LONGITUDE, ');
+      SQL.Add(' STATION.DATEANDTIME, STATION.BOTTOMDEPTH, STATION.LASTLEVEL_M, ');
+      SQL.Add(' STATION.LASTLEVEL_DBAR, STATION.CRUISE_ID, STATION.CAST_NUMBER, ');
+      SQL.Add(' STATION.ST_NUMBER_ORIGIN, STATION.ST_ID_ORIGIN, ');
+      SQL.Add(' STATION.QCFLAG, STATION.STVERSION, STATION.DUPLICATE, ');
+      SQL.Add(' STATION.MERGED, STATION.ACCESSION_NUMBER, STATION.DATE_ADDED, ');
+      SQL.Add(' STATION.DATE_UPDATED, PLATFORM.NAME as PLATF, ');
+      SQL.Add(' COUNTRY.NAME as CNTR, SOURCE.NAME as SRC, CRUISE.CRUISE.NUMBER ');
+      SQL.Add(' FROM STATION, STATION_ENTRY, CRUISE, PLATFORM, COUNTRY, SOURCE ');
       SQL.Add(' WHERE ');
+      SQL.Add(' STATION.CRUISE_ID=CRUISE.ID AND ');
+      SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
+      SQL.Add(' PLATFORM.COUNTRY_ID=COUNTRY.ID AND ');
+      SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
       SQL.Add(' STATION.ID = STATION_ENTRY.STATION_ID AND ');
       SQL.Add(' STATION_ENTRY.ENTRY_ID in ('+id_str+') ');
      Open;
@@ -756,11 +770,11 @@ end;
 
 procedure Tfrmosmain.lbResetAuxClick(Sender: TObject);
 begin
-  cbPlatform.Clear;
-  cbCountry.Clear;
-  cbSource.Clear;
-  cbInstitute.Clear;
-  cbProject.Clear;
+  cbPlatform.Text:='';
+  cbCountry.Text:='';
+  cbSource.Text:='';
+  cbInstitute.Text:='';
+  cbProject.Text:='';
 
   seIDMin.Value:=IDMin;
   seIDMax.Value:=IDMax;
@@ -909,9 +923,14 @@ end;
 
 procedure Tfrmosmain.btnSaveCruiseClick(Sender: TObject);
 begin
-   if frmdm.QCruise.Modified then frmdm.QCruise.Post;
-      frmdm.QCruise.ApplyUpdates(0);
-      frmdm.TR.CommitRetaining;
+if frmdm.QCruise.Modified then frmdm.QCruise.Post;
+
+
+frmdm.QCruise.ApplyUpdates(0);
+frmdm.TR.CommitRetaining;
+
+btnSaveCruise.Enabled:=false;
+Application.ProcessMessages;
 end;
 
 
@@ -994,6 +1013,12 @@ Qt_DB1.Transaction:=TRt_DB1;
            seLonMin.Value:=IBLonMin;
            seLonMax.Value:=IBLonMax;
 
+         //if new database
+         if (IDMin<seIDMin.Value) or (IDMax>seIdMax.Value) then begin
+           seIDMin.Value:=IDMin;
+           seIdMax.Value:=IDMax;
+         end;
+
            dtpDateMin.DateTime:=IBDateMin;
            dtpDateMax.DateTime:=IBDateMax;
          end;
@@ -1018,6 +1043,9 @@ Qt_DB1.Transaction:=TRt_DB1;
    finally
      TempList.Free;
    end;
+
+   chkParameters.Items.Clear;
+   chkParameters.Items:=ListBox1.Items;
 
    (* Loading CRUISE list *)
    FetchCruises;

@@ -1,7 +1,7 @@
 object frmprofile_station_all: Tfrmprofile_station_all
-  Left = 454
+  Left = 458
   Height = 621
-  Top = 257
+  Top = 262
   Width = 1099
   Caption = 'All parameters'
   ClientHeight = 621

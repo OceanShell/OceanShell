@@ -5,10 +5,9 @@ unit osprofile_plot_all;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, IniFiles,
-  SQLDB, Variants, Types,
-  TAGraph, TATools, TASeries, TATypes,
-  TACustomSeries,  // for TChartSeries
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
+  StdCtrls, IniFiles, SQLDB, Variants, Types, TAGraph, TATools, TASeries,
+  TATypes, TACustomSeries,  // for TChartSeries
   TAChartUtils,    // for nptCustom
   TAEnumerators;   // for CustomSeries(Chart) ;
 
@@ -21,26 +20,40 @@ type
     ChartToolset1: TChartToolset;
     DPH: TDataPointHintTool;
     DPC: TDataPointClickTool;
+    pUnits: TPanel;
+    pDepth: TPanel;
+    pfiller: TPanel;
+    rbUnitsOriginal: TRadioButton;
+    rbUnitsDefault: TRadioButton;
+    rbMeters: TRadioButton;
+    rbDbar: TRadioButton;
+    ToolButton1: TToolButton;
     ZD: TZoomDragTool;
     ZMW: TZoomMouseWheelTool;
     ToolBar1: TToolBar;
     btnPrior: TToolButton;
     btnNext: TToolButton;
-    ToolButton3: TToolButton;
+    btnAllParameters: TToolButton;
     ToolButton4: TToolButton;
-    ToolButton5: TToolButton;
+    btnMap: TToolButton;
     ToolButton6: TToolButton;
-    ToolButton7: TToolButton;
+    btnSingleProfile: TToolButton;
 
 
+    procedure rbUnitsDefaultClick(Sender: TObject);
+    procedure rbUnitsOriginalClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure FormShow(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+ //   procedure FormShow(Sender: TObject);
     procedure btnNextClick(Sender: TObject);
     procedure btnPriorClick(Sender: TObject);
     procedure DPCPointClick(ATool: TChartTool;
       APoint: TPoint);
     procedure DPHAfterMouseMove(ATool: TChartTool; APoint: TPoint);
+    procedure rbDbarClick(Sender: TObject);
+    procedure rbMetersClick(Sender: TObject);
 
   private
     function AddLineSeries (AChart: TChart; ATitle: String;
@@ -49,6 +62,7 @@ type
       AColor:TColor; sName:string):TLineSeries;
     procedure HighlightSeries(ASeries: TBasicChartSeries);
     procedure SelectProfile(sname:string);
+    procedure InitialPlot;
   public
     procedure AddToPlot(ID:integer; ToUpdate:boolean);
     procedure ChangeID(ID:integer);
@@ -56,8 +70,8 @@ type
 
 var
   frmprofile_plot_all: Tfrmprofile_plot_all;
-  mik, depth_units:integer;
-  flag_st:string;
+  mik, Units_default:integer;
+  flag_st, instr_st:string;
 
 
 implementation
@@ -66,7 +80,7 @@ implementation
 
 { Tfrmprofile_plot_all }
 
-uses osmain, dm, osparameters_list;
+uses osmain, dm, osunitsconversion;
 
 
 function Tfrmprofile_plot_all.AddLineSeries(AChart: TChart;
@@ -103,11 +117,9 @@ begin
 end;
 
 
-procedure Tfrmprofile_plot_all.FormShow(Sender: TObject);
+procedure Tfrmprofile_plot_all.FormCreate(Sender: TObject);
 var
-ID, CurrentID, k:integer;
 Ini:TInifile;
-LeftAxisTitle :string;
 begin
  Ini := TIniFile.Create(IniFileName);
   try
@@ -115,47 +127,110 @@ begin
     Left  :=Ini.ReadInteger( 'osprofile_plot_all', 'Left', 100);
     Width :=Ini.ReadInteger( 'osprofile_plot_all', 'Width',  600);
     Height:=Ini.ReadInteger( 'osprofile_plot_all', 'Height', 600);
-
-    Depth_units:=Ini.ReadInteger ( 'osmain', 'depth_units', 0);
-
-    flag_st:='';
-    for k:=0 to 8 do
-      if Ini.ReadBool('osparameters_list', 'QCF'+inttostr(k), true) then
-         flag_st:=flag_st+','+inttostr(k);
-
   finally
    Ini.Free;
   end;
 
-  flag_st:=copy(flag_st, 2, length(flag_st));
-  if trim(flag_st)='' then
-   if MessageDlg('Select at least one QF', mtWarning, [mbOk], 0)=mrOk then exit;
-
-
-    mik:=-1;
-     try
-      CurrentID:=frmdm.Q.FieldByName('ID').AsInteger;
-      frmdm.Q.DisableControls;
-      frmdm.Q.First;
-        While not frmdm.Q.Eof do begin
-         ID:=frmdm.Q.FieldByName('ID').AsInteger;
-           AddToPlot(ID, false);
-         frmdm.Q.Next;
-        end;
-      finally
-        frmdm.Q.Locate('ID',CurrentID,[]);
-        frmdm.Q.EnableControls;
-      end;
-
-    if depth_units=0 then LeftAxisTitle:='Depth, [m]' else LeftAxisTitle:='Depth, [dBar]';
-
-    Chart1.AxisList.LeftAxis.Title.Caption:=LeftAxisTitle;
-    ChangeID(CurrentID);
-
-  Caption:=CurrentParTable+', '+inttostr(Chart1.SeriesCount-1)+' profiles';
-  Application.ProcessMessages;
+  InitialPlot;
 end;
 
+
+procedure Tfrmprofile_plot_all.InitialPlot;
+Var
+ID, CurrentID, k:integer;
+Ini:TInifile;
+LeftAxisTitle :string;
+TRt:TSQLTransaction;
+Qt:TSQLQuery;
+begin
+TRt:=TSQLTransaction.Create(self);
+TRt.DataBase:=frmdm.IBDB;
+
+Qt:=TSQLQuery.Create(self);
+Qt.Database:=frmdm.IBDB;
+Qt.Transaction:=TRt;
+
+try
+ with Qt do begin
+  Close;
+   SQL.Clear;
+   SQL.Add(' SELECT UNITS_ID_DEFAULT FROM DATABASE_TABLES WHERE  ');
+   SQL.Add(' NAME_TABLE='+QuotedStr(CurrentParTable));
+  Open;
+   Units_default:=Qt.Fields[0].AsInteger;
+  Close;
+ end;
+finally
+ Trt.Commit;
+ Trt.Free;
+ Qt.Free;
+end;
+
+
+ Ini := TIniFile.Create(IniFileName);
+ try
+  case Ini.ReadInteger ( 'osmain', 'depth_units', 0) of
+   0: begin
+       rbMeters.Checked:=true;
+       LeftAxisTitle:='Depth, [m]';
+      end;
+   1: begin
+       rbDbar.Checked:=true;
+       LeftAxisTitle:='Depth, [dBar]';
+      end;
+  end;
+
+  case Ini.ReadInteger ( 'osmain', 'units_default', 0) of
+   0: rbUnitsOriginal.Checked:=true;
+   1: rbUnitsDefault.Checked:=true;
+  end;
+
+
+ flag_st:='';
+ for k:=0 to 8 do
+   if Ini.ReadBool('osparameters_list', 'QCF'+inttostr(k), true) then
+      flag_st:=flag_st+','+inttostr(k);
+
+ instr_st:='';
+ for k:=0 to 17 do
+   if Ini.ReadBool('osparameters_list', 'Instrument'+inttostr(k), true) then
+      instr_st:=instr_st+','+inttostr(k);
+
+ finally
+  Ini.Free;
+ end;
+
+flag_st:=copy(flag_st, 2, length(flag_st));
+if trim(flag_st)='' then
+if MessageDlg('Select at least one QC flag', mtWarning, [mbOk], 0)=mrOk then exit;
+
+instr_st:=copy(instr_st, 2, length(instr_st));
+if trim(instr_st)='' then
+if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then exit;
+
+
+ mik:=-1;
+ Chart1.Series.Clear;
+  try
+   CurrentID:=frmdm.Q.FieldByName('ID').AsInteger;
+   frmdm.Q.DisableControls;
+   frmdm.Q.First;
+     While not frmdm.Q.Eof do begin
+      ID:=frmdm.Q.FieldByName('ID').AsInteger;
+        AddToPlot(ID, false);
+      frmdm.Q.Next;
+     end;
+   finally
+     frmdm.Q.Locate('ID',CurrentID,[]);
+     frmdm.Q.EnableControls;
+   end;
+
+ Chart1.AxisList.LeftAxis.Title.Caption:=LeftAxisTitle;
+ ChangeID(CurrentID);
+
+Caption:=CurrentParTable+', '+inttostr(Chart1.SeriesCount-1)+' profiles';
+Application.ProcessMessages;
+end;
 
 procedure Tfrmprofile_plot_all.ChangeID(ID:integer);
 begin
@@ -165,10 +240,12 @@ end;
 
 procedure Tfrmprofile_plot_all.AddToPlot(ID:integer; ToUpdate:boolean);
 Var
-k, flag:integer;
-lev, val:real;
+k, flag, units:integer;
+lev, val1, val_out:real;
 sName:TComponentName;
 lev_m, lev_d:Variant;
+isConverted:boolean=false;
+
 
 TRt:TSQLTransaction;
 Qt:TSQLQuery;
@@ -186,9 +263,11 @@ try
  with Qt do begin
   Close;
    SQL.Clear;
-   SQL.Add(' select LEV_DBAR, LEV_M, VAL, PQF2 from ');
+   SQL.Add(' select LEV_DBAR, LEV_M, VAL, PQF2, UNITS_ID from ');
    SQL.Add( CurrentParTable );
-   SQL.Add(' where ID=:ID AND PQF2 in ('+flag_st+')');
+   SQL.Add(' where ID=:ID AND ');
+   SQL.Add(' PQF2 in ('+flag_st+') AND ');
+   SQL.Add(' INSTRUMENT_ID in ('+instr_st+') ');
    SQL.Add(' order by LEV_DBAR, LEV_M ');
    ParamByName('ID').AsInteger:=ID;
   Open;
@@ -216,17 +295,24 @@ try
     if Qt.RecordCount>1 then AddLineSeries(Chart1, sName, clGray, sName);
    end;
 
-
-    Qt.First;
+   Qt.First;
     while not Qt.Eof do begin
      lev_m := Qt.FieldByName('LEV_M').AsVariant;
      lev_d := Qt.FieldByName('LEV_DBAR').AsVariant;
-     val :=Qt.FieldByName('VAL').AsFloat;
-     flag:=Qt.FieldByName('PQF2').AsInteger;
+     val1  := Qt.FieldByName('VAL').AsFloat;
+     flag  := Qt.FieldByName('PQF2').AsInteger;
+     units := Qt.FieldByName('UNITS_ID').AsInteger;
 
-        if depth_units=0 then lev:=lev_m else lev:=lev_d;
+     if rbMeters.Checked then lev:=lev_m else lev:=lev_d;
 
-        TLineSeries(Chart1.Series[mik]).AddXY(val,lev);
+     if (rbUnitsDefault.Checked=true) and (units<>units_default) then begin
+       osunitsconversion.GetDefaultUnits(CurrentParTable, units, units_default,
+                                         val1, val_out, isconverted);
+
+       if isConverted=true then val1:=val_out;
+     end;
+
+        TLineSeries(Chart1.Series[mik]).AddXY(val1,lev);
       Qt.Next;
     end;
     Qt.Close;
@@ -331,6 +417,7 @@ begin
   HighlightSeries(TDatapointHintTool(ATool).Series);
 end;
 
+
 procedure Tfrmprofile_plot_all.FormClose(Sender: TObject;
   var CloseAction: TCloseAction);
 Var
@@ -347,9 +434,82 @@ begin
    end;
 end;
 
+
+procedure Tfrmprofile_plot_all.rbMetersClick(Sender: TObject);
+Var
+  Ini:TIniFile;
+begin
+  if rbMeters.Checked=true then begin
+    Ini := TIniFile.Create(IniFileName);
+     try
+      Ini.WriteInteger( 'osmain', 'Depth_units', 0);
+     finally
+      Ini.Free;
+     end;
+    InitialPlot;
+  end;
+end;
+
+
+procedure Tfrmprofile_plot_all.rbDBarClick(Sender: TObject);
+Var
+  Ini:TIniFile;
+begin
+  if rbDBar.Checked=true then begin
+    Ini := TIniFile.Create(IniFileName);
+     try
+      Ini.WriteInteger( 'osmain', 'Depth_units', 1);
+     finally
+      Ini.Free;
+     end;
+    InitialPlot;
+  end;
+end;
+
+procedure Tfrmprofile_plot_all.rbUnitsOriginalClick(Sender: TObject);
+Var
+ Ini:TIniFile;
+begin
+   if rbUnitsOriginal.Checked=true then begin
+     Ini := TIniFile.Create(IniFileName);
+      try
+       Ini.WriteInteger( 'osmain', 'units_default', 0)
+      finally
+       Ini.Free;
+      end;
+     InitialPlot;
+   end;
+end;
+
+procedure Tfrmprofile_plot_all.rbUnitsDefaultClick(Sender: TObject);
+Var
+ Ini:TIniFile;
+begin
+   if rbUnitsDefault.Checked=true then begin
+     Ini := TIniFile.Create(IniFileName);
+      try
+       Ini.WriteInteger( 'osmain', 'units_default', 1)
+      finally
+       Ini.Free;
+      end;
+     InitialPlot;
+   end;
+end;
+
+
 procedure Tfrmprofile_plot_all.FormDestroy(Sender: TObject);
 begin
  Chart1.Series.Clear;
+end;
+
+procedure Tfrmprofile_plot_all.FormResize(Sender: TObject);
+begin
+ pFiller.Width:=ToolBar1.Width-100-
+ (btnPrior.Width+
+  btnNext.Width+
+  btnAllParameters.Width+
+  pDepth.Width+
+  pUnits.Width);
 end;
 
 

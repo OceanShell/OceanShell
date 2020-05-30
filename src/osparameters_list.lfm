@@ -1,12 +1,12 @@
 object frmparameters_list: Tfrmparameters_list
-  Left = 758
+  Left = 762
   Height = 525
-  Top = 281
-  Width = 424
+  Top = 285
+  Width = 554
   BorderIcons = [biSystemMenu]
   Caption = 'Profiles selection'
   ClientHeight = 525
-  ClientWidth = 424
+  ClientWidth = 554
   Color = clBtnFace
   Constraints.MinHeight = 525
   Constraints.MinWidth = 375
@@ -24,7 +24,7 @@ object frmparameters_list: Tfrmparameters_list
     Left = 0
     Height = 525
     Top = 0
-    Width = 424
+    Width = 554
     ActivePage = TabSheet1
     Align = alClient
     Font.Color = clWindowText
@@ -34,9 +34,9 @@ object frmparameters_list: Tfrmparameters_list
     TabIndex = 0
     TabOrder = 0
     object TabSheet1: TTabSheet
-      Caption = 'Available tables'
+      Caption = 'Parameter'
       ClientHeight = 492
-      ClientWidth = 416
+      ClientWidth = 546
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -45,8 +45,9 @@ object frmparameters_list: Tfrmparameters_list
         Left = 12
         Height = 420
         Top = 12
-        Width = 389
+        Width = 519
         Anchors = [akTop, akLeft, akRight, akBottom]
+        Columns = 2
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -64,7 +65,7 @@ object frmparameters_list: Tfrmparameters_list
         Height = 26
         Hint = 'Amount of profiles in tables'
         Top = 448
-        Width = 277
+        Width = 407
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Amount of profiles'
         Font.Color = clWindowText
@@ -75,7 +76,7 @@ object frmparameters_list: Tfrmparameters_list
         TabOrder = 1
       end
       object btnCancel: TButton
-        Left = 304
+        Left = 434
         Height = 26
         Top = 448
         Width = 97
@@ -89,10 +90,28 @@ object frmparameters_list: Tfrmparameters_list
         TabOrder = 2
       end
     end
-    object TabSheet2: TTabSheet
-      Caption = 'Quality Control Flags'
+    object TabSheet3: TTabSheet
+      Caption = 'Instrument'
       ClientHeight = 492
-      ClientWidth = 415
+      ClientWidth = 416
+      object chklInstrument: TCheckListBox
+        Left = 12
+        Height = 460
+        Top = 12
+        Width = 388
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ItemHeight = 0
+        ParentFont = False
+        TabOrder = 0
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'QC Flag'
+      ClientHeight = 492
+      ClientWidth = 416
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -100,9 +119,9 @@ object frmparameters_list: Tfrmparameters_list
       ParentFont = False
       object chklQCFlags: TCheckListBox
         Left = 12
-        Height = 260
+        Height = 460
         Top = 12
-        Width = 387
+        Width = 388
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
         Font.Height = -17

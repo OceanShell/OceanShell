@@ -1,7 +1,7 @@
 object frmprofile_station_single: Tfrmprofile_station_single
-  Left = 399
+  Left = 403
   Height = 634
-  Top = 141
+  Top = 145
   Width = 1040
   Caption = 'frmprofile_station_single'
   ClientHeight = 634

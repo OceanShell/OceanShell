@@ -1,22 +1,24 @@
 object frmprofile_plot_all: Tfrmprofile_plot_all
-  Left = 720
+  Left = 724
   Height = 541
-  Top = 267
+  Top = 271
   Width = 704
   Caption = 'frmprofile_plot_all'
   ClientHeight = 541
   ClientWidth = 704
   DesignTimePPI = 144
   OnClose = FormClose
+  OnCreate = FormCreate
   OnDestroy = FormDestroy
-  OnShow = FormShow
+  OnResize = FormResize
   LCLVersion = '2.0.6.0'
   Visible = True
   object ToolBar1: TToolBar
     Left = 0
-    Height = 35
+    Height = 37
     Top = 0
     Width = 704
+    AutoSize = True
     ButtonHeight = 33
     ButtonWidth = 33
     Caption = 'ToolBar1'
@@ -25,40 +27,52 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
     Font.Height = -17
     Font.Name = 'Tahoma'
     Images = frmicons.IL1
+    List = True
     ParentFont = False
     ParentShowHint = False
+    ShowCaptions = True
     ShowHint = True
     TabOrder = 0
     object btnPrior: TToolButton
       Left = 1
       Top = 2
+      AutoSize = True
       Caption = 'btnPrior'
       ImageIndex = 1007
       OnClick = btnPriorClick
+      ParentShowHint = False
+      ShowCaption = False
+      ShowHint = True
     end
     object btnNext: TToolButton
       Left = 34
       Top = 2
+      AutoSize = True
       Caption = 'btnNext'
       ImageIndex = 1008
       OnClick = btnNextClick
+      ShowCaption = False
     end
-    object ToolButton3: TToolButton
+    object btnAllParameters: TToolButton
       Left = 72
       Top = 2
       Action = frmosmain.aProfilesStationAll
+      AutoSize = True
+      ShowCaption = False
     end
     object ToolButton4: TToolButton
-      Left = 138
+      Left = 392
       Height = 33
       Top = 2
       Caption = 'ToolButton4'
       Style = tbsDivider
     end
-    object ToolButton5: TToolButton
+    object btnMap: TToolButton
       Left = 143
       Top = 2
       Action = frmosmain.aMapSelectedStation
+      AutoSize = True
+      ShowCaption = False
     end
     object ToolButton6: TToolButton
       Left = 67
@@ -67,16 +81,90 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
       Caption = 'ToolButton6'
       Style = tbsDivider
     end
-    object ToolButton7: TToolButton
+    object btnSingleProfile: TToolButton
       Left = 105
       Top = 2
       Action = frmosmain.aProfilesStationSingle
+      AutoSize = True
+      ShowCaption = False
+    end
+    object pfiller: TPanel
+      Left = 176
+      Height = 33
+      Top = 2
+      Width = 64
+      BevelOuter = bvNone
+      TabOrder = 0
+    end
+    object pDepth: TPanel
+      Left = 240
+      Height = 29
+      Top = 2
+      Width = 152
+      AutoSize = True
+      BevelOuter = bvNone
+      ClientHeight = 29
+      ClientWidth = 152
+      TabOrder = 1
+      object rbMeters: TRadioButton
+        Left = 0
+        Height = 29
+        Top = 0
+        Width = 81
+        Caption = 'Meters'
+        OnClick = rbMetersClick
+        TabOrder = 0
+      end
+      object rbDbar: TRadioButton
+        Left = 88
+        Height = 29
+        Top = 0
+        Width = 64
+        Caption = 'dBar'
+        OnClick = rbDbarClick
+        TabOrder = 1
+      end
+    end
+    object ToolButton1: TToolButton
+      Left = 138
+      Height = 33
+      Top = 2
+      Caption = 'ToolButton1'
+      Style = tbsDivider
+    end
+    object pUnits: TPanel
+      Left = 397
+      Height = 33
+      Top = 2
+      Width = 269
+      BevelOuter = bvNone
+      ClientHeight = 33
+      ClientWidth = 269
+      TabOrder = 2
+      object rbUnitsOriginal: TRadioButton
+        Left = 0
+        Height = 29
+        Top = 0
+        Width = 128
+        Caption = 'Original units'
+        OnClick = rbUnitsOriginalClick
+        TabOrder = 0
+      end
+      object rbUnitsDefault: TRadioButton
+        Left = 144
+        Height = 29
+        Top = 0
+        Width = 125
+        Caption = 'Default units'
+        OnClick = rbUnitsDefaultClick
+        TabOrder = 1
+      end
     end
   end
   object Chart1: TChart
     Left = 0
-    Height = 506
-    Top = 35
+    Height = 504
+    Top = 37
     Width = 704
     AxisList = <    
       item
