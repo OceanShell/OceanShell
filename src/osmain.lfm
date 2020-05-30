@@ -587,8 +587,9 @@ object frmosmain: Tfrmosmain
         ChildSizing.EnlargeVertical = crsHomogenousChildResize
         ChildSizing.ShrinkHorizontal = crsScaleChilds
         ChildSizing.ShrinkVertical = crsScaleChilds
-        ChildSizing.Layout = cclLeftToRightThenTopToBottom
-        ChildSizing.ControlsPerLine = 4
+        ChildSizing.Layout = cclTopToBottomThenLeftToRight
+        ChildSizing.ControlsPerLine = 1
+        ColumnLayout = clVerticalThenHorizontal
         Columns = 4
         TabOrder = 6
       end
