@@ -1,11 +1,11 @@
 object frmprofile_station_single: Tfrmprofile_station_single
-  Left = 403
+  Left = 405
   Height = 634
-  Top = 145
-  Width = 1040
+  Top = 146
+  Width = 1164
   Caption = 'frmprofile_station_single'
-  ClientHeight = 634
-  ClientWidth = 1040
+  ClientHeight = 0
+  ClientWidth = 0
   DesignTimePPI = 144
   OnClose = FormClose
   OnShow = FormShow
@@ -28,6 +28,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
       Top = 0
       Width = 327
       Align = alTop
+      DropDownCount = 20
       ItemHeight = 25
       OnChange = cbParametersChange
       Style = csDropDownList
@@ -85,20 +86,19 @@ object frmprofile_station_single: Tfrmprofile_station_single
     Left = 335
     Height = 562
     Top = 0
-    Width = 705
+    Width = 829
     Align = alClient
     BevelOuter = bvNone
     Caption = 'Panel2'
     ClientHeight = 562
-    ClientWidth = 705
+    ClientWidth = 829
     TabOrder = 2
     object ToolBar1: TToolBar
       Left = 0
-      Height = 35
       Top = 0
-      Width = 705
+      Width = 829
       AutoSize = True
-      ButtonHeight = 33
+      ButtonHeight = 30
       ButtonWidth = 93
       Caption = 'ToolBar1'
       Font.Color = clWindowText
@@ -112,7 +112,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
       ShowHint = True
       TabOrder = 0
       object btnAdd: TToolButton
-        Left = 1
+        Left = 162
         Hint = 'Add level'
         Top = 2
         Caption = 'Add'
@@ -120,7 +120,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
         OnClick = btnAddClick
       end
       object btnDelete: TToolButton
-        Left = 94
+        Left = 255
         Hint = 'Delete level'
         Top = 2
         Caption = 'Delete'
@@ -128,7 +128,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
         OnClick = btnDeleteClick
       end
       object btnCommit: TToolButton
-        Left = 192
+        Left = 353
         Hint = 'Commit changes'
         Top = 2
         AutoSize = True
@@ -137,18 +137,47 @@ object frmprofile_station_single: Tfrmprofile_station_single
         OnClick = btnCommitClick
       end
       object ToolButton3: TToolButton
-        Left = 187
-        Height = 33
+        Left = 348
+        Height = 30
         Top = 2
         Caption = 'ToolButton3'
         Style = tbsDivider
       end
+      object cbInstrument: TComboBox
+        Left = 1
+        Height = 29
+        Hint = 'Instrument'
+        Top = 2
+        Width = 78
+        ItemHeight = 21
+        OnChange = cbInstrumentChange
+        Style = csDropDownList
+        TabOrder = 0
+      end
+      object cbProfileNumber: TComboBox
+        Left = 79
+        Height = 29
+        Hint = 'Profile number'
+        Top = 2
+        Width = 78
+        ItemHeight = 21
+        OnChange = cbProfileNumberChange
+        Style = csDropDownList
+        TabOrder = 1
+      end
+      object ToolButton1: TToolButton
+        Left = 157
+        Height = 30
+        Top = 2
+        Caption = 'ToolButton1'
+        Style = tbsDivider
+      end
     end
-    object DBGrid1: TDBGrid
+    object DBGridSingleProfile: TDBGrid
       Left = 0
-      Height = 527
-      Top = 35
-      Width = 705
+      Height = 530
+      Top = 32
+      Width = 829
       Align = alClient
       AlternateColor = 13631478
       Color = 13627366
@@ -166,12 +195,13 @@ object frmprofile_station_single: Tfrmprofile_station_single
           FieldName = 'VAL'
         end      
         item
+          DropDownRows = 9
           Title.Caption = 'PQF1'
           Width = 60
           FieldName = 'PQF1'
         end      
         item
-          DropDownRows = 8
+          DropDownRows = 9
           PickList.Strings = (
             '0'
             '1'
@@ -188,6 +218,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
           FieldName = 'PQF2'
         end      
         item
+          DropDownRows = 9
           Title.Caption = 'SQF'
           Width = 60
           FieldName = 'SQF'
@@ -198,8 +229,18 @@ object frmprofile_station_single: Tfrmprofile_station_single
           FieldName = 'BOTTLE_NUMBER'
         end      
         item
+          DropDownRows = 20
           Title.Caption = 'Units ID'
           FieldName = 'UNITS_ID'
+        end      
+        item
+          DropDownRows = 20
+          Title.Caption = 'Instr. ID'
+          FieldName = 'INSTRUMENT_ID'
+        end      
+        item
+          Title.Caption = 'Profile #'
+          FieldName = 'PROFILE_NUMBER'
         end>
       DataSource = DS
       FixedCols = 0
@@ -215,14 +256,15 @@ object frmprofile_station_single: Tfrmprofile_station_single
       TitleFont.Color = clWindowText
       TitleFont.Height = -11
       TitleFont.Name = 'MS Sans Serif'
-      OnPrepareCanvas = DBGrid1PrepareCanvas
+      OnPrepareCanvas = DBGridSingleProfilePrepareCanvas
+      OnSelectEditor = DBGridSingleProfileSelectEditor
     end
   end
   object StatusBar1: TStatusBar
     Left = 0
     Height = 36
     Top = 562
-    Width = 1040
+    Width = 1164
     Panels = <    
       item
         Text = 'Level'
@@ -250,7 +292,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
     Left = 0
     Height = 36
     Top = 598
-    Width = 1040
+    Width = 1164
     Panels = <    
       item
         Text = 'Value'

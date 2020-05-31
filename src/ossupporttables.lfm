@@ -1,11 +1,11 @@
 object frmsupporttables: Tfrmsupporttables
-  Left = 253
+  Left = 254
   Height = 825
-  Top = 77
+  Top = 79
   Width = 1501
   Caption = 'Support tables'
-  ClientHeight = 825
-  ClientWidth = 1501
+  ClientHeight = 0
+  ClientWidth = 0
   Color = clBtnFace
   Constraints.MinHeight = 825
   Constraints.MinWidth = 1500
@@ -23,13 +23,13 @@ object frmsupporttables: Tfrmsupporttables
     Height = 792
     Top = 33
     Width = 1501
-    ActivePage = tbProject
+    ActivePage = tsTables
     Align = alClient
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
     ParentFont = False
-    TabIndex = 5
+    TabIndex = 0
     TabOrder = 0
     OnChange = PageControl1Change
     object tsTables: TTabSheet

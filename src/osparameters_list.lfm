@@ -1,7 +1,7 @@
 object frmparameters_list: Tfrmparameters_list
-  Left = 762
+  Left = 763
   Height = 525
-  Top = 285
+  Top = 287
   Width = 554
   BorderIcons = [biSystemMenu]
   Caption = 'Profiles selection'
