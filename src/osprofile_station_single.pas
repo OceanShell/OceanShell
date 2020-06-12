@@ -43,7 +43,9 @@ type
     StatusBar2: TStatusBar;
     ToolBar1: TToolBar;
     ToolButton1: TToolButton;
+    btnSetProfNum1: TToolButton;
     ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
 
     procedure btnAddClick(Sender: TObject);
     procedure btnCommitClick(Sender: TObject);

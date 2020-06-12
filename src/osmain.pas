@@ -97,19 +97,15 @@ type
     iSupportTables: TMenuItem;
     iImport: TMenuItem;
     iInitialDatabase: TMenuItem;
-    iUpdateCruiseStations: TMenuItem;
-    iUpdateCruiseStationsSelected: TMenuItem;
-    iUpdateCruiseStationsAll: TMenuItem;
-    iUpdateCruiseStartFinishSelected: TMenuItem;
-    iUpdateCruiseStartFinishAll: TMenuItem;
+    iUpdateCruise: TMenuItem;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
     MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
     iQCtest: TMenuItem;
     iExportASCII: TMenuItem;
+    iLoadARGO: TMenuItem;
     MenuItem2: TMenuItem;
-    iUpdateCruiseStartFinish: TMenuItem;
     iSelectEntry: TMenuItem;
     iServiceStatistics: TMenuItem;
     MenuItem4: TMenuItem;
@@ -243,14 +239,11 @@ type
     procedure iServiceStatisticsClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
     procedure iSupportTablesClick(Sender: TObject);
-    procedure iUpdateCruiseStartFinishSelectedClick(Sender: TObject);
-    procedure iUpdateCruiseStationsAllClick(Sender: TObject);
-    procedure iUpdateCruiseStationsSelectedClick(Sender: TObject);
     procedure iUpdateLastLevelClick(Sender: TObject);
     procedure lbResetAreaClick(Sender: TObject);
     procedure lbResetAuxClick(Sender: TObject);
     procedure lbResetDatesClick(Sender: TObject);
-    procedure iUpdateCruiseStartFinishAllClick(Sender: TObject);
+    procedure iUpdateCruiseClick(Sender: TObject);
     procedure iExportASCIIClick(Sender: TObject);
 
   private
@@ -340,9 +333,11 @@ uses
   osselection_customsql,
   osabout,
   sortbufds,
+  procedures,
   test_excel_nabos, //remove later
 
 (* loading data *)
+  osload_argo,
   osload_itp,
   osload_GLODAP_2019_v2_product,
   osload_WOD18,
@@ -528,7 +523,7 @@ begin
    eCruise_PI.OnChange           := @SearchPI;
 
 
-   for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
+ //  for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
 
 
  OnResize(Self);
@@ -963,6 +958,11 @@ TempList:TListBox;
 
 k:integer;
 begin
+
+  Caption:='OceanShell: '+IBName;
+  Application.ProcessMessages;
+
+
 (* temporary transaction for main database *)
 TRt_DB1:=TSQLTransaction.Create(self);
 TRt_DB1.DataBase:=frmdm.IBDB;
@@ -1314,71 +1314,86 @@ begin
     end;
 end;
 
-procedure Tfrmosmain.iUpdateCruiseStartFinishSelectedClick(Sender: TObject);
-Var
-  ID: integer;
-begin
-  ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
-  osservice.UpdateCruiseStartFinishDates(ID);
-end;
-
-procedure Tfrmosmain.iUpdateCruiseStationsSelectedClick(Sender: TObject);
-Var
-  ID: integer;
-begin
-  ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
-  osservice.UpdateCruiseStations(ID);
-end;
 
 procedure Tfrmosmain.iUpdateLastLevelClick(Sender: TObject);
 begin
   osservice.UpdateLastLevel;
 end;
 
-
-procedure Tfrmosmain.iUpdateCruiseStationsAllClick(Sender: TObject);
+procedure Tfrmosmain.iUpdateCruiseClick(Sender: TObject);
 Var
-  ID: integer;
+  ID, k: integer;
 begin
   try
     frmdm.QCruise.DisableControls;
     frmdm.QCruise.First;
+
+     with frmdm.q1 do begin
+       Close;
+         SQL.Clear;
+         SQL.Add(' SELECT ');
+         SQL.Add(' min(DATEANDTIME) as min_date, ');
+         SQL.Add(' max(DATEANDTIME) as max_date, ');
+         SQL.Add(' count(ID) as cnt ');
+         SQL.Add(' FROM STATION ');
+         SQL.Add(' where CRUISE_ID=:CR_ID ');
+       Prepare;
+     end;
+
+     with frmdm.q2 do begin
+       Close;
+         SQL.Clear;
+         SQL.Add(' UPDATE CRUISE SET ');
+         SQL.Add(' DATE_START=:min_date, DATE_END=:max_date, STATIONS_AMOUNT=:cnt ');
+         SQL.Add(' where ID=:CR_ID ');
+       Prepare;
+     end;
+
+    k:=0;
+    RecListCruise.CurrentRowSelected:=true;
     while not frmdm.QCruise.EOF do begin
+      inc(k);
       ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
-        osservice.UpdateCruiseStations(ID);
+
+     //  if RecListCruise.CurrentRowSelected then begin
+
+         with frmdm.q1 do begin
+            ParamByName('CR_ID').AsInteger:=ID;
+          Open;
+         end;
+
+         with frmdm.q2 do begin
+            ParamByName('CR_ID').AsInteger:=ID;
+            ParamByName('min_date').AsDateTime:=frmdm.q1.FieldByName('min_date').AsDateTime;
+            ParamByName('max_date').AsDateTime:=frmdm.q1.FieldByName('max_date').AsDateTime;
+            ParamByName('cnt').AsInteger:=frmdm.q1.FieldByName('cnt').AsInteger;
+           ExecSQL;
+         end;
+         frmdm.q1.Close;
+     //  end;
+      Procedures.ProgressTaskbar(k, frmdm.QCruise.RecordCount-1);
       frmdm.QCruise.Next;
     end;
+
+   if MessageDlg('Cruise info was successfuly updated',
+       mtInformation, [mbOk], 0)=mrOk then Procedures.ProgressTaskbar(0, 0);
+
   finally
-   frmdm.QCruise.EnableControls;
+    frmdm.QCruise.Refresh;
+    frmdm.QCruise.EnableControls;
   end;
 end;
 
-procedure Tfrmosmain.iUpdateCruiseStartFinishAllClick(Sender: TObject);
-Var
-  ID: integer;
-begin
-  try
-    frmdm.QCruise.DisableControls;
-    frmdm.QCruise.First;
-    while not frmdm.QCruise.EOF do begin
-      ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
-        osservice.UpdateCruiseStartFinishDates(ID);
-      frmdm.QCruise.Next;
-    end;
-  finally
-   frmdm.QCruise.EnableControls;
-  end;
-end;
 
 procedure Tfrmosmain.iLoadARGOClick(Sender: TObject);
 begin
- { frmloadargo := Tfrmloadargo.Create(Self);
+  frmload_argo := Tfrmload_argo.Create(Self);
    try
-    if not frmloadargo.ShowModal = mrOk then exit;
+    if not frmload_argo.ShowModal = mrOk then exit;
    finally
-     frmloadargo.Free;
-     frmloadargo := nil;
-   end; }
+     frmload_argo.Free;
+     frmload_argo := nil;
+   end;
 end;
 
 

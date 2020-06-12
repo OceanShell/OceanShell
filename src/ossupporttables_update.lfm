@@ -1,5 +1,5 @@
 object frmsupporttables_update: Tfrmsupporttables_update
-  Left = 53
+  Left = 60
   Height = 825
   Top = 163
   Width = 1537

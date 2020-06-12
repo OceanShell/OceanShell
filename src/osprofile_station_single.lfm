@@ -1,11 +1,11 @@
 object frmprofile_station_single: Tfrmprofile_station_single
-  Left = 405
+  Left = 412
   Height = 634
-  Top = 146
-  Width = 1164
+  Top = 153
+  Width = 1165
   Caption = 'frmprofile_station_single'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 634
+  ClientWidth = 1165
   DesignTimePPI = 144
   OnClose = FormClose
   OnShow = FormShow
@@ -86,17 +86,17 @@ object frmprofile_station_single: Tfrmprofile_station_single
     Left = 335
     Height = 562
     Top = 0
-    Width = 829
+    Width = 830
     Align = alClient
     BevelOuter = bvNone
     Caption = 'Panel2'
     ClientHeight = 562
-    ClientWidth = 829
+    ClientWidth = 830
     TabOrder = 2
     object ToolBar1: TToolBar
       Left = 0
       Top = 0
-      Width = 829
+      Width = 830
       AutoSize = True
       ButtonHeight = 30
       ButtonWidth = 93
@@ -132,12 +132,12 @@ object frmprofile_station_single: Tfrmprofile_station_single
         Hint = 'Commit changes'
         Top = 2
         AutoSize = True
-        Caption = 'Save'
+        Caption = 'Save Changes'
         ImageIndex = 940
         OnClick = btnCommitClick
       end
       object ToolButton3: TToolButton
-        Left = 348
+        Left = 482
         Height = 30
         Top = 2
         Caption = 'ToolButton3'
@@ -172,12 +172,25 @@ object frmprofile_station_single: Tfrmprofile_station_single
         Caption = 'ToolButton1'
         Style = tbsDivider
       end
+      object btnSetProfNum1: TToolButton
+        Left = 487
+        Hint = 'Set current profile number to 1'
+        Top = 2
+        Caption = 'Profile number = 1'
+      end
+      object ToolButton4: TToolButton
+        Left = 348
+        Height = 30
+        Top = 2
+        Caption = 'ToolButton4'
+        Style = tbsDivider
+      end
     end
     object DBGridSingleProfile: TDBGrid
       Left = 0
       Height = 530
       Top = 32
-      Width = 829
+      Width = 830
       Align = alClient
       AlternateColor = 13631478
       Color = 13627366
@@ -264,7 +277,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
     Left = 0
     Height = 36
     Top = 562
-    Width = 1164
+    Width = 1165
     Panels = <    
       item
         Text = 'Level'
@@ -292,7 +305,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
     Left = 0
     Height = 36
     Top = 598
-    Width = 1164
+    Width = 1165
     Panels = <    
       item
         Text = 'Value'

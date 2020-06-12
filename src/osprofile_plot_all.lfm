@@ -1,7 +1,7 @@
 object frmprofile_plot_all: Tfrmprofile_plot_all
-  Left = 725
+  Left = 732
   Height = 541
-  Top = 273
+  Top = 280
   Width = 704
   Caption = 'frmprofile_plot_all'
   ClientHeight = 541
