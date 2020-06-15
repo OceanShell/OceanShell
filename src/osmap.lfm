@@ -47,7 +47,7 @@ object frmmap: Tfrmmap
     end
     object btnKMLExport: TToolButton
       Left = 3
-      Top = 175
+      Top = 246
       Action = frmosmain.aMapKML
     end
     object btnShowSelected: TToolButton
@@ -75,7 +75,7 @@ object frmmap: Tfrmmap
     end
     object ToolButton1: TToolButton
       Left = 3
-      Top = 208
+      Top = 312
       Width = 35
       Caption = 'ToolButton1'
       Style = tbsDivider
@@ -83,7 +83,7 @@ object frmmap: Tfrmmap
     object btnSettings: TToolButton
       Left = 3
       Hint = 'Map settings'
-      Top = 213
+      Top = 317
       Caption = 'btnSettings'
       ImageIndex = 235
       OnClick = btnSettingsClick
@@ -91,10 +91,32 @@ object frmmap: Tfrmmap
     object btnSaveMapAs: TToolButton
       Left = 3
       Hint = 'Save map as picture'
-      Top = 142
+      Top = 279
       Caption = 'Save as...'
       ImageIndex = 713
       OnClick = btnSaveMapAsClick
+    end
+    object ToolButton4: TToolButton
+      Left = 3
+      Top = 142
+      Action = frmosmain.aProfilesStationAll
+    end
+    object ToolButton5: TToolButton
+      Left = 3
+      Top = 175
+      Action = frmosmain.aProfilesStationSingle
+    end
+    object ToolButton6: TToolButton
+      Left = 3
+      Top = 241
+      Width = 35
+      Caption = 'ToolButton6'
+      Style = tbsDivider
+    end
+    object ToolButton7: TToolButton
+      Left = 3
+      Top = 208
+      Action = frmosmain.aProfilesSelectedAllPlot
     end
   end
   object pmap: TPanel

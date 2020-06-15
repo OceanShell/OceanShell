@@ -27,6 +27,10 @@ type
     ToolButton3: TToolButton;
     btnSettings: TToolButton;
     btnSaveMapAs: TToolButton;
+    ToolButton4: TToolButton;
+    ToolButton5: TToolButton;
+    ToolButton6: TToolButton;
+    ToolButton7: TToolButton;
 
     procedure btnSaveMapAsClick(Sender: TObject);
     procedure btnSettingsClick(Sender: TObject);

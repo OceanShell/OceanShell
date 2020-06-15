@@ -7,7 +7,7 @@ interface
 uses
   SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, LCLType,
   Menus, Dialogs, ActnList, StdCtrls, INIFiles, ExtCtrls, DateUtils, sqldb, DB,
-  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math, Grids;
+  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math, Grids, LCLIntf;
 
 type
 
@@ -46,26 +46,26 @@ type
     btnCustomSQLQuery: TButton;
     btnSelectCruises: TButton;
     cbCountry: TComboBox;
-    cbCountry1: TComboBox;
-    cbInstitute1: TComboBox;
-    cbPlatform1: TComboBox;
-    cbProject1: TComboBox;
+    cbCruiseCountry: TComboBox;
+    cbCruiseInstitute: TComboBox;
+    cbCruisePlatform: TComboBox;
+    cbCruiseProject: TComboBox;
     cbQCFlag1: TComboBox;
     cbQCFlag2: TComboBox;
     cbSource: TComboBox;
     cbInstitute: TComboBox;
     cbProject: TComboBox;
-    cbSource1: TComboBox;
-    chkNOTCountry1: TCheckBox;
-    chkNOTInstitute1: TCheckBox;
+    cbCruiseSource: TComboBox;
+    chkCruiseNOTCountry: TCheckBox;
+    chkCruiseNOTInstitute: TCheckBox;
     chkNOTPlatform: TCheckBox;
     chkNOTCountry: TCheckBox;
-    chkNOTPlatform1: TCheckBox;
-    chkNOTProject1: TCheckBox;
+    chkCruiseNOTPlatform: TCheckBox;
+    chkCruiseNOTProject: TCheckBox;
     chkNOTSource: TCheckBox;
     chkNOTInstitute: TCheckBox;
     chkNOTProject: TCheckBox;
-    chkNOTSource1: TCheckBox;
+    chkCruiseNOTSource: TCheckBox;
     chkParameters: TCheckGroup;
     chkPeriod: TCheckBox;
     cbPlatform: TComboBox;
@@ -76,18 +76,18 @@ type
     DBGridStation1: TDBGrid;
     DBMemoCruises: TDBMemo;
     DBMemoEntriy: TDBMemo;
-    dtpDateAddedMax1: TDateTimePicker;
+    dtpCruiseDateAddedMax: TDateTimePicker;
     dtpDateAddedMin: TDateTimePicker;
-    dtpDateAddedMin1: TDateTimePicker;
-    dtpDateMax1: TDateTimePicker;
-    dtpDateMin1: TDateTimePicker;
-    dtpDateUpdatedMax1: TDateTimePicker;
+    dtpCruiseDateAddedMin: TDateTimePicker;
+    dtpCruiseDateMax: TDateTimePicker;
+    dtpCruiseDateMin: TDateTimePicker;
+    dtpCruiseDateUpdatedMax: TDateTimePicker;
     dtpDateUpdatedMin: TDateTimePicker;
     dtpDateMin: TDateTimePicker;
     dtpDateMax: TDateTimePicker;
     dtpDateAddedMax: TDateTimePicker;
     dtpDateUpdatedMax: TDateTimePicker;
-    dtpDateUpdatedMin1: TDateTimePicker;
+    dtpCruiseDateUpdatedMin: TDateTimePicker;
     eEntry_ID: TEdit;
     eEntry_Title: TEdit;
     eEntry_Type: TEdit;
@@ -146,9 +146,9 @@ type
     ODir: TSelectDirectoryDialog;
     ScrollBox1: TScrollBox;
     seIDMax: TSpinEdit;
-    seIDMax1: TSpinEdit;
+    seCruiseIDMax: TSpinEdit;
     seIDMin: TSpinEdit;
-    seIDMin1: TSpinEdit;
+    seCruiseIDMin: TSpinEdit;
     seLonMin: TFloatSpinEdit;
     seLonMax: TFloatSpinEdit;
     seLatMax: TFloatSpinEdit;
@@ -181,8 +181,8 @@ type
     Splitter2: TSplitter;
     Splitter3: TSplitter;
     Splitter4: TSplitter;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
+    tsCruiseSearch: TTabSheet;
+    tsCruiseResults: TTabSheet;
     tbCruise: TToolBar;
     tbFastAccess: TToolBar;
     ToolButton4: TToolButton;
@@ -213,6 +213,7 @@ type
     procedure btnCustomSQLQueryClick(Sender: TObject);
     procedure btnOpenOceanFDBClick(Sender: TObject);
     procedure btnSaveCruiseClick(Sender: TObject);
+    procedure btnSelectCruisesClick(Sender: TObject);
     procedure btnSelectStationsClick(Sender: TObject);
     procedure DBGridCruise1CellClick(Column: TColumn);
     procedure DBGridCruise1ColumnSized(Sender: TObject);
@@ -227,6 +228,7 @@ type
     procedure DBGridCruise2EditingDone(Sender: TObject);
     procedure DBGridCruise2SelectEditor(Sender: TObject; Column: TColumn;
       var Editor: TWinControl);
+    procedure DBGridCruise2TitleClick(Column: TColumn);
     procedure DBGridEntryCellClick(Column: TColumn);
     procedure DBGridEntryColumnSized(Sender: TObject);
     procedure DBGridEntryTitleClick(Column: TColumn);
@@ -246,6 +248,7 @@ type
     procedure iAboutClick(Sender: TObject);
     procedure iDBStatisticsClick(Sender: TObject);
     procedure iDIVAndClick(Sender: TObject);
+    procedure iInitialDatabaseClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
@@ -260,6 +263,7 @@ type
     procedure iSettingsClick(Sender: TObject);
     procedure iSupportTablesClick(Sender: TObject);
     procedure iUpdateLastLevelClick(Sender: TObject);
+    procedure lbResetSearchCruisesClick(Sender: TObject);
     procedure lbResetSearchStationsClick(Sender: TObject);
     procedure iUpdateCruiseClick(Sender: TObject);
     procedure iExportASCIIClick(Sender: TObject);
@@ -276,7 +280,6 @@ type
     procedure SearchPI(Sender:TObject);
     procedure SearchINSTITUTE(Sender:TObject);
     procedure SearchPROJECT(Sender:TObject);
-    procedure FetchCruises;
     procedure FetchEntries;
     procedure PopulatePickLists;
     procedure GetIDListCruise(Var id_str:string);
@@ -319,7 +322,9 @@ var
   IBDateMin, IBDateMax, SDateMin, SDateMax :TDateTime;
   IBDateAddedMin, IBDateAddedMax, IBDateUpdatedMin, IBDateUpdatedMax :TDateTime;
   IBCount, SCount, IDMin, IDMax:Integer; //number OD stations in database and selection
-
+  IDCruiseMin, IDCruiseMax: integer;
+  IBCruiseDateAddedMin, IBCruiseDateAddedMax :TDateTime;
+  IBCruiseDateUpdatedMin, IBCruiseDateUpdatedMax :TDateTime;
 
   NavigationOrder:boolean=true; //Stop navigation until all modules responded
 
@@ -716,6 +721,102 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
 end;
 
 
+procedure Tfrmosmain.btnSelectCruisesClick(Sender: TObject);
+Var
+  k: integer;
+  NotCondCountry, NotCondPlatform, NotCondSource:string;
+  NotCondInstitute, NotCondProject:string;
+begin
+
+  frmdm.Q.Close; //closing selected sations query
+  for k:=1 to 7 do sbSelection.Panels[k].Text:='---';
+
+  if chkNOTPlatform.Checked  =true then NotCondCountry   :='NOT' else NotCondCountry   :='';
+  if chkNOTPlatform.Checked  =true then NotCondPlatform  :='NOT' else NotCondPlatform  :='';
+  if chkNOTSource.Checked    =true then NotCondSource    :='NOT' else NotCondSource    :='';
+  if chkNOTInstitute.Checked =true then NotCondInstitute :='NOT' else NotCondInstitute :='';
+  if chkNOTProject.Checked   =true then NotCondProject   :='NOT' else NotCondProject   :='';
+
+
+  with frmdm.QCruise do begin
+    Close;
+      SQL.Clear;
+      SQL.Add(' SELECT ');
+      SQL.Add(' CRUISE.ID, PLATFORM_ID, SOURCE_ID, INSTITUTE_ID, PROJECT_ID, ');
+      SQL.Add(' PLATFORM.NAME AS PLATFORM, COUNTRY.NAME AS COUNTRY, ');
+      SQL.Add(' SOURCE.NAME AS SOURCE, INSTITUTE.NAME AS INSTITUTE, ');
+      SQL.Add(' PROJECT.NAME AS PROJECT, CRUISE.DATE_ADDED, CRUISE.DATE_UPDATED, ');
+      SQL.Add(' CRUISE.CRUISE_NUMBER, CRUISE.DATE_START, CRUISE.DATE_END, ');
+      SQL.Add(' CRUISE.STATIONS_AMOUNT, CRUISE.PI, CRUISE.NOTES, CRUISE.COMPLETE ');
+      SQL.Add(' FROM CRUISE, PLATFORM, COUNTRY, SOURCE, INSTITUTE, PROJECT ');
+      SQL.Add(' WHERE ');
+      SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
+      SQL.Add(' PLATFORM.COUNTRY_ID=COUNTRY.ID AND ');
+      SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
+      SQL.Add(' CRUISE.INSTITUTE_ID=INSTITUTE.ID AND ');
+      SQL.Add(' CRUISE.PROJECT_ID=PROJECT.ID ');
+
+      (* IDs *)
+      SQL.Add(' AND (CRUISE.ID BETWEEN :SSIDMin AND :SSIDMax) ');
+
+     (* Coordinates *)
+    { SQL.Add(' AND (LATITUDE BETWEEN :SSLatMin AND :SSLatMax) ');
+     if seLonMax.Value>=seLonMin.Value then
+      SQL.Add(' AND (LONGITUDE BETWEEN :SSLonMin AND :SSLonMax) ');
+     if seLonMax.Value<seLonMin.Value then
+      SQL.Add(' AND ((LONGITUDE>=:SSLonMin AND LONGITUDE<=180) or'+
+              '      (LONGITUDE>=-180 and LONGITUDE<=:SSLonMax)) '); }
+
+    (* Date and Time *)
+     SQL.Add('  AND (DATE_START >= :SSDateMin) AND (DATE_END <= :SSDateMax) ');
+     SQL.Add('  AND (CRUISE.DATE_ADDED between :SSDateAddedMin and :SSDateAddedMax) ');
+     SQL.Add('  AND (CRUISE.DATE_UPDATED between :SSDateUpdatedMin and :SSDateUpdatedMax) ');
+
+
+    if cbCruisePlatform.text<>'' then
+      SQL.Add(' AND '+NotCondPlatform  +' PLATFORM.NAME='+QuotedStr(cbCruisePlatform.text));
+    if cbCruiseCountry.text<>'' then
+      SQL.Add(' AND '+NotCondCountry   +' COUNTRY.NAME='+QuotedStr(cbCruiseCountry.text));
+    if cbCruiseSource.text<>'' then
+      SQL.Add(' AND '+NotCondSource    +' SOURCE.NAME='+QuotedStr(cbCruiseSource.text));
+    if cbCruiseInstitute.text<>'' then
+      SQL.Add(' AND '+NotCondInstitute +' INSTITUTE.NAME='+QuotedStr(cbCruiseInstitute.text));
+    if cbCruiseProject.text<>'' then begin
+      SQL.Add(' AND '+NotCondProject   +' PROJECT.NAME='+QuotedStr(cbCruiseProject.text));
+    end;
+
+    SQL.Add(' ORDER BY PLATFORM.NAME, CRUISE.DATE_START ' );
+
+    ParamByName('SSIDMin').Value:=seCruiseIDMin.Value;
+    ParamByName('SSIDMax').Value:=seCruiseIDMax.Value;
+
+ {   ParamByName('SSLatMin').AsFloat:=seLatMin.Value;
+    ParamByName('SSLatMax').AsFloat:=seLatMax.Value;
+    ParamByName('SSLonMin').AsFloat:=seLonMin.Value;
+    ParamByName('SSLonMax').AsFloat:=seLonMax.Value; }
+
+    ParamByName('SSDateMin').AsDateTime:=dtpCruiseDateMin.DateTime;
+    ParamByName('SSDateMax').AsDateTime:=dtpCruiseDateMax.DateTime;
+    ParamByName('SSDateAddedMin').AsDateTime:=dtpCruiseDateAddedMin.DateTime;
+    ParamByName('SSDateAddedMax').AsDateTime:=dtpCruiseDateAddedMax.DateTime;
+    ParamByName('SSDateUpdatedMin').AsDateTime:=dtpCruiseDateUpdatedMin.DateTime;
+    ParamByName('SSDateUpdatedMax').AsDateTime:=dtpCruiseDateUpdatedMax.DateTime;
+
+   //showmessage(frmdm.QCruise.SQL.Text);
+   Open;
+   Last;
+   First;
+  end;
+
+  tsCruiseResults.TabVisible:= not frmdm.QCruise.IsEmpty;
+  if not frmdm.QCruise.IsEmpty then begin
+    PageControl2.ActivePageIndex:=1;
+    tsCruiseResults.Caption:='Selected cruises: '+inttostr(frmdm.QCruise.RecordCount);
+  end;
+ Application.ProcessMessages;
+end;
+
+
 procedure Tfrmosmain.iSelectCruiseClick(Sender: TObject);
 Var
  id_str: string;
@@ -749,12 +850,8 @@ begin
      Last;
      First;
    end;
-
-   frmdm.QCruise.RefreshSQL:=frmdm.QCruise.SQL;
-
    SelectionInfo;
    CDSNavigation;
-
 end;
 
 procedure Tfrmosmain.iSelectEntryClick(Sender: TObject);
@@ -834,6 +931,38 @@ begin
 end;
 
 
+procedure Tfrmosmain.lbResetSearchCruisesClick(Sender: TObject);
+begin
+{  seLatMin.Value:=IBLatMin;
+  seLatMax.Value:=IBLatMax;
+  seLonMin.Value:=IBLonMin;
+  seLonMax.Value:=IBLonMax; }
+
+  cbCruisePlatform.Text:='';
+  cbCruiseCountry.Text:='';
+  cbCruiseSource.Text:='';
+  cbCruiseInstitute.Text:='';
+  cbCruiseProject.Text:='';
+
+  chkCruiseNOTPlatform.Checked:=false;
+  chkCruiseNOTCountry.Checked:=false;
+  chkCruiseNOTSource.Checked:=false;
+  chkCruiseNOTInstitute.Checked:=false;
+  chkCruiseNOTProject.Checked:=false;
+
+  seCruiseIDMin.Value:=IDCruiseMin;
+  seCruiseIDMax.Value:=IDCruiseMax;
+
+  dtpCruiseDateMin.DateTime:=IBDateMin;
+  dtpCruiseDateMax.DateTime:=IBDateMax;
+
+  dtpCruiseDateAddedMin.DateTime:=IBCruiseDateAddedMin;
+  dtpCruiseDateAddedMax.DateTime:=IBCruiseDateAddedMax;
+  dtpCruiseDateUpdatedMin.DateTime:=IBCruiseDateUpdatedMin;
+  dtpCruiseDateUpdatedMax.DateTime:=IBCruiseDateUpdatedMax;
+end;
+
+
 procedure Tfrmosmain.iDBStatisticsClick(Sender: TObject);
 begin
 frmosstatistics := Tfrmosstatistics.Create(Self);
@@ -854,6 +983,11 @@ begin
      frmosexport_divand.Free;
      frmosexport_divand := nil;
    end;
+end;
+
+procedure Tfrmosmain.iInitialDatabaseClick(Sender: TObject);
+begin
+ //
 end;
 
 procedure Tfrmosmain.iExportASCIIClick(Sender: TObject);
@@ -1012,8 +1146,8 @@ TempList:TListBox;
 k:integer;
 begin
 
-  Caption:='OceanShell: '+IBName;
-  Application.ProcessMessages;
+Caption:='OceanShell: '+IBName;
+Application.ProcessMessages;
 
 
 (* temporary transaction for main database *)
@@ -1092,6 +1226,44 @@ Qt_DB1.Transaction:=TRt_DB1;
     Close;
    end;
 
+
+   with Qt_DB1 do begin
+    Close;
+        SQL.Clear;
+        SQL.Add(' select count(ID) as StCount, ');
+        SQL.Add(' min(ID) as IDMin, max(ID) as IDMax, ');
+        {SQL.Add(' min(LATITUDE) as StLatMin, max(LATITUDE) as StLatMax, ');
+        SQL.Add(' min(LONGITUDE) as StLonMin, max(LONGITUDE) as StLonMax, ');}
+        SQL.Add(' min(DATE_ADDED) as StDateAddedMin, ');
+        SQL.Add(' max(DATE_ADDED) as StDateAddedMax, ');
+        SQL.Add(' min(DATE_UPDATED) as StDateUpdatedMin, ');
+        SQL.Add(' max(DATE_UPDATED) as StDateUpdatedMax ');
+        SQL.Add(' from CRUISE');
+    Open;
+       if FieldByName('StCount').AsInteger>0 then begin
+         IDCruiseMin     :=FieldByName('IDMin').AsInteger;
+         IDCruiseMax     :=FieldByName('IDMax').AsInteger;
+         {IBLatMin  :=FieldByName('StLatMin').AsFloat;
+         IBLatMax  :=FieldByName('StLatMax').AsFloat;
+         IBLonMin  :=FieldByName('StLonMin').AsFloat;
+         IBLonMax  :=FieldByName('StLonMax').AsFloat; }
+         IBCruiseDateAddedMin   :=FieldByName('StDateAddedMin').AsDateTime;
+         IBCruiseDateAddedMax   :=FieldByName('StDateAddedMax').AsDateTime;
+         IBCruiseDateUpdatedMin :=FieldByName('StDateUpdatedMin').AsDateTime;
+         IBCruiseDateUpdatedMax :=FieldByName('StDateUpdatedMax').AsDateTime;
+
+         seCruiseIDMin.Value:=IDCruiseMin;
+         seCruiseIDMax.Value:=IDCruiseMax;
+
+         dtpCruiseDateMin.DateTime:=IBDateMin;
+         dtpCruiseDateMax.DateTime:=IBDateMax;
+         dtpCruiseDateAddedMin.DateTime:=IBCruiseDateAddedMin;
+         dtpCruiseDateAddedMax.DateTime:=IBCruiseDateAddedMax;
+         dtpCruiseDateUpdatedMin.DateTime:=IBCruiseDateUpdatedMin;
+         dtpCruiseDateUpdatedMax.DateTime:=IBCruiseDateUpdatedMax;
+       end;
+   end;
+
    (* permanent list for parameter tables *)
    ListBox1.Clear;
 
@@ -1112,9 +1284,6 @@ Qt_DB1.Transaction:=TRt_DB1;
    chkParameters.Items.Clear;
    chkParameters.Items:=ListBox1.Items;
 
-   (* Loading CRUISE list *)
-   FetchCruises;
-
    (* Loading ENTRY list *)
    FetchEntries;
 
@@ -1131,19 +1300,75 @@ Qt_DB1.Transaction:=TRt_DB1;
  end;
 end;
 
-procedure Tfrmosmain.FetchCruises;
+
+(* gathering info about selected stations *)
+procedure Tfrmosmain.SelectionInfo;
+var
+  k: integer;
+  lat1, lon1:real;
+  dat1:TDateTime;
+  items_enabled:boolean;
 begin
- (* Query text is embedded into the component *)
-  with frmdm.QCruise do begin
-   Open;
-   Last;
-   First;
+
+ try
+  frmdm.Q.DisableControls;
+
+  SLatMin:=90;  SLatMax:=-90;
+  SLonMin:=180; SLonMax:=-180;
+  SDateMin:=Now;
+
+  frmdm.Q.First;
+  while not frmdm.Q.EOF do begin
+   lat1:=frmdm.Q.FieldByName('LATITUDE').AsFloat;
+   lon1:=frmdm.Q.FieldByName('LONGITUDE').AsFloat;
+   dat1:=frmdm.Q.FieldByName('DATEANDTIME').AsDateTime;
+
+     if lat1<SLatMin then SLatMin:=lat1;
+     if lat1>SLatMax then SLatMax:=lat1;
+     if lon1<SLonMin then SLonMin:=lon1;
+     if lon1>SLonMax then SLonMax:=lon1;
+     if CompareDate(dat1, SDateMin)<0 then SDateMin:=dat1;
+     if CompareDate(dat1, SDateMax)>0 then SDateMax:=dat1;
+
+    frmdm.Q.Next;
+  end;
+  frmdm.Q.First;
+
+     SCount:=frmdm.Q.RecordCount;
+     if SCount>0 then begin
+       with sbSelection do begin
+         Panels[1].Text:='LtMin: '+floattostr(SLatMin);
+         Panels[2].Text:='LtMax: '+floattostr(SLatMax);
+         Panels[3].Text:='LnMin: '+floattostr(SLonMin);
+         Panels[4].Text:='LnMax: '+floattostr(SLonMax);
+         Panels[5].Text:='DateMin: '+datetostr(SDateMin);
+         Panels[6].Text:='DateMax: '+datetostr(SDateMax);
+         Panels[7].Text:='Stations: '+inttostr(SCount);
+       end;
+     end else for k:=1 to 7 do sbSelection.Panels[k].Text:='---';
+
+  (* if there are selected station enabling some menu items *)
+  if SCount>0 then items_enabled:=true else items_enabled:=false;
+
+  finally
+     frmdm.Q.EnableControls;
   end;
 
-  btnAddCruise.Enabled:=true;
-  tsMainCruises.Caption:='Cruises: ['+inttostr(frmdm.QCruise.RecordCount)+']';
-  Application.ProcessMessages;
+  iDBStatistics.Enabled:=items_enabled;
+  aMapAllStations.Enabled:=items_enabled;
+  aMapKML.Enabled:=items_enabled;
+  aProfilesStationAll.Enabled:=items_enabled;
+  aProfilesSelectedAllPlot.Enabled:=items_enabled;
+  tsMetadata.TabVisible:=items_enabled;
+
+
+  if frmprofile_plot_all_open then begin
+    frmprofile_plot_all.Close;
+    frmprofile_plot_all:= Tfrmprofile_plot_all.Create(nil);
+    frmprofile_plot_all_open:=true;
+  end;
 end;
+
 
 procedure Tfrmosmain.FetchEntries;
 begin
@@ -1240,75 +1465,14 @@ begin
    TrT.Free;
   end;
 
+   cbCruisePlatform.Items:=cbPlatform.Items;
+   cbCruiseCountry.Items:=cbCountry.Items;
+   cbCruiseSource.Items:=cbSource.Items;
+   cbCruiseInstitute.Items:=cbInstitute.Items;
+   cbCruiseProject.Items:=cbProject.Items;
+
 end;
 
-(* gathering info about selected stations *)
-procedure Tfrmosmain.SelectionInfo;
-var
-  k: integer;
-  lat1, lon1:real;
-  dat1:TDateTime;
-  items_enabled:boolean;
-begin
-
- try
-  frmdm.Q.DisableControls;
-
-  SLatMin:=90;  SLatMax:=-90;
-  SLonMin:=180; SLonMax:=-180;
-  SDateMin:=Now;
-
-  frmdm.Q.First;
-  while not frmdm.Q.EOF do begin
-   lat1:=frmdm.Q.FieldByName('LATITUDE').AsFloat;
-   lon1:=frmdm.Q.FieldByName('LONGITUDE').AsFloat;
-   dat1:=frmdm.Q.FieldByName('DATEANDTIME').AsDateTime;
-
-     if lat1<SLatMin then SLatMin:=lat1;
-     if lat1>SLatMax then SLatMax:=lat1;
-     if lon1<SLonMin then SLonMin:=lon1;
-     if lon1>SLonMax then SLonMax:=lon1;
-     if CompareDate(dat1, SDateMin)<0 then SDateMin:=dat1;
-     if CompareDate(dat1, SDateMax)>0 then SDateMax:=dat1;
-
-    frmdm.Q.Next;
-  end;
-  frmdm.Q.First;
-
-     SCount:=frmdm.Q.RecordCount;
-     if SCount>0 then begin
-       with sbSelection do begin
-         Panels[1].Text:='LtMin: '+floattostr(SLatMin);
-         Panels[2].Text:='LtMax: '+floattostr(SLatMax);
-         Panels[3].Text:='LnMin: '+floattostr(SLonMin);
-         Panels[4].Text:='LnMax: '+floattostr(SLonMax);
-         Panels[5].Text:='DateMin: '+datetostr(SDateMin);
-         Panels[6].Text:='DateMax: '+datetostr(SDateMax);
-         Panels[7].Text:='Stations: '+inttostr(SCount);
-       end;
-     end else for k:=1 to 7 do sbSelection.Panels[k].Text:='---';
-
-  (* if there are selected station enabling some menu items *)
-  if SCount>0 then items_enabled:=true else items_enabled:=false;
-
-  finally
-     frmdm.Q.EnableControls;
-  end;
-
-  iDBStatistics.Enabled:=items_enabled;
-  aMapAllStations.Enabled:=items_enabled;
-  aMapKML.Enabled:=items_enabled;
-  aProfilesStationAll.Enabled:=items_enabled;
-  aProfilesSelectedAllPlot.Enabled:=items_enabled;
-  tsMetadata.TabVisible:=items_enabled;
-
-
-  if frmprofile_plot_all_open then begin
-    frmprofile_plot_all.Close;
-    frmprofile_plot_all:= Tfrmprofile_plot_all.Create(nil);
-    frmprofile_plot_all_open:=true;
-  end;
-end;
 
 procedure Tfrmosmain.CDSNavigation;
 Var
@@ -1320,7 +1484,8 @@ if NavigationOrder=false then exit;
  If NavigationOrder=true then begin
   NavigationOrder:=false; //blocking everthing until previous operations have been completed
 
-  frmdm.QCruise.Locate('ID', frmdm.Q.FieldByName('CRUISE_ID').AsInteger,[]);
+  if not frmdm.QCruise.IsEmpty then
+    frmdm.QCruise.Locate('ID', frmdm.Q.FieldByName('CRUISE_ID').AsInteger,[]);
 
      if frmmap_open=true then frmmap.ChangeID(ID); //Map
      if frmprofile_station_all_open=true then frmprofile_station_all.ChangeID(ID); //
@@ -1398,9 +1563,14 @@ end;
 
 procedure Tfrmosmain.iUpdateCruiseClick(Sender: TObject);
 Var
-  ID, k: integer;
+  dat:text;
+  ID, ID_OLD, k, cnt1, cnt2, err_cnt: integer;
+  date_min1, date_max1, date_min2, date_max2:TDateTime;
 begin
+AssignFile(dat, GlobalUnloadPath+'CatalogUpdate.txt'); rewrite(dat);
   try
+    ID_OLD:=frmdm.QCruise.FieldByName('ID').AsInteger;
+
     frmdm.QCruise.DisableControls;
     frmdm.QCruise.First;
 
@@ -1426,38 +1596,59 @@ begin
      end;
 
     k:=0;
+    err_cnt:=0;
     RecListCruise.CurrentRowSelected:=true;
     while not frmdm.QCruise.EOF do begin
       inc(k);
       ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
 
+      date_min1:=frmdm.QCruise.FieldByName('DATE_START').AsDateTime;
+      date_max1:=frmdm.QCruise.FieldByName('DATE_END').AsDateTime;
+      cnt1:=frmdm.QCruise.FieldByName('STATIONS_AMOUNT').AsInteger;
+
        if RecListCruise.CurrentRowSelected then begin
          with frmdm.q1 do begin
             ParamByName('CR_ID').AsInteger:=ID;
           Open;
+            date_max2:=frmdm.q1.FieldByName('max_date').AsDateTime;
+            date_min2:=frmdm.q1.FieldByName('min_date').AsDateTime;
+            cnt2:=frmdm.q1.FieldByName('cnt').AsInteger;
+          Close;
          end;
 
-         with frmdm.q2 do begin
-            ParamByName('CR_ID').AsInteger:=ID;
-            ParamByName('min_date').AsDateTime:=frmdm.q1.FieldByName('min_date').AsDateTime;
-            ParamByName('max_date').AsDateTime:=frmdm.q1.FieldByName('max_date').AsDateTime;
-            ParamByName('cnt').AsInteger:=frmdm.q1.FieldByName('cnt').AsInteger;
-           ExecSQL;
+         if (date_min1<>date_min2) or (date_max1<>date_max2) or (cnt1<>cnt2) then begin
+          inc(err_cnt);
+          writeln(dat, inttostr(ID)+#9+
+                   datetimetostr(date_min1)+'->'+datetimetostr(date_min2)+#9+
+                   datetimetostr(date_max1)+'->'+datetimetostr(date_max2)+#9+
+                   inttostr(cnt1)+'->'+inttostr(cnt2));
+
+           with frmdm.QCruise do begin
+            Edit;
+             FieldByName('DATE_START').Value:=date_min2;
+             FieldByName('DATE_END').Value:=date_max2;
+             FieldByName('STATIONS_AMOUNT').Value:=cnt2;
+            Post;
+           end;
          end;
-         frmdm.q1.Close;
+
        end;
       Procedures.ProgressTaskbar(k, frmdm.QCruise.RecordCount-1);
       frmdm.QCruise.Next;
     end;
 
-   if MessageDlg('Cruise info was successfuly updated',
-       mtInformation, [mbOk], 0)=mrOk then Procedures.ProgressTaskbar(0, 0);
-
   finally
-    if frmdm.QCruise.Modified then btnSaveCruise.OnClick(self);
-    frmdm.QCruise.Refresh;
+    Closefile(dat);
+    if frmdm.QCruise.Modified then
+      btnSaveCruise.OnClick(self);
+    frmdm.QCruise.Locate('ID', ID_OLD, []);
     frmdm.QCruise.EnableControls;
   end;
+
+  if MessageDlg('Cruise info was successfuly updated',
+      mtInformation, [mbOk], 0)=mrOk then Procedures.ProgressTaskbar(0, 0);
+
+  if err_cnt>0 then OpenDocument(GlobalUnloadPath+'CatalogUpdate.txt');
 end;
 
 
@@ -2002,6 +2193,12 @@ begin
   end;
 
   if Column.Index>0 then sortbufds.SortBufDataSet(frmdm.QCruise, Column.FieldName);
+end;
+
+
+procedure Tfrmosmain.DBGridCruise2TitleClick(Column: TColumn);
+begin
+  sortbufds.SortBufDataSet(frmdm.QCruise, Column.FieldName);
 end;
 
 procedure Tfrmosmain.DBGridEntryTitleClick(Column: TColumn);

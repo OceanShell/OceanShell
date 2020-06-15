@@ -1,14 +1,14 @@
 object frmosmain: Tfrmosmain
-  Left = 347
-  Height = 698
-  Top = 148
-  Width = 1363
+  Left = 297
+  Height = 700
+  Top = 184
+  Width = 1365
   Caption = 'OceanShell'
-  ClientHeight = 668
-  ClientWidth = 1363
+  ClientHeight = 670
+  ClientWidth = 1365
   Color = clBtnFace
-  Constraints.MinHeight = 698
-  Constraints.MinWidth = 1305
+  Constraints.MinHeight = 700
+  Constraints.MinWidth = 1365
   DesignTimePPI = 144
   Font.Color = clWindowText
   Font.Height = -17
@@ -52,22 +52,22 @@ object frmosmain: Tfrmosmain
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 594
+    Height = 596
     Top = 74
-    Width = 1363
-    ActivePage = tsMainCruises
+    Width = 1365
+    ActivePage = tsMainSelect
     Align = alClient
     Enabled = False
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
     ParentFont = False
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 2
     object tsMainSelect: TTabSheet
-      Caption = 'Stations'
-      ClientHeight = 561
-      ClientWidth = 1355
+      Caption = 'Station search'
+      ClientHeight = 563
+      ClientWidth = 1357
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -378,7 +378,7 @@ object frmosmain: Tfrmosmain
       object btnAdvancedSelection: TButton
         Left = 1096
         Height = 38
-        Top = 456
+        Top = 200
         Width = 240
         Caption = 'Advanced Selection'
         Enabled = False
@@ -388,7 +388,7 @@ object frmosmain: Tfrmosmain
       object btnCustomSQLQuery: TButton
         Left = 1096
         Height = 38
-        Top = 504
+        Top = 248
         Width = 240
         Caption = 'Custom SQL Query'
         OnClick = btnCustomSQLQueryClick
@@ -641,19 +641,19 @@ object frmosmain: Tfrmosmain
       end
       object ScrollBox1: TScrollBox
         Left = 24
-        Height = 80
+        Height = 82
         Top = 464
         Width = 1048
         HorzScrollBar.Page = 85
         VertScrollBar.Page = 24
         Anchors = [akTop, akLeft, akBottom]
         BorderStyle = bsNone
-        ClientHeight = 80
+        ClientHeight = 82
         ClientWidth = 1048
         TabOrder = 10
         object chkParameters: TCheckGroup
           Left = 0
-          Height = 80
+          Height = 82
           Top = 0
           Width = 1048
           Align = alClient
@@ -674,26 +674,26 @@ object frmosmain: Tfrmosmain
       end
     end
     object tsMainCruises: TTabSheet
-      Caption = 'Cruises'
-      ClientHeight = 561
-      ClientWidth = 1355
+      Caption = 'Cruise search'
+      ClientHeight = 563
+      ClientWidth = 1357
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
       ParentFont = False
       object PageControl2: TPageControl
         Left = 0
-        Height = 561
+        Height = 563
         Top = 0
-        Width = 1355
-        ActivePage = TabSheet1
+        Width = 1357
+        ActivePage = tsCruiseSearch
         Align = alClient
         TabIndex = 0
         TabOrder = 0
-        object TabSheet1: TTabSheet
+        object tsCruiseSearch: TTabSheet
           Caption = 'Search'
-          ClientHeight = 528
-          ClientWidth = 1347
+          ClientHeight = 530
+          ClientWidth = 1349
           object gbAuxiliaryParameters1: TGroupBox
             Left = 16
             Height = 264
@@ -707,11 +707,12 @@ object frmosmain: Tfrmosmain
             Font.Name = 'MS Sans Serif'
             ParentFont = False
             TabOrder = 0
-            object cbPlatform1: TComboBox
+            object cbCruisePlatform: TComboBox
               Left = 168
               Height = 28
               Top = 14
               Width = 584
+              DropDownCount = 10
               Font.Color = clWindowText
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
@@ -719,7 +720,7 @@ object frmosmain: Tfrmosmain
               ParentFont = False
               TabOrder = 0
             end
-            object chkNOTPlatform1: TCheckBox
+            object chkCruiseNOTPlatform: TCheckBox
               Left = 24
               Height = 29
               Top = 16
@@ -731,11 +732,12 @@ object frmosmain: Tfrmosmain
               ParentFont = False
               TabOrder = 1
             end
-            object cbCountry1: TComboBox
+            object cbCruiseCountry: TComboBox
               Left = 168
               Height = 28
               Top = 56
               Width = 584
+              DropDownCount = 10
               Font.Color = clWindowText
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
@@ -743,11 +745,12 @@ object frmosmain: Tfrmosmain
               ParentFont = False
               TabOrder = 2
             end
-            object cbSource1: TComboBox
+            object cbCruiseSource: TComboBox
               Left = 168
               Height = 28
               Top = 96
               Width = 584
+              DropDownCount = 10
               Font.Color = clWindowText
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
@@ -755,11 +758,12 @@ object frmosmain: Tfrmosmain
               ParentFont = False
               TabOrder = 3
             end
-            object cbInstitute1: TComboBox
+            object cbCruiseInstitute: TComboBox
               Left = 168
               Height = 28
               Top = 138
               Width = 584
+              DropDownCount = 10
               Font.Color = clWindowText
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
@@ -767,11 +771,12 @@ object frmosmain: Tfrmosmain
               ParentFont = False
               TabOrder = 4
             end
-            object cbProject1: TComboBox
+            object cbCruiseProject: TComboBox
               Left = 168
               Height = 28
               Top = 180
               Width = 584
+              DropDownCount = 10
               Font.Color = clWindowText
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
@@ -779,7 +784,7 @@ object frmosmain: Tfrmosmain
               ParentFont = False
               TabOrder = 5
             end
-            object chkNOTCountry1: TCheckBox
+            object chkCruiseNOTCountry: TCheckBox
               Left = 24
               Height = 29
               Top = 56
@@ -791,7 +796,7 @@ object frmosmain: Tfrmosmain
               ParentFont = False
               TabOrder = 6
             end
-            object chkNOTSource1: TCheckBox
+            object chkCruiseNOTSource: TCheckBox
               Left = 24
               Height = 29
               Top = 99
@@ -803,7 +808,7 @@ object frmosmain: Tfrmosmain
               ParentFont = False
               TabOrder = 7
             end
-            object chkNOTInstitute1: TCheckBox
+            object chkCruiseNOTInstitute: TCheckBox
               Left = 24
               Height = 29
               Top = 141
@@ -815,7 +820,7 @@ object frmosmain: Tfrmosmain
               ParentFont = False
               TabOrder = 8
             end
-            object chkNOTProject1: TCheckBox
+            object chkCruiseNOTProject: TCheckBox
               Left = 24
               Height = 29
               Top = 183
@@ -837,7 +842,7 @@ object frmosmain: Tfrmosmain
             ClientHeight = 111
             ClientWidth = 236
             TabOrder = 1
-            object seIDMin1: TSpinEdit
+            object seCruiseIDMin: TSpinEdit
               Left = 24
               Height = 28
               Top = 16
@@ -851,7 +856,7 @@ object frmosmain: Tfrmosmain
               TabOrder = 0
               Value = 1
             end
-            object seIDMax1: TSpinEdit
+            object seCruiseIDMax: TSpinEdit
               Left = 24
               Height = 28
               Top = 56
@@ -879,7 +884,7 @@ object frmosmain: Tfrmosmain
             Font.Name = 'MS Sans Serif'
             ParentFont = False
             TabOrder = 2
-            object dtpDateMin1: TDateTimePicker
+            object dtpCruiseDateMin: TDateTimePicker
               Left = 24
               Height = 28
               Top = 16
@@ -905,7 +910,7 @@ object frmosmain: Tfrmosmain
               HideDateTimeParts = []
               MonthNames = 'Long'
             end
-            object dtpDateMax1: TDateTimePicker
+            object dtpCruiseDateMax: TDateTimePicker
               Left = 24
               Height = 28
               Top = 56
@@ -945,7 +950,7 @@ object frmosmain: Tfrmosmain
             Font.Name = 'MS Sans Serif'
             ParentFont = False
             TabOrder = 3
-            object dtpDateAddedMax1: TDateTimePicker
+            object dtpCruiseDateAddedMax: TDateTimePicker
               Left = 24
               Height = 28
               Top = 56
@@ -971,7 +976,7 @@ object frmosmain: Tfrmosmain
               HideDateTimeParts = []
               MonthNames = 'Long'
             end
-            object dtpDateAddedMin1: TDateTimePicker
+            object dtpCruiseDateAddedMin: TDateTimePicker
               Left = 24
               Height = 28
               Top = 14
@@ -1011,7 +1016,7 @@ object frmosmain: Tfrmosmain
             Font.Name = 'MS Sans Serif'
             ParentFont = False
             TabOrder = 4
-            object dtpDateUpdatedMax1: TDateTimePicker
+            object dtpCruiseDateUpdatedMax: TDateTimePicker
               Left = 24
               Height = 28
               Top = 56
@@ -1037,7 +1042,7 @@ object frmosmain: Tfrmosmain
               HideDateTimeParts = []
               MonthNames = 'Long'
             end
-            object dtpDateUpdatedMin1: TDateTimePicker
+            object dtpCruiseDateUpdatedMin: TDateTimePicker
               Left = 24
               Height = 28
               Top = 14
@@ -1065,7 +1070,7 @@ object frmosmain: Tfrmosmain
             end
           end
           object btnSelectCruises: TButton
-            Left = 1096
+            Left = 1088
             Height = 57
             Top = 24
             Width = 240
@@ -1073,13 +1078,13 @@ object frmosmain: Tfrmosmain
             Font.Color = clWindowText
             Font.Height = -17
             Font.Name = 'MS Sans Serif'
-            OnClick = btnSelectStationsClick
+            OnClick = btnSelectCruisesClick
             ParentFont = False
             TabOrder = 5
           end
           object lbResetSearchCruises: TLabel
             Cursor = crHandPoint
-            Left = 1096
+            Left = 1088
             Height = 20
             Top = 96
             Width = 95
@@ -1090,28 +1095,29 @@ object frmosmain: Tfrmosmain
             Font.Style = [fsUnderline]
             ParentColor = False
             ParentFont = False
-            OnClick = lbResetSearchStationsClick
+            OnClick = lbResetSearchCruisesClick
           end
         end
-        object TabSheet2: TTabSheet
+        object tsCruiseResults: TTabSheet
           Caption = 'Results'
-          ClientHeight = 528
-          ClientWidth = 1347
+          ClientHeight = 530
+          ClientWidth = 1349
+          TabVisible = False
           object pCruiseGrid: TPanel
             Left = 0
-            Height = 462
+            Height = 464
             Top = 0
-            Width = 1347
+            Width = 1349
             Align = alClient
             BevelOuter = bvNone
-            ClientHeight = 462
-            ClientWidth = 1347
+            ClientHeight = 464
+            ClientWidth = 1349
             TabOrder = 0
             object DBGridCruise1: TDBGrid
               Left = 0
-              Height = 251
+              Height = 253
               Top = 33
-              Width = 1347
+              Width = 1349
               Align = alClient
               AlternateColor = 13631478
               AutoAdvance = aaNone
@@ -1158,22 +1164,20 @@ object frmosmain: Tfrmosmain
                   MaxSize = 300
                   Title.Caption = 'Start date'
                   FieldName = 'DATE_START'
+                  DisplayFormat = 'DD.MM.YYYY hh:nn:ss'
                 end              
                 item
                   MinSize = 15
                   MaxSize = 300
                   Title.Caption = 'Finish date'
                   FieldName = 'DATE_END'
+                  DisplayFormat = 'DD.MM.YYYY hh:nn:ss'
                 end              
                 item
                   MinSize = 15
                   MaxSize = 300
                   Title.Caption = 'Stations'
                   FieldName = 'STATIONS_AMOUNT'
-                end              
-                item
-                  Title.Caption = 'Completed'
-                  FieldName = 'COMPLETE'
                 end>
               DataSource = frmdm.DSCruise
               FixedCols = 0
@@ -1203,8 +1207,8 @@ object frmosmain: Tfrmosmain
               Cursor = crVSplit
               Left = 0
               Height = 8
-              Top = 284
-              Width = 1347
+              Top = 286
+              Width = 1349
               Align = alBottom
               ResizeAnchor = akBottom
             end
@@ -1212,7 +1216,7 @@ object frmosmain: Tfrmosmain
               Left = 0
               Height = 33
               Top = 0
-              Width = 1347
+              Width = 1349
               AutoSize = True
               ButtonHeight = 33
               ButtonWidth = 50
@@ -1231,6 +1235,8 @@ object frmosmain: Tfrmosmain
                 Enabled = False
                 ImageIndex = 940
                 OnClick = btnSaveCruiseClick
+                ParentShowHint = False
+                ShowHint = True
               end
               object btnAddCruise: TToolButton
                 Left = 1
@@ -1238,10 +1244,11 @@ object frmosmain: Tfrmosmain
                 Top = 0
                 AutoSize = True
                 Caption = 'Add new cruise'
-                Enabled = False
                 ImageIndex = 1
                 OnClick = btnAddCruiseClick
+                ParentShowHint = False
                 ShowCaption = False
+                ShowHint = True
               end
               object ToolButton8: TToolButton
                 Left = 51
@@ -1254,8 +1261,8 @@ object frmosmain: Tfrmosmain
             object DBGridCruise2: TDBGrid
               Left = 0
               Height = 170
-              Top = 292
-              Width = 1347
+              Top = 294
+              Width = 1349
               Align = alBottom
               AlternateColor = 13631478
               AutoAdvance = aaNone
@@ -1287,6 +1294,11 @@ object frmosmain: Tfrmosmain
                   MaxSize = 300
                   Title.Caption = 'PI'
                   FieldName = 'PI'
+                end              
+                item
+                  ButtonStyle = cbsCheckboxColumn
+                  Title.Caption = 'Completed'
+                  FieldName = 'COMPLETE'
                 end              
                 item
                   ReadOnly = True
@@ -1321,15 +1333,14 @@ object frmosmain: Tfrmosmain
               OnEditingDone = DBGridCruise2EditingDone
               OnPrepareCanvas = DBGridCruise1PrepareCanvas
               OnSelectEditor = DBGridCruise2SelectEditor
-              OnTitleClick = DBGridCruise1TitleClick
-              OnUserCheckboxState = DBGridCruise1UserCheckboxState
+              OnTitleClick = DBGridCruise2TitleClick
             end
           end
           object DBMemoCruises: TDBMemo
             Left = 0
             Height = 66
-            Top = 462
-            Width = 1347
+            Top = 464
+            Width = 1349
             Align = alBottom
             DataField = 'NOTES'
             DataSource = frmdm.DSCruise
@@ -1344,18 +1355,18 @@ object frmosmain: Tfrmosmain
       end
     end
     object tsMainEntries: TTabSheet
-      Caption = 'Entries'
-      ClientHeight = 561
-      ClientWidth = 1355
+      Caption = 'Entry search'
+      ClientHeight = 563
+      ClientWidth = 1357
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
       ParentFont = False
       object DBGridEntry: TDBGrid
         Left = 0
-        Height = 529
+        Height = 531
         Top = 32
-        Width = 1041
+        Width = 1043
         Align = alClient
         AlternateColor = 13631478
         AutoAdvance = aaNone
@@ -1422,8 +1433,8 @@ object frmosmain: Tfrmosmain
         OnUserCheckboxState = DBGridEntryUserCheckboxState
       end
       object DBMemoEntriy: TDBMemo
-        Left = 1049
-        Height = 529
+        Left = 1051
+        Height = 531
         Top = 32
         Width = 306
         Align = alRight
@@ -1437,8 +1448,8 @@ object frmosmain: Tfrmosmain
         TabOrder = 1
       end
       object Splitter2: TSplitter
-        Left = 1041
-        Height = 529
+        Left = 1043
+        Height = 531
         Top = 32
         Width = 8
         Align = alRight
@@ -1449,11 +1460,11 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 32
         Top = 0
-        Width = 1355
+        Width = 1357
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 32
-        ClientWidth = 1355
+        ClientWidth = 1357
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -1506,7 +1517,7 @@ object frmosmain: Tfrmosmain
         object ToolBar2: TToolBar
           Left = 288
           Top = 0
-          Width = 1067
+          Width = 1069
           Align = alClient
           AutoSize = True
           ButtonHeight = 33
@@ -1551,15 +1562,15 @@ object frmosmain: Tfrmosmain
       end
     end
     object tsMetadata: TTabSheet
-      Caption = 'Metadata'
-      ClientHeight = 561
-      ClientWidth = 1355
+      Caption = 'Selected stations'
+      ClientHeight = 563
+      ClientWidth = 1357
       TabVisible = False
       object ToolBar3: TToolBar
         Left = 0
         Height = 33
         Top = 0
-        Width = 1355
+        Width = 1357
         AutoSize = True
         Caption = 'ToolBar3'
         EdgeBorders = []
@@ -1615,9 +1626,9 @@ object frmosmain: Tfrmosmain
       end
       object DBGridStation2: TDBGrid
         Left = 0
-        Height = 241
+        Height = 243
         Top = 320
-        Width = 1355
+        Width = 1357
         Align = alClient
         AlternateColor = 13631478
         AutoAdvance = aaNone
@@ -1722,7 +1733,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 8
         Top = 312
-        Width = 1355
+        Width = 1357
         Align = alTop
         Beveled = True
         ResizeAnchor = akTop
@@ -1731,7 +1742,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 279
         Top = 33
-        Width = 1355
+        Width = 1357
         Align = alTop
         AlternateColor = 13631478
         AutoAdvance = aaNone
@@ -1830,12 +1841,12 @@ object frmosmain: Tfrmosmain
     Left = 0
     Height = 74
     Top = 0
-    Width = 1363
+    Width = 1365
     Align = alTop
     BevelOuter = bvNone
     BorderStyle = bsSingle
     ClientHeight = 70
-    ClientWidth = 1359
+    ClientWidth = 1361
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
@@ -1858,17 +1869,17 @@ object frmosmain: Tfrmosmain
       Left = 104
       Height = 70
       Top = 0
-      Width = 1255
+      Width = 1257
       Align = alClient
       BevelOuter = bvNone
       ClientHeight = 70
-      ClientWidth = 1255
+      ClientWidth = 1257
       TabOrder = 1
       object sbDatabase: TStatusBar
         Left = 0
         Height = 36
         Top = 0
-        Width = 1255
+        Width = 1257
         Align = alTop
         Font.Color = clWindowText
         Font.Height = -17
@@ -1906,7 +1917,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 36
         Top = 36
-        Width = 1255
+        Width = 1257
         Align = alTop
         BorderSpacing.Bottom = 2
         Font.Color = clWindowText
@@ -2070,6 +2081,7 @@ object frmosmain: Tfrmosmain
       Caption = 'Import'
       object iInitialDatabase: TMenuItem
         Caption = 'Initial Database (*.fdb)'
+        OnClick = iInitialDatabaseClick
       end
     end
     object MenuItem7: TMenuItem
@@ -2182,7 +2194,7 @@ object frmosmain: Tfrmosmain
     left = 240
     top = 328
     object iSelectCruise: TMenuItem
-      Caption = 'Select'
+      Caption = 'Select stations'
       ImageIndex = 14
       OnClick = iSelectCruiseClick
     end
@@ -2190,7 +2202,8 @@ object frmosmain: Tfrmosmain
       Caption = '-'
     end
     object iUpdateCruise: TMenuItem
-      Caption = 'Update Info'
+      Caption = 'Update cruise info'
+      ImageIndex = 50
       OnClick = iUpdateCruiseClick
     end
   end

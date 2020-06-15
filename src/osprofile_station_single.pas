@@ -20,6 +20,8 @@ type
     btnAdd: TToolButton;
     btnCommit: TToolButton;
     btnDelete: TToolButton;
+    cbInstrument: TComboBox;
+    cbProfileNumber: TComboBox;
     Chart1: TChart;
     cbParameters: TComboBox;
     ChartToolset1: TChartToolset;
@@ -27,9 +29,12 @@ type
     ChartToolset1DataPointHintTool1: TDataPointHintTool;
     ChartToolset1ZoomDragTool1: TZoomDragTool;
     ChartToolset1ZoomMouseWheelTool1: TZoomMouseWheelTool;
-    cbInstrument: TComboBox;
-    cbProfileNumber: TComboBox;
     DS: TDataSource;
+    Label1: TLabel;
+    Label2: TLabel;
+    iSetProfileNum1: TMenuItem;
+    MenuItem2: TMenuItem;
+    Panel3: TPanel;
     PM: TPopupMenu;
     Series1: TLineSeries;
     DBGridSingleProfile: TDBGrid;
@@ -42,9 +47,6 @@ type
     StatusBar1: TStatusBar;
     StatusBar2: TStatusBar;
     ToolBar1: TToolBar;
-    ToolButton1: TToolButton;
-    btnSetProfNum1: TToolButton;
-    ToolButton3: TToolButton;
     ToolButton4: TToolButton;
 
     procedure btnAddClick(Sender: TObject);
@@ -61,6 +63,7 @@ type
       var Editor: TWinControl);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormShow(Sender: TObject);
+    procedure iSetProfileNum1Click(Sender: TObject);
     procedure SetFlagAboveClick(Sender: TObject);
     procedure SetFlagBelowClick(Sender: TObject);
 
@@ -174,7 +177,6 @@ cbParameters.OnChange(self);
 end;
 
 
-
 procedure Tfrmprofile_station_single.cbParametersChange(Sender: TObject);
 Var
   ID:integer;
@@ -198,24 +200,14 @@ end;
 procedure Tfrmprofile_station_single.btnCommitClick(Sender: TObject);
 Var
   ID:integer;
-  Qtt:TSQLQuery;
-  TRt:TSQLTransaction;
 begin
   ID:=frmdm.Q.FieldByName('ID').AsInteger;
 
   try
    Qt.DisableControls;
 
-     TRt:=TSQLTransaction.Create(self);
-     TRt.DataBase:=frmdm.IBDB;
-     //Trt.
-
-     Qtt:=TSQLQuery.Create(self);
-     Qtt.Database:=frmdm.IBDB;
-     Qtt.Transaction:=TRt;
-
      try
-       with Qtt do begin
+       with frmdm.q1 do begin
          Close;
            Sql.Clear;
            SQL.Add(' DELETE FROM ');
@@ -226,11 +218,11 @@ begin
          ExecSQL;
          Close;
         end;
-     Trt.CommitRetaining;
+     frmdm.TR.CommitRetaining;
 
      Qt.First;
      while not Qt.Eof do begin
-      with Qtt do begin
+      with frmdm.q1 do begin
        Close;
         Sql.Clear;
         SQL.Add('insert into');
@@ -255,17 +247,15 @@ begin
      Qt.Next;
    end;
 
-   TRt.Commit;
+   frmdm.TR.CommitRetaining;
    except
     On E :Exception do begin
      ShowMessage(E.Message);
-     TRt.Rollback;
+     frmdm.TR.RollbackRetaining;
     end;
    end;
 
    finally
-     Qtt.Free;
-     Trt.Free;
      Qt.EnableControls;
    end;
 
@@ -320,8 +310,8 @@ if (CurrentParTable='') then CurrentParTable:=cbParameters.Items.Strings[0];
   if (cbInstrument.ItemIndex=-1) then begin
    Series1.Clear;
    Qt.Close;
-   for k:=0 to StatusBar1.Panels.Count-1 do StatusBar1.Panels.Items[k].Text:='';
-   for k:=0 to StatusBar2.Panels.Count-1 do StatusBar2.Panels.Items[k].Text:='';
+   for k:=1 to StatusBar1.Panels.Count-1 do StatusBar1.Panels.Items[k].Text:='';
+   for k:=1 to StatusBar2.Panels.Count-1 do StatusBar2.Panels.Items[k].Text:='';
    exit;
   end;
 
@@ -629,8 +619,15 @@ begin
    Qt.RecNo:=Cur_pos;
    Qt.EnableControls;
  end;
+end;
+
+
+procedure Tfrmprofile_station_single.iSetProfileNum1Click(Sender: TObject);
+begin
 
 end;
+
+
 
 procedure Tfrmprofile_station_single.FormClose(Sender: TObject;
   var CloseAction: TCloseAction);

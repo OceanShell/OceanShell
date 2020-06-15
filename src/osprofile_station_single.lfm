@@ -1,7 +1,7 @@
 object frmprofile_station_single: Tfrmprofile_station_single
-  Left = 412
+  Left = 363
   Height = 634
-  Top = 153
+  Top = 220
   Width = 1165
   Caption = 'frmprofile_station_single'
   ClientHeight = 634
@@ -97,9 +97,8 @@ object frmprofile_station_single: Tfrmprofile_station_single
       Left = 0
       Top = 0
       Width = 830
-      AutoSize = True
       ButtonHeight = 30
-      ButtonWidth = 93
+      ButtonWidth = 50
       Caption = 'ToolBar1'
       Font.Color = clWindowText
       Font.Height = -17
@@ -112,7 +111,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
       ShowHint = True
       TabOrder = 0
       object btnAdd: TToolButton
-        Left = 162
+        Left = 400
         Hint = 'Add level'
         Top = 2
         Caption = 'Add'
@@ -120,7 +119,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
         OnClick = btnAddClick
       end
       object btnDelete: TToolButton
-        Left = 255
+        Left = 455
         Hint = 'Delete level'
         Top = 2
         Caption = 'Delete'
@@ -128,62 +127,69 @@ object frmprofile_station_single: Tfrmprofile_station_single
         OnClick = btnDeleteClick
       end
       object btnCommit: TToolButton
-        Left = 353
+        Left = 535
         Hint = 'Commit changes'
         Top = 2
-        AutoSize = True
-        Caption = 'Save Changes'
+        Caption = 'Save'
         ImageIndex = 940
         OnClick = btnCommitClick
       end
-      object ToolButton3: TToolButton
-        Left = 482
-        Height = 30
-        Top = 2
-        Caption = 'ToolButton3'
-        Style = tbsDivider
-      end
-      object cbInstrument: TComboBox
-        Left = 1
-        Height = 29
-        Hint = 'Instrument'
-        Top = 2
-        Width = 78
-        ItemHeight = 21
-        OnChange = cbInstrumentChange
-        Style = csDropDownList
-        TabOrder = 0
-      end
-      object cbProfileNumber: TComboBox
-        Left = 79
-        Height = 29
-        Hint = 'Profile number'
-        Top = 2
-        Width = 78
-        ItemHeight = 21
-        OnChange = cbProfileNumberChange
-        Style = csDropDownList
-        TabOrder = 1
-      end
-      object ToolButton1: TToolButton
-        Left = 157
-        Height = 30
-        Top = 2
-        Caption = 'ToolButton1'
-        Style = tbsDivider
-      end
-      object btnSetProfNum1: TToolButton
-        Left = 487
-        Hint = 'Set current profile number to 1'
-        Top = 2
-        Caption = 'Profile number = 1'
-      end
       object ToolButton4: TToolButton
-        Left = 348
+        Left = 530
         Height = 30
         Top = 2
         Caption = 'ToolButton4'
         Style = tbsDivider
+      end
+      object Panel3: TPanel
+        Left = 0
+        Height = 35
+        Top = 0
+        Width = 400
+        Align = alTop
+        BevelOuter = bvNone
+        ClientHeight = 35
+        ClientWidth = 400
+        TabOrder = 0
+        object Label1: TLabel
+          Left = 8
+          Height = 21
+          Top = 6
+          Width = 82
+          Caption = 'Instrument'
+          Layout = tlCenter
+          ParentColor = False
+        end
+        object cbInstrument: TComboBox
+          Left = 104
+          Height = 29
+          Hint = 'Instrument'
+          Top = 2
+          Width = 70
+          ItemHeight = 21
+          OnChange = cbInstrumentChange
+          Style = csDropDownList
+          TabOrder = 0
+        end
+        object Label2: TLabel
+          Left = 192
+          Height = 21
+          Top = 6
+          Width = 107
+          Caption = 'Profile number'
+          ParentColor = False
+        end
+        object cbProfileNumber: TComboBox
+          Left = 312
+          Height = 29
+          Hint = 'Profile number'
+          Top = 2
+          Width = 70
+          ItemHeight = 21
+          OnChange = cbProfileNumberChange
+          Style = csDropDownList
+          TabOrder = 1
+        end
       end
     end
     object DBGridSingleProfile: TDBGrid
@@ -365,12 +371,19 @@ object frmprofile_station_single: Tfrmprofile_station_single
     left = 584
     top = 179
     object SetFlagBelow: TMenuItem
-      Caption = 'Set selected flag BELOW this level'
+      Caption = 'Set selected PQF2 BELOW this level'
       OnClick = SetFlagBelowClick
     end
     object SetFlagAbove: TMenuItem
-      Caption = 'Set selected flag ABOVE this level'
+      Caption = 'Set selected PQF2 ABOVE this level'
       OnClick = SetFlagAboveClick
+    end
+    object MenuItem2: TMenuItem
+      Caption = '-'
+    end
+    object iSetProfileNum1: TMenuItem
+      Caption = 'Set profile number  = 1'
+      OnClick = iSetProfileNum1Click
     end
   end
 end
