@@ -32,6 +32,7 @@ type
     aOpenDatabase: TAction;
     aMapAllStations: TAction;
     AL: TActionList;
+    btnOpenOceanFDB: TBitBtn;
     btnadd: TToolButton;
     btnAddCruise: TToolButton;
     btnAddCruise1: TToolButton;
@@ -39,22 +40,33 @@ type
     btndelete: TToolButton;
     btnsave: TToolButton;
     btnSaveCruise: TToolButton;
-    btnSaveCruise1: TToolButton;
-    btnSelection: TButton;
+    btnSaveEntry: TToolButton;
+    btnSelectStations: TButton;
     btnAdvancedSelection: TButton;
     btnCustomSQLQuery: TButton;
+    btnSelectCruises: TButton;
     cbCountry: TComboBox;
+    cbCountry1: TComboBox;
+    cbInstitute1: TComboBox;
+    cbPlatform1: TComboBox;
+    cbProject1: TComboBox;
     cbQCFlag1: TComboBox;
     cbQCFlag2: TComboBox;
     cbSource: TComboBox;
     cbInstitute: TComboBox;
     cbProject: TComboBox;
-    chkParameters: TCheckGroup;
+    cbSource1: TComboBox;
+    chkNOTCountry1: TCheckBox;
+    chkNOTInstitute1: TCheckBox;
     chkNOTPlatform: TCheckBox;
     chkNOTCountry: TCheckBox;
+    chkNOTPlatform1: TCheckBox;
+    chkNOTProject1: TCheckBox;
     chkNOTSource: TCheckBox;
     chkNOTInstitute: TCheckBox;
     chkNOTProject: TCheckBox;
+    chkNOTSource1: TCheckBox;
+    chkParameters: TCheckGroup;
     chkPeriod: TCheckBox;
     cbPlatform: TComboBox;
     DBGridCruise1: TDBGrid;
@@ -64,40 +76,44 @@ type
     DBGridStation1: TDBGrid;
     DBMemoCruises: TDBMemo;
     DBMemoEntriy: TDBMemo;
+    dtpDateAddedMax1: TDateTimePicker;
+    dtpDateAddedMin: TDateTimePicker;
+    dtpDateAddedMin1: TDateTimePicker;
+    dtpDateMax1: TDateTimePicker;
+    dtpDateMin1: TDateTimePicker;
+    dtpDateUpdatedMax1: TDateTimePicker;
+    dtpDateUpdatedMin: TDateTimePicker;
     dtpDateMin: TDateTimePicker;
     dtpDateMax: TDateTimePicker;
-    eCruise_COUNTRY: TEdit;
-    eCruise_ID: TEdit;
-    eCruise_Institute: TEdit;
-    eCruise_NUMBER: TEdit;
-    eCruise_PI: TEdit;
-    eCruise_PLATFORM: TEdit;
-    eCruise_Project: TEdit;
-    eCruise_SOURCE: TEdit;
+    dtpDateAddedMax: TDateTimePicker;
+    dtpDateUpdatedMax: TDateTimePicker;
+    dtpDateUpdatedMin1: TDateTimePicker;
     eEntry_ID: TEdit;
     eEntry_Title: TEdit;
     eEntry_Type: TEdit;
+    gbAuxiliaryParameters1: TGroupBox;
+    GroupBox10: TGroupBox;
     GroupBox2: TGroupBox;
     gbAuxiliaryParameters: TGroupBox;
+    GroupBox3: TGroupBox;
+    GroupBox4: TGroupBox;
+    GroupBox5: TGroupBox;
+    GroupBox6: TGroupBox;
+    GroupBox7: TGroupBox;
+    GroupBox8: TGroupBox;
+    GroupBox9: TGroupBox;
     iProfilesAll: TMenuItem;
     ishowselectedstation: TMenuItem;
     iUpdateLastLevel: TMenuItem;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
-    lbResetArea: TLabel;
-    lbResetDates: TLabel;
+    lbResetSearchStations: TLabel;
     iLoad_Pangaea_CTD_tab: TMenuItem;
-    lbResetAux: TLabel;
     iLoad_WOD18: TMenuItem;
     iMap: TMenuItem;
     iSupportTables: TMenuItem;
     iImport: TMenuItem;
     iInitialDatabase: TMenuItem;
     iUpdateCruise: TMenuItem;
+    lbResetSearchCruises: TLabel;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
     MenuItem12: TMenuItem;
@@ -117,20 +133,22 @@ type
     iService: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
+    PageControl2: TPageControl;
     Panel1: TPanel;
-    pCruiseBottom: TPanel;
-    pCruiseFilter2: TPanel;
+    Panel2: TPanel;
     pCruiseGrid: TPanel;
-    pCruiseFilter1: TPanel;
     pEntryFilter: TPanel;
     PMStation: TPopupMenu;
     PMCruise: TPopupMenu;
     PMEntry: TPopupMenu;
     sbDatabase: TStatusBar;
     sbSelection: TStatusBar;
-    seIDMax: TSpinEdit;
-    seIDMin: TSpinEdit;
     ODir: TSelectDirectoryDialog;
+    ScrollBox1: TScrollBox;
+    seIDMax: TSpinEdit;
+    seIDMax1: TSpinEdit;
+    seIDMin: TSpinEdit;
+    seIDMin1: TSpinEdit;
     seLonMin: TFloatSpinEdit;
     seLonMax: TFloatSpinEdit;
     seLatMax: TFloatSpinEdit;
@@ -160,10 +178,11 @@ type
     N3: TMenuItem;
     iExit: TMenuItem;
     ListBox1: TListBox;
-    Splitter1: TSplitter;
     Splitter2: TSplitter;
     Splitter3: TSplitter;
     Splitter4: TSplitter;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
     tbCruise: TToolBar;
     tbFastAccess: TToolBar;
     ToolButton4: TToolButton;
@@ -192,8 +211,9 @@ type
     procedure btnAddCruiseClick(Sender: TObject);
     procedure btnAdvancedSelectionClick(Sender: TObject);
     procedure btnCustomSQLQueryClick(Sender: TObject);
+    procedure btnOpenOceanFDBClick(Sender: TObject);
     procedure btnSaveCruiseClick(Sender: TObject);
-    procedure btnSelectionClick(Sender: TObject);
+    procedure btnSelectStationsClick(Sender: TObject);
     procedure DBGridCruise1CellClick(Column: TColumn);
     procedure DBGridCruise1ColumnSized(Sender: TObject);
     procedure DBGridCruise1EditingDone(Sender: TObject);
@@ -240,9 +260,7 @@ type
     procedure iSettingsClick(Sender: TObject);
     procedure iSupportTablesClick(Sender: TObject);
     procedure iUpdateLastLevelClick(Sender: TObject);
-    procedure lbResetAreaClick(Sender: TObject);
-    procedure lbResetAuxClick(Sender: TObject);
-    procedure lbResetDatesClick(Sender: TObject);
+    procedure lbResetSearchStationsClick(Sender: TObject);
     procedure iUpdateCruiseClick(Sender: TObject);
     procedure iExportASCIIClick(Sender: TObject);
 
@@ -299,6 +317,7 @@ var
 
   IBLatMin,IBLatMax,IBLonMin,IBLonMax,SLatMin,SLatMax,SLonMin,SLonMax:Real;
   IBDateMin, IBDateMax, SDateMin, SDateMax :TDateTime;
+  IBDateAddedMin, IBDateAddedMax, IBDateUpdatedMin, IBDateUpdatedMax :TDateTime;
   IBCount, SCount, IDMin, IDMax:Integer; //number OD stations in database and selection
 
 
@@ -347,7 +366,6 @@ uses
   ossupporttables,
   osservice,
   osservicestatistics,
-  osQC_test,
 
 (* data export *)
   osexport_divand,
@@ -428,10 +446,14 @@ begin
     cbProject.Text   :=Ini.ReadString ( 'osmain', 'project',   '');
     dtpDateMin.DateTime:=Ini.ReadDateTime('osmain', 'datemin', now);
     dtpDateMax.DateTime:=Ini.ReadDateTime('osmain', 'datemax', now);
+    dtpDateAddedMin.DateTime:=Ini.ReadDateTime('osmain', 'dateaddedmin', now);
+    dtpDateAddedMax.DateTime:=Ini.ReadDateTime('osmain', 'dateaddedmax', now);
+    dtpDateUpdatedMin.DateTime:=Ini.ReadDateTime('osmain', 'dateupdatedmin', now);
+    dtpDateUpdatedMax.DateTime:=Ini.ReadDateTime('osmain', 'dateupdatedmax', now);
 
     (* CRUISE table columns *)
     DBMemoCruises.width := Ini.ReadInteger( 'osmain', 'pCruiseNotes_Width', 250);
-    pCruiseBottom.Height:= Ini.ReadInteger( 'osmain', 'pCruiseBottom_Height', 200);
+    DBGridCruise2.Height:= Ini.ReadInteger( 'osmain', 'pCruiseBottom_Height', 200);
     With DBGridCruise1 do begin
      Columns[0].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col00',  30); //CheckBox
      Columns[1].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col01',  50); //ID
@@ -514,13 +536,13 @@ begin
 
    DBGridCruise1.OnColumnSized(Self);
 
-   eCruise_ID.OnChange           := @SearchID;
+ {  eCruise_ID.OnChange           := @SearchID;
    eCruise_PLATFORM.OnChange     := @SearchPLATFORM;
    eCruise_COUNTRY.OnChange      := @SearchCOUNTRY;
    eCruise_SOURCE.OnChange       := @SearchSOURCE;
    eCruise_Project.OnChange      := @SearchPROJECT;
    eCruise_Institute.OnChange    := @SearchINSTITUTE;
-   eCruise_PI.OnChange           := @SearchPI;
+   eCruise_PI.OnChange           := @SearchPI; }
 
 
  //  for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
@@ -532,19 +554,29 @@ begin
 end;
 
 
-procedure Tfrmosmain.FormResize(Sender: TObject);
+
+procedure Tfrmosmain.btnOpenOceanFDBClick(Sender: TObject);
+Var
+  Ini: TIniFile;
+  DBName:string;
 begin
-  tbFastAccess.Top:=PageControl1.Top;
-  tbFastAccess.Left:=Width-10-tbFastAccess.Width;
+  Ini := TIniFile.Create(IniFileName);
+  try
+   DBName:=Ini.ReadString( 'main', 'OceanFDBPath',  '');
+  finally
+    Ini.free;
+  end;
 
-  panel1.Height:=sbDatabase.Height+sbSelection.Height;
-
-  //pStationFiller.Width:=Width-330;
-  Application.ProcessMessages;
+  if FileExists(DBName) then begin
+   IBName:=DBName;
+   OpenDatabase;
+  end else
+   if MessageDlg('Please, specify path to Ocean.fdb', mtWarning, [mbOk], 0)=mrOk then
+    aSettings.Execute();
 end;
 
 
-procedure Tfrmosmain.btnSelectionClick(Sender: TObject);
+procedure Tfrmosmain.btnSelectStationsClick(Sender: TObject);
 var
 i, k, fl:integer;
 SSYearMin,SSYearMax,SSMonthMin,SSMonthMax,SSDayMin,SSDayMax :Word;
@@ -624,6 +656,10 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
          SQL.Add(' AND ((Extract(Day from DATEANDTIME)>= :SSDayMin) or '+
                  '      (Extract(Day from DATEANDTIME)<= :SSDayMax)) ');
     end;
+
+    SQL.Add('  AND (STATION.DATE_ADDED between :SSDateAddedMin and :SSDateAddedMax) ');
+    SQL.Add('  AND (STATION.DATE_UPDATED between :SSDateUpdatedMin and :SSDateUpdatedMax) ');
+
     (* End of Date and Time *)
 
     (* Platform*)
@@ -664,6 +700,10 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
        ParamByName('SSDateMin').AsDateTime:=dtpDateMin.DateTime;
        ParamByName('SSDateMax').AsDateTime:=dtpDateMax.DateTime;
      end;
+    ParamByName('SSDateAddedMin').AsDateTime:=dtpDateAddedMin.DateTime;
+    ParamByName('SSDateAddedMax').AsDateTime:=dtpDateAddedMax.DateTime;
+    ParamByName('SSDateUpdatedMin').AsDateTime:=dtpDateUpdatedMin.DateTime;
+    ParamByName('SSDateUpdatedMax').AsDateTime:=dtpDateUpdatedMax.DateTime;
 
    Open;
    //Last changes
@@ -710,6 +750,8 @@ begin
      First;
    end;
 
+   frmdm.QCruise.RefreshSQL:=frmdm.QCruise.SQL;
+
    SelectionInfo;
    CDSNavigation;
 
@@ -754,32 +796,43 @@ begin
    CDSNavigation;
 end;
 
-
-procedure Tfrmosmain.lbResetAreaClick(Sender: TObject);
+procedure Tfrmosmain.lbResetSearchStationsClick(Sender: TObject);
+Var
+  k:integer;
 begin
   seLatMin.Value:=IBLatMin;
   seLatMax.Value:=IBLatMax;
   seLonMin.Value:=IBLonMin;
   seLonMax.Value:=IBLonMax;
-end;
 
-procedure Tfrmosmain.lbResetAuxClick(Sender: TObject);
-begin
   cbPlatform.Text:='';
   cbCountry.Text:='';
   cbSource.Text:='';
   cbInstitute.Text:='';
   cbProject.Text:='';
 
+  chkNOTPlatform.Checked:=false;
+  chkNOTCountry.Checked:=false;
+  chkNOTSource.Checked:=false;
+  chkNOTInstitute.Checked:=false;
+  chkNOTProject.Checked:=false;
+
   seIDMin.Value:=IDMin;
   seIDMax.Value:=IDMax;
-end;
 
-procedure Tfrmosmain.lbResetDatesClick(Sender: TObject);
-begin
   dtpDateMin.DateTime:=IBDateMin;
   dtpDateMax.DateTime:=IBDateMax;
+  chkPeriod.Checked:=false;
+
+  dtpDateAddedMin.DateTime:=IBDateAddedMin;
+  dtpDateAddedMax.DateTime:=IBDateAddedMax;
+  dtpDateUpdatedMin.DateTime:=IBDateUpdatedMin;
+  dtpDateUpdatedMax.DateTime:=IBDateUpdatedMax;
+
+  for k:=0 to chkParameters.Items.Count-1 do
+    chkParameters.Checked[k]:=false;
 end;
+
 
 procedure Tfrmosmain.iDBStatisticsClick(Sender: TObject);
 begin
@@ -980,7 +1033,11 @@ Qt_DB1.Transaction:=TRt_DB1;
         SQL.Add(' min(LATITUDE) as StLatMin, max(LATITUDE) as StLatMax, ');
         SQL.Add(' min(LONGITUDE) as StLonMin, max(LONGITUDE) as StLonMax, ');
         SQL.Add(' min(DATEANDTIME) as StDateMin, ');
-        SQL.Add(' max(DATEANDTIME) as StDateMax ');
+        SQL.Add(' max(DATEANDTIME) as StDateMax, ');
+        SQL.Add(' min(DATE_ADDED) as StDateAddedMin, ');
+        SQL.Add(' max(DATE_ADDED) as StDateAddedMax, ');
+        SQL.Add(' min(DATE_UPDATED) as StDateUpdatedMin, ');
+        SQL.Add(' max(DATE_UPDATED) as StDateUpdatedMax ');
         SQL.Add(' from STATION');
     Open;
       IBCount:=FieldByName('StCount').AsInteger;
@@ -993,6 +1050,10 @@ Qt_DB1.Transaction:=TRt_DB1;
          IBLonMax  :=FieldByName('StLonMax').AsFloat;
          IBDateMin :=FieldByName('StDateMin').AsDateTime;
          IBDateMax :=FieldByName('StDateMax').AsDateTime;
+         IBDateAddedMin :=FieldByName('StDateAddedMin').AsDateTime;
+         IBDateAddedMax :=FieldByName('StDateAddedMax').AsDateTime;
+         IBDateUpdatedMin :=FieldByName('StDateUpdatedMin').AsDateTime;
+         IBDateUpdatedMax :=FieldByName('StDateUpdatedMax').AsDateTime;
 
          with sbDatabase do begin
            Panels[1].Text:='LtMin: '+floattostr(IBLatMin);
@@ -1021,6 +1082,10 @@ Qt_DB1.Transaction:=TRt_DB1;
 
            dtpDateMin.DateTime:=IBDateMin;
            dtpDateMax.DateTime:=IBDateMax;
+           dtpDateAddedMin.DateTime:=IBDateAddedMin;
+           dtpDateAddedMax.DateTime:=IBDateAddedMax;
+           dtpDateUpdatedMin.DateTime:=IBDateUpdatedMin;
+           dtpDateUpdatedMax.DateTime:=IBDateUpdatedMax;
          end;
 
       end else for k:=1 to 7 do sbDatabase.Panels[k].Text:='---';
@@ -1278,18 +1343,29 @@ if NavigationOrder=false then exit;
  end;
 end;
 
-
 procedure Tfrmosmain.iNewDatabaseClick(Sender: TObject);
+Var
+  Ini:TIniFile;
+  DBName:string;
 begin
- SD.Filter:='Firebird database|*.FDB';
- SD.DefaultExt:='FDB';
- if SD.Execute then begin
-    CreateNewDB(SD.FileName);
-     frmdm.IBDB.Close;
-     frmdm.IBDB.DatabaseName:=SD.FileName;
-    IBName:=frmdm.IBDB.DatabaseName;
-  OpenDatabase;
- end;
+  Ini := TIniFile.Create(IniFileName);
+  try
+   DBName:=Ini.ReadString( 'main', 'OceanFDBPath',  '');
+  finally
+    Ini.free;
+  end;
+
+  if FileExists(DBName) then begin
+   frmcreatenewdb := Tfrmcreatenewdb.Create(Self);
+    try
+     if not frmcreatenewdb.ShowModal = mrOk then exit;
+    finally
+      frmcreatenewdb.Free;
+      frmcreatenewdb := nil;
+    end;
+  end else
+   if MessageDlg('Please, specify path to Ocean.fdb', mtWarning, [mbOk], 0)=mrOk then
+    aSettings.Execute();
 end;
 
 procedure Tfrmosmain.iSupportTablesClick(Sender: TObject);
@@ -1355,8 +1431,7 @@ begin
       inc(k);
       ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
 
-     //  if RecListCruise.CurrentRowSelected then begin
-
+       if RecListCruise.CurrentRowSelected then begin
          with frmdm.q1 do begin
             ParamByName('CR_ID').AsInteger:=ID;
           Open;
@@ -1370,7 +1445,7 @@ begin
            ExecSQL;
          end;
          frmdm.q1.Close;
-     //  end;
+       end;
       Procedures.ProgressTaskbar(k, frmdm.QCruise.RecordCount-1);
       frmdm.QCruise.Next;
     end;
@@ -1379,6 +1454,7 @@ begin
        mtInformation, [mbOk], 0)=mrOk then Procedures.ProgressTaskbar(0, 0);
 
   finally
+    if frmdm.QCruise.Modified then btnSaveCruise.OnClick(self);
     frmdm.QCruise.Refresh;
     frmdm.QCruise.EnableControls;
   end;
@@ -1601,13 +1677,13 @@ end;
 
 procedure Tfrmosmain.eCruise_IDClick(Sender: TObject);
 begin
-   eCruise_ID.Clear;
+ {  eCruise_ID.Clear;
    eCruise_PLATFORM.Clear;
    eCruise_COUNTRY.Clear;
    eCruise_SOURCE.Clear;
    eCruise_Project.Clear;
    eCruise_Institute.Clear;
-   eCruise_PI.Clear;
+   eCruise_PI.Clear; }
   frmdm.QCruise.Filtered:=false;
 end;
 
@@ -1670,7 +1746,7 @@ end;
 
 procedure Tfrmosmain.DBGridCruise1ColumnSized(Sender: TObject);
 begin
-    eCruise_ID.Width:=DBGridCruise1.Columns[0].Width+
+    {eCruise_ID.Width:=DBGridCruise1.Columns[0].Width+
                       DBGridCruise1.Columns[1].Width+1;
     eCruise_PLATFORM.Width:=DBGridCruise1.Columns[2].Width;
     eCruise_NUMBER.Width:=DBGridCruise1.Columns[3].Width;
@@ -1679,7 +1755,7 @@ begin
     eCruise_COUNTRY.Width:=DBGridCruise2.Columns[0].Width;
     eCruise_Institute.Width:=DBGridCruise2.Columns[1].Width;
     eCruise_Project.Width:=DBGridCruise2.Columns[2].Width;
-    eCruise_PI.Width:=DBGridCruise2.Columns[3].Width;
+    eCruise_PI.Width:=DBGridCruise2.Columns[3].Width; }
 end;
 
 
@@ -2013,6 +2089,18 @@ begin
     RecListEntry.CurrentRowSelected := not RecListEntry.CurrentRowSelected;
 end;
 
+
+procedure Tfrmosmain.FormResize(Sender: TObject);
+begin
+  tbFastAccess.Top:=PageControl1.Top;
+  tbFastAccess.Left:=Width-10-tbFastAccess.Width;
+
+  panel1.Height:=sbDatabase.Height+sbSelection.Height;
+
+  //pStationFiller.Width:=Width-330;
+  Application.ProcessMessages;
+end;
+
 procedure Tfrmosmain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 Var
   Ini:TIniFile;
@@ -2039,10 +2127,14 @@ begin
     Ini.WriteString  ( 'osmain', 'project',  cbProject.Text);
     Ini.WriteDateTime( 'osmain', 'datemin',  dtpDateMin.DateTime);
     Ini.WriteDateTime( 'osmain', 'datemax',  dtpDateMax.DateTime);
+    Ini.WriteDateTime( 'osmain', 'dateaddedmin',   dtpDateAddedMin.DateTime);
+    Ini.WriteDateTime( 'osmain', 'dateaddedmax',   dtpDateAddedMax.DateTime);
+    Ini.WriteDateTime( 'osmain', 'dateupdatedmin', dtpDateUpdatedMin.DateTime);
+    Ini.WriteDateTime( 'osmain', 'dateupdatedmax', dtpDateUpdatedMax.DateTime);
 
     (* cruise table columns *)
     Ini.WriteInteger( 'osmain', 'pCruiseNotes_Width',   DBMemoCruises.width);
-    Ini.WriteInteger( 'osmain', 'pCruiseBottom_Height', pCruiseBottom.Height);
+    Ini.WriteInteger( 'osmain', 'pCruiseBottom_Height', DBGridCruise2.Height);
     With DBGridCruise1 do begin
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col00', Columns[0].Width);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col01', Columns[1].Width);

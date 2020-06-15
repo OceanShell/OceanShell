@@ -13,7 +13,7 @@ type
   { Tfrmload_argo }
 
   Tfrmload_argo = class(TForm)
-    Button1: TButton;
+    btnUpdateCruise: TButton;
     Button2: TButton;
     btnParameters: TButton;
     Button3: TButton;
@@ -21,7 +21,7 @@ type
     Label1: TLabel;
     Memo1: TMemo;
     procedure btnParametersClick(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure btnUpdateCruiseClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
 
@@ -43,27 +43,34 @@ implementation
 
 uses osmain, dm, declarations_netcdf;
 
-procedure Tfrmload_argo.Button1Click(Sender: TObject);
+procedure Tfrmload_argo.btnUpdateCruiseClick(Sender: TObject);
 Var
   dat:text;
-  c, k, cnt:integer;
+  c, k, cnt_added, cnt_updated, ID:integer;
   st, fname, prof_type, inst_code, date_upd, platf, buf_str:string;
   country_id, institute_id, project_id: integer;
   stdate_upd:TDateTime;
 
-  Qtt:TSQLQuery;
+  Qt1, Qt2:TSQLQuery;
   TRt:TSQLTransaction;
 begin
+if not FileExists(epath.text+'ar_index_global_meta.txt') then
+  if MessageDlg('ar_index_global_meta.txt cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
 
-     TRt:=TSQLTransaction.Create(self);
-     TRt.DataBase:=frmdm.IBDB;
-     //Trt.
-
-     Qtt:=TSQLQuery.Create(self);
-     Qtt.Database:=frmdm.IBDB;
-     Qtt.Transaction:=TRt;
-
+memo1.Clear;
 try
+    TRt:=TSQLTransaction.Create(self);
+    TRt.DataBase:=frmdm.IBDB;
+
+    Qt1:=TSQLQuery.Create(self);
+    Qt1.Database:=frmdm.IBDB;
+    Qt1.Transaction:=TRt;
+
+    Qt2:=TSQLQuery.Create(self);
+    Qt2.Database:=frmdm.IBDB;
+    Qt2.Transaction:=TRt;
+
+
   AssignFile(dat, epath.text+'ar_index_global_meta.txt');
   reset(dat);
 
@@ -71,13 +78,11 @@ try
    readln(dat, st);
   until copy(st,1, 4)='file';
 
-  cnt:=0;
+  cnt_added:=0;
+  cnt_updated:=0;
   repeat
-   inc(cnt);
    readln(dat, st);
 
-  // file,profiler_type,institution,date_update
-  // aoml/13857/13857_meta.nc,845,AO,20181011200014
 
    c:=0;
    for k:=1 to 4 do begin
@@ -113,73 +118,93 @@ try
 
    platf:=buf_str;
 
-   GetCodes(inst_code, country_id, institute_id, project_id);
+   ID:=20000000+strtoint(platf);
 
-  { with Qtt do begin
+    with Qt1 do begin
+     Close;
+       SQL.Clear;
+       SQL.Add(' SELECT ID, DATE_UPDATED FROM CRUISE WHERE ID=:ID ');
+     ParamByName('ID').AsInteger:=ID;
+    Open;
+   end;
+
+   if Qt1.IsEmpty=false then begin
+    if stdate_upd>Qt1.FieldByName('DATE_UPDATED').AsDateTime then begin
+    // showmessage(datetimetostr(stdate_upd)+'   '+datetimetostr(Qt1.FieldByName('DATE_UPDATED').AsDateTime));
+      with Qt2 do begin
+          Close;
+           Sql.Clear;
+           SQL.Add(' UPDATE CRUISE SET DATE_UPDATED=:DD ');
+           SQL.Add(' WHERE ID=:ID ');
+           ParamByName('ID').Value:=ID;
+           ParamByName('DD').Value:=stdate_upd;
+          ExecSQL;
+      end;
+     inc(cnt_updated);
+     memo1.lines.add('Updated -> '+inttostr(ID));
+     Trt.CommitRetaining;
+    end;
+   end;
+
+   if Qt1.IsEmpty=true then begin
+    GetCodes(inst_code, country_id, institute_id, project_id);
+
+     with Qt2 do begin
        Close;
         Sql.Clear;
-        SQL.Add('insert into PLATFORM');
-        SQL.Add(' (ID, NAME, country_ID, DATE_ADDED) ');
+        SQL.Add(' INSERT INTO PLATFORM ');
+        SQL.Add(' (ID, NAME, COUNTRY_ID, DATE_ADDED, NOTES) ');
         SQL.Add(' VALUES ' );
-        SQL.Add(' (:ID, :name, :country_id, :date_added) ');
-        ParamByName('ID').Value:=cnt;
+        SQL.Add(' (:ID, :name, :country_id, :date_added, :NOTES) ');
+        ParamByName('ID').Value:=ID;
         ParamByName('name').Value:=platf;
         ParamByName('country_id').Value:=country_id;
-        ParamByName('date_added').Value:=now;
-       ExecSQL;
-      end;  }
-
-   {   with Qtt do begin
-       Close;
-        Sql.Clear;
-        SQL.Add('insert into CRUISE');
-        SQL.Add(' (ID, platform_id, source_id, institute_id, project_id, ');
-        SQL.Add(' DATE_ADDED) ');
-        SQL.Add(' VALUES ' );
-        SQL.Add(' (:ID, :platform_id, :source_id, :institute_id, :project_id, ');
-        SQL.Add(' :DATE_ADDED) ');
-        ParamByName('ID').Value:=cnt;
-        ParamByName('platform_id').Value:=cnt;
-       // ParamByName('cruise_number').Value:=5;
-        ParamByName('source_id').Value:=5;
-        ParamByName('institute_id').Value:=institute_id;
-        ParamByName('project_id').Value:=project_id;
-        ParamByName('date_added').Value:=now;
-       ExecSQL;
-      end; }
-
-      with Qtt do begin
-       Close;
-        Sql.Clear;
-        SQL.Add('update CRUISE set ');
-        SQL.Add('cruise_number=:cruise_number, date_added=:d_add, date_updated=:d_upd ');
-        SQL.Add('where id=:id ');
-        ParamByName('ID').Value:=cnt;
-        ParamByName('cruise_number').Value:=platf;
-        ParamByName('d_add').Value:=stdate_upd;
-        ParamByName('d_upd').Value:=stdate_upd;
+        ParamByName('date_added').Value:=stdate_upd;
+        ParamByName('NOTES').AsWideString:='https://fleetmonitoring.euro-argo.eu/float/'+platf;
        ExecSQL;
       end;
+    Trt.CommitRetaining;
 
- {  memo1.lines.add(platf+'   '+
-                   inttostr(country_id)+'   '+
-                   inttostr(institute_id)+'   '+
-                   inttostr(project_id));  }
-
+    with Qt2 do begin
+     Close;
+      SQL.Clear;
+      SQL.Add('insert into CRUISE');
+      SQL.Add(' (ID, platform_id, source_id, institute_id, project_id, ');
+      SQL.Add(' DATE_ADDED, DATE_UPDATED, CRUISE_NUMBER) ');
+      SQL.Add(' VALUES ' );
+      SQL.Add(' (:ID, :platform_id, :source_id, :institute_id, :project_id, ');
+      SQL.Add(' :DATE_ADDED, :DATE_UPDATED, :CRUISE_NUMBER) ');
+      ParamByName('ID').Value:=ID;
+      ParamByName('platform_id').Value:=ID;
+      ParamByName('source_id').Value:=5;
+      ParamByName('institute_id').Value:=institute_id;
+      ParamByName('project_id').Value:=project_id;
+      ParamByName('date_added').Value:=stdate_upd;
+      ParamByName('date_updated').Value:=stdate_upd;
+      ParamByName('cruise_number').Value:=platf;
+     ExecSQL;
+    end;
+    inc(cnt_added);
+    memo1.lines.add('New -> '+inttostr(ID));
+   end;
+  Qt1.Close;
   until eof(dat);
   finally
      Trt.Commit;
-     Qtt.Free;
+     Qt1.Free;
+     Qt2.Free;
      Trt.Free;
-     //Qt.EnableControls;
+     memo1.lines.add('=====');
+     memo1.lines.add('Added: '+inttostr(cnt_added));
+     memo1.lines.add('Updated: '+inttostr(cnt_updated));
    end;
-
 end;
+
 
 procedure Tfrmload_argo.Button2Click(Sender: TObject);
 Var
   dat:text;
-  c, k, cnt, pp:integer;
+  c, k, cnt, max_id, pp:integer;
 
   st, fname, prof_type, inst_code, date_str, platf, buf_str, date_upd:string;
   country_id, institute_id, project_id, cruise_id: integer;
@@ -190,67 +215,72 @@ Var
   st_id_orig:Int64;
 
 
-  Qtt, Qt1:TSQLQuery;
+  Qt2, Qt1:TSQLQuery;
   TRt:TSQLTransaction;
 
-  stdate, stdate_upd:TDateTime;
+  stdate, stdate_upd, max_date:TDateTime;
   stnum:string;
 
 begin
+if not FileExists(epath.text+'ar_index_global_prof.txt') then
+  if MessageDlg('ar_index_global_prof.txt cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
 
+  try
      TRt:=TSQLTransaction.Create(self);
      TRt.DataBase:=frmdm.IBDB;
-     //Trt.
-
-     Qtt:=TSQLQuery.Create(self);
-     Qtt.Database:=frmdm.IBDB;
-     Qtt.Transaction:=TRt;
 
      Qt1:=TSQLQuery.Create(self);
      Qt1.Database:=frmdm.IBDB;
      Qt1.Transaction:=TRt;
 
+     Qt2:=TSQLQuery.Create(self);
+     Qt2.Database:=frmdm.IBDB;
+     Qt2.Transaction:=TRt;
 
-      with Qtt do begin
+      with Qt1 do begin
        Close;
         Sql.Clear;
-        SQL.Add(' select id from platform ');
-        SQL.Add(' where name=:name order by ID ');
+        SQL.Add(' select max(id) from station ');
+       Open;
+        max_id  :=Qt1.Fields[0].AsInteger;
+       Close;
+      end;
+
+
+      with Qt1 do begin
+       Close;
+        Sql.Clear;
+        SQL.Add(' select id, date_updated from station ');
+        SQL.Add(' where st_id_origin=:id_orig ');
        Prepare;
       end;
 
-  {    with Qt1 do begin
+      with Qt2 do begin
        Close;
         Sql.Clear;
         SQL.Add(' insert into STATION ');
         SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, CRUISE_ID, ');
-        SQL.Add(' ST_NUMBER_ORIGIN, DATE_ADDED, DATE_UPDATED)');
+        SQL.Add(' ST_NUMBER_ORIGIN, ST_ID_ORIGIN, DATE_ADDED, DATE_UPDATED)');
         SQL.Add(' VALUES ');
         SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :CRUISE_ID, ');
-        SQL.Add(' :ST_NUMBER_ORIGIN, :DATE_ADDED, :DATE_UPDATED)');
+        SQL.Add(' :ST_NUMBER_ORIGIN, :ST_ID_ORIGIN, :DATE_ADDED, :DATE_UPDATED)');
        Prepare;
-      end;  }
+      end;
 
-try
   AssignFile(dat, ePath.text+'ar_index_global_prof.txt');
   reset(dat);
 
+  cnt:=0;
   repeat
    readln(dat, st);
   until copy(st,1, 4)='file';
 
-  cnt:=0;
  { repeat
    inc(cnt);
    readln(dat, st);
   until cnt=385958; }
 
   repeat
-   inc(cnt);
-
-  // caption:=inttostr(cnt);
-  // application.ProcessMessages;
-
    readln(dat, st);
 
    c:=0; pp:=0;
@@ -260,10 +290,8 @@ try
       inc(c);
       inc(pp);
       if st[c]<>',' then buf_str:=buf_str+st[c];
-     // showmessage(st[c]);
     until (st[c]=',') or (c=length(st));
 
-   // showmessage(buf_str);
     case k of
      1: fname:=buf_str;
      2: date_str:=buf_str;
@@ -283,25 +311,26 @@ try
    until fname[k]='/';
    platf:=buf_str;
 
-  // cruise_id:=20000000+StrToInt(platf);
+   cruise_ID:=20000000+strtoint(platf);
+
 
    stnum:=copy(fname, pos('_', fname)+1, length(fname));
    stnum:=copy(stnum, 1, length(stnum)-3);
   // showmessage(stnum+'   '+copy(stnum, length(stnum), 1));
-   if copy(stnum, length(stnum), 1)='D' then
-   stnum:=copy(stnum,1, length(stnum)-1);
-   stnum:=IntToStr(StrToInt(stnum));
+
+   if copy(stnum, length(stnum), 1)='D' then begin
+     stnum:=copy(stnum,1, length(stnum)-1);
+     stnum:=IntToStr(StrToInt(stnum))+'D';
+   end else
+     stnum:=IntToStr(StrToInt(stnum));
 
 
-   st_id_orig:=Strtoint(platf)*10000+Strtoint(stnum);
-
- // if st_id_orig>200000000 then showmessage(platf+'   '+stnum+'   '+inttostr(st_id_orig)
+  // st_id_orig:=Strtoint(platf)*10000+Strtoint(stnum);
 
 
      if (trim(lat)<>'') and (trim(lon)<>'') and
         (length(date_str)=14) and (cruise_id>0) then begin
 
-     try
        stlat:=StrToFloat(lat);
        stlon:=StrToFloat(lon);
 
@@ -323,52 +352,81 @@ try
                           StrToInt(copy(date_upd, 13, 2)),
                           0);
 
-      //  memo1.lines.add(platf+'   '+stnum+'   '+inttostr(st_id_orig));
+       inc(cnt);
 
-     {   memo1.lines.add(platf+'   '+
-                   inttostr(cruise_id)+'   '+
-                   floattostr(Stlat)+'   '+
-                   floattostr(Stlon)+'   '+
-                   datetimetostr(stdate));}
+           with Qt2 do begin
+                 Close;
+                  Sql.Clear;
+                  SQL.Add(' UPDATE STATION SET ST_NUMBER_ORIGIN=:STNUM ');
+                  SQL.Add(' WHERE latitude=:lat and longitude=:lon and ');
+                  SQL.Add(' dateandtime=:date1');
+                  ParamByName('Lat').Value:=stlat;
+                  ParamByName('Lon').Value:=stlon;
+                  ParamByName('date1').Value:=stdate;
+                  ParamByName('STNUM').Value:=stnum;
+                 ExecSQL;
+             end;
 
-   // try
-   {  with Qt1 do begin
-        ParamByName('ID').Value:=cnt;
-        ParamByName('latitude').Value:=StLat;
-        ParamByName('longitude').Value:=StLon;
-        ParamByName('dateandtime').Value:=StDate;
-        ParamByName('cruise_id').Value:=cruise_id;
-        ParamByName('st_number_origin').Value:=stnum;
-        ParamByName('date_added').Value:=stdate_upd;
-        ParamByName('date_updated').Value:=stdate_upd;
-       ExecSQL;
-      end; }
+   {   // showmessage(datetimetostr(stdate_upd)+'   '+datetimetostr(max_date));
+       with Qt1 do begin
+         ParamByName('ID_ORIG').Value:=st_id_orig;
+        Open;
+       end;
 
-      with Qt1 do begin
-       Close;
-        SQL.Clear;
-        SQL.Add(' update station set ST_ID_ORIGIN=:ST_ID ');
-        SQL.Add(' where ID=:ID ');
-        ParamByName('ID').Value:=20000000+cnt;
-        ParamByName('ST_ID').Value:=st_id_orig;
-       ExecSQL;
-      end;
+       if Qt1.IsEmpty=false then begin
+        if Qt1.FieldByName('date_updated').AsDateTime>stdate_upd then begin
+         memo1.lines.add('Existing: '+inttostr(st_id_orig));
+        end;
+       end;
 
-     trt.CommitRetaining;
 
-     end;  // coordinates in -90..90, -180..180
-     except
-      trt.RollbackRetaining;
-      memo1.lines.add('insert error: '+st);
-     end;
-     end; // else memo1.lines.add('conditions: '+st);  //coords not empty
+       if Qt1.IsEmpty=true then begin
+       inc(cnt);
+       inc(max_id);
+       //showmessage('here');
+     //  try
+        with Qt2 do begin
+          ParamByName('ID').Value:=max_id;
+          ParamByName('latitude').Value:=StLat;
+          ParamByName('longitude').Value:=StLon;
+          ParamByName('dateandtime').Value:=StDate;
+          ParamByName('cruise_id').Value:=cruise_id;
+          ParamByName('st_number_origin').Value:=stnum;
+          ParamByName('st_id_origin').Value:=st_id_orig;
+          ParamByName('date_added').Value:=stdate_upd;
+          ParamByName('date_updated').Value:=stdate_upd;
+         ExecSQL;
+        end;
+
+        trt.CommitRetaining;
+        memo1.lines.add('added: '+
+                        inttostr(cnt)+'   '+
+                        floattostr(stlat)+'   '+
+                        floattostr(stlon)+'   '+
+                        datetimetostr(stdate)+'   '+
+                        datetimetostr(stdate_upd)+'   '+
+                        inttostr(st_id_orig));
+     {   except
+         trt.RollbackRetaining;
+         memo1.lines.add('insert error: '+st);
+        end;  }
+       end; //q2
+       Qt1.Close;    }
+
+    // end;// date>max_date
+
+     end; // coordinates in -90..90, -180..180
+
+     end; // lat<>0
 
   until eof(dat);
   finally
      Trt.Commit;
-     Qtt.Free;
+     Qt1.Free;
+     Qt2.Free;
      Trt.Free;
-     //Qt.EnableControls;
+     memo1.lines.add('=====');
+     memo1.lines.add('Done! Added: '+inttostr(cnt));
    end;
 
 end;

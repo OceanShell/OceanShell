@@ -549,7 +549,7 @@ procedure Tfrmsupporttables.Navigation;
 Var
  TRt:TSQLTransaction;
  Qt:TSQLQuery;
- cc:string;
+ cc, notes_str:string;
 begin
  (* Platform *)
  if CodesTblName='PLATFORM' then begin
@@ -637,48 +637,51 @@ begin
   Qt :=TSQLQuery.Create(self);
   Qt.Database:=frmdm.IBDB;
   Qt.Transaction:=TRt;
+
+   notes_str:='';
    with Qt do begin
     Close;
      SQL.Clear;
      SQL.Add(' select NOTES from '+CodesTblName+' where ');
      SQL.Add(' ID='+inttostr(Q.FieldByName('ID').AsInteger));
     Open;
+     notes_str:=Qt.FieldByName('NOTES').AsWideString;
+    Close;
+   end;
 
      if CodesTblName='DATABASE_TABLES' then begin
        mNotesTables.Clear;
-       mNotesTables.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+       mNotesTables.Lines.Text:=notes_str;
      end;
 
      if CodesTblName='PLATFORM' then begin
        mNotesPlatform.Clear;
-       mNotesPlatform.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+       mNotesPlatform.Lines.Text:=notes_str;
      end;
      if CodesTblName='COUNTRY' then begin
        mNotesCountry.Clear;
-       mNotesCountry.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+       mNotesCountry.Lines.Text:=notes_str;
      end;
      if CodesTblName='SOURCE' then begin
        mNotesSource.Clear;
-       mNotesSource.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+       mNotesSource.Lines.Text:=notes_str;
      end;
      if CodesTblName='PROJECT' then begin
        mNotesProject.Clear;
-       mNotesProject.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+       mNotesProject.Lines.Text:=notes_str;
      end;
      if CodesTblName='INSTITUTE' then begin
        mNotesInstitute.Clear;
-       mNotesInstitute.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+       mNotesInstitute.Lines.Text:=notes_str;
      end;
      if CodesTblName='INSTRUMENT' then begin
        mNotesInstrument.Clear;
-       mNotesInstrument.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+       mNotesInstrument.Lines.Text:=notes_str;
      end;
      if CodesTblName='UNITS' then begin
        mNotesUnits.Clear;
-       mNotesUnits.Lines.Text:=Qt.FieldByName('NOTES').AsWideString;
+       mNotesUnits.Lines.Text:=notes_str;
      end;
-    Close;
-   end;
   end;
 
 

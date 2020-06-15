@@ -19,11 +19,13 @@ type
     btnPythonPath: TButton;
     btnShowInstalled: TButton;
     btnSupportPath: TButton;
+    btnOceanFDBPath: TButton;
     btnSurferPath: TButton;
     btnUnloadPath: TButton;
     eGrapherPath: TEdit;
     ePythonPath: TEdit;
     eSupportPath: TEdit;
+    eOceanFDBPath: TEdit;
     eSurferPath: TEdit;
     eUnloadPath: TEdit;
     GroupBox1: TGroupBox;
@@ -33,6 +35,7 @@ type
     GroupBox5: TGroupBox;
     GroupBox6: TGroupBox;
     GroupBox7: TGroupBox;
+    GroupBox8: TGroupBox;
     Label1: TLabel;
     lbKML: TLabel;
     Memo1: TMemo;
@@ -45,11 +48,15 @@ type
     TabSheet3: TTabSheet;
 
     procedure btnInstallMissingClick(Sender: TObject);
+    procedure btnOceanFDBPathClick(Sender: TObject);
     procedure btnPythonPathClick(Sender: TObject);
     procedure btnShowInstalledClick(Sender: TObject);
     procedure btnSupportPathClick(Sender: TObject);
     procedure btnUnloadPathClick(Sender: TObject);
+    procedure eOceanFDBPathChange(Sender: TObject);
     procedure ePythonPathChange(Sender: TObject);
+    procedure eSupportPathChange(Sender: TObject);
+    procedure eUnloadPathChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnGrapherPathClick(Sender: TObject);
     procedure btnOkClick(Sender: TObject);
@@ -86,6 +93,7 @@ begin
 
   Ini := TIniFile.Create(IniFileName);
   try
+   eOceanFDBPath.Text     :=Ini.ReadString  ( 'main', 'OceanFDBPath',     GlobalPath+'databases'+PathDelim+'OCEAN.FDB');
    eSupportPath.Text      :=Ini.ReadString  ( 'main', 'SupportPath',      GlobalPath+'support'+PathDelim);
    eUnloadPath.Text       :=Ini.ReadString  ( 'main', 'UnloadPath',       GlobalPath+'unload'+PathDelim);
    eSurferPath.Text       :=Ini.ReadString  ( 'main', 'SurferPath',       SurferDefault);
@@ -123,6 +131,12 @@ begin
   memo1.Lines.LoadFromFile(IniFileName);
 end;
 
+procedure Tfrmsettings.btnOceanFDBPathClick(Sender: TObject);
+begin
+ frmosmain.OD.Filter:='Ocean.fdb|OCEAN.FDB';
+ if frmosmain.OD.Execute then eOceanFDBPath.Text:= frmosmain.OD.FileName;
+end;
+
 
 procedure Tfrmsettings.btnSurferPathClick(Sender: TObject);
 begin
@@ -140,6 +154,21 @@ procedure Tfrmsettings.btnUnloadPathClick(Sender: TObject);
 begin
  frmosmain.ODir.InitialDir:=GlobalUnloadPath;
  if frmosmain.ODir.Execute then eUnloadPath.Text:=frmosmain.ODir.FileName+PathDelim;
+end;
+
+procedure Tfrmsettings.eOceanFDBPathChange(Sender: TObject);
+begin
+ if FileExists(eOceanFDBPath.Text)  then eOceanFDBPath.Font.Color :=clGreen  else eOceanFDBPath.Font.Color:=clRed;
+end;
+
+procedure Tfrmsettings.eSupportPathChange(Sender: TObject);
+begin
+ if DirectoryExists(eSupportPath.Text)  then eSupportPath.Font.Color :=clGreen  else eSupportPath.Font.Color:=clRed;
+end;
+
+procedure Tfrmsettings.eUnloadPathChange(Sender: TObject);
+begin
+ if DirectoryExists(eUnloadPath.Text)  then eUnloadPath.Font.Color :=clGreen  else eUnloadPath.Font.Color:=clRed;
 end;
 
 procedure Tfrmsettings.eSurferPathChange(Sender: TObject);
@@ -215,6 +244,7 @@ Var
 begin
  Ini := TIniFile.Create(IniFileName);
   try
+   Ini.WriteString ( 'main', 'OceanFDBPath',     eOceanFDBPath.Text);
    Ini.WriteString ( 'main', 'SupportPath',      eSupportPath.Text);
    Ini.WriteString ( 'main', 'UnloadPath',       eUnloadPath.Text);
    Ini.WriteString ( 'main', 'SurferPath',       eSurferPath.Text);

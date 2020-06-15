@@ -11,7 +11,7 @@ uses
   Interfaces, // this includes the LCL widgetset
   Forms, osmain, dm, icons, osprofile_station_single, osservicestatistics,
   osQC_test, osexport_ascii, test_excel_nabos, osselection_customsql,
-  osunitsconversion, osload_argo;
+  osunitsconversion, osload_argo, oscreatenewdb;
 
 {$R *.res}
 
