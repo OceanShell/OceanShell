@@ -10,7 +10,6 @@ uses
 {$ENDIF}
   SysUtils, Variants, Dialogs, DateUtils, Forms, osmain, declarations_netcdf;
 
-
 function CheckKML:boolean;
 function ClearDir(Dir:string ): boolean;
 function DateTimeToFloat(StDate, StTime:TDateTime):Real;

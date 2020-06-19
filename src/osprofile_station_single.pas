@@ -6,11 +6,11 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, DBGrids, ColorBox, IniFiles, SQLDB, DB, Grids, Menus, Types,
+  ComCtrls, DBGrids, IniFiles, SQLDB, DB, Grids, Menus, Types,
   TAGraph, TATools, TASeries, TATypes, TAChartAxisUtils,
-//  TACustomSeries,  // for TChartSeries
+  TACustomSeries,  // for TChartSeries
   TAChartUtils,
-  TAEnumerators;
+  TAEnumerators, TALegendPanel;
 
 type
 
@@ -20,23 +20,17 @@ type
     btnAdd: TToolButton;
     btnCommit: TToolButton;
     btnDelete: TToolButton;
-    cbInstrument: TComboBox;
-    cbProfileNumber: TComboBox;
     Chart1: TChart;
     cbParameters: TComboBox;
     ChartToolset1: TChartToolset;
-    ChartToolset1DataPointClickTool1: TDataPointClickTool;
-    ChartToolset1DataPointHintTool1: TDataPointHintTool;
-    ChartToolset1ZoomDragTool1: TZoomDragTool;
-    ChartToolset1ZoomMouseWheelTool1: TZoomMouseWheelTool;
+    DPCT: TDataPointClickTool;
+    DPHT: TDataPointHintTool;
+    ZDT: TZoomDragTool;
+    ZMWT: TZoomMouseWheelTool;
     DS: TDataSource;
-    Label1: TLabel;
-    Label2: TLabel;
     iSetProfileNum1: TMenuItem;
     MenuItem2: TMenuItem;
-    Panel3: TPanel;
     PM: TPopupMenu;
-    Series1: TLineSeries;
     DBGridSingleProfile: TDBGrid;
     Panel1: TPanel;
     Panel2: TPanel;
@@ -46,36 +40,39 @@ type
     Qt: TSQLQuery;
     StatusBar1: TStatusBar;
     StatusBar2: TStatusBar;
+    TabControl1: TTabControl;
     ToolBar1: TToolBar;
     ToolButton4: TToolButton;
 
     procedure btnAddClick(Sender: TObject);
     procedure btnCommitClick(Sender: TObject);
     procedure btnDeleteClick(Sender: TObject);
-    procedure cbInstrumentChange(Sender: TObject);
     procedure cbParametersChange(Sender: TObject);
-    procedure cbProfileNumberChange(Sender: TObject);
-    procedure ChartToolset1DataPointClickTool1PointClick(ATool: TChartTool;
+    procedure DPCTPointClick(ATool: TChartTool;
       APoint: TPoint);
     procedure DBGridSingleProfilePrepareCanvas(sender: TObject; DataCol: Integer;
       Column: TColumn; AState: TGridDrawState);
     procedure DBGridSingleProfileSelectEditor(Sender: TObject; Column: TColumn;
       var Editor: TWinControl);
+    procedure DPHTAfterMouseMove(ATool: TChartTool; APoint: TPoint);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormShow(Sender: TObject);
     procedure iSetProfileNum1Click(Sender: TObject);
     procedure SetFlagAboveClick(Sender: TObject);
     procedure SetFlagBelowClick(Sender: TObject);
+    procedure TabControl1Change(Sender: TObject);
 
   private
-    procedure GetProfile(ID, INSTR_ID, PROF_NUM : integer);
+    function AddLineSeries (AChart: TChart; ATitle: String; AColor:TColor; sName:string):TLineSeries;
+    procedure HighlightSeries(ASeries: TBasicChartSeries);
+    procedure GetProfile(ID, PROF_NUM: integer; INSTR_NAME: string);
   public
     procedure ChangeID(ID:integer);
   end;
 
 var
   frmprofile_station_single: Tfrmprofile_station_single;
-  current_index: integer;
+  current_index, mik: integer;
 
 implementation
 
@@ -84,6 +81,31 @@ implementation
 { Tfrmprofile_station_single }
 
 uses osmain, dm;
+
+
+function Tfrmprofile_station_single.AddLineSeries(AChart: TChart;
+  ATitle: String; AColor:TColor; sName:string): TLineSeries;
+begin
+ Result := TLineSeries.Create(AChart.Owner);
+  with TLineSeries(Result) do begin
+    Title := ATitle;
+    ShowPoints := false;
+    ShowLines := true;
+    LinePen.Style := psSolid;
+    LinePen.Width:=2;
+    SeriesColor := AColor;
+    Pointer.Style:=psCircle;
+    Pointer.Brush.Color := AColor;
+    Pointer.Pen.Color := AColor;
+    Pointer.HorizSize:=3;
+    Pointer.VertSize:=3;
+    Pointer.Visible:=true;
+    Name := sName;
+    ToolTargets := [nptPoint, nptYList, nptCustom];
+  end;
+ AChart.AddSeries(Result);
+end;
+
 
 procedure Tfrmprofile_station_single.FormShow(Sender: TObject);
 Var
@@ -109,8 +131,6 @@ begin
      Columns[5].Width :=Ini.ReadInteger( IniSection, 'DBGridCol05',  70);
      Columns[6].Width :=Ini.ReadInteger( IniSection, 'DBGridCol06',  70);
      Columns[7].Width :=Ini.ReadInteger( IniSection, 'DBGridCol07',  70);
-     Columns[8].Width :=Ini.ReadInteger( IniSection, 'DBGridCol08',  70);
-     Columns[9].Width :=Ini.ReadInteger( IniSection, 'DBGridCol09',  70);
     end;
 
   finally
@@ -126,6 +146,8 @@ if CurrentParTable<>'' then
 DBGridSingleProfile.Columns[3].PickList.Clear;
 DBGridSingleProfile.Columns[4].PickList.Clear;
 DBGridSingleProfile.Columns[5].PickList.Clear;
+
+// QF pick lists
 for k:=0 to 8 do begin
  DBGridSingleProfile.Columns[3].PickList.Add(IntToStr(k));
  DBGridSingleProfile.Columns[4].PickList.Add(IntToStr(k));
@@ -150,19 +172,6 @@ try
     DBGridSingleProfile.Columns[7].PickList.Clear;
     while not Qtt.EOF do begin
       DBGridSingleProfile.Columns[7].PickList.Add(IntToStr(Qtt.Fields[0].AsInteger));
-     Qtt.Next;
-    end;
-
-    with Qtt do begin
-     Close;
-      Sql.Clear;
-      SQL.Add(' SELECT ID FROM INSTRUMENT ORDER BY ID ');
-     Open;
-    end;
-
-    DBGridSingleProfile.Columns[8].PickList.Clear;
-    while not Qtt.EOF do begin
-      DBGridSingleProfile.Columns[8].PickList.Add(IntToStr(Qtt.Fields[0].AsInteger));
      Qtt.Next;
     end;
     Qtt.close;
@@ -197,80 +206,40 @@ begin
 end;
 
 
-procedure Tfrmprofile_station_single.btnCommitClick(Sender: TObject);
-Var
-  ID:integer;
-begin
-  ID:=frmdm.Q.FieldByName('ID').AsInteger;
-
-  try
-   Qt.DisableControls;
-
-     try
-       with frmdm.q1 do begin
-         Close;
-           Sql.Clear;
-           SQL.Add(' DELETE FROM ');
-           SQL.Add(CurrentParTable);
-           SQL.Add(' WHERE ');
-           SQL.Add(' ID=:ID ');
-           ParamByName('ID').AsInteger:=ID;
-         ExecSQL;
-         Close;
-        end;
-     frmdm.TR.CommitRetaining;
-
-     Qt.First;
-     while not Qt.Eof do begin
-      with frmdm.q1 do begin
-       Close;
-        Sql.Clear;
-        SQL.Add('insert into');
-        SQL.Add(CurrentParTable);
-        SQL.Add(' (ID, lev_m, lev_dbar, val, pqf1, pqf2, sqf, ');
-        SQL.Add(' bottle_number, units_id, instrument_id) ');
-        SQL.Add(' VALUES ' );
-        SQL.Add(' (:ID, :lev_m, :lev_dbar, :val, :pqf1, :pqf2, :sqf, ');
-        SQL.Add(' :bottle_number, :units_id, :instrument_id) ');
-        ParamByName('ID').Value:=Qt.FieldByName('ID').Value;
-        ParamByName('LEV_M').Value:=Qt.FieldByName('LEV_M').Value;
-        ParamByName('LEV_DBAR').Value:=Qt.FieldByName('LEV_DBAR').Value;
-        ParamByName('VAL').Value:=Qt.FieldByName('VAL').Value;
-        ParamByName('PQF1').Value:=Qt.FieldByName('PQF1').Value;
-        ParamByName('PQF2').Value:=Qt.FieldByName('PQF2').Value;
-        ParamByName('SQF').Value:=Qt.FieldByName('SQF').Value;
-        ParamByName('BOTTLE_NUMBER').Value:=Qt.FieldByName('BOTTLE_NUMBER').Value;
-        ParamByName('UNITS_ID').Value:=Qt.FieldByName('UNITS_ID').Value;
-        ParamByName('INSTRUMENT_ID').Value:=Qt.FieldByName('INSTRUMENT_ID').Value;
-       ExecSQL;
-      end;
-     Qt.Next;
-   end;
-
-   frmdm.TR.CommitRetaining;
-   except
-    On E :Exception do begin
-     ShowMessage(E.Message);
-     frmdm.TR.RollbackRetaining;
-    end;
-   end;
-
-   finally
-     Qt.EnableControls;
-   end;
-
-   ChangeID(ID);
-end;
-
-
 procedure Tfrmprofile_station_single.ChangeID(ID:integer);
 var
-  k:integer;
+  k, tt, prof_num:integer;
   TRt:TSQLTransaction;
-  Qtt:TSQLQuery;
+  Qt1, Qt2:TSQLQuery;
+  Instr_name, TabName, SName:string;
+  lev_m, lev_d, val1: real;
+  S_clr:Array[1..10] of TColor;
 begin
 
 if (CurrentParTable='') then CurrentParTable:=cbParameters.Items.Strings[0];
+
+Caption:='Single parameter: '+inttostr(ID);
+Application.ProcessMessages;
+
+mik:=-1;
+
+S_clr[1]:=clBlue;
+S_clr[2]:=clRed;
+S_clr[3]:=clFuchsia;
+S_clr[4]:=clMaroon;
+S_clr[5]:=clBlack;
+S_clr[6]:=clGreen;
+S_clr[7]:=clNavy;
+S_clr[8]:=clPurple;
+S_clr[9]:=clTeal;
+S_clr[10]:=clOlive;
+S_clr[11]:=clGray;
+S_clr[12]:=clSilver;
+S_clr[13]:=clLime;
+S_clr[14]:=clYellow;
+S_clr[15]:=clAqua;
+S_clr[16]:=clLtGray;
+
 
 (* checking for unique instruments and profile numbers *)
 //if cbInstrument.ItemIndex=-1 then begin
@@ -278,105 +247,150 @@ if (CurrentParTable='') then CurrentParTable:=cbParameters.Items.Strings[0];
      TRt:=TSQLTransaction.Create(self);
      TRt.DataBase:=frmdm.IBDB;
 
-     Qtt:=TSQLQuery.Create(self);
-     Qtt.Database:=frmdm.IBDB;
-     Qtt.Transaction:=TRt;
+     Qt1:=TSQLQuery.Create(self);
+     Qt1.Database:=frmdm.IBDB;
+     Qt1.Transaction:=TRt;
 
-        with Qtt do begin
+     Qt2:=TSQLQuery.Create(self);
+     Qt2.Database:=frmdm.IBDB;
+     Qt2.Transaction:=TRt;
+
+
+        with Qt1 do begin
          Close;
            Sql.Clear;
-           SQL.Add(' SELECT DISTINCT(INSTRUMENT_ID) FROM ');
-           SQL.Add( CurrentParTable);
+           SQL.Add(' SELECT DISTINCT(INSTRUMENT_ID), INSTRUMENT.NAME ');
+           SQL.Add(' FROM INSTRUMENT, '+CurrentParTable);
            SQL.Add(' WHERE ');
+           SQL.Add( CurrentParTable+'.INSTRUMENT_ID=INSTRUMENT.ID AND ');
            SQL.Add( CurrentParTable+'.ID=:ID ');
            ParamByName('ID').AsInteger:=ID;
          Open;
         end;
 
-       cbInstrument.Clear;
-       while not Qtt.EOF do begin
-         cbInstrument.Items.Add(IntToStr(Qtt.Fields[0].AsInteger));
-         Qtt.Next;
+     if not Qt1.IsEmpty then begin
+       TabControl1.Tabs.Clear;
+       while not Qt1.EOF do begin
+         with Qt2 do begin
+          Close;
+            SQL.Clear;
+            SQL.Add(' SELECT DISTINCT(PROFILE_NUMBER) FROM ');
+            SQL.Add( CurrentParTable);
+            SQL.Add(' WHERE ');
+            SQL.Add( CurrentParTable+'.ID=:ID AND INSTRUMENT_ID=:I_ID ');
+            ParamByName('ID').AsInteger:=frmdm.Q.FieldByName('ID').AsInteger;
+            ParamByName('I_ID').AsInteger:=Qt1.Fields[0].Value;
+          Open;
+        end;
+
+        while not Qt2.eof do begin
+          TabControl1.Tabs.Add(Qt1.Fields[1].Value+ ', Profile '+inttostr(Qt2.Fields[0].AsInteger));
+         Qt2.Next;
+        end;
+        Qt2.Close;
+
+       Qt1.Next;
+     end;
+ end;
+
+ // No profiles for given parameters
+ if Qt1.IsEmpty then begin
+  TabControl1.Tabs.Clear;
+  Chart1.Series.Clear;
+  Qt1.Close;
+  for k:=1 to StatusBar1.Panels.Count-1 do StatusBar1.Panels.Items[k].Text:='';
+  for k:=1 to StatusBar2.Panels.Count-1 do StatusBar2.Panels.Items[k].Text:='';
+ end;
+
+
+ //
+ if not Qt1.IsEmpty then begin
+  Chart1.Series.Clear;
+   for tt:=0 to TabControl1.Tabs.Count-1 do begin
+     TabName:=TabControl1.Tabs.Strings[tt];
+     Instr_name:=trim(Copy(TabName, 1, Pos(',', TabName)-1));
+     Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
+     sName:=instr_name+'_'+inttostr(prof_num);
+
+     inc(mik);
+    // showmessage(inttostr(mik));
+     AddLineSeries (Chart1, sName, s_clr[mik+1], sName);
+
+       with Qt2 do begin
+         Close;
+           Sql.Clear;
+           SQL.Add(' SELECT * FROM ');
+           SQL.Add( CurrentParTable);
+           SQL.Add(' WHERE ');
+           SQL.Add( CurrentParTable+'.ID=:ID AND ');
+           SQL.Add( CurrentParTable+'.INSTRUMENT_ID IN ');
+           SQL.Add('(SELECT ID FROM INSTRUMENT WHERE ');
+           SQL.Add('INSTRUMENT.NAME=:INSTR_NAME) AND ');
+           SQL.Add( CurrentParTable+'.PROFILE_NUMBER=:PROF_NUM');
+           SQL.Add(' ORDER BY LEV_DBAR, LEV_M');
+           ParamByName('ID').AsInteger:=ID;
+           ParamByName('INSTR_NAME').AsString:=INSTR_NAME;
+           ParamByName('PROF_NUM').AsInteger:=PROF_NUM;
+         Open;
+        end;
+
+       while not Qt2.eof do begin
+         lev_m := Qt2.FieldByName('LEV_M').AsVariant;
+         lev_d := Qt2.FieldByName('LEV_DBAR').AsVariant;
+         val1  := Qt2.FieldByName('VAL').AsFloat;
+
+         TLineSeries(Chart1.Series[mik]).AddXY(val1,lev_m);
+
+         Qt2.Next;
        end;
-     if cbInstrument.Items.Count>0 then cbInstrument.ItemIndex:=0;
+   end;
+ end;
+
  finally
-   Qtt.Close;
+   Qt1.Close;
+   Qt2.Close;
    Trt.Commit;
-   Qtt.Free;
+   Qt1.Free;
+   Qt2.Close;
    Trt.Free;
  end;
 
- (* Exit if there's no profile *)
-  if (cbInstrument.ItemIndex=-1) then begin
-   Series1.Clear;
-   Qt.Close;
-   for k:=1 to StatusBar1.Panels.Count-1 do StatusBar1.Panels.Items[k].Text:='';
-   for k:=1 to StatusBar2.Panels.Count-1 do StatusBar2.Panels.Items[k].Text:='';
-   exit;
-  end;
-
-  cbInstrument.OnChange(self);
+ if TabControl1.Tabs.Count>0 then begin
+    TabControl1.TabIndex:=0;
+    TabControl1.OnChange(self);
+ end;
 end;
 
 
-procedure Tfrmprofile_station_single.cbInstrumentChange(Sender: TObject);
-var
-TRt:TSQLTransaction;
-Qtt:TSQLQuery;
+procedure Tfrmprofile_station_single.TabControl1Change(Sender: TObject);
+Var
+  TabName, Instr_name: string;
+  Prof_num, ss: integer;
 begin
-try
-  TRt:=TSQLTransaction.Create(self);
-  TRt.DataBase:=frmdm.IBDB;
+  TabName:=TabControl1.Tabs.Strings[TabControl1.TabIndex];
 
-  Qtt:=TSQLQuery.Create(self);
-  Qtt.Database:=frmdm.IBDB;
-  Qtt.Transaction:=TRt;
+  Instr_name:=trim(Copy(TabName, 1, Pos(',', TabName)-1));
+  Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
 
-  with Qtt do begin
-   Close;
-    Sql.Clear;
-    SQL.Add(' SELECT DISTINCT(PROFILE_NUMBER) FROM ');
-    SQL.Add( CurrentParTable);
-    SQL.Add(' WHERE ');
-    SQL.Add( CurrentParTable+'.ID=:ID ');
-    ParamByName('ID').AsInteger:=frmdm.Q.FieldByName('ID').AsInteger;
-   Open;
-  end;
+  for ss:=0 to Chart1.Series.Count-1 do
+      if Chart1.Series[ss].Name=Instr_name+'_'+inttostr(prof_num) then begin
+        TLineSeries(Chart1.Series[ss]).LinePen.Width:=3;
+        TLineSeries(Chart1.Series[ss]).Pointer.HorizSize:=4;
+        TLineSeries(Chart1.Series[ss]).Pointer.VertSize:=4;
+        TLineSeries(Chart1.Series[ss]).ZPosition:=mik;
+      end else begin
+        TLineSeries(Chart1.Series[ss]).LinePen.Width:=2;
+        TLineSeries(Chart1.Series[ss]).Pointer.HorizSize:=3;
+        TLineSeries(Chart1.Series[ss]).Pointer.VertSize:=3;
+        TLineSeries(Chart1.Series[ss]).ZPosition:=0;
+      end;
 
-  cbProfileNumber.Clear;
-  while not Qtt.EOF do begin
-   cbProfileNumber.Items.Add(IntToStr(Qtt.Fields[0].AsInteger));
-   Qtt.Next;
-  end;
-finally
- Qtt.Close;
- Trt.Commit;
- Qtt.Free;
- Trt.Free;
+  GetProfile(frmdm.Q.FieldByName('ID').AsInteger, prof_num, Instr_name);
+
 end;
 
 
-  if cbProfileNumber.Items.Count>0 then cbProfileNumber.ItemIndex:=0;
-
-  Caption:='Single parameter: '+inttostr(frmdm.Q.FieldByName('ID').AsInteger)+
-           ', Instruments: '+Inttostr(cbInstrument.Items.Count)+
-           ', Profiles: '+IntToStr(cbProfileNumber.Items.Count);
-
-   GetProfile(frmdm.Q.FieldByName('ID').AsInteger,
-              StrToInt(cbInstrument.Text),
-              StrToInt(cbProfileNumber.Text));
-end;
-
-
-procedure Tfrmprofile_station_single.cbProfileNumberChange(Sender: TObject);
-begin
-     GetProfile(frmdm.Q.FieldByName('ID').AsInteger,
-              StrToInt(cbInstrument.Text),
-              StrToInt(cbProfileNumber.Text));
-end;
-
-
-procedure Tfrmprofile_station_single.GetProfile(ID, INSTR_ID, PROF_NUM : integer);
+procedure Tfrmprofile_station_single.GetProfile(ID, PROF_NUM: integer; INSTR_NAME:string);
 Var
   Ini: TIniFile;
   count, items_id, k, LNum:integer;
@@ -389,8 +403,6 @@ Var
   TRt:TSQLTransaction;
   Qtt:TSQLQuery;
 begin
-  Series1.Clear;
-
   Ini := TIniFile.Create(IniFileName);
   try
     Depth_units:=Ini.ReadInteger ( 'main', 'Depth_units', 0);
@@ -402,7 +414,7 @@ begin
 
   Items_id:=cbParameters.ItemIndex;
 
-  //  showmessage('here2');
+  //  showmessage(instr_name+'   '+inttostr(prof_num));
 
         with Qt do begin
          Close;
@@ -411,14 +423,19 @@ begin
            SQL.Add( CurrentParTable);
            SQL.Add(' WHERE ');
            SQL.Add( CurrentParTable+'.ID=:ID AND ');
-           SQL.Add( CurrentParTable+'.INSTRUMENT_ID=:INST_ID AND ');
-           SQL.Add( CurrentParTable+'.PROFILE_NUMBER=:PROF_NUM ');
+           SQL.Add( CurrentParTable+'.INSTRUMENT_ID IN ');
+           SQL.Add('(SELECT ID FROM INSTRUMENT WHERE ');
+           SQL.Add('INSTRUMENT.NAME=:INSTR_NAME) AND ');
+           SQL.Add( CurrentParTable+'.PROFILE_NUMBER=:PROF_NUM');
            SQL.Add(' ORDER BY LEV_DBAR, LEV_M');
            ParamByName('ID').AsInteger:=ID;
-           ParamByName('INST_ID').AsInteger:=INSTR_ID;
+           ParamByName('INSTR_NAME').AsString:=INSTR_NAME;
            ParamByName('PROF_NUM').AsInteger:=PROF_NUM;
+          // showmessage(qt.SQL.Text);
          Open;
         end;
+
+      //  showmessage(inttostr(qt.RecordCount));
 
   if Qt.IsEmpty=false then
    try
@@ -450,7 +467,7 @@ begin
       if val>val_max then val_max:=val;
       if val<val_min then val_min:=val;
 
-      Series1.AddXY(val,lev);
+     // Series1.AddXY(val,lev);
 
       Qt.Next;
     end;
@@ -481,14 +498,16 @@ begin
          Close;
            Sql.Clear;
            SQL.Add(' SELECT UNITS.NAME_SHORT FROM ');
-           SQL.Add(CurrentParTable+ ', UNITS ');
+           SQL.Add(CurrentParTable+ ', UNITS, INSTRUMENT ');
            SQL.Add(' WHERE ');
            SQL.Add( CurrentParTable+'.UNITS_ID=UNITS.ID AND ');
-           SQL.Add( CurrentParTable+'.INSTRUMENT_ID=:INSTR_ID AND ');
+           SQL.Add( CurrentParTable+'.INSTRUMENT_ID IN ');
+           SQL.Add('(SELECT ID FROM INSTRUMENT WHERE ');
+           SQL.Add('INSTRUMENT.NAME=:INSTR_NAME) AND ');
            SQL.Add( CurrentParTable+'.PROFILE_NUMBER=:PROF_NUM AND ');
            SQL.Add( CurrentParTable+'.ID=:ID ');
            ParamByName('ID').AsInteger:=ID;
-           ParamByName('INSTR_ID').AsInteger:=INSTR_ID;
+           ParamByName('INSTR_NAME').AsString:=INSTR_NAME;
            ParamByName('PROF_NUM').AsInteger:=PROF_NUM;
          Open;
            Units:=Qtt.Fields[0].AsString;
@@ -551,21 +570,32 @@ begin
   end;
 end;
 
-procedure Tfrmprofile_station_single.ChartToolset1DataPointClickTool1PointClick(
+procedure Tfrmprofile_station_single.DPHTAfterMouseMove(ATool: TChartTool;
+  APoint: TPoint);
+begin
+    HighlightSeries(TDatapointHintTool(ATool).Series);
+end;
+
+procedure Tfrmprofile_station_single.DPCTPointClick(
   ATool: TChartTool; APoint: TPoint);
 Var
  k,pp: integer;
  tool: TDataPointClicktool;
  series: TLineSeries;
  pointer: TSeriesPointer;
+ instr_name, id, prof_num: string;
 begin
   tool := ATool as TDataPointClickTool;
   if tool.Series is TLineSeries then begin
     series := TLineSeries(tool.Series);
+
+    INSTR_NAME:=Copy(series.Name, 1, Pos('_', Series.Name)-1);
+    Prof_num:=Copy(series.name, Pos('_', Series.Name)+1, length(series.name));
+
+    TabControl1.TabIndex:=TabControl1.IndexOfTabWithCaption(INSTR_NAME+', Profile '+Prof_num);
+    TabControl1.OnChange(self);
+
     if (tool.PointIndex<>-1) then begin
-      if current_index<>-1 then
-       series.SetColor(current_index, clDefault);
-     series.SetColor(tool.PointIndex, clRed);
      Qt.Locate('Lev_m', series.YValue[tool.PointIndex], []);
      current_index:=tool.PointIndex;
     end;
@@ -622,11 +652,193 @@ begin
 end;
 
 
-procedure Tfrmprofile_station_single.iSetProfileNum1Click(Sender: TObject);
+procedure Tfrmprofile_station_single.btnCommitClick(Sender: TObject);
+Var
+  ID, Instr_id, Prof_num:integer;
+  TabName, Instr_name:string;
 begin
+  ID:=frmdm.Q.FieldByName('ID').AsInteger;
 
+  TabName:=TabControl1.Tabs[TabControl1.TabIndex];
+  Instr_name:=Copy(tabName, 1, Pos(',', TabName)-1);
+  Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
+
+  try
+   Qt.DisableControls;
+
+     try
+      with frmdm.q1 do begin
+        Close;
+          Sql.Clear;
+          SQL.Add(' SELECT ID FROM INSTRUMENT WHERE NAME=:INSTR ');
+          ParamByName('INSTR').Value:=INSTR_NAME;
+        Open;
+         Instr_id:=frmdm.q1.Fields[0].AsInteger;
+        Close;
+      end;
+
+       with frmdm.q1 do begin
+         Close;
+           Sql.Clear;
+           SQL.Add(' DELETE FROM ');
+           SQL.Add(CurrentParTable);
+           SQL.Add(' WHERE ');
+           SQL.Add(' ID=:ID AND PROFILE_NUMBER=:P_NUM AND ');
+           SQL.Add(' INSTRUMENT_ID=:ID_I ');
+           ParamByName('ID').AsInteger:=ID;
+           ParamByName('ID_I').AsInteger:=Instr_ID;
+           ParamByName('P_NUM').AsInteger:=Prof_num;
+         ExecSQL;
+         Close;
+        end;
+     frmdm.TR.CommitRetaining;
+
+     Qt.First;
+     while not Qt.Eof do begin
+      with frmdm.q1 do begin
+       Close;
+        Sql.Clear;
+        SQL.Add('insert into');
+        SQL.Add(CurrentParTable);
+        SQL.Add(' (ID, lev_m, lev_dbar, val, pqf1, pqf2, sqf, ');
+        SQL.Add(' bottle_number, units_id, instrument_id, PROFILE_NUMBER) ');
+        SQL.Add(' VALUES ' );
+        SQL.Add(' (:ID, :lev_m, :lev_dbar, :val, :pqf1, :pqf2, :sqf, ');
+        SQL.Add(' :bottle_number, :units_id, :instrument_id, :PROFILE_NUMBER) ');
+        ParamByName('ID').Value:=Qt.FieldByName('ID').Value;
+        ParamByName('LEV_M').Value:=Qt.FieldByName('LEV_M').Value;
+        ParamByName('LEV_DBAR').Value:=Qt.FieldByName('LEV_DBAR').Value;
+        ParamByName('VAL').Value:=Qt.FieldByName('VAL').Value;
+        ParamByName('PQF1').Value:=Qt.FieldByName('PQF1').Value;
+        ParamByName('PQF2').Value:=Qt.FieldByName('PQF2').Value;
+        ParamByName('SQF').Value:=Qt.FieldByName('SQF').Value;
+        ParamByName('BOTTLE_NUMBER').Value:=Qt.FieldByName('BOTTLE_NUMBER').Value;
+        ParamByName('UNITS_ID').Value:=Qt.FieldByName('UNITS_ID').Value;
+        ParamByName('INSTRUMENT_ID').Value:=Instr_id;
+        ParamByName('PROFILE_NUMBER').Value:=Prof_num;
+       ExecSQL;
+      end;
+     Qt.Next;
+   end;
+
+   frmdm.TR.CommitRetaining;
+   except
+    On E :Exception do begin
+     ShowMessage(E.Message);
+     frmdm.TR.RollbackRetaining;
+    end;
+   end;
+
+   finally
+     Qt.EnableControls;
+   end;
+
+   ChangeID(ID);
 end;
 
+
+procedure Tfrmprofile_station_single.iSetProfileNum1Click(Sender: TObject);
+Var
+  TabName, Instr_name:string;
+  ID, Prof_num, prof_cur, instr_id: integer;
+  TRt:TSQLTransaction;
+  Qt1:TSQLQuery;
+begin
+   TabName:=TabControl1.Tabs[TabControl1.TabIndex];
+   Instr_name:=trim(Copy(TabName, 1, Pos(',', TabName)-1));
+   Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
+
+   if prof_num=1 then if MessageDlg('Selected profile is already #1!',
+     mtWarning, [MbOk], 0)=MrOk then exit;
+
+   try
+     TRt:=TSQLTransaction.Create(self);
+     TRt.DataBase:=frmdm.IBDB;
+
+     Qt1:=TSQLQuery.Create(self);
+     Qt1.Database:=frmdm.IBDB;
+     Qt1.Transaction:=TRt;
+
+     ID:=frmdm.Q.FieldByName('ID').AsInteger;
+
+      with qt1 do begin
+        Close;
+          Sql.Clear;
+          SQL.Add(' SELECT ID FROM INSTRUMENT WHERE NAME=:INSTR ');
+          ParamByName('INSTR').Value:=INSTR_NAME;
+        Open;
+         Instr_id:=qt1.Fields[0].AsInteger;
+        Close;
+      end;
+
+       with frmdm.q2 do begin
+          UpdateSQL.Clear;
+          UpdateSQL.Add(' UPDATE '+CurrentParTable);
+          UpdateSQL.Add(' SET PROFILE_NUMBER=:PROFILE_NUMBER ');
+          UpdateSQL.Add(' WHERE '+CurrentParTable+'.ID=:ID AND ');
+          UpdateSQL.Add(CurrentParTable+'.INSTRUMENT_ID=:INSTRUMENT_ID AND ');
+          UpdateSQL.Add(CurrentParTable+'.LEV_M=:LEV_M AND ');
+          UpdateSQL.Add(CurrentParTable+'.LEV_DBAR=:LEV_DBAR');
+        end;
+
+       with frmdm.q2 do begin
+         Close;
+           Sql.Clear;
+           SQL.Add(' SELECT * FROM ');
+           SQL.Add( CurrentParTable);
+           SQL.Add(' WHERE ');
+           SQL.Add( CurrentParTable+'.ID=:ID AND ');
+           SQL.Add( CurrentParTable+'.INSTRUMENT_ID=:I_ID ');
+           ParamByName('ID').AsInteger:=ID;
+           ParamByName('I_ID').Value:=INSTR_ID;
+         Open;
+        end;
+
+        while not frmdm.q2.EOF do begin
+         Prof_cur:=frmdm.q2.FieldByName('PROFILE_NUMBER').AsInteger;
+          frmdm.q2.Edit;
+           //showmessage(inttostr(prof_cur));
+           if prof_cur=1 then frmdm.q2.FieldByName('PROFILE_NUMBER').Value:=prof_num;
+           if prof_cur=prof_num then frmdm.q2.FieldByName('PROFILE_NUMBER').Value:=1;
+          // showmessage(Qt1.FieldByName('PROFILE_NUMBER').Value);
+          frmdm.q2.Post;
+         frmdm.q2.Next;
+        end;
+        frmdm.q2.ApplyUpdates(0);
+        frmdm.q2.UpdateSQL.Clear;
+        frmdm.q2.Close;
+        frmdm.TR.CommitRetaining;
+    finally
+     Trt.Commit;
+     Qt1.Free;
+     Trt.Free;
+     TabControl1.OnChange(self);
+    end;
+end;
+
+
+
+procedure Tfrmprofile_station_single.HighlightSeries(ASeries: TBasicChartSeries);
+var
+  series: TCustomChartSeries;
+begin
+  for series in CustomSeries(Chart1) do
+    if series is TLineSeries then
+    begin
+      if (series = ASeries) then begin
+        TLineSeries(series).LinePen.Width:=3;
+        TLineSeries(series).Pointer.HorizSize:=4;
+        TLineSeries(series).Pointer.VertSize:=4;
+        TLineSeries(series).ZPosition:=mik;
+      end;
+      if (series <> ASeries) then begin
+        TLineSeries(series).LinePen.Width:=2;
+        TLineSeries(series).Pointer.HorizSize:=3;
+        TLineSeries(series).Pointer.VertSize:=3;
+        TLineSeries(series).ZPosition:=0;
+      end;
+    end;
+end;
 
 
 procedure Tfrmprofile_station_single.FormClose(Sender: TObject;
@@ -650,8 +862,6 @@ begin
      Ini.WriteInteger( IniSection, 'DBGridCol05',  Columns[5].Width);
      Ini.WriteInteger( IniSection, 'DBGridCol06',  Columns[6].Width);
      Ini.WriteInteger( IniSection, 'DBGridCol07',  Columns[7].Width);
-     Ini.WriteInteger( IniSection, 'DBGridCol08',  Columns[8].Width);
-     Ini.WriteInteger( IniSection, 'DBGridCol09',  Columns[9].Width);
     end;
 
   finally

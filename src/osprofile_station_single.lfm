@@ -1,11 +1,11 @@
 object frmprofile_station_single: Tfrmprofile_station_single
-  Left = 363
+  Left = 532
   Height = 634
-  Top = 220
-  Width = 1165
+  Top = 204
+  Width = 997
   Caption = 'frmprofile_station_single'
   ClientHeight = 634
-  ClientWidth = 1165
+  ClientWidth = 997
   DesignTimePPI = 144
   OnClose = FormClose
   OnShow = FormShow
@@ -65,14 +65,6 @@ object frmprofile_station_single: Tfrmprofile_station_single
       )
       Toolset = ChartToolset1
       Align = alClient
-      object Series1: TLineSeries
-        LinePen.Color = clNavy
-        LinePen.Width = 2
-        Pointer.Brush.Color = clNavy
-        Pointer.Style = psCircle
-        Pointer.Visible = True
-        ShowPoints = True
-      end
     end
   end
   object Splitter1: TSplitter
@@ -86,19 +78,19 @@ object frmprofile_station_single: Tfrmprofile_station_single
     Left = 335
     Height = 562
     Top = 0
-    Width = 830
+    Width = 662
     Align = alClient
     BevelOuter = bvNone
     Caption = 'Panel2'
     ClientHeight = 562
-    ClientWidth = 830
+    ClientWidth = 662
     TabOrder = 2
     object ToolBar1: TToolBar
       Left = 0
-      Top = 0
-      Width = 830
+      Top = 34
+      Width = 662
       ButtonHeight = 30
-      ButtonWidth = 50
+      ButtonWidth = 80
       Caption = 'ToolBar1'
       Font.Color = clWindowText
       Font.Height = -17
@@ -111,7 +103,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
       ShowHint = True
       TabOrder = 0
       object btnAdd: TToolButton
-        Left = 400
+        Left = 1
         Hint = 'Add level'
         Top = 2
         Caption = 'Add'
@@ -119,7 +111,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
         OnClick = btnAddClick
       end
       object btnDelete: TToolButton
-        Left = 455
+        Left = 81
         Hint = 'Delete level'
         Top = 2
         Caption = 'Delete'
@@ -127,7 +119,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
         OnClick = btnDeleteClick
       end
       object btnCommit: TToolButton
-        Left = 535
+        Left = 166
         Hint = 'Commit changes'
         Top = 2
         Caption = 'Save'
@@ -135,68 +127,18 @@ object frmprofile_station_single: Tfrmprofile_station_single
         OnClick = btnCommitClick
       end
       object ToolButton4: TToolButton
-        Left = 530
+        Left = 161
         Height = 30
         Top = 2
         Caption = 'ToolButton4'
         Style = tbsDivider
       end
-      object Panel3: TPanel
-        Left = 0
-        Height = 35
-        Top = 0
-        Width = 400
-        Align = alTop
-        BevelOuter = bvNone
-        ClientHeight = 35
-        ClientWidth = 400
-        TabOrder = 0
-        object Label1: TLabel
-          Left = 8
-          Height = 21
-          Top = 6
-          Width = 82
-          Caption = 'Instrument'
-          Layout = tlCenter
-          ParentColor = False
-        end
-        object cbInstrument: TComboBox
-          Left = 104
-          Height = 29
-          Hint = 'Instrument'
-          Top = 2
-          Width = 70
-          ItemHeight = 21
-          OnChange = cbInstrumentChange
-          Style = csDropDownList
-          TabOrder = 0
-        end
-        object Label2: TLabel
-          Left = 192
-          Height = 21
-          Top = 6
-          Width = 107
-          Caption = 'Profile number'
-          ParentColor = False
-        end
-        object cbProfileNumber: TComboBox
-          Left = 312
-          Height = 29
-          Hint = 'Profile number'
-          Top = 2
-          Width = 70
-          ItemHeight = 21
-          OnChange = cbProfileNumberChange
-          Style = csDropDownList
-          TabOrder = 1
-        end
-      end
     end
     object DBGridSingleProfile: TDBGrid
       Left = 0
-      Height = 530
-      Top = 32
-      Width = 830
+      Height = 496
+      Top = 66
+      Width = 662
       Align = alClient
       AlternateColor = 13631478
       Color = 13627366
@@ -253,12 +195,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
           FieldName = 'UNITS_ID'
         end      
         item
-          DropDownRows = 20
-          Title.Caption = 'Instr. ID'
-          FieldName = 'INSTRUMENT_ID'
-        end      
-        item
-          Title.Caption = 'Profile #'
+          Title.Caption = 'PROFILE_NUMBER'
           FieldName = 'PROFILE_NUMBER'
         end>
       DataSource = DS
@@ -278,12 +215,21 @@ object frmprofile_station_single: Tfrmprofile_station_single
       OnPrepareCanvas = DBGridSingleProfilePrepareCanvas
       OnSelectEditor = DBGridSingleProfileSelectEditor
     end
+    object TabControl1: TTabControl
+      Left = 0
+      Height = 34
+      Top = 0
+      Width = 662
+      OnChange = TabControl1Change
+      Align = alTop
+      TabOrder = 2
+    end
   end
   object StatusBar1: TStatusBar
     Left = 0
     Height = 36
     Top = 562
-    Width = 1165
+    Width = 997
     Panels = <    
       item
         Text = 'Level'
@@ -311,7 +257,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
     Left = 0
     Height = 36
     Top = 598
-    Width = 1165
+    Width = 997
     Panels = <    
       item
         Text = 'Value'
@@ -351,19 +297,21 @@ object frmprofile_station_single: Tfrmprofile_station_single
   object ChartToolset1: TChartToolset
     left = 140
     top = 139
-    object ChartToolset1DataPointClickTool1: TDataPointClickTool
+    object DPCT: TDataPointClickTool
       Shift = [ssLeft]
       ActiveCursor = crHandPoint
-      OnPointClick = ChartToolset1DataPointClickTool1PointClick
+      OnPointClick = DPCTPointClick
     end
-    object ChartToolset1ZoomDragTool1: TZoomDragTool
+    object DPHT: TDataPointHintTool
+      OnAfterMouseMove = DPHTAfterMouseMove
+      ActiveCursor = crHandPoint
+    end
+    object ZDT: TZoomDragTool
+      Shift = [ssLeft]
       Brush.Style = bsClear
       RestoreExtentOn = [zreDragTopLeft, zreDragTopRight, zreDragBottomLeft]
     end
-    object ChartToolset1ZoomMouseWheelTool1: TZoomMouseWheelTool
-    end
-    object ChartToolset1DataPointHintTool1: TDataPointHintTool
-      ActiveCursor = crHandPoint
+    object ZMWT: TZoomMouseWheelTool
     end
   end
   object PM: TPopupMenu
@@ -383,6 +331,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
     end
     object iSetProfileNum1: TMenuItem
       Caption = 'Set profile number  = 1'
+      Enabled = False
       OnClick = iSetProfileNum1Click
     end
   end

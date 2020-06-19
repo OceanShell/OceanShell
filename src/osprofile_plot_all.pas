@@ -80,7 +80,7 @@ implementation
 
 { Tfrmprofile_plot_all }
 
-uses osmain, dm, osunitsconversion;
+uses osmain, dm, osunitsconversion, procedures;
 
 
 function Tfrmprofile_plot_all.AddLineSeries(AChart: TChart;
