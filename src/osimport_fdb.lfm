@@ -1,0 +1,65 @@
+object frmimport_fdb: Tfrmimport_fdb
+  Left = 656
+  Height = 436
+  Top = 327
+  Width = 656
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'Import initial FDB database'
+  ClientHeight = 436
+  ClientWidth = 656
+  DesignTimePPI = 144
+  LCLVersion = '2.0.6.0'
+  object btnImportCruise: TButton
+    Left = 24
+    Height = 38
+    Top = 56
+    Width = 161
+    Caption = '1. Import CRUISE'
+    TabOrder = 0
+  end
+  object Memo1: TMemo
+    Left = 24
+    Height = 303
+    Top = 112
+    Width = 609
+    Lines.Strings = (
+      'Memo1'
+    )
+    ScrollBars = ssBoth
+    TabOrder = 1
+  end
+  object btnImportCruise1: TButton
+    Left = 208
+    Height = 38
+    Top = 56
+    Width = 184
+    Caption = '2. Import STATION'
+    OnClick = btnImportCruise1Click
+    TabOrder = 2
+  end
+  object btnImportCruise2: TButton
+    Left = 416
+    Height = 38
+    Top = 56
+    Width = 217
+    Caption = '3. Import PARAMETERS'
+    TabOrder = 3
+  end
+  object ePathDB2: TEdit
+    Left = 24
+    Height = 33
+    Top = 8
+    Width = 552
+    TabOrder = 4
+    Text = 'C:\OceanShell\databases\WOD.FDB'
+  end
+  object btnOpenDB2: TButton
+    Left = 584
+    Height = 33
+    Top = 8
+    Width = 49
+    Caption = '...'
+    TabOrder = 5
+  end
+end

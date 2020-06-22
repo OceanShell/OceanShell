@@ -4,8 +4,8 @@ object frmosmain: Tfrmosmain
   Top = 161
   Width = 1365
   Caption = 'OceanShell'
-  ClientHeight = 670
-  ClientWidth = 1365
+  ClientHeight = 0
+  ClientWidth = 0
   Color = clBtnFace
   Constraints.MinHeight = 700
   Constraints.MinWidth = 1365
@@ -369,7 +369,7 @@ object frmosmain: Tfrmosmain
       object btnAdvancedSelection: TButton
         Left = 1096
         Height = 38
-        Top = 200
+        Top = 96
         Width = 240
         Caption = 'Advanced Selection'
         Enabled = False
@@ -383,7 +383,7 @@ object frmosmain: Tfrmosmain
       object btnCustomSQLQuery: TButton
         Left = 1096
         Height = 38
-        Top = 248
+        Top = 146
         Width = 240
         Caption = 'Custom SQL Query'
         Font.Color = clWindowText
@@ -560,9 +560,9 @@ object frmosmain: Tfrmosmain
       end
       object lbResetSearchStations: TLabel
         Cursor = crHandPoint
-        Left = 1096
+        Left = 977
         Height = 20
-        Top = 96
+        Top = 160
         Width = 95
         Caption = 'Reset search'
         Font.Color = clBlue
@@ -665,6 +665,44 @@ object frmosmain: Tfrmosmain
           ChildSizing.ControlsPerLine = 1
           ColumnLayout = clVerticalThenHorizontal
           Columns = 5
+          TabOrder = 0
+          Visible = False
+        end
+      end
+      object ScrollBox2: TScrollBox
+        Left = 1096
+        Height = 354
+        Top = 192
+        Width = 240
+        HorzScrollBar.Page = 115
+        VertScrollBar.Page = 24
+        Anchors = [akTop, akLeft, akBottom]
+        BorderStyle = bsNone
+        ClientHeight = 354
+        ClientWidth = 240
+        TabOrder = 11
+        Visible = False
+        object chkinstrument: TCheckGroup
+          Left = 0
+          Height = 354
+          Top = 0
+          Width = 240
+          Align = alClient
+          AutoFill = True
+          Caption = 'Instruments'
+          ChildSizing.LeftRightSpacing = 6
+          ChildSizing.TopBottomSpacing = 6
+          ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+          ChildSizing.EnlargeVertical = crsHomogenousChildResize
+          ChildSizing.ShrinkHorizontal = crsScaleChilds
+          ChildSizing.ShrinkVertical = crsScaleChilds
+          ChildSizing.Layout = cclTopToBottomThenLeftToRight
+          ColumnLayout = clVerticalThenHorizontal
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentFont = False
           TabOrder = 0
         end
       end
@@ -1258,7 +1296,7 @@ object frmosmain: Tfrmosmain
               end
               object ToolButton8: TToolButton
                 Left = 51
-                Height = 33
+                Height = 5
                 Top = 0
                 Caption = 'ToolButton8'
                 Style = tbsDivider
@@ -1544,7 +1582,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton3: TToolButton
             Left = 101
-            Height = 33
+            Height = 5
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider
@@ -1624,7 +1662,7 @@ object frmosmain: Tfrmosmain
         end
         object ToolButton1: TToolButton
           Left = 106
-          Height = 33
+          Height = 5
           Top = 0
           Caption = 'ToolButton1'
           Style = tbsDivider

@@ -25,11 +25,11 @@ type
     ChartToolset1: TChartToolset;
     DPCT: TDataPointClickTool;
     DPHT: TDataPointHintTool;
+    MenuItem1: TMenuItem;
+    btnBestProfile: TMenuItem;
     ZDT: TZoomDragTool;
     ZMWT: TZoomMouseWheelTool;
     DS: TDataSource;
-    iSetProfileNum1: TMenuItem;
-    MenuItem2: TMenuItem;
     PM: TPopupMenu;
     DBGridSingleProfile: TDBGrid;
     Panel1: TPanel;
@@ -44,7 +44,9 @@ type
     ToolBar1: TToolBar;
     ToolButton4: TToolButton;
 
+    procedure FormShow(Sender: TObject);
     procedure btnAddClick(Sender: TObject);
+    procedure btnBestProfileClick(Sender: TObject);
     procedure btnCommitClick(Sender: TObject);
     procedure btnDeleteClick(Sender: TObject);
     procedure cbParametersChange(Sender: TObject);
@@ -55,12 +57,10 @@ type
     procedure DBGridSingleProfileSelectEditor(Sender: TObject; Column: TColumn;
       var Editor: TWinControl);
     procedure DPHTAfterMouseMove(ATool: TChartTool; APoint: TPoint);
-    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
-    procedure FormShow(Sender: TObject);
-    procedure iSetProfileNum1Click(Sender: TObject);
     procedure SetFlagAboveClick(Sender: TObject);
     procedure SetFlagBelowClick(Sender: TObject);
     procedure TabControl1Change(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
 
   private
     function AddLineSeries (AChart: TChart; ATitle: String; AColor:TColor; sName:string):TLineSeries;
@@ -211,9 +211,10 @@ var
   k, tt, prof_num:integer;
   TRt:TSQLTransaction;
   Qt1, Qt2:TSQLQuery;
-  Instr_name, TabName, SName:string;
+  Instr_name, TabName, SName, isbest:string;
+  prof_best: boolean;
   lev_m, lev_d, val1: real;
-  S_clr:Array[1..10] of TColor;
+  S_clr:Array[1..16] of TColor;
 begin
 
 if (CurrentParTable='') then CurrentParTable:=cbParameters.Items.Strings[0];
@@ -271,10 +272,11 @@ S_clr[16]:=clLtGray;
      if not Qt1.IsEmpty then begin
        TabControl1.Tabs.Clear;
        while not Qt1.EOF do begin
-         with Qt2 do begin
+
+        with Qt2 do begin
           Close;
             SQL.Clear;
-            SQL.Add(' SELECT DISTINCT(PROFILE_NUMBER) FROM ');
+            SQL.Add(' SELECT DISTINCT(PROFILE_NUMBER), PROFILE_BEST FROM ');
             SQL.Add( CurrentParTable);
             SQL.Add(' WHERE ');
             SQL.Add( CurrentParTable+'.ID=:ID AND INSTRUMENT_ID=:I_ID ');
@@ -284,7 +286,13 @@ S_clr[16]:=clLtGray;
         end;
 
         while not Qt2.eof do begin
-          TabControl1.Tabs.Add(Qt1.Fields[1].Value+ ', Profile '+inttostr(Qt2.Fields[0].AsInteger));
+          prof_num :=Qt2.Fields[0].AsInteger;
+          prof_best:=Qt2.Fields[1].AsBoolean;
+
+          TabName:=Qt1.Fields[1].Value+', Profile '+inttostr(prof_num);
+          if prof_best=true then TabName:=TabName+' [BEST]';
+
+          TabControl1.Tabs.Add(TabName);
          Qt2.Next;
         end;
         Qt2.Close;
@@ -308,9 +316,16 @@ S_clr[16]:=clLtGray;
   Chart1.Series.Clear;
    for tt:=0 to TabControl1.Tabs.Count-1 do begin
      TabName:=TabControl1.Tabs.Strings[tt];
+     isbest:='';
+     if Pos('[', TabName) <> 0 then begin
+        TabName:=copy(TabName, 1, Pos('[', TabName)-2);
+        isbest:='__B';
+     end;
+
      Instr_name:=trim(Copy(TabName, 1, Pos(',', TabName)-1));
      Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
-     sName:=instr_name+'_'+inttostr(prof_num);
+
+     sName:=instr_name+'_'+inttostr(prof_num)+isbest;
 
      inc(mik);
     // showmessage(inttostr(mik));
@@ -368,6 +383,7 @@ Var
   Prof_num, ss: integer;
 begin
   TabName:=TabControl1.Tabs.Strings[TabControl1.TabIndex];
+  if Pos('[', TabName) <> 0 then TabName:=copy(TabName, 1, Pos('[', TabName)-2);
 
   Instr_name:=trim(Copy(TabName, 1, Pos(',', TabName)-1));
   Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
@@ -410,11 +426,10 @@ begin
     ini.Free;
   end;
 
-//  showmessage('here');
-
   Items_id:=cbParameters.ItemIndex;
 
-  //  showmessage(instr_name+'   '+inttostr(prof_num));
+  try
+  Qt.DisableControls;
 
         with Qt do begin
          Close;
@@ -435,11 +450,7 @@ begin
          Open;
         end;
 
-      //  showmessage(inttostr(qt.RecordCount));
-
-  if Qt.IsEmpty=false then
-   try
-   Qt.DisableControls;
+  if Qt.IsEmpty=false then begin
     Val_Sum:=0; Lev_sum:=0;
     Val_min:=10000; Val_max:=-9999;
     Lev_min:=10000; Lev_max:=-9999;
@@ -534,10 +545,11 @@ begin
    StatusBar2.Panels[4].Text:='Avg= '  +floattostrF(Avg_Val, fffixed,8,4);
    StatusBar2.Panels[5].Text:='Units= '+Units;
 
-  // showmessage('here5');
+  end;
   finally
     Qt.EnableControls;
   end;
+
 
 //  showmessage('here6');
 
@@ -590,7 +602,11 @@ begin
     series := TLineSeries(tool.Series);
 
     INSTR_NAME:=Copy(series.Name, 1, Pos('_', Series.Name)-1);
+
     Prof_num:=Copy(series.name, Pos('_', Series.Name)+1, length(series.name));
+
+    if Pos('__B', series.name)<>0 then
+      Prof_num:=StringReplace(Prof_num, '__B', ' [BEST]', []);
 
     TabControl1.TabIndex:=TabControl1.IndexOfTabWithCaption(INSTR_NAME+', Profile '+Prof_num);
     TabControl1.OnChange(self);
@@ -660,6 +676,8 @@ begin
   ID:=frmdm.Q.FieldByName('ID').AsInteger;
 
   TabName:=TabControl1.Tabs[TabControl1.TabIndex];
+  if Pos('[', TabName) <> 0 then TabName:=copy(TabName, 1, Pos('[', TabName)-2);
+
   Instr_name:=Copy(tabName, 1, Pos(',', TabName)-1);
   Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
 
@@ -732,88 +750,62 @@ begin
    finally
      Qt.EnableControls;
    end;
-
-   ChangeID(ID);
+ ChangeID(ID);
 end;
 
 
-procedure Tfrmprofile_station_single.iSetProfileNum1Click(Sender: TObject);
+procedure Tfrmprofile_station_single.btnBestProfileClick(Sender: TObject);
 Var
   TabName, Instr_name:string;
   ID, Prof_num, prof_cur, instr_id: integer;
   TRt:TSQLTransaction;
   Qt1:TSQLQuery;
 begin
-   TabName:=TabControl1.Tabs[TabControl1.TabIndex];
-   Instr_name:=trim(Copy(TabName, 1, Pos(',', TabName)-1));
-   Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
+  TabName:=TabControl1.Tabs.Strings[TabControl1.TabIndex];
+  if Pos('[', TabName) <> 0 then
+   if MessageDlg('This profile is already the BEST!', mtWarning, [mbOk], 0)=mrOk then exit;
 
-   if prof_num=1 then if MessageDlg('Selected profile is already #1!',
-     mtWarning, [MbOk], 0)=MrOk then exit;
+  Instr_name:=trim(Copy(TabName, 1, Pos(',', TabName)-1));
+  Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
+  ID:=frmdm.Q.FieldByName('ID').AsInteger;
 
-   try
-     TRt:=TSQLTransaction.Create(self);
-     TRt.DataBase:=frmdm.IBDB;
-
-     Qt1:=TSQLQuery.Create(self);
-     Qt1.Database:=frmdm.IBDB;
-     Qt1.Transaction:=TRt;
-
-     ID:=frmdm.Q.FieldByName('ID').AsInteger;
-
-      with qt1 do begin
+      with frmdm.q1 do begin
         Close;
           Sql.Clear;
           SQL.Add(' SELECT ID FROM INSTRUMENT WHERE NAME=:INSTR ');
           ParamByName('INSTR').Value:=INSTR_NAME;
         Open;
-         Instr_id:=qt1.Fields[0].AsInteger;
+         Instr_id := frmdm.q1.Fields[0].AsInteger;
         Close;
       end;
 
-       with frmdm.q2 do begin
-          UpdateSQL.Clear;
-          UpdateSQL.Add(' UPDATE '+CurrentParTable);
-          UpdateSQL.Add(' SET PROFILE_NUMBER=:PROFILE_NUMBER ');
-          UpdateSQL.Add(' WHERE '+CurrentParTable+'.ID=:ID AND ');
-          UpdateSQL.Add(CurrentParTable+'.INSTRUMENT_ID=:INSTRUMENT_ID AND ');
-          UpdateSQL.Add(CurrentParTable+'.LEV_M=:LEV_M AND ');
-          UpdateSQL.Add(CurrentParTable+'.LEV_DBAR=:LEV_DBAR');
-        end;
+      with frmdm.q1 do begin
+        Close;
+          SQL.Clear;
+          SQL.Add(' UPDATE '+CurrentParTable);
+          SQL.Add(' SET PROFILE_BEST=FALSE ');
+          SQL.Add(' WHERE '+CurrentParTable+'.ID=:ID ');
+          ParambyName('ID').AsInteger:=ID;
+        ExecSQL;
+      end;
+      frmdm.TR.CommitRetaining;
 
-       with frmdm.q2 do begin
-         Close;
-           Sql.Clear;
-           SQL.Add(' SELECT * FROM ');
-           SQL.Add( CurrentParTable);
-           SQL.Add(' WHERE ');
-           SQL.Add( CurrentParTable+'.ID=:ID AND ');
-           SQL.Add( CurrentParTable+'.INSTRUMENT_ID=:I_ID ');
-           ParamByName('ID').AsInteger:=ID;
-           ParamByName('I_ID').Value:=INSTR_ID;
-         Open;
-        end;
+      with frmdm.q1 do begin
+        Close;
+          SQL.Clear;
+          SQL.Add(' UPDATE '+CurrentParTable);
+          SQL.Add(' SET PROFILE_BEST=TRUE WHERE ');
+          SQL.Add( CurrentParTable+'.ID=:ID AND ');
+          SQL.Add( CurrentParTable+'.INSTRUMENT_ID=:I_ID AND ');
+          SQL.Add( CurrentParTable+'.PROFILE_NUMBER=:PROF_NUM ');
+          ParamByName('ID').AsInteger:=ID;
+          ParamByName('I_ID').Value:=INSTR_ID;
+          ParamByName('PROF_NUM').Value:=PROF_NUM;
+        ExecSQL;
+      end;
+      frmdm.TR.CommitRetaining;
 
-        while not frmdm.q2.EOF do begin
-         Prof_cur:=frmdm.q2.FieldByName('PROFILE_NUMBER').AsInteger;
-          frmdm.q2.Edit;
-           //showmessage(inttostr(prof_cur));
-           if prof_cur=1 then frmdm.q2.FieldByName('PROFILE_NUMBER').Value:=prof_num;
-           if prof_cur=prof_num then frmdm.q2.FieldByName('PROFILE_NUMBER').Value:=1;
-          // showmessage(Qt1.FieldByName('PROFILE_NUMBER').Value);
-          frmdm.q2.Post;
-         frmdm.q2.Next;
-        end;
-        frmdm.q2.ApplyUpdates(0);
-        frmdm.q2.UpdateSQL.Clear;
-        frmdm.q2.Close;
-        frmdm.TR.CommitRetaining;
-    finally
-     Trt.Commit;
-     Qt1.Free;
-     Trt.Free;
-     TabControl1.OnChange(self);
-    end;
+  TabControl1.OnChange(self);
 end;
 
 

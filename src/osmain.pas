@@ -7,7 +7,7 @@ interface
 uses
   SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, LCLType,
   Menus, Dialogs, ActnList, StdCtrls, INIFiles, ExtCtrls, DateUtils, sqldb, DB,
-  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math, Grids, LCLIntf;
+  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math, Grids, LCLIntf, Types;
 
 type
 
@@ -67,6 +67,7 @@ type
     chkNOTProject: TCheckBox;
     chkCruiseNOTSource: TCheckBox;
     chkParameters: TCheckGroup;
+    chkinstrument: TCheckGroup;
     chkPeriod: TCheckBox;
     cbPlatform: TComboBox;
     DBGridCruise1: TDBGrid;
@@ -145,6 +146,7 @@ type
     sbSelection: TStatusBar;
     ODir: TSelectDirectoryDialog;
     ScrollBox1: TScrollBox;
+    ScrollBox2: TScrollBox;
     seIDMax: TSpinEdit;
     seCruiseIDMax: TSpinEdit;
     seIDMin: TSpinEdit;
@@ -372,6 +374,9 @@ uses
   osservice,
   osservicestatistics,
 
+(* data import *)
+  osimport_fdb,
+
 (* data export *)
   osexport_divand,
   osexport_ascii,
@@ -593,8 +598,13 @@ Lat, Lon:real; }
 time0, time1:TDateTime;
 buf_str: string;
 begin
-DecodeDate(dtpDateMin.Date, SSYearMin, SSMonthMin, SSDayMin);
-DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
+
+frmosmain.Enabled:=false;
+Application.ProcessMessages;
+
+try
+ DecodeDate(dtpDateMin.Date, SSYearMin, SSMonthMin, SSDayMin);
+ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
 
   if chkNOTPlatform.Checked  =true then NotCondCountry   :='NOT' else NotCondCountry   :='';
   if chkNOTPlatform.Checked  =true then NotCondPlatform  :='NOT' else NotCondPlatform  :='';
@@ -718,6 +728,11 @@ DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
 
  SelectionInfo;
  CDSNavigation;
+
+finally
+  frmosmain.Enabled:=true;
+  Application.ProcessMessages;
+end;
 end;
 
 
@@ -986,8 +1001,28 @@ begin
 end;
 
 procedure Tfrmosmain.iInitialDatabaseClick(Sender: TObject);
+Var
+  Ini:TIniFile;
+  DBName:string;
 begin
- //
+  Ini := TIniFile.Create(IniFileName);
+  try
+   DBName:=Ini.ReadString( 'main', 'OceanFDBPath',  '');
+  finally
+    Ini.free;
+  end;
+
+  if FileExists(DBName) then begin
+   frmimport_fdb := Tfrmimport_fdb.Create(Self);
+     try
+      if not frmimport_fdb.ShowModal = mrOk then exit;
+     finally
+       frmimport_fdb.Free;
+       frmimport_fdb := nil;
+     end;
+  end else
+   if MessageDlg('Please, specify path to Ocean.fdb', mtWarning, [mbOk], 0)=mrOk then
+    aSettings.Execute();
 end;
 
 procedure Tfrmosmain.iExportASCIIClick(Sender: TObject);
@@ -1281,8 +1316,10 @@ Qt_DB1.Transaction:=TRt_DB1;
      TempList.Free;
    end;
 
+   chkParameters.Visible:=false;
    chkParameters.Items.Clear;
    chkParameters.Items:=ListBox1.Items;
+   chkParameters.Visible:=true;
 
    (* Loading ENTRY list *)
    FetchEntries;
@@ -1419,7 +1456,7 @@ begin
    cbInstitute.Clear;
    cbProject.Clear;
 
-    For pp:=1 to 6 do begin
+    For pp:=1 to 7 do begin
       Qt.Close;
        case pp of
          1: Qt.SQL.Text:=' SELECT DISTINCT NAME FROM PLATFORM ORDER BY NAME ';
@@ -1428,35 +1465,29 @@ begin
          4: Qt.SQL.Text:=' SELECT DISTINCT NAME FROM INSTITUTE ORDER BY NAME ';
          5: Qt.SQL.Text:=' SELECT DISTINCT NAME FROM PROJECT ORDER BY NAME ';
          6: Qt.SQL.Text:=' SELECT DISTINCT NAME FROM ENTRY_TYPE ORDER BY NAME ';
+         7: Qt.SQL.Text:=' SELECT DISTINCT NAME FROM INSTRUMENT ORDER BY ID ';
        end;
       Qt.Open;
 
       while not Qt.Eof do begin
         case pp of
-         1: begin
-              DBGridCruise1.Columns[2].PickList.Add(Qt.Fields[0].AsString);
-              cbPlatform.Items.Add(Qt.Fields[0].AsString);
-            end;
-         2: begin
-             DBGridCruise2.Columns[0].PickList.Add(Qt.Fields[0].AsString);
-             cbCountry.Items.Add(Qt.Fields[0].AsString);
-            end;
-         3: begin
-              DBGridCruise1.Columns[4].PickList.Add(Qt.Fields[0].AsString);
-              cbSource.Items.Add(Qt.Fields[0].AsString);
-            end;
-         4: begin
-              DBGridCruise2.Columns[1].PickList.Add(Qt.Fields[0].AsString);
-              cbInstitute.Items.Add(Qt.Fields[0].AsString);
-            end;
-         5: begin
-              DBGridCruise2.Columns[2].PickList.Add(Qt.Fields[0].AsString);
-              cbProject.Items.Add(Qt.Fields[0].AsString);
-            end;
+         1: cbPlatform.Items.Add(Qt.Fields[0].AsString);
+         2: cbCountry.Items.Add(Qt.Fields[0].AsString);
+         3: cbSource.Items.Add(Qt.Fields[0].AsString);
+         4: cbInstitute.Items.Add(Qt.Fields[0].AsString);
+         5: cbProject.Items.Add(Qt.Fields[0].AsString);
          6: DBGridEntry.Columns[2].PickList.Add(Qt.Fields[0].AsString);
+         7: chkInstrument.Items.Add(Qt.Fields[0].AsString);
         end;
        Qt.Next;
       end;
+
+      DBGridCruise1.Columns[2].PickList:=cbPlatform.Items;
+      DBGridCruise1.Columns[4].PickList:=cbSource.Items;
+      DBGridCruise2.Columns[0].PickList:=cbCountry.Items;
+      DBGridCruise2.Columns[1].PickList:=cbInstitute.Items;
+      DBGridCruise2.Columns[2].PickList:=cbProject.Items;
+
     end;
     Qt.Close;
     TRt.Commit;

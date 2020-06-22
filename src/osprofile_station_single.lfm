@@ -193,10 +193,6 @@ object frmprofile_station_single: Tfrmprofile_station_single
           DropDownRows = 20
           Title.Caption = 'Units ID'
           FieldName = 'UNITS_ID'
-        end      
-        item
-          Title.Caption = 'PROFILE_NUMBER'
-          FieldName = 'PROFILE_NUMBER'
         end>
       DataSource = DS
       FixedCols = 0
@@ -326,13 +322,12 @@ object frmprofile_station_single: Tfrmprofile_station_single
       Caption = 'Set selected PQF2 ABOVE this level'
       OnClick = SetFlagAboveClick
     end
-    object MenuItem2: TMenuItem
+    object MenuItem1: TMenuItem
       Caption = '-'
     end
-    object iSetProfileNum1: TMenuItem
-      Caption = 'Set profile number  = 1'
-      Enabled = False
-      OnClick = iSetProfileNum1Click
+    object btnBestProfile: TMenuItem
+      Caption = 'This profile is the BEST!'
+      OnClick = btnBestProfileClick
     end
   end
 end
