@@ -1670,8 +1670,6 @@ AssignFile(dat, GlobalUnloadPath+'CatalogUpdate.txt'); rewrite(dat);
 
   finally
     Closefile(dat);
-    if frmdm.QCruise.Modified then
-      btnSaveCruise.OnClick(self);
     frmdm.QCruise.Locate('ID', ID_OLD, []);
     frmdm.QCruise.EnableControls;
   end;

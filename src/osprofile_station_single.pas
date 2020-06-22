@@ -805,7 +805,7 @@ begin
       end;
       frmdm.TR.CommitRetaining;
 
-  TabControl1.OnChange(self);
+  ChangeID(ID);
 end;
 
 

@@ -1,11 +1,11 @@
 object frmosmain: Tfrmosmain
-  Left = 411
+  Left = 262
   Height = 700
-  Top = 161
+  Top = 172
   Width = 1365
   Caption = 'OceanShell'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 670
+  ClientWidth = 1365
   Color = clBtnFace
   Constraints.MinHeight = 700
   Constraints.MinWidth = 1365

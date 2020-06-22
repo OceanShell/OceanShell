@@ -293,6 +293,7 @@
         <Filename Value="osimport_fdb.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmimport_fdb"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit40>
     </Units>
