@@ -450,3 +450,81 @@ SASHA-UX330	Sat Jun 06 00:35:00 2020
 	Database "X:\OCEANSHELL\DATABASES\ARGO.FDB" 
 	OIT 3677814, OAT 3677815, OST 3677815, Next 3702084
 
+
+SASHA-UX330	Tue Jun 23 09:52:18 2020
+	Sweep is started by SWEEPER
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 2286, OAT 22457, OST 22457, Next 22458
+
+
+SASHA-UX330	Tue Jun 23 09:54:58 2020
+	Sweep is started by SWEEPER
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 2286, OAT 24364, OST 24364, Next 24365
+
+
+SASHA-UX330	Tue Jun 23 09:55:57 2020
+	Shutting down the server with 1 active connection(s) to 1 database(s), 0 active service(s)
+
+
+SASHA-UX330	Tue Jun 23 09:55:57 2020
+	JProvider::shutdown:
+	Firebird shutdown is still in progress after the specified timeout
+
+
+SASHA-UX330	Tue Jun 23 09:55:57 2020
+	Error during sweep of C:\OCEANSHELL\DATABASES\OCEAN.FDB:
+	connection shutdown
+
+
+SASHA-UX330	Tue Jun 23 09:57:34 2020
+	Sweep is started by SWEEPER
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 2286, OAT 24773, OST 24773, Next 24774
+
+
+SASHA-UX330	Tue Jun 23 09:58:34 2020
+	Shutting down the server with 1 active connection(s) to 1 database(s), 0 active service(s)
+
+
+SASHA-UX330	Tue Jun 23 09:58:34 2020
+	Error during sweep of C:\OCEANSHELL\DATABASES\OCEAN.FDB:
+	connection shutdown
+
+
+SASHA-UX330	Tue Jun 23 09:58:35 2020
+	JProvider::shutdown:
+	Firebird shutdown is still in progress after the specified timeout
+
+
+SASHA-UX330	Tue Jun 23 10:02:01 2020
+	Sweep is started by SWEEPER
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 2286, OAT 25385, OST 25385, Next 25386
+
+
+SASHA-UX330	Tue Jun 23 10:05:06 2020
+	Shutting down the server with 1 active connection(s) to 1 database(s), 0 active service(s)
+
+
+SASHA-UX330	Tue Jun 23 10:05:06 2020
+	JProvider::shutdown:
+	Firebird shutdown is still in progress after the specified timeout
+
+
+SASHA-UX330	Tue Jun 23 10:05:07 2020
+	Error during sweep of C:\OCEANSHELL\DATABASES\OCEAN.FDB:
+	connection shutdown
+
+
+SASHA-UX330	Tue Jun 23 10:18:15 2020
+	Sweep is started by SWEEPER
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 2286, OAT 25639, OST 25639, Next 25640
+
+
+SASHA-UX330	Tue Jun 23 10:19:03 2020
+	Sweep is finished
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 25638, OAT 25640, OST 25639, Next 25884
+

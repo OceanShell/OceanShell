@@ -16,30 +16,39 @@ type
   { Tfrmprofile_plot_all }
 
   Tfrmprofile_plot_all = class(TForm)
+    btnFilterSources: TButton;
+    btnClearFilter: TButton;
     Chart1: TChart;
     ChartToolset1: TChartToolset;
+    chkSources: TCheckGroup;
+    chkShowBest: TCheckBox;
     DPH: TDataPointHintTool;
     DPC: TDataPointClickTool;
+    pFilter: TPanel;
     pUnits: TPanel;
     pDepth: TPanel;
     pfiller: TPanel;
     rbUnitsOriginal: TRadioButton;
     rbUnitsDefault: TRadioButton;
-    rbMeters: TRadioButton;
-    rbDbar: TRadioButton;
     ToolButton1: TToolButton;
+    btnFilter: TToolButton;
+    ToolButton3: TToolButton;
     ZD: TZoomDragTool;
     ZMW: TZoomMouseWheelTool;
     ToolBar1: TToolBar;
     btnPrior: TToolButton;
     btnNext: TToolButton;
     btnAllParameters: TToolButton;
-    ToolButton4: TToolButton;
     btnMap: TToolButton;
     ToolButton6: TToolButton;
     btnSingleProfile: TToolButton;
 
 
+    procedure btnClearFilterClick(Sender: TObject);
+    procedure btnFilterClick(Sender: TObject);
+    procedure btnFilterSourcesClick(Sender: TObject);
+    procedure chkHighlightSourceChange(Sender: TObject);
+    procedure chkShowBestChange(Sender: TObject);
     procedure rbUnitsDefaultClick(Sender: TObject);
     procedure rbUnitsOriginalClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -118,8 +127,9 @@ end;
 
 
 procedure Tfrmprofile_plot_all.FormCreate(Sender: TObject);
-var
-Ini:TInifile;
+Var
+  Ini:TInifile;
+  k:integer;
 begin
  Ini := TIniFile.Create(IniFileName);
   try
@@ -130,6 +140,9 @@ begin
   finally
    Ini.Free;
   end;
+
+  chkSources.Items:=frmosmain.cbSource.Items;
+  for k:=0 to chkSources.Items.Count-1 do chkSources.Checked[k]:=true;
 
   InitialPlot;
 end;
@@ -169,7 +182,7 @@ end;
 
  Ini := TIniFile.Create(IniFileName);
  try
-  case Ini.ReadInteger ( 'osmain', 'depth_units', 0) of
+ { case Ini.ReadInteger ( 'osmain', 'depth_units', 0) of
    0: begin
        rbMeters.Checked:=true;
        LeftAxisTitle:='Depth, [m]';
@@ -178,13 +191,10 @@ end;
        rbDbar.Checked:=true;
        LeftAxisTitle:='Depth, [dBar]';
       end;
-  end;
+  end; }
 
-  case Ini.ReadInteger ( 'osmain', 'units_default', 0) of
-   0: rbUnitsOriginal.Checked:=true;
-   1: rbUnitsDefault.Checked:=true;
-  end;
-
+// if Ini.ReadInteger( 'osmain', 'units_default', 0)=0 then
+//   rbUnitsDefault.Checked:=true else rbUnitsOriginal.Checked:=true;
 
  flag_st:='';
  for k:=0 to 8 do
@@ -240,15 +250,18 @@ end;
 
 procedure Tfrmprofile_plot_all.AddToPlot(ID:integer; ToUpdate:boolean);
 Var
-k, flag, units:integer;
+k, flag, units, INSTR_ID, PROF_NUM:integer;
 lev, val1, val_out:real;
 sName:TComponentName;
 lev_m, lev_d:Variant;
 isConverted:boolean=false;
+prof_best, src_fl: boolean;
+Instr_name, Src: string;
 
+sColor:TColor;
 
 TRt:TSQLTransaction;
-Qt:TSQLQuery;
+Qt, Qt1, Qt2:TSQLQuery;
 begin
 TRt:=TSQLTransaction.Create(self);
 TRt.DataBase:=frmdm.IBDB;
@@ -257,23 +270,88 @@ Qt:=TSQLQuery.Create(self);
 Qt.Database:=frmdm.IBDB;
 Qt.Transaction:=TRt;
 
-sName:='s'+inttostr(ID);
+Qt1:=TSQLQuery.Create(self);
+Qt1.Database:=frmdm.IBDB;
+Qt1.Transaction:=TRt;
+
+Qt2:=TSQLQuery.Create(self);
+Qt2.Database:=frmdm.IBDB;
+Qt2.Transaction:=TRt;
+
+{if (chkHighlightSource.Checked) and
+   (frmdm.Q.FieldByName('SRC').Value=cbSource.Text) then
+     sColor:=clFuchsia else sColor:=clGray; }
+
+Src:=frmdm.Q.FieldByName('SRC').AsString;
+Src_Fl:=false;
+for k:=0 to chkSources.Items.Count-1 do
+  if (chkSources.Checked[k]=true) and (chkSources.Items.Strings[k]=Src) then
+   Src_Fl:=true;
+
+if Src_Fl=false then exit;
+
+
 
 try
- with Qt do begin
+
+with Qt1 do begin
   Close;
    SQL.Clear;
-   SQL.Add(' select LEV_DBAR, LEV_M, VAL, PQF2, UNITS_ID from ');
-   SQL.Add( CurrentParTable );
-   SQL.Add(' where ID=:ID AND ');
-   SQL.Add(' PQF2 in ('+flag_st+') AND ');
-   SQL.Add(' INSTRUMENT_ID in ('+instr_st+') ');
-   SQL.Add(' order by LEV_DBAR, LEV_M ');
+   SQL.Add(' SELECT DISTINCT(INSTRUMENT_ID), INSTRUMENT.NAME ');
+   SQL.Add(' FROM INSTRUMENT, '+ CurrentParTable);
+   SQL.Add(' WHERE ');
+   SQL.Add( CurrentParTable+'.INSTRUMENT_ID=INSTRUMENT.ID AND ');
+   SQL.Add( CurrentParTable+'.INSTRUMENT_ID in ('+instr_st+') AND ');
+   SQL.Add( CurrentParTable+'.ID=:ID ');
    ParamByName('ID').AsInteger:=ID;
   Open;
-  Last;
-  First;
  end;
+
+ While not Qt1.eof do begin
+  INSTR_ID:=Qt1.Fields[0].Value;
+  INSTR_NAME:=Qt1.Fields[1].Value;
+
+   with Qt2 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' SELECT DISTINCT(PROFILE_NUMBER), PROFILE_BEST FROM ');
+     SQL.Add( CurrentParTable);
+     SQL.Add(' WHERE ');
+     SQL.Add( CurrentParTable+'.ID=:ID AND INSTRUMENT_ID=:INSTR_ID ');
+     ParamByName('ID').AsInteger:=ID;
+     ParamByName('INSTR_ID').AsInteger:=INSTR_ID;
+    Open;
+   end;
+
+   while not Qt2.eof do begin
+    prof_num :=Qt2.Fields[0].AsInteger;
+    prof_best:=Qt2.Fields[1].AsBoolean;
+
+   // TabName:=Qt1.Fields[1].Value+', Profile '+inttostr(prof_num);
+   // if prof_best=true then TabName:=TabName+' [BEST]';
+
+    with Qt do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' select LEV_DBAR, LEV_M, VAL, PQF2, UNITS_ID from ');
+      SQL.Add( CurrentParTable );
+      SQL.Add(' where ID=:ID AND ');
+      SQL.Add(' PQF2 in ('+flag_st+') AND ');
+      SQL.Add(' INSTRUMENT_ID=:INSTR_ID AND ');
+      SQL.Add(' PROFILE_NUMBER=:PROF_NUM ');
+      if chkShowBest.Checked then
+        SQL.Add(' AND PROFILE_BEST=TRUE ');
+      SQL.Add(' ORDER BY LEV_DBAR, LEV_M ');
+      ParamByName('ID').AsInteger:=ID;
+      ParamByName('INSTR_ID').AsInteger:=INSTR_ID;
+      ParamByName('PROF_NUM').AsInteger:=PROF_NUM;
+     Open;
+     Last;
+     First;
+    end;
+
+
+   sName:='s'+inttostr(ID)+'_'+instr_name+'__'+inttostr(prof_num);
 
    if ToUpdate = true then begin
     for k:=0 to Chart1.SeriesCount-1 do
@@ -291,8 +369,8 @@ try
   if not Qt.IsEmpty then begin
    if ToUpdate = false then begin
     inc(mik);
-    if Qt.RecordCount=1 then AddPointSeries(Chart1, sName, clGray, sName);
-    if Qt.RecordCount>1 then AddLineSeries(Chart1, sName, clGray, sName);
+    if Qt.RecordCount=1 then AddPointSeries(Chart1, sName, sColor, sName);
+    if Qt.RecordCount>1 then AddLineSeries(Chart1, sName, sColor, sName);
    end;
 
    Qt.First;
@@ -303,7 +381,8 @@ try
      flag  := Qt.FieldByName('PQF2').AsInteger;
      units := Qt.FieldByName('UNITS_ID').AsInteger;
 
-     if rbMeters.Checked then lev:=lev_m else lev:=lev_d;
+    // if rbMeters.Checked then lev:=lev_m else lev:=lev_d;
+    lev:=lev_m;
 
      if (rbUnitsDefault.Checked=true) and (units<>units_default) then begin
        osunitsconversion.GetDefaultUnits(CurrentParTable, units, units_default,
@@ -317,10 +396,20 @@ try
     end;
     Qt.Close;
    end;
+   qt2.Next;
+   end;
+  qt1.Next;
+ end;
 
 finally
  Qt.Close;
+ Qt1.Close;
+ Qt2.Close;
+
  Qt.Free;
+ Qt1.Free;
+ Qt2.Free;
+
  Trt.Commit;
  Trt.Free;
 end;
@@ -331,9 +420,16 @@ end;
 procedure Tfrmprofile_plot_all.SelectProfile(sName:string);
 var
 k,cs:integer;
+ChartName: string;
 begin
   cs:=-1;
   for k:=0 to Chart1.SeriesCount-1 do begin
+
+   ChartName:=TLineSeries(Chart1.Series[k]).Name;
+   ChartName:=Copy(ChartName, 1, Pos('_', ChartName)-1);
+
+ //  showmessage(chartname+'   '+sname);
+
    with TLineSeries(Chart1.Series[k]) do begin
     SeriesColor:=clGray;
     Pointer.Brush.Color:=clGray;
@@ -343,7 +439,7 @@ begin
     ZPosition:=0;
    end;
 
-   if TLineSeries(Chart1.Series[k]).Name=sName then cs:=k; //current series
+   if ChartName=sName then cs:=k; //current series
   end;
 
   if cs>0 then begin
@@ -353,7 +449,7 @@ begin
     LinePen.Width:=2;
     Pointer.HorizSize:=3;
     Pointer.VertSize:=3;
-    ZPosition:=1;
+    ZPosition:=mik;
    end;
   end;
 end;
@@ -365,14 +461,34 @@ Var
  ID:integer;
  tool: TDataPointClicktool;
  series: TLineSeries;
+ ss:integer;
 begin
   tool := ATool as TDataPointClickTool;
   if tool.Series is TLineSeries then begin
     series := TLineSeries(tool.Series);
-      SelectProfile(series.Name);
-      ID:=strtoint(copy(series.Name,2,length(series.Name)));
+
+    for ss:=0 to Chart1.Series.Count-1 do begin
+       //  showmessage(Chart1.Series[ss].Name+'   '+series.name);
+      if Chart1.Series[ss].Name=series.name then begin
+        TLineSeries(Chart1.Series[ss]).SeriesColor:=clRed;
+        TLineSeries(Chart1.Series[ss]).Pointer.Brush.Color:=clRed;
+        TLineSeries(Chart1.Series[ss]).LinePen.Width:=2;
+        TLineSeries(Chart1.Series[ss]).Pointer.HorizSize:=3;
+        TLineSeries(Chart1.Series[ss]).Pointer.VertSize:=3;
+        TLineSeries(Chart1.Series[ss]).ZPosition:=mik;
+      end else begin
+        TLineSeries(Chart1.Series[ss]).SeriesColor:=clGray;
+        TLineSeries(Chart1.Series[ss]).Pointer.Brush.Color:=clGray;
+        TLineSeries(Chart1.Series[ss]).LinePen.Width:=1;
+        TLineSeries(Chart1.Series[ss]).Pointer.HorizSize:=2;
+        TLineSeries(Chart1.Series[ss]).Pointer.VertSize:=2;
+        TLineSeries(Chart1.Series[ss]).ZPosition:=0;
+      end;
+    end;
+
+      ID:=strtoint(copy(series.Name,2,Pos('_', series.Name)-2));
       frmdm.Q.Locate('ID', ID, []);
-      frmosmain.CDSNavigation;
+     // frmosmain.CDSNavigation;
   end;
 end;
 
@@ -439,7 +555,7 @@ procedure Tfrmprofile_plot_all.rbMetersClick(Sender: TObject);
 Var
   Ini:TIniFile;
 begin
-  if rbMeters.Checked=true then begin
+ { if rbMeters.Checked=true then begin
     Ini := TIniFile.Create(IniFileName);
      try
       Ini.WriteInteger( 'osmain', 'Depth_units', 0);
@@ -447,7 +563,7 @@ begin
       Ini.Free;
      end;
     InitialPlot;
-  end;
+  end;  }
 end;
 
 
@@ -455,7 +571,7 @@ procedure Tfrmprofile_plot_all.rbDBarClick(Sender: TObject);
 Var
   Ini:TIniFile;
 begin
-  if rbDBar.Checked=true then begin
+ { if rbDBar.Checked=true then begin
     Ini := TIniFile.Create(IniFileName);
      try
       Ini.WriteInteger( 'osmain', 'Depth_units', 1);
@@ -463,7 +579,7 @@ begin
       Ini.Free;
      end;
     InitialPlot;
-  end;
+  end; }
 end;
 
 procedure Tfrmprofile_plot_all.rbUnitsOriginalClick(Sender: TObject);
@@ -496,6 +612,38 @@ begin
    end;
 end;
 
+procedure Tfrmprofile_plot_all.btnFilterClick(Sender: TObject);
+begin
+  pFilter.Visible:=btnFilter.Down;
+end;
+
+procedure Tfrmprofile_plot_all.btnClearFilterClick(Sender: TObject);
+Var
+ k: integer;
+begin
+  chkShowBest.Checked:=false;
+    for k:=0 to chkSources.Items.Count-1 do chkSources.Checked[k]:=true;
+  InitialPlot;
+end;
+
+procedure Tfrmprofile_plot_all.btnFilterSourcesClick(Sender: TObject);
+begin
+ InitialPlot;
+end;
+
+procedure Tfrmprofile_plot_all.chkHighlightSourceChange(Sender: TObject);
+begin
+{  if cbSource.ItemIndex=-1 then
+   if MessageDlg('Select source below', mtWarning, [mbOk], 0)=mrOk then exit;
+
+   InitialPlot; }
+end;
+
+procedure Tfrmprofile_plot_all.chkShowBestChange(Sender: TObject);
+begin
+ InitialPlot;
+end;
+
 
 procedure Tfrmprofile_plot_all.FormDestroy(Sender: TObject);
 begin
@@ -504,10 +652,13 @@ end;
 
 procedure Tfrmprofile_plot_all.FormResize(Sender: TObject);
 begin
- pFiller.Width:=ToolBar1.Width-100-
+ pFiller.Width:=ToolBar1.Width-20-
  (btnPrior.Width+
   btnNext.Width+
   btnAllParameters.Width+
+  btnSingleProfile.Width+
+  btnMap.Width+
+  btnFilter.Width+
   pDepth.Width+
   pUnits.Width);
 end;

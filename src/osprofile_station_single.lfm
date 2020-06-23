@@ -327,6 +327,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
     end
     object btnBestProfile: TMenuItem
       Caption = 'This profile is the BEST!'
+      ImageIndex = 463
       OnClick = btnBestProfileClick
     end
   end

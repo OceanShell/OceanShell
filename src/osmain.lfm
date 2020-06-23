@@ -1662,7 +1662,7 @@ object frmosmain: Tfrmosmain
         end
         object ToolButton1: TToolButton
           Left = 106
-          Height = 5
+          Height = 33
           Top = 0
           Caption = 'ToolButton1'
           Style = tbsDivider
@@ -2263,20 +2263,20 @@ object frmosmain: Tfrmosmain
     Images = frmicons.IL1
     left = 424
     top = 328
+    object MenuItem10: TMenuItem
+      Action = aProfilesSelectedAllPlot
+    end
     object iProfilesAll: TMenuItem
       Action = aProfilesStationAll
     end
     object MenuItem4: TMenuItem
       Action = aProfilesStationSingle
     end
-    object ishowselectedstation: TMenuItem
-      Action = aMapSelectedStation
-    end
-    object MenuItem12: TMenuItem
+    object MenuItem14: TMenuItem
       Caption = '-'
     end
-    object MenuItem10: TMenuItem
-      Action = aProfilesSelectedAllPlot
+    object ishowselectedstation: TMenuItem
+      Action = aMapSelectedStation
     end
     object MenuItem11: TMenuItem
       Caption = '-'

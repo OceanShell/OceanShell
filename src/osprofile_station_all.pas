@@ -21,7 +21,6 @@ type
     SetFlagAbove: TMenuItem;
     SetFlagBelow: TMenuItem;
     Toolset: TChartToolset;
-    CheckListBox1: TCheckListBox;
     DBGrid1: TDBGrid;
     DPC: TDataPointClickTool;
     DPH: TDataPointHintTool;
@@ -35,10 +34,7 @@ type
     btnCommit: TToolButton;
     DS1: TDataSource;
     PM: TPopupMenu;
-    Splitter1: TSplitter;
-    iDeleteParameter: TMenuItem;
     btnSetFlag: TToolButton;
-    N1: TMenuItem;
     ToolButton3: TToolButton;
     ZD: TZoomDragTool;
     ZMW: TZoomMouseWheelTool;
@@ -56,22 +52,22 @@ type
     procedure btnCommitClick(Sender: TObject);
     procedure btnAddClick(Sender: TObject);
     procedure btnDeleteClick(Sender: TObject);
-    procedure CheckListBox1Click(Sender: TObject);
+//    procedure CheckListBox1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure iDeleteParameterClick(Sender: TObject);
+ //   procedure iDeleteParameterClick(Sender: TObject);
 {    procedure SeriesClick(Sender: TChartSeries; ValueIndex: Integer;
     Button: TMouseButton; Shift: TShiftState; X,Y: Integer);  }
     procedure iSetFlagParameterClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
-    procedure DBGridEh1KeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+//    procedure DBGridEh1KeyUp(Sender: TObject; var Key: Word;
+//      Shift: TShiftState);
     procedure FormShow(Sender: TObject);
     procedure SetFlagAboveClick(Sender: TObject);
     procedure SetFlagBelowClick(Sender: TObject);
 
   private
     procedure CheckChartSize;
-    function AddLineSeries(AChart: TChart): TLineSeries;
+    function AddLineSeries(AChart: TChart; ATitle: String; AColor:TColor; sName:string): TLineSeries;
   public
     procedure ChangeID(ID:integer);
   end;
@@ -93,23 +89,27 @@ uses osmain, dm, osprofile_flag, osprofile_plot_all;
 
 {$R *.lfm}
 
-function Tfrmprofile_station_all.AddLineSeries(AChart: TChart): TLineSeries;
+function Tfrmprofile_station_all.AddLineSeries(AChart: TChart;
+  ATitle: String; AColor:TColor; sName:string): TLineSeries;
 begin
- Result := TLineSeries.Create(AChart.Owner);
-  with TLineSeries(Result) do begin
-    ShowPoints := true;
-    ShowLines := true;
-    LinePen.Style := psSolid;
-    SeriesColor := clBlue;
-    Pointer.Style:=psCircle;
-    Pointer.Brush.Color := clBlue;
-    Pointer.Pen.Color := clBlack;
-    Pointer.HorizSize:=3;
-    Pointer.VertSize:=3;
-    Pointer.Visible:=true;
-   // ToolTargets := [nptPoint, nptYList, nptCustom];
-  end;
- AChart.AddSeries(Result);
+Result := TLineSeries.Create(AChart.Owner);
+ with TLineSeries(Result) do begin
+   Title := ATitle;
+   ShowPoints := false;
+   ShowLines := true;
+   LinePen.Style := psSolid;
+   LinePen.Width:=2;
+   SeriesColor := AColor;
+   Pointer.Style:=psCircle;
+   Pointer.Brush.Color := AColor;
+   Pointer.Pen.Color := AColor;
+   Pointer.HorizSize:=3;
+   Pointer.VertSize:=3;
+   Pointer.Visible:=true;
+   Name := sName;
+   ToolTargets := [nptPoint, nptYList, nptCustom];
+ end;
+AChart.AddSeries(Result);
 end;
 
 
@@ -130,14 +130,6 @@ begin
        CDS.FieldDefs.Add(Par,ftFloat,0,false);
        CDS.FieldDefs.Add(Par+'_FL',ftInteger,0,false);
 
-       { cbUnits[ks]:=TComboBox.Create(self);
-          with cbUnits[ks] do begin
-            Parent:=pUnits;
-            Name:=Par;
-            Align:=alLeft;
-            Style:=csDropDownList;
-          end; }
-
         Charts[ks]:=TChart.Create(Self);
         Charts[ks].Toolset:=Toolset;
           with Charts[ks] do begin
@@ -154,12 +146,11 @@ begin
              Width:=250;
           end;
 
-          AddLineSeries(Charts[ks]);
+         // AddLineSeries(Charts[ks]);
      end;
 
      CDS.CreateDataSet;
-     CDS.IndexFieldNames:=CDS.FieldbyName('Lev_m').FieldName+';'+
-                          CDS.FieldbyName('Lev_dbar').FieldName;
+     CDS.IndexFieldNames:=CDS.FieldbyName('Lev_m').FieldName;
 
  ID:=frmdm.Q.FieldByName('ID').AsInteger;
  ChangeID(ID);
@@ -174,7 +165,7 @@ Ini := TIniFile.Create(IniFileName);
   try
     Width :=Ini.ReadInteger( 'parameters_station', 'Width',  900);
     Height:=Ini.ReadInteger( 'parameters_station', 'Height', 500);
-    CheckListBox1.Width :=Ini.ReadInteger( 'parameters_station', 'listbox1', 200);
+    //CheckListBox1.Width :=Ini.ReadInteger( 'parameters_station', 'listbox1', 200);
     pCharts.Height      :=Ini.ReadInteger( 'parameters_station', 'pCharts',  200);
   finally
    Ini.Free;
@@ -191,17 +182,19 @@ end;
 procedure Tfrmprofile_station_all.ChangeID(ID:integer);
 Var
 k, fl, ff, count_st, units_id, Flag_:integer;
+INSTR_ID, PROF_NUM: integer;
 cur_l, Val_, min_lev, max_lev:real;
 lev_d, lev_m: Variant;
 Units_, par, par_name, col_title:string;
+prof_best: boolean;
 
 TRt:TSQLTransaction;
-Qt:TSQLQuery;
+Qt, Qt1, Qt2:TSQLQuery;
 begin
 
 //Memo1.Clear; Memo1.Visible:=false;
 Caption:='All parameters: '+inttostr(ID);
-CheckListBox1.Clear;
+//CheckListBox1.Clear;
 
  try
   CDS.DisableControls;
@@ -219,6 +212,14 @@ CheckListBox1.Clear;
   Qt.Database:=frmdm.IBDB;
   Qt.Transaction:=TRt;
 
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.IBDB;
+  Qt2.Transaction:=TRt;
+
  // showmessage('here2');
   min_lev:=9999;
   max_lev:= -9999;
@@ -226,6 +227,41 @@ CheckListBox1.Clear;
     TLineSeries(Charts[k].Series[0]).Clear;
 
     par:=frmosmain.listbox1.Items.Strings[k];
+
+    with Qt1 do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' SELECT DISTINCT(INSTRUMENT_ID), INSTRUMENT.NAME ');
+      SQL.Add(' FROM INSTRUMENT, '+par);
+      SQL.Add(' WHERE ');
+      SQL.Add( par+'.INSTRUMENT_ID=INSTRUMENT.ID AND ');
+      SQL.Add( par+'.ID=:ID ');
+      ParamByName('ID').AsInteger:=ID;
+     Open;
+    end;
+
+    While not Qt1.eof do begin
+     INSTR_ID:=Qt1.Fields[0].Value;
+
+      with Qt2 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' SELECT DISTINCT(PROFILE_NUMBER), PROFILE_BEST FROM ');
+        SQL.Add( par);
+        SQL.Add(' WHERE ');
+        SQL.Add( par+'.ID=:ID AND INSTRUMENT_ID=:INSTR_ID ');
+        ParamByName('ID').AsInteger:=ID;
+        ParamByName('INSTR_ID').AsInteger:=INSTR_ID;
+       Open;
+      end;
+
+      while not Qt2.eof do begin
+       prof_num :=Qt2.Fields[0].AsInteger;
+       prof_best:=Qt2.Fields[1].AsBoolean;
+
+      // TabName:=Qt1.Fields[1].Value+', Profile '+inttostr(prof_num);
+      // if prof_best=true then TabName:=TabName+' [BEST]';
+
 
       with Qt do begin
        Close;
@@ -237,9 +273,13 @@ CheckListBox1.Clear;
          SQL.Add( par+', UNITS ');
          SQL.Add(' WHERE ');
          SQL.Add( par+'.UNITS_ID=UNITS.ID AND ');
-         SQL.Add( par+'.ID=:ID ');
-         SQL.Add(' order by LEV_DBAR, LEV_M');
+         SQL.Add( par+'.ID=:ID AND ');
+         SQL.Add( par+'.INSTRUMENT_ID=:I_ID AND ');
+         SQL.Add( par+'.PROFILE_NUMBER=:PROF_NUM ');
+         SQL.Add(' order by LEV_M');
          ParamByName('ID').AsInteger:=ID;
+         ParamByName('I_ID').AsInteger:=INSTR_ID;
+         ParamByName('PROF_NUM').AsInteger:=PROF_NUM;
        Open;
       end;
 
@@ -288,18 +328,18 @@ CheckListBox1.Clear;
     end;
     Qt.Close;
 
-    par_name:='['+inttostr(count_st)+']  '+copy(par,3,length(par))+' ';
-    CheckListBox1.Items.Add(par_name);
+    par_name:=copy(par,3,length(par))+' ';
+    //CheckListBox1.Items.Add(par_name);
 
-    col_title:=Copy(par, 3, length(par));
-    col_title:=Copy(col_title, 1, Pos('_', col_title)+3);
+   // col_title:=Copy(par, 3, length(par));
+   // col_title:=Copy(col_title, 1, Pos('_', col_title)+3);
 
     Charts[k].Title.Text.Clear;
-    Charts[k].Title.Text.Add(col_title);
-    Charts[k].Title.Text.Add(Units_);
+    Charts[k].Title.Text.Add(par_name);
+    Charts[k].Title.Text.Add(Units_+', ['+inttostr(count_st)+']');
 
     if Count_st>0 then begin
-       CheckListBox1.Checked[k]:=true;
+      // CheckListBox1.Checked[k]:=true;
        CDS.FieldByName(par).visible:=true;
        CDS.FieldByName(par+'_FL').visible:=true;
        Charts[k].Visible:=true;
@@ -311,10 +351,12 @@ CheckListBox1.Clear;
        Charts[k].Visible:=false;
     end;
 
+    Qt2.Next;
    Application.ProcessMessages;
   end;
-
- // showmessage(floattostr(min_lev)+'   '+floattostr(max_lev));
+  Qt1.Next;
+ end;
+end; //tables
 
   for k:=0 to length(Charts)-1 do begin
     Charts[k].LeftAxis.Range.Min:=min_lev;
@@ -380,9 +422,8 @@ try
   Qt.Database:=frmdm.IBDB;
   Qt.Transaction:=TRt;
 
- For k:=0 to CheckListBox1.Items.Count-1 do
-   if CheckListBox1.Checked[k] then begin
-     tbl:=CheckListBox1.Items.Strings[k];
+ For k:=0 to frmosmain.ListBox1.Items.Count-1 do
+     tbl:=frmosmain.ListBox1.Items.Strings[k];
      tbl:='P_'+trim(copy(tbl, pos(' ', tbl), length(tbl)));
       if copy(tbl, length(tbl)-1, 1)=']' then
        tbl:=copy(tbl, 1, pos(' ', tbl)-1);
@@ -416,7 +457,7 @@ try
       TRt.Rollback;
      end;
     end;
-   end;
+  // end;
   finally
    CDS.EnableControls;
    Qt.Free;
@@ -503,92 +544,6 @@ begin
 end;
 
 
-procedure Tfrmprofile_station_all.CheckListBox1Click(Sender: TObject);
-var
-k:integer;
-cap_par, par:string;
-begin
-try
-  par:=CheckListBox1.Items.Strings[CheckListBox1.ItemIndex];
-  par:='P_'+trim(copy(par, pos(' ', par), length(par)));
-    if copy(par, length(par)-1, 1)=']' then par:=copy(par, 1, pos(' ', par)-1);
-  cap_par:=trim(Copy(Par, 3, Length(Par)));
-
- // showmessage(par+'   '+cap_par);
-
-   if CheckListBox1.Checked[CheckListBox1.ItemIndex]= true then begin
-     CDS.FieldByName(Par).Visible:=true;
-     CDS.FieldByName(Par+'_FL').Visible:=true;
-       for k:=2 to DBGrid1.Columns.Count-1 do
-          if (k>0) and (k mod 2=1) then DBGrid1.Columns[k].Title.Caption:='QF';
-       for k:=0 to frmosmain.listbox1.Count-1 do
-          if Charts[k].Title.Text[0]=cap_par then Charts[k].Visible:=true;
-   end else begin
-      CDS.FieldByName(Par).Visible:=false;
-      CDS.FieldByName(Par+'_FL').Visible:=false;
-    for k:=0 to frmosmain.listbox1.Count-1 do
-      if Charts[k].Title.Text[0]=cap_par then Charts[k].Visible:=false;
-   end;
-   CDS.First;
-  except
-end;
-end;
-
-
-procedure Tfrmprofile_station_all.DBGridEh1KeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-Var
-Ini:TIniFile;
-DelEnable:boolean;
-begin
-(* Удаление строчки при нажатии Del *)
-{    Ini := TIniFile.Create(IniFileName);
-    try
-     DelEnable:=Ini.ReadBool( 'Selection', 'Del_enable', false);
-    Finally
-     Ini.Free;
-    end;
-  if (key=VK_DELETE) and (DelEnable=true) then btnDelete.OnClick(self); }
-end;
-
-procedure Tfrmprofile_station_all.iDeleteParameterClick(Sender: TObject);
-Var
-ID:integer;
-Par:string;
-
-TRt:TSQLTransaction;
-Qt:TSQLQuery;
-begin
-ID:=frmdm.Q.FieldByName('ID').AsInteger;
-
- TRt:=TSQLTransaction.Create(self);
- TRt.DataBase:=frmdm.IBDB;
-
- Qt :=TSQLQuery.Create(self);
- Qt.Database:=frmdm.IBDB;
- Qt.Transaction:=TRt;
-
- try
-   par:=DBGrid1.SelectedField.FieldName;
-   if Copy(par,1,2)<>'P_' then exit;
-   if Copy(par,length(par)-2,3)='_FL' then Delete(par,length(par)-2,length(par));
-
-   if Messagedlg('Delete '+par+' ?',mtconfirmation, [mbYes,mbNo],0)=mrYes then begin
-    with Qt do begin
-      Close;
-        SQL.Text:='Delete from '+Par+' where ID='+inttostr(ID);
-      ExecSQL;
-    end;
-    Trt.Commit;
-   end;
- finally
-  Qt.Close;
-  Qt.Free;
-  TRt.Free;
- end;
-
- ChangeID(ID);
-end;
 
 
 (* Setting flags for EVERY parameter *)
@@ -780,7 +735,7 @@ begin
 
 
        //iSetFlagParameter.Caption:='Set flag for '+Par;
-       iDeleteParameter.Caption:='Delete '+Par;
+       //iDeleteParameter.Caption:='Delete '+Par;
        PM.PopUp;
   end;
 end;
@@ -829,7 +784,7 @@ Ini := TIniFile.Create(IniFileName);
   try
     Ini.WriteInteger( 'parameters_station', 'Height',   Height);
     Ini.WriteInteger( 'parameters_station', 'Width',    Width);
-    Ini.WriteInteger( 'parameters_station', 'listbox1', CheckListBox1.Width);
+//    Ini.WriteInteger( 'parameters_station', 'listbox1', CheckListBox1.Width);
     Ini.WriteInteger( 'parameters_station', 'pCharts',  pCharts.Height);
    finally
     ini.Free;

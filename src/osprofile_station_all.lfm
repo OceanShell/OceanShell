@@ -4,8 +4,8 @@ object frmprofile_station_all: Tfrmprofile_station_all
   Top = 270
   Width = 1099
   Caption = 'All parameters'
-  ClientHeight = 621
-  ClientWidth = 1099
+  ClientHeight = 0
+  ClientWidth = 0
   Color = clBtnFace
   DesignTimePPI = 144
   Font.Color = clWindowText
@@ -89,44 +89,21 @@ object frmprofile_station_all: Tfrmprofile_station_all
       Style = tbsDivider
     end
   end
-  object Splitter1: TSplitter
-    Left = 807
-    Height = 586
-    Top = 35
-    Width = 8
-    Align = alRight
-    Beveled = True
-    ResizeAnchor = akRight
-  end
-  object CheckListBox1: TCheckListBox
-    Left = 815
-    Height = 586
-    Top = 35
-    Width = 284
-    Align = alRight
-    Font.Color = clWindowText
-    Font.Height = -17
-    Font.Name = 'Tahoma'
-    ItemHeight = 0
-    OnClick = CheckListBox1Click
-    ParentFont = False
-    TabOrder = 2
-  end
   object Panel1: TPanel
     Left = 0
     Height = 586
     Top = 35
-    Width = 807
+    Width = 1099
     Align = alClient
     BevelOuter = bvNone
     ClientHeight = 586
-    ClientWidth = 807
-    TabOrder = 3
+    ClientWidth = 1099
+    TabOrder = 1
     object DBGrid1: TDBGrid
       Left = 0
       Height = 353
       Top = 0
-      Width = 807
+      Width = 1099
       Align = alClient
       AlternateColor = 13631478
       AutoAdvance = aaNone
@@ -156,7 +133,7 @@ object frmprofile_station_all: Tfrmprofile_station_all
       Left = 0
       Height = 8
       Top = 353
-      Width = 807
+      Width = 1099
       Align = alBottom
       ResizeAnchor = akBottom
     end
@@ -164,7 +141,7 @@ object frmprofile_station_all: Tfrmprofile_station_all
       Left = 0
       Height = 225
       Top = 361
-      Width = 807
+      Width = 1099
       HorzScrollBar.Page = 1
       VertScrollBar.Page = 1
       VertScrollBar.Visible = False
@@ -183,21 +160,12 @@ object frmprofile_station_all: Tfrmprofile_station_all
     left = 288
     top = 168
     object SetFlagBelow: TMenuItem
-      Caption = 'Set selected flag BELOW this level'
+      Caption = 'Set selected PQF2 BELOW this level'
       OnClick = SetFlagBelowClick
     end
     object SetFlagAbove: TMenuItem
-      Caption = 'Set selected flag ABOVE this level'
+      Caption = 'Set selected PQF2 ABOVE this level'
       OnClick = SetFlagAboveClick
-    end
-    object N1: TMenuItem
-      Caption = '-'
-    end
-    object iDeleteParameter: TMenuItem
-      Caption = 'Delete parameter'
-      Enabled = False
-      ImageIndex = 293
-      OnClick = iDeleteParameterClick
     end
   end
   object Toolset: TChartToolset

@@ -117,11 +117,11 @@ type
     lbResetSearchCruises: TLabel;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
-    MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
     iQCtest: TMenuItem;
     iExportASCII: TMenuItem;
     iLoadARGO: TMenuItem;
+    MenuItem14: TMenuItem;
     MenuItem2: TMenuItem;
     iSelectEntry: TMenuItem;
     iServiceStatistics: TMenuItem;

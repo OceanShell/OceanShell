@@ -379,17 +379,22 @@ end;
 
 procedure Tfrmprofile_station_single.TabControl1Change(Sender: TObject);
 Var
-  TabName, Instr_name: string;
+  TabName, Instr_name, SName, isbest: string;
   Prof_num, ss: integer;
 begin
   TabName:=TabControl1.Tabs.Strings[TabControl1.TabIndex];
-  if Pos('[', TabName) <> 0 then TabName:=copy(TabName, 1, Pos('[', TabName)-2);
+  if Pos('[', TabName) <> 0 then begin
+    TabName:=copy(TabName, 1, Pos('[', TabName)-2);
+    isbest:='__B';
+  end else isbest:='';
 
   Instr_name:=trim(Copy(TabName, 1, Pos(',', TabName)-1));
   Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
+  SName:=Instr_name+'_'+inttostr(prof_num)+isbest;
 
   for ss:=0 to Chart1.Series.Count-1 do
-      if Chart1.Series[ss].Name=Instr_name+'_'+inttostr(prof_num) then begin
+      if Chart1.Series[ss].Name=sName then begin
+       // showmessage('here');
         TLineSeries(Chart1.Series[ss]).LinePen.Width:=3;
         TLineSeries(Chart1.Series[ss]).Pointer.HorizSize:=4;
         TLineSeries(Chart1.Series[ss]).Pointer.VertSize:=4;
@@ -602,7 +607,6 @@ begin
     series := TLineSeries(tool.Series);
 
     INSTR_NAME:=Copy(series.Name, 1, Pos('_', Series.Name)-1);
-
     Prof_num:=Copy(series.name, Pos('_', Series.Name)+1, length(series.name));
 
     if Pos('__B', series.name)<>0 then
