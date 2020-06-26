@@ -1,7 +1,7 @@
 object frmprofile_station_single: Tfrmprofile_station_single
-  Left = 532
+  Left = 454
   Height = 634
-  Top = 204
+  Top = 329
   Width = 997
   Caption = 'frmprofile_station_single'
   ClientHeight = 634
@@ -36,7 +36,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
     end
     object Chart1: TChart
       Left = 0
-      Height = 529
+      Height = 457
       Top = 33
       Width = 327
       AxisList = <      
@@ -65,6 +65,27 @@ object frmprofile_station_single: Tfrmprofile_station_single
       )
       Toolset = ChartToolset1
       Align = alClient
+    end
+    object clbSeries: TChartListbox
+      Left = 0
+      Height = 64
+      Top = 498
+      Width = 327
+      Chart = Chart1
+      Align = alBottom
+      Columns = 2
+      ItemHeight = 0
+      MultiSelect = True
+      TabOrder = 2
+    end
+    object Splitter2: TSplitter
+      Cursor = crVSplit
+      Left = 0
+      Height = 8
+      Top = 490
+      Width = 327
+      Align = alBottom
+      ResizeAnchor = akBottom
     end
   end
   object Splitter1: TSplitter

@@ -7,86 +7,10 @@ interface
 uses
   Classes, SysUtils, Variants, Math, DB, SQLDB, osmain, dm, procedures, Dialogs;
 
-procedure UpdateLastLevel;
 procedure UpdateCruiseInfo(ID: integer);
 
 
 implementation
-
-
-(* Вставляем последний горизонт для выборки *)
-procedure UpdateLastLevel;
-var
-  ci1, CurrentID, k:integer;
-  Max_LLM, Max_LLD:variant;
-
-  TRt:TSQLTransaction;
-  Qt:TSQLQuery;
-begin
-   TRt:=TSQLTransaction.Create(nil);
-   TRt.DataBase:=frmdm.IBDB;
-
-   Qt:=TSQLQuery.Create(nil);
-   Qt.Database:=frmdm.IBDB;
-   Qt.Transaction:=TRt;
-
-try
- CurrentID:=frmdm.Q.FieldByName('ID').AsInteger;
- frmdm.Q.DisableControls;
- frmdm.Q.First;
-
- k:=0;
- While not frmdm.Q.Eof do begin
-   inc(k);
-
-    Max_LLM:=-9;
-    Max_LLD:=-9;
-    for ci1:=0 to frmosmain.ListBox1.Count-1 do begin
-      With Qt do begin
-       Close;
-        SQL.Clear;
-        SQL.Add(' Select max(LEV_M) as LLM, max(LEV_DBAR) as LLD from ');
-        SQL.Add(frmosmain.ListBox1.Items.Strings[ci1]);
-        SQL.Add(' where ID=:pAbsNum ');
-        Parambyname('pAbsnum').asInteger:=frmdm.Q.FieldByName('ID').AsInteger;
-       Open;
-          if not VarIsNull(Qt.Fields[0].AsVariant) then Max_LLM:=Max(Max_LLM,Qt.Fields[0].AsFloat);
-          if not VarIsNull(Qt.Fields[1].AsVariant) then Max_LLD:=Max(Max_LLD,Qt.Fields[1].AsFloat);
-       Close;
-      end;
-    end;
-
-    if Max_LLM=-9 then Max_LLM:=Null;
-    if Max_LLD=-9 then Max_LLD:=Null;
-
-    With Qt do begin
-       Close;
-        SQL.Clear;
-        SQL.Add(' Update STATION set ');
-        SQL.Add(' LASTLEVEL_M=:LLM, ');
-        SQL.Add(' LASTLEVEL_DBAR=:LLD ');
-        SQL.Add(' where ID=:pAbsNum ');
-        Parambyname('pAbsnum').asInteger:=frmdm.Q.FieldByName('ID').AsInteger;
-        Parambyname('LLM').Value:=Max_LLM;
-        Parambyname('LLD').Value:=Max_LLD;
-       ExecSQL;
-    end;
-    Procedures.ProgressTaskbar(k, frmdm.Q.RecordCount-1);
-   frmdm.Q.Next;
- end;
- Procedures.ProgressTaskbar(0, 0);
-finally
- frmdm.Q.Refresh;
- frmdm.Q.Locate('ID',CurrentID,[loCaseInsensitive]);
- frmdm.Q.EnableControls;
- Qt.Close;
- Qt.free;
- TrT.Commit;
- TrT.Free;
-
- showmessage('Last level update completed');
-end;
-end;
 
 
 

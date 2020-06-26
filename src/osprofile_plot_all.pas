@@ -20,6 +20,7 @@ type
     btnClearFilter: TButton;
     Chart1: TChart;
     ChartToolset1: TChartToolset;
+    chkShowDuplicates: TCheckBox;
     chkSources: TCheckGroup;
     chkShowBest: TCheckBox;
     DPH: TDataPointHintTool;
@@ -49,6 +50,7 @@ type
     procedure btnFilterSourcesClick(Sender: TObject);
     procedure chkHighlightSourceChange(Sender: TObject);
     procedure chkShowBestChange(Sender: TObject);
+    procedure chkShowDuplicatesChange(Sender: TObject);
     procedure rbUnitsDefaultClick(Sender: TObject);
     procedure rbUnitsOriginalClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -282,6 +284,7 @@ Qt2.Transaction:=TRt;
    (frmdm.Q.FieldByName('SRC').Value=cbSource.Text) then
      sColor:=clFuchsia else sColor:=clGray; }
 
+(* filtering sources *)
 Src:=frmdm.Q.FieldByName('SRC').AsString;
 Src_Fl:=false;
 for k:=0 to chkSources.Items.Count-1 do
@@ -290,6 +293,9 @@ for k:=0 to chkSources.Items.Count-1 do
 
 if Src_Fl=false then exit;
 
+(* filtering duplicates *)
+if (chkShowDuplicates.Checked=false) then
+   if (frmdm.Q.FieldByName('DUPLICATE').AsBoolean=true) then exit;
 
 
 try
@@ -641,7 +647,12 @@ end;
 
 procedure Tfrmprofile_plot_all.chkShowBestChange(Sender: TObject);
 begin
- InitialPlot;
+  InitialPlot;
+end;
+
+procedure Tfrmprofile_plot_all.chkShowDuplicatesChange(Sender: TObject);
+begin
+  InitialPlot;
 end;
 
 

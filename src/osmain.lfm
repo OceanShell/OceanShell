@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 262
+  Left = 314
   Height = 700
-  Top = 172
+  Top = 196
   Width = 1365
   Caption = 'OceanShell'
   ClientHeight = 670
@@ -163,7 +163,7 @@ object frmosmain: Tfrmosmain
         end
       end
       object GroupBox2: TGroupBox
-        Left = 456
+        Left = 460
         Height = 168
         Top = 16
         Width = 240
@@ -1141,6 +1141,49 @@ object frmosmain: Tfrmosmain
             ParentFont = False
             OnClick = lbResetSearchCruisesClick
           end
+          object GroupBox11: TGroupBox
+            Left = 376
+            Height = 136
+            Top = 16
+            Width = 160
+            Caption = 'Stations amount'
+            ClientHeight = 111
+            ClientWidth = 156
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 6
+            object seCruiseStationsAmountMin: TSpinEdit
+              Left = 16
+              Height = 28
+              Top = 16
+              Width = 120
+              Font.Color = clWindowText
+              Font.Height = -17
+              Font.Name = 'MS Sans Serif'
+              MaxValue = 100000000
+              MinValue = 1
+              ParentFont = False
+              TabOrder = 0
+              Value = 3
+            end
+            object seCruiseStationsAmountMax: TSpinEdit
+              Left = 16
+              Height = 28
+              Top = 56
+              Width = 120
+              Font.Color = clWindowText
+              Font.Height = -17
+              Font.Name = 'MS Sans Serif'
+              MaxValue = 100000000
+              MinValue = 1
+              ParentFont = False
+              TabOrder = 1
+              Value = 3
+            end
+          end
         end
         object tsCruiseResults: TTabSheet
           Caption = 'Selected cruises'
@@ -1662,7 +1705,7 @@ object frmosmain: Tfrmosmain
         end
         object ToolButton1: TToolButton
           Left = 106
-          Height = 33
+          Height = 5
           Top = 0
           Caption = 'ToolButton1'
           Style = tbsDivider

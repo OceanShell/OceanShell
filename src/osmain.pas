@@ -94,6 +94,7 @@ type
     eEntry_Type: TEdit;
     gbAuxiliaryParameters1: TGroupBox;
     GroupBox10: TGroupBox;
+    GroupBox11: TGroupBox;
     GroupBox2: TGroupBox;
     gbAuxiliaryParameters: TGroupBox;
     GroupBox3: TGroupBox;
@@ -147,6 +148,8 @@ type
     ODir: TSelectDirectoryDialog;
     ScrollBox1: TScrollBox;
     ScrollBox2: TScrollBox;
+    seCruiseStationsAmountMin: TSpinEdit;
+    seCruiseStationsAmountMax: TSpinEdit;
     seIDMax: TSpinEdit;
     seCruiseIDMax: TSpinEdit;
     seIDMin: TSpinEdit;
@@ -460,6 +463,7 @@ begin
     dtpDateAddedMax.DateTime:=Ini.ReadDateTime('osmain', 'dateaddedmax', now);
     dtpDateUpdatedMin.DateTime:=Ini.ReadDateTime('osmain', 'dateupdatedmin', now);
     dtpDateUpdatedMax.DateTime:=Ini.ReadDateTime('osmain', 'dateupdatedmax', now);
+    //seCruiseStationsAmountMax.Value:=Ini.ReadInteger( 'osmain', 'idmax',      0);
 
     (* CRUISE table columns *)
     DBMemoCruises.width := Ini.ReadInteger( 'osmain', 'pCruiseNotes_Width', 250);
@@ -787,6 +791,7 @@ begin
      SQL.Add('  AND (CRUISE.DATE_ADDED between :SSDateAddedMin and :SSDateAddedMax) ');
      SQL.Add('  AND (CRUISE.DATE_UPDATED between :SSDateUpdatedMin and :SSDateUpdatedMax) ');
 
+     SQL.Add('  AND (STATIONS_AMOUNT > :SSStationsAmount) ');
 
     if cbCruisePlatform.text<>'' then
       SQL.Add(' AND '+NotCondPlatform  +' PLATFORM.NAME='+QuotedStr(cbCruisePlatform.text));
@@ -809,7 +814,7 @@ begin
     ParamByName('SSLatMax').AsFloat:=seLatMax.Value;
     ParamByName('SSLonMin').AsFloat:=seLonMin.Value;
     ParamByName('SSLonMax').AsFloat:=seLonMax.Value; }
-
+    ParamByName('SSStationsAmount').AsInteger:=seCruiseStationsAmountMin.Value;
     ParamByName('SSDateMin').AsDateTime:=dtpCruiseDateMin.DateTime;
     ParamByName('SSDateMax').AsDateTime:=dtpCruiseDateMax.DateTime;
     ParamByName('SSDateAddedMin').AsDateTime:=dtpCruiseDateAddedMin.DateTime;
@@ -828,6 +833,7 @@ begin
     PageControl2.ActivePageIndex:=1;
     tsCruiseResults.Caption:='Selected cruises: '+inttostr(frmdm.QCruise.RecordCount);
   end;
+
  Application.ProcessMessages;
 end;
 
@@ -865,8 +871,10 @@ begin
      Last;
      First;
    end;
+
    SelectionInfo;
    CDSNavigation;
+   Application.ProcessMessages;
 end;
 
 procedure Tfrmosmain.iSelectEntryClick(Sender: TObject);
@@ -1272,7 +1280,8 @@ Qt_DB1.Transaction:=TRt_DB1;
         SQL.Add(' min(DATE_ADDED) as StDateAddedMin, ');
         SQL.Add(' max(DATE_ADDED) as StDateAddedMax, ');
         SQL.Add(' min(DATE_UPDATED) as StDateUpdatedMin, ');
-        SQL.Add(' max(DATE_UPDATED) as StDateUpdatedMax ');
+        SQL.Add(' max(DATE_UPDATED) as StDateUpdatedMax, ');
+        SQL.Add(' max(STATIONS_AMOUNT) as STATMAX ');
         SQL.Add(' from CRUISE');
     Open;
        if FieldByName('StCount').AsInteger>0 then begin
@@ -1286,6 +1295,7 @@ Qt_DB1.Transaction:=TRt_DB1;
          IBCruiseDateAddedMax   :=FieldByName('StDateAddedMax').AsDateTime;
          IBCruiseDateUpdatedMin :=FieldByName('StDateUpdatedMin').AsDateTime;
          IBCruiseDateUpdatedMax :=FieldByName('StDateUpdatedMax').AsDateTime;
+         seCruiseStationsAmountMax.Value:= FieldByName('STATMAX').AsInteger;
 
          seCruiseIDMin.Value:=IDCruiseMin;
          seCruiseIDMax.Value:=IDCruiseMax;
@@ -1588,8 +1598,63 @@ end;
 
 
 procedure Tfrmosmain.iUpdateLastLevelClick(Sender: TObject);
+var
+  ci1, CurrentID, k:integer;
+  Max_LLM, Max_LLD:variant;
 begin
-  osservice.UpdateLastLevel;
+
+try
+ CurrentID:=frmdm.Q.FieldByName('ID').AsInteger;
+ frmdm.Q.DisableControls;
+ frmdm.Q.First;
+
+ k:=0;
+ While not frmdm.Q.Eof do begin
+   inc(k);
+
+    Max_LLM:=-9;
+    Max_LLD:=-9;
+    for ci1:=0 to frmosmain.ListBox1.Count-1 do begin
+      With frmdm.q1 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' Select max(LEV_M) as LLM, max(LEV_DBAR) as LLD from ');
+        SQL.Add(frmosmain.ListBox1.Items.Strings[ci1]);
+        SQL.Add(' where ID=:pAbsNum ');
+        Parambyname('pAbsnum').asInteger:=frmdm.Q.FieldByName('ID').AsInteger;
+       Open;
+          if not VarIsNull(frmdm.q1.Fields[0].AsVariant) then Max_LLM:=Max(Max_LLM,frmdm.q1.Fields[0].AsFloat);
+          if not VarIsNull(frmdm.q1.Fields[1].AsVariant) then Max_LLD:=Max(Max_LLD,frmdm.q1.Fields[1].AsFloat);
+       Close;
+      end;
+    end;
+
+    if Max_LLM=-9 then Max_LLM:=Null;
+    if Max_LLD=-9 then Max_LLD:=Null;
+
+    With frmdm.q1 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' Update STATION set ');
+        SQL.Add(' LASTLEVEL_M=:LLM, ');
+        SQL.Add(' LASTLEVEL_DBAR=:LLD ');
+        SQL.Add(' where ID=:pAbsNum ');
+        Parambyname('pAbsnum').asInteger:=frmdm.Q.FieldByName('ID').AsInteger;
+        Parambyname('LLM').Value:=Max_LLM;
+        Parambyname('LLD').Value:=Max_LLD;
+       ExecSQL;
+    end;
+    Procedures.ProgressTaskbar(k, frmdm.Q.RecordCount-1);
+   frmdm.Q.Next;
+ end;
+ Procedures.ProgressTaskbar(0, 0);
+finally
+ frmdm.Q.Refresh;
+ frmdm.Q.Locate('ID',CurrentID,[loCaseInsensitive]);
+ frmdm.Q.EnableControls;
+
+ showmessage('Last level update completed');
+end;
 end;
 
 procedure Tfrmosmain.iUpdateCruiseClick(Sender: TObject);

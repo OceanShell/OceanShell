@@ -210,8 +210,8 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
     end
     object chkSources: TCheckGroup
       Left = 16
-      Height = 320
-      Top = 72
+      Height = 288
+      Top = 104
       Width = 176
       Anchors = [akTop, akLeft, akBottom]
       AutoFill = True
@@ -245,6 +245,15 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
       Caption = 'Clear filter'
       OnClick = btnClearFilterClick
       TabOrder = 3
+    end
+    object chkShowDuplicates: TCheckBox
+      Left = 16
+      Height = 29
+      Top = 64
+      Width = 159
+      Caption = 'Show duplicates'
+      OnChange = chkShowDuplicatesChange
+      TabOrder = 4
     end
   end
   object ChartToolset1: TChartToolset

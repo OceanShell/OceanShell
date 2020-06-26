@@ -10,7 +10,7 @@ uses
   TAGraph, TATools, TASeries, TATypes, TAChartAxisUtils,
   TACustomSeries,  // for TChartSeries
   TAChartUtils,
-  TAEnumerators, TALegendPanel;
+  TAEnumerators, TALegendPanel, TAChartListbox;
 
 type
 
@@ -22,11 +22,13 @@ type
     btnDelete: TToolButton;
     Chart1: TChart;
     cbParameters: TComboBox;
+    clbSeries: TChartListbox;
     ChartToolset1: TChartToolset;
     DPCT: TDataPointClickTool;
     DPHT: TDataPointHintTool;
     MenuItem1: TMenuItem;
     btnBestProfile: TMenuItem;
+    Splitter2: TSplitter;
     ZDT: TZoomDragTool;
     ZMWT: TZoomMouseWheelTool;
     DS: TDataSource;
@@ -271,6 +273,8 @@ S_clr[16]:=clLtGray;
 
      if not Qt1.IsEmpty then begin
        TabControl1.Tabs.Clear;
+       clbSeries.Items.Clear;
+
        while not Qt1.EOF do begin
 
         with Qt2 do begin
@@ -293,6 +297,10 @@ S_clr[16]:=clLtGray;
           if prof_best=true then TabName:=TabName+' [BEST]';
 
           TabControl1.Tabs.Add(TabName);
+         // clbSeries.Items.Add(TabName);
+        //  inc(ss);
+        //  clbSeries.Checked[ss]:=true;
+
          Qt2.Next;
         end;
         Qt2.Close;
@@ -305,15 +313,22 @@ S_clr[16]:=clLtGray;
  if Qt1.IsEmpty then begin
   TabControl1.Tabs.Clear;
   Chart1.Series.Clear;
+  clbSeries.Items.Clear;
+  toolbar1.Enabled:=false;
   Qt1.Close;
+  Qt.Close;
+
   for k:=1 to StatusBar1.Panels.Count-1 do StatusBar1.Panels.Items[k].Text:='';
   for k:=1 to StatusBar2.Panels.Count-1 do StatusBar2.Panels.Items[k].Text:='';
+  exit;
  end;
+
 
 
  //
  if not Qt1.IsEmpty then begin
   Chart1.Series.Clear;
+  toolbar1.Enabled:=false;
    for tt:=0 to TabControl1.Tabs.Count-1 do begin
      TabName:=TabControl1.Tabs.Strings[tt];
      isbest:='';
