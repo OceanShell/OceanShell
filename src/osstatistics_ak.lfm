@@ -1,0 +1,24 @@
+object frmosstatistics_AK: Tfrmosstatistics_AK
+  Left = 580
+  Height = 676
+  Top = 251
+  Width = 1003
+  Caption = 'frmosstatistics_AK'
+  ClientHeight = 676
+  ClientWidth = 1003
+  DesignTimePPI = 144
+  OnShow = FormShow
+  LCLVersion = '2.0.6.0'
+  object Memo1: TMemo
+    Left = 0
+    Height = 433
+    Top = 243
+    Width = 1003
+    Align = alBottom
+    Lines.Strings = (
+      'Memo1'
+    )
+    ParentFont = False
+    TabOrder = 0
+  end
+end

@@ -111,28 +111,28 @@ type
     iLoad_Pangaea_CTD_tab: TMenuItem;
     iLoad_WOD18: TMenuItem;
     iMap: TMenuItem;
-    iSupportTables: TMenuItem;
     iImport: TMenuItem;
     iInitialDatabase: TMenuItem;
     iUpdateCruise: TMenuItem;
     lbResetSearchCruises: TLabel;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
-    MenuItem13: TMenuItem;
-    iQCtest: TMenuItem;
+    iKnowledgeDB: TMenuItem;
+    iSupportTables: TMenuItem;
+    iQC_dbar_meter: TMenuItem;
     iExportASCII: TMenuItem;
     iLoadARGO: TMenuItem;
     MenuItem14: TMenuItem;
     MenuItem2: TMenuItem;
     iSelectEntry: TMenuItem;
-    iServiceStatistics: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     iSelectCruise: TMenuItem;
-    MenuItem6: TMenuItem;
+    iServiceStatistics: TMenuItem;
+    iDBStatistics_AK: TMenuItem;
     MenuItem7: TMenuItem;
     iDIVAnd: TMenuItem;
-    iService: TMenuItem;
+    iQC: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     PageControl2: TPageControl;
@@ -252,6 +252,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure iAboutClick(Sender: TObject);
     procedure iDBStatisticsClick(Sender: TObject);
+    procedure iDBStatistics_AKClick(Sender: TObject);
     procedure iDIVAndClick(Sender: TObject);
     procedure iInitialDatabaseClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
@@ -260,7 +261,7 @@ type
     procedure iLoad_ITPClick(Sender: TObject);
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
-    procedure iQCtestClick(Sender: TObject);
+    procedure iQC_dbar_meterClick(Sender: TObject);
     procedure iSelectCruiseClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
     procedure iSelectEntryClick(Sender: TObject);
@@ -363,7 +364,7 @@ uses
   osabout,
   sortbufds,
   procedures,
-  test_excel_nabos, //remove later
+  osqc_dbar_meters, //remove later
 
 (* loading data *)
   osload_argo,
@@ -385,6 +386,7 @@ uses
   osexport_ascii,
 
 (* QC *)
+  osqc_dbar_meters_consistency,
 
 (* tools *)
   osmap,
@@ -395,7 +397,8 @@ uses
   osprofile_plot_all,
 
 (* statistics *)
-  osstatistics
+  osstatistics,
+  osstatistics_AK
 ;
 
 {$R *.lfm}
@@ -996,6 +999,18 @@ frmosstatistics := Tfrmosstatistics.Create(Self);
    frmosstatistics := nil;
  end;
 end;
+
+procedure Tfrmosmain.iDBStatistics_AKClick(Sender: TObject);
+begin
+ frmosstatistics_AK := Tfrmosstatistics_AK.Create(Self);
+ try
+  if not frmosstatistics_AK.ShowModal = mrOk then exit;
+ finally
+   frmosstatistics_AK.Free;
+   frmosstatistics_AK := nil;
+ end;
+end;
+
 
 procedure Tfrmosmain.iDIVAndClick(Sender: TObject);
 begin
@@ -1793,7 +1808,7 @@ end;
 
 procedure Tfrmosmain.iLoad_Pangaea_CTD_tabClick(Sender: TObject);
 begin
-    frmloadPangaeaTab := TfrmloadPangaeaTab.Create(Self);
+frmloadPangaeaTab := TfrmloadPangaeaTab.Create(Self);
  try
   if not frmloadPangaeaTab.ShowModal = mrOk then exit;
  finally
@@ -1813,16 +1828,15 @@ finally
 end;
 end;
 
-procedure Tfrmosmain.iQCtestClick(Sender: TObject);
+procedure Tfrmosmain.iQC_dbar_meterClick(Sender: TObject);
 begin
-  ExcelTest;
-{  frmQC_test := TfrmQC_test.Create(Self);
- try
-  if not frmQC_test.ShowModal = mrOk then exit;
- finally
-   frmQC_test.Free;
-   frmQC_test := nil;
- end;  }
+ frmqc_dbar_meters_consistency := Tfrmqc_dbar_meters_consistency.Create(Self);
+   try
+    if not frmqc_dbar_meters_consistency.ShowModal = mrOk then exit;
+   finally
+     frmqc_dbar_meters_consistency.Free;
+     frmqc_dbar_meters_consistency:= nil;
+   end;
 end;
 
 

@@ -217,82 +217,89 @@
         <IsPartOfProject Value="True"/>
       </Unit27>
       <Unit28>
-        <Filename Value="osservice.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit28>
-      <Unit29>
         <Filename Value="osparameters_list.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmparameters_list"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit29>
-      <Unit30>
+      </Unit28>
+      <Unit29>
         <Filename Value="osprofile_plot_all.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmprofile_plot_all"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit30>
-      <Unit31>
+      </Unit29>
+      <Unit30>
         <Filename Value="osprofile_station_single.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmprofile_station_single"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit31>
-      <Unit32>
+      </Unit30>
+      <Unit31>
         <Filename Value="osservicestatistics.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmservicestatistics"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit32>
-      <Unit33>
+      </Unit31>
+      <Unit32>
         <Filename Value="osqc_test.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmQC_test"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="osQC_test"/>
-      </Unit33>
-      <Unit34>
+      </Unit32>
+      <Unit33>
         <Filename Value="osexport_ascii.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit34>
-      <Unit35>
-        <Filename Value="test_excel_nabos.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit35>
-      <Unit36>
+      </Unit33>
+      <Unit34>
         <Filename Value="osselection_customsql.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmselection_customsql"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit36>
-      <Unit37>
+      </Unit34>
+      <Unit35>
         <Filename Value="osunitsconversion.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit37>
-      <Unit38>
+      </Unit35>
+      <Unit36>
         <Filename Value="osload_argo.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmload_argo"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit38>
-      <Unit39>
+      </Unit36>
+      <Unit37>
         <Filename Value="oscreatenewdb.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmcreatenewdb"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit39>
-      <Unit40>
+      </Unit37>
+      <Unit38>
         <Filename Value="osimport_fdb.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmimport_fdb"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit38>
+      <Unit39>
+        <Filename Value="osstatistics_ak.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmosstatistics_AK"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="osstatistics_AK"/>
+      </Unit39>
+      <Unit40>
+        <Filename Value="osqc_dbar_meters_consistency.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmqc_dbar_meters_consistency"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit40>

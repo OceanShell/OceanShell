@@ -328,7 +328,7 @@ S_clr[16]:=clLtGray;
  //
  if not Qt1.IsEmpty then begin
   Chart1.Series.Clear;
-  toolbar1.Enabled:=false;
+  toolbar1.Enabled:=true;
    for tt:=0 to TabControl1.Tabs.Count-1 do begin
      TabName:=TabControl1.Tabs.Strings[tt];
      isbest:='';

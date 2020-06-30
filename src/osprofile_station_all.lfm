@@ -1,11 +1,11 @@
 object frmprofile_station_all: Tfrmprofile_station_all
-  Left = 467
+  Left = 429
   Height = 621
-  Top = 270
+  Top = 259
   Width = 1099
   Caption = 'All parameters'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 621
+  ClientWidth = 1099
   Color = clBtnFace
   DesignTimePPI = 144
   Font.Color = clWindowText
@@ -37,26 +37,8 @@ object frmprofile_station_all: Tfrmprofile_station_all
     ShowCaptions = True
     ShowHint = True
     TabOrder = 0
-    object btnAdd: TToolButton
-      Left = 1
-      Hint = 'Add level'
-      Top = 2
-      Caption = 'Add'
-      Enabled = False
-      ImageIndex = 1
-      OnClick = btnAddClick
-    end
-    object btnDelete: TToolButton
-      Left = 94
-      Hint = 'Delete level'
-      Top = 2
-      Caption = 'Delete'
-      Enabled = False
-      ImageIndex = 334
-      OnClick = btnDeleteClick
-    end
     object btnSetFlag: TToolButton
-      Left = 192
+      Left = 1
       Hint = 'Set flag on all parameters'
       Top = 2
       AutoSize = True
@@ -66,7 +48,7 @@ object frmprofile_station_all: Tfrmprofile_station_all
       Style = tbsDropDown
     end
     object btnCommit: TToolButton
-      Left = 308
+      Left = 117
       Hint = 'Commit changes'
       Top = 2
       AutoSize = True
@@ -74,15 +56,8 @@ object frmprofile_station_all: Tfrmprofile_station_all
       ImageIndex = 940
       OnClick = btnCommitClick
     end
-    object ToolButton1: TToolButton
-      Left = 187
-      Height = 33
-      Top = 2
-      Caption = 'ToolButton1'
-      Style = tbsDivider
-    end
     object ToolButton3: TToolButton
-      Left = 303
+      Left = 112
       Height = 33
       Top = 2
       Caption = 'ToolButton3'
@@ -123,8 +98,6 @@ object frmprofile_station_all: Tfrmprofile_station_all
       TitleFont.Color = clWindowText
       TitleFont.Height = -11
       TitleFont.Name = 'MS Sans Serif'
-      OnCellClick = DBGrid1CellClick
-      OnColumnSized = DBGrid1ColumnSized
       OnMouseDown = DBGrid1MouseDown
       OnPrepareCanvas = DBGrid1PrepareCanvas
     end
@@ -155,16 +128,15 @@ object frmprofile_station_all: Tfrmprofile_station_all
     top = 168
   end
   object PM: TPopupMenu
-    Images = frmicons.IL1
     AutoPopup = False
     left = 288
     top = 168
     object SetFlagBelow: TMenuItem
-      Caption = 'Set selected PQF2 BELOW this level'
+      Caption = 'Set selected flag BELOW this level'
       OnClick = SetFlagBelowClick
     end
     object SetFlagAbove: TMenuItem
-      Caption = 'Set selected PQF2 ABOVE this level'
+      Caption = 'Set selected flag ABOVE this level'
       OnClick = SetFlagAboveClick
     end
   end

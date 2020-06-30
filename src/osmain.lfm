@@ -2108,6 +2108,14 @@ object frmosmain: Tfrmosmain
         ImageIndex = 341
       end
     end
+    object iKnowledgeDB: TMenuItem
+      Caption = 'KnowledgeDB'
+      object iSupportTables: TMenuItem
+        Caption = 'Open support tables'
+        ImageIndex = 323
+        OnClick = iSupportTablesClick
+      end
+    end
     object iLoad: TMenuItem
       Caption = 'Load'
       object iLoadARGO: TMenuItem
@@ -2140,26 +2148,11 @@ object frmosmain: Tfrmosmain
         OnClick = iLoad_WOD18Click
       end
     end
-    object iService: TMenuItem
-      Caption = 'Service and QC'
-      object iSupportTables: TMenuItem
-        Caption = 'Support Tables'
-        ImageIndex = 323
-        OnClick = iSupportTablesClick
-      end
-      object MenuItem6: TMenuItem
-        Caption = '-'
-      end
-      object iServiceStatistics: TMenuItem
-        Caption = 'Service Statistics'
-        OnClick = iServiceStatisticsClick
-      end
-      object MenuItem13: TMenuItem
-        Caption = '-'
-      end
-      object iQCtest: TMenuItem
-        Caption = 'QC test'
-        OnClick = iQCtestClick
+    object iQC: TMenuItem
+      Caption = 'QC'
+      object iQC_dbar_meter: TMenuItem
+        Caption = 'Level units consistency'
+        OnClick = iQC_dbar_meterClick
       end
     end
     object iImport: TMenuItem
@@ -2202,6 +2195,14 @@ object frmosmain: Tfrmosmain
         Enabled = False
         ImageIndex = 196
         OnClick = iDBStatisticsClick
+      end
+      object iDBStatistics_AK: TMenuItem
+        Caption = 'DB Statistics [AK]'
+        OnClick = iDBStatistics_AKClick
+      end
+      object iServiceStatistics: TMenuItem
+        Caption = 'Service Statistics'
+        OnClick = iServiceStatisticsClick
       end
     end
     object iHelp: TMenuItem

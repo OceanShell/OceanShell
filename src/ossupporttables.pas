@@ -30,6 +30,7 @@ type
     DBGridInstrument: TDBGrid;
     DBGridSource: TDBGrid;
     DS: TDataSource;
+    eInstitute_NameFull: TEdit;
     eProject_NameFull: TEdit;
     eTables_ID: TEdit;
     eTables_NAME: TEdit;
@@ -122,6 +123,7 @@ type
     procedure DBGridTablesSelectEditor(Sender: TObject; Column: TColumn;
       var Editor: TWinControl);
     procedure eCountry_NODCChange(Sender: TObject);
+    procedure eInstitute_NameFullChange(Sender: TObject);
     procedure ePlatform_CountryChange(Sender: TObject);
     procedure ePlatform_IDClick(Sender: TObject);
     procedure eProject_NameFullChange(Sender: TObject);
@@ -243,6 +245,7 @@ begin
      Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col01',  50);
      Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col02',  50);
      Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col03',  300);
+     Columns[4].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col04',  300);
     end;
 
     With DBGridCountry do begin
@@ -435,7 +438,7 @@ begin
      end;
   6: begin
        CodesTblName:='INSTITUTE';
-       Q.SQL.text:='Select ID, WOD_ID, NODC_CODE, NAME '+
+       Q.SQL.text:='Select ID, WOD_ID, NODC_CODE, NAME, NAME_FULL '+
                    'FROM INSTITUTE ORDER BY NAME';
      end;
   7: begin
@@ -513,11 +516,11 @@ begin
    eProject_NAMEFULL.Width:=DBGridProject.Columns[3].Width;
  end;
  if CodesTblName='INSTITUTE' then begin
-    occup:=trunc(DBGridInstitute.Width-25-
-           (DBGridInstitute.Columns[0].Width+
-            DBGridInstitute.Columns[1].Width+
-            DBGridInstitute.Columns[2].Width));
-    DBGridInstitute.Columns[3].Width:=occup+1;
+   eInstitute_ID.Width:=DBGridInstitute.Columns[0].Width;
+   eInstitute_NODC.Width:=DBGridInstitute.Columns[1].Width;
+   eInstitute_WOD.Width:=DBGridInstitute.Columns[2].Width;
+   eInstitute_NAME.Width:=DBGridInstitute.Columns[3].Width;
+   eINstitute_NAMEFULL.Width:=DBGridInstitute.Columns[4].Width;
  end;
  if CodesTblName='INSTRUMENT' then begin
     occup:=trunc(DBGridInstrument.Width-25-
@@ -904,6 +907,12 @@ begin
  Q.Filtered:=true;
 end;
 
+procedure Tfrmsupporttables.eInstitute_NameFullChange(Sender: TObject);
+begin
+ Q.Filter:='NAME_FULL = '+QuotedStr('*'+eInstitute_NAMEFULL.Text+'*');
+ Q.Filtered:=true;
+end;
+
 procedure Tfrmsupporttables.eTables_TABLENAMEChange(Sender: TObject);
 begin
   Q.Filter:='NAME_TABLE = '+QuotedStr('*'+eTables_TABLENAME.Text+'*');
@@ -1142,6 +1151,7 @@ begin
      Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col01', Columns[1].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col02', Columns[2].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col03', Columns[3].Width);
+     Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col04', Columns[4].Width);
     end;
 
     With DBGridCountry do begin

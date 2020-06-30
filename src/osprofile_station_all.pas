@@ -28,9 +28,6 @@ type
     pCharts: TScrollBox;
     Splitter2: TSplitter;
     ToolBar1: TToolBar;
-    btnAdd: TToolButton;
-    btnDelete: TToolButton;
-    ToolButton1: TToolButton;
     btnCommit: TToolButton;
     DS1: TDataSource;
     PM: TPopupMenu;
@@ -40,8 +37,8 @@ type
     ZMW: TZoomMouseWheelTool;
 
     procedure btnSetFlagArrowClick(Sender: TObject);
-    procedure DBGrid1CellClick(Column: TColumn);
-    procedure DBGrid1ColumnSized(Sender: TObject);
+ //   procedure DBGrid1CellClick(Column: TColumn);
+//    procedure DBGrid1ColumnSized(Sender: TObject);
     procedure DBGrid1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure DBGrid1PrepareCanvas(sender: TObject; DataCol: Integer;
@@ -50,24 +47,23 @@ type
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure btnCommitClick(Sender: TObject);
-    procedure btnAddClick(Sender: TObject);
-    procedure btnDeleteClick(Sender: TObject);
-//    procedure CheckListBox1Click(Sender: TObject);
+ //   procedure btnAddClick(Sender: TObject);
+ //   procedure btnDeleteClick(Sender: TObject);
+  //  procedure CheckListBox1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
- //   procedure iDeleteParameterClick(Sender: TObject);
-{    procedure SeriesClick(Sender: TChartSeries; ValueIndex: Integer;
-    Button: TMouseButton; Shift: TShiftState; X,Y: Integer);  }
+  //  procedure iDeleteParameterClick(Sender: TObject);
     procedure iSetFlagParameterClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
-//    procedure DBGridEh1KeyUp(Sender: TObject; var Key: Word;
-//      Shift: TShiftState);
+  //  procedure DBGridEh1KeyUp(Sender: TObject; var Key: Word;
+  //    Shift: TShiftState);
     procedure FormShow(Sender: TObject);
     procedure SetFlagAboveClick(Sender: TObject);
     procedure SetFlagBelowClick(Sender: TObject);
 
   private
     procedure CheckChartSize;
-    function AddLineSeries(AChart: TChart; ATitle: String; AColor:TColor; sName:string): TLineSeries;
+    function AddLineSeries(AChart: TChart): TLineSeries;
+
   public
     procedure ChangeID(ID:integer);
   end;
@@ -75,7 +71,7 @@ type
 var
   frmprofile_station_all: Tfrmprofile_station_all;
   CDS:TBufDataSet;
-  Charts:array of TChart;
+  Charts:array [1..200] of TChart;
   Tools: array of TChartToolset;
   ToolDPC: array of TDataPointClickTool;
   ToolDPH: array of TDataPointHintTool;
@@ -89,27 +85,23 @@ uses osmain, dm, osprofile_flag, osprofile_plot_all;
 
 {$R *.lfm}
 
-function Tfrmprofile_station_all.AddLineSeries(AChart: TChart;
-  ATitle: String; AColor:TColor; sName:string): TLineSeries;
+function Tfrmprofile_station_all.AddLineSeries(AChart: TChart): TLineSeries;
 begin
-Result := TLineSeries.Create(AChart.Owner);
- with TLineSeries(Result) do begin
-   Title := ATitle;
-   ShowPoints := false;
-   ShowLines := true;
-   LinePen.Style := psSolid;
-   LinePen.Width:=2;
-   SeriesColor := AColor;
-   Pointer.Style:=psCircle;
-   Pointer.Brush.Color := AColor;
-   Pointer.Pen.Color := AColor;
-   Pointer.HorizSize:=3;
-   Pointer.VertSize:=3;
-   Pointer.Visible:=true;
-   Name := sName;
-   ToolTargets := [nptPoint, nptYList, nptCustom];
- end;
-AChart.AddSeries(Result);
+ Result := TLineSeries.Create(AChart.Owner);
+  with TLineSeries(Result) do begin
+    ShowPoints := true;
+    ShowLines := true;
+    LinePen.Style := psSolid;
+    SeriesColor := clBlue;
+    Pointer.Style:=psCircle;
+    Pointer.Brush.Color := clBlue;
+    Pointer.Pen.Color := clBlack;
+    Pointer.HorizSize:=3;
+    Pointer.VertSize:=3;
+    Pointer.Visible:=true;
+   // ToolTargets := [nptPoint, nptYList, nptCustom];
+  end;
+ AChart.AddSeries(Result);
 end;
 
 
@@ -118,39 +110,23 @@ Var
 ID:Integer;
 par:string;
 begin
-  SetLength(Charts,  frmosmain.listbox1.Count);
- // SetLength(cbUnits, frmosmain.listbox1.Count);
+CDS:=TBufDataSet.Create(nil);
 
-   CDS:=TBufDataSet.Create(nil);
-    CDS.FieldDefs.Add('Lev_dbar',ftFloat,0,false);
-    CDS.FieldDefs.Add('Lev_m',ftFloat,0,false);
-     for ks:=0 to frmosmain.ListBox1.Items.Count-1 do begin
-      Par:=frmosmain.ListBox1.Items.Strings[ks];
 
-       CDS.FieldDefs.Add(Par,ftFloat,0,false);
-       CDS.FieldDefs.Add(Par+'_FL',ftInteger,0,false);
+       { cbUnits[ks]:=TComboBox.Create(self);
+          with cbUnits[ks] do begin
+            Parent:=pUnits;
+            Name:=Par;
+            Align:=alLeft;
+            Style:=csDropDownList;
+          end; }
 
-        Charts[ks]:=TChart.Create(Self);
-        Charts[ks].Toolset:=Toolset;
-          with Charts[ks] do begin
-             Parent:=pCharts;
-             Align:=alRight;
-             Legend.Visible:=false;
-             LeftAxis.Inverted:=true;
-             Title.Text.Clear;
-             Title.Alignment:=taCenter;
-             Title.Visible:=true;
-             Charts[ks].BackColor:=clWhite;
-             Charts[ks].LeftAxis.Inverted:=true;
-             Charts[ks].BottomAxis.Alignment:=calTop;
-             Width:=250;
-          end;
 
-         // AddLineSeries(Charts[ks]);
-     end;
+   //  end;
 
-     CDS.CreateDataSet;
-     CDS.IndexFieldNames:=CDS.FieldbyName('Lev_m').FieldName;
+ //    CDS.CreateDataSet;
+ //    CDS.IndexFieldNames:=CDS.FieldbyName('Lev_m').FieldName+';'+
+ //                         CDS.FieldbyName('Lev_dbar').FieldName;
 
  ID:=frmdm.Q.FieldByName('ID').AsInteger;
  ChangeID(ID);
@@ -181,12 +157,13 @@ end;
 
 procedure Tfrmprofile_station_all.ChangeID(ID:integer);
 Var
-k, fl, ff, count_st, units_id, Flag_:integer;
-INSTR_ID, PROF_NUM: integer;
+k, i, fl, ff, pp, ss, cc, count_st, units_id, Flag_, instr_id, prof_num:integer;
+PQF, PQF2, SQF: integer;
 cur_l, Val_, min_lev, max_lev:real;
 lev_d, lev_m: Variant;
-Units_, par, par_name, col_title:string;
-prof_best: boolean;
+prof_best:boolean;
+Units_, par, par_name, col_title, instr_name, isbest, sName, buf_str:string;
+cds_name: string;
 
 TRt:TSQLTransaction;
 Qt, Qt1, Qt2:TSQLQuery;
@@ -196,92 +173,158 @@ begin
 Caption:='All parameters: '+inttostr(ID);
 //CheckListBox1.Clear;
 
+TRt:=TSQLTransaction.Create(self);
+TRt.DataBase:=frmdm.IBDB;
+
+Qt:=TSQLQuery.Create(self);
+Qt.Database:=frmdm.IBDB;
+Qt.Transaction:=TRt;
+
+Qt1:=TSQLQuery.Create(self);
+Qt1.Database:=frmdm.IBDB;
+Qt1.Transaction:=TRt;
+
+Qt2:=TSQLQuery.Create(self);
+Qt2.Database:=frmdm.IBDB;
+Qt2.Transaction:=TRt;
+
+ss:=0;
+
  try
+  pCharts.Visible:=false;
+
   CDS.DisableControls;
-   if CDS.Active then begin
-    CDS.Close;
-   end;
+  CDS.Clear;
+
+  CDS.FieldDefs.Add('Lev_dbar',ftFloat,0,false);
+  CDS.FieldDefs.Add('Lev_m',ftFloat,0,false);
+
+  (* loop over tables *)
+  for ks:=0 to frmosmain.ListBox1.Items.Count-1 do begin
+    Par:=frmosmain.ListBox1.Items.Strings[ks];
+
+      with Qt1 do begin
+       Close;
+         SQL.Clear;
+         SQL.Add(' SELECT DISTINCT(INSTRUMENT_ID), INSTRUMENT.NAME ');
+         SQL.Add(' FROM INSTRUMENT, '+ Par);
+         SQL.Add(' WHERE ');
+         SQL.Add( Par+'.INSTRUMENT_ID=INSTRUMENT.ID AND ');
+         SQL.Add( Par+'.ID=:ID ');
+         ParamByName('ID').AsInteger:=ID;
+       Open;
+      end;
+
+      While not Qt1.eof do begin
+        INSTR_ID:=Qt1.Fields[0].Value;
+        INSTR_NAME:=Qt1.Fields[1].Value;
+
+        With Qt2 do begin
+          Close;
+            SQL.Clear;
+            SQL.Add(' SELECT DISTINCT(PROFILE_NUMBER), PROFILE_BEST, UNITS_ID FROM ');
+            SQL.Add( Par);
+            SQL.Add(' WHERE ');
+            SQL.Add( Par+'.ID=:ID AND INSTRUMENT_ID=:INSTR_ID ');
+            ParamByName('ID').AsInteger:=ID;
+            ParamByName('INSTR_ID').AsInteger:=INSTR_ID;
+          Open;
+        end;
+
+        while not Qt2.eof do begin
+          prof_num :=Qt2.Fields[0].AsInteger;
+          prof_best:=Qt2.Fields[1].AsBoolean;
+          units_id :=Qt2.Fields[2].AsInteger;
+
+          sName:=par+'_'+instr_name+'_'+inttostr(prof_num)+'_'+inttostr(units_id);
+
+          CDS.FieldDefs.Add(sname,ftFloat,0,false);
+          CDS.FieldDefs.Add(sname+'_FL',ftInteger,0,false);
+
+          inc(ss);
+
+          Charts[ss]:=TChart.Create(Self);
+          Charts[ss].Toolset:=Toolset;
+           with Charts[ss] do begin
+             Parent:=pCharts;
+             Align:=alRight;
+             Legend.Visible:=false;
+             LeftAxis.Inverted:=true;
+             Title.Text.Clear;
+             Title.Alignment:=taCenter;
+             Title.Visible:=true;
+             BackColor:=clWhite;
+             LeftAxis.Inverted:=true;
+             BottomAxis.Alignment:=calTop;
+             Width:=250;
+           end;
+
+          AddLineSeries(Charts[ss]);
+
+          Qt2.Next;
+        end;
+        Qt1.Next;
+      end;
+  end; // parameters
+  Qt2.Close;
+  Qt1.Close;
+
+  CDS.CreateDataSet;
+  CDS.IndexFieldNames:=CDS.FieldbyName('Lev_dbar').FieldName;
   CDS.Open;
 
   DS1.DataSet:=CDS;
 
-  TRt:=TSQLTransaction.Create(self);
-  TRt.DataBase:=frmdm.IBDB;
 
-  Qt :=TSQLQuery.Create(self);
-  Qt.Database:=frmdm.IBDB;
-  Qt.Transaction:=TRt;
-
-  Qt1 :=TSQLQuery.Create(self);
-  Qt1.Database:=frmdm.IBDB;
-  Qt1.Transaction:=TRt;
-
-  Qt2 :=TSQLQuery.Create(self);
-  Qt2.Database:=frmdm.IBDB;
-  Qt2.Transaction:=TRt;
-
- // showmessage('here2');
   min_lev:=9999;
   max_lev:= -9999;
-  for k:=0 to frmosmain.ListBox1.Items.Count-1 do begin
-    TLineSeries(Charts[k].Series[0]).Clear;
 
-    par:=frmosmain.listbox1.Items.Strings[k];
+  cc:=0;
+  for pp:=2 to CDS.FieldCount-1 do begin
 
-    with Qt1 do begin
+   if (pp mod 2<>1) then begin
+    inc(cc);
+    TLineSeries(Charts[cc].Series[0]).Clear;
+
+    sName:=CDS.Fields[pp].FieldName;
+
+  //  showmessage(sname);
+
+    ss:=2;
+    for i:=1 to 4 do begin
+      buf_str:='';
+      repeat
+       inc(ss);
+        if sName[ss]<>'_' then buf_str:=buf_str+sname[ss];
+      until (sName[ss]='_') or (ss=length(sName));
+      case i of
+       1: par:='P_'+buf_str;
+       2: INSTR_NAME:=buf_str;
+       3: prof_num:=strtoint(buf_str);
+       4: units_id:=strtoint(buf_str);
+      end;
+    end;
+
+   with Qt do begin
      Close;
-      SQL.Clear;
-      SQL.Add(' SELECT DISTINCT(INSTRUMENT_ID), INSTRUMENT.NAME ');
-      SQL.Add(' FROM INSTRUMENT, '+par);
-      SQL.Add(' WHERE ');
-      SQL.Add( par+'.INSTRUMENT_ID=INSTRUMENT.ID AND ');
-      SQL.Add( par+'.ID=:ID ');
-      ParamByName('ID').AsInteger:=ID;
+       Sql.Clear;
+       SQL.Add(' SELECT * FROM ');
+       SQL.Add( Par+', UNITS ');
+       SQL.Add(' WHERE ');
+       SQL.Add( Par +'.ID=:ID AND ');
+       SQL.Add( Par +'.UNITS_ID=UNITS.ID AND ');
+       SQL.Add( Par +'.INSTRUMENT_ID IN ');
+       SQL.Add('(SELECT ID FROM INSTRUMENT WHERE ');
+       SQL.Add('INSTRUMENT.NAME=:INSTR_NAME) AND ');
+       SQL.Add( Par +'.PROFILE_NUMBER=:PROF_NUM');
+       SQL.Add(' ORDER BY LEV_DBAR ');
+       ParamByName('ID').AsInteger:=ID;
+       ParamByName('INSTR_NAME').AsString:=INSTR_NAME;
+       ParamByName('PROF_NUM').AsInteger:=PROF_NUM;
      Open;
     end;
 
-    While not Qt1.eof do begin
-     INSTR_ID:=Qt1.Fields[0].Value;
-
-      with Qt2 do begin
-       Close;
-        SQL.Clear;
-        SQL.Add(' SELECT DISTINCT(PROFILE_NUMBER), PROFILE_BEST FROM ');
-        SQL.Add( par);
-        SQL.Add(' WHERE ');
-        SQL.Add( par+'.ID=:ID AND INSTRUMENT_ID=:INSTR_ID ');
-        ParamByName('ID').AsInteger:=ID;
-        ParamByName('INSTR_ID').AsInteger:=INSTR_ID;
-       Open;
-      end;
-
-      while not Qt2.eof do begin
-       prof_num :=Qt2.Fields[0].AsInteger;
-       prof_best:=Qt2.Fields[1].AsBoolean;
-
-      // TabName:=Qt1.Fields[1].Value+', Profile '+inttostr(prof_num);
-      // if prof_best=true then TabName:=TabName+' [BEST]';
-
-
-      with Qt do begin
-       Close;
-         Sql.Clear;
-         SQL.Add(' SELECT ');
-         SQL.Add( par+'.LEV_DBAR, '+par+'.LEV_M, '+par+'.VAL, ');
-         SQL.Add( par+'.PQF2,'+ par+'.UNITS_ID, UNITS.NAME_SHORT ');
-         SQL.Add(' FROM ');
-         SQL.Add( par+', UNITS ');
-         SQL.Add(' WHERE ');
-         SQL.Add( par+'.UNITS_ID=UNITS.ID AND ');
-         SQL.Add( par+'.ID=:ID AND ');
-         SQL.Add( par+'.INSTRUMENT_ID=:I_ID AND ');
-         SQL.Add( par+'.PROFILE_NUMBER=:PROF_NUM ');
-         SQL.Add(' order by LEV_M');
-         ParamByName('ID').AsInteger:=ID;
-         ParamByName('I_ID').AsInteger:=INSTR_ID;
-         ParamByName('PROF_NUM').AsInteger:=PROF_NUM;
-       Open;
-      end;
+   cds_name:=par+'_'+instr_name+'_'+inttostr(prof_num)+'_'+inttostr(units_id);
 
   //  showmessage(inttostr(Qt.RecordCount));
   Qt.First;
@@ -290,7 +333,9 @@ Caption:='All parameters: '+inttostr(ID);
       Lev_m   :=Qt.FieldByName('LEV_M').AsVariant;
       Lev_d   :=Qt.FieldByName('LEV_DBAR').AsVariant;
       Val_    :=Qt.FieldByName('VAL').AsFloat;
-      Flag_   :=Qt.FieldByName('PQF2').AsInteger;
+     // PQF     :=Qt.FieldByName('PQF').AsInteger;
+      PQF2    :=Qt.FieldByName('PQF2').AsInteger;
+     // SQF     :=Qt.FieldByName('SQF').AsInteger;
       Units_  :=Qt.FieldByName('NAME_SHORT').AsString;
 
       min_lev := min(min_lev, lev_m);
@@ -306,8 +351,10 @@ Caption:='All parameters: '+inttostr(ID);
         if (CDS.FieldByName('LEV_DBAR').AsFloat=Lev_d) or
            (CDS.FieldByName('LEV_M').AsFloat=Lev_m) then begin
             CDS.edit;
-             CDS.FieldByName(par).AsFloat:=Val_;
-             CDS.FieldByName(par+'_FL').AsInteger:=Flag_;
+             CDS.FieldByName(cds_name).AsFloat:=Val_;
+             CDS.FieldByName(cds_name+'_FL').AsInteger:=PQF2;
+            // CDS.FieldByName(cds_name+'_PQF2').AsInteger:=PQF2;
+            // CDS.FieldByName(cds_name+'_SQF').AsInteger:=SQF;
             CDS.Post;  fl:=0;
         end;
         CDS.Next;
@@ -315,50 +362,45 @@ Caption:='All parameters: '+inttostr(ID);
 
       if fl=1 then begin
          CDS.Append;
-         if not VarIsNull(Lev_d) then CDS.FieldByName('LEV_DBAR').AsFloat:=Lev_d;
-         if not VarIsNull(Lev_m) then CDS.FieldByName('LEV_M').AsFloat:=Lev_m;
-         CDS.FieldByName(par).AsFloat:=Val_;
-         CDS.FieldByName(par+'_FL').AsInteger:=Flag_;
+         CDS.FieldByName('LEV_DBAR').AsFloat:=Lev_d;
+         CDS.FieldByName('LEV_M').AsFloat:=Lev_m;
+         CDS.FieldByName(cds_name).AsFloat:=Val_;
+         CDS.FieldByName(cds_name+'_FL').AsInteger:=PQF2;
          CDS.Post;
       end;
       inc(Count_st);
      // cur_l:=lev;
-      TLineSeries(Charts[k].Series[0]).AddXY(val_,lev_m);
+      TLineSeries(Charts[cc].Series[0]).AddXY(val_,lev_m);
       Qt.Next;
     end;
     Qt.Close;
 
-    par_name:=copy(par,3,length(par))+' ';
+    //par_name:='['+inttostr(count_st)+']  '+copy(par,3,length(par))+' ';
     //CheckListBox1.Items.Add(par_name);
 
-   // col_title:=Copy(par, 3, length(par));
-   // col_title:=Copy(col_title, 1, Pos('_', col_title)+3);
+    col_title:=Copy(par, 3, length(par));
+    //col_title:=Copy(col_title, 1, Pos('_', col_title)+3);
 
-    Charts[k].Title.Text.Clear;
-    Charts[k].Title.Text.Add(par_name);
-    Charts[k].Title.Text.Add(Units_+', ['+inttostr(count_st)+']');
+    Charts[cc].Title.Text.Clear;
+    Charts[cc].Title.Text.Add(col_title+', ['+units_+']');
+    Charts[cc].Title.Text.Add(instr_name+', Profile '+inttostr(prof_num));
+    Charts[cc].Title.Text.Add('Levels: '+inttostr(count_st));
 
-    if Count_st>0 then begin
-      // CheckListBox1.Checked[k]:=true;
-       CDS.FieldByName(par).visible:=true;
-       CDS.FieldByName(par+'_FL').visible:=true;
-       Charts[k].Visible:=true;
-    end;
 
-    if Count_st=0 then begin
-       CDS.FieldByName(par).visible:=false;
-       CDS.FieldByName(par+'_FL').visible:=false;
-       Charts[k].Visible:=false;
-    end;
+    //CDS.FieldByName(cds_name).visible:=true;
+   // CDS.FieldByName(cds_name+'_FL').visible:=true;
+  //     Charts[cc].Visible:=true
 
-    Qt2.Next;
    Application.ProcessMessages;
   end;
-  Qt1.Next;
  end;
-end; //tables
 
-  for k:=0 to length(Charts)-1 do begin
+ // showmessage(floattostr(min_lev)+'   '+floattostr(max_lev));
+  //end;
+
+  //  showmessage(floattostr(min_lev)+'   '+floattostr(max_lev));
+
+  for k:=1 to cc do begin
     Charts[k].LeftAxis.Range.Min:=min_lev;
     Charts[k].LeftAxis.Range.Max:=max_lev;
     Charts[k].LeftAxis.Range.UseMin:=true;
@@ -367,6 +409,7 @@ end; //tables
 
  (* settings for the grid *)
   DBGrid1.Columns[0].Title.Caption:='Level, dBar';
+  DBGrid1.Columns[0].ReadOnly:=true;
   DBGrid1.Columns[1].Title.Caption:='Level, m';
   for k:=2 to DBGrid1.Columns.Count-1 do begin
    col_title:=DBGrid1.Columns[k].Title.Caption;
@@ -375,7 +418,8 @@ end; //tables
       col_title:=Copy(col_title, 3, length(col_title));
      // col_title:=Copy(col_title, 1, Pos('_', col_title)+3);
       DBGrid1.Columns[k].Title.Caption:=col_title;
-      DBGrid1.Columns[k].Width:=80;
+      DBGrid1.Columns[k].ReadOnly:=true;
+      DBGrid1.Columns[k].Width:=120;
     end;
 
     if (k mod 2=1) then begin
@@ -396,6 +440,7 @@ end; //tables
   CDS.EnableControls;
   Qt.Free;
   Trt.Free;
+  pCharts.Visible:=true;
  end;
 
  // DBGridEh1.SumList.RecalcAll;
@@ -405,120 +450,81 @@ end;
 
 procedure Tfrmprofile_station_all.btnCommitClick(Sender: TObject);
 Var
-ID, k, levnum:integer;
-tbl:string;
-Qt:TSQLQuery;
-TRt:TSQLTransaction;
+ID, k, ss, pp, i, prof_num, units_id:integer;
+par, sName, instr_name, buf_str:string;
 begin
 ID:=frmdm.Q.FieldByName('ID').AsInteger;
 
 try
  CDS.DisableControls;
 
-  TRt:=TSQLTransaction.Create(self);
-  TRt.DataBase:=frmdm.IBDB;
+ (* saving levels *)
+ For pp:=2 to CDS.FieldCount-1 do begin
+  sName:=CDS.Fields[pp].FieldName;
+  if copy(sName, length(sname)-2, 3)<>'_FL' then begin
 
-  Qt :=TSQLQuery.Create(self);
-  Qt.Database:=frmdm.IBDB;
-  Qt.Transaction:=TRt;
+     ss:=2;
+     for i:=1 to 4 do begin
+       buf_str:='';
+       repeat
+        inc(ss);
+         if sName[ss]<>'_' then buf_str:=buf_str+sname[ss];
+       until (sName[ss]='_') or (ss=length(sName));
+       case i of
+        1: par:='P_'+buf_str;
+        2: INSTR_NAME:=buf_str;
+        3: prof_num:=strtoint(buf_str);
+        4: units_id:=strtoint(buf_str);
+       end;
+     end;
 
- For k:=0 to frmosmain.ListBox1.Items.Count-1 do
-     tbl:=frmosmain.ListBox1.Items.Strings[k];
-     tbl:='P_'+trim(copy(tbl, pos(' ', tbl), length(tbl)));
-      if copy(tbl, length(tbl)-1, 1)=']' then
-       tbl:=copy(tbl, 1, pos(' ', tbl)-1);
-
-    //  showmessage(tbl);
-    try
-     CDS.First; LevNum:=0;
+     CDS.First;
      while not cds.Eof do begin
 
-       if not CDS.FieldByName(tbl).IsNull then begin
-        with Qt do begin
-           Close;
-              Sql.Clear;
-              SQL.Add(' UPDATE ');
-              SQL.Add(tbl);
-              SQL.Add(' SET '+tbl+'.PQF2=:fl ');
-              SQL.Add(' WHERE ' );
-              SQL.Add(' ID=:ID AND LEV_DBAR=:lev_d ');
-              ParamByName('ID').AsInteger:=ID;
-              ParamByName('lev_d').AsFloat:=CDS.FieldByName('lev_dbar').AsFloat;
-              ParamByName('fl').AsInteger:=CDS.FieldByName(tbl+'_FL').AsInteger;
-           ExecSQL;
+      if (not CDS.FieldByName(sName).IsNull) and
+         (not CDS.FieldByName('lev_m').isNull) then begin
+
+      try
+        with frmdm.q1 do begin
+         Close;
+           SQL.Clear;
+           SQL.Add(' UPDATE ');
+           SQL.Add(par);
+           SQL.Add(' SET ');
+           SQL.Add(' LEV_M=:LEV_M, VAL=:val, PQF2=:PQF2 ');
+           SQL.Add(' WHERE ' );
+           SQL.Add(' ID=:ID AND LEV_DBAR=:lev_d AND ');
+           SQL.Add(' INSTRUMENT_ID IN (SELECT ID FROM INSTRUMENT ');
+           SQL.Add(' WHERE INSTRUMENT.NAME=:INSTR_NAME) AND ');
+           SQL.Add(' PROFILE_NUMBER=:PROF_NUM ');
+           ParamByName('ID').AsInteger:=ID;
+           ParamByName('INSTR_NAME').AsString:=instr_NAME;
+           ParamByName('PROF_NUM').AsInteger:=prof_num;
+           ParamByName('lev_d').AsFloat:=CDS.FieldByName('lev_dbar').AsFloat;
+           ParamByName('lev_m').AsFloat:=CDS.FieldByName('lev_m').AsFloat;
+           ParamByName('VAL').AsFloat:=CDS.FieldByName(sname).AsFloat;
+           ParamByName('PQF2').AsFloat:=CDS.FieldByName(sname+'_FL').AsFloat;
+         ExecSQL;
         end;
+      frmdm.TR.CommitRetaining;
+      except
+       On E :Exception do begin
+         ShowMessage(E.Message);
+        frmdm.TR.RollbackRetaining;
        end;
+      end;
+      end;
+
       CDS.Next;
-    end;
-     TRt.Commit;
-    except
-     On E :Exception do begin
-      ShowMessage(E.Message);
-      TRt.Rollback;
      end;
     end;
-  // end;
-  finally
-   CDS.EnableControls;
-   Qt.Free;
-   TRt.Free;
+
   end;
-
-
-{ try
- CDS.DisableControls;
-
-  Qt :=TSQLQuery.Create(self);
-  Qt.Database:=frmdm.IBDB;
-  Qt.Transaction:=frmdm.TR;
-
- For k:=0 to frmosmain.listbox1.Items.Count-1 do begin
-    tbl:=frmosmain.listbox1.Items.Strings[k];
-
-    Qt.Close;
-    Qt.SQL.Text:='Delete from '+tbl+' where ID=:ID';
-    Qt.ParamByName('ID').AsInteger:=ID;
-    Qt.ExecSQL;
-    frmdm.TR.CommitRetaining;
-
-    try
-     CDS.First; LevNum:=0;
-     while not cds.Eof do begin
-
-       if not CDS.FieldByName(tbl).IsNull then begin
-        with Qt do begin
-           Close;
-              Sql.Clear;
-              SQL.Add('insert into');
-              SQL.Add(tbl);
-              SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF2, UNITS_ID) ');
-              SQL.Add(' VALUES ' );
-              SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF2, :UNITS_ID) ');
-              ParamByName('ID').AsInteger:=ID;
-              ParamByName('LEV_DBAR').AsFloat:=CDS.FieldByName('lev_dbar').AsFloat;
-              ParamByName('LEV_M').AsFloat:=CDS.FieldByName('lev_m').AsFloat;
-              ParamByName('VAL').AsFloat:=CDS.FieldByName(tbl).AsFloat;
-              ParamByName('PQF2').AsInteger:=CDS.FieldByName(tbl+'_FL').AsInteger;
-             // ParamByName('UNITS_ID').AsInteger:=CDS.FieldByName(tbl+'_FL').AsInteger;
-           ExecSQL;
-        end;
-       end;
-      CDS.Next;
-    end;
-     frmdm.TR.Commit;
-    except
-     On E :Exception do begin
-      ShowMessage(E.Message);
-      frmdm.TR.Rollback;
-     end;
-    end;
-   end;
   finally
    CDS.EnableControls;
-   Qt.Free;
-  end;   }
+  end;
 ChangeID(ID);
-if frmprofile_plot_all_open=true then frmprofile_plot_all.AddToPlot(ID, true);
+//if frmprofile_plot_all_open=true then frmprofile_plot_all.AddToPlot(ID, true);
 end;
 
 
@@ -532,18 +538,6 @@ begin
  //    for k:=0 to frmosmain.listbox1.Items.Count-1 do Charts[k].Width:=round(pCharts.Width/CountChecked);
  //  if memo1.Lines.Count>0 then memo1.Visible:=true;
 end;
-
-procedure Tfrmprofile_station_all.btnAddClick(Sender: TObject);
-begin
-  CDS.Insert;
-end;
-
-procedure Tfrmprofile_station_all.btnDeleteClick(Sender: TObject);
-begin
-  CDS.Delete;
-end;
-
-
 
 
 (* Setting flags for EVERY parameter *)
@@ -560,59 +554,82 @@ begin
    finally
     frmparameters_flag.Free;
     frmparameters_flag := nil;
-  end;
+   end;
 
   if ProfFlag=-9 then exit; // Оставляем старый флаг
 
    try
    CDS.DisableControls;
+   Cur_pos:=CDS.RecNo;
+
      if (ProfFlag<>999) and (ProfFlag<>777) then begin
-      For k:=0 to frmosmain.listbox1.Items.Count-1 do begin
-       tbl:=frmosmain.listbox1.Items.Strings[k];
-       CDS.First;
-       while not CDS.Eof do begin
-         CDS.Edit;
-          CDS.FieldByName(tbl+'_FL').AsFloat:=ProfFlag;
-         CDS.Post;
-        CDS.Next;
+      For k:=2 to CDS.Fields.Count-1 do begin
+       tbl:=CDS.Fields[k].FieldName;
+       if copy(tbl, length(tbl)-2, 3)='_FL' then begin
+        CDS.First;
+         while not CDS.Eof do begin
+          CDS.Edit;
+           if not CDS.FieldByName(copy(tbl, 1, length(tbl)-3)).IsNull then
+           CDS.FieldByName(tbl).AsFloat:=ProfFlag;
+          CDS.Post;
+          CDS.Next;
+        end;
        end;
       end;
      end;
 
     // flag above selected level
      if ProfFlag=777 then begin
-      Cur_pos:=CDS.RecNo;
-      For k:=0 to frmosmain.listbox1.Items.Count-1 do begin
-       tbl:=frmosmain.listbox1.Items.Strings[k];
-       CDS.RecNo:=Cur_pos;
-       repeat
-         CDS.Edit;
-          CDS.FieldByName(tbl+'_FL').AsFloat:=2;
-         CDS.Post;
-        CDS.Prior;
+      repeat
+      // showmessage(inttostr(cds.RecNo));
+        For k:=2 to CDS.Fields.Count-1 do begin
+        tbl:=CDS.Fields[k].FieldName;
+      //  showmessage(tbl);
+        if copy(tbl, length(tbl)-2, 3)='_FL' then begin
+        // showmessage(tbl+'   '+inttostr(CDS.RecNo));
+          if not CDS.FieldByName(copy(tbl, 1, length(tbl)-3)).IsNull then begin
+           CDS.Edit;
+           CDS.FieldByName(tbl).AsFloat:=2;
+           CDS.Post;
+          end;
+         end;
+        end;
+       CDS.Prior;
        until CDS.RecNo=1;
-       CDS.First;
-       CDS.Edit;
-       CDS.FieldByName(tbl+'_FL').AsFloat:=2;
-       CDS.Post;
+      CDS.First;
+      For k:=2 to CDS.Fields.Count-1 do begin
+      tbl:=CDS.Fields[k].FieldName;
+       if copy(tbl, length(tbl)-2, 3)='_FL' then begin
+        if not CDS.FieldByName(copy(tbl, 1, length(tbl)-3)).IsNull then begin
+         CDS.Edit;
+         CDS.FieldByName(tbl).AsFloat:=2;
+         CDS.Post;
+        end;
+      end;
+      end;
+     end;
+
+     // flag below selected level
+     if ProfFlag=999 then begin
+      while not CDS.Eof do begin
+       For k:=2 to CDS.Fields.Count-1 do begin
+        tbl:=CDS.Fields[k].FieldName;
+        if copy(tbl, length(tbl)-2, 3)='_FL' then begin
+          if not CDS.FieldByName(copy(tbl, 1, length(tbl)-3)).IsNull then begin
+           CDS.Edit;
+           CDS.FieldByName(tbl).AsFloat:=2;
+           CDS.Post;
+          end;
+         end;
+        end;
+       CDS.Next;
       end;
      end;
 
   finally
+   CDS.RecNo:=Cur_pos;
    CDS.EnableControls;
   end;
-end;
-
-procedure Tfrmprofile_station_all.DBGrid1CellClick(Column: TColumn);
-begin
-  // For k:=0 to Charts.Count-1 do begin
-  //  TLineSeries(series).SeriesColo
-  // end;
-end;
-
-procedure Tfrmprofile_station_all.DBGrid1ColumnSized(Sender: TObject);
-begin
-  //pUnitsFiller.Width:=DBGrid1.Columns[0].Width+DBGrid1.Columns[1].Width;
 end;
 
 
@@ -735,7 +752,7 @@ begin
 
 
        //iSetFlagParameter.Caption:='Set flag for '+Par;
-       //iDeleteParameter.Caption:='Delete '+Par;
+      // iDeleteParameter.Caption:='Delete '+Par;
        PM.PopUp;
   end;
 end;
@@ -743,6 +760,7 @@ end;
 procedure Tfrmprofile_station_all.DBGrid1PrepareCanvas(sender: TObject;
   DataCol: Integer; Column: TColumn; AState: TGridDrawState);
 begin
+  if Column.Index=0 then TDBGrid(sender).Canvas.Brush.Color:=clBtnFace;
   if gdRowHighlight in AState then begin
     TDBGrid(sender).Canvas.Brush.Color := clNavy;
     TDBGrid(sender).Canvas.Font.Color:= clYellow;
@@ -784,7 +802,7 @@ Ini := TIniFile.Create(IniFileName);
   try
     Ini.WriteInteger( 'parameters_station', 'Height',   Height);
     Ini.WriteInteger( 'parameters_station', 'Width',    Width);
-//    Ini.WriteInteger( 'parameters_station', 'listbox1', CheckListBox1.Width);
+   // Ini.WriteInteger( 'parameters_station', 'listbox1', CheckListBox1.Width);
     Ini.WriteInteger( 'parameters_station', 'pCharts',  pCharts.Height);
    finally
     ini.Free;
