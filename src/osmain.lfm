@@ -1164,7 +1164,6 @@ object frmosmain: Tfrmosmain
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
               MaxValue = 100000000
-              MinValue = 1
               ParentFont = False
               TabOrder = 0
               Value = 3
@@ -1178,7 +1177,6 @@ object frmosmain: Tfrmosmain
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
               MaxValue = 100000000
-              MinValue = 1
               ParentFont = False
               TabOrder = 1
               Value = 3

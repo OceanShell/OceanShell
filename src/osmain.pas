@@ -794,7 +794,8 @@ begin
      SQL.Add('  AND (CRUISE.DATE_ADDED between :SSDateAddedMin and :SSDateAddedMax) ');
      SQL.Add('  AND (CRUISE.DATE_UPDATED between :SSDateUpdatedMin and :SSDateUpdatedMax) ');
 
-     SQL.Add('  AND (STATIONS_AMOUNT > :SSStationsAmount) ');
+     SQL.Add('  AND (STATIONS_AMOUNT >= :SSStationsAmountMin)  ');
+     SQL.Add('  AND (STATIONS_AMOUNT <= :SSStationsAmountMax)  ');
 
     if cbCruisePlatform.text<>'' then
       SQL.Add(' AND '+NotCondPlatform  +' PLATFORM.NAME='+QuotedStr(cbCruisePlatform.text));
@@ -817,7 +818,8 @@ begin
     ParamByName('SSLatMax').AsFloat:=seLatMax.Value;
     ParamByName('SSLonMin').AsFloat:=seLonMin.Value;
     ParamByName('SSLonMax').AsFloat:=seLonMax.Value; }
-    ParamByName('SSStationsAmount').AsInteger:=seCruiseStationsAmountMin.Value;
+    ParamByName('SSStationsAmountMin').AsInteger:=seCruiseStationsAmountMin.Value;
+    ParamByName('SSStationsAmountMax').AsInteger:=seCruiseStationsAmountMax.Value;
     ParamByName('SSDateMin').AsDateTime:=dtpCruiseDateMin.DateTime;
     ParamByName('SSDateMax').AsDateTime:=dtpCruiseDateMax.DateTime;
     ParamByName('SSDateAddedMin').AsDateTime:=dtpCruiseDateAddedMin.DateTime;
