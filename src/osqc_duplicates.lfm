@@ -1,12 +1,12 @@
 object frmqc_duplicates: Tfrmqc_duplicates
   Left = 657
-  Height = 303
+  Height = 328
   Top = 333
   Width = 471
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Duplicated stations'
-  ClientHeight = 303
+  ClientHeight = 328
   ClientWidth = 471
   DesignTimePPI = 144
   OnShow = FormShow
@@ -17,7 +17,7 @@ object frmqc_duplicates: Tfrmqc_duplicates
     Height = 96
     Top = 16
     Width = 422
-    Caption = 'Source to check'
+    Caption = 'Find duplicated in'
     ClientHeight = 66
     ClientWidth = 418
     TabOrder = 0
@@ -37,21 +37,22 @@ object frmqc_duplicates: Tfrmqc_duplicates
     end
   end
   object btnFindDuplicates: TButton
-    Left = 144
+    Left = 24
     Height = 38
-    Top = 240
+    Top = 272
     Width = 184
     Caption = 'Find Duplicates'
     Enabled = False
+    OnClick = btnFindDuplicatesClick
     TabOrder = 1
   end
   object GroupBox2: TGroupBox
     Left = 24
-    Height = 94
+    Height = 126
     Top = 128
     Width = 422
     Caption = 'Thresholds'
-    ClientHeight = 64
+    ClientHeight = 96
     ClientWidth = 418
     TabOrder = 2
     object Label1: TLabel
@@ -62,7 +63,7 @@ object frmqc_duplicates: Tfrmqc_duplicates
       Caption = 'Coordinates, +/-'
       ParentColor = False
     end
-    object seLonMax: TFloatSpinEdit
+    object seThreshold: TFloatSpinEdit
       Left = 168
       Height = 28
       Top = 13
@@ -76,7 +77,7 @@ object frmqc_duplicates: Tfrmqc_duplicates
       MinValue = 0
       ParentFont = False
       TabOrder = 0
-      Value = 0.02
+      Value = 0.05
     end
     object Label2: TLabel
       Left = 304
@@ -86,5 +87,41 @@ object frmqc_duplicates: Tfrmqc_duplicates
       Caption = 'degree(s)'
       ParentColor = False
     end
+    object Label3: TLabel
+      Left = 24
+      Height = 25
+      Top = 56
+      Width = 72
+      Caption = 'Date, +/-'
+      ParentColor = False
+    end
+    object Label4: TLabel
+      Left = 304
+      Height = 25
+      Top = 54
+      Width = 47
+      Caption = 'day(s)'
+      ParentColor = False
+    end
+    object seDateThreshold: TSpinEdit
+      Left = 168
+      Height = 33
+      Top = 48
+      Width = 123
+      Alignment = taCenter
+      ParentFont = False
+      TabOrder = 1
+      Value = 1
+    end
+  end
+  object btnUpdateCruise: TButton
+    Left = 277
+    Height = 38
+    Top = 270
+    Width = 169
+    Caption = 'Update CRUISE'
+    Enabled = False
+    OnClick = btnUpdateCruiseClick
+    TabOrder = 3
   end
 end

@@ -9,18 +9,15 @@ uses
   StdCtrls, IniFiles, SQLDB, Variants, Types, TAGraph, TATools, TASeries,
   TATypes, TACustomSeries,  // for TChartSeries
   TAChartUtils,    // for nptCustom
-  TAEnumerators;   // for CustomSeries(Chart) ;
+  TAEnumerators, TAChartListbox;   // for CustomSeries(Chart) ;
 
 type
 
   { Tfrmprofile_plot_all }
 
   Tfrmprofile_plot_all = class(TForm)
-    btnFilterSources: TButton;
-    btnClearFilter: TButton;
     Chart1: TChart;
     ChartToolset1: TChartToolset;
-    chkShowDuplicates: TCheckBox;
     chkSources: TCheckGroup;
     chkShowBest: TCheckBox;
     DPH: TDataPointHintTool;
@@ -44,20 +41,15 @@ type
     ToolButton6: TToolButton;
     btnSingleProfile: TToolButton;
 
-
-    procedure btnClearFilterClick(Sender: TObject);
     procedure btnFilterClick(Sender: TObject);
-    procedure btnFilterSourcesClick(Sender: TObject);
-    procedure chkHighlightSourceChange(Sender: TObject);
     procedure chkShowBestChange(Sender: TObject);
-    procedure chkShowDuplicatesChange(Sender: TObject);
+    procedure chkSourcesItemClick(Sender: TObject; Index: integer);
     procedure rbUnitsDefaultClick(Sender: TObject);
     procedure rbUnitsOriginalClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
- //   procedure FormShow(Sender: TObject);
     procedure btnNextClick(Sender: TObject);
     procedure btnPriorClick(Sender: TObject);
     procedure DPCPointClick(ATool: TChartTool;
@@ -74,6 +66,7 @@ type
     procedure HighlightSeries(ASeries: TBasicChartSeries);
     procedure SelectProfile(sname:string);
     procedure InitialPlot;
+    procedure FilterSources;
   public
     procedure AddToPlot(ID:integer; ToUpdate:boolean);
     procedure ChangeID(ID:integer);
@@ -143,7 +136,8 @@ begin
    Ini.Free;
   end;
 
-  chkSources.Items:=frmosmain.cbSource.Items;
+  chkSources.Items:=Source_unq;
+
   for k:=0 to chkSources.Items.Count-1 do chkSources.Checked[k]:=true;
 
   InitialPlot;
@@ -280,22 +274,13 @@ Qt2:=TSQLQuery.Create(self);
 Qt2.Database:=frmdm.IBDB;
 Qt2.Transaction:=TRt;
 
-{if (chkHighlightSource.Checked) and
-   (frmdm.Q.FieldByName('SRC').Value=cbSource.Text) then
-     sColor:=clFuchsia else sColor:=clGray; }
 
-(* filtering sources *)
 Src:=frmdm.Q.FieldByName('SRC').AsString;
-Src_Fl:=false;
-for k:=0 to chkSources.Items.Count-1 do
-  if (chkSources.Checked[k]=true) and (chkSources.Items.Strings[k]=Src) then
-   Src_Fl:=true;
-
-if Src_Fl=false then exit;
-
-(* filtering duplicates *)
-if (chkShowDuplicates.Checked=false) then
-   if (frmdm.Q.FieldByName('DUPLICATE').AsBoolean=true) then exit;
+for k:=0 to chkSources.Items.Count-1 do begin
+  if Src=chkSources.Items.Strings[k] then begin
+    if k<=16 then sColor:=s_clr[k] else sColor:=s_clr[k-16];
+  end;
+end;
 
 
 try
@@ -356,8 +341,8 @@ with Qt1 do begin
      First;
     end;
 
-
-   sName:='s'+inttostr(ID)+'_'+instr_name+'__'+inttostr(prof_num);
+   sName:='s'+inttostr(ID)+'_'+Src+'__'+instr_name+'___'+inttostr(prof_num);
+   if prof_best=true then sName:=sName+'____B';
 
    if ToUpdate = true then begin
     for k:=0 to Chart1.SeriesCount-1 do
@@ -425,7 +410,7 @@ end;
 
 procedure Tfrmprofile_plot_all.SelectProfile(sName:string);
 var
-k,cs:integer;
+k,cs, i, c:integer;
 ChartName: string;
 begin
   cs:=-1;
@@ -437,8 +422,8 @@ begin
  //  showmessage(chartname+'   '+sname);
 
    with TLineSeries(Chart1.Series[k]) do begin
-    SeriesColor:=clGray;
-    Pointer.Brush.Color:=clGray;
+  //  SeriesColor:=clGray;
+  //  Pointer.Brush.Color:=clGray;
     LinePen.Width:=1;
     Pointer.HorizSize:=2;
     Pointer.VertSize:=2;
@@ -450,8 +435,8 @@ begin
 
   if cs>0 then begin
    with TLineSeries(Chart1.Series[cs]) do begin
-    SeriesColor:=clRed;
-    Pointer.Brush.Color:=clRed;
+   // SeriesColor:=clRed;
+   // Pointer.Brush.Color:=clRed;
     LinePen.Width:=2;
     Pointer.HorizSize:=3;
     Pointer.VertSize:=3;
@@ -468,23 +453,25 @@ Var
  tool: TDataPointClicktool;
  series: TLineSeries;
  ss:integer;
+ clr:TColor;
 begin
   tool := ATool as TDataPointClickTool;
   if tool.Series is TLineSeries then begin
     series := TLineSeries(tool.Series);
+    clr:=series.SeriesColor;
 
     for ss:=0 to Chart1.Series.Count-1 do begin
        //  showmessage(Chart1.Series[ss].Name+'   '+series.name);
       if Chart1.Series[ss].Name=series.name then begin
-        TLineSeries(Chart1.Series[ss]).SeriesColor:=clRed;
-        TLineSeries(Chart1.Series[ss]).Pointer.Brush.Color:=clRed;
+       // TLineSeries(Chart1.Series[ss]).SeriesColor:=clRed;
+       // TLineSeries(Chart1.Series[ss]).Pointer.Brush.Color:=clRed;
         TLineSeries(Chart1.Series[ss]).LinePen.Width:=2;
         TLineSeries(Chart1.Series[ss]).Pointer.HorizSize:=3;
         TLineSeries(Chart1.Series[ss]).Pointer.VertSize:=3;
         TLineSeries(Chart1.Series[ss]).ZPosition:=mik;
       end else begin
-        TLineSeries(Chart1.Series[ss]).SeriesColor:=clGray;
-        TLineSeries(Chart1.Series[ss]).Pointer.Brush.Color:=clGray;
+       // TLineSeries(Chart1.Series[ss]).SeriesColor:=clr;
+       // TLineSeries(Chart1.Series[ss]).Pointer.Brush.Color:=clr;
         TLineSeries(Chart1.Series[ss]).LinePen.Width:=1;
         TLineSeries(Chart1.Series[ss]).Pointer.HorizSize:=2;
         TLineSeries(Chart1.Series[ss]).Pointer.VertSize:=2;
@@ -524,11 +511,11 @@ begin
     begin
       if (series = ASeries) and (TLineSeries(series).SeriesColor<>clRed) then begin
         TLineSeries(series).LinePen.Width:=2;
-        TLineSeries(series).SeriesColor:=clBlack;
+        //TLineSeries(series).SeriesColor:=clBlack;
       end;
       if (series <> ASeries) and (TLineSeries(series).SeriesColor<>clRed) then begin
         TLineSeries(series).LinePen.Width:=1;
-        TLineSeries(series).SeriesColor:=clGray;
+        //TLineSeries(series).SeriesColor:=clGray;
       end;
     end;
 end;
@@ -618,43 +605,58 @@ begin
    end;
 end;
 
+
 procedure Tfrmprofile_plot_all.btnFilterClick(Sender: TObject);
 begin
   pFilter.Visible:=btnFilter.Down;
 end;
 
-procedure Tfrmprofile_plot_all.btnClearFilterClick(Sender: TObject);
-Var
- k: integer;
-begin
-  chkShowBest.Checked:=false;
-    for k:=0 to chkSources.Items.Count-1 do chkSources.Checked[k]:=true;
-  InitialPlot;
-end;
-
-procedure Tfrmprofile_plot_all.btnFilterSourcesClick(Sender: TObject);
-begin
- InitialPlot;
-end;
-
-procedure Tfrmprofile_plot_all.chkHighlightSourceChange(Sender: TObject);
-begin
-{  if cbSource.ItemIndex=-1 then
-   if MessageDlg('Select source below', mtWarning, [mbOk], 0)=mrOk then exit;
-
-   InitialPlot; }
-end;
 
 procedure Tfrmprofile_plot_all.chkShowBestChange(Sender: TObject);
+Var
+  ss, cnt: integer;
+  sName, src_ss:string;
 begin
-  InitialPlot;
+
+ if chkShowBest.Checked=true then begin
+  cnt:=0;
+  for ss:=0 to Chart1.Series.Count-1 do begin
+   sName:=Chart1.Series[ss].Name;
+   if (Chart1.Series[ss].Active=true) and (Pos('____B', sName)=0) then
+    Chart1.Series[ss].Active:=false else inc(cnt);
+  end;
+   Caption:=CurrentParTable+', '+inttostr(cnt)+' profiles';
+   Application.ProcessMessages;
+ end;
+
+  if chkShowBest.Checked=false then FilterSources;
 end;
 
-procedure Tfrmprofile_plot_all.chkShowDuplicatesChange(Sender: TObject);
+
+procedure Tfrmprofile_plot_all.chkSourcesItemClick(Sender: TObject; Index: integer);
 begin
-  InitialPlot;
+  FilterSources;
 end;
 
+
+procedure Tfrmprofile_plot_all.FilterSources;
+Var
+  ss, pp, cnt: integer;
+  sName, src_ss:string;
+begin
+   cnt:=0;
+   for ss:=0 to Chart1.Series.Count-1 do begin
+    sName:=Chart1.Series[ss].Name;
+    src_ss:=copy(sName, Pos('_', sName)+1, (Pos('__', sName)-Pos('_', sName))-1);
+     for pp:=0 to chkSources.Items.Count-1 do begin
+      if (src_ss=chkSources.Items.Strings[pp]) then
+        Chart1.Series[ss].Active:=chkSources.Checked[pp];
+     end;
+     if Chart1.Series[ss].Active=true then inc(cnt);
+   end;
+   Caption:=CurrentParTable+', '+inttostr(cnt)+' profiles';
+   Application.ProcessMessages;
+end;
 
 procedure Tfrmprofile_plot_all.FormDestroy(Sender: TObject);
 begin

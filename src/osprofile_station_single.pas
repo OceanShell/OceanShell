@@ -216,7 +216,6 @@ var
   Instr_name, TabName, SName, isbest:string;
   prof_best: boolean;
   lev_m, lev_d, val1: real;
-  S_clr:Array[1..16] of TColor;
 begin
 
 if (CurrentParTable='') then CurrentParTable:=cbParameters.Items.Strings[0];
@@ -225,23 +224,6 @@ Caption:='Single parameter: '+inttostr(ID);
 Application.ProcessMessages;
 
 mik:=-1;
-
-S_clr[1]:=clBlue;
-S_clr[2]:=clRed;
-S_clr[3]:=clFuchsia;
-S_clr[4]:=clMaroon;
-S_clr[5]:=clBlack;
-S_clr[6]:=clGreen;
-S_clr[7]:=clNavy;
-S_clr[8]:=clPurple;
-S_clr[9]:=clTeal;
-S_clr[10]:=clOlive;
-S_clr[11]:=clGray;
-S_clr[12]:=clSilver;
-S_clr[13]:=clLime;
-S_clr[14]:=clYellow;
-S_clr[15]:=clAqua;
-S_clr[16]:=clLtGray;
 
 
 (* checking for unique instruments and profile numbers *)
@@ -678,7 +660,7 @@ begin
     until Qt.RecNo=1;
     Qt.First;
     Qt.Edit;
-    Qt.FieldByName(par).AsFloat:=fl;
+    Qt.FieldByName('PQF2').AsFloat:=fl;
     Qt.Post;
  finally
    Qt.RecNo:=Cur_pos;

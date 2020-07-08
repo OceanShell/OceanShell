@@ -233,7 +233,7 @@ end;
 
 procedure Tfrmparameters_list.btnAmountOfProfilesClick(Sender: TObject);
 Var
-prfCount,k_prf:integer;
+prfCount,k_prf, ID_cur:integer;
 tblPar:string;
 
 TRt:TSQLTransaction;
@@ -249,12 +249,13 @@ Qt.Transaction:=TRt;
 btnAmountOfProfiles.Enabled:=false;
 lbParameters.Enabled:=false;
 try
+ ID_cur:=frmdm.Q.FieldByName('ID').AsInteger;
  frmdm.Q.DisableControls;
   for k_prf:=0 to lbParameters.Items.Count-1 do begin
    tblPar:=lbParameters.Items.Strings[k_prf];
    Application.ProcessMessages;
 
-   if (cancel_fl=false) and (copy(TblPar, 1, 1)<>'-') then begin
+   if cancel_fl=false then begin
     prfCount:=0;
     frmdm.Q.First;
      while not frmdm.Q.Eof do begin
@@ -275,29 +276,6 @@ try
     lbParameters.Items.Strings[k_prf]:=tblPar+'   ['+inttostr(prfCount)+']';
     Application.ProcessMessages;
    end;
-
- {  if copy(TblPar, 1, 1)='-' then begin
-    prfCount:=0;
-    ODBDM.CDSMD.First;
-     while not ODBDM.CDSMD.Eof do begin
-      with ODBDM.ib1q1 do begin
-       Close;
-           SQL.Clear;
-           SQL.Add(' select absnum from ');
-           SQL.Add(' P_TEMPERATURE, P_SALINITY ');
-           SQL.Add(' where P_TEMPERATURE.absnum=:absnum ');
-           SQL.Add(' and P_TEMPERATURE.absnum=P_SALINITY.absnum ');
-           ParamByName('absnum').AsInteger:=ODBDM.CDSMD.FieldByName('absnum').AsInteger;
-         Open;
-          if ODBDM.ib1q1.IsEmpty=false then prfCount:=prfCount+1;
-       Close;
-      end;
-      ODBDM.CDSMD.Next;
-    end;   }
-{      lbParameters.Items.Strings[k_prf+1]:='DENSITY';//+'   ['+inttostr(prfCount)+']';
-      lbParameters.Items.Strings[k_prf+2]:='BUOYANCY';//+'   ['+inttostr(prfCount)+']';
-      break;
-   end;  }
  end;
  Finally
   btnAmountOfProfiles.Enabled:=true;
@@ -307,7 +285,7 @@ try
   Trt.Commit;
   Qt.Free;
   TrT.Free;
-
+  frmdm.Q.Locate('ID', ID_cur, []);
   frmdm.Q.EnableControls;
  end;
 end;
