@@ -11,6 +11,7 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnResize = FormResize
+  OnShow = FormShow
   LCLVersion = '2.0.6.0'
   Visible = True
   object ToolBar1: TToolBar
@@ -105,20 +106,21 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
       Caption = 'ToolButton1'
       Style = tbsDivider
     end
-    object pUnits: TPanel
+    object pUnitsContainer: TPanel
       Left = 278
       Height = 33
       Top = 2
-      Width = 269
+      Width = 253
       BevelOuter = bvNone
       ClientHeight = 33
-      ClientWidth = 269
+      ClientWidth = 253
       TabOrder = 2
       object rbUnitsOriginal: TRadioButton
         Left = 0
-        Height = 29
+        Height = 33
         Top = 0
         Width = 128
+        Align = alLeft
         Caption = 'Original units'
         Checked = True
         OnClick = rbUnitsOriginalClick
@@ -126,12 +128,17 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
         TabStop = True
       end
       object rbUnitsDefault: TRadioButton
-        Left = 144
-        Height = 29
+        Left = 128
+        Height = 33
         Top = 0
         Width = 125
+        Align = alLeft
         Caption = 'Default units'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'Tahoma'
         OnClick = rbUnitsDefaultClick
+        ParentFont = False
         TabOrder = 1
       end
     end
@@ -151,6 +158,15 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
       Top = 2
       Caption = 'ToolButton3'
       Style = tbsDivider
+    end
+    object pUnits: TPanel
+      Left = 531
+      Height = 33
+      Top = 2
+      Width = 77
+      Alignment = taLeftJustify
+      BevelOuter = bvNone
+      TabOrder = 3
     end
   end
   object Chart1: TChart

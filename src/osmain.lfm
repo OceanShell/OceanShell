@@ -245,18 +245,6 @@ object frmosmain: Tfrmosmain
         ClientHeight = 239
         ClientWidth = 780
         TabOrder = 3
-        object cbPlatform: TComboBox
-          Left = 168
-          Height = 28
-          Top = 14
-          Width = 584
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          ItemHeight = 20
-          ParentFont = False
-          TabOrder = 0
-        end
         object chkNOTPlatform: TCheckBox
           Left = 24
           Height = 29
@@ -267,55 +255,7 @@ object frmosmain: Tfrmosmain
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
           ParentFont = False
-          TabOrder = 1
-        end
-        object cbCountry: TComboBox
-          Left = 168
-          Height = 28
-          Top = 56
-          Width = 584
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          ItemHeight = 20
-          ParentFont = False
-          TabOrder = 2
-        end
-        object cbSource: TComboBox
-          Left = 168
-          Height = 28
-          Top = 96
-          Width = 584
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          ItemHeight = 20
-          ParentFont = False
-          TabOrder = 3
-        end
-        object cbInstitute: TComboBox
-          Left = 168
-          Height = 28
-          Top = 138
-          Width = 584
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          ItemHeight = 20
-          ParentFont = False
-          TabOrder = 4
-        end
-        object cbProject: TComboBox
-          Left = 168
-          Height = 28
-          Top = 180
-          Width = 584
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          ItemHeight = 20
-          ParentFont = False
-          TabOrder = 5
+          TabOrder = 0
         end
         object chkNOTCountry: TCheckBox
           Left = 24
@@ -327,7 +267,7 @@ object frmosmain: Tfrmosmain
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
           ParentFont = False
-          TabOrder = 6
+          TabOrder = 1
         end
         object chkNOTSource: TCheckBox
           Left = 24
@@ -339,7 +279,7 @@ object frmosmain: Tfrmosmain
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
           ParentFont = False
-          TabOrder = 7
+          TabOrder = 2
         end
         object chkNOTInstitute: TCheckBox
           Left = 24
@@ -351,7 +291,7 @@ object frmosmain: Tfrmosmain
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
           ParentFont = False
-          TabOrder = 8
+          TabOrder = 3
         end
         object chkNOTProject: TCheckBox
           Left = 24
@@ -363,6 +303,51 @@ object frmosmain: Tfrmosmain
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
           ParentFont = False
+          TabOrder = 4
+        end
+        object cbSource: TCheckComboBox
+          Left = 168
+          Height = 28
+          Top = 100
+          Width = 584
+          DropDownCount = 12
+          ItemHeight = 20
+          TabOrder = 5
+        end
+        object cbPlatform: TCheckComboBox
+          Left = 168
+          Height = 26
+          Top = 19
+          Width = 584
+          DropDownCount = 12
+          ItemHeight = 20
+          TabOrder = 6
+        end
+        object cbCountry: TCheckComboBox
+          Left = 168
+          Height = 26
+          Top = 59
+          Width = 584
+          DropDownCount = 12
+          ItemHeight = 20
+          TabOrder = 7
+        end
+        object cbInstitute: TCheckComboBox
+          Left = 168
+          Height = 26
+          Top = 144
+          Width = 584
+          DropDownCount = 12
+          ItemHeight = 20
+          TabOrder = 8
+        end
+        object cbProject: TCheckComboBox
+          Left = 168
+          Height = 26
+          Top = 186
+          Width = 584
+          DropDownCount = 12
+          ItemHeight = 20
           TabOrder = 9
         end
       end
@@ -752,19 +737,6 @@ object frmosmain: Tfrmosmain
             Font.Style = [fsBold]
             ParentFont = False
             TabOrder = 0
-            object cbCruisePlatform: TComboBox
-              Left = 168
-              Height = 28
-              Top = 14
-              Width = 632
-              DropDownCount = 10
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ItemHeight = 20
-              ParentFont = False
-              TabOrder = 0
-            end
             object chkCruiseNOTPlatform: TCheckBox
               Left = 24
               Height = 29
@@ -775,59 +747,7 @@ object frmosmain: Tfrmosmain
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
               ParentFont = False
-              TabOrder = 1
-            end
-            object cbCruiseCountry: TComboBox
-              Left = 168
-              Height = 28
-              Top = 56
-              Width = 632
-              DropDownCount = 10
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ItemHeight = 20
-              ParentFont = False
-              TabOrder = 2
-            end
-            object cbCruiseSource: TComboBox
-              Left = 168
-              Height = 28
-              Top = 96
-              Width = 632
-              DropDownCount = 10
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ItemHeight = 20
-              ParentFont = False
-              TabOrder = 3
-            end
-            object cbCruiseInstitute: TComboBox
-              Left = 168
-              Height = 28
-              Top = 138
-              Width = 632
-              DropDownCount = 10
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ItemHeight = 20
-              ParentFont = False
-              TabOrder = 4
-            end
-            object cbCruiseProject: TComboBox
-              Left = 168
-              Height = 28
-              Top = 180
-              Width = 632
-              DropDownCount = 10
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ItemHeight = 20
-              ParentFont = False
-              TabOrder = 5
+              TabOrder = 0
             end
             object chkCruiseNOTCountry: TCheckBox
               Left = 24
@@ -839,7 +759,7 @@ object frmosmain: Tfrmosmain
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
               ParentFont = False
-              TabOrder = 6
+              TabOrder = 1
             end
             object chkCruiseNOTSource: TCheckBox
               Left = 24
@@ -851,7 +771,7 @@ object frmosmain: Tfrmosmain
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
               ParentFont = False
-              TabOrder = 7
+              TabOrder = 2
             end
             object chkCruiseNOTInstitute: TCheckBox
               Left = 24
@@ -863,7 +783,7 @@ object frmosmain: Tfrmosmain
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
               ParentFont = False
-              TabOrder = 8
+              TabOrder = 3
             end
             object chkCruiseNOTProject: TCheckBox
               Left = 24
@@ -875,6 +795,51 @@ object frmosmain: Tfrmosmain
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
               ParentFont = False
+              TabOrder = 4
+            end
+            object cbCruisePlatform: TCheckComboBox
+              Left = 168
+              Height = 26
+              Top = 16
+              Width = 624
+              DropDownCount = 12
+              ItemHeight = 20
+              TabOrder = 5
+            end
+            object cbCruiseCountry: TCheckComboBox
+              Left = 168
+              Height = 26
+              Top = 56
+              Width = 624
+              DropDownCount = 12
+              ItemHeight = 20
+              TabOrder = 6
+            end
+            object cbCruiseSource: TCheckComboBox
+              Left = 168
+              Height = 26
+              Top = 99
+              Width = 624
+              DropDownCount = 12
+              ItemHeight = 20
+              TabOrder = 7
+            end
+            object cbCruiseInstitute: TCheckComboBox
+              Left = 168
+              Height = 26
+              Top = 141
+              Width = 624
+              DropDownCount = 12
+              ItemHeight = 20
+              TabOrder = 8
+            end
+            object cbCruiseProject: TCheckComboBox
+              Left = 168
+              Height = 26
+              Top = 183
+              Width = 624
+              DropDownCount = 12
+              ItemHeight = 20
               TabOrder = 9
             end
           end
@@ -1509,7 +1474,7 @@ object frmosmain: Tfrmosmain
               end
               object ToolButton8: TToolButton
                 Left = 51
-                Height = 33
+                Height = 5
                 Top = 0
                 Caption = 'ToolButton8'
                 Style = tbsDivider

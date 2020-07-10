@@ -22,8 +22,9 @@ type
     chkShowBest: TCheckBox;
     DPH: TDataPointHintTool;
     DPC: TDataPointClickTool;
-    pFilter: TPanel;
     pUnits: TPanel;
+    pFilter: TPanel;
+    pUnitsContainer: TPanel;
     pDepth: TPanel;
     pfiller: TPanel;
     rbUnitsOriginal: TRadioButton;
@@ -44,6 +45,7 @@ type
     procedure btnFilterClick(Sender: TObject);
     procedure chkShowBestChange(Sender: TObject);
     procedure chkSourcesItemClick(Sender: TObject; Index: integer);
+    procedure FormShow(Sender: TObject);
     procedure rbUnitsDefaultClick(Sender: TObject);
     procedure rbUnitsOriginalClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -75,7 +77,7 @@ type
 var
   frmprofile_plot_all: Tfrmprofile_plot_all;
   mik, Units_default:integer;
-  flag_st, instr_st:string;
+  flag_st, instr_st, units_default_name:string;
 
 
 implementation
@@ -139,18 +141,13 @@ begin
   chkSources.Items:=Source_unq;
 
   for k:=0 to chkSources.Items.Count-1 do chkSources.Checked[k]:=true;
-
-  InitialPlot;
 end;
 
 
-procedure Tfrmprofile_plot_all.InitialPlot;
+procedure Tfrmprofile_plot_all.FormShow(Sender: TObject);
 Var
-ID, CurrentID, k:integer;
-Ini:TInifile;
-LeftAxisTitle :string;
-TRt:TSQLTransaction;
-Qt:TSQLQuery;
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
 begin
 TRt:=TSQLTransaction.Create(self);
 TRt.DataBase:=frmdm.IBDB;
@@ -163,18 +160,33 @@ try
  with Qt do begin
   Close;
    SQL.Clear;
-   SQL.Add(' SELECT UNITS_ID_DEFAULT FROM DATABASE_TABLES WHERE  ');
-   SQL.Add(' NAME_TABLE='+QuotedStr(CurrentParTable));
+   SQL.Add(' SELECT DATABASE_TABLES.UNITS_ID_DEFAULT, ');
+   SQL.Add(' UNITS.NAME_SHORT FROM ');
+   SQL.Add(' DATABASE_TABLES, UNITS WHERE  ');
+   SQL.Add(' DATABASE_TABLES.UNITS_ID_DEFAULT=UNITS.ID AND  ');
+   SQL.Add(' DATABASE_TABLES.NAME_TABLE='+QuotedStr(CurrentParTable));
   Open;
-   Units_default:=Qt.Fields[0].AsInteger;
+   Units_default:=Qt.FieldByName('UNITS_ID_DEFAULT').AsInteger;
+   Units_default_name:=Qt.FieldByName('NAME_SHORT').AsString;
+  // showmessage(inttostr(units_default)+'  '+units_default_name);
   Close;
  end;
 finally
  Trt.Commit;
  Trt.Free;
  Qt.Free;
+
+ InitialPlot;
+end;
 end;
 
+
+procedure Tfrmprofile_plot_all.InitialPlot;
+Var
+ID, CurrentID, k:integer;
+Ini:TInifile;
+LeftAxisTitle :string;
+begin
 
  Ini := TIniFile.Create(IniFileName);
  try
@@ -235,6 +247,7 @@ if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then 
  ChangeID(CurrentID);
 
 Caption:=CurrentParTable+', '+inttostr(Chart1.SeriesCount-1)+' profiles';
+pUnits.Caption:=' ['+units_default_name+']';
 Application.ProcessMessages;
 end;
 
@@ -622,8 +635,9 @@ begin
   cnt:=0;
   for ss:=0 to Chart1.Series.Count-1 do begin
    sName:=Chart1.Series[ss].Name;
-   if (Chart1.Series[ss].Active=true) and (Pos('____B', sName)=0) then
-    Chart1.Series[ss].Active:=false else inc(cnt);
+   if (Chart1.Series[ss].Active=true) then
+    if (Pos('____B', sName)>0) then inc(cnt) else
+     Chart1.Series[ss].Active:=false;
   end;
    Caption:=CurrentParTable+', '+inttostr(cnt)+' profiles';
    Application.ProcessMessages;
@@ -673,6 +687,7 @@ begin
   btnMap.Width+
   btnFilter.Width+
   pDepth.Width+
+  pUnitsContainer.Width+
   pUnits.Width);
 end;
 

@@ -8,7 +8,7 @@ uses
   SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, LCLType,
   Menus, Dialogs, ActnList, StdCtrls, INIFiles, ExtCtrls, DateUtils, sqldb, DB,
   Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math, Grids,
-  LCLIntf, Types;
+  LCLIntf, ComboEx, Types;
 
 type
 
@@ -46,17 +46,18 @@ type
     btnAdvancedSelection: TButton;
     btnCustomSQLQuery: TButton;
     btnSelectCruises: TButton;
-    cbCountry: TComboBox;
-    cbCruiseCountry: TComboBox;
-    cbCruiseInstitute: TComboBox;
-    cbCruisePlatform: TComboBox;
-    cbCruiseProject: TComboBox;
+    cbCruiseCountry: TCheckComboBox;
+    cbCruiseInstitute: TCheckComboBox;
+    cbCruiseProject: TCheckComboBox;
+    cbCruiseSource: TCheckComboBox;
+    cbCruisePlatform: TCheckComboBox;
     cbQCFlag1: TComboBox;
     cbQCFlag2: TComboBox;
-    cbSource: TComboBox;
-    cbInstitute: TComboBox;
-    cbProject: TComboBox;
-    cbCruiseSource: TComboBox;
+    cbSource: TCheckComboBox;
+    cbPlatform: TCheckComboBox;
+    cbCountry: TCheckComboBox;
+    cbInstitute: TCheckComboBox;
+    cbProject: TCheckComboBox;
     chkSelectDuplicates: TCheckBox;
     chkCruiseNOTCountry: TCheckBox;
     chkCruiseNOTInstitute: TCheckBox;
@@ -71,7 +72,6 @@ type
     chkParameters: TCheckGroup;
     chkinstrument: TCheckGroup;
     chkPeriod: TCheckBox;
-    cbPlatform: TComboBox;
     DBGridCruise1: TDBGrid;
     DBGridCruise2: TDBGrid;
     DBGridEntry: TDBGrid;
@@ -723,17 +723,44 @@ try
 
     (* End of Date and Time *)
 
-    (* Platform*)
-    if cbPlatform.text<>'' then
-      SQL_str:=SQL_str+' AND '+NotCondPlatform  +' PLATFORM.NAME='+QuotedStr(cbPlatform.text);
-    if cbCountry.text<>'' then
-      SQL_str:=SQL_str+' AND '+NotCondCountry   +' COUNTRY.NAME='+QuotedStr(cbCountry.text);
-    if cbSource.text<>'' then
-      SQL_str:=SQL_str+' AND '+NotCondSource    +' SOURCE.NAME='+QuotedStr(cbSource.text);
-    if cbInstitute.text<>'' then
-      SQL_str:=SQL_str+' AND '+NotCondInstitute +' INSTITUTE.NAME='+QuotedStr(cbInstitute.text);
-    if cbProject.text<>'' then begin
-      SQL_str:=SQL_str+' AND '+NotCondProject   +' PROJECT.NAME='+QuotedStr(cbProject.text);
+    if cbPlatform.Text<>'' then begin
+      SQL_str:=SQL_str+' AND '+NotCondSource    +' PLATFORM.NAME IN (';
+     for k:=0 to cbPlatform.Count-1 do
+       if cbPlatform.Checked[k]=true then
+          SQL_str:=SQL_str+QuotedStr(cbPlatform.Items.Strings[k])+',';
+     SQL_str:=copy(SQL_str, 1, length(SQL_str)-1)+') ';
+    end;
+
+    if cbCountry.Text<>'' then begin
+      SQL_str:=SQL_str+' AND '+NotCondSource    +' COUNTRY.NAME IN (';
+     for k:=0 to cbCountry.Count-1 do
+       if cbCountry.Checked[k]=true then
+          SQL_str:=SQL_str+QuotedStr(cbCountry.Items.Strings[k])+',';
+     SQL_str:=copy(SQL_str, 1, length(SQL_str)-1)+') ';
+    end;
+
+    if cbSource.Text<>'' then begin
+      SQL_str:=SQL_str+' AND '+NotCondSource    +' SOURCE.NAME IN (';
+     for k:=0 to cbSource.Count-1 do
+       if cbSource.Checked[k]=true then
+          SQL_str:=SQL_str+QuotedStr(cbSource.Items.Strings[k])+',';
+     SQL_str:=copy(SQL_str, 1, length(SQL_str)-1)+') ';
+    end;
+
+    if cbInstitute.Text<>'' then begin
+      SQL_str:=SQL_str+' AND '+NotCondSource    +' INSTITUTE.NAME IN (';
+     for k:=0 to cbInstitute.Count-1 do
+       if cbInstitute.Checked[k]=true then
+          SQL_str:=SQL_str+QuotedStr(cbInstitute.Items.Strings[k])+',';
+     SQL_str:=copy(SQL_str, 1, length(SQL_str)-1)+') ';
+    end;
+
+    if cbProject.Text<>'' then begin
+      SQL_str:=SQL_str+' AND '+NotCondSource    +' PROJECT.NAME IN (';
+     for k:=0 to cbProject.Count-1 do
+       if cbProject.Checked[k]=true then
+          SQL_str:=SQL_str+QuotedStr(cbProject.Items.Strings[k])+',';
+     SQL_str:=copy(SQL_str, 1, length(SQL_str)-1)+') ';
     end;
 
     if chkSelectDuplicates.Checked=true then
@@ -807,6 +834,7 @@ Var
   k: integer;
   NotCondCountry, NotCondPlatform, NotCondSource:string;
   NotCondInstitute, NotCondProject:string;
+  SQL_str: string;
 begin
 
 {  frmdm.Q.Close; //closing selected sations query
@@ -861,18 +889,48 @@ begin
      SQL.Add('  AND (STATIONS_DATABASE >= :SSStationsDBMin) AND (STATIONS_DATABASE <= :SSStationsDBMax)  ');
      SQL.Add('  AND (STATIONS_DUPLICATES >= :SSStationsDupMin) AND (STATIONS_DUPLICATES <= :SSStationsDupMax)  ');
 
-    if cbCruisePlatform.text<>'' then
-      SQL.Add(' AND '+NotCondPlatform  +' PLATFORM.NAME='+QuotedStr(cbCruisePlatform.text));
-    if cbCruiseCountry.text<>'' then
-      SQL.Add(' AND '+NotCondCountry   +' COUNTRY.NAME='+QuotedStr(cbCruiseCountry.text));
-    if cbCruiseSource.text<>'' then
-      SQL.Add(' AND '+NotCondSource    +' SOURCE.NAME='+QuotedStr(cbCruiseSource.text));
-    if cbCruiseInstitute.text<>'' then
-      SQL.Add(' AND '+NotCondInstitute +' INSTITUTE.NAME='+QuotedStr(cbCruiseInstitute.text));
-    if cbCruiseProject.text<>'' then begin
-      SQL.Add(' AND '+NotCondProject   +' PROJECT.NAME='+QuotedStr(cbCruiseProject.text));
+    SQL_str:='';
+    if cbCruisePlatform.Text<>'' then begin
+      SQL_str:=SQL_str+' AND '+NotCondSource    +' PLATFORM.NAME IN (';
+     for k:=0 to cbCruisePlatform.Count-1 do
+       if cbCruisePlatform.Checked[k]=true then
+          SQL_str:=SQL_str+QuotedStr(cbCruisePlatform.Items.Strings[k])+',';
+     SQL_str:=copy(SQL_str, 1, length(SQL_str)-1)+') ';
     end;
 
+    if cbCruiseCountry.Text<>'' then begin
+      SQL_str:=SQL_str+' AND '+NotCondSource    +' COUNTRY.NAME IN (';
+     for k:=0 to cbCruiseCountry.Count-1 do
+       if cbCruiseCountry.Checked[k]=true then
+          SQL_str:=SQL_str+QuotedStr(cbCruiseCountry.Items.Strings[k])+',';
+     SQL_str:=copy(SQL_str, 1, length(SQL_str)-1)+') ';
+    end;
+
+    if cbCruiseSource.Text<>'' then begin
+      SQL_str:=SQL_str+' AND '+NotCondSource    +' SOURCE.NAME IN (';
+     for k:=0 to cbCruiseSource.Count-1 do
+       if cbCruiseSource.Checked[k]=true then
+          SQL_str:=SQL_str+QuotedStr(cbCruiseSource.Items.Strings[k])+',';
+     SQL_str:=copy(SQL_str, 1, length(SQL_str)-1)+') ';
+    end;
+
+    if cbCruiseInstitute.Text<>'' then begin
+      SQL_str:=SQL_str+' AND '+NotCondSource    +' INSTITUTE.NAME IN (';
+     for k:=0 to cbCruiseInstitute.Count-1 do
+       if cbCruiseInstitute.Checked[k]=true then
+          SQL_str:=SQL_str+QuotedStr(cbCruiseInstitute.Items.Strings[k])+',';
+     SQL_str:=copy(SQL_str, 1, length(SQL_str)-1)+') ';
+    end;
+
+    if cbCruiseProject.Text<>'' then begin
+      SQL_str:=SQL_str+' AND '+NotCondSource    +' PROJECT.NAME IN (';
+     for k:=0 to cbCruiseProject.Count-1 do
+       if cbCruiseProject.Checked[k]=true then
+          SQL_str:=SQL_str+QuotedStr(cbCruiseProject.Items.Strings[k])+',';
+     SQL_str:=copy(SQL_str, 1, length(SQL_str)-1)+') ';
+    end;
+
+    SQL.Add( SQL_str);
     SQL.Add(' ORDER BY PLATFORM.NAME, CRUISE.DATE_START_TOTAL ' );
 
     ParamByName('SSIDMin').Value:=seCruiseIDMin.Value;
@@ -1018,11 +1076,17 @@ begin
   seLonMin.Value:=IBLonMin;
   seLonMax.Value:=IBLonMax;
 
-  cbPlatform.Text:='';
-  cbCountry.Text:='';
-  cbSource.Text:='';
-  cbInstitute.Text:='';
-  cbProject.Text:='';
+  for k:=0 to cbPlatform.Count-1  do cbPlatform.Checked[k]:=false;
+  for k:=0 to cbCountry.Count-1   do cbCountry.Checked[k]:=false;
+  for k:=0 to cbSource.Count-1    do cbSource.Checked[k]:=false;
+  for k:=0 to cbInstitute.Count-1 do cbInstitute.Checked[k]:=false;
+  for k:=0 to cbPlatform.Count-1  do cbPlatform.Checked[k]:=false;
+
+  cbPlatform.ItemIndex:=-1;
+  cbCountry.ItemIndex:=-1;
+  cbSource.ItemIndex:=-1;
+  cbInstitute.ItemIndex:=-1;
+  cbProject.ItemIndex:=-1;
 
   chkNOTPlatform.Checked:=false;
   chkNOTCountry.Checked:=false;
@@ -1048,6 +1112,8 @@ end;
 
 
 procedure Tfrmosmain.lbResetSearchCruisesClick(Sender: TObject);
+Var
+  k: integer;
 begin
 
   seCruiseStationsTotalMin.Value:=0;
@@ -1062,11 +1128,17 @@ begin
   seCruiseLonMin.Value:=IBCruiseLonMin;
   seCruiseLonMax.Value:=IBCruiseLonMax;
 
-  cbCruisePlatform.Text:='';
-  cbCruiseCountry.Text:='';
-  cbCruiseSource.Text:='';
-  cbCruiseInstitute.Text:='';
-  cbCruiseProject.Text:='';
+  for k:=0 to cbCruisePlatform.Count-1  do cbCruisePlatform.Checked[k]:=false;
+  for k:=0 to cbCruiseCountry.Count-1   do cbCruiseCountry.Checked[k]:=false;
+  for k:=0 to cbCruiseSource.Count-1    do cbCruiseSource.Checked[k]:=false;
+  for k:=0 to cbCruiseInstitute.Count-1 do cbCruiseInstitute.Checked[k]:=false;
+  for k:=0 to cbCruisePlatform.Count-1  do cbCruisePlatform.Checked[k]:=false;
+
+  cbCruisePlatform.ItemIndex:=-1;
+  cbCruiseCountry.ItemIndex:=-1;
+  cbCruiseSource.ItemIndex:=-1;
+  cbCruiseInstitute.ItemIndex:=-1;
+  cbCruiseProject.ItemIndex:=-1;
 
   chkCruiseNOTPlatform.Checked:=false;
   chkCruiseNOTCountry.Checked:=false;
@@ -1609,11 +1681,11 @@ begin
 
       while not Qt.Eof do begin
         case pp of
-         1: cbPlatform.Items.Add(Qt.Fields[0].AsString);
-         2: cbCountry.Items.Add(Qt.Fields[0].AsString);
-         3: cbSource.Items.Add(Qt.Fields[0].AsString);
-         4: cbInstitute.Items.Add(Qt.Fields[0].AsString);
-         5: cbProject.Items.Add(Qt.Fields[0].AsString);
+         1: cbPlatform.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
+         2: cbCountry.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
+         3: cbSource.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
+         4: cbInstitute.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
+         5: cbProject.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
          6: DBGridEntry.Columns[2].PickList.Add(Qt.Fields[0].AsString);
          7: chkInstrument.Items.Add(Qt.Fields[0].AsString);
         end;
