@@ -529,6 +529,7 @@ begin
      Columns[7].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col19',  70);
      Columns[8].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col20',  70);
      Columns[9].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col21',  70);
+     Columns[10].Width:=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col22',  70);
     end;
 
     (* ENTRY table columns *)
@@ -829,7 +830,7 @@ begin
       SQL.Add(' CRUISE.CRUISE_NUMBER, CRUISE.DATE_START_TOTAL, ');
       SQL.Add(' CRUISE.DATE_END_TOTAL, CRUISE.DATE_START_DATABASE,  ');
       SQL.Add(' CRUISE.DATE_END_DATABASE, CRUISE.LATITUDE_MIN, CRUISE.LATITUDE_MAX, ');
-      SQL.Add(' CRUISE.LONGITUDE_MIN, CRUISE.LONGITUDE_MAX, ');
+      SQL.Add(' CRUISE.LONGITUDE_MIN, CRUISE.LONGITUDE_MAX, CRUISE.EXPOCODE, ');
       SQL.Add(' CRUISE.PI, CRUISE.NOTES, CRUISE.STATIONS_TOTAL, ');
       SQL.Add(' CRUISE.STATIONS_DATABASE, CRUISE.STATIONS_DUPLICATES ');
       SQL.Add(' FROM CRUISE, PLATFORM, COUNTRY, SOURCE, INSTITUTE, PROJECT ');
@@ -2723,6 +2724,7 @@ begin
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col19', Columns[7].Width);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col20', Columns[8].Width);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col21', Columns[9].Width);
+     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col22', Columns[10].Width);
     end;
 
     With DBGridEntry do begin

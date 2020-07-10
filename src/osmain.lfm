@@ -1509,7 +1509,7 @@ object frmosmain: Tfrmosmain
               end
               object ToolButton8: TToolButton
                 Left = 51
-                Height = 5
+                Height = 33
                 Top = 0
                 Caption = 'ToolButton8'
                 Style = tbsDivider
@@ -1560,6 +1560,10 @@ object frmosmain: Tfrmosmain
                   MaxSize = 300
                   Title.Caption = 'PI'
                   FieldName = 'PI'
+                end              
+                item
+                  Title.Caption = 'Expocode'
+                  FieldName = 'EXPOCODE'
                 end              
                 item
                   Title.Caption = 'Lat min'
