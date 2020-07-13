@@ -752,6 +752,8 @@ begin
      Qt.EnableControls;
    end;
  ChangeID(ID);
+
+// if frmprofile_plot_all_open=true then frmprofile_plot_all.AddToPlot(ID, true);
 end;
 
 

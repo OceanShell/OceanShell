@@ -379,8 +379,8 @@ const
    WS_EX_STATICEDGE = $20000;
    buf_len      = 3000;
 
-   S_clr:Array[1..16] of TColor =
-   (clBlue,clRed,clFuchsia,clMaroon,clBlack,clGreen,clNavy,clPurple,clTeal,
+   S_clr:Array[1..15] of TColor =
+   (clBlue,clFuchsia,clMaroon,clBlack,clGreen,clNavy,clPurple,clTeal,
     clOlive,clGray,clSilver,clLime,clYellow,clAqua,clLtGray);
 
 implementation
