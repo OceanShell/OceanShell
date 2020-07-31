@@ -46,13 +46,6 @@ implementation
 
 uses osmain;
 
-
-procedure Tfrmdm.DataModuleDestroy(Sender: TObject);
-begin
- TR.Commit;
- IBDB.Close(true);
-end;
-
 procedure Tfrmdm.QCruiseAfterEdit(DataSet: TDataSet);
 begin
  frmosmain.btnSaveCruise.Enabled:=true;
@@ -61,6 +54,12 @@ end;
 procedure Tfrmdm.QCruiseBeforePost(DataSet: TDataSet);
 begin
   QCruise.FieldByName('DATE_UPDATED').AsDateTime:=now;
+end;
+
+procedure Tfrmdm.DataModuleDestroy(Sender: TObject);
+begin
+ TR.Commit;
+ IBDB.Close(true);
 end;
 
 end.

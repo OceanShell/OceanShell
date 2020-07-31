@@ -1,0 +1,824 @@
+object frmsurfersettings: Tfrmsurfersettings
+  Left = 614
+  Height = 894
+  Top = 45
+  Width = 610
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'Surfer settings'
+  ClientHeight = 894
+  ClientWidth = 610
+  DesignTimePPI = 144
+  OnShow = FormShow
+  Position = poOwnerFormCenter
+  LCLVersion = '2.0.6.0'
+  object btnSave: TButton
+    Left = 300
+    Height = 38
+    Top = 840
+    Width = 136
+    Caption = 'Save'
+    OnClick = btnSaveClick
+    ParentFont = False
+    TabOrder = 0
+  end
+  object btnCancel: TButton
+    Left = 450
+    Height = 38
+    Top = 840
+    Width = 136
+    Caption = 'Cancel'
+    OnClick = btnCancelClick
+    ParentFont = False
+    TabOrder = 1
+  end
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 825
+    Top = 0
+    Width = 610
+    ActivePage = TabSheet1
+    Align = alTop
+    ParentFont = False
+    TabIndex = 0
+    TabOrder = 2
+    object TabSheet1: TTabSheet
+      Caption = 'General'
+      ClientHeight = 787
+      ClientWidth = 602
+      ParentFont = False
+      object GroupBox1: TGroupBox
+        Left = 14
+        Height = 96
+        Top = 0
+        Width = 566
+        Caption = 'Grid processing'
+        ClientHeight = 66
+        ClientWidth = 562
+        ParentFont = False
+        TabOrder = 0
+        object Label2: TLabel
+          Left = 15
+          Height = 25
+          Top = 12
+          Width = 89
+          Caption = 'Smoothing'
+          ParentColor = False
+          ParentFont = False
+        end
+        object label1: TLabel
+          Left = 346
+          Height = 25
+          Top = 12
+          Width = 107
+          Caption = 'Missing value'
+          ParentColor = False
+          ParentFont = False
+        end
+        object seFilter: TSpinEdit
+          Left = 120
+          Height = 33
+          Top = 6
+          Width = 74
+          MaxValue = 0
+          ParentFont = False
+          TabOrder = 0
+        end
+        object eMissingVal: TEdit
+          Left = 472
+          Height = 33
+          Top = 6
+          Width = 74
+          ParentFont = False
+          TabOrder = 1
+          Text = '-9999'
+        end
+      end
+      object GroupBox2: TGroupBox
+        Left = 14
+        Height = 168
+        Top = 252
+        Width = 360
+        Caption = 'Label tolerance'
+        ClientHeight = 138
+        ClientWidth = 356
+        Color = clWhite
+        ParentColor = False
+        ParentFont = False
+        TabOrder = 1
+        object Label3: TLabel
+          Left = 15
+          Height = 25
+          Top = 20
+          Width = 122
+          Caption = 'Curve tolerance'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label5: TLabel
+          Left = 15
+          Height = 25
+          Top = 58
+          Width = 175
+          Caption = 'Label to label distance'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label6: TLabel
+          Left = 15
+          Height = 25
+          Top = 100
+          Width = 178
+          Caption = 'Label to edge distance'
+          ParentColor = False
+          ParentFont = False
+        end
+        object eCurveTol: TEdit
+          Left = 261
+          Height = 33
+          Top = 9
+          Width = 75
+          ParentFont = False
+          TabOrder = 0
+          Text = '1.5'
+        end
+        object eL2ldist: TEdit
+          Left = 261
+          Height = 33
+          Top = 48
+          Width = 75
+          ParentFont = False
+          TabOrder = 1
+          Text = '1'
+        end
+        object eL2edist: TEdit
+          Left = 261
+          Height = 33
+          Top = 90
+          Width = 75
+          ParentFont = False
+          TabOrder = 2
+          Text = '1'
+        end
+      end
+      object GroupBox3: TGroupBox
+        Left = 396
+        Height = 168
+        Top = 252
+        Width = 183
+        Caption = 'Affected levels'
+        ClientHeight = 138
+        ClientWidth = 179
+        ParentFont = False
+        TabOrder = 2
+        object Label19: TLabel
+          Left = 12
+          Height = 25
+          Top = 20
+          Width = 33
+          Caption = 'First'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label20: TLabel
+          Left = 15
+          Height = 25
+          Top = 62
+          Width = 25
+          Caption = 'Set'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label21: TLabel
+          Left = 12
+          Height = 25
+          Top = 100
+          Width = 34
+          Caption = 'Skip'
+          ParentColor = False
+          ParentFont = False
+        end
+        object seLevelFirst: TSpinEdit
+          Left = 90
+          Height = 33
+          Top = 9
+          Width = 74
+          MaxValue = 999
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 0
+          Value = 1
+        end
+        object seLevelSet: TSpinEdit
+          Left = 90
+          Height = 33
+          Top = 51
+          Width = 74
+          MaxValue = 999
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 1
+          Value = 1
+        end
+        object seLevelSkip: TSpinEdit
+          Left = 90
+          Height = 33
+          Top = 90
+          Width = 74
+          MaxValue = 999
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 2
+          Value = 4
+        end
+      end
+      object GroupBox4: TGroupBox
+        Left = 240
+        Height = 132
+        Top = 108
+        Width = 339
+        Caption = 'Colour scale'
+        ClientHeight = 102
+        ClientWidth = 335
+        ParentFont = False
+        TabOrder = 3
+        object Label22: TLabel
+          Left = 12
+          Height = 25
+          Top = 57
+          Width = 124
+          Caption = 'Label frequency'
+          ParentColor = False
+          ParentFont = False
+        end
+        object seColScaleLbFreq: TSpinEdit
+          Left = 246
+          Height = 33
+          Top = 45
+          Width = 74
+          MaxValue = 999
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 0
+          Value = 2
+        end
+        object chkShowColourScale: TCheckBox
+          Left = 15
+          Height = 29
+          Top = 12
+          Width = 172
+          Caption = 'Show colour scale'
+          ParentFont = False
+          TabOrder = 1
+        end
+      end
+      object GroupBox7: TGroupBox
+        Left = 14
+        Height = 132
+        Top = 108
+        Width = 202
+        Caption = 'Plot size, cm'
+        ClientHeight = 102
+        ClientWidth = 198
+        ParentFont = False
+        TabOrder = 4
+        object Label32: TLabel
+          Left = 12
+          Height = 25
+          Top = 20
+          Width = 48
+          Caption = 'Width'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label33: TLabel
+          Left = 12
+          Height = 25
+          Top = 57
+          Width = 53
+          Caption = 'Height'
+          ParentColor = False
+          ParentFont = False
+        end
+        object sePlotWidth: TSpinEdit
+          Left = 108
+          Height = 33
+          Top = 8
+          Width = 74
+          MaxValue = 999
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 0
+          Value = 23
+        end
+        object sePlotHeight: TSpinEdit
+          Left = 108
+          Height = 33
+          Top = 48
+          Width = 74
+          MaxValue = 999
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 1
+          Value = 10
+        end
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Interpolation'
+      ClientHeight = 787
+      ClientWidth = 602
+      ImageIndex = 1
+      ParentFont = False
+      object gbSearch: TGroupBox
+        Left = 14
+        Height = 260
+        Top = 96
+        Width = 566
+        Caption = 'Search'
+        ClientHeight = 230
+        ClientWidth = 562
+        Color = clBtnFace
+        ParentColor = False
+        ParentFont = False
+        TabOrder = 0
+        object Label9: TLabel
+          Left = 15
+          Height = 25
+          Top = 54
+          Width = 230
+          Caption = 'Number of  sectors to search'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label11: TLabel
+          Left = 15
+          Height = 25
+          Top = 126
+          Width = 401
+          Caption = 'Maxium number of data to use from EACH sectors'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label12: TLabel
+          Left = 15
+          Height = 25
+          Top = 162
+          Width = 307
+          Caption = 'Minimum number of data in all sectors'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label13: TLabel
+          Left = 14
+          Height = 25
+          Top = 198
+          Width = 418
+          Caption = 'Blank node if more then this many sectors are empty'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label15: TLabel
+          Left = 15
+          Height = 25
+          Top = 90
+          Width = 400
+          Caption = 'Maximum number of data to use from ALL sectors'
+          ParentColor = False
+          ParentFont = False
+        end
+        object seSearchNumSect: TSpinEdit
+          Left = 465
+          Height = 33
+          Top = 44
+          Width = 76
+          MaxValue = 1000
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 0
+          Value = 4
+        end
+        object seSearchMinData: TSpinEdit
+          Left = 465
+          Height = 33
+          Top = 152
+          Width = 76
+          MaxValue = 1000
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 1
+          Value = 8
+        end
+        object seSearchDataSect: TSpinEdit
+          Left = 465
+          Height = 33
+          Top = 116
+          Width = 76
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 2
+          Value = 16
+        end
+        object seSearchMaxEmpty: TSpinEdit
+          Left = 465
+          Height = 33
+          Top = 188
+          Width = 76
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 3
+          Value = 3
+        end
+        object seSearchMaxData: TSpinEdit
+          Left = 465
+          Height = 33
+          Top = 80
+          Width = 76
+          MaxValue = 1000
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 4
+          Value = 64
+        end
+        object chkSearch: TCheckBox
+          Left = 14
+          Height = 29
+          Top = 8
+          Width = 295
+          Caption = 'Enable Search (use all of the data)'
+          ParentFont = False
+          TabOrder = 5
+        end
+      end
+      object gbKriging: TGroupBox
+        Left = 14
+        Height = 132
+        Top = 360
+        Width = 326
+        Caption = 'Kriging'
+        ClientHeight = 102
+        ClientWidth = 322
+        Color = clBtnFace
+        ParentColor = False
+        ParentFont = False
+        TabOrder = 1
+        object Label24: TLabel
+          Left = 14
+          Height = 25
+          Top = 22
+          Width = 37
+          Caption = 'Type'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label25: TLabel
+          Left = 16
+          Height = 25
+          Top = 60
+          Width = 35
+          Caption = 'Drift'
+          ParentColor = False
+          ParentFont = False
+        end
+        object cbKrigType: TComboBox
+          Left = 82
+          Height = 33
+          Top = 12
+          Width = 218
+          ItemHeight = 25
+          Items.Strings = (
+            'srfKrigPoint'
+            'srfKrigBlock'
+          )
+          ParentFont = False
+          Style = csDropDownList
+          TabOrder = 0
+        end
+        object cbKrigDrift: TComboBox
+          Left = 82
+          Height = 33
+          Top = 52
+          Width = 218
+          ItemHeight = 25
+          Items.Strings = (
+            'srfDriftNone'
+            'srfDriftLinear'
+            'srfDriftQuadratic'
+          )
+          ParentFont = False
+          Style = csDropDownList
+          TabOrder = 1
+        end
+      end
+      object rgMinCurvature: TGroupBox
+        Left = 14
+        Height = 267
+        Top = 501
+        Width = 324
+        Caption = 'Minimum curvature'
+        ClientHeight = 237
+        ClientWidth = 320
+        ParentColor = False
+        ParentFont = False
+        TabOrder = 2
+        object Label27: TLabel
+          Left = 15
+          Height = 25
+          Top = 30
+          Width = 145
+          Caption = 'Maximum residual'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label26: TLabel
+          Left = 15
+          Height = 25
+          Top = 70
+          Width = 149
+          Caption = 'Maximum iteration'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label28: TLabel
+          Left = 15
+          Height = 25
+          Top = 112
+          Width = 131
+          Caption = 'Relaxation factor'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label29: TLabel
+          Left = 15
+          Height = 25
+          Top = 154
+          Width = 122
+          Caption = 'Internal tension'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label30: TLabel
+          Left = 15
+          Height = 25
+          Top = 196
+          Width = 139
+          Caption = 'Boundary tension'
+          ParentColor = False
+          ParentFont = False
+        end
+        object eMCMaxRes: TEdit
+          Left = 201
+          Height = 33
+          Top = 20
+          Width = 92
+          OnKeyPress = eSearchEllipseRad1KeyPress
+          ParentFont = False
+          TabOrder = 0
+          Text = '9E-2'
+        end
+        object seMCMaxIter: TSpinEdit
+          Left = 201
+          Height = 33
+          Top = 60
+          Width = 92
+          MaxValue = 0
+          ParentFont = False
+          TabOrder = 1
+        end
+        object eMCRelFact: TEdit
+          Left = 201
+          Height = 33
+          Top = 102
+          Width = 92
+          OnKeyPress = eSearchEllipseRad1KeyPress
+          ParentFont = False
+          TabOrder = 2
+          Text = '1'
+        end
+        object eMCRelTens: TEdit
+          Left = 201
+          Height = 33
+          Top = 144
+          Width = 92
+          OnKeyPress = eSearchEllipseRad1KeyPress
+          ParentFont = False
+          TabOrder = 3
+          Text = '0'
+        end
+        object eMCBoundTens: TEdit
+          Left = 201
+          Height = 33
+          Top = 186
+          Width = 92
+          OnKeyPress = eSearchEllipseRad1KeyPress
+          ParentFont = False
+          TabOrder = 4
+          Text = '0'
+        end
+      end
+      object gbSearchEllipse: TGroupBox
+        Left = 360
+        Height = 168
+        Top = 360
+        Width = 219
+        Caption = 'Search Ellipse'
+        ClientHeight = 138
+        ClientWidth = 215
+        Color = clBtnFace
+        ParentColor = False
+        ParentFont = False
+        TabOrder = 3
+        object Label7: TLabel
+          Left = 18
+          Height = 25
+          Top = 22
+          Width = 68
+          Caption = 'Radius 1'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label8: TLabel
+          Left = 18
+          Height = 25
+          Top = 63
+          Width = 68
+          Caption = 'Radius 2'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label10: TLabel
+          Left = 18
+          Height = 25
+          Top = 102
+          Width = 46
+          Caption = 'Angle'
+          ParentColor = False
+          ParentFont = False
+        end
+        object eSearchEllipseRad1: TEdit
+          Left = 118
+          Height = 33
+          Top = 12
+          Width = 76
+          OnKeyPress = eSearchEllipseRad1KeyPress
+          ParentFont = False
+          TabOrder = 0
+          Text = '1'
+        end
+        object eSearchEllipseRad2: TEdit
+          Left = 118
+          Height = 33
+          Top = 52
+          Width = 76
+          OnKeyPress = eSearchEllipseRad1KeyPress
+          ParentFont = False
+          TabOrder = 1
+          Text = '1'
+        end
+        object seSearchEllipseAngle: TSpinEdit
+          Left = 118
+          Height = 33
+          Top = 92
+          Width = 76
+          MaxValue = 360
+          ParentFont = False
+          TabOrder = 2
+        end
+      end
+      object gbInverseDist: TGroupBox
+        Left = 360
+        Height = 120
+        Top = 528
+        Width = 219
+        Caption = 'Inverse distance'
+        ClientHeight = 90
+        ClientWidth = 215
+        ParentColor = False
+        ParentFont = False
+        TabOrder = 4
+        object Label17: TLabel
+          Left = 18
+          Height = 25
+          Top = 16
+          Width = 48
+          Caption = 'Power'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label18: TLabel
+          Left = 18
+          Height = 25
+          Top = 58
+          Width = 89
+          Caption = 'Smoothing'
+          ParentColor = False
+          ParentFont = False
+        end
+        object seIDPower: TSpinEdit
+          Left = 120
+          Height = 33
+          Top = 6
+          Width = 76
+          MinValue = 2
+          ParentFont = False
+          TabOrder = 0
+          Value = 2
+        end
+        object seIDSmooth: TSpinEdit
+          Left = 120
+          Height = 33
+          Top = 48
+          Width = 75
+          MaxValue = 10
+          ParentFont = False
+          TabOrder = 1
+        end
+      end
+      object gbAnisotropy: TGroupBox
+        Left = 360
+        Height = 120
+        Top = 648
+        Width = 219
+        Caption = 'Anisotropy'
+        ClientHeight = 90
+        ClientWidth = 215
+        ParentColor = False
+        ParentFont = False
+        TabOrder = 5
+        object Label14: TLabel
+          Left = 18
+          Height = 25
+          Top = 10
+          Width = 41
+          Caption = 'Ratio'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label16: TLabel
+          Left = 18
+          Height = 25
+          Top = 52
+          Width = 46
+          Caption = 'Angle'
+          ParentColor = False
+          ParentFont = False
+        end
+        object eAnisRatio: TEdit
+          Left = 122
+          Height = 33
+          Top = 0
+          Width = 75
+          OnKeyPress = eSearchEllipseRad1KeyPress
+          ParentFont = False
+          TabOrder = 0
+          Text = '1'
+        end
+        object seAnisAngle: TSpinEdit
+          Left = 122
+          Height = 33
+          Top = 42
+          Width = 75
+          MaxValue = 10
+          ParentFont = False
+          TabOrder = 1
+        end
+      end
+      object GroupBox5: TGroupBox
+        Left = 14
+        Height = 92
+        Top = 0
+        Width = 566
+        Caption = 'Method'
+        ClientHeight = 62
+        ClientWidth = 562
+        ParentFont = False
+        TabOrder = 6
+        object cbMethod: TComboBox
+          Left = 15
+          Height = 33
+          Top = 8
+          Width = 528
+          DropDownCount = 15
+          ItemHeight = 25
+          Items.Strings = (
+            'srfInverseDistanse'
+            'srfKriging'
+            'srfMinCurvature'
+            'srfShepards'
+            'srfNaturalNeighbor'
+            'srfNearestNeighbor'
+            'srfRegression'
+            'srfRadialBasis'
+            'srfTriangulation'
+            'srfMovingAverage'
+            'srfLocalPolynomial'
+          )
+          OnSelect = cbMethodSelect
+          ParentFont = False
+          Style = csDropDownList
+          TabOrder = 0
+        end
+      end
+    end
+  end
+end

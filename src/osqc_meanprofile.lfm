@@ -1,0 +1,136 @@
+object frmQC_MeanProfile: TfrmQC_MeanProfile
+  Left = 518
+  Height = 620
+  Top = 215
+  Width = 875
+  Caption = 'frmQC_MeanProfile'
+  ClientHeight = 620
+  ClientWidth = 875
+  DesignTimePPI = 144
+  OnShow = FormShow
+  LCLVersion = '2.0.6.0'
+  object Memo1: TMemo
+    Left = 0
+    Height = 236
+    Top = 384
+    Width = 875
+    Align = alBottom
+    Lines.Strings = (
+      'Memo1'
+    )
+    ParentFont = False
+    TabOrder = 0
+  end
+  object GroupBox1: TGroupBox
+    Left = 10
+    Height = 355
+    Top = 10
+    Width = 797
+    Caption = 'Mean profile and standard deviations'
+    ClientHeight = 325
+    ClientWidth = 793
+    ParentFont = False
+    TabOrder = 1
+    object ListBox1: TListBox
+      Left = 461
+      Height = 120
+      Top = 10
+      Width = 150
+      ItemHeight = 0
+      ParentFont = False
+      TabOrder = 0
+      Visible = False
+    end
+    object ListBox2: TListBox
+      Left = 461
+      Height = 120
+      Top = 10
+      Width = 298
+      ItemHeight = 0
+      ParentFont = False
+      TabOrder = 1
+    end
+    object btnComputeMeanProfile: TBitBtn
+      Left = 461
+      Height = 38
+      Top = 259
+      Width = 295
+      Caption = 'Compute'
+      OnClick = btnComputeMeanProfileClick
+      ParentFont = False
+      TabOrder = 2
+    end
+    object chklQCFlags: TCheckListBox
+      Left = 19
+      Height = 287
+      Top = 10
+      Width = 394
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      Items.Strings = (
+        '[0]   Not checked'
+        '[1]   Bad      '
+        '[2]   Suspicious        '
+        '[3]   Calculated'
+        '[4]   Acceptable'
+        '[5]   Passed primary QC'
+        '[6]   Passed expert control'
+        '[7]   Passed secondary QC and quality confirmed'
+        '[8]   Passed secondary QC and adjusted'
+      )
+      ItemHeight = 27
+      ParentFont = False
+      TabOrder = 3
+      Data = {
+        09000000000000000000000000
+      }
+    end
+    object Label1: TLabel
+      Left = 461
+      Height = 25
+      Top = 154
+      Width = 206
+      Caption = 'Samples min in a layer >='
+      ParentColor = False
+      ParentFont = False
+    end
+    object Edit1: TEdit
+      Left = 691
+      Height = 33
+      Top = 144
+      Width = 38
+      ParentFont = False
+      TabOrder = 4
+      Text = '3'
+    end
+    object Label2: TLabel
+      Left = 461
+      Height = 25
+      Top = 202
+      Width = 182
+      Caption = 'SD factor for outliers ='
+      ParentColor = False
+      ParentFont = False
+    end
+    object Edit2: TEdit
+      Left = 691
+      Height = 33
+      Top = 192
+      Width = 38
+      ParentFont = False
+      TabOrder = 5
+      Text = '5'
+    end
+  end
+  object CheckBox1: TCheckBox
+    Left = 29
+    Height = 29
+    Top = 346
+    Width = 209
+    Caption = 'Show detailed output?'
+    ParentFont = False
+    TabOrder = 2
+  end
+end

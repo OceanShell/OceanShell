@@ -5,7 +5,7 @@ unit osexport_ascii;
 interface
 
 uses
-  Classes, SysUtils, SQLDB, DB, osmain, dm, bathymetry, procedures;
+  Classes, SysUtils, SQLDB, DB, osmain, dm, osbathymetry, procedures;
 
 procedure ExportASCII;
 
@@ -60,7 +60,7 @@ try
 
   Plat:= frmdm.Q.FieldByName('PLATF').AsString;
 
-  gebco := -GetBathymetry(lon,lat);
+  gebco := -GetGEBCODepth(lon, lat);
 
   with Qt1 do begin
    Close;

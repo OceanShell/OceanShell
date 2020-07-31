@@ -1,0 +1,383 @@
+object frmviz_surfer_squares: Tfrmviz_surfer_squares
+  Left = 159
+  Height = 929
+  Top = 40
+  Width = 1570
+  Caption = 'frmviz_surfer_squares'
+  ClientHeight = 929
+  ClientWidth = 1570
+  DesignTimePPI = 144
+  OnShow = FormShow
+  LCLVersion = '2.0.6.0'
+  object Memo1: TMemo
+    Left = 0
+    Height = 190
+    Top = 739
+    Width = 1570
+    Align = alBottom
+    Lines.Strings = (
+      'Memo1'
+    )
+    ParentFont = False
+    TabOrder = 0
+  end
+  object CheckGroup1: TCheckGroup
+    Left = 10
+    Height = 595
+    Top = 48
+    Width = 480
+    AutoFill = True
+    Caption = 'Variables'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.TopBottomSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    Columns = 2
+    Font.Height = -14
+    ParentFont = False
+    TabOrder = 1
+  end
+  object btnProfilesInTables: TBitBtn
+    Left = 144
+    Height = 29
+    Top = 662
+    Width = 161
+    Caption = 'Profiles in  tables'
+    Font.Color = clGreen
+    OnClick = btnProfilesInTablesClick
+    ParentFont = False
+    TabOrder = 2
+  end
+  object ListBox1: TListBox
+    Left = 394
+    Height = 38
+    Top = 653
+    Width = 48
+    ItemHeight = 0
+    ParentFont = False
+    TabOrder = 3
+    Visible = False
+  end
+  object Label1: TLabel
+    Left = 1024
+    Height = 25
+    Top = 360
+    Width = 144
+    Caption = 'Stations selected'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object btnSelectAll_Variables: TBitBtn
+    Left = 10
+    Height = 26
+    Top = 662
+    Width = 113
+    Caption = 'Select all'
+    Font.Color = clGreen
+    OnClick = btnSelectAll_VariablesClick
+    ParentFont = False
+    TabOrder = 4
+  end
+  object CheckGroup2: TCheckGroup
+    Left = 509
+    Height = 595
+    Top = 48
+    Width = 480
+    AutoFill = True
+    Caption = 'Layers'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.TopBottomSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    Columns = 2
+    Font.Height = -14
+    ParentFont = False
+    TabOrder = 5
+  end
+  object btnSelectAll_Layers: TBitBtn
+    Left = 509
+    Height = 29
+    Top = 662
+    Width = 132
+    Caption = 'Select all'
+    Font.Color = clGreen
+    OnClick = btnSelectAll_LayersClick
+    ParentFont = False
+    TabOrder = 6
+  end
+  object btnSamplesInLayers: TBitBtn
+    Left = 653
+    Height = 29
+    Top = 662
+    Width = 173
+    Caption = 'Samples In Layers'
+    Font.Color = clGreen
+    OnClick = btnSamplesInLayersClick
+    ParentFont = False
+    TabOrder = 7
+  end
+  object Memo2: TMemo
+    Left = 1008
+    Height = 317
+    Top = 10
+    Width = 540
+    Font.Height = -16
+    Lines.Strings = (
+      'Important   (computing of number of stations/ profiles/ variable statistics/'
+      '                    time series (ts) legth in squares)'
+      ''
+      '1. If neither variable and layer are selected -  the number of stations will be computed'
+      ''
+      '2. If only variables are selected - the number of profiles and ts length will be computed  '
+      ''
+      '3. If variables and layers are selected - statistics for variables and ts length in layers will be computed'
+      ''
+      '4. If variables and arbitrary layer are selected - statistics for variables and ts length in the layer will be computed'
+    )
+    ParentFont = False
+    TabOrder = 8
+  end
+  object CheckBox1: TCheckBox
+    Left = 576
+    Height = 29
+    Top = 10
+    Width = 145
+    Caption = 'Arbitrary layer:'
+    ParentFont = False
+    TabOrder = 9
+  end
+  object Edit1: TEdit
+    Left = 739
+    Height = 33
+    Top = 5
+    Width = 67
+    ParentFont = False
+    TabOrder = 10
+    Text = '5'
+  end
+  object Edit2: TEdit
+    Left = 854
+    Height = 33
+    Top = 5
+    Width = 62
+    ParentFont = False
+    TabOrder = 11
+    Text = '15'
+  end
+  object Label2: TLabel
+    Left = 816
+    Height = 25
+    Top = 10
+    Width = 20
+    Caption = '->'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label3: TLabel
+    Left = 1024
+    Height = 25
+    Top = 392
+    Width = 355
+    Caption = 'Minimum number of samples in a square >='
+    ParentColor = False
+    ParentFont = False
+  end
+  object Edit3: TEdit
+    Left = 1392
+    Height = 33
+    Top = 384
+    Width = 43
+    ParentFont = False
+    TabOrder = 12
+    Text = '1'
+  end
+  object RadioGroup1: TRadioGroup
+    Left = 1008
+    Height = 114
+    Top = 432
+    Width = 172
+    AutoFill = True
+    Caption = 'Squares'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 84
+    ClientWidth = 168
+    ItemIndex = 0
+    Items.Strings = (
+      '5 x 5'
+      '1 x 1'
+      '0.25 x 0.25'
+    )
+    ParentFont = False
+    TabOrder = 13
+  end
+  object btnCompute: TBitBtn
+    Left = 1229
+    Height = 36
+    Top = 510
+    Width = 206
+    Caption = 'Compute'
+    Font.Color = clRed
+    OnClick = btnComputeClick
+    ParentFont = False
+    TabOrder = 14
+  end
+  object GroupBox1: TGroupBox
+    Left = 1008
+    Height = 158
+    Top = 560
+    Width = 540
+    Caption = 'Plot'
+    ClientHeight = 128
+    ClientWidth = 536
+    TabOrder = 15
+    object cbAllOutputFiles: TComboBox
+      Left = 24
+      Height = 33
+      Top = 24
+      Width = 488
+      ItemHeight = 25
+      OnDropDown = cbAllOutputFilesDropDown
+      OnSelect = cbAllOutputFilesSelect
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object btnPlot: TButton
+      Left = 414
+      Height = 33
+      Top = 72
+      Width = 98
+      Caption = 'Plot'
+      Enabled = False
+      OnClick = btnPlotClick
+      TabOrder = 1
+    end
+    object btnSurferSettings: TButton
+      Left = 120
+      Height = 33
+      Top = 72
+      Width = 136
+      Caption = 'Surfer settings'
+      OnClick = btnSurferSettingsClick
+      TabOrder = 2
+    end
+    object btnOpenFolder: TBitBtn
+      Left = 24
+      Height = 33
+      Hint = 'Open data folder'
+      Top = 72
+      Width = 38
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'Tahoma'
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        04000000000000010000120B0000120B00001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00555555555555
+        55555555FFFFFFFFFF55555000000000055555577777777775F55500B8B8B8B8
+        B05555775F555555575F550F0B8B8B8B8B05557F75F555555575550BF0B8B8B8
+        B8B0557F575FFFFFFFF7550FBF0000000000557F557777777777500BFBFBFBFB
+        0555577F555555557F550B0FBFBFBFBF05557F7F555555FF75550F0BFBFBF000
+        55557F75F555577755550BF0BFBF0B0555557F575FFF757F55550FB700007F05
+        55557F557777557F55550BFBFBFBFB0555557F555555557F55550FBFBFBFBF05
+        55557FFFFFFFFF7555550000000000555555777777777755555550FBFB055555
+        5555575FFF755555555557000075555555555577775555555555
+      }
+      NumGlyphs = 2
+      ImageIndex = 422
+      OnClick = btnOpenFolderClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+    end
+    object btnOpenScript: TBitBtn
+      Left = 72
+      Height = 33
+      Hint = 'Open script'
+      Top = 72
+      Width = 40
+      Enabled = False
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'Tahoma'
+      Glyph.Data = {
+        36040000424D3604000000000000360000002800000010000000100000000100
+        2000000000000004000000000000000000000000000000000000FF00FF00FF00
+        FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+        FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+        FF00FF00FF00C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0
+        C000C0C0C000C0C0C000C0C0C000C0C0C000C0C0C000FF00FF00FF00FF00FF00
+        FF0000000000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF
+        0000FFFF0000FFFF0000FFFF0000FFFF0000C0C0C000FF00FF00FF00FF000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        00000000000000000000FFFF0000FFFF0000C0C0C000FF00FF00FF00FF000000
+        0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF
+        00000000000000000000FFFF0000FFFF0000C0C0C000FF00FF00FF00FF000000
+        0000FFFF0000FFFF000000000000000000000000000000000000000000000000
+        0000FFFF000000000000FFFF0000FFFF0000C0C0C000FF00FF00FF00FF000000
+        0000FFFF0000FFFF0000FFFF0000FFFF0000FF00FF00FF00FF00FF00FF000000
+        0000FFFF000000000000FFFF0000FFFF0000C0C0C000FF00FF00FF00FF000000
+        0000FFFF0000FFFF0000FFFF0000FFFF0000FF00FF00FF00FF00FF00FF000000
+        0000FFFF000000000000FFFF0000FFFF0000C0C0C000FF00FF00FF00FF000000
+        0000FFFF0000FFFF0000FFFF0000FFFF0000FF00FF00FF00FF00FF00FF000000
+        0000FFFF000000000000FFFF0000FFFF0000C0C0C000FF00FF00FF00FF000000
+        0000FFFF0000FFFF0000FFFF0000FFFF0000FF00FF00FF00FF00FF00FF000000
+        0000FFFF000000000000FFFF0000FFFF0000C0C0C000FF00FF00FF00FF000000
+        0000FFFF0000FFFF0000FFFF0000FFFF0000FF00FF00FF00FF00FF00FF000000
+        0000FFFF000000000000FFFF0000FFFF0000C0C0C000FF00FF00FF00FF000000
+        0000FFFF0000FFFF0000FFFF000000000000FFFF0000FFFF0000FFFF0000FFFF
+        0000FFFF0000FFFF0000FFFF0000FFFF0000C0C0C000FF00FF00FF00FF000000
+        0000FFFF0000FFFF000000000000FFFF0000FFFF0000FFFF0000FFFF0000FFFF
+        0000FFFF0000FFFF0000FFFF0000FFFF0000C0C0C000FF00FF00FF00FF000000
+        0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF
+        0000FFFF0000FFFF0000FFFF000000000000FF00FF00FF00FF00FF00FF000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000FF00FF00FF00FF00FF00FF00FF00FF00FF00
+        FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+        FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
+      }
+      OnClick = btnOpenScriptClick
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 4
+    end
+    object cbColumn: TComboBox
+      Left = 272
+      Height = 33
+      Top = 72
+      Width = 128
+      Enabled = False
+      ItemHeight = 25
+      OnSelect = cbColumnSelect
+      Style = csDropDownList
+      TabOrder = 5
+    end
+  end
+  object myQ: TSQLQuery
+    MaxIndexesCount = 100
+    FieldDefs = <>
+    Database = frmdm.IBDB
+    Transaction = frmdm.TR
+    Params = <>
+    left = 154
+    top = 422
+  end
+end

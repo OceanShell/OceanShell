@@ -14,37 +14,31 @@ type
 
   Tfrmsettings = class(TForm)
     btnGrapherPath: TButton;
-    btnInstallMissing: TButton;
     btnOk: TButton;
-    btnPythonPath: TButton;
-    btnShowInstalled: TButton;
     btnSupportPath: TButton;
     btnOceanFDBPath: TButton;
     btnSurferPath: TButton;
     btnUnloadPath: TButton;
     eGrapherPath: TEdit;
-    ePythonPath: TEdit;
     eSupportPath: TEdit;
     eOceanFDBPath: TEdit;
     eSurferPath: TEdit;
     eUnloadPath: TEdit;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
-    GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
-    GroupBox5: TGroupBox;
     GroupBox6: TGroupBox;
     GroupBox7: TGroupBox;
     GroupBox8: TGroupBox;
+    GroupBox9: TGroupBox;
     Label1: TLabel;
+    Label2: TLabel;
+    lbGEBCO: TLabel;
     lbKML: TLabel;
     Memo1: TMemo;
-    memo2: TMemo;
     PageControl1: TPageControl;
-    rgBathymetry: TRadioGroup;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
-    TabSheet4: TTabSheet;
     TabSheet3: TTabSheet;
 
     procedure btnInstallMissingClick(Sender: TObject);
@@ -54,7 +48,7 @@ type
     procedure btnSupportPathClick(Sender: TObject);
     procedure btnUnloadPathClick(Sender: TObject);
     procedure eOceanFDBPathChange(Sender: TObject);
-    procedure ePythonPathChange(Sender: TObject);
+//    procedure ePythonPathChange(Sender: TObject);
     procedure eSupportPathChange(Sender: TObject);
     procedure eUnloadPathChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -78,14 +72,14 @@ implementation
 
 {$R *.lfm}
 
-uses osmain, procedures;
+uses osmain, procedures, osbathymetry;
 
 { Tfrmsettings }
 
 procedure Tfrmsettings.FormShow(Sender: TObject);
 Var
  Ini:TIniFile;
- SurferDefault, GrapherDefault, PythonDefault, bathymetry_path:string;
+ SurferDefault, GrapherDefault, PythonDefault:string;
 begin
  SurferDefault :='c:\Program Files\Golden Software\Surfer 13\Scripter\Scripter.exe';
  GrapherDefault:='c:\Program Files\Golden Software\Grapher 11\Scripter\Scripter.exe';
@@ -98,9 +92,8 @@ begin
    eUnloadPath.Text       :=Ini.ReadString  ( 'main', 'UnloadPath',       GlobalPath+'unload'+PathDelim);
    eSurferPath.Text       :=Ini.ReadString  ( 'main', 'SurferPath',       SurferDefault);
    eGrapherPath.Text      :=Ini.ReadString  ( 'main', 'GrapherPath',      GrapherDefault);
-   ePythonPath.Text       :=Ini.ReadString  ( 'main', 'PythonPath',       PythonDefault);
+//   ePythonPath.Text       :=Ini.ReadString  ( 'main', 'PythonPath',       PythonDefault);
    //rgLanguage.ItemIndex   :=Ini.ReadInteger ( 'main', 'Language',         0);
-   rgBathymetry.ItemIndex :=Ini.ReadInteger ( 'main', 'Bathymetry',       0);
    //rgDepth.ItemIndex      :=Ini.ReadInteger ( 'main', 'Depth_units',      0);
   finally
     ini.Free;
@@ -109,12 +102,16 @@ begin
    if FileExists(eSurferPath.Text)  then eSurferPath.Font.Color :=clGreen  else eSurferPath.Font.Color :=clRed;
    if FileExists(eGrapherPath.Text) then eGrapherPath.Font.Color:=clGreen  else eGrapherPath.Font.Color:=clRed;
 
-   bathymetry_path:=GlobalSupportPath+'bathymetry'+PathDelim;
-     rgBathymetry.Controls[0].Enabled := FileExists(bathymetry_path+'GEBCO_2019.nc');
-     rgBathymetry.Controls[1].Enabled := FileExists(bathymetry_path+'GEBCO_2014_2D.nc');
-     rgBathymetry.Controls[2].Enabled := FileExists(bathymetry_path+'gridone.nc');
-     rgBathymetry.Controls[3].Enabled := FileExists(bathymetry_path+'ETOPO1_Ice_g_gmt4.nc');
+   (* Check if GEBCO is in place *)
+   if GEBCOExists=true then begin
+     lbGEBCO.Caption:=SYes;
+     lbGEBCO.Font.Color:=clGreen;
+   end else begin
+     lbGEBCO.Caption:=SNo;
+     lbGEBCO.Font.Color:=clRed;
+   end;
 
+   (* Check if there is KML support *)
    if checkKML=true then begin
      lbKML.Caption:=SYes;
      lbKML.Font.Color:=clGreen;
@@ -189,22 +186,22 @@ end;
 
 procedure Tfrmsettings.btnPythonPathClick(Sender: TObject);
 begin
-  frmosmain.OD.Filter:='Python.exe|Python.exe';
-  if frmosmain.OD.Execute then ePythonPath.Text:= frmosmain.OD.FileName;
+ // frmosmain.OD.Filter:='Python.exe|Python.exe';
+ // if frmosmain.OD.Execute then ePythonPath.Text:= frmosmain.OD.FileName;
 end;
 
 procedure Tfrmsettings.btnShowInstalledClick(Sender: TObject);
 Var
  Ini:TIniFile;
 begin
-memo2.Clear;
+{memo2.Clear;
  Ini := TIniFile.Create(IniFileName);
   try
    Ini.WriteString ( 'main', 'PythonPath',       ePythonPath.Text);
   finally
    Ini.Free;
   end;
-frmosmain.RunScript(1, '-m pip freeze', memo2);
+frmosmain.RunScript(1, '-m pip freeze', memo2); }
 end;
 
 
@@ -212,7 +209,7 @@ procedure Tfrmsettings.btnInstallMissingClick(Sender: TObject);
 Var
  Ini:TIniFile;
 begin
-memo2.Clear;
+{memo2.Clear;
  Ini := TIniFile.Create(IniFileName);
   try
    Ini.WriteString ( 'main', 'PythonPath',       ePythonPath.Text);
@@ -234,7 +231,7 @@ btnShowInstalled.Enabled:=FileExists(ePythonPath.Text);
 
   if FileExists(ePythonPath.Text) then
      ePythonPath.Font.Color:=clGreen else
-     ePythonPath.Font.Color:=clRed;
+     ePythonPath.Font.Color:=clRed; }
 end;
 
 
@@ -249,9 +246,8 @@ begin
    Ini.WriteString ( 'main', 'UnloadPath',       eUnloadPath.Text);
    Ini.WriteString ( 'main', 'SurferPath',       eSurferPath.Text);
    Ini.WriteString ( 'main', 'GrapherPath',      eGrapherPath.Text);
-   Ini.WriteString ( 'main', 'PythonPath',       ePythonPath.Text);
+ //  Ini.WriteString ( 'main', 'PythonPath',       ePythonPath.Text);
  //  Ini.WriteInteger( 'main', 'Language',         rgLanguage.ItemIndex);
-   Ini.WriteInteger( 'main', 'Bathymetry',       rgBathymetry.ItemIndex);
   finally
     ini.Free;
   end;

@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="43">
+    <Units Count="48">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -209,7 +209,7 @@
         <ResourceBaseClass Value="Form"/>
       </Unit25>
       <Unit26>
-        <Filename Value="bathymetry.pas"/>
+        <Filename Value="osbathymetry.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit26>
       <Unit27>
@@ -317,6 +317,39 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit42>
+      <Unit43>
+        <Filename Value="osbathymetry_plot.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmbathymetry_plot"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit43>
+      <Unit44>
+        <Filename Value="surfer_settings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmsurfersettings"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit44>
+      <Unit45>
+        <Filename Value="surfer_field.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit45>
+      <Unit46>
+        <Filename Value="osqc_meanprofile.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmQC_MeanProfile"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit46>
+      <Unit47>
+        <Filename Value="osviz_surfer_squares.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmviz_surfer_squares"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="osViz_surfer_squares"/>
+      </Unit47>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

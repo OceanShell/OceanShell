@@ -33,9 +33,9 @@ type
     aOpenDatabase: TAction;
     aMapAllStations: TAction;
     AL: TActionList;
+    btnAddCruise: TToolButton;
     btnOpenOceanFDB: TBitBtn;
     btnadd: TToolButton;
-    btnAddCruise: TToolButton;
     btnAddCruise1: TToolButton;
     btncancel: TToolButton;
     btndelete: TToolButton;
@@ -46,6 +46,7 @@ type
     btnAdvancedSelection: TButton;
     btnCustomSQLQuery: TButton;
     btnSelectCruises: TButton;
+    btnSelectID: TButton;
     cbCruiseCountry: TCheckComboBox;
     cbCruiseInstitute: TCheckComboBox;
     cbCruiseProject: TCheckComboBox;
@@ -128,11 +129,17 @@ type
     iQC_dbar_meter: TMenuItem;
     iExportASCII: TMenuItem;
     iLoadARGO: TMenuItem;
-    MenuItem12: TMenuItem;
     iUpdateCRUISEDB: TMenuItem;
     iUpdateUnits: TMenuItem;
+    iVisualization: TMenuItem;
+    iPlotBathymetry: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
+    iBottomDepthGEBCO: TMenuItem;
+    MenuItem15: TMenuItem;
+    iStandarddeviationslayers: TMenuItem;
+    iVisualizationSurfer: TMenuItem;
+    iVisualizationSurferSquares: TMenuItem;
     MenuItem2: TMenuItem;
     iSelectEntry: TMenuItem;
     MenuItem4: TMenuItem;
@@ -147,7 +154,6 @@ type
     iQC: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
-    PageControl2: TPageControl;
     Panel1: TPanel;
     Panel2: TPanel;
     pCruiseFiller: TPanel;
@@ -207,16 +213,15 @@ type
     Splitter2: TSplitter;
     Splitter3: TSplitter;
     Splitter4: TSplitter;
-    tsCruiseSearch: TTabSheet;
-    tsCruiseResults: TTabSheet;
+    tsSelectedCruises: TTabSheet;
     tbCruise: TToolBar;
+    ToolButton8: TToolButton;
     tbFastAccess: TToolBar;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
     ToolButton6: TToolButton;
     ToolButton7: TToolButton;
-    ToolButton8: TToolButton;
-    tsMetadata: TTabSheet;
+    tsSelectedStations: TTabSheet;
     ToolBar2: TToolBar;
     btnRemoveEntry: TToolButton;
     ToolBar3: TToolBar;
@@ -240,6 +245,7 @@ type
     procedure btnOpenOceanFDBClick(Sender: TObject);
     procedure btnSaveCruiseClick(Sender: TObject);
     procedure btnSelectCruisesClick(Sender: TObject);
+    procedure btnSelectIDClick(Sender: TObject);
     procedure btnSelectStationsClick(Sender: TObject);
     procedure DBGridCruise1CellClick(Column: TColumn);
     procedure DBGridCruise1ColumnSized(Sender: TObject);
@@ -276,6 +282,7 @@ type
     procedure iDBStatistics_AKClick(Sender: TObject);
     procedure iDIVAndClick(Sender: TObject);
     procedure iDuplicatesClick(Sender: TObject);
+    procedure iBottomDepthGEBCOClick(Sender: TObject);
     procedure iInitialDatabaseClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
@@ -283,16 +290,19 @@ type
     procedure iLoad_ITPClick(Sender: TObject);
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
+    procedure iPlotBathymetryClick(Sender: TObject);
     procedure iQC_dbar_meterClick(Sender: TObject);
     procedure iSelectCruiseClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
     procedure iSelectEntryClick(Sender: TObject);
     procedure iServiceStatisticsClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
+    procedure iStandarddeviationslayersClick(Sender: TObject);
     procedure iSupportTablesClick(Sender: TObject);
     procedure iUpdateCRUISEDBClick(Sender: TObject);
     procedure iUpdateLastLevelClick(Sender: TObject);
     procedure iUpdateUnitsClick(Sender: TObject);
+    procedure iVisualizationSurferSquaresClick(Sender: TObject);
     procedure lbResetSearchCruisesClick(Sender: TObject);
     procedure lbResetSearchStationsClick(Sender: TObject);
     procedure iUpdateCruiseClick(Sender: TObject);
@@ -314,9 +324,9 @@ type
 
   public
 
-    RecListCruise  :TBookmarklist;
-    RecListEntry   :TBookmarklist;
-    RecListStation :TBookmarklist;
+ //   RecListCruise  :TBookmarklist;
+ //   RecListEntry   :TBookmarklist;
+ //   RecListStation :TBookmarklist;
 
     procedure OpenDatabase;
     procedure DatabaseInfo;
@@ -348,6 +358,7 @@ var
   IBName, IniFileName:string;
   GlobalPath, GlobalUnloadPath, GlobalSupportPath:string; //global paths for the app
   CurrentParTable: string;
+
   Source_unq:TStringList;
 
   IBLatMin,IBLatMax,IBLonMin,IBLonMax,SLatMin,SLatMax,SLonMin,SLonMax:Real;
@@ -396,6 +407,8 @@ uses
   osabout,
   sortbufds,
   procedures,
+  osbathymetry,
+  declarations_netcdf,
   osunitsupdate,
 
 (* loading data *)
@@ -419,6 +432,7 @@ uses
 (* QC *)
   osqc_dbar_meters_consistency,
   osqc_duplicates,
+  osqc_meanprofile,
 
 (* tools *)
   osmap,
@@ -427,10 +441,14 @@ uses
   osprofile_station_all,
   osprofile_station_single,
   osprofile_plot_all,
+  osbathymetry_plot,
 
 (* statistics *)
   osstatistics,
-  osstatistics_AK
+  osstatistics_AK,
+
+(* visualization *)
+  osviz_surfer_squares
 ;
 
 {$R *.lfm}
@@ -438,9 +456,9 @@ uses
 
 procedure Tfrmosmain.FormCreate(Sender: TObject);
 begin
-  RecListCruise  := TBookmarkList.Create(DBGridCruise1);
-  RecListEntry   := TBookmarkList.Create(DbGridEntry);
-  RecListStation := TBookmarkList.Create(DbGridStation1);
+  //RecListCruise  := TBookmarkList.Create(DBGridCruise1);
+  //RecListEntry   := TBookmarkList.Create(DbGridEntry);
+ // RecListStation := TBookmarkList.Create(DbGridStation1);
 end;
 
 
@@ -560,18 +578,20 @@ begin
     end;
 
     with DBGridStation2 do begin
-     Columns[0].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col00',    60);  //DEPTH
-     Columns[1].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col01',    60);  //LAST_LEVEL_M
-     Columns[2].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col02',    60);  //LAST_LEVEL_DBAR
-     Columns[3].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col03',    60);  //ST_NUM
-     Columns[4].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col04',    60);  //CAST
-     Columns[5].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col05',    60);  //ACESSION
-     Columns[6].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col06',    60);  //ST_NUM_ORIGIN
-     Columns[7].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col07',    60);  //INSTRUMENT
-     Columns[8].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col08',    60);  //VERSION
-     Columns[9].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col09',    60);  //MERGED
-     Columns[10].Width:=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col10',    60);  //DATE_ADDED
-     Columns[11].Width:=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col11',    60);  //DATE_UPDATED
+     Columns[0].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col00',    60);
+     Columns[1].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col01',    60);
+     Columns[2].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col02',    60);
+     Columns[3].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col03',    60);
+     Columns[4].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col04',    60);
+     Columns[5].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col05',    60);
+     Columns[6].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col06',    60);
+     Columns[7].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col07',    60);
+     Columns[8].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col08',    60);
+     Columns[9].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col09',    60);
+     Columns[10].Width:=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col10',    60);
+     Columns[11].Width:=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col11',    60);
+     Columns[12].Width:=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col12',    60);
+     Columns[13].Width:=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col13',    60);
     end;
 
    (* Essencial program folders *)
@@ -603,9 +623,15 @@ begin
    eCruise_PI.OnChange           := @SearchPI; }
 
 
- //  for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
+ // for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
 
+ (* list of sources *)
  Source_unq:=TStringList.Create;
+
+ (* Disabling some menu items if there is no GEBCO *)
+ iPlotBathymetry.Enabled:=GEBCOExists;
+ iBottomDepthGEBCO.Enabled:=GEBCOExists;
+
 
  OnResize(Self);
  SetFocus;
@@ -646,6 +672,7 @@ MinDay, MaxDay, cnt:integer;
 Lat, Lon:real; }
 time0, time1:TDateTime;
 buf_str, SQL_str: string;
+t_begin:TDateTime;
 begin
 
 frmosmain.Enabled:=false;
@@ -661,6 +688,7 @@ try
   if chkNOTInstitute.Checked =true then NotCondInstitute :='NOT' else NotCondInstitute :='';
   if chkNOTProject.Checked   =true then NotCondProject   :='NOT' else NotCondProject   :='';
 
+ t_begin:=now;
  with frmdm.Q do begin
    Close;
     SQL.Clear;
@@ -670,6 +698,7 @@ try
     SQL.Add(' STATION.LASTLEVEL_DBAR, STATION.CRUISE_ID, STATION.CAST_NUMBER,  ');
     SQL.Add(' STATION.ST_NUMBER_ORIGIN, STATION.ST_ID_ORIGIN, ');
     SQL.Add(' STATION.QCFLAG, STATION.STVERSION, STATION.DUPLICATE, ');
+    SQL.Add(' STATION.BOTTOMDEPTH_GEBCO, STATION.REGION_ID, ');
     SQL.Add(' STATION.MERGED, STATION.ACCESSION_NUMBER, STATION.DATE_ADDED, ');
     SQL.Add(' STATION.DATE_UPDATED, PLATFORM.NAME as PLATF, CRUISE.CRUISE_NUMBER, ');
     SQL.Add(' COUNTRY.NAME as CNTR, SOURCE.NAME as SRC ');
@@ -799,6 +828,7 @@ try
    Open;
  end;
 
+// showmessage(DateTimeToStr(now-t_begin));
 
   With frmdm.q1 do begin
    Close;
@@ -817,7 +847,89 @@ try
      Source_unq.Add(frmdm.q1.Fields[0].AsString);
    frmdm.q1.Next;
   end;
+
+//   showmessage(DateTimeToStr(now-t_begin));
+
+
+  With frmdm.q1 do begin
+   Close;
+     SQL.Clear;
+     SQL.Add(' SELECT DISTINCT(CRUISE_ID) FROM ');
+     SQL.Add(' STATION, CRUISE, PLATFORM, COUNTRY, SOURCE ');
+     SQL.Add(' WHERE ');
+     SQL.Add(  SQL_str  );
+     Params:=frmdm.Q.Params;
+   Open;
+   Last;
+   First;
+  end;
+
+ //  showmessage(DateTimeToStr(now-t_begin));
+
+  (* Cleansing the temporary list *)
+  with frmdm.q2 do begin
+    Close;
+      SQL.Clear;
+      SQL.Add(' DELETE FROM TEMPORARY_ID_LIST ');
+    ExecSQL;
+  end;
+  frmdm.TR.CommitRetaining;
+
+ //  showmessage(DateTimeToStr(now-t_begin));
+
+  (* populating ID list *)
+  i:=0;
+  while not frmdm.q1.EOF do begin
+    inc(i);
+   with frmdm.q2 do begin
+    Close;
+      SQL.Clear;
+      SQL.Add(' INSERT INTO TEMPORARY_ID_LIST ');
+      SQL.Add(' (ID) VALUES (:ID) ');
+      ParamByName('ID').Value:=frmdm.q1.FieldByName('CRUISE_ID').AsInteger;
+    ExecSQL;
+   end;
+   frmdm.q1.Next;
+  end;
   frmdm.q1.Close;
+  frmdm.TR.CommitRetaining;
+
+ //  showmessage(DateTimeToStr(now-t_begin));
+
+   with frmdm.QCruise do begin
+    Close;
+      SQL.Clear;
+      SQL.Add(' SELECT ');
+      SQL.Add(' CRUISE.ID, PLATFORM_ID, SOURCE_ID, INSTITUTE_ID, PROJECT_ID, ');
+      SQL.Add(' PLATFORM.NAME AS PLATFORM, COUNTRY.NAME AS COUNTRY, ');
+      SQL.Add(' SOURCE.NAME AS SOURCE, INSTITUTE.NAME AS INSTITUTE, ');
+      SQL.Add(' PROJECT.NAME AS PROJECT, CRUISE.DATE_ADDED, CRUISE.DATE_UPDATED, ');
+      SQL.Add(' CRUISE.CRUISE_NUMBER, CRUISE.DATE_START_TOTAL, ');
+      SQL.Add(' CRUISE.DATE_END_TOTAL, CRUISE.DATE_START_DATABASE,  ');
+      SQL.Add(' CRUISE.DATE_END_DATABASE, CRUISE.LATITUDE_MIN, CRUISE.LATITUDE_MAX, ');
+      SQL.Add(' CRUISE.LONGITUDE_MIN, CRUISE.LONGITUDE_MAX, CRUISE.EXPOCODE, ');
+      SQL.Add(' CRUISE.PI, CRUISE.NOTES, CRUISE.STATIONS_TOTAL, ');
+      SQL.Add(' CRUISE.STATIONS_DATABASE, CRUISE.STATIONS_DUPLICATES ');
+      SQL.Add(' FROM CRUISE, PLATFORM, COUNTRY, SOURCE, INSTITUTE, PROJECT ');
+      SQL.Add(' WHERE ');
+      SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
+      SQL.Add(' PLATFORM.COUNTRY_ID=COUNTRY.ID AND ');
+      SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
+      SQL.Add(' CRUISE.INSTITUTE_ID=INSTITUTE.ID AND ');
+      SQL.Add(' CRUISE.PROJECT_ID=PROJECT.ID AND ');
+      SQL.Add(' CRUISE.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ');
+     { SQL.Add(' CRUISE.ID IN (SELECT DISTINCT(CRUISE_ID) FROM ');
+      SQL.Add(' STATION, CRUISE, PLATFORM, COUNTRY, SOURCE ');
+      SQL.Add(' WHERE ');
+      SQL.Add(  SQL_str+')'  );  }
+      SQL.Add(' ORDER BY PLATFORM.NAME, CRUISE.DATE_START_TOTAL ' );
+    //  Params:=frmdm.Q.Params;
+    Open;
+    Last;
+    First;
+   end;
+
+ //   showmessage(DateTimeToStr(now-t_begin));
 
  SelectionInfo;
  CDSNavigation;
@@ -826,6 +938,14 @@ finally
   frmosmain.Enabled:=true;
   Application.ProcessMessages;
 end;
+end;
+
+
+procedure Tfrmosmain.btnSelectIDClick(Sender: TObject);
+Var
+ dat: text;
+begin
+
 end;
 
 
@@ -859,7 +979,7 @@ begin
       SQL.Add(' CRUISE.DATE_END_TOTAL, CRUISE.DATE_START_DATABASE,  ');
       SQL.Add(' CRUISE.DATE_END_DATABASE, CRUISE.LATITUDE_MIN, CRUISE.LATITUDE_MAX, ');
       SQL.Add(' CRUISE.LONGITUDE_MIN, CRUISE.LONGITUDE_MAX, CRUISE.EXPOCODE, ');
-      SQL.Add(' CRUISE.PI, CRUISE.NOTES, CRUISE.STATIONS_TOTAL, ');
+      SQL.Add(' CRUISE.PI, CRUISE.NOTES, CRUISE.STATIONS_TOTAL, CRUISE.SELECTED, ');
       SQL.Add(' CRUISE.STATIONS_DATABASE, CRUISE.STATIONS_DUPLICATES ');
       SQL.Add(' FROM CRUISE, PLATFORM, COUNTRY, SOURCE, INSTITUTE, PROJECT ');
       SQL.Add(' WHERE ');
@@ -873,14 +993,20 @@ begin
       SQL.Add(' AND (CRUISE.ID BETWEEN :SSIDMin AND :SSIDMax) ');
 
      (* Coordinates *)
-     SQL.Add(' AND (LATITUDE_MIN>=:SSLatMin AND LATITUDE_MAX<=:SSLatMax) ');
-     if seLonMax.Value>=seLonMin.Value then
-      SQL.Add(' AND (LONGITUDE_MIN>=:SSLonMin AND LONGITUDE_MAX<=:SSLonMax) ');
-     if seLonMax.Value<seLonMin.Value then
-      SQL.Add(' AND ((LONGITUDE_MIN>=:SSLonMin AND LONGITUDE_MAX<=180) or'+
-              '      (LONGITUDE_MIN>=-180 and LONGITUDE_MAX<=:SSLonMax)) ');
+     SQL.Add(' AND ((LATITUDE_MIN>=:SSLatMin AND LATITUDE_MAX<=:SSLatMax) OR ');
+     SQL.Add('      (LATITUDE_MIN BETWEEN :SSLatMin AND :SSLatMax) OR ');
+     SQL.Add('      (LATITUDE_MAX BETWEEN :SSLatMin AND :SSLatMax)) ');
 
-    (* Date and Time *)
+     if seLonMax.Value>=seLonMin.Value then
+      SQL.Add(' AND ((LONGITUDE_MIN>=:SSLonMin AND LONGITUDE_MAX<=:SSLonMax) OR ');
+      SQL.Add('      (LONGITUDE_MIN BETWEEN :SSLonMin AND :SSLonMax) OR ');
+      SQL.Add('      (LONGITUDE_MAX BETWEEN :SSLonMin AND :SSLonMax)) ');
+
+     (* FIX NEEDED HERE *)
+     if seLonMax.Value<seLonMin.Value then
+      SQL.Add(' AND ((LONGITUDE_MIN>=:SSLonMin AND LONGITUDE_MAX<=180) OR'+
+              '      (LONGITUDE_MIN>=-180 AND LONGITUDE_MAX<=:SSLonMax)) ');
+
      SQL.Add('  AND (DATE_START_TOTAL >= :SSDateMin) AND (DATE_END_TOTAL <= :SSDateMax) ');
      SQL.Add('  AND (CRUISE.DATE_ADDED between :SSDateAddedMin and :SSDateAddedMax) ');
      SQL.Add('  AND (CRUISE.DATE_UPDATED between :SSDateUpdatedMin and :SSDateUpdatedMax) ');
@@ -960,10 +1086,10 @@ begin
    First;
   end;
 
-  tsCruiseResults.TabVisible:= not frmdm.QCruise.IsEmpty;
+  tsSelectedCruises.TabVisible:= not frmdm.QCruise.IsEmpty;
   if not frmdm.QCruise.IsEmpty then begin
-    PageControl2.ActivePageIndex:=1;
-    tsCruiseResults.Caption:='Selected cruises: '+inttostr(frmdm.QCruise.RecordCount);
+    PageControl1.ActivePageIndex:=3;
+    tsSelectedCruises.Caption:='Selected cruises: '+inttostr(frmdm.QCruise.RecordCount);
   end;
 
  Application.ProcessMessages;
@@ -972,12 +1098,42 @@ end;
 
 procedure Tfrmosmain.iSelectCruiseClick(Sender: TObject);
 Var
+ crID_OLD, cnt: integer;
  id_str: string;
 begin
-  GetIDListCruise(id_str);
+  With frmdm.q1 do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' DELETE FROM TEMPORARY_ID_LIST ');
+   ExecSQL;
+  end;
+  frmdm.TR.CommitRetaining;
 
-  if trim(id_str)='' then
-     if MessageDlg('Select one or more cruise', mtWarning, [mbOk], 0)=mrOk then exit;
+ try
+  crID_old:=frmdm.QCruise.FieldByName('ID').AsInteger;
+  frmdm.QCruise.DisableControls;
+  frmdm.QCruise.First;
+  cnt:=0;
+  while not frmdm.QCruise.EOF do begin
+   if frmdm.QCruise.FieldByName('SELECTED').AsBoolean=true then begin
+    inc(cnt);
+     With frmdm.q1 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' INSERT INTO TEMPORARY_ID_LIST ');
+       SQL.Add(' (ID) VALUES (:ID) ');
+       ParamByName('ID').Value:=frmdm.QCruise.FieldByName('ID').Value;
+      ExecSQL;
+     end;
+   end;
+   frmdm.QCruise.Next;
+  end;
+  frmdm.TR.CommitRetaining;
+ finally
+  frmdm.QCruise.Locate('ID', crID_old, []);
+  frmdm.QCruise.EnableControls;
+ end;
+
 
    with frmdm.Q do begin
      Close;
@@ -986,6 +1142,7 @@ begin
       SQL.Add(' STATION.ID, STATION.LATITUDE, STATION.LONGITUDE, ');
       SQL.Add(' STATION.DATEANDTIME, STATION.BOTTOMDEPTH, STATION.LASTLEVEL_M, ');
       SQL.Add(' STATION.LASTLEVEL_DBAR, STATION.CRUISE_ID, STATION.CAST_NUMBER, ');
+      SQL.Add(' STATION.BOTTOMDEPTH_GEBCO, STATION.REGION_ID, ');
       SQL.Add(' STATION.ST_NUMBER_ORIGIN, STATION.ST_ID_ORIGIN, ');
       SQL.Add(' STATION.QCFLAG, STATION.STVERSION, STATION.DUPLICATE, ');
       SQL.Add(' STATION.MERGED, STATION.ACCESSION_NUMBER, STATION.DATE_ADDED, ');
@@ -997,9 +1154,8 @@ begin
       SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
       SQL.Add(' PLATFORM.COUNTRY_ID=COUNTRY.ID AND ');
       SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
-      SQL.Add(' STATION.CRUISE_ID in ('+id_str+') ');
+      SQL.Add(' STATION.CRUISE_ID in (SELECT ID FROM TEMPORARY_ID_LIST) '); //('+id_str+') ');
      Open;
-     //Last changes
      Last;
      First;
    end;
@@ -1011,7 +1167,7 @@ begin
      SQL.Add(' CRUISE, SOURCE ');
      SQL.Add(' WHERE ');
      SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
-     SQL.Add(' CRUISE.ID in ('+id_str+') ');
+     SQL.Add(' CRUISE.ID in (SELECT ID FROM TEMPORARY_ID_LIST) ');
      SQL.Add(' ORDER BY SOURCE.NAME ');
    Open;
   end;
@@ -1606,7 +1762,14 @@ begin
   aMapKML.Enabled:=items_enabled;
   aProfilesStationAll.Enabled:=items_enabled;
   aProfilesSelectedAllPlot.Enabled:=items_enabled;
-  tsMetadata.TabVisible:=items_enabled;
+  iStandarddeviationslayers.Enabled:=items_enabled;
+
+  tsSelectedStations.TabVisible:=items_enabled;
+  tsSelectedCruises.TabVisible:= not frmdm.QCruise.IsEmpty;
+
+  if not frmdm.QCruise.IsEmpty then
+    tsSelectedCruises.Caption:='Selected cruises: '+inttostr(frmdm.QCruise.RecordCount);
+
 
 
   if frmprofile_plot_all_open then begin
@@ -1633,7 +1796,7 @@ begin
    Last;
    First;
   end;
-  tsMainEntries.Caption:='Entries: ['+inttostr(frmdm.QEntry.RecordCount)+']';
+ // tsMainEntries.Caption:='Entries: ['+inttostr(frmdm.QEntry.RecordCount)+']';
   Application.ProcessMessages;
 end;
 
@@ -1896,14 +2059,7 @@ begin
 
     ID:=Qt.FieldByName('ID').AsInteger;
 
-    LatMin:=0;
-    LatMax:=0;
-    LonMin:=0;
-    LonMax:=0;
-    DateMin:=EncodeDate(0001, 01, 01);
-    DateMax:=EncodeDate(0001, 01, 01);
     cnt:=0;
-
     with Qt1 do begin
      Close;
       SQL.Clear;
@@ -1927,6 +2083,15 @@ begin
        DateMin:=Qt1.FieldByName('DateMin').Value;
        DateMax:=Qt1.FieldByName('DateMax').Value;
        cnt:=Qt1.FieldByName('cnt').Value;
+      end;
+      if Qt1.FieldByName('cnt').AsInteger=0 then begin
+       LatMin:=0;
+       LatMax:=0;
+       LonMin:=0;
+       LonMax:=0;
+       DateMin:=EncodeDate(0001, 01, 01);
+       DateMax:=EncodeDate(0001, 01, 01);
+       cnt:=0;
       end;
      Close;
     end;
@@ -2006,7 +2171,7 @@ AssignFile(dat, GlobalUnloadPath+'CatalogUpdate.txt'); rewrite(dat);
        Prepare;
      end;
 
-    k:=0;
+   { k:=0;
     err_cnt:=0;
     RecListCruise.CurrentRowSelected:=true;
     while not frmdm.QCruise.EOF do begin
@@ -2046,7 +2211,7 @@ AssignFile(dat, GlobalUnloadPath+'CatalogUpdate.txt'); rewrite(dat);
        end;
       Procedures.ProgressTaskbar(k, frmdm.QCruise.RecordCount-1);
       frmdm.QCruise.Next;
-    end;
+    end;    }
 
   finally
     Closefile(dat);
@@ -2060,6 +2225,88 @@ AssignFile(dat, GlobalUnloadPath+'CatalogUpdate.txt'); rewrite(dat);
   if err_cnt>0 then OpenDocument(GlobalUnloadPath+'CatalogUpdate.txt');
 end;
 
+
+procedure Tfrmosmain.iBottomDepthGEBCOClick(Sender: TObject);
+Var
+  ID, GEBCO, k: integer;
+  Lon, lat: real;
+
+  fname: string;
+  ncid:integer;
+  start: PArraySize_t;
+  sp:array of smallint;
+  lat0, lon0, step: real;
+begin
+   fname:=GlobalSupportPath+PathDelim+'bathymetry'+PathDelim+'GEBCO_2020.nc';
+
+   if not FileExists(fname) then
+    if MessageDlg('GEBCO is not found', mtWarning, [mbOk], 0)=mrOk then exit; // if there's no file
+
+   with frmdm.q1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' SELECT ID, LATITUDE, LONGITUDE FROM STATION ');
+     SQL.Add(' WHERE BOTTOMDEPTH_GEBCO IS NULL ORDER BY ID ');
+    Open;
+    Last;
+    First;
+   end;
+
+   with frmdm.q2 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' UPDATE STATION SET ');
+     SQL.Add(' BOTTOMDEPTH_GEBCO=:GEBCO ');
+     SQL.Add(' WHERE ID=:ID ');
+    Prepare;
+   end;
+
+   try
+    // opening GEBCO_2020.nc
+     nc_open(pansichar(fname), NC_NOWRITE, ncid);
+     start:=GetMemory(SizeOf(TArraySize_t)*2);
+
+     lat0:=-(89+(59/60)+(525E-1/3600));  // first latitude
+     lon0:=-(179+(59/60)+(525E-1/3600)); // first longitude
+     step  := 1/240;  // 15"
+
+  k:=0;
+  while not frmdm.q1.EOF do begin
+   ID :=frmdm.q1.FieldByName('ID').AsInteger;
+   Lat:=frmdm.q1.FieldByName('LATITUDE').AsFloat;
+   Lon:=frmdm.q1.FieldByName('LONGITUDE').AsFloat;
+
+    // search by indexes
+    start^[0]:=abs(trunc((lat0-lat)/step)); // lat index
+    start^[1]:=abs(trunc((lon0-lon)/step)); // lon index
+
+    SetLength(sp, 1); // setting an empty array
+     nc_get_var1_short(ncid, 2, start^, sp);  // sending request to the file
+    GEBCO:=-sp[0]; // getting results
+
+     with frmdm.q2 do begin
+       Close;
+         ParamByName('ID').AsInteger:=ID;
+         ParamByName('GEBCO').AsInteger:=GEBCO;
+       ExecSQL;
+     end;
+
+   inc(k);
+   ProgressTaskbar(k, frmdm.q1.RecordCount);
+
+   if (k mod 10000)=1 then frmdm.TR.CommitRetaining;
+
+   frmdm.q1.Next;
+  end;
+
+ ProgressTaskbar(0, 0);
+ Showmessage('Bottom depth from GEBCO successfully updated');
+finally
+ sp:=nil;
+ FreeMemory(start);
+ nc_close(ncid);  // Close nc file
+end;
+end;
 
 
 procedure Tfrmosmain.iLoadARGOClick(Sender: TObject);
@@ -2095,6 +2342,17 @@ begin
      frmuntsupdate.Free;
      frmuntsupdate := nil;
    end;
+end;
+
+procedure Tfrmosmain.iVisualizationSurferSquaresClick(Sender: TObject);
+begin
+  frmviz_surfer_squares := Tfrmviz_surfer_squares.Create(Self);
+ try
+  if not frmviz_surfer_squares.ShowModal = mrOk then exit;
+ finally
+   frmviz_surfer_squares.Free;
+   frmviz_surfer_squares := nil;
+ end;
 end;
 
 procedure Tfrmosmain.iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
@@ -2141,6 +2399,17 @@ finally
 end;
 end;
 
+procedure Tfrmosmain.iPlotBathymetryClick(Sender: TObject);
+begin
+  frmbathymetry_plot := Tfrmbathymetry_plot.Create(Self);
+   try
+    if not frmbathymetry_plot.ShowModal = mrOk then exit;
+   finally
+     frmbathymetry_plot.Free;
+     frmbathymetry_plot := nil;
+   end;
+end;
+
 procedure Tfrmosmain.iQC_dbar_meterClick(Sender: TObject);
 begin
  frmqc_dbar_meters_consistency := Tfrmqc_dbar_meters_consistency.Create(Self);
@@ -2149,6 +2418,18 @@ begin
    finally
      frmqc_dbar_meters_consistency.Free;
      frmqc_dbar_meters_consistency:= nil;
+   end;
+end;
+
+
+procedure Tfrmosmain.iStandarddeviationslayersClick(Sender: TObject);
+begin
+  frmQC_MeanProfile := TfrmQC_MeanProfile.Create(Self);
+   try
+    if not frmQC_MeanProfile.ShowModal = mrOk then exit;
+   finally
+     frmQC_MeanProfile.Free;
+     frmQC_MeanProfile:= nil;
    end;
 end;
 
@@ -2539,7 +2820,7 @@ procedure Tfrmosmain.GetIDListCruise(Var id_str:string);
 Var
  id_old: integer;
 begin
- id_str:='';
+{ id_str:='';
 
  id_old:=frmdm.QCruise.FieldByName('ID').AsInteger;
  RecListCruise.CurrentRowSelected:=true;
@@ -2555,14 +2836,14 @@ begin
    id_str:=copy(id_str, 2, length(id_str));
    frmdm.QCruise.Locate('ID', ID_old, []);
    frmdm.QCruise.EnableControls;
- end;
+ end;     }
 end;
 
 procedure Tfrmosmain.GetIDListEntry(Var id_str:string);
 Var
  id_old: integer;
 begin
- id_old:=frmdm.QEntry.FieldByName('ID').AsInteger;
+{ id_old:=frmdm.QEntry.FieldByName('ID').AsInteger;
  RecListEntry.CurrentRowSelected:=true;
 
  id_str:='';
@@ -2578,14 +2859,14 @@ begin
    id_str:=copy(id_str, 2, length(id_str));
    frmdm.QEntry.Locate('ID', ID_old, []);
    frmdm.QEntry.EnableControls;
- end;
+ end;  }
 end;
 
 procedure Tfrmosmain.GetIDListStation(Var id_str:string);
 Var
  id_old: integer;
 begin
- id_old:=frmdm.Q.FieldByName('ID').AsInteger;
+{ id_old:=frmdm.Q.FieldByName('ID').AsInteger;
  RecListStation.CurrentRowSelected:=true;
 
  id_str:='';
@@ -2601,7 +2882,7 @@ begin
    id_str:=copy(id_str, 2, length(id_str));
    frmdm.Q.Locate('ID', ID_old, []);
    frmdm.Q.EnableControls;
- end;
+ end;    }
 end;
 
 procedure Tfrmosmain.DBGridCruise1TitleClick(Column: TColumn);
@@ -2611,12 +2892,16 @@ Var
 begin
   if Column.Index=0 then begin
      id_old:=frmdm.QCruise.FieldByName('ID').AsInteger;
-     check_old:=RecListCruise.CurrentRowSelected;
+    // check_old:=RecListCruise.CurrentRowSelected;
      try
        frmdm.QCruise.DisableControls;
        frmdm.QCruise.First;
        while not frmdm.QCruise.EOF do begin
-        RecListCruise.CurrentRowSelected := not check_old;
+       // RecListCruise.CurrentRowSelected := not check_old;
+        frmdm.QCruise.Edit;
+         frmdm.QCruise.FieldByName('SELECTED').Value:=not check_old;
+         frmdm.QCruise.Post;
+
          frmdm.QCruise.Next;
        end;
      finally
@@ -2641,12 +2926,12 @@ Var
 begin
   if Column.Index=0 then begin
      id_old:=frmdm.QEntry.FieldByName('ID').AsInteger;
-     check_old:=RecListEntry.CurrentRowSelected;
+   //  check_old:=RecListEntry.CurrentRowSelected;
      try
        frmdm.QEntry.DisableControls;
        frmdm.QEntry.First;
        while not frmdm.QEntry.EOF do begin
-        RecListEntry.CurrentRowSelected := not check_old;
+      //  RecListEntry.CurrentRowSelected := not check_old;
          frmdm.QEntry.Next;
        end;
      finally
@@ -2661,7 +2946,7 @@ end;
 procedure Tfrmosmain.DBGridEntryUserCheckboxState(Sender: TObject;
   Column: TColumn; var AState: TCheckboxState);
 begin
-  if RecListEntry.CurrentRowSelected then AState := cbChecked else AState := cbUnchecked;
+ // if RecListEntry.CurrentRowSelected then AState := cbChecked else AState := cbUnchecked;
 end;
 
 procedure Tfrmosmain.DBGridStation2CellClick(Column: TColumn);
@@ -2682,12 +2967,12 @@ Var
 begin
   if Column.Index=0 then begin
      id_old:=frmdm.Q.FieldByName('ID').AsInteger;
-     check_old:=RecListStation.CurrentRowSelected;
+  //   check_old:=RecListStation.CurrentRowSelected;
      try
        frmdm.Q.DisableControls;
        frmdm.Q.First;
        while not frmdm.Q.EOF do begin
-        RecListStation.CurrentRowSelected := not check_old;
+     //   RecListStation.CurrentRowSelected := not check_old;
          frmdm.Q.Next;
        end;
      finally
@@ -2703,20 +2988,20 @@ end;
 procedure Tfrmosmain.DBGridCruise1UserCheckboxState(Sender: TObject;
   Column: TColumn; var AState: TCheckboxState);
 begin
-  if RecListCruise.CurrentRowSelected then AState := cbChecked else AState := cbUnchecked;
+ // if RecListCruise.CurrentRowSelected then AState := cbChecked else AState := cbUnchecked;
 end;
 
 
 procedure Tfrmosmain.DBGridCruise1CellClick(Column: TColumn);
 begin
   if Column.Index=0 then
-    RecListCruise.CurrentRowSelected := not RecListCruise.CurrentRowSelected;
+  //  RecListCruise.CurrentRowSelected := not RecListCruise.CurrentRowSelected;
 end;
 
 procedure Tfrmosmain.DBGridEntryCellClick(Column: TColumn);
 begin
   if Column.Index=0 then
-    RecListEntry.CurrentRowSelected := not RecListEntry.CurrentRowSelected;
+  //  RecListEntry.CurrentRowSelected := not RecListEntry.CurrentRowSelected;
 end;
 
 
@@ -2784,6 +3069,8 @@ begin
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col09', Columns[9].Width);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col10', Columns[10].Width);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col11', Columns[11].Width);
+    /// Ini.WriteInteger( 'osmain', 'DBGridCruise_Col12', Columns[12].Width);
+    // Ini.WriteInteger( 'osmain', 'DBGridCruise_Col13', Columns[13].Width);
     end;
     With DBGridCruise2 do begin
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col12', Columns[0].Width);
@@ -2838,6 +3125,8 @@ begin
      Ini.writeInteger( 'osmain', 'DBGridStation2_Col09',  Columns[9].Width);  //MERGED
      Ini.writeInteger( 'osmain', 'DBGridStation2_Col10',  Columns[10].Width);  //DATE_ADDED
      Ini.writeInteger( 'osmain', 'DBGridStation2_Col11',  Columns[11].Width);  //DATE_UPDATED
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col12',  Columns[12].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col13',  Columns[13].Width);
     end;
 
    finally

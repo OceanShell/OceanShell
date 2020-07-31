@@ -1,11 +1,11 @@
 object frmosmain: Tfrmosmain
-  Left = 285
+  Left = 387
   Height = 700
-  Top = 211
-  Width = 1380
+  Top = 102
+  Width = 1382
   Caption = 'OceanShell'
   ClientHeight = 670
-  ClientWidth = 1380
+  ClientWidth = 1382
   Color = clBtnFace
   Constraints.MinHeight = 700
   Constraints.MinWidth = 1380
@@ -54,7 +54,7 @@ object frmosmain: Tfrmosmain
     Left = 0
     Height = 596
     Top = 74
-    Width = 1380
+    Width = 1382
     ActivePage = tsMainSelect
     Align = alClient
     Enabled = False
@@ -68,7 +68,7 @@ object frmosmain: Tfrmosmain
     object tsMainSelect: TTabSheet
       Caption = 'Station search'
       ClientHeight = 563
-      ClientWidth = 1372
+      ClientWidth = 1374
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -354,7 +354,7 @@ object frmosmain: Tfrmosmain
       object btnAdvancedSelection: TButton
         Left = 1096
         Height = 38
-        Top = 200
+        Top = 248
         Width = 240
         Caption = 'Advanced Selection'
         Enabled = False
@@ -368,7 +368,7 @@ object frmosmain: Tfrmosmain
       object btnCustomSQLQuery: TButton
         Left = 1096
         Height = 38
-        Top = 248
+        Top = 296
         Width = 240
         Caption = 'Custom SQL Query'
         Font.Color = clWindowText
@@ -656,20 +656,20 @@ object frmosmain: Tfrmosmain
       end
       object ScrollBox2: TScrollBox
         Left = 1096
-        Height = 226
-        Top = 320
+        Height = 186
+        Top = 360
         Width = 240
         HorzScrollBar.Page = 115
         VertScrollBar.Page = 24
         Anchors = [akTop, akLeft, akBottom]
         BorderStyle = bsNone
-        ClientHeight = 226
+        ClientHeight = 186
         ClientWidth = 240
         TabOrder = 11
         Visible = False
         object chkinstrument: TCheckGroup
           Left = 0
-          Height = 226
+          Height = 186
           Top = 0
           Width = 240
           Align = alClient
@@ -701,909 +701,631 @@ object frmosmain: Tfrmosmain
         State = cbChecked
         TabOrder = 12
       end
+      object btnSelectID: TButton
+        Left = 1096
+        Height = 38
+        Top = 200
+        Width = 240
+        Caption = 'Select from ID list'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnClick = btnSelectIDClick
+        ParentFont = False
+        TabOrder = 13
+      end
     end
     object tsMainCruises: TTabSheet
       Caption = 'Cruise search'
       ClientHeight = 563
-      ClientWidth = 1372
+      ClientWidth = 1374
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
       ParentFont = False
-      object PageControl2: TPageControl
-        Left = 0
-        Height = 563
-        Top = 0
-        Width = 1372
-        ActivePage = tsCruiseSearch
-        Align = alClient
-        TabIndex = 0
+      object gbAuxiliaryParameters1: TGroupBox
+        Left = 24
+        Height = 264
+        Top = 192
+        Width = 824
+        Caption = 'Auxiliary parameters'
+        ClientHeight = 239
+        ClientWidth = 820
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
         TabOrder = 0
-        object tsCruiseSearch: TTabSheet
-          Caption = 'Search'
-          ClientHeight = 530
-          ClientWidth = 1364
-          object gbAuxiliaryParameters1: TGroupBox
-            Left = 24
-            Height = 264
-            Top = 192
-            Width = 824
-            Caption = 'Auxiliary parameters'
-            ClientHeight = 239
-            ClientWidth = 820
-            Font.Color = clWindowText
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            ParentFont = False
-            TabOrder = 0
-            object chkCruiseNOTPlatform: TCheckBox
-              Left = 24
-              Height = 29
-              Top = 16
-              Width = 125
-              Caption = 'NOT Platform'
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentFont = False
-              TabOrder = 0
-            end
-            object chkCruiseNOTCountry: TCheckBox
-              Left = 24
-              Height = 29
-              Top = 56
-              Width = 121
-              Caption = 'NOT Country'
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentFont = False
-              TabOrder = 1
-            end
-            object chkCruiseNOTSource: TCheckBox
-              Left = 24
-              Height = 29
-              Top = 99
-              Width = 117
-              Caption = 'NOT Source'
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentFont = False
-              TabOrder = 2
-            end
-            object chkCruiseNOTInstitute: TCheckBox
-              Left = 24
-              Height = 29
-              Top = 141
-              Width = 124
-              Caption = 'NOT Institute'
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentFont = False
-              TabOrder = 3
-            end
-            object chkCruiseNOTProject: TCheckBox
-              Left = 24
-              Height = 29
-              Top = 183
-              Width = 115
-              Caption = 'NOT Project'
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentFont = False
-              TabOrder = 4
-            end
-            object cbCruisePlatform: TCheckComboBox
-              Left = 168
-              Height = 26
-              Top = 16
-              Width = 624
-              DropDownCount = 12
-              ItemHeight = 20
-              TabOrder = 5
-            end
-            object cbCruiseCountry: TCheckComboBox
-              Left = 168
-              Height = 26
-              Top = 56
-              Width = 624
-              DropDownCount = 12
-              ItemHeight = 20
-              TabOrder = 6
-            end
-            object cbCruiseSource: TCheckComboBox
-              Left = 168
-              Height = 26
-              Top = 99
-              Width = 624
-              DropDownCount = 12
-              ItemHeight = 20
-              TabOrder = 7
-            end
-            object cbCruiseInstitute: TCheckComboBox
-              Left = 168
-              Height = 26
-              Top = 141
-              Width = 624
-              DropDownCount = 12
-              ItemHeight = 20
-              TabOrder = 8
-            end
-            object cbCruiseProject: TCheckComboBox
-              Left = 168
-              Height = 26
-              Top = 183
-              Width = 624
-              DropDownCount = 12
-              ItemHeight = 20
-              TabOrder = 9
-            end
-          end
-          object GroupBox7: TGroupBox
-            Left = 1136
-            Height = 136
-            Top = 192
-            Width = 200
-            Caption = 'Cruise ID range'
-            ClientHeight = 111
-            ClientWidth = 196
-            Font.Color = clWindowText
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            ParentFont = False
-            TabOrder = 1
-            object seCruiseIDMin: TSpinEdit
-              Left = 24
-              Height = 28
-              Top = 16
-              Width = 152
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              MaxValue = 100000000
-              MinValue = 1
-              ParentFont = False
-              TabOrder = 0
-              Value = 1
-            end
-            object seCruiseIDMax: TSpinEdit
-              Left = 24
-              Height = 28
-              Top = 56
-              Width = 152
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              MaxValue = 100000000
-              MinValue = 1
-              ParentFont = False
-              TabOrder = 1
-              Value = 1
-            end
-          end
-          object GroupBox8: TGroupBox
-            Left = 872
-            Height = 136
-            Top = 16
-            Width = 240
-            Caption = 'Date and time (total)'
-            ClientHeight = 111
-            ClientWidth = 236
-            Font.Color = clWindowText
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            ParentFont = False
-            TabOrder = 2
-            object dtpCruiseDateMin: TDateTimePicker
-              Left = 24
-              Height = 28
-              Top = 16
-              Width = 194
-              CenturyFrom = 1941
-              MaxDate = 2958465
-              MinDate = -53780
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentFont = False
-              TabOrder = 0
-              TrailingSeparator = False
-              TextForNullDate = 'NULL'
-              LeadingZeros = True
-              Kind = dtkDateTime
-              TimeFormat = tf24
-              TimeDisplay = tdHMS
-              DateMode = dmComboBox
-              Date = 43775
-              Time = 0.527798784722108
-              UseDefaultSeparators = True
-              HideDateTimeParts = []
-              MonthNames = 'Long'
-            end
-            object dtpCruiseDateMax: TDateTimePicker
-              Left = 24
-              Height = 28
-              Top = 56
-              Width = 194
-              CenturyFrom = 1941
-              MaxDate = 2958465
-              MinDate = -53780
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentFont = False
-              TabOrder = 1
-              TrailingSeparator = False
-              TextForNullDate = 'NULL'
-              LeadingZeros = True
-              Kind = dtkDateTime
-              TimeFormat = tf24
-              TimeDisplay = tdHMS
-              DateMode = dmComboBox
-              Date = 43775
-              Time = 0.527798784722108
-              UseDefaultSeparators = True
-              HideDateTimeParts = []
-              MonthNames = 'Long'
-            end
-          end
-          object GroupBox9: TGroupBox
-            Left = 872
-            Height = 128
-            Top = 192
-            Width = 240
-            Caption = 'Added to database'
-            ClientHeight = 103
-            ClientWidth = 236
-            Font.Color = clWindowText
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            ParentFont = False
-            TabOrder = 3
-            object dtpCruiseDateAddedMax: TDateTimePicker
-              Left = 24
-              Height = 28
-              Top = 56
-              Width = 194
-              CenturyFrom = 1941
-              MaxDate = 2958465
-              MinDate = -53780
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentFont = False
-              TabOrder = 0
-              TrailingSeparator = False
-              TextForNullDate = 'NULL'
-              LeadingZeros = True
-              Kind = dtkDateTime
-              TimeFormat = tf24
-              TimeDisplay = tdHMS
-              DateMode = dmComboBox
-              Date = 43775
-              Time = 0.527798784722108
-              UseDefaultSeparators = True
-              HideDateTimeParts = []
-              MonthNames = 'Long'
-            end
-            object dtpCruiseDateAddedMin: TDateTimePicker
-              Left = 24
-              Height = 28
-              Top = 14
-              Width = 194
-              CenturyFrom = 1941
-              MaxDate = 2958465
-              MinDate = -53780
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentFont = False
-              TabOrder = 1
-              TrailingSeparator = False
-              TextForNullDate = 'NULL'
-              LeadingZeros = True
-              Kind = dtkDateTime
-              TimeFormat = tf24
-              TimeDisplay = tdHMS
-              DateMode = dmComboBox
-              Date = 43775
-              Time = 0.527798784722108
-              UseDefaultSeparators = True
-              HideDateTimeParts = []
-              MonthNames = 'Long'
-            end
-          end
-          object GroupBox10: TGroupBox
-            Left = 872
-            Height = 128
-            Top = 328
-            Width = 240
-            Caption = 'Updated'
-            ClientHeight = 103
-            ClientWidth = 236
-            Font.Color = clWindowText
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            ParentFont = False
-            TabOrder = 4
-            object dtpCruiseDateUpdatedMax: TDateTimePicker
-              Left = 24
-              Height = 28
-              Top = 56
-              Width = 194
-              CenturyFrom = 1941
-              MaxDate = 2958465
-              MinDate = -53780
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentFont = False
-              TabOrder = 0
-              TrailingSeparator = False
-              TextForNullDate = 'NULL'
-              LeadingZeros = True
-              Kind = dtkDateTime
-              TimeFormat = tf24
-              TimeDisplay = tdHMS
-              DateMode = dmComboBox
-              Date = 43775
-              Time = 0.527798784722108
-              UseDefaultSeparators = True
-              HideDateTimeParts = []
-              MonthNames = 'Long'
-            end
-            object dtpCruiseDateUpdatedMin: TDateTimePicker
-              Left = 24
-              Height = 28
-              Top = 14
-              Width = 194
-              CenturyFrom = 1941
-              MaxDate = 2958465
-              MinDate = -53780
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentFont = False
-              TabOrder = 1
-              TrailingSeparator = False
-              TextForNullDate = 'NULL'
-              LeadingZeros = True
-              Kind = dtkDateTime
-              TimeFormat = tf24
-              TimeDisplay = tdHMS
-              DateMode = dmComboBox
-              Date = 43775
-              Time = 0.527798784722108
-              UseDefaultSeparators = True
-              HideDateTimeParts = []
-              MonthNames = 'Long'
-            end
-          end
-          object btnSelectCruises: TButton
-            Left = 1136
-            Height = 57
-            Top = 24
-            Width = 200
-            Caption = 'Select Cruises'
-            Font.Color = clWindowText
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            OnClick = btnSelectCruisesClick
-            ParentFont = False
-            TabOrder = 5
-          end
-          object lbResetSearchCruises: TLabel
-            Cursor = crHandPoint
-            Left = 1017
-            Height = 20
-            Top = 160
-            Width = 95
-            Caption = 'Reset search'
-            Font.Color = clBlue
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsUnderline]
-            ParentColor = False
-            ParentFont = False
-            OnClick = lbResetSearchCruisesClick
-          end
-          object GroupBox11: TGroupBox
-            Left = 464
-            Height = 168
-            Top = 16
-            Width = 384
-            Caption = 'Stations'
-            ClientHeight = 143
-            ClientWidth = 380
-            Font.Color = clWindowText
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            ParentFont = False
-            TabOrder = 6
-            object seCruiseStationsTotalMin: TSpinEdit
-              Left = 120
-              Height = 28
-              Top = 16
-              Width = 104
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              MaxValue = 100000000
-              ParentFont = False
-              TabOrder = 0
-            end
-            object seCruiseStationsDatabaseMin: TSpinEdit
-              Left = 120
-              Height = 28
-              Top = 56
-              Width = 104
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              MaxValue = 100000000
-              ParentFont = False
-              TabOrder = 1
-            end
-            object Label1: TLabel
-              Left = 16
-              Height = 20
-              Top = 24
-              Width = 35
-              Caption = 'Total'
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentColor = False
-              ParentFont = False
-            end
-            object Label2: TLabel
-              Left = 16
-              Height = 20
-              Top = 64
-              Width = 70
-              Caption = 'Database'
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentColor = False
-              ParentFont = False
-            end
-            object Label3: TLabel
-              Left = 16
-              Height = 20
-              Top = 104
-              Width = 75
-              Caption = 'Duplicates'
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              ParentColor = False
-              ParentFont = False
-            end
-            object seCruiseStationsDuplicateMin: TSpinEdit
-              Left = 120
-              Height = 28
-              Top = 96
-              Width = 104
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              MaxValue = 100000000
-              ParentFont = False
-              TabOrder = 2
-            end
-            object seCruiseStationsTotalMax: TSpinEdit
-              Left = 248
-              Height = 28
-              Top = 16
-              Width = 104
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              MaxValue = 100000000
-              ParentFont = False
-              TabOrder = 3
-              Value = 3
-            end
-            object seCruiseStationsDatabaseMax: TSpinEdit
-              Left = 248
-              Height = 28
-              Top = 56
-              Width = 104
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              MaxValue = 100000000
-              ParentFont = False
-              TabOrder = 4
-              Value = 3
-            end
-            object seCruiseStationsDuplicateMax: TSpinEdit
-              Left = 248
-              Height = 28
-              Top = 96
-              Width = 104
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              MaxValue = 100000000
-              ParentFont = False
-              TabOrder = 5
-              Value = 3
-            end
-          end
-          object GroupBox12: TGroupBox
-            Left = 24
-            Height = 168
-            Top = 16
-            Width = 416
-            Caption = 'Region'
-            ClientHeight = 143
-            ClientWidth = 412
-            Font.Color = clWindowText
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            ParentFont = False
-            TabOrder = 7
-            object seCruiseLonMin: TFloatSpinEdit
-              Left = 22
-              Height = 28
-              Top = 56
-              Width = 123
-              Alignment = taCenter
-              DecimalPlaces = 5
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              MaxValue = 180
-              MinValue = -180
-              ParentFont = False
-              TabOrder = 0
-              Value = -180
-            end
-            object seCruiseLonMax: TFloatSpinEdit
-              Left = 266
-              Height = 28
-              Top = 56
-              Width = 123
-              Alignment = taCenter
-              DecimalPlaces = 5
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              MaxValue = 180
-              MinValue = -180
-              ParentFont = False
-              TabOrder = 1
-              Value = 180
-            end
-            object seCruiseLatMax: TFloatSpinEdit
-              Left = 144
-              Height = 28
-              Top = 16
-              Width = 123
-              Alignment = taCenter
-              DecimalPlaces = 5
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              MaxValue = 90
-              MinValue = -90
-              ParentFont = False
-              TabOrder = 2
-              Value = 90
-            end
-            object seCruiseLatMin: TFloatSpinEdit
-              Left = 144
-              Height = 28
-              Top = 96
-              Width = 123
-              Alignment = taCenter
-              DecimalPlaces = 5
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              MaxValue = 90
-              MinValue = -90
-              ParentFont = False
-              TabOrder = 3
-              Value = -90
-            end
-          end
+        object chkCruiseNOTPlatform: TCheckBox
+          Left = 24
+          Height = 29
+          Top = 16
+          Width = 125
+          Caption = 'NOT Platform'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
         end
-        object tsCruiseResults: TTabSheet
-          Caption = 'Selected cruises'
-          ClientHeight = 530
-          ClientWidth = 1364
-          TabVisible = False
-          object pCruiseGrid: TPanel
-            Left = 0
-            Height = 464
-            Top = 0
-            Width = 1364
-            Align = alClient
-            BevelOuter = bvNone
-            ClientHeight = 464
-            ClientWidth = 1364
-            TabOrder = 0
-            object DBGridCruise1: TDBGrid
-              Left = 0
-              Height = 253
-              Top = 33
-              Width = 1364
-              Align = alClient
-              AlternateColor = 13631478
-              AutoAdvance = aaNone
-              Color = 13627366
-              Columns = <              
-                item
-                  ButtonStyle = cbsCheckboxColumn
-                  Title.Caption = ''
-                  Width = 40
-                end              
-                item
-                  Title.Caption = 'Cruise ID'
-                  FieldName = 'ID'
-                end              
-                item
-                  Title.Caption = 'Platform'
-                  FieldName = 'PLATFORM'
-                end              
-                item
-                  Title.Caption = 'Cruise #'
-                  FieldName = 'CRUISE_NUMBER'
-                end              
-                item
-                  Title.Caption = 'Source'
-                  FieldName = 'SOURCE'
-                end              
-                item
-                  Title.Caption = 'Min date total'
-                  FieldName = 'DATE_START_TOTAL'
-                  DisplayFormat = 'DD.MM.YYYY'
-                end              
-                item
-                  Title.Caption = 'Min date DB'
-                  FieldName = 'DATE_START_DATABASE'
-                  DisplayFormat = 'DD.MM.YYYY'
-                end              
-                item
-                  Title.Caption = 'Max date total'
-                  FieldName = 'DATE_END_TOTAL'
-                  DisplayFormat = 'DD.MM.YYYY'
-                end              
-                item
-                  Title.Caption = 'Max date DB'
-                  FieldName = 'DATE_END_DATABASE'
-                  DisplayFormat = 'DD.MM.YYYY'
-                end              
-                item
-                  Title.Caption = 'St. total'
-                  FieldName = 'STATIONS_TOTAL'
-                end              
-                item
-                  Title.Caption = 'St. DB'
-                  FieldName = 'STATIONS_DATABASE'
-                end              
-                item
-                  Title.Caption = 'St. dup'
-                  FieldName = 'STATIONS_DUPLICATES'
-                end>
-              DataSource = frmdm.DSCruise
-              FixedCols = 0
-              Flat = True
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
-              ParentFont = False
-              PopupMenu = PMCruise
-              Scrollbars = ssAutoBoth
-              TabOrder = 0
-              TitleFont.Color = clWindowText
-              TitleFont.Height = -17
-              TitleFont.Name = 'MS Sans Serif'
-              TitleImageList = frmicons.IL1
-              TitleStyle = tsStandard
-              OnCellClick = DBGridCruise1CellClick
-              OnColumnSized = DBGridCruise1ColumnSized
-              OnEditingDone = DBGridCruise1EditingDone
-              OnPrepareCanvas = DBGridCruise1PrepareCanvas
-              OnSelectEditor = DBGridCruise1SelectEditor
-              OnTitleClick = DBGridCruise1TitleClick
-              OnUserCheckboxState = DBGridCruise1UserCheckboxState
-            end
-            object Splitter4: TSplitter
-              Cursor = crVSplit
-              Left = 0
-              Height = 8
-              Top = 286
-              Width = 1364
-              Align = alBottom
-              ResizeAnchor = akBottom
-            end
-            object tbCruise: TToolBar
-              Left = 0
-              Height = 33
-              Top = 0
-              Width = 1364
-              AutoSize = True
-              ButtonHeight = 33
-              ButtonWidth = 50
-              Caption = 'tbCruise'
-              EdgeBorders = []
-              Images = frmicons.IL1
-              List = True
-              ShowCaptions = True
-              TabOrder = 2
-              Wrapable = False
-              object btnSaveCruise: TToolButton
-                Left = 56
-                Hint = 'Save changes'
-                Top = 0
-                AutoSize = True
-                Caption = 'Save'
-                Enabled = False
-                ImageIndex = 940
-                OnClick = btnSaveCruiseClick
-                ParentShowHint = False
-                ShowHint = True
-              end
-              object btnAddCruise: TToolButton
-                Left = 1
-                Hint = 'Add new cruise'
-                Top = 0
-                AutoSize = True
-                Caption = 'Add new cruise'
-                ImageIndex = 1
-                OnClick = btnAddCruiseClick
-                ParentShowHint = False
-                ShowCaption = False
-                ShowHint = True
-              end
-              object ToolButton8: TToolButton
-                Left = 51
-                Height = 5
-                Top = 0
-                Caption = 'ToolButton8'
-                Style = tbsDivider
-              end
-              object pCruiseFiller: TPanel
-                Left = 152
-                Height = 33
-                Top = -1
-                Width = 455
-                Align = alLeft
-                BevelOuter = bvNone
-                TabOrder = 0
-              end
-            end
-            object DBGridCruise2: TDBGrid
-              Left = 0
-              Height = 170
-              Top = 294
-              Width = 1364
-              Align = alBottom
-              AlternateColor = 13631478
-              AutoAdvance = aaNone
-              Color = 13627366
-              Columns = <              
-                item
-                  ReadOnly = True
-                  Title.Caption = 'Country'
-                  FieldName = 'COUNTRY'
-                end              
-                item
-                  ButtonStyle = cbsPickList
-                  DropDownRows = 20
-                  MinSize = 15
-                  MaxSize = 300
-                  Title.Caption = 'Institute'
-                  FieldName = 'INSTITUTE'
-                end              
-                item
-                  ButtonStyle = cbsPickList
-                  DropDownRows = 20
-                  MinSize = 15
-                  MaxSize = 300
-                  Title.Caption = 'Project'
-                  FieldName = 'PROJECT'
-                end              
-                item
-                  MinSize = 15
-                  MaxSize = 300
-                  Title.Caption = 'PI'
-                  FieldName = 'PI'
-                end              
-                item
-                  Title.Caption = 'Expocode'
-                  FieldName = 'EXPOCODE'
-                end              
-                item
-                  Title.Caption = 'Lat min'
-                  FieldName = 'LATITUDE_MIN'
-                end              
-                item
-                  Title.Caption = 'Lat max'
-                  FieldName = 'LATITUDE_MAX'
-                end              
-                item
-                  Title.Caption = 'Lon min'
-                  FieldName = 'LONGITUDE_MIN'
-                end              
-                item
-                  Title.Caption = 'Lon max'
-                  FieldName = 'LONGITUDE_MAX'
-                end              
-                item
-                  ReadOnly = True
-                  Title.Caption = 'Added'
-                  FieldName = 'DATE_ADDED'
-                  DisplayFormat = 'DD.MM.YYYY'
-                end              
-                item
-                  ReadOnly = True
-                  Title.Caption = 'Updated'
-                  FieldName = 'DATE_UPDATED'
-                  DisplayFormat = 'DD.MM.YYYY'
-                end>
-              DataSource = frmdm.DSCruise
-              FixedCols = 0
-              Flat = True
-              Font.Color = clWindowText
-              Font.Height = -17
-              Font.Name = 'MS Sans Serif'
-              Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
-              ParentFont = False
-              PopupMenu = PMCruise
-              Scrollbars = ssAutoBoth
-              TabOrder = 3
-              TitleFont.Color = clWindowText
-              TitleFont.Height = -17
-              TitleFont.Name = 'MS Sans Serif'
-              TitleImageList = frmicons.IL1
-              TitleStyle = tsStandard
-              OnCellClick = DBGridCruise1CellClick
-              OnColumnSized = DBGridCruise1ColumnSized
-              OnEditingDone = DBGridCruise2EditingDone
-              OnPrepareCanvas = DBGridCruise1PrepareCanvas
-              OnSelectEditor = DBGridCruise2SelectEditor
-              OnTitleClick = DBGridCruise2TitleClick
-            end
-          end
-          object DBMemoCruises: TDBMemo
-            Left = 0
-            Height = 66
-            Top = 464
-            Width = 1364
-            Align = alBottom
-            DataField = 'NOTES'
-            DataSource = frmdm.DSCruise
-            Font.Color = clWindowText
-            Font.Height = -17
-            Font.Name = 'MS Sans Serif'
-            ParentFont = False
-            ScrollBars = ssBoth
-            TabOrder = 1
-          end
+        object chkCruiseNOTCountry: TCheckBox
+          Left = 24
+          Height = 29
+          Top = 56
+          Width = 121
+          Caption = 'NOT Country'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 1
         end
+        object chkCruiseNOTSource: TCheckBox
+          Left = 24
+          Height = 29
+          Top = 99
+          Width = 117
+          Caption = 'NOT Source'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 2
+        end
+        object chkCruiseNOTInstitute: TCheckBox
+          Left = 24
+          Height = 29
+          Top = 141
+          Width = 124
+          Caption = 'NOT Institute'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 3
+        end
+        object chkCruiseNOTProject: TCheckBox
+          Left = 24
+          Height = 29
+          Top = 183
+          Width = 115
+          Caption = 'NOT Project'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 4
+        end
+        object cbCruisePlatform: TCheckComboBox
+          Left = 168
+          Height = 26
+          Top = 16
+          Width = 624
+          DropDownCount = 12
+          ItemHeight = 20
+          TabOrder = 5
+        end
+        object cbCruiseCountry: TCheckComboBox
+          Left = 168
+          Height = 26
+          Top = 56
+          Width = 624
+          DropDownCount = 12
+          ItemHeight = 20
+          TabOrder = 6
+        end
+        object cbCruiseSource: TCheckComboBox
+          Left = 168
+          Height = 26
+          Top = 99
+          Width = 624
+          DropDownCount = 12
+          ItemHeight = 20
+          TabOrder = 7
+        end
+        object cbCruiseInstitute: TCheckComboBox
+          Left = 168
+          Height = 26
+          Top = 141
+          Width = 624
+          DropDownCount = 12
+          ItemHeight = 20
+          TabOrder = 8
+        end
+        object cbCruiseProject: TCheckComboBox
+          Left = 168
+          Height = 26
+          Top = 183
+          Width = 624
+          DropDownCount = 12
+          ItemHeight = 20
+          TabOrder = 9
+        end
+      end
+      object GroupBox7: TGroupBox
+        Left = 1136
+        Height = 136
+        Top = 192
+        Width = 200
+        Caption = 'Cruise ID range'
+        ClientHeight = 111
+        ClientWidth = 196
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+        object seCruiseIDMin: TSpinEdit
+          Left = 24
+          Height = 28
+          Top = 16
+          Width = 152
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 100000000
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 0
+          Value = 1
+        end
+        object seCruiseIDMax: TSpinEdit
+          Left = 24
+          Height = 28
+          Top = 56
+          Width = 152
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 100000000
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 1
+          Value = 1
+        end
+      end
+      object GroupBox8: TGroupBox
+        Left = 872
+        Height = 136
+        Top = 16
+        Width = 240
+        Caption = 'Date and time (total)'
+        ClientHeight = 111
+        ClientWidth = 236
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+        object dtpCruiseDateMin: TDateTimePicker
+          Left = 24
+          Height = 28
+          Top = 16
+          Width = 194
+          CenturyFrom = 1941
+          MaxDate = 2958465
+          MinDate = -53780
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
+          TrailingSeparator = False
+          TextForNullDate = 'NULL'
+          LeadingZeros = True
+          Kind = dtkDateTime
+          TimeFormat = tf24
+          TimeDisplay = tdHMS
+          DateMode = dmComboBox
+          Date = 43775
+          Time = 0.527798784722108
+          UseDefaultSeparators = True
+          HideDateTimeParts = []
+          MonthNames = 'Long'
+        end
+        object dtpCruiseDateMax: TDateTimePicker
+          Left = 24
+          Height = 28
+          Top = 56
+          Width = 194
+          CenturyFrom = 1941
+          MaxDate = 2958465
+          MinDate = -53780
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 1
+          TrailingSeparator = False
+          TextForNullDate = 'NULL'
+          LeadingZeros = True
+          Kind = dtkDateTime
+          TimeFormat = tf24
+          TimeDisplay = tdHMS
+          DateMode = dmComboBox
+          Date = 43775
+          Time = 0.527798784722108
+          UseDefaultSeparators = True
+          HideDateTimeParts = []
+          MonthNames = 'Long'
+        end
+      end
+      object GroupBox9: TGroupBox
+        Left = 872
+        Height = 128
+        Top = 192
+        Width = 240
+        Caption = 'Added to database'
+        ClientHeight = 103
+        ClientWidth = 236
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 3
+        object dtpCruiseDateAddedMax: TDateTimePicker
+          Left = 24
+          Height = 28
+          Top = 56
+          Width = 194
+          CenturyFrom = 1941
+          MaxDate = 2958465
+          MinDate = -53780
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
+          TrailingSeparator = False
+          TextForNullDate = 'NULL'
+          LeadingZeros = True
+          Kind = dtkDateTime
+          TimeFormat = tf24
+          TimeDisplay = tdHMS
+          DateMode = dmComboBox
+          Date = 43775
+          Time = 0.527798784722108
+          UseDefaultSeparators = True
+          HideDateTimeParts = []
+          MonthNames = 'Long'
+        end
+        object dtpCruiseDateAddedMin: TDateTimePicker
+          Left = 24
+          Height = 28
+          Top = 14
+          Width = 194
+          CenturyFrom = 1941
+          MaxDate = 2958465
+          MinDate = -53780
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 1
+          TrailingSeparator = False
+          TextForNullDate = 'NULL'
+          LeadingZeros = True
+          Kind = dtkDateTime
+          TimeFormat = tf24
+          TimeDisplay = tdHMS
+          DateMode = dmComboBox
+          Date = 43775
+          Time = 0.527798784722108
+          UseDefaultSeparators = True
+          HideDateTimeParts = []
+          MonthNames = 'Long'
+        end
+      end
+      object GroupBox10: TGroupBox
+        Left = 872
+        Height = 128
+        Top = 328
+        Width = 240
+        Caption = 'Updated'
+        ClientHeight = 103
+        ClientWidth = 236
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 4
+        object dtpCruiseDateUpdatedMax: TDateTimePicker
+          Left = 24
+          Height = 28
+          Top = 56
+          Width = 194
+          CenturyFrom = 1941
+          MaxDate = 2958465
+          MinDate = -53780
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
+          TrailingSeparator = False
+          TextForNullDate = 'NULL'
+          LeadingZeros = True
+          Kind = dtkDateTime
+          TimeFormat = tf24
+          TimeDisplay = tdHMS
+          DateMode = dmComboBox
+          Date = 43775
+          Time = 0.527798784722108
+          UseDefaultSeparators = True
+          HideDateTimeParts = []
+          MonthNames = 'Long'
+        end
+        object dtpCruiseDateUpdatedMin: TDateTimePicker
+          Left = 24
+          Height = 28
+          Top = 14
+          Width = 194
+          CenturyFrom = 1941
+          MaxDate = 2958465
+          MinDate = -53780
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 1
+          TrailingSeparator = False
+          TextForNullDate = 'NULL'
+          LeadingZeros = True
+          Kind = dtkDateTime
+          TimeFormat = tf24
+          TimeDisplay = tdHMS
+          DateMode = dmComboBox
+          Date = 43775
+          Time = 0.527798784722108
+          UseDefaultSeparators = True
+          HideDateTimeParts = []
+          MonthNames = 'Long'
+        end
+      end
+      object GroupBox12: TGroupBox
+        Left = 24
+        Height = 168
+        Top = 16
+        Width = 416
+        Caption = 'Region'
+        ClientHeight = 143
+        ClientWidth = 412
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 5
+        object seCruiseLonMin: TFloatSpinEdit
+          Left = 22
+          Height = 28
+          Top = 56
+          Width = 123
+          Alignment = taCenter
+          DecimalPlaces = 5
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 180
+          MinValue = -180
+          ParentFont = False
+          TabOrder = 0
+          Value = -180
+        end
+        object seCruiseLonMax: TFloatSpinEdit
+          Left = 266
+          Height = 28
+          Top = 56
+          Width = 123
+          Alignment = taCenter
+          DecimalPlaces = 5
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 180
+          MinValue = -180
+          ParentFont = False
+          TabOrder = 1
+          Value = 180
+        end
+        object seCruiseLatMax: TFloatSpinEdit
+          Left = 144
+          Height = 28
+          Top = 16
+          Width = 123
+          Alignment = taCenter
+          DecimalPlaces = 5
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 90
+          MinValue = -90
+          ParentFont = False
+          TabOrder = 2
+          Value = 90
+        end
+        object seCruiseLatMin: TFloatSpinEdit
+          Left = 144
+          Height = 28
+          Top = 96
+          Width = 123
+          Alignment = taCenter
+          DecimalPlaces = 5
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 90
+          MinValue = -90
+          ParentFont = False
+          TabOrder = 3
+          Value = -90
+        end
+      end
+      object GroupBox11: TGroupBox
+        Left = 464
+        Height = 168
+        Top = 16
+        Width = 384
+        Caption = 'Stations'
+        ClientHeight = 143
+        ClientWidth = 380
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 6
+        object seCruiseStationsTotalMin: TSpinEdit
+          Left = 120
+          Height = 28
+          Top = 16
+          Width = 104
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 100000000
+          ParentFont = False
+          TabOrder = 0
+        end
+        object seCruiseStationsDatabaseMin: TSpinEdit
+          Left = 120
+          Height = 28
+          Top = 56
+          Width = 104
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 100000000
+          ParentFont = False
+          TabOrder = 1
+        end
+        object Label1: TLabel
+          Left = 16
+          Height = 20
+          Top = 24
+          Width = 35
+          Caption = 'Total'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label2: TLabel
+          Left = 16
+          Height = 20
+          Top = 64
+          Width = 70
+          Caption = 'Database'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label3: TLabel
+          Left = 16
+          Height = 20
+          Top = 104
+          Width = 75
+          Caption = 'Duplicates'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentColor = False
+          ParentFont = False
+        end
+        object seCruiseStationsDuplicateMin: TSpinEdit
+          Left = 120
+          Height = 28
+          Top = 96
+          Width = 104
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 100000000
+          ParentFont = False
+          TabOrder = 2
+        end
+        object seCruiseStationsTotalMax: TSpinEdit
+          Left = 248
+          Height = 28
+          Top = 16
+          Width = 104
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 100000000
+          ParentFont = False
+          TabOrder = 3
+          Value = 3
+        end
+        object seCruiseStationsDatabaseMax: TSpinEdit
+          Left = 248
+          Height = 28
+          Top = 56
+          Width = 104
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 100000000
+          ParentFont = False
+          TabOrder = 4
+          Value = 3
+        end
+        object seCruiseStationsDuplicateMax: TSpinEdit
+          Left = 248
+          Height = 28
+          Top = 96
+          Width = 104
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 100000000
+          ParentFont = False
+          TabOrder = 5
+          Value = 3
+        end
+      end
+      object btnSelectCruises: TButton
+        Left = 1136
+        Height = 57
+        Top = 24
+        Width = 200
+        Caption = 'Select Cruises'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        OnClick = btnSelectCruisesClick
+        ParentFont = False
+        TabOrder = 7
+      end
+      object lbResetSearchCruises: TLabel
+        Cursor = crHandPoint
+        Left = 1017
+        Height = 20
+        Top = 160
+        Width = 95
+        Caption = 'Reset search'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = lbResetSearchCruisesClick
       end
     end
     object tsMainEntries: TTabSheet
       Caption = 'Entry search'
       ClientHeight = 563
-      ClientWidth = 1372
+      ClientWidth = 1374
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -1612,7 +1334,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 531
         Top = 32
-        Width = 1058
+        Width = 1060
         Align = alClient
         AlternateColor = 13631478
         AutoAdvance = aaNone
@@ -1679,7 +1401,7 @@ object frmosmain: Tfrmosmain
         OnUserCheckboxState = DBGridEntryUserCheckboxState
       end
       object DBMemoEntriy: TDBMemo
-        Left = 1066
+        Left = 1068
         Height = 531
         Top = 32
         Width = 306
@@ -1694,7 +1416,7 @@ object frmosmain: Tfrmosmain
         TabOrder = 1
       end
       object Splitter2: TSplitter
-        Left = 1058
+        Left = 1060
         Height = 531
         Top = 32
         Width = 8
@@ -1706,11 +1428,11 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 32
         Top = 0
-        Width = 1372
+        Width = 1374
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 32
-        ClientWidth = 1372
+        ClientWidth = 1374
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -1763,7 +1485,7 @@ object frmosmain: Tfrmosmain
         object ToolBar2: TToolBar
           Left = 288
           Top = 0
-          Width = 1084
+          Width = 1086
           Align = alClient
           AutoSize = True
           ButtonHeight = 33
@@ -1807,7 +1529,284 @@ object frmosmain: Tfrmosmain
         end
       end
     end
-    object tsMetadata: TTabSheet
+    object tsSelectedCruises: TTabSheet
+      Caption = 'Selected cruises'
+      ClientHeight = 563
+      ClientWidth = 1374
+      TabVisible = False
+      object tbCruise: TToolBar
+        Left = 0
+        Height = 33
+        Top = 0
+        Width = 1374
+        AutoSize = True
+        ButtonHeight = 33
+        ButtonWidth = 50
+        Caption = 'tbCruise'
+        EdgeBorders = []
+        Images = frmicons.IL1
+        List = True
+        ShowCaptions = True
+        TabOrder = 0
+        Wrapable = False
+        object btnSaveCruise: TToolButton
+          Left = 56
+          Hint = 'Save changes'
+          Top = 0
+          AutoSize = True
+          Caption = 'Save'
+          Enabled = False
+          ImageIndex = 940
+          OnClick = btnSaveCruiseClick
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object btnAddCruise: TToolButton
+          Left = 1
+          Hint = 'Add new cruise'
+          Top = 0
+          AutoSize = True
+          Caption = 'Add new cruise'
+          ImageIndex = 1
+          OnClick = btnAddCruiseClick
+          ParentShowHint = False
+          ShowCaption = False
+          ShowHint = True
+        end
+        object ToolButton8: TToolButton
+          Left = 51
+          Height = 5
+          Top = 0
+          Caption = 'ToolButton8'
+          Style = tbsDivider
+        end
+        object pCruiseFiller: TPanel
+          Left = 152
+          Height = 33
+          Top = -1
+          Width = 455
+          Align = alLeft
+          BevelOuter = bvNone
+          TabOrder = 0
+        end
+      end
+      object pCruiseGrid: TPanel
+        Left = 0
+        Height = 464
+        Top = 33
+        Width = 1374
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 464
+        ClientWidth = 1374
+        TabOrder = 1
+        object DBGridCruise1: TDBGrid
+          Left = 0
+          Height = 286
+          Top = 0
+          Width = 1374
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              ButtonStyle = cbsCheckboxColumn
+              Title.Caption = ''
+              Width = 40
+              FieldName = 'SELECTED'
+            end          
+            item
+              Title.Caption = 'Cruise ID'
+              FieldName = 'ID'
+            end          
+            item
+              Title.Caption = 'Platform'
+              FieldName = 'PLATFORM'
+            end          
+            item
+              Title.Caption = 'Cruise #'
+              FieldName = 'CRUISE_NUMBER'
+            end          
+            item
+              Title.Caption = 'Source'
+              FieldName = 'SOURCE'
+            end          
+            item
+              Title.Caption = 'Min date total'
+              FieldName = 'DATE_START_TOTAL'
+              DisplayFormat = 'DD.MM.YYYY'
+            end          
+            item
+              Title.Caption = 'Min date DB'
+              FieldName = 'DATE_START_DATABASE'
+              DisplayFormat = 'DD.MM.YYYY'
+            end          
+            item
+              Title.Caption = 'Max date total'
+              FieldName = 'DATE_END_TOTAL'
+              DisplayFormat = 'DD.MM.YYYY'
+            end          
+            item
+              Title.Caption = 'Max date DB'
+              FieldName = 'DATE_END_DATABASE'
+              DisplayFormat = 'DD.MM.YYYY'
+            end          
+            item
+              Title.Caption = 'St. total'
+              FieldName = 'STATIONS_TOTAL'
+            end          
+            item
+              Title.Caption = 'St. DB'
+              FieldName = 'STATIONS_DATABASE'
+            end          
+            item
+              Title.Caption = 'St. dup'
+              FieldName = 'STATIONS_DUPLICATES'
+            end>
+          DataSource = frmdm.DSCruise
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          PopupMenu = PMCruise
+          Scrollbars = ssAutoBoth
+          TabOrder = 0
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          TitleImageList = frmicons.IL1
+          TitleStyle = tsStandard
+          OnCellClick = DBGridCruise1CellClick
+          OnColumnSized = DBGridCruise1ColumnSized
+          OnEditingDone = DBGridCruise1EditingDone
+          OnPrepareCanvas = DBGridCruise1PrepareCanvas
+          OnSelectEditor = DBGridCruise1SelectEditor
+          OnTitleClick = DBGridCruise1TitleClick
+          OnUserCheckboxState = DBGridCruise1UserCheckboxState
+        end
+        object Splitter4: TSplitter
+          Cursor = crVSplit
+          Left = 0
+          Height = 8
+          Top = 286
+          Width = 1374
+          Align = alBottom
+          ResizeAnchor = akBottom
+        end
+        object DBGridCruise2: TDBGrid
+          Left = 0
+          Height = 170
+          Top = 294
+          Width = 1374
+          Align = alBottom
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              ReadOnly = True
+              Title.Caption = 'Country'
+              FieldName = 'COUNTRY'
+            end          
+            item
+              ButtonStyle = cbsPickList
+              DropDownRows = 20
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Institute'
+              FieldName = 'INSTITUTE'
+            end          
+            item
+              ButtonStyle = cbsPickList
+              DropDownRows = 20
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Project'
+              FieldName = 'PROJECT'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'PI'
+              FieldName = 'PI'
+            end          
+            item
+              Title.Caption = 'Expocode'
+              FieldName = 'EXPOCODE'
+            end          
+            item
+              Title.Caption = 'Lat min'
+              FieldName = 'LATITUDE_MIN'
+            end          
+            item
+              Title.Caption = 'Lat max'
+              FieldName = 'LATITUDE_MAX'
+            end          
+            item
+              Title.Caption = 'Lon min'
+              FieldName = 'LONGITUDE_MIN'
+            end          
+            item
+              Title.Caption = 'Lon max'
+              FieldName = 'LONGITUDE_MAX'
+            end          
+            item
+              ReadOnly = True
+              Title.Caption = 'Added'
+              FieldName = 'DATE_ADDED'
+              DisplayFormat = 'DD.MM.YYYY'
+            end          
+            item
+              ReadOnly = True
+              Title.Caption = 'Updated'
+              FieldName = 'DATE_UPDATED'
+              DisplayFormat = 'DD.MM.YYYY'
+            end>
+          DataSource = frmdm.DSCruise
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          PopupMenu = PMCruise
+          Scrollbars = ssAutoBoth
+          TabOrder = 2
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          TitleImageList = frmicons.IL1
+          TitleStyle = tsStandard
+          OnCellClick = DBGridCruise1CellClick
+          OnColumnSized = DBGridCruise1ColumnSized
+          OnEditingDone = DBGridCruise2EditingDone
+          OnPrepareCanvas = DBGridCruise1PrepareCanvas
+          OnSelectEditor = DBGridCruise2SelectEditor
+          OnTitleClick = DBGridCruise2TitleClick
+        end
+      end
+      object DBMemoCruises: TDBMemo
+        Left = 0
+        Height = 66
+        Top = 497
+        Width = 1374
+        Align = alBottom
+        DataField = 'NOTES'
+        DataSource = frmdm.DSCruise
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        ScrollBars = ssBoth
+        TabOrder = 2
+      end
+    end
+    object tsSelectedStations: TTabSheet
       Caption = 'Selected stations'
       ClientHeight = 563
       ClientWidth = 1372
@@ -1888,6 +1887,10 @@ object frmosmain: Tfrmosmain
             FieldName = 'BOTTOMDEPTH'
           end        
           item
+            Title.Caption = 'GEBCO, m'
+            FieldName = 'BOTTOMDEPTH_GEBCO'
+          end        
+          item
             MinSize = 15
             MaxSize = 300
             Title.Caption = 'Last lev., m'
@@ -1900,6 +1903,10 @@ object frmosmain: Tfrmosmain
             Title.Caption = 'Last lev., dBar'
             Width = 112
             FieldName = 'LASTLEVEL_DBAR'
+          end        
+          item
+            Title.Caption = 'Region'
+            FieldName = 'REGION_ID'
           end        
           item
             MinSize = 15
@@ -2082,12 +2089,12 @@ object frmosmain: Tfrmosmain
     Left = 0
     Height = 74
     Top = 0
-    Width = 1380
+    Width = 1382
     Align = alTop
     BevelOuter = bvNone
     BorderStyle = bsSingle
     ClientHeight = 70
-    ClientWidth = 1376
+    ClientWidth = 1378
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
@@ -2114,17 +2121,17 @@ object frmosmain: Tfrmosmain
       Left = 104
       Height = 70
       Top = 0
-      Width = 1272
+      Width = 1274
       Align = alClient
       BevelOuter = bvNone
       ClientHeight = 70
-      ClientWidth = 1272
+      ClientWidth = 1274
       TabOrder = 1
       object sbDatabase: TStatusBar
         Left = 0
         Height = 36
         Top = 0
-        Width = 1272
+        Width = 1274
         Align = alTop
         Font.Color = clWindowText
         Font.Height = -17
@@ -2162,7 +2169,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 36
         Top = 36
-        Width = 1272
+        Width = 1274
         Align = alTop
         BorderSpacing.Bottom = 2
         Font.Color = clWindowText
@@ -2314,8 +2321,9 @@ object frmosmain: Tfrmosmain
         Caption = 'Level units consistency'
         OnClick = iQC_dbar_meterClick
       end
-      object MenuItem12: TMenuItem
-        Caption = '-'
+      object iStandarddeviationslayers: TMenuItem
+        Caption = 'Standard deviations in layers'
+        OnClick = iStandarddeviationslayersClick
       end
       object iDuplicates: TMenuItem
         Caption = 'Station duplicates'
@@ -2327,6 +2335,10 @@ object frmosmain: Tfrmosmain
       object iUpdateCRUISEDB: TMenuItem
         Caption = 'Update CRUISE info'
         OnClick = iUpdateCRUISEDBClick
+      end
+      object iBottomDepthGEBCO: TMenuItem
+        Caption = 'Update depth from GEBCO'
+        OnClick = iBottomDepthGEBCOClick
       end
     end
     object iImport: TMenuItem
@@ -2358,6 +2370,9 @@ object frmosmain: Tfrmosmain
         Action = aMapKML
         Caption = 'Map [KML]'
       end
+      object MenuItem15: TMenuItem
+        Caption = '-'
+      end
       object MenuItem8: TMenuItem
         Action = aProfilesSelectedAllPlot
       end
@@ -2377,6 +2392,21 @@ object frmosmain: Tfrmosmain
       object iServiceStatistics: TMenuItem
         Caption = 'Service Statistics'
         OnClick = iServiceStatisticsClick
+      end
+    end
+    object iVisualization: TMenuItem
+      Caption = 'Visualization'
+      object iVisualizationSurfer: TMenuItem
+        Caption = 'Surfer'
+        object iVisualizationSurferSquares: TMenuItem
+          Caption = 'Squares'
+          OnClick = iVisualizationSurferSquaresClick
+        end
+        object iPlotBathymetry: TMenuItem
+          Caption = 'Bathymetry'
+          ImageIndex = 1010
+          OnClick = iPlotBathymetryClick
+        end
       end
     end
     object iHelp: TMenuItem

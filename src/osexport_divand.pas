@@ -45,7 +45,7 @@ implementation
 
 {$R *.lfm}
 
-uses dm, osmain, bathymetry, gibbsseawater;
+uses dm, osmain, osbathymetry, gibbsseawater;
 
 { Tfrmosexport_divand }
 
@@ -139,7 +139,7 @@ begin
 
     DecodeDateTime(ddd, yy, mn, dd, hh, mm, ss, ms);
 
-    GEBCO := -GetBathymetry(lon, lat);
+    GEBCO := -GetGEBCODepth(lon, lat);
 
     x:= (90-Lat)*111.12*sin((Lon)*Pi/180);
     y:=-(90-Lat)*111.12*cos((Lon)*Pi/180);

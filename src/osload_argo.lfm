@@ -68,4 +68,13 @@ object frmload_argo: Tfrmload_argo
     OnClick = Button3Click
     TabOrder = 5
   end
+  object btnParametersBio: TButton
+    Left = 21
+    Height = 38
+    Top = 264
+    Width = 240
+    Caption = 'Parameters_bio'
+    OnClick = btnParametersBioClick
+    TabOrder = 6
+  end
 end

@@ -11,6 +11,7 @@ uses
   SysUtils, Variants, Dialogs, DateUtils, Forms, osmain, declarations_netcdf;
 
 function CheckKML:boolean;
+
 function ClearDir(Dir:string ): boolean;
 function DateTimeToFloat(StDate, StTime:TDateTime):Real;
 function US80(t,s,p:real):real;

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, SQLDB, DB,
-  DateUtils, Variants;
+  DateUtils, Variants, BufDataset;
 
 type
 
@@ -14,12 +14,14 @@ type
 
   Tfrmload_argo = class(TForm)
     btnUpdateCruise: TButton;
+    btnParametersBio: TButton;
     Button2: TButton;
     btnParameters: TButton;
     Button3: TButton;
     ePath: TEdit;
     Label1: TLabel;
     Memo1: TMemo;
+    procedure btnParametersBioClick(Sender: TObject);
     procedure btnParametersClick(Sender: TObject);
     procedure btnUpdateCruiseClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -28,6 +30,7 @@ type
   private
     procedure GetCodes(argo_code:string; Var country_id, institute_id, project_id:integer);
     procedure WriteCoreProfile(fname:string);
+  //  procedure WriteBioProfile(fname:string; ID: integer);
   public
 
   end;
@@ -46,13 +49,15 @@ uses osmain, dm, declarations_netcdf;
 procedure Tfrmload_argo.btnUpdateCruiseClick(Sender: TObject);
 Var
   dat:text;
-  c, k, cnt_added, cnt_updated, ID:integer;
+  c, k, cnt_added, cnt_updated, cnt_removed, ID:integer;
   st, fname, prof_type, inst_code, date_upd, platf, buf_str:string;
   country_id, institute_id, project_id: integer;
   stdate_upd:TDateTime;
 
   Qt1, Qt2:TSQLQuery;
   TRt:TSQLTransaction;
+
+  ID_buf:TBufDataset;
 begin
 if not FileExists(epath.text+'ar_index_global_meta.txt') then
   if MessageDlg('ar_index_global_meta.txt cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
@@ -69,6 +74,13 @@ try
     Qt2:=TSQLQuery.Create(self);
     Qt2.Database:=frmdm.IBDB;
     Qt2.Transaction:=TRt;
+
+
+    ID_buf:=TBufDataSet.Create(nil);
+      with ID_buf.FieldDefs do begin
+       Add('id'   ,ftinteger, 0, false);
+      end;
+    ID_buf.CreateDataSet;
 
 
   AssignFile(dat, epath.text+'ar_index_global_meta.txt');
@@ -119,6 +131,13 @@ try
    platf:=buf_str;
 
    ID:=20000000+strtoint(platf);
+
+   with ID_buf do begin
+    Append;
+     FieldByName('ID').asInteger:=ID;
+    Post;
+   end;
+
 
     with Qt1 do begin
      Close;
@@ -189,15 +208,57 @@ try
    end;
   Qt1.Close;
   until eof(dat);
-  finally
-     Trt.Commit;
-     Qt1.Free;
-     Qt2.Free;
-     Trt.Free;
-     memo1.lines.add('=====');
-     memo1.lines.add('Added: '+inttostr(cnt_added));
-     memo1.lines.add('Updated: '+inttostr(cnt_updated));
+
+
+
+  (* removing any cruises which are not in the list any more *)
+   with Qt1 do begin
+     Close;
+       SQL.Clear;
+       SQL.Add(' SELECT ID FROM CRUISE ORDER BY ID ');
+     Open;
    end;
+
+   cnt_removed:=0;
+   while not Qt1.EOF do begin
+    if VarIsNull(ID_buf.Lookup('ID', Qt1.FieldByName('ID').asInteger,'ID')) then begin
+      with Qt2 do begin
+       Close;
+        Sql.Clear;
+        SQL.Add(' DELETE FROM CRUISE WHERE ID=:ID ');
+        ParamByName('ID').Value:=Qt1.FieldByName('ID').asInteger;
+       ExecSQL;
+      end;
+
+      with Qt2 do begin
+       Close;
+        Sql.Clear;
+        SQL.Add(' DELETE FROM PLATFORM WHERE ID=:ID ');
+        ParamByName('ID').Value:=Qt1.FieldByName('ID').asInteger;
+       ExecSQL;
+      end;
+      Trt.CommitRetaining;
+
+    memo1.lines.add('Removed -> '+inttostr(ID));
+    inc(cnt_removed);
+    end;
+    Qt1.Next;
+   end;
+   Qt1.Close;
+
+
+finally
+   Trt.Commit;
+   Qt1.Free;
+   Qt2.Free;
+   Trt.Free;
+   ID_buf.Free;
+   memo1.lines.add('=====');
+   memo1.lines.add('Added: '+inttostr(cnt_added));
+   memo1.lines.add('Updated: '+inttostr(cnt_updated));
+   memo1.lines.add('Removed: '+inttostr(cnt_removed));
+ end;
+
 end;
 
 
@@ -240,7 +301,7 @@ if not FileExists(epath.text+'ar_index_global_prof.txt') then
       with Qt1 do begin
        Close;
         Sql.Clear;
-        SQL.Add(' select max(id) from station ');
+        SQL.Add(' select max(id) from station where ID BETWEEN 20000000 AND 30000000  ');
        Open;
         max_id  :=Qt1.Fields[0].AsInteger;
        Close;
@@ -524,6 +585,51 @@ Qtt.Transaction:=TRt; }
   nc_get_var1_float(ncid, varidp, start^, fp);
   Val0:=fp[0]; }
 
+end;
+
+
+
+procedure Tfrmload_argo.btnParametersBioClick(Sender: TObject);
+begin
+{   AssignFile(dat, ePath.text+'argo_bio-profile_index.txt'); reset(dat);
+
+  repeat
+   readln(dat, st);
+  until copy(st,1, 4)='file';
+
+
+//aoml/1900722/profiles/BD1900722_001.nc,20061022021624,-40.316,73.389,I,846,AO,PRES TEMP_DOXY BPHASE_DOXY DOXY,RRRD,20200312153230
+//aoml/1900722/profiles/BD1900722_002.nc,20061101064423,-40.390,73.528,I,846,AO,PRES TEMP_DOXY BPHASE_DOXY DOXY,RRRD,20200312153230
+  cnt:=0;
+  repeat
+     readln(dat, st);
+
+     c:=0; pp:=0;
+     for k:=1 to 10 do begin
+      buf_str:='';
+      repeat
+        inc(c);
+        inc(pp);
+        if st[c]<>',' then buf_str:=buf_str+st[c];
+      until (st[c]=',') or (c=length(st));
+
+      case k of
+       1: fname:=buf_str;
+       2: date_str:=buf_str;
+       3: lat:=buf_str;
+       4: lon:=buf_str;
+     //5: ocean
+     //6: profile type
+       7: inst_code:=buf_str;
+       8: param_str:=buf_str;
+       9: patam_data_mode:=buf_str
+      10: date_upd:=buf_str;
+      end;
+     end;
+
+    WriteBioProfile(ePath.Text+buf_str, ID);
+  until eof(dat);
+ CloseFile(dat);   }
 end;
 
 
