@@ -5,7 +5,7 @@ unit osbathymetry;
 interface
 
 uses
-  Classes, SysUtils, osmain, declarations_netcdf, Dialogs;
+  Classes, SysUtils, osmain, declarations_netcdf, IniFiles;
 
 function GEBCOExists:boolean;
 function GetGEBCODepth(Lon, Lat:real):integer;
@@ -15,13 +15,22 @@ implementation
 
 (* Checking if GEBCO 2020 is in place *)
 function GEBCOExists:boolean;
+Var
+ Ini:TIniFile;
 begin
- Result:=FileExists(GlobalSupportPath+PathDelim+'bathymetry'+PathDelim+'GEBCO_2020.nc');
+ Ini := TIniFile.Create(IniFileName);
+ try
+  Result:=FileExists(Ini.ReadString( 'main', 'GEBCOPath', ''));
+ finally
+  Ini.Free;
+ end;
 end;
 
-(* Chosing bathymtry source according to the INI settings *)
+
+(* Choosing bathymtry source according to the INI settings *)
 Function GetGEBCODepth(Lon, Lat:real):integer;
 Var
+Ini:TIniFile;
 fname: string;
 ncid:integer;
 start: PArraySize_t;
@@ -30,7 +39,12 @@ lat0, lon0, step: real;
 begin
  result:=-99999;
 
- fname:=GlobalSupportPath+PathDelim+'bathymetry'+PathDelim+'GEBCO_2020.nc';
+ Ini := TIniFile.Create(IniFileName);
+ try
+  fname:=Ini.ReadString('main', 'GEBCOPath', '');
+ finally
+  Ini.Free;
+ end;
 
  try
   // opening GEBCO_2020.nc

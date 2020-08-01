@@ -163,7 +163,7 @@ cur_l, Val_, min_lev, max_lev:real;
 lev_d, lev_m: Variant;
 prof_best:boolean;
 Units_, par, par_name, col_title, instr_name, isbest, sName, buf_str:string;
-cds_name: string;
+cds_name, LeftAxisTitle: string;
 
 TRt:TSQLTransaction;
 Qt, Qt1, Qt2:TSQLQuery;
@@ -172,6 +172,7 @@ begin
 //Memo1.Clear; Memo1.Visible:=false;
 Caption:='All parameters: '+inttostr(ID);
 //CheckListBox1.Clear;
+
 
 TRt:=TSQLTransaction.Create(self);
 TRt.DataBase:=frmdm.IBDB;
@@ -395,17 +396,20 @@ ss:=0;
   end;
  end;
 
- // showmessage(floattostr(min_lev)+'   '+floattostr(max_lev));
-  //end;
-
-  //  showmessage(floattostr(min_lev)+'   '+floattostr(max_lev));
-
   for k:=1 to cc do begin
     Charts[k].LeftAxis.Range.Min:=min_lev;
     Charts[k].LeftAxis.Range.Max:=max_lev;
     Charts[k].LeftAxis.Range.UseMin:=true;
     Charts[k].LeftAxis.Range.UseMax:=true;
   end;
+
+  (* depth units for the first chart *)
+  case depth_units of
+   0: LeftAxisTitle:='Depth, [m]';
+   1: LeftAxisTitle:='Depth, [dBar]';
+  end;
+  Charts[cc].Width:=280;
+  Charts[cc].AxisList.LeftAxis.Title.Caption:=LeftAxisTitle;
 
  (* settings for the grid *)
   DBGrid1.Columns[0].Title.Caption:='Level, dBar';
@@ -443,8 +447,7 @@ ss:=0;
   pCharts.Visible:=true;
  end;
 
- // DBGridEh1.SumList.RecalcAll;
-  CheckChartSize;
+ // CheckChartSize;
 end;
 
 

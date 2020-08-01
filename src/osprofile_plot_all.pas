@@ -49,8 +49,6 @@ type
     procedure btnPriorClick(Sender: TObject);
     procedure DPCPointClick(ATool: TChartTool; APoint: TPoint);
     procedure DPHAfterMouseMove(ATool: TChartTool; APoint: TPoint);
-    procedure rbDbarClick(Sender: TObject);
-    procedure rbMetersClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormDestroy(Sender: TObject);
@@ -198,45 +196,37 @@ procedure Tfrmprofile_plot_all.InitialPlot;
 Var
 ID, CurrentID, k, cnt, ss:integer;
 Ini:TInifile;
-LeftAxisTitle, sName, src_name :string;
+sName, src_name :string;
 
 prof_num, instr_id: integer;
 prof_best: boolean;
-instr_name: string;
+instr_name, LeftAxisTitle: string;
 
 Qt1, Qt2:TSQLQuery;
 TRt:TSQLTransaction;
 begin
 
- Ini := TIniFile.Create(IniFileName);
- try
- { case Ini.ReadInteger ( 'osmain', 'depth_units', 0) of
-   0: begin
-       rbMeters.Checked:=true;
-       LeftAxisTitle:='Depth, [m]';
-      end;
-   1: begin
-       rbDbar.Checked:=true;
-       LeftAxisTitle:='Depth, [dBar]';
-      end;
-  end; }
+  case depth_units of
+   0: LeftAxisTitle:='Depth, [m]';
+   1: LeftAxisTitle:='Depth, [dBar]';
+  end;
 
-// if Ini.ReadInteger( 'osmain', 'units_default', 0)=0 then
-//   rbUnitsDefault.Checked:=true else rbUnitsOriginal.Checked:=true;
+  Ini := TIniFile.Create(IniFileName);
+  try
 
- flag_st:='';
- for k:=0 to 8 do
-   if Ini.ReadBool('osparameters_list', 'QCF'+inttostr(k), true) then
+   flag_st:='';
+   for k:=0 to 8 do
+    if Ini.ReadBool('osparameters_list', 'QCF'+inttostr(k), true) then
       flag_st:=flag_st+','+inttostr(k);
 
- instr_st:='';
- for k:=0 to 17 do
-   if Ini.ReadBool('osparameters_list', 'Instrument'+inttostr(k), true) then
+   instr_st:='';
+   for k:=0 to 17 do
+    if Ini.ReadBool('osparameters_list', 'Instrument'+inttostr(k), true) then
       instr_st:=instr_st+','+inttostr(k);
 
- finally
-  Ini.Free;
- end;
+   finally
+    Ini.Free;
+   end;
 
 flag_st:=copy(flag_st, 2, length(flag_st));
 if trim(flag_st)='' then
@@ -441,8 +431,8 @@ try
      flag  := Qt.FieldByName('PQF2').AsInteger;
      units := Qt.FieldByName('UNITS_ID').AsInteger;
 
-    // if rbMeters.Checked then lev:=lev_m else lev:=lev_d;
-    lev:=lev_m;
+     (* units for the vertical axis *)
+     if depth_units=0 then lev:=lev_m else lev:=lev_d;
 
      if (rbUnitsDefault.Checked=true) and (units<>units_default) then begin
        osunitsconversion.GetDefaultUnits(CurrentParTable, units, units_default,
@@ -624,38 +614,6 @@ begin
    end;
 end;
 
-
-procedure Tfrmprofile_plot_all.rbMetersClick(Sender: TObject);
-Var
-  Ini:TIniFile;
-begin
- { if rbMeters.Checked=true then begin
-    Ini := TIniFile.Create(IniFileName);
-     try
-      Ini.WriteInteger( 'osmain', 'Depth_units', 0);
-     finally
-      Ini.Free;
-     end;
-    InitialPlot;
-  end;  }
-end;
-
-
-procedure Tfrmprofile_plot_all.rbDBarClick(Sender: TObject);
-Var
-  Ini:TIniFile;
-begin
- { if rbDBar.Checked=true then begin
-    Ini := TIniFile.Create(IniFileName);
-     try
-      Ini.WriteInteger( 'osmain', 'Depth_units', 1);
-     finally
-      Ini.Free;
-     end;
-    InitialPlot;
-  end; }
-end;
-
 procedure Tfrmprofile_plot_all.rbUnitsOriginalClick(Sender: TObject);
 Var
  Ini:TIniFile;
@@ -663,7 +621,7 @@ begin
    if rbUnitsOriginal.Checked=true then begin
      Ini := TIniFile.Create(IniFileName);
       try
-       Ini.WriteInteger( 'osmain', 'units_default', 0)
+       Ini.WriteInteger( 'main', 'units_default', 0)
       finally
        Ini.Free;
       end;
@@ -678,7 +636,7 @@ begin
    if rbUnitsDefault.Checked=true then begin
      Ini := TIniFile.Create(IniFileName);
       try
-       Ini.WriteInteger( 'osmain', 'units_default', 1)
+       Ini.WriteInteger('main', 'units_default', 1)
       finally
        Ini.Free;
       end;

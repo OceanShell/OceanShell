@@ -10,7 +10,7 @@ uses
   TAGraph, TATools, TASeries, TATypes, TAChartAxisUtils,
   TACustomSeries,  // for TChartSeries
   TAChartUtils,
-  TAEnumerators, TALegendPanel, TAChartListbox;
+  TAEnumerators, TAChartListbox;
 
 type
 
@@ -210,18 +210,26 @@ end;
 
 procedure Tfrmprofile_station_single.ChangeID(ID:integer);
 var
+  Ini:TIniFile;
   k, tt, prof_num:integer;
   TRt:TSQLTransaction;
   Qt1, Qt2:TSQLQuery;
   Instr_name, TabName, SName, isbest:string;
   prof_best: boolean;
-  lev_m, lev_d, val1: real;
+  lev, lev_m, lev_d, val1: real;
+  LeftAxisTitle: string;
 begin
 
 if (CurrentParTable='') then CurrentParTable:=cbParameters.Items.Strings[0];
 
 Caption:='Single parameter: '+inttostr(ID);
 Application.ProcessMessages;
+
+ case depth_units of
+  0: LeftAxisTitle:='Depth, [m]';
+  1: LeftAxisTitle:='Depth, [dBar]';
+ end;
+ Chart1.AxisList.LeftAxis.Title.Caption:=LeftAxisTitle;
 
 mik:=-1;
 
@@ -351,7 +359,10 @@ mik:=-1;
          lev_d := Qt2.FieldByName('LEV_DBAR').AsVariant;
          val1  := Qt2.FieldByName('VAL').AsFloat;
 
-         TLineSeries(Chart1.Series[mik]).AddXY(val1,lev_m);
+         (* units for the vertical axis *)
+         if depth_units=0 then lev:=lev_m else lev:=lev_d;
+
+         TLineSeries(Chart1.Series[mik]).AddXY(val1,lev);
 
          Qt2.Next;
        end;

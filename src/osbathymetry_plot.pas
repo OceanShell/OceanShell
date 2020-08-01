@@ -88,9 +88,11 @@ begin
    Lon:=seLonMin.Value;
    repeat
      depth:=-GetGEBCODepth(lon, lat);
-     if depth>0 then writeln(dat, floattostrF(lon, fffixed, 9, 5),' ',
-                                  floattostrF(lat, fffixed, 8, 5),' ',
-                                  inttostr(depth));
+
+     if depth>=0 then
+     writeln(dat, floattostrF(lon, fffixed, 9, 5),' ',
+                  floattostrF(lat, fffixed, 8, 5),' ',
+                  inttostr(depth));
 
      lon:=lon+step;
    until lon>seLonMax.Value;

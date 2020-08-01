@@ -359,7 +359,8 @@ var
   GlobalPath, GlobalUnloadPath, GlobalSupportPath:string; //global paths for the app
   CurrentParTable: string;
 
-  Source_unq:TStringList;
+  Source_unq:TStringList; //list of unique sources from selection
+  depth_units: integer; //0-meters, 1-dBar
 
   IBLatMin,IBLatMax,IBLonMin,IBLonMax,SLatMin,SLatMax,SLonMin,SLonMax:Real;
   IBDateMin, IBDateMax, SDateMin, SDateMax :TDateTime;
@@ -496,6 +497,8 @@ begin
     Left  :=Ini.ReadInteger( 'osmain', 'left',   50);
     Width :=Ini.ReadInteger( 'osmain', 'width',  900);
     Height:=Ini.ReadInteger( 'osmain', 'weight', 500);
+
+    depth_units:=Ini.ReadInteger('main', 'depth_units', 0);
 
     (* search settings *)
     seLatMin.Value   :=Ini.ReadFloat  ( 'osmain', 'latmin',     0);
