@@ -322,6 +322,8 @@ type
     procedure GetIDListEntry(Var id_str:string);
     procedure GetIDListStation(Var id_str:string);
 
+    procedure SelectGetCruisesFromStation(SQL_str:string);
+
   public
 
  //   RecListCruise  :TBookmarklist;
@@ -831,8 +833,22 @@ try
    Open;
  end;
 
-// showmessage(DateTimeToStr(now-t_begin));
+ SelectGetCruisesFromStation(SQL_str);
 
+ SelectionInfo;
+ CDSNavigation;
+
+finally
+  frmosmain.Enabled:=true;
+  Application.ProcessMessages;
+end;
+end;
+
+
+
+
+procedure Tfrmosmain.SelectGetCruisesFromStation(SQL_str:string);
+begin
   With frmdm.q1 do begin
    Close;
      SQL.Clear;
@@ -851,6 +867,7 @@ try
    frmdm.q1.Next;
   end;
 
+ // showmessage(Source_unq.Strings[0]);
 //   showmessage(DateTimeToStr(now-t_begin));
 
 
@@ -881,9 +898,7 @@ try
  //  showmessage(DateTimeToStr(now-t_begin));
 
   (* populating ID list *)
-  i:=0;
   while not frmdm.q1.EOF do begin
-    inc(i);
    with frmdm.q2 do begin
     Close;
       SQL.Clear;
@@ -921,33 +936,89 @@ try
       SQL.Add(' CRUISE.INSTITUTE_ID=INSTITUTE.ID AND ');
       SQL.Add(' CRUISE.PROJECT_ID=PROJECT.ID AND ');
       SQL.Add(' CRUISE.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ');
-     { SQL.Add(' CRUISE.ID IN (SELECT DISTINCT(CRUISE_ID) FROM ');
-      SQL.Add(' STATION, CRUISE, PLATFORM, COUNTRY, SOURCE ');
-      SQL.Add(' WHERE ');
-      SQL.Add(  SQL_str+')'  );  }
       SQL.Add(' ORDER BY PLATFORM.NAME, CRUISE.DATE_START_TOTAL ' );
-    //  Params:=frmdm.Q.Params;
     Open;
     Last;
     First;
    end;
 
- //   showmessage(DateTimeToStr(now-t_begin));
-
- SelectionInfo;
- CDSNavigation;
-
-finally
-  frmosmain.Enabled:=true;
-  Application.ProcessMessages;
 end;
-end;
-
 
 procedure Tfrmosmain.btnSelectIDClick(Sender: TObject);
 Var
  dat: text;
+ ID:integer;
+ SQL_str:string;
 begin
+ frmosmain.OD.Filter:='*.txt|*.txt';
+  if frmosmain.OD.Execute then begin
+   AssignFile(dat, frmosmain.OD.FileName); reset(dat);
+  end else exit;
+
+  (* Cleansing the temporary list *)
+  with frmdm.q2 do begin
+    Close;
+      SQL.Clear;
+      SQL.Add(' DELETE FROM TEMPORARY_ID_LIST ');
+    ExecSQL;
+  end;
+  frmdm.TR.CommitRetaining;
+
+
+
+  readln(dat); //skipping the header
+  repeat
+    readln(dat, id);
+
+     with frmdm.q2 do begin
+      Close;
+        SQL.Clear;
+        SQL.Add(' INSERT INTO TEMPORARY_ID_LIST ');
+        SQL.Add(' (ID) VALUES (:ID) ');
+        ParamByName('ID').Value:=ID;
+      ExecSQL;
+     end;
+  until eof(dat);
+  CloseFile(Dat);
+  frmdm.TR.CommitRetaining;
+
+  try
+   with frmdm.Q do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' SELECT ');
+    SQL.Add(' STATION.ID, STATION.LATITUDE, STATION.LONGITUDE, ');
+    SQL.Add(' STATION.DATEANDTIME, STATION.BOTTOMDEPTH, STATION.LASTLEVEL_M, ');
+    SQL.Add(' STATION.LASTLEVEL_DBAR, STATION.CRUISE_ID, STATION.CAST_NUMBER,  ');
+    SQL.Add(' STATION.ST_NUMBER_ORIGIN, STATION.ST_ID_ORIGIN, ');
+    SQL.Add(' STATION.QCFLAG, STATION.STVERSION, STATION.DUPLICATE, ');
+    SQL.Add(' STATION.BOTTOMDEPTH_GEBCO, STATION.REGION_ID, ');
+    SQL.Add(' STATION.MERGED, STATION.ACCESSION_NUMBER, STATION.DATE_ADDED, ');
+    SQL.Add(' STATION.DATE_UPDATED, PLATFORM.NAME as PLATF, CRUISE.CRUISE_NUMBER, ');
+    SQL.Add(' COUNTRY.NAME as CNTR, SOURCE.NAME as SRC ');
+    SQL.Add(' FROM STATION, CRUISE, PLATFORM, COUNTRY, SOURCE ');
+    SQL.Add(' WHERE ');
+        SQL_str:=' STATION.CRUISE_ID=CRUISE.ID AND ';
+        SQL_str:=SQL_str+' CRUISE.PLATFORM_ID=PLATFORM.ID AND ';
+        SQL_str:=SQL_str+' PLATFORM.COUNTRY_ID=COUNTRY.ID AND ';
+        SQL_str:=SQL_str+' CRUISE.SOURCE_ID=SOURCE.ID AND ';
+        SQL_str:=SQL_str+' STATION.ID IN (SELECT ID FROM TEMPORARY_ID_LIST)';
+    SQL.Add( SQL_str);
+    SQL.Add(' ORDER BY DATEANDTIME ');
+   Open;
+   Last;
+   First;
+ end;
+
+ SelectGetCruisesFromStation(SQL_str);
+
+ SelectionInfo;
+ CDSNavigation;
+
+ finally
+   frmosmain.Enabled:=true;
+   Application.ProcessMessages;
+ end;
 
 end;
 
