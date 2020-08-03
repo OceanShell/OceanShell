@@ -1,18 +1,18 @@
 object frmviz_surfer_squares: Tfrmviz_surfer_squares
-  Left = 159
-  Height = 929
-  Top = 40
+  Left = 141
+  Height = 970
+  Top = 6
   Width = 1570
   Caption = 'frmviz_surfer_squares'
-  ClientHeight = 929
-  ClientWidth = 1570
+  ClientHeight = 0
+  ClientWidth = 0
   DesignTimePPI = 144
   OnShow = FormShow
   LCLVersion = '2.0.6.0'
   object Memo1: TMemo
     Left = 0
-    Height = 190
-    Top = 739
+    Height = 134
+    Top = 836
     Width = 1570
     Align = alBottom
     Lines.Strings = (
@@ -238,19 +238,19 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     TabOrder = 14
   end
   object GroupBox1: TGroupBox
-    Left = 1008
-    Height = 158
-    Top = 560
-    Width = 540
+    Left = 10
+    Height = 128
+    Top = 696
+    Width = 979
     Caption = 'Plot'
-    ClientHeight = 128
-    ClientWidth = 536
+    ClientHeight = 98
+    ClientWidth = 975
     TabOrder = 15
     object cbAllOutputFiles: TComboBox
       Left = 24
       Height = 33
-      Top = 24
-      Width = 488
+      Top = 8
+      Width = 920
       ItemHeight = 25
       OnDropDown = cbAllOutputFilesDropDown
       OnSelect = cbAllOutputFilesSelect
@@ -258,30 +258,21 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
       TabOrder = 0
     end
     object btnPlot: TButton
-      Left = 414
+      Left = 846
       Height = 33
-      Top = 72
+      Top = 48
       Width = 98
       Caption = 'Plot'
       Enabled = False
       OnClick = btnPlotClick
       TabOrder = 1
     end
-    object btnSurferSettings: TButton
-      Left = 120
-      Height = 33
-      Top = 72
-      Width = 136
-      Caption = 'Surfer settings'
-      OnClick = btnSurferSettingsClick
-      TabOrder = 2
-    end
     object btnOpenFolder: TBitBtn
       Left = 24
       Height = 33
       Hint = 'Open data folder'
-      Top = 72
-      Width = 38
+      Top = 48
+      Width = 33
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'Tahoma'
@@ -305,14 +296,14 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
       ParentFont = False
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 3
+      TabOrder = 2
     end
     object btnOpenScript: TBitBtn
       Left = 72
       Height = 33
       Hint = 'Open script'
-      Top = 72
-      Width = 40
+      Top = 48
+      Width = 33
       Enabled = False
       Font.Color = clWindowText
       Font.Height = -17
@@ -357,17 +348,30 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
       ParentFont = False
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 4
+      TabOrder = 3
     end
     object cbColumn: TComboBox
-      Left = 272
+      Left = 640
       Height = 33
-      Top = 72
-      Width = 128
+      Top = 48
+      Width = 192
       Enabled = False
       ItemHeight = 25
       OnSelect = cbColumnSelect
       Style = csDropDownList
+      TabOrder = 4
+    end
+    object btnSurferSettings: TBitBtn
+      Left = 120
+      Height = 33
+      Hint = 'Open Surfer settings'
+      Top = 48
+      Width = 33
+      Images = frmicons.IL1
+      ImageIndex = 1011
+      OnClick = btnSurferSettingsClick
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 5
     end
   end

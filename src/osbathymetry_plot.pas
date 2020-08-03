@@ -13,12 +13,13 @@ type
   { Tfrmbathymetry_plot }
 
   Tfrmbathymetry_plot = class(TForm)
+    btnSurferSettings: TBitBtn;
     btnOpenFolder: TBitBtn;
     btnOpenScript: TBitBtn;
     btnPlot: TButton;
-    btnSurferSettings: TButton;
     btnGetData: TButton;
-    Label1: TLabel;
+    chkIncludeLand: TCheckBox;
+    GroupBox2: TGroupBox;
     seLatMax: TFloatSpinEdit;
     SeLonMin: TFloatSpinEdit;
     seLatMin: TFloatSpinEdit;
@@ -89,10 +90,11 @@ begin
    repeat
      depth:=-GetGEBCODepth(lon, lat);
 
-     if depth>=0 then
-     writeln(dat, floattostrF(lon, fffixed, 9, 5),' ',
-                  floattostrF(lat, fffixed, 8, 5),' ',
-                  inttostr(depth));
+     if  (chkIncludeLand.Checked=true) or
+        ((chkIncludeLand.Checked=false) and (depth>=0)) then
+          writeln(dat, floattostrF(lon, fffixed, 9, 5),' ',
+                       floattostrF(lat, fffixed, 8, 5),' ',
+                       inttostr(depth));
 
      lon:=lon+step;
    until lon>seLonMax.Value;
@@ -119,10 +121,7 @@ begin
                  'Depth, [m]', // variable name and its units
                  3, //column to plot
                  ncols, nrows, //colums and rows
-                 seLonMin.Value, seLonMax.Value, seLatMin.Value, seLatMax.Value, //region
-                 'Bathymetry', //preset name
-                 '', // no custon clr
-                 true //reversed!
+                 seLonMin.Value, seLonMax.Value, seLatMin.Value, seLatMax.Value //region
                  );
 
   {$IFDEF Windows}

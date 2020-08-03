@@ -6,9 +6,9 @@ interface
 
 uses
   SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, LCLType,
-  Menus, Dialogs, ActnList, StdCtrls, INIFiles, ExtCtrls, DateUtils, sqldb, DB,
+  Menus, Dialogs, ActnList, StdCtrls, IniFiles, ExtCtrls, DateUtils, sqldb, DB,
   Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math, Grids,
-  LCLIntf, ComboEx, Types;
+  LCLIntf, ComboEx;
 
 type
 
@@ -404,6 +404,7 @@ uses
 (* core modules *)
   dm,
   oscreatenewdb,
+  osdbstructure_updater, //temporary module to be removed later
   ossettings,
   osselection_advanced,
   osselection_customsql,
@@ -703,7 +704,7 @@ try
     SQL.Add(' STATION.LASTLEVEL_DBAR, STATION.CRUISE_ID, STATION.CAST_NUMBER,  ');
     SQL.Add(' STATION.ST_NUMBER_ORIGIN, STATION.ST_ID_ORIGIN, ');
     SQL.Add(' STATION.QCFLAG, STATION.STVERSION, STATION.DUPLICATE, ');
-    SQL.Add(' STATION.BOTTOMDEPTH_GEBCO, STATION.REGION_ID, ');
+    SQL.Add(' STATION.BOTTOMDEPTH_GEBCO, ');
     SQL.Add(' STATION.MERGED, STATION.ACCESSION_NUMBER, STATION.DATE_ADDED, ');
     SQL.Add(' STATION.DATE_UPDATED, PLATFORM.NAME as PLATF, CRUISE.CRUISE_NUMBER, ');
     SQL.Add(' COUNTRY.NAME as CNTR, SOURCE.NAME as SRC ');
@@ -992,7 +993,7 @@ begin
     SQL.Add(' STATION.LASTLEVEL_DBAR, STATION.CRUISE_ID, STATION.CAST_NUMBER,  ');
     SQL.Add(' STATION.ST_NUMBER_ORIGIN, STATION.ST_ID_ORIGIN, ');
     SQL.Add(' STATION.QCFLAG, STATION.STVERSION, STATION.DUPLICATE, ');
-    SQL.Add(' STATION.BOTTOMDEPTH_GEBCO, STATION.REGION_ID, ');
+    SQL.Add(' STATION.BOTTOMDEPTH_GEBCO, ');
     SQL.Add(' STATION.MERGED, STATION.ACCESSION_NUMBER, STATION.DATE_ADDED, ');
     SQL.Add(' STATION.DATE_UPDATED, PLATFORM.NAME as PLATF, CRUISE.CRUISE_NUMBER, ');
     SQL.Add(' COUNTRY.NAME as CNTR, SOURCE.NAME as SRC ');
@@ -1216,7 +1217,7 @@ begin
       SQL.Add(' STATION.ID, STATION.LATITUDE, STATION.LONGITUDE, ');
       SQL.Add(' STATION.DATEANDTIME, STATION.BOTTOMDEPTH, STATION.LASTLEVEL_M, ');
       SQL.Add(' STATION.LASTLEVEL_DBAR, STATION.CRUISE_ID, STATION.CAST_NUMBER, ');
-      SQL.Add(' STATION.BOTTOMDEPTH_GEBCO, STATION.REGION_ID, ');
+      SQL.Add(' STATION.BOTTOMDEPTH_GEBCO, ');
       SQL.Add(' STATION.ST_NUMBER_ORIGIN, STATION.ST_ID_ORIGIN, ');
       SQL.Add(' STATION.QCFLAG, STATION.STVERSION, STATION.DUPLICATE, ');
       SQL.Add(' STATION.MERGED, STATION.ACCESSION_NUMBER, STATION.DATE_ADDED, ');
@@ -1587,6 +1588,11 @@ begin
      on E: Exception do
        if MessageDlg(E.Message, mtWarning, [mbOk], 0)=mrOk then exit;
    end;
+
+ (*******************TEMPORARY *********************)
+  CheckDBStructure;
+ (*******************TEMPORARY *********************)
+
   DatabaseInfo;
 
   for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=true;
@@ -2966,17 +2972,15 @@ Var
 begin
   if Column.Index=0 then begin
      id_old:=frmdm.QCruise.FieldByName('ID').AsInteger;
-    // check_old:=RecListCruise.CurrentRowSelected;
+     check_old:=frmdm.QCruise.FieldByName('SELECTED').Value;
      try
        frmdm.QCruise.DisableControls;
        frmdm.QCruise.First;
        while not frmdm.QCruise.EOF do begin
-       // RecListCruise.CurrentRowSelected := not check_old;
         frmdm.QCruise.Edit;
          frmdm.QCruise.FieldByName('SELECTED').Value:=not check_old;
-         frmdm.QCruise.Post;
-
-         frmdm.QCruise.Next;
+        frmdm.QCruise.Post;
+        frmdm.QCruise.Next;
        end;
      finally
        frmdm.QCruise.Locate('ID', ID_old, []);
@@ -3000,13 +3004,15 @@ Var
 begin
   if Column.Index=0 then begin
      id_old:=frmdm.QEntry.FieldByName('ID').AsInteger;
-   //  check_old:=RecListEntry.CurrentRowSelected;
+     check_old:=frmdm.QEntry.FieldByName('SELECTED').Value;
      try
        frmdm.QEntry.DisableControls;
        frmdm.QEntry.First;
        while not frmdm.QEntry.EOF do begin
-      //  RecListEntry.CurrentRowSelected := not check_old;
-         frmdm.QEntry.Next;
+        frmdm.QEntry.Edit;
+         frmdm.QEntry.FieldByName('SELECTED').Value:=not check_old;
+        frmdm.QEntry.Post;
+        frmdm.QEntry.Next;
        end;
      finally
        frmdm.QEntry.Locate('ID', ID_old, []);
@@ -3068,8 +3074,9 @@ end;
 
 procedure Tfrmosmain.DBGridCruise1CellClick(Column: TColumn);
 begin
-  if Column.Index=0 then
+  //if Column.Index=0 then
   //  RecListCruise.CurrentRowSelected := not RecListCruise.CurrentRowSelected;
+  if frmprofile_plot_all_open=true then CDSNavigation;
 end;
 
 procedure Tfrmosmain.DBGridEntryCellClick(Column: TColumn);

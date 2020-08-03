@@ -16,6 +16,7 @@ type
   Tfrmprofile_plot_all = class(TForm)
     Chart1: TChart;
     ChartToolset1: TChartToolset;
+    chkCruiseHighlight: TCheckBox;
     chkShowBest: TCheckBox;
     DPH: TDataPointHintTool;
     DPC: TDataPointClickTool;
@@ -39,6 +40,7 @@ type
     ToolButton6: TToolButton;
     btnSingleProfile: TToolButton;
 
+    procedure chkCruiseHighlightChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnFilterClick(Sender: TObject);
@@ -153,6 +155,26 @@ begin
 
     SetWindowTheme(chkSourceList[k].Handle, '', '');
   end;
+end;
+
+procedure Tfrmprofile_plot_all.chkCruiseHighlightChange(Sender: TObject);
+Var
+  crID:integer;
+begin
+{  crID:=frmdm.QCruise.FieldByName('ID').AsInteger;
+
+  if chkCruiseHighlight.Checked=true then begin
+    for ss:=0 to Chart1.Series.Count-1 do begin
+     sName:=Chart1.Series[ss].Name;
+     if (Chart1.Series[ss].Active=true) then begin
+       ID:=StrToInt(copy(sname, 2, Pos('_', sname)-2));
+       crID_stat:=frmdm.Q.Lookup('ID', 'ID', 'CRUISE_ID');
+
+     end;
+    end;
+  end;
+
+  if chkCruiseHighlight.Checked=true then InitialPlot; }
 end;
 
 
@@ -598,22 +620,6 @@ begin
 end;
 
 
-procedure Tfrmprofile_plot_all.FormClose(Sender: TObject;
-  var CloseAction: TCloseAction);
-Var
-  Ini:TIniFile;
-begin
- Ini := TIniFile.Create(IniFileName);
-   try
-     Ini.WriteInteger( 'osprofile_plot_all', 'Top',    Top);
-     Ini.WriteInteger( 'osprofile_plot_all', 'Left',   Left);
-     Ini.WriteInteger( 'osprofile_plot_all', 'Width',  Width);
-     Ini.WriteInteger( 'osprofile_plot_all', 'Height', Height);
-   finally
-    Ini.Free;
-   end;
-end;
-
 procedure Tfrmprofile_plot_all.rbUnitsOriginalClick(Sender: TObject);
 Var
  Ini:TIniFile;
@@ -656,7 +662,6 @@ Var
   ss, cnt: integer;
   sName:string;
 begin
-
  if chkShowBest.Checked=true then begin
   cnt:=0;
   for ss:=0 to Chart1.Series.Count-1 do begin
@@ -695,12 +700,6 @@ begin
    Application.ProcessMessages;
 end;
 
-procedure Tfrmprofile_plot_all.FormDestroy(Sender: TObject);
-begin
- Chart1.Series.Clear;
- chkSourceList:=nil;
-end;
-
 procedure Tfrmprofile_plot_all.FormResize(Sender: TObject);
 begin
  pFiller.Width:=ToolBar1.Width-20-
@@ -715,6 +714,30 @@ begin
 end;
 
 
+procedure Tfrmprofile_plot_all.FormClose(Sender: TObject;
+  var CloseAction: TCloseAction);
+Var
+  Ini:TIniFile;
+begin
+ Ini := TIniFile.Create(IniFileName);
+   try
+     Ini.WriteInteger( 'osprofile_plot_all', 'Top',    Top);
+     Ini.WriteInteger( 'osprofile_plot_all', 'Left',   Left);
+     Ini.WriteInteger( 'osprofile_plot_all', 'Width',  Width);
+     Ini.WriteInteger( 'osprofile_plot_all', 'Height', Height);
+   finally
+    Ini.Free;
+   end;
+
+  frmprofile_plot_all_open:=false;
+end;
+
+
+procedure Tfrmprofile_plot_all.FormDestroy(Sender: TObject);
+begin
+ Chart1.Series.Clear;
+ chkSourceList:=nil;
+end;
 
 end.
 

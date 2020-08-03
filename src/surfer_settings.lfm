@@ -1,7 +1,7 @@
 object frmsurfersettings: Tfrmsurfersettings
-  Left = 614
+  Left = 646
   Height = 894
-  Top = 45
+  Top = 74
   Width = 610
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
@@ -49,45 +49,45 @@ object frmsurfersettings: Tfrmsurfersettings
       ParentFont = False
       object GroupBox1: TGroupBox
         Left = 14
-        Height = 96
-        Top = 0
-        Width = 566
+        Height = 132
+        Top = 16
+        Width = 242
         Caption = 'Grid processing'
-        ClientHeight = 66
-        ClientWidth = 562
+        ClientHeight = 102
+        ClientWidth = 238
         ParentFont = False
         TabOrder = 0
         object Label2: TLabel
           Left = 15
           Height = 25
-          Top = 12
+          Top = 16
           Width = 89
           Caption = 'Smoothing'
           ParentColor = False
           ParentFont = False
         end
         object label1: TLabel
-          Left = 346
+          Left = 15
           Height = 25
-          Top = 12
+          Top = 56
           Width = 107
           Caption = 'Missing value'
           ParentColor = False
           ParentFont = False
         end
         object seFilter: TSpinEdit
-          Left = 120
+          Left = 144
           Height = 33
-          Top = 6
+          Top = 8
           Width = 74
           MaxValue = 0
           ParentFont = False
           TabOrder = 0
         end
         object eMissingVal: TEdit
-          Left = 472
+          Left = 144
           Height = 33
-          Top = 6
+          Top = 48
           Width = 74
           ParentFont = False
           TabOrder = 1
@@ -97,7 +97,7 @@ object frmsurfersettings: Tfrmsurfersettings
       object GroupBox2: TGroupBox
         Left = 14
         Height = 168
-        Top = 252
+        Top = 408
         Width = 360
         Caption = 'Label tolerance'
         ClientHeight = 138
@@ -164,7 +164,7 @@ object frmsurfersettings: Tfrmsurfersettings
       object GroupBox3: TGroupBox
         Left = 396
         Height = 168
-        Top = 252
+        Top = 408
         Width = 183
         Caption = 'Affected levels'
         ClientHeight = 138
@@ -233,49 +233,40 @@ object frmsurfersettings: Tfrmsurfersettings
         end
       end
       object GroupBox4: TGroupBox
-        Left = 240
-        Height = 132
-        Top = 108
-        Width = 339
-        Caption = 'Colour scale'
-        ClientHeight = 102
-        ClientWidth = 335
+        Left = 14
+        Height = 92
+        Top = 304
+        Width = 360
+        Caption = '   '
+        ClientHeight = 62
+        ClientWidth = 356
         ParentFont = False
         TabOrder = 3
         object Label22: TLabel
-          Left = 12
+          Left = 16
           Height = 25
-          Top = 57
+          Top = 20
           Width = 124
           Caption = 'Label frequency'
           ParentColor = False
           ParentFont = False
         end
         object seColScaleLbFreq: TSpinEdit
-          Left = 246
+          Left = 261
           Height = 33
-          Top = 45
-          Width = 74
+          Top = 8
+          Width = 75
           MaxValue = 999
           MinValue = 1
           ParentFont = False
           TabOrder = 0
           Value = 2
         end
-        object chkShowColourScale: TCheckBox
-          Left = 15
-          Height = 29
-          Top = 12
-          Width = 172
-          Caption = 'Show colour scale'
-          ParentFont = False
-          TabOrder = 1
-        end
       end
       object GroupBox7: TGroupBox
-        Left = 14
+        Left = 280
         Height = 132
-        Top = 108
+        Top = 16
         Width = 202
         Caption = 'Plot size, cm'
         ClientHeight = 102
@@ -322,6 +313,85 @@ object frmsurfersettings: Tfrmsurfersettings
           TabOrder = 1
           Value = 10
         end
+      end
+      object chkShowColourScale: TCheckBox
+        Left = 24
+        Height = 29
+        Top = 304
+        Width = 126
+        Caption = 'Colour scale'
+        ParentFont = False
+        TabOrder = 5
+      end
+      object GroupBox6: TGroupBox
+        Left = 14
+        Height = 136
+        Top = 160
+        Width = 565
+        Caption = '   '
+        ClientHeight = 106
+        ClientWidth = 561
+        TabOrder = 6
+        object chkUseClr: TCheckBox
+          Left = 15
+          Height = 29
+          Top = 17
+          Width = 51
+          Caption = 'Clr'
+          TabOrder = 0
+        end
+        object chkUseLvl: TCheckBox
+          Left = 15
+          Height = 29
+          Top = 56
+          Width = 51
+          Caption = 'Lvl'
+          TabOrder = 1
+        end
+        object eclrpath: TEdit
+          Left = 74
+          Height = 33
+          Top = 13
+          Width = 430
+          ReadOnly = True
+          TabOrder = 2
+        end
+        object elvlpath: TEdit
+          Left = 74
+          Height = 33
+          Top = 52
+          Width = 430
+          ReadOnly = True
+          TabOrder = 3
+        end
+        object btnclrpath: TButton
+          Left = 513
+          Height = 33
+          Top = 13
+          Width = 33
+          Caption = '...'
+          OnClick = btnclrpathClick
+          ParentFont = False
+          TabOrder = 4
+        end
+        object btnlvlpath: TButton
+          Left = 513
+          Height = 33
+          Top = 52
+          Width = 33
+          Caption = '...'
+          OnClick = btnlvlpathClick
+          ParentFont = False
+          TabOrder = 5
+        end
+      end
+      object chkFillContour: TCheckBox
+        Left = 24
+        Height = 29
+        Top = 160
+        Width = 118
+        Caption = 'Fill contour'
+        TabOrder = 7
       end
     end
     object TabSheet2: TTabSheet

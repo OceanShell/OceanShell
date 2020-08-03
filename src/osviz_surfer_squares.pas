@@ -19,7 +19,7 @@ type
     btnSamplesInLayers: TBitBtn;
     btnSelectAll_Layers: TBitBtn;
     btnSelectAll_Variables: TBitBtn;
-    btnSurferSettings: TButton;
+    btnSurferSettings: TBitBtn;
     cbAllOutputFiles: TComboBox;
     cbColumn: TComboBox;
     CheckBox1: TCheckBox;
@@ -237,10 +237,7 @@ begin
                 param, // variable name and its units
                 (cbColumn.ItemIndex+3),
                 ncols, nrows, //colums and rows
-                -180, 180, -90, 90, //region
-                'Rainbow', //preset name
-                '', // no custon clr
-                false //reversed!
+                -180, 180, -90, 90 //region
                 );
 
    {$IFDEF Windows}
@@ -271,6 +268,7 @@ begin
 
     tbl:=ListBox1.items.strings[kt];
     if pos(' ',tbl)<>0 then tbl:=copy(tbl,1,(pos(' ',tbl)));
+    tbl:=trim(tbl);
 
     with myQ do begin
       Close;
@@ -332,6 +330,7 @@ begin
 
      tbl:=CheckGroup1.items.Strings[kt];
      if pos(' ',tbl)<>0 then tbl:=copy(tbl,1,(pos(' ',tbl)));
+     tbl:=trim(tbl);
      memo1.Lines.Add(tbl);
 
 {L}for kl:=1 to 44 do begin
@@ -592,6 +591,8 @@ begin
    end;
 
    memo1.Lines.Add(tbl+'  profiles#: '+inttostr(prf_count));
+   Application.ProcessMessages;
+
    var_name:=copy(tbl,3,length(tbl));
 
    sq_index:=floattostr(step)+'x'+floattostr(step)+'_';
@@ -749,7 +750,7 @@ Type
 
 var
 i,kt,kl,klt,kln: integer;
-unit_id: integer;
+unit_id,tbl_count: integer;
 L1,L2: real;
 ltn,lts,lt,lnw,lne,ln :real;
 val :real;
@@ -782,6 +783,19 @@ begin
    if directoryexists(dir_name)=false then mkdir(dir_name);
    setcurrentdir(dir_name);
 
+      tbl_count:=0;
+{T}for kt:=0 to CheckGroup1.Items.Count-1 do begin
+{TC}if CheckGroup1.Checked[kt] then begin
+   tbl_count:=tbl_count+1;
+{TC}end;
+{T} end;
+
+  if tbl_count=0 then begin
+     showmessage('Variable does not selected');
+     Exit;
+  end;
+
+
     DT1:=NOW;
     memo1.Lines.Add('...start: '+datetimetostr(DT1));
     memo1.Lines.Add('');
@@ -794,6 +808,7 @@ begin
 
      tbl:=CheckGroup1.Items.Strings[kt];
      if pos(' ',tbl)<>0 then tbl:=copy(tbl,1,(pos(' ',tbl)));
+     tbl:=trim(tbl);
      var_name:=copy(tbl,3,length(tbl));
      memo1.Lines.Add(tbl);
 
@@ -908,6 +923,8 @@ begin
      val_conv:=-999;
      isconverted:=false;
 
+     if tbl = 'P_TEMPERATURE' then vu:=true;
+     if tbl = 'P_SALINITY' then vu:=true;
      if tbl = 'P_OXYGEN' then begin
      if unit_id=3 then vu:=true
      else begin
@@ -1070,6 +1087,7 @@ begin
 
    tbl:=CheckGroup1.items.Strings[kt];
    if pos(' ',tbl)<>0 then tbl:=copy(tbl,1,(pos(' ',tbl)));
+   tbl:=trim(tbl);
    var_name:=copy(tbl,3,length(tbl));
 
    {...total samples in layer}

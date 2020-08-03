@@ -14,14 +14,21 @@ type
 
   Tfrmsurfersettings = class(TForm)
     btnCancel: TButton;
+    btnclrpath: TButton;
+    btnlvlpath: TButton;
     btnSave: TButton;
     cbKrigDrift: TComboBox;
     cbKrigType: TComboBox;
     cbMethod: TComboBox;
-    chkShowColourScale: TCheckBox;
+    chkFillContour: TCheckBox;
+    chkUseClr: TCheckBox;
+    chkUseLvl: TCheckBox;
     chkSearch: TCheckBox;
+    chkShowColourScale: TCheckBox;
     eAnisRatio: TEdit;
     eCurveTol: TEdit;
+    eclrpath: TEdit;
+    elvlpath: TEdit;
     eL2edist: TEdit;
     eL2ldist: TEdit;
     eMCBoundTens: TEdit;
@@ -41,6 +48,7 @@ type
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
     GroupBox5: TGroupBox;
+    GroupBox6: TGroupBox;
     GroupBox7: TGroupBox;
     label1: TLabel;
     Label10: TLabel;
@@ -95,6 +103,8 @@ type
     TabSheet2: TTabSheet;
 
     procedure btnCancelClick(Sender: TObject);
+    procedure btnclrpathClick(Sender: TObject);
+    procedure btnlvlpathClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure cbMethodSelect(Sender: TObject);
     procedure eSearchEllipseRad1KeyPress(Sender: TObject; var Key: char);
@@ -233,6 +243,11 @@ Ini := TIniFile.Create(IniFileName);
  // rgOrientation.ItemIndex    :=Ini.ReadInteger  (src, 'ColourScaleOrient',   0);
   seColScaleLbFreq.Value     :=Ini.ReadInteger  (src, 'ColourScaleLbFreq',   1);
 
+  chkFillContour.Checked     :=Ini.ReadBool     (src, 'FillContour',         true);
+  chkUseClr.Checked          :=Ini.ReadBool     (src, 'UseCLR',              false);
+  chkUseLvl.Checked          :=Ini.ReadBool     (src, 'UseLVL',              false);
+  eclrpath.Text              :=Ini.ReadString   (src, 'clr',                 '');
+  elvlpath.Text              :=Ini.ReadString   (src, 'lvl',                 '');
 
  finally
    Ini.Free;
@@ -241,6 +256,19 @@ Ini := TIniFile.Create(IniFileName);
 
  Caption:='Surfer Settings: '+IntSrc;
  cbMethod.OnSelect(self);
+end;
+
+
+procedure Tfrmsurfersettings.btnclrpathClick(Sender: TObject);
+begin
+  frmosmain.OD.Filter:='Surfer clr files|*.clr';
+    if frmosmain.OD.Execute then eclrPath.Text:= frmosmain.OD.FileName;
+end;
+
+procedure Tfrmsurfersettings.btnlvlpathClick(Sender: TObject);
+begin
+  frmosmain.OD.Filter:='Surfer lvl files|*.lvl';
+    if frmosmain.OD.Execute then elvlPath.Text:= frmosmain.OD.FileName;
 end;
 
 
@@ -293,6 +321,12 @@ begin
     Ini.WriteBool   (IntSrc, 'ColourScaleShow',     chkShowColourScale.Checked);
   //  Ini.WriteInteger(IntSrc, 'ColourScaleOrient',   rgOrientation.ItemIndex);
     Ini.WriteInteger(IntSrc, 'ColourScaleLbFreq',   seColScaleLbFreq.Value);
+
+    Ini.WriteBool   (IntSrc, 'FillContour',         chkFillContour.Checked);
+    Ini.WriteBool   (IntSrc, 'UseCLR',              chkUseClr.Checked);
+    Ini.WriteBool   (IntSrc, 'UseLVL',              chkUseLvl.Checked);
+    Ini.WriteString (IntSrc, 'clr',                 eclrpath.Text);
+    Ini.WriteString (IntSrc, 'lvl',                 elvlpath.Text);
   finally
    Ini.Free;
   end;

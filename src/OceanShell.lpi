@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="48">
+    <Units Count="49">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -350,6 +350,10 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="osViz_surfer_squares"/>
       </Unit47>
+      <Unit48>
+        <Filename Value="osdbstructure_updater.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit48>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

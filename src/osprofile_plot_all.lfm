@@ -211,7 +211,7 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
     object chkShowBest: TCheckBox
       Left = 16
       Height = 29
-      Top = 30
+      Top = 8
       Width = 136
       Caption = 'Only the best'
       OnChange = chkShowBestChange
@@ -224,6 +224,15 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
       Width = 66
       Caption = 'Sources:'
       ParentColor = False
+    end
+    object chkCruiseHighlight: TCheckBox
+      Left = 16
+      Height = 29
+      Top = 40
+      Width = 153
+      Caption = 'Highlight cruise'
+      OnChange = chkCruiseHighlightChange
+      TabOrder = 1
     end
   end
   object ChartToolset1: TChartToolset

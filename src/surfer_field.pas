@@ -12,10 +12,7 @@ procedure GetFieldScript(src: string; //full path to the data file
                          varnameunits: string; //name of the variable and its units
                          column: integer; //column to plot
                          ncols, nrows: integer; //# of columns and rows for interpolation
-                         XMin, XMax, Ymin, YMax:real; //region limits
-                         preset: string; //name of color preset (e.g. "Bathymetry")
-                         clr: string; //path to predefined clr path
-                         isreversed: boolean //reverse color scale
+                         XMin, XMax, Ymin, YMax:real //region limits
                          );
 
 
@@ -26,10 +23,7 @@ procedure GetFieldScript(src: string; //full path to the data file
                          varnameunits: string; //name of the variable and its units
                          column: integer; //column to plot
                          ncols, nrows: integer; //# of columns and rows for interpolation
-                         XMin, XMax, Ymin, YMax:real; //region limits
-                         preset: string; //name of color preset (e.g. "Bathymetry")
-                         clr: string; //path to predefined clr path
-                         isreversed: boolean //reverse color scale
+                         XMin, XMax, Ymin, YMax:real //region limits
                          );
 Var
  Ini:TIniFile;
@@ -58,7 +52,7 @@ begin
  try
    WriteLn(f_scr, 'Sub Main');
    WriteLn(f_scr, 'Dim Surfer, Diagram, Doc As Object');
-   WriteLn(f_scr, 'pathcoastaline_gsb ="' +coastaline_gsb+'"');
+  // WriteLn(f_scr, 'pathcoastaline_gsb ="' +coastaline_gsb+'"');
    WriteLn(f_scr, 'pathcoastaline_bln ="' +coastaline_bln+'"');
    WriteLn(f_scr, 'pathDataFile ="' +src+'"');
    WriteLn(f_scr, 'pathDataGrid ="' +grd+'"');
@@ -240,7 +234,7 @@ begin
 
 
    (* Карта - подложка: берега на нулевой изобате *)
-   WriteLn(f_scr, 'Set BaseMap=Doc.Shapes.AddBaseMap(pathcoastaline_gsb)');
+   WriteLn(f_scr, 'Set BaseMap=Doc.Shapes.AddBaseMap(pathcoastaline_bln)');
    WriteLn(f_scr, 'Set BaseMap1 = BaseMap.Overlays(1)');
     if Ini.ReadBool(IniSet, 'ContBackground', true)=true then begin
      WriteLn(f_scr, 'BaseMap1.Fill.Pattern="Solid"');
@@ -258,8 +252,8 @@ begin
    WriteLn(f_scr, '  .yLength = '+Ini.ReadString(IniSet, 'PlotHeight', '16'));
    WriteLn(f_scr, '  .Top= 19');
    WriteLn(f_scr, '  .Left= 2');
-   WriteLn(f_scr, '  .BackgroundFill.Pattern = "10 Percent"');
-   WriteLn(f_scr, '  .BackgroundFill.ForeColor = srfGold');
+  // WriteLn(f_scr, '  .BackgroundFill.Pattern = "10 Percent"');
+  // WriteLn(f_scr, '  .BackgroundFill.ForeColor = srfGold');
    WriteLn(f_scr, '    L = .Left');
    WriteLn(f_scr, '    B = .Top-.Height');
    WriteLn(f_scr, 'End With');
@@ -267,13 +261,21 @@ begin
 
    WriteLn(f_scr, 'Set ContourMap = NewMap.Overlays(1)');
    WriteLn(f_scr, 'With ContourMap');
-   WriteLn(f_scr, '  .FillContours = True');
-   if preset<>'' then
-     WriteLn(f_scr, '  .FillForegroundColorMap.LoadPreset ("'+preset+'")');
-   if clr<>'' then
-     WriteLn(f_scr, '  .FillForegroundColorMap.LoadFile("'+clr+'")');
-   if isreversed=true then
-     WriteLn(f_scr, '  .FillForegroundColorMap.Reverse');
+
+   if Ini.ReadBool(IniSet, 'FillContour', true) then
+     WriteLn(f_scr, '  .FillContours = True');
+
+   if (Ini.ReadBool(IniSet, 'UseLVL', false)=true) and
+      (FileExists(Ini.ReadString(IniSet, 'lvl',''))=true) then
+        WriteLn(f_scr, '  .Levels.LoadFile("'+Ini.ReadString(IniSet, 'lvl','')+'")');
+
+   if (Ini.ReadBool(IniSet, 'UseCLR', false)=true) and
+      (FileExists(Ini.ReadString(IniSet, 'clr',''))=true) then
+        WriteLn(f_scr, '  .FillForegroundColorMap.LoadFile("'+Ini.ReadString(IniSet, 'clr','')+'")');
+
+  // if isreversed=true then
+  //   WriteLn(f_scr, '  .FillForegroundColorMap.Reverse');
+
    WriteLn(f_scr, '  .ApplyFillToLevels (FirstIndex:=1, NumberToSet:=1, NumberToSkip:=0)');
    WriteLn(f_scr, '  .LabelLabelDist ='+Ini.ReadString(IniSet, 'LevelToEdgeDist',  '1'));
    WriteLn(f_scr, '  .LabelEdgeDist  ='+Ini.ReadString(IniSet, 'LevelToLevelDist', '1'));
