@@ -588,3 +588,18 @@ SASHA-UX330	Sat Jul 11 10:29:04 2020
 	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
 	OIT 241813, OAT 241814, OST 241814, Next 241816
 
+
+SASHA-UX330	Mon Aug 03 15:26:11 2020
+	Database: X:\OCEANSHELL\DATABASES\ARGO-SYNTHETIC.FDB
+	internal Firebird consistency check (cannot find record back version (291), file: vio.cpp line: 4779)
+
+
+SASHA-UX330	Mon Aug 03 15:27:03 2020
+	Database: X:\OCEANSHELL\DATABASES\ARGO-SYNTHETIC.FDB
+	internal Firebird consistency check (cannot find record back version (291), file: vio.cpp line: 4779)
+
+
+SASHA-UX330	Mon Aug 03 15:29:10 2020
+	Database: X:\OCEANSHELL\DATABASES\ARGO-SYNTHETIC.FDB
+	internal Firebird consistency check (cannot find record back version (291), file: vio.cpp line: 4779)
+

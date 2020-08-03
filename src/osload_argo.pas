@@ -265,7 +265,7 @@ end;
 procedure Tfrmload_argo.Button2Click(Sender: TObject);
 Var
   dat:text;
-  c, k, cnt, max_id, pp:integer;
+  c, k, cnt, max_id, pp, cnt_kept, cnt_updated, cnt_new, cnt_skipped:integer;
 
   st, fname, prof_type, inst_code, date_str, platf, buf_str, date_upd:string;
   country_id, institute_id, project_id, cruise_id: integer;
@@ -273,7 +273,7 @@ Var
   lat, lon:string;
   stlat, stlon:real;
 
-  st_id_orig:Int64;
+//  st_id_orig:Int64;
 
 
   Qt2, Qt1:TSQLQuery;
@@ -281,11 +281,13 @@ Var
 
   stdate, stdate_upd, max_date:TDateTime;
   stnum:string;
+  cast, QF:integer;
 
 begin
 if not FileExists(epath.text+'ar_index_global_prof.txt') then
   if MessageDlg('ar_index_global_prof.txt cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
 
+memo1.Clear;
   try
      TRt:=TSQLTransaction.Create(self);
      TRt.DataBase:=frmdm.IBDB;
@@ -307,45 +309,22 @@ if not FileExists(epath.text+'ar_index_global_prof.txt') then
        Close;
       end;
 
+  AssignFile(dat, ePath.text+'argo_synthetic-profile_index.txt');
 
-      with Qt1 do begin
-       Close;
-        Sql.Clear;
-        SQL.Add(' select id, date_updated from station ');
-        SQL.Add(' where st_id_origin=:id_orig ');
-       Prepare;
-      end;
-
-      with Qt2 do begin
-       Close;
-        Sql.Clear;
-        SQL.Add(' insert into STATION ');
-        SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, CRUISE_ID, ');
-        SQL.Add(' ST_NUMBER_ORIGIN, ST_ID_ORIGIN, DATE_ADDED, DATE_UPDATED)');
-        SQL.Add(' VALUES ');
-        SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :CRUISE_ID, ');
-        SQL.Add(' :ST_NUMBER_ORIGIN, :ST_ID_ORIGIN, :DATE_ADDED, :DATE_UPDATED)');
-       Prepare;
-      end;
-
-  AssignFile(dat, ePath.text+'ar_index_global_prof.txt');
+ // AssignFile(dat, ePath.text+'ar_index_global_prof.txt');
   reset(dat);
 
-  cnt:=0;
+  cnt_kept:=0; cnt_updated:=0; cnt_new:=0; cnt_skipped:=0;
   repeat
    readln(dat, st);
   until copy(st,1, 4)='file';
 
- { repeat
-   inc(cnt);
-   readln(dat, st);
-  until cnt=385958; }
 
   repeat
    readln(dat, st);
 
    c:=0; pp:=0;
-   for k:=1 to 8 do begin
+   for k:=1 to 10 {8} do begin
     buf_str:='';
     repeat
       inc(c);
@@ -359,10 +338,11 @@ if not FileExists(epath.text+'ar_index_global_prof.txt') then
      3: lat:=buf_str;
      4: lon:=buf_str;
      7: inst_code:=buf_str;
-     8: date_upd:=buf_str;
+     10: date_upd:=buf_str; {8}
     end;
    end;
 
+   if copy(ExtractFileName(fname), 2, 1)='D' then QF:=4 else QF:=2;
 
    k:=Pos('/', fname);
    buf_str:='';
@@ -415,70 +395,89 @@ if not FileExists(epath.text+'ar_index_global_prof.txt') then
 
        inc(cnt);
 
-           with Qt2 do begin
-                 Close;
-                  Sql.Clear;
-                  SQL.Add(' UPDATE STATION SET ST_NUMBER_ORIGIN=:STNUM ');
-                  SQL.Add(' WHERE latitude=:lat and longitude=:lon and ');
-                  SQL.Add(' dateandtime=:date1');
-                  ParamByName('Lat').Value:=stlat;
-                  ParamByName('Lon').Value:=stlon;
-                  ParamByName('date1').Value:=stdate;
-                  ParamByName('STNUM').Value:=stnum;
-                 ExecSQL;
-             end;
+      with Qt1 do begin
+       Close;
+        Sql.Clear;
+        SQL.Add(' select id, date_updated from station ');
+        SQL.Add(' where cruise_id=:crID and st_number_origin=:stnum ');
+        ParamByName('crID').Value:=cruise_ID;
+        ParamByName('stnum').Value:=stnum;
+       Open;
+      end;
 
-   {   // showmessage(datetimetostr(stdate_upd)+'   '+datetimetostr(max_date));
-       with Qt1 do begin
-         ParamByName('ID_ORIG').Value:=st_id_orig;
-        Open;
-       end;
+      (* station is in the database *)
+      if Qt1.IsEmpty=false then begin
 
-       if Qt1.IsEmpty=false then begin
-        if Qt1.FieldByName('date_updated').AsDateTime>stdate_upd then begin
-         memo1.lines.add('Existing: '+inttostr(st_id_orig));
+        if Qt1.FieldByName('date_updated').AsDateTime>=stdate_upd then begin
+         inc(cnt_kept);
+        end;
+
+        if Qt1.FieldByName('date_updated').AsDateTime<stdate_upd then begin
+         inc(cnt_updated);
+
+         with Qt2 do begin
+           Close;
+            SQL.Clear;
+            SQL.Add(' UPDATE STATION SET ');
+            SQL.Add(' LATITUDE=:lat, ');
+            SQL.Add(' LONGITUDE=:lon, ');
+            SQL.Add(' DATEANDTIME=:date1, ');
+            SQL.Add(' QCFLAG=:QF, ');
+            SQL.Add(' DATE_UPDATED=:date_upd ');
+            SQL.Add(' where cruise_id=:crID and st_number_origin=:stnum ');
+            ParamByName('Lat').Value:=stlat;
+            ParamByName('Lon').Value:=stlon;
+            ParamByName('date1').Value:=stdate;
+            ParamByName('QF').Value:=QF;
+            ParamByName('date_upd').Value:=stdate_upd;
+            ParamByName('crID').Value:=cruise_ID;
+            ParamByName('stnum').Value:=stnum;
+           ExecSQL;
+         end;
+
+         memo1.lines.add('Updated: '+platf+'_'+stnum);
         end;
        end;
 
 
-       if Qt1.IsEmpty=true then begin
-       inc(cnt);
+      if Qt1.IsEmpty=true then begin
+       inc(cnt_new);
        inc(max_id);
-       //showmessage('here');
-     //  try
-        with Qt2 do begin
+
+       if copy(stnum, length(stnum), 1)='D' then cast:=2 else cast:=1;
+
+       with Qt2 do begin
+         Close;
+          Sql.Clear;
+          SQL.Add(' insert into STATION ');
+          SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, CRUISE_ID, ');
+          SQL.Add(' ST_NUMBER_ORIGIN, DATE_ADDED, DATE_UPDATED, ');
+          SQL.Add(' CAST_NUMBER, QCFLAG)');
+          SQL.Add(' VALUES ');
+          SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :CRUISE_ID, ');
+          SQL.Add(' :ST_NUMBER_ORIGIN, :DATE_ADDED, :DATE_UPDATED, ');
+          SQL.Add(' :CAST_NUMBER, :QCFLAG)');
           ParamByName('ID').Value:=max_id;
           ParamByName('latitude').Value:=StLat;
           ParamByName('longitude').Value:=StLon;
           ParamByName('dateandtime').Value:=StDate;
           ParamByName('cruise_id').Value:=cruise_id;
           ParamByName('st_number_origin').Value:=stnum;
-          ParamByName('st_id_origin').Value:=st_id_orig;
           ParamByName('date_added').Value:=stdate_upd;
           ParamByName('date_updated').Value:=stdate_upd;
+          ParamByName('cast_number').Value:=cast;
+          ParamByName('QCFLAG').Value:=QF;
          ExecSQL;
         end;
-
-        trt.CommitRetaining;
-        memo1.lines.add('added: '+
-                        inttostr(cnt)+'   '+
-                        floattostr(stlat)+'   '+
-                        floattostr(stlon)+'   '+
-                        datetimetostr(stdate)+'   '+
-                        datetimetostr(stdate_upd)+'   '+
-                        inttostr(st_id_orig));
-     {   except
-         trt.RollbackRetaining;
-         memo1.lines.add('insert error: '+st);
-        end;  }
+       memo1.lines.add('Inserted: '+platf+'_'+stnum);
        end; //q2
-       Qt1.Close;    }
+       Qt1.Close;
 
-    // end;// date>max_date
+     end; //Qt1;
+     Qt1.Close;
 
-     end; // coordinates in -90..90, -180..180
+     end else inc(cnt_skipped); // coordinates in -90..90, -180..180
 
-     end; // lat<>0
 
   until eof(dat);
   finally
@@ -487,7 +486,11 @@ if not FileExists(epath.text+'ar_index_global_prof.txt') then
      Qt2.Free;
      Trt.Free;
      memo1.lines.add('=====');
-     memo1.lines.add('Done! Added: '+inttostr(cnt));
+     memo1.lines.add('Done!');
+     memo1.lines.add('Unchanged: '+inttostr(cnt_kept));
+     memo1.lines.add('Updated: '  +inttostr(cnt_updated));
+     memo1.lines.add('Added: '    +inttostr(cnt_new));
+     memo1.lines.add('Skipped: '  +inttostr(cnt_skipped));
    end;
 
 end;

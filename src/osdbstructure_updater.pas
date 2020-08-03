@@ -31,7 +31,6 @@ begin
   end;
 
   if temp_fl=false then begin
-  // showmessage('TEMPORARY_ID_LIST not found');
    With frmdm.q1 do begin
      Close;
        SQL.Clear;
@@ -52,16 +51,14 @@ begin
    frmdm.TR.CommitRetaining;
   end;
 
-
   frmdm.IBDB.GetFieldNames('STATION', tmp_lst);
   temp_fl:=false;
   for k:=0 to tmp_lst.Count-1 do begin
     fld_name:=tmp_lst.Strings[k];
-    if tbl_name='BOTTOMDEPTH_GEBCO' then temp_fl:=true;
+    if fld_name='BOTTOMDEPTH_GEBCO' then temp_fl:=true;
   end;
 
   if temp_fl=false then begin
-   //showmessage('BOTTOMDEPTH_GEBCO not found');
    With frmdm.q1 do begin
      Close;
        SQL.Clear;
@@ -76,11 +73,10 @@ begin
   temp_fl:=false;
   for k:=0 to tmp_lst.Count-1 do begin
     fld_name:=tmp_lst.Strings[k];
-    if tbl_name='SELECTED' then temp_fl:=true;
+    if fld_name='SELECTED' then temp_fl:=true;
   end;
 
   if temp_fl=false then begin
-   //showmessage('SELECTED not found');
    With frmdm.q1 do begin
      Close;
        SQL.Clear;
@@ -95,11 +91,10 @@ begin
   temp_fl:=false;
   for k:=0 to tmp_lst.Count-1 do begin
     fld_name:=tmp_lst.Strings[k];
-    if tbl_name='SELECTED' then temp_fl:=true;
+    if fld_name='SELECTED' then temp_fl:=true;
   end;
 
   if temp_fl=false then begin
-   //showmessage('SELECTED not found');
    With frmdm.q1 do begin
      Close;
        SQL.Clear;
