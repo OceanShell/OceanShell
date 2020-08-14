@@ -70,6 +70,7 @@ begin
 
 
   frmdm.IBDB.GetFieldNames('CRUISE', tmp_lst);
+
   temp_fl:=false;
   for k:=0 to tmp_lst.Count-1 do begin
     fld_name:=tmp_lst.Strings[k];
@@ -81,6 +82,23 @@ begin
      Close;
        SQL.Clear;
        SQL.Add(' ALTER TABLE CRUISE ADD SELECTED BOOLEAN ');
+     ExecSQL;
+   end;
+   frmdm.TR.CommitRetaining;
+  end;
+
+
+  temp_fl:=false;
+  for k:=0 to tmp_lst.Count-1 do begin
+    fld_name:=tmp_lst.Strings[k];
+    if fld_name='DUPLICATE' then temp_fl:=true;
+  end;
+
+  if temp_fl=false then begin
+   With frmdm.q1 do begin
+     Close;
+       SQL.Clear;
+       SQL.Add(' ALTER TABLE CRUISE ADD DUPLICATE BOOLEAN ');
      ExecSQL;
    end;
    frmdm.TR.CommitRetaining;

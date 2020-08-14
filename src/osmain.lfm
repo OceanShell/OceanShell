@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 334
+  Left = 365
   Height = 700
-  Top = 152
+  Top = 178
   Width = 1382
   Caption = 'OceanShell'
   ClientHeight = 670
@@ -441,7 +441,7 @@ object frmosmain: Tfrmosmain
         end
       end
       object GroupBox4: TGroupBox
-        Left = 720
+        Left = 864
         Height = 136
         Top = 16
         Width = 208
@@ -483,66 +483,6 @@ object frmosmain: Tfrmosmain
           Value = 1
         end
       end
-      object GroupBox5: TGroupBox
-        Left = 952
-        Height = 136
-        Top = 16
-        Width = 120
-        Caption = 'QC Flag'
-        ClientHeight = 111
-        ClientWidth = 116
-        TabOrder = 8
-        object cbQCFlag1: TComboBox
-          Left = 24
-          Height = 28
-          Top = 16
-          Width = 64
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          ItemHeight = 20
-          ItemIndex = 0
-          Items.Strings = (
-            '0'
-            '1'
-            '2'
-            '3'
-            '4'
-            '5'
-            '6'
-            '7'
-            '8'
-          )
-          ParentFont = False
-          TabOrder = 0
-          Text = '0'
-        end
-        object cbQCFlag2: TComboBox
-          Left = 24
-          Height = 28
-          Top = 56
-          Width = 64
-          Font.Color = clWindowText
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          ItemHeight = 20
-          ItemIndex = 8
-          Items.Strings = (
-            '0'
-            '1'
-            '2'
-            '3'
-            '4'
-            '5'
-            '6'
-            '7'
-            '8'
-          )
-          ParentFont = False
-          TabOrder = 1
-          Text = '8'
-        end
-      end
       object lbResetSearchStations: TLabel
         Cursor = crHandPoint
         Left = 977
@@ -566,7 +506,7 @@ object frmosmain: Tfrmosmain
         Caption = 'Updated'
         ClientHeight = 103
         ClientWidth = 236
-        TabOrder = 9
+        TabOrder = 8
         object dtpDateUpdatedMax: TDateTimePicker
           Left = 24
           Height = 28
@@ -631,7 +571,7 @@ object frmosmain: Tfrmosmain
         BorderStyle = bsNone
         ClientHeight = 82
         ClientWidth = 1048
-        TabOrder = 10
+        TabOrder = 9
         object chkParameters: TCheckGroup
           Left = 0
           Height = 82
@@ -665,7 +605,7 @@ object frmosmain: Tfrmosmain
         BorderStyle = bsNone
         ClientHeight = 186
         ClientWidth = 240
-        TabOrder = 11
+        TabOrder = 10
         Visible = False
         object chkinstrument: TCheckGroup
           Left = 0
@@ -695,11 +635,15 @@ object frmosmain: Tfrmosmain
         Left = 1096
         Height = 29
         Top = 96
-        Width = 169
+        Width = 152
         Caption = 'Ignore duplicates'
         Checked = True
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
         State = cbChecked
-        TabOrder = 12
+        TabOrder = 11
       end
       object btnSelectID: TButton
         Left = 1096
@@ -712,7 +656,47 @@ object frmosmain: Tfrmosmain
         Font.Name = 'MS Sans Serif'
         OnClick = btnSelectIDClick
         ParentFont = False
+        TabOrder = 12
+      end
+      object cgQCFlag: TCheckGroup
+        Left = 720
+        Height = 168
+        Top = 16
+        Width = 128
+        AutoFill = True
+        Caption = 'QC Flag'
+        ChildSizing.LeftRightSpacing = 6
+        ChildSizing.TopBottomSpacing = 6
+        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+        ChildSizing.EnlargeVertical = crsHomogenousChildResize
+        ChildSizing.ShrinkHorizontal = crsScaleChilds
+        ChildSizing.ShrinkVertical = crsScaleChilds
+        ChildSizing.Layout = cclTopToBottomThenLeftToRight
+        ChildSizing.ControlsPerLine = 5
+        ClientHeight = 143
+        ClientWidth = 124
+        ColumnLayout = clVerticalThenHorizontal
+        Columns = 2
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        Items.Strings = (
+          '0'
+          '1'
+          '2'
+          '3'
+          '4'
+          '5'
+          '6'
+          '7'
+          '8'
+        )
+        ParentFont = False
         TabOrder = 13
+        Data = {
+          09000000020202020202020202
+        }
       end
     end
     object tsMainCruises: TTabSheet
@@ -1321,6 +1305,16 @@ object frmosmain: Tfrmosmain
         ParentFont = False
         OnClick = lbResetSearchCruisesClick
       end
+      object chkCruiseIgnoreDuplicates: TCheckBox
+        Left = 1136
+        Height = 29
+        Top = 96
+        Width = 152
+        Caption = 'Ignore duplicates'
+        Checked = True
+        State = cbChecked
+        TabOrder = 8
+      end
     end
     object tsMainEntries: TTabSheet
       Caption = 'Entry search'
@@ -1507,7 +1501,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton3: TToolButton
             Left = 101
-            Height = 33
+            Height = 5
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider
@@ -1622,6 +1616,7 @@ object frmosmain: Tfrmosmain
               FieldName = 'ID'
             end          
             item
+              DropDownRows = 20
               Title.Caption = 'Platform'
               FieldName = 'PLATFORM'
             end          
@@ -1630,22 +1625,13 @@ object frmosmain: Tfrmosmain
               FieldName = 'CRUISE_NUMBER'
             end          
             item
+              DropDownRows = 20
               Title.Caption = 'Source'
               FieldName = 'SOURCE'
             end          
             item
-              Title.Caption = 'Min date total'
-              FieldName = 'DATE_START_TOTAL'
-              DisplayFormat = 'DD.MM.YYYY'
-            end          
-            item
               Title.Caption = 'Min date DB'
               FieldName = 'DATE_START_DATABASE'
-              DisplayFormat = 'DD.MM.YYYY'
-            end          
-            item
-              Title.Caption = 'Max date total'
-              FieldName = 'DATE_END_TOTAL'
               DisplayFormat = 'DD.MM.YYYY'
             end          
             item
@@ -1654,12 +1640,22 @@ object frmosmain: Tfrmosmain
               DisplayFormat = 'DD.MM.YYYY'
             end          
             item
-              Title.Caption = 'St. total'
-              FieldName = 'STATIONS_TOTAL'
+              Title.Caption = 'Min date total'
+              FieldName = 'DATE_START_TOTAL'
+              DisplayFormat = 'DD.MM.YYYY'
+            end          
+            item
+              Title.Caption = 'Max date total'
+              FieldName = 'DATE_END_TOTAL'
+              DisplayFormat = 'DD.MM.YYYY'
             end          
             item
               Title.Caption = 'St. DB'
               FieldName = 'STATIONS_DATABASE'
+            end          
+            item
+              Title.Caption = 'St. total'
+              FieldName = 'STATIONS_TOTAL'
             end          
             item
               Title.Caption = 'St. dup'
@@ -1709,7 +1705,7 @@ object frmosmain: Tfrmosmain
           Color = 13627366
           Columns = <          
             item
-              ReadOnly = True
+              DropDownRows = 20
               Title.Caption = 'Country'
               FieldName = 'COUNTRY'
             end          

@@ -23,6 +23,7 @@ type
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
+    Button7: TButton;
     chkShowMetadata: TCheckBox;
     chkShowProfiles: TCheckBox;
     chkWrite: TCheckBox;
@@ -42,6 +43,7 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -94,19 +96,27 @@ date1, lon, lat:real;
 pres, lev, temp, sal, oxy, u, v, w, turb, chl, cdom, par, nobs, val, lev_m:real;
 st, CurFile, tbl:string;
 stDate, StTime:TDateTime;
-stvessel, stnumincruise, st_param, buf_str:string;
+stvessel, stnumincruise, st_param, buf_str, cruise:string;
 withdepth:boolean;
 
 TRt:TSQLTransaction;
 Qt:TSQLQuery;
 TempList:TListBox;
 
-cruise_id:integer;
+cruise_id, ID_MIN, ID_MAX:integer;
 begin
 
 
 {frmosmain.ProgressBar1.Position:=0;
 frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
+
+ cruise:=ListBox1.Items.Strings[0];
+ cruise:=copy(cruise, 4, pos('grd', cruise)-4);
+
+ ID_MIN:=10000000+strtoint(cruise)*10000;
+ ID_MAX:=10000000+strtoint(cruise)*10000+9999;
+
+// showmessage(inttostr(id_min)+'   '+inttostr(id_max));
 
  if chkWrite.Checked then begin
    (* temporary transaction for main database *)
@@ -117,7 +127,19 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
    Qt:=TSQLQuery.Create(self);
    Qt.Database:=frmdm.IBDB;
    Qt.Transaction:=TRt;
- end;
+
+
+   with Qt do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' DELETE FROM STATION ');
+      SQL.Add(' WHERE ID BETWEEN :ID_MIN AND :ID_MAX ');
+      ParamByName('ID_MIN').AsInteger:=ID_MIN;
+      ParamByName('ID_MAX').AsInteger:=ID_MAX;
+     ExecSQL;
+    end;
+    Trt.CommitRetaining;
+  end;
 
   For ff:=0 to ListBox1.Count-1 do begin
 
@@ -135,12 +157,15 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
 
     cast:=1;
 
-    id:=strtoint(stvessel)*10000+strtoint(stnumincruise);
+    id:=10000000+strtoint(stvessel)*10000+strtoint(stnumincruise);
 
-  //  showmessage(copy(curFile,length(curFile)-7,4));
+    cruise_id:=10000000+strtoint(stvessel);
+
+   // showmessage(inttostr(id)+'   '+inttostr(cruise_id));
+
 
     AssignFile(dat, Path+CurFile); Reset(dat);
-    try
+  //  try
       readln(dat, st);
 
     //  if copy(st, 10, 10) = 'deployment' then cast:=strtoint(trim(copy(st,
@@ -152,9 +177,9 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
       if lowercase(trim(copy(st, 17, 10)))<>'nan' then lon :=StrToFloat(trim(copy(st, 17, 10))) else lon:=-999;
       if lowercase(trim(copy(st, 28, 8)))<>'nan'  then lat :=StrToFloat(trim(copy(st, 28, 8)))  else lat:=-999;
       if lowercase(trim(copy(st, 37, 4)))<>'nan'  then ndepth:=StrToInt(trim(copy(st, 37, 4)))  else ndepth:=-999;
-     except
-       Showmessage(CurFile);
-    end;
+  //   except
+  //     Showmessage(CurFile);
+  //  end;
 
 
   if (date1<>-999) and (lat<>-999) and (lon<>-999) then begin
@@ -178,27 +203,24 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
       +#9+floattostr(lon)
       +#9+floattostr(lat));
 
-    cruise_id:={1000+}strtoint(stvessel);
-
      if chkWrite.Checked then begin
-      try
+      //try
        with Qt do begin
         Close;
         SQL.Clear;
         SQL.Add(' INSERT INTO STATION ' );
         SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, CRUISE_ID, ' );
-        SQL.Add('  INSTRUMENT_ID, ST_NUMBER_ORIGIN, CAST_NUMBER, QCFLAG, ' );
-        SQL.Add('  STVERSION, DUPLICATE, MERGED, DATE_ADDED)' );
+        SQL.Add('  ST_NUMBER_ORIGIN, CAST_NUMBER, QCFLAG, ' );
+        SQL.Add('  STVERSION, DUPLICATE, MERGED, DATE_ADDED, DATE_UPDATED)' );
         SQL.Add(' VALUES ' );
         SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :CRUISE_ID, ' );
-        SQL.Add('  :INSTRUMENT_ID, :ST_NUMBER_ORIGIN, :CAST_NUMBER, :QCFLAG, ' );
-        SQL.Add('   :STVERSION, :DUPLICATE, :MERGED, :DATE_ADDED) ' );
+        SQL.Add('  :ST_NUMBER_ORIGIN, :CAST_NUMBER, :QCFLAG, ' );
+        SQL.Add('   :STVERSION, :DUPLICATE, :MERGED, :DATE_ADDED, :DATE_UPDATED) ' );
         ParamByName('ID'               ).Value:=ID;
         ParamByName('LATITUDE'         ).Value:=lat;
         ParamByName('LONGITUDE'        ).Value:=lon;
         ParamByName('DATEANDTIME'      ).Value:=StDate;
-        ParamByName('CRUISE_ID'        ).Value:=Cruise_ID; //ID from CRUISE_WOD found by <WOD cruise number identification number>
-        ParamByName('INSTRUMENT_ID'    ).Value:=5;
+        ParamByName('CRUISE_ID'        ).Value:=Cruise_ID;
         ParamByName('ST_NUMBER_ORIGIN' ).Value:=stnumincruise;
         ParamByName('CAST_NUMBER'      ).Value:=cast;
         ParamByName('QCFLAG'           ).Value:=4;
@@ -206,14 +228,15 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
         ParamByName('DUPLICATE'        ).Value:=false;
         ParamByName('MERGED'           ).Value:=0;
         ParamByName('DATE_ADDED'       ).Value:=Now;
+        ParamByName('DATE_UPDATED'     ).Value:=Now;
         ExecSQL;
        end;
 
        Trt.CommitRetaining;
-     except
+    { except
        memo1.Lines.Add(CurFile);
        TrT.RollbackRetaining;
-     end;
+     end;  }
    end;
 {
 %pressure(dbar) temperature(C) salinity dissolved_oxygen nobs
@@ -280,32 +303,32 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
          // showmessage('here');
           case pp of
             1: begin
-               tbl:='P_TEMPERATURE_ITP';
+               tbl:='P_TEMPERATURE';
                 if not isNaN(temp) then val:=temp else val:=-9999;
                units_id:=1;
             end;
             2: begin
-               tbl:='P_SALINITY_ITP';
+               tbl:='P_SALINITY';
                 if not isNaN(sal)then val:=sal else val:=-9999;
                units_id:=2;
             end;
             3: begin
-               tbl:='P_OXYGEN_ITP';
+               tbl:='P_OXYGEN';
                 if not isNaN(oxy) then val:=oxy else val:=-9999;
                units_id:=3;
             end;
             4: begin
-              tbl:='P_CDOM_ITP';
+              tbl:='P_CDOM';
                if not isNaN(cdom)then val:=cdom else val:=-9999;
               units_id:=24;
             end;
             5: begin
-              tbl:='P_TURBIDITY_ITP';
+              tbl:='P_TURBIDITY';
                if not isNaN(turb)then val:=turb else val:=-9999;
               units_id:=22;
             end;
             6: begin
-              tbl:='P_CHLA_ITP';
+              tbl:='P_CHLOROPHYLL';
                if not isNaN(chl)then val:=chl else val:=-9999;
               units_id:=4;
             end;
@@ -322,29 +345,34 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
 
           if (val<>-9999) then begin
           lev_m:=-gibbsseawater.gsw_z_from_p(pres, lat, 0, 0);
-          try
+         // try
            with Qt do begin
             Close;
              SQL.Clear;
              SQL.Add(' insert into ');
              SQL.Add(tbl);
-             SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF1, PQF2, UNITS_ID) ');
+             SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF1, PQF2, UNITS_ID, ');
+             SQL.Add('  INSTRUMENT_ID, PROFILE_NUMBER, PROFILE_BEST) ');
              SQL.Add(' values ');
-             SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF1, :PQF2, :UNITS_ID) ');
+             SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF1, :PQF2, :UNITS_ID, ');
+             SQL.Add('  :INSTRUMENT_ID, :PROFILE_NUMBER, :PROFILE_BEST) ');
              ParamByName('ID').AsInteger:=id;
              ParamByName('LEV_DBAR').AsFloat:=pres;
-             ParamByName('LEV_DBAR').AsFloat:=lev_m;
+             ParamByName('LEV_M').AsFloat:=lev_m;
              ParamByName('VAL').AsFloat:=val;
              ParamByName('PQF1').AsInteger:=4;
              ParamByName('PQF2').AsInteger:=4;
              ParamByName('UNITS_ID').AsInteger:=units_id;
+             ParamByName('INSTRUMENT_ID').AsInteger:=5;
+             ParamByName('PROFILE_NUMBER').AsInteger:=1;
+             ParamByName('PROFILE_BEST').AsBoolean:=true;
             ExecSQL;
            end;
            Trt.CommitRetaining;
-          except
+         { except
            memo1.Lines.Add(CurFile+'   '+floattostr(pres));
            TrT.RollbackRetaining;
-          end;
+          end;  }
         end;
 
        end;
@@ -974,6 +1002,67 @@ begin
 
     frmdm.Q.Next;
   end; //Q
+
+  finally
+  Trt.Commit;
+  Qt1.close;
+  Qt2.Close;
+  Qt1.Free;
+  Qt2.Free;
+  TrT.Free;
+  end;
+end;
+
+procedure TfrmLoadITP.Button7Click(Sender: TObject);
+Var
+  ff, ID: integer;
+  tbl: string;
+  Lat, lev_d, lev_m: real;
+  TRt:TSQLTransaction;
+  Qt1, Qt2:TSQLQuery;
+begin
+   TRt:=TSQLTransaction.Create(self);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt1:=TSQLQuery.Create(self);
+   Qt1.Database:=frmdm.IBDB;
+   Qt1.Transaction:=TRt;
+
+   Qt2:=TSQLQuery.Create(self);
+   Qt2.Database:=frmdm.IBDB;
+   Qt2.Transaction:=TRt;
+
+ try
+
+  with Qt1 do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' SELECT ID FROM STATION ');
+    SQL.Add(' WHERE ID BETWEEN 10000000 AND 15000000 ');
+    SQL.Add(' AND QCFLAG=0 ');
+    SQL.Add(' ORDER BY ID ');
+   Open;
+  end;
+
+  while not Qt1.EOF do begin
+
+     For ff:=1 to frmosmain.ListBox1.Count-1 do begin
+      tbl:=frmosmain.ListBox1.Items.Strings[ff];
+
+      with Qt2 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' UPDATE '+tbl);
+        SQL.Add(' SET PQF1=0, PQF2=0 ');
+        SQL.Add(' WHERE ID=:ID ');
+        ParamByName('ID').AsInteger:=Qt1.FieldByName('ID').AsInteger;
+       ExecSqL;
+      end;
+     end;
+
+    Qt1.Next;
+  end;
+  TrT.CommitRetaining;
 
   finally
   Trt.Commit;

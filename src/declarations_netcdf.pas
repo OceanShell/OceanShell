@@ -107,7 +107,7 @@ function nc_get_var_float      (ncid : integer; varid : integer; Var ip : array 
 function nc_get_var_int        (ncid : integer; varid : integer; Var ip : array of integer)   :integer; cdecl; external netcdf;
 function nc_get_var_long       (ncid : integer; varid : integer; Var ip : array of int64)     :integer; cdecl; external netcdf;
 function nc_get_var_longlong   (ncid : integer; varid : integer; Var ip : array of int64)     :integer; cdecl; external netcdf;
-function nc_get_var_schar      (ncid : integer; varid : integer; Var ip : array of pAnsiChar) :integer; cdecl; external netcdf;
+function nc_get_var_schar      (ncid : integer; varid : integer; Var ip : array of shortint)  :integer; cdecl; external netcdf;
 function nc_get_var_short      (ncid : integer; varid : integer; Var ip : array of smallint)  :integer; cdecl; external netcdf;
 //function nc_get_var_string;    //CHECK
 function nc_get_var_text       (ncid : integer; varid : integer; Var ip : array of pAnsiChar) :integer; cdecl; external netcdf;

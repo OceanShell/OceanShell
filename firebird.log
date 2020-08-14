@@ -603,3 +603,205 @@ SASHA-UX330	Mon Aug 03 15:29:10 2020
 	Database: X:\OCEANSHELL\DATABASES\ARGO-SYNTHETIC.FDB
 	internal Firebird consistency check (cannot find record back version (291), file: vio.cpp line: 4779)
 
+
+SASHA-UX330	Wed Aug 05 00:14:50 2020
+	Sweep is started by SWEEPER
+	Database "X:\OCEANSHELL\DATABASES\ARGO-SYNTHETIC.FDB" 
+	OIT 130, OAT 20131, OST 20131, Next 20131
+
+
+SASHA-UX330	Wed Aug 05 00:15:25 2020
+	Sweep is finished
+	Database "X:\OCEANSHELL\DATABASES\ARGO-SYNTHETIC.FDB" 
+	OIT 20130, OAT 20524, OST 20524, Next 20525
+
+
+SASHA-UX330	Wed Aug 05 12:18:08 2020
+	Sweep is started by SWEEPER
+	Database "X:\OCEANSHELL\DATABASES\ARGO-SYNTHETIC.FDB" 
+	OIT 98741, OAT 118742, OST 118742, Next 118742
+
+
+SASHA-UX330	Wed Aug 05 15:46:30 2020
+	Sweep is finished
+	Database "X:\OCEANSHELL\DATABASES\ARGO-SYNTHETIC.FDB" 
+	OIT 118741, OAT 133070, OST 133070, Next 133071
+
+
+SASHA-UX330	Wed Aug 05 18:09:43 2020
+	Sweep is started by SWEEPER
+	Database "X:\OCEANSHELL\DATABASES\ARGO-SYNTHETIC.FDB" 
+	OIT 129090, OAT 149091, OST 149091, Next 149091
+
+
+SASHA-UX330	Wed Aug 05 19:36:44 2020
+	Sweep is finished
+	Database "X:\OCEANSHELL\DATABASES\ARGO-SYNTHETIC.FDB" 
+	OIT 149090, OAT 165961, OST 165961, Next 165962
+
+
+SASHA-UX330	Wed Aug 12 01:07:01 2020
+	Sweep is started by SWEEPER
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 859440, OAT 894942, OST 894942, Next 894943
+
+
+SASHA-UX330	Wed Aug 12 01:07:02 2020
+	Database: C:\OCEANSHELL\DATABASES\OCEAN.FDB
+	internal Firebird consistency check (applied differences will not fit in record (177), file: sqz.cpp line: 147)
+
+
+SASHA-UX330	Wed Aug 12 01:07:02 2020
+	Database: C:\OCEANSHELL\DATABASES\OCEAN.FDB
+	internal Firebird consistency check (applied differences will not fit in record (177), file: sqz.cpp line: 147)
+
+
+SASHA-UX330	Wed Aug 12 01:07:02 2020
+	Error during sweep of C:\OCEANSHELL\DATABASES\OCEAN.FDB:
+	internal Firebird consistency check (applied differences will not fit in record (177), file: sqz.cpp line: 147)
+
+
+SASHA-UX330	Wed Aug 12 01:07:02 2020
+	I/O error during "ReadFile" operation for file "C:\OCEANSHELL\DATABASES\OCEAN.FDB"
+	Error while trying to read from file
+	The handle is invalid. 
+
+
+SASHA-UX330	Wed Aug 12 01:07:02 2020
+	Database: C:\OCEANSHELL\DATABASES\OCEAN.FDB
+	I/O error during "ReadFile" operation for file "C:\OCEANSHELL\DATABASES\OCEAN.FDB"
+	Error while trying to read from file
+	The handle is invalid. 
+
+
+SASHA-UX330	Wed Aug 12 01:07:09 2020
+	Sweep is started by SWEEPER
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 859440, OAT 894942, OST 894942, Next 894992
+
+
+SASHA-UX330	Wed Aug 12 01:07:10 2020
+	Database: C:\OCEANSHELL\DATABASES\OCEAN.FDB
+	internal Firebird consistency check (applied differences will not fit in record (177), file: sqz.cpp line: 147)
+
+
+SASHA-UX330	Wed Aug 12 01:07:10 2020
+	Database: C:\OCEANSHELL\DATABASES\OCEAN.FDB
+	internal Firebird consistency check (applied differences will not fit in record (177), file: sqz.cpp line: 147)
+
+
+SASHA-UX330	Wed Aug 12 01:07:10 2020
+	Error during sweep of C:\OCEANSHELL\DATABASES\OCEAN.FDB:
+	internal Firebird consistency check (applied differences will not fit in record (177), file: sqz.cpp line: 147)
+
+
+SASHA-UX330	Wed Aug 12 01:07:10 2020
+	I/O error during "ReadFile" operation for file "C:\OCEANSHELL\DATABASES\OCEAN.FDB"
+	Error while trying to read from file
+	The handle is invalid. 
+
+
+SASHA-UX330	Wed Aug 12 01:07:10 2020
+	Database: C:\OCEANSHELL\DATABASES\OCEAN.FDB
+	I/O error during "ReadFile" operation for file "C:\OCEANSHELL\DATABASES\OCEAN.FDB"
+	Error while trying to read from file
+	The handle is invalid. 
+
+
+SASHA-UX330	Wed Aug 12 01:16:30 2020
+	Sweep is started by SWEEPER
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 859440, OAT 898043, OST 898043, Next 898046
+
+
+SASHA-UX330	Wed Aug 12 01:16:31 2020
+	Database: C:\OCEANSHELL\DATABASES\OCEAN.FDB
+	internal Firebird consistency check (applied differences will not fit in record (177), file: sqz.cpp line: 147)
+
+
+SASHA-UX330	Wed Aug 12 01:16:31 2020
+	Database: C:\OCEANSHELL\DATABASES\OCEAN.FDB
+	internal Firebird consistency check (applied differences will not fit in record (177), file: sqz.cpp line: 147)
+
+
+SASHA-UX330	Wed Aug 12 01:16:31 2020
+	Error during sweep of C:\OCEANSHELL\DATABASES\OCEAN.FDB:
+	internal Firebird consistency check (applied differences will not fit in record (177), file: sqz.cpp line: 147)
+
+
+SASHA-UX330	Wed Aug 12 01:16:31 2020
+	I/O error during "ReadFile" operation for file "C:\OCEANSHELL\DATABASES\OCEAN.FDB"
+	Error while trying to read from file
+	The handle is invalid. 
+
+
+SASHA-UX330	Wed Aug 12 01:16:31 2020
+	Database: C:\OCEANSHELL\DATABASES\OCEAN.FDB
+	I/O error during "ReadFile" operation for file "C:\OCEANSHELL\DATABASES\OCEAN.FDB"
+	Error while trying to read from file
+	The handle is invalid. 
+
+
+SASHA-UX330	Wed Aug 12 01:16:39 2020
+	Sweep is started by SWEEPER
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 859440, OAT 898101, OST 898100, Next 898102
+
+
+SASHA-UX330	Wed Aug 12 01:16:41 2020
+	Database: C:\OCEANSHELL\DATABASES\OCEAN.FDB
+	internal Firebird consistency check (applied differences will not fit in record (177), file: sqz.cpp line: 147)
+
+
+SASHA-UX330	Wed Aug 12 01:16:41 2020
+	Database: C:\OCEANSHELL\DATABASES\OCEAN.FDB
+	internal Firebird consistency check (applied differences will not fit in record (177), file: sqz.cpp line: 147)
+
+
+SASHA-UX330	Wed Aug 12 01:16:41 2020
+	Error during sweep of C:\OCEANSHELL\DATABASES\OCEAN.FDB:
+	internal Firebird consistency check (applied differences will not fit in record (177), file: sqz.cpp line: 147)
+
+
+SASHA-UX330	Wed Aug 12 01:16:41 2020
+	I/O error during "ReadFile" operation for file "C:\OCEANSHELL\DATABASES\OCEAN.FDB"
+	Error while trying to read from file
+	The handle is invalid. 
+
+
+SASHA-UX330	Wed Aug 12 01:16:41 2020
+	Database: C:\OCEANSHELL\DATABASES\OCEAN.FDB
+	I/O error during "ReadFile" operation for file "C:\OCEANSHELL\DATABASES\OCEAN.FDB"
+	Error while trying to read from file
+	The handle is invalid. 
+
+
+SASHA-UX330	Fri Aug 14 21:32:47 2020
+	Sweep is started by SWEEPER
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 713637, OAT 734129, OST 734129, Next 734130
+
+
+SASHA-UX330	Fri Aug 14 21:34:14 2020
+	Sweep is started by SWEEPER
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 713637, OAT 734136, OST 734136, Next 734137
+
+
+SASHA-UX330	Fri Aug 14 21:43:48 2020
+	Sweep is finished
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 734135, OAT 734136, OST 734136, Next 1061169
+
+
+SASHA-UX330	Fri Aug 14 22:03:21 2020
+	Sweep is started by SWEEPER
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 734135, OAT 2290639, OST 2290639, Next 2290640
+
+
+SASHA-UX330	Fri Aug 14 22:03:26 2020
+	Sweep is finished
+	Database "C:\OCEANSHELL\DATABASES\OCEAN.FDB" 
+	OIT 2290638, OAT 2290639, OST 2290639, Next 2290642
+

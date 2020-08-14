@@ -52,13 +52,12 @@ type
     cbCruiseProject: TCheckComboBox;
     cbCruiseSource: TCheckComboBox;
     cbCruisePlatform: TCheckComboBox;
-    cbQCFlag1: TComboBox;
-    cbQCFlag2: TComboBox;
     cbSource: TCheckComboBox;
     cbPlatform: TCheckComboBox;
     cbCountry: TCheckComboBox;
     cbInstitute: TCheckComboBox;
     cbProject: TCheckComboBox;
+    cgQCFlag: TCheckGroup;
     chkSelectDuplicates: TCheckBox;
     chkCruiseNOTCountry: TCheckBox;
     chkCruiseNOTInstitute: TCheckBox;
@@ -73,6 +72,7 @@ type
     chkParameters: TCheckGroup;
     chkinstrument: TCheckGroup;
     chkPeriod: TCheckBox;
+    chkCruiseIgnoreDuplicates: TCheckBox;
     DBGridCruise1: TDBGrid;
     DBGridCruise2: TDBGrid;
     DBGridEntry: TDBGrid;
@@ -103,7 +103,6 @@ type
     gbAuxiliaryParameters: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
-    GroupBox5: TGroupBox;
     GroupBox6: TGroupBox;
     GroupBox7: TGroupBox;
     GroupBox8: TGroupBox;
@@ -600,6 +599,11 @@ begin
      Columns[13].Width:=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col13',    60);
     end;
 
+
+    for k:=0 to cgQCFlag.Items.Count-1 do
+      cgQCFlag.Checked[k]:= Ini.ReadBool( 'osmain', 'QCF'+inttostr(k), true);
+
+
    (* Essencial program folders *)
     GlobalSupportPath := Ini.ReadString('main', 'SupportPath', GlobalPath+'support'+PathDelim);
       if not DirectoryExists(GlobalSupportPath) then CreateDir(GlobalSupportPath);
@@ -677,7 +681,7 @@ NotCondInstitute, NotCondProject, NotCondOrigin, SBordersFile:string;
 MinDay, MaxDay, cnt:integer;
 Lat, Lon:real; }
 time0, time1:TDateTime;
-buf_str, SQL_str: string;
+buf_str, SQL_str, QCFlag_str: string;
 t_begin:TDateTime;
 begin
 
@@ -693,6 +697,7 @@ try
   if chkNOTSource.Checked    =true then NotCondSource    :='NOT' else NotCondSource    :='';
   if chkNOTInstitute.Checked =true then NotCondInstitute :='NOT' else NotCondInstitute :='';
   if chkNOTProject.Checked   =true then NotCondProject   :='NOT' else NotCondProject   :='';
+
 
  t_begin:=now;
  with frmdm.Q do begin
@@ -712,6 +717,7 @@ try
     SQL.Add(' WHERE ');
 
     SQL_str:='';
+
     (* Parameters *)
     for k:=0 to chkParameters.Items.Count-1 do
        if chkParameters.Checked[k] then
@@ -722,7 +728,15 @@ try
     SQL_str:=SQL_str+' PLATFORM.COUNTRY_ID=COUNTRY.ID AND ';
     SQL_str:=SQL_str+' CRUISE.SOURCE_ID=SOURCE.ID ';
     SQL_str:=SQL_str+' AND (STATION.ID BETWEEN :SSIDMin AND :SSIDMax) ';
-    SQL_str:=SQL_str+' AND (STATION.QCFLAG BETWEEN :SSQCMin AND :SSQCMax) ';
+
+    (* QC Flag *)
+    QCFlag_str:='';
+    for k:=0 to cgQCFlag.Items.Count-1 do
+      if cgQCFlag.Checked[k]=true then
+       QCFlag_str:=QCFlag_str+inttostr(k)+',';
+    QCFlag_str:=copy(QCFlag_str, 1, length(QCFlag_str)-1);
+    if trim(QCFlag_str)<>'' then
+      SQL_str:=SQL_str+' AND (STATION.QCFLAG IN ('+QCFlag_str+')) ';
 
     (* Coordinates *)
     SQL_str:=SQL_str+' AND (LATITUDE BETWEEN :SSLatMin AND :SSLatMax) ';
@@ -799,7 +813,7 @@ try
     end;
 
     if chkSelectDuplicates.Checked=true then
-      SQL_str:=SQL_str+' AND DUPLICATE=FALSE ';
+      SQL_str:=SQL_str+' AND STATION.DUPLICATE=FALSE ';
 
     SQL.Add(SQL_str);
     SQL.Add(' ORDER BY DATEANDTIME ');
@@ -807,8 +821,8 @@ try
     ParamByName('SSIDMin').AsInteger:=seIDMin.Value;
     ParamByName('SSIDMax').AsInteger:=seIDMax.Value;
 
-    ParamByName('SSQCMin').AsInteger:=StrToInt(cbQCFlag1.Text);
-    ParamByName('SSQCMax').AsInteger:=StrToInt(cbQCFlag2.Text);
+    //ParamByName('SSQCMin').AsInteger:=StrToInt(cbQCFlag1.Text);
+    //ParamByName('SSQCMax').AsInteger:=StrToInt(cbQCFlag2.Text);
 
     ParamByName('SSLatMin').AsFloat:=seLatMin.Value;
     ParamByName('SSLatMax').AsFloat:=seLatMax.Value;
@@ -844,8 +858,6 @@ finally
   Application.ProcessMessages;
 end;
 end;
-
-
 
 
 procedure Tfrmosmain.SelectGetCruisesFromStation(SQL_str:string);
@@ -927,7 +939,7 @@ begin
       SQL.Add(' CRUISE.DATE_END_TOTAL, CRUISE.DATE_START_DATABASE,  ');
       SQL.Add(' CRUISE.DATE_END_DATABASE, CRUISE.LATITUDE_MIN, CRUISE.LATITUDE_MAX, ');
       SQL.Add(' CRUISE.LONGITUDE_MIN, CRUISE.LONGITUDE_MAX, CRUISE.EXPOCODE, ');
-      SQL.Add(' CRUISE.PI, CRUISE.NOTES, CRUISE.STATIONS_TOTAL, ');
+      SQL.Add(' CRUISE.PI, CRUISE.NOTES, CRUISE.STATIONS_TOTAL, CRUISE.SELECTED, ');
       SQL.Add(' CRUISE.STATIONS_DATABASE, CRUISE.STATIONS_DUPLICATES ');
       SQL.Add(' FROM CRUISE, PLATFORM, COUNTRY, SOURCE, INSTITUTE, PROJECT ');
       SQL.Add(' WHERE ');
@@ -1054,8 +1066,9 @@ begin
       SQL.Add(' CRUISE.DATE_END_TOTAL, CRUISE.DATE_START_DATABASE,  ');
       SQL.Add(' CRUISE.DATE_END_DATABASE, CRUISE.LATITUDE_MIN, CRUISE.LATITUDE_MAX, ');
       SQL.Add(' CRUISE.LONGITUDE_MIN, CRUISE.LONGITUDE_MAX, CRUISE.EXPOCODE, ');
-      SQL.Add(' CRUISE.PI, CRUISE.NOTES, CRUISE.STATIONS_TOTAL, CRUISE.SELECTED, ');
-      SQL.Add(' CRUISE.STATIONS_DATABASE, CRUISE.STATIONS_DUPLICATES ');
+      SQL.Add(' CRUISE.PI, CRUISE.NOTES, CRUISE.STATIONS_TOTAL, ');
+      SQL.Add(' CRUISE.STATIONS_DATABASE, CRUISE.STATIONS_DUPLICATES, ');
+      SQL.Add(' CRUISE.SELECTED ');
       SQL.Add(' FROM CRUISE, PLATFORM, COUNTRY, SOURCE, INSTITUTE, PROJECT ');
       SQL.Add(' WHERE ');
       SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
@@ -1130,6 +1143,9 @@ begin
           SQL_str:=SQL_str+QuotedStr(cbCruiseProject.Items.Strings[k])+',';
      SQL_str:=copy(SQL_str, 1, length(SQL_str)-1)+') ';
     end;
+
+    if chkCruiseIgnoreDuplicates.Checked=true then
+      SQL_str:=SQL_str+' AND CRUISE.DUPLICATE=FALSE ';
 
     SQL.Add( SQL_str);
     SQL.Add(' ORDER BY PLATFORM.NAME, CRUISE.DATE_START_TOTAL ' );
@@ -1937,6 +1953,7 @@ begin
 
       DBGridCruise1.Columns[2].PickList:=cbPlatform.Items;
       DBGridCruise1.Columns[4].PickList:=cbSource.Items;
+
       DBGridCruise2.Columns[0].PickList:=cbCountry.Items;
       DBGridCruise2.Columns[1].PickList:=cbInstitute.Items;
       DBGridCruise2.Columns[2].PickList:=cbProject.Items;
@@ -2169,8 +2186,8 @@ begin
        LatMax:=0;
        LonMin:=0;
        LonMax:=0;
-       DateMin:=EncodeDate(0001, 01, 01);
-       DateMax:=EncodeDate(0001, 01, 01);
+       DateMin:=EncodeDate(1900, 01, 01);
+       DateMax:=EncodeDate(1900, 01, 01);
        cnt:=0;
       end;
      Close;
@@ -2793,7 +2810,7 @@ begin
      if (Editor is TCustomComboBox) then
       with Editor as TCustomComboBox do
           Style := csDropDownList;
-  end;
+    end;
 end;
 
 
@@ -3106,6 +3123,7 @@ end;
 procedure Tfrmosmain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 Var
   Ini:TIniFile;
+  k: integer;
 begin
   Ini := TIniFile.Create(IniFileName);
    try
@@ -3209,6 +3227,10 @@ begin
      Ini.writeInteger( 'osmain', 'DBGridStation2_Col12',  Columns[12].Width);
      Ini.writeInteger( 'osmain', 'DBGridStation2_Col13',  Columns[13].Width);
     end;
+
+
+    for k:=0 to cgQCFlag.Items.Count-1 do
+     Ini.WriteBool( 'osmain', 'QCF'+inttostr(k), cgQCFlag.Checked[k]);
 
    finally
      Ini.Free;
