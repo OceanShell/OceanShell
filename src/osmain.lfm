@@ -1501,7 +1501,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton3: TToolButton
             Left = 101
-            Height = 5
+            Height = 33
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider
@@ -1806,13 +1806,13 @@ object frmosmain: Tfrmosmain
     object tsSelectedStations: TTabSheet
       Caption = 'Selected stations'
       ClientHeight = 563
-      ClientWidth = 1372
+      ClientWidth = 1374
       TabVisible = False
       object ToolBar3: TToolBar
         Left = 0
         Height = 33
         Top = 0
-        Width = 1372
+        Width = 1374
         AutoSize = True
         Caption = 'ToolBar3'
         EdgeBorders = []
@@ -1860,7 +1860,7 @@ object frmosmain: Tfrmosmain
         end
         object ToolButton1: TToolButton
           Left = 106
-          Height = 5
+          Height = 33
           Top = 0
           Caption = 'ToolButton1'
           Style = tbsDivider
@@ -1870,7 +1870,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 243
         Top = 320
-        Width = 1372
+        Width = 1374
         Align = alClient
         AlternateColor = 13631478
         AutoAdvance = aaNone
@@ -1900,10 +1900,6 @@ object frmosmain: Tfrmosmain
             Title.Caption = 'Last lev., dBar'
             Width = 112
             FieldName = 'LASTLEVEL_DBAR'
-          end        
-          item
-            Title.Caption = 'Region'
-            FieldName = 'REGION_ID'
           end        
           item
             MinSize = 15
@@ -1977,7 +1973,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 8
         Top = 312
-        Width = 1372
+        Width = 1374
         Align = alTop
         Beveled = True
         ResizeAnchor = akTop
@@ -1986,7 +1982,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 279
         Top = 33
-        Width = 1372
+        Width = 1374
         Align = alTop
         AlternateColor = 13631478
         AutoAdvance = aaNone
@@ -2273,7 +2269,7 @@ object frmosmain: Tfrmosmain
       end
     end
     object iKnowledgeDB: TMenuItem
-      Caption = 'KnowledgeDB'
+      Caption = 'Knowledge DB'
       object iSupportTables: TMenuItem
         Caption = 'Open support tables'
         ImageIndex = 323
@@ -2326,12 +2322,12 @@ object frmosmain: Tfrmosmain
         Caption = 'Station duplicates'
         OnClick = iDuplicatesClick
       end
+      object iQCflagfromfile: TMenuItem
+        Caption = 'Set QC flags from file'
+        OnClick = iQCflagfromfileClick
+      end
       object MenuItem6: TMenuItem
         Caption = '-'
-      end
-      object iUpdateCRUISEDB: TMenuItem
-        Caption = 'Update CRUISE info'
-        OnClick = iUpdateCRUISEDBClick
       end
       object iBottomDepthGEBCO: TMenuItem
         Caption = 'Update depth from GEBCO'
@@ -2492,7 +2488,6 @@ object frmosmain: Tfrmosmain
     object iUpdateCruise: TMenuItem
       Caption = 'Update cruise info'
       ImageIndex = 50
-      Visible = False
       OnClick = iUpdateCruiseClick
     end
   end

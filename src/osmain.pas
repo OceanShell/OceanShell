@@ -128,10 +128,10 @@ type
     iQC_dbar_meter: TMenuItem;
     iExportASCII: TMenuItem;
     iLoadARGO: TMenuItem;
-    iUpdateCRUISEDB: TMenuItem;
     iUpdateUnits: TMenuItem;
     iVisualization: TMenuItem;
     iPlotBathymetry: TMenuItem;
+    iQCflagfromfile: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
     iBottomDepthGEBCO: TMenuItem;
@@ -290,6 +290,7 @@ type
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
     procedure iPlotBathymetryClick(Sender: TObject);
+    procedure iQCflagfromfileClick(Sender: TObject);
     procedure iQC_dbar_meterClick(Sender: TObject);
     procedure iSelectCruiseClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
@@ -298,7 +299,6 @@ type
     procedure iSettingsClick(Sender: TObject);
     procedure iStandarddeviationslayersClick(Sender: TObject);
     procedure iSupportTablesClick(Sender: TObject);
-    procedure iUpdateCRUISEDBClick(Sender: TObject);
     procedure iUpdateLastLevelClick(Sender: TObject);
     procedure iUpdateUnitsClick(Sender: TObject);
     procedure iVisualizationSurferSquaresClick(Sender: TObject);
@@ -436,6 +436,7 @@ uses
   osqc_dbar_meters_consistency,
   osqc_duplicates,
   osqc_meanprofile,
+  osqc_setflags,
 
 (* tools *)
   osmap,
@@ -596,7 +597,6 @@ begin
      Columns[10].Width:=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col10',    60);
      Columns[11].Width:=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col11',    60);
      Columns[12].Width:=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col12',    60);
-     Columns[13].Width:=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col13',    60);
     end;
 
 
@@ -633,9 +633,10 @@ begin
    eCruise_PI.OnChange           := @SearchPI; }
 
 
- // for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
+ (* disabling menu items *)
+  for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
 
- (* list of sources *)
+ (* list of unique sources - only those selected *)
  Source_unq:=TStringList.Create;
 
  (* Disabling some menu items if there is no GEBCO *)
@@ -1201,7 +1202,16 @@ begin
   frmdm.TR.CommitRetaining;
 
  try
+  (* saving current ID *)
   crID_old:=frmdm.QCruise.FieldByName('ID').AsInteger;
+
+  (* making sure that current cruise is selected *)
+  with frmdm.QCruise do begin
+   Edit;
+    FieldByName('SELECTED').AsBoolean:=true;
+   Post;
+  end;
+
   frmdm.QCruise.DisableControls;
   frmdm.QCruise.First;
   cnt:=0;
@@ -2118,208 +2128,111 @@ end;
 end;
 
 
-procedure Tfrmosmain.iUpdateCRUISEDBClick(Sender: TObject);
-Var
-ID, k : integer;
-
-TRt:TSQLTransaction;
-Qt, Qt1:TSQLQuery;
-
-LatMin, LatMax, LonMin, LonMax: real;
-DateMin, DateMax: TDateTime;
-cnt: integer;
-begin
- try
-  TRt:=TSQLTransaction.Create(self);
-  TRt.DataBase:=frmdm.IBDB;
-
-  Qt:=TSQLQuery.Create(self);
-  Qt.Database:=frmdm.IBDB;
-  Qt.Transaction:=TRt;
-
-  Qt1:=TSQLQuery.Create(self);
-  Qt1.Database:=frmdm.IBDB;
-  Qt1.Transaction:=TRt;
-
-   with Qt do begin
-     Close;
-       SQL.Clear;
-       SQL.Add(' SELECT ID FROM CRUISE ORDER BY ID ');
-     Open;
-     Last;
-     First;
-   end;
-
-   k:=0;
-   while not Qt.eof do begin
-    inc(k);
-
-    ID:=Qt.FieldByName('ID').AsInteger;
-
-    cnt:=0;
-    with Qt1 do begin
-     Close;
-      SQL.Clear;
-      SQL.Add(' SELECT ');
-      SQL.Add(' min(LATITUDE) as LatMin, ');
-      SQL.Add(' max(LATITUDE) as LatMax, ');
-      SQL.Add(' min(LONGITUDE) as LonMin, ');
-      SQL.Add(' max(LONGITUDE) as LonMax, ');
-      SQL.Add(' min(DATEANDTIME) as DateMin, ');
-      SQL.Add(' max(DATEANDTIME) as DateMax, ');
-      SQL.Add(' count(ID) as cnt ');
-      SQL.Add(' FROM STATION ');
-      SQL.Add(' where CRUISE_ID=:CR_ID ');
-      ParamByName('CR_ID').AsInteger:=ID;
-     Open;
-      if Qt1.FieldByName('cnt').AsInteger>0 then begin
-       LatMin:=Qt1.FieldByName('LatMin').Value;
-       LatMax:=Qt1.FieldByName('LatMax').Value;
-       LonMin:=Qt1.FieldByName('LonMin').Value;
-       LonMax:=Qt1.FieldByName('LonMax').Value;
-       DateMin:=Qt1.FieldByName('DateMin').Value;
-       DateMax:=Qt1.FieldByName('DateMax').Value;
-       cnt:=Qt1.FieldByName('cnt').Value;
-      end;
-      if Qt1.FieldByName('cnt').AsInteger=0 then begin
-       LatMin:=0;
-       LatMax:=0;
-       LonMin:=0;
-       LonMax:=0;
-       DateMin:=EncodeDate(1900, 01, 01);
-       DateMax:=EncodeDate(1900, 01, 01);
-       cnt:=0;
-      end;
-     Close;
-    end;
-
-    with frmdm.q1 do begin
-     Close;
-      SQL.Clear;
-      SQL.Add(' UPDATE CRUISE SET ');
-      SQL.Add(' LATITUDE_MIN=:LatMin, ');
-      SQL.Add(' LATITUDE_MAX=:LatMax, ');
-      SQL.Add(' LONGITUDE_MIN=:LonMin, ');
-      SQL.Add(' LONGITUDE_MAX=:LonMax, ');
-      SQL.Add(' DATE_START_DATABASE=:DateMin, ');
-      SQL.Add(' DATE_END_DATABASE=:DateMax, ');
-      SQL.Add(' STATIONS_DATABASE=:cnt ');
-      SQL.Add(' WHERE ID=:CR_ID ');
-      ParamByName('CR_ID').AsInteger:=ID;
-      ParamByName('LatMin').Value:=LatMin;
-      ParamByName('LatMax').Value:=LatMax;
-      ParamByName('LonMin').Value:=LonMin;
-      ParamByName('LonMax').Value:=LonMax;
-      ParamByName('DateMin').Value:=DateMin;
-      ParamByName('DateMax').Value:=DateMax;
-      ParamByName('cnt').Value:=cnt;
-     ExecSQL;
-    end;
-
-    Procedures.ProgressTaskbar(k, Qt.RecordCount-1);
-    Qt.Next;
-   end;
-
-    finally
-      Qt.Close;
-      Qt1.Close;
-      Trt.Commit;
-      Qt.Free;
-      Qt1.Free;
-      Trt.Free;
-      frmdm.TR.CommitRetaining;
-    end;
-
-    if MessageDlg('Cruise info was successfuly updated',
-        mtInformation, [mbOk], 0)=mrOk then Procedures.ProgressTaskbar(0, 0);
-end;
-
 procedure Tfrmosmain.iUpdateCruiseClick(Sender: TObject);
 Var
-  dat:text;
-  ID, ID_OLD, k, cnt1, cnt2, err_cnt: integer;
-  date_min1, date_max1, date_min2, date_max2:TDateTime;
+  ID, k : integer;
+
+  TRt:TSQLTransaction;
+  Qt, Qt1:TSQLQuery;
+
+  LatMin, LatMax, LonMin, LonMax: real;
+  DateMin, DateMax: TDateTime;
+  cnt: integer;
 begin
-AssignFile(dat, GlobalUnloadPath+'CatalogUpdate.txt'); rewrite(dat);
-  try
-    ID_OLD:=frmdm.QCruise.FieldByName('ID').AsInteger;
+   try
+    TRt:=TSQLTransaction.Create(self);
+    TRt.DataBase:=frmdm.IBDB;
 
-    frmdm.QCruise.DisableControls;
-    frmdm.QCruise.First;
+    Qt:=TSQLQuery.Create(self);
+    Qt.Database:=frmdm.IBDB;
+    Qt.Transaction:=TRt;
 
-     with frmdm.q1 do begin
-       Close;
-         SQL.Clear;
-         SQL.Add(' SELECT ');
-         SQL.Add(' min(DATEANDTIME) as min_date, ');
-         SQL.Add(' max(DATEANDTIME) as max_date, ');
-         SQL.Add(' count(ID) as cnt ');
-         SQL.Add(' FROM STATION ');
-         SQL.Add(' where CRUISE_ID=:CR_ID ');
-       Prepare;
-     end;
+     frmdm.QCruise.DisableControls;
+     frmdm.QCruise.First;
 
-     with frmdm.q2 do begin
-       Close;
-         SQL.Clear;
-         SQL.Add(' UPDATE CRUISE SET ');
-         SQL.Add(' DATE_START=:min_date, DATE_END=:max_date, STATIONS_AMOUNT=:cnt ');
-         SQL.Add(' where ID=:CR_ID ');
-       Prepare;
-     end;
-
-   { k:=0;
-    err_cnt:=0;
-    RecListCruise.CurrentRowSelected:=true;
-    while not frmdm.QCruise.EOF do begin
+     k:=0;
+     while not frmdm.QCruise.eof do begin
       inc(k);
-      ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
 
-      date_min1:=frmdm.QCruise.FieldByName('DATE_START').AsDateTime;
-      date_max1:=frmdm.QCruise.FieldByName('DATE_END').AsDateTime;
-      cnt1:=frmdm.QCruise.FieldByName('STATIONS_AMOUNT').AsInteger;
+      if frmdm.QCruise.FieldByName('SELECTED').AsBoolean=true then begin
+        ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
 
-       if RecListCruise.CurrentRowSelected then begin
-         with frmdm.q1 do begin
-            ParamByName('CR_ID').AsInteger:=ID;
-          Open;
-            date_max2:=frmdm.q1.FieldByName('max_date').AsDateTime;
-            date_min2:=frmdm.q1.FieldByName('min_date').AsDateTime;
-            cnt2:=frmdm.q1.FieldByName('cnt').AsInteger;
-          Close;
-         end;
-
-         if (date_min1<>date_min2) or (date_max1<>date_max2) or (cnt1<>cnt2) then begin
-          inc(err_cnt);
-          writeln(dat, inttostr(ID)+#9+
-                   datetimetostr(date_min1)+'->'+datetimetostr(date_min2)+#9+
-                   datetimetostr(date_max1)+'->'+datetimetostr(date_max2)+#9+
-                   inttostr(cnt1)+'->'+inttostr(cnt2));
-
-           with frmdm.QCruise do begin
-            Edit;
-             FieldByName('DATE_START').Value:=date_min2;
-             FieldByName('DATE_END').Value:=date_max2;
-             FieldByName('STATIONS_AMOUNT').Value:=cnt2;
-            Post;
+        cnt:=0;
+        with Qt do begin
+         Close;
+          SQL.Clear;
+          SQL.Add(' SELECT ');
+          SQL.Add(' min(LATITUDE) as LatMin, ');
+          SQL.Add(' max(LATITUDE) as LatMax, ');
+          SQL.Add(' min(LONGITUDE) as LonMin, ');
+          SQL.Add(' max(LONGITUDE) as LonMax, ');
+          SQL.Add(' min(DATEANDTIME) as DateMin, ');
+          SQL.Add(' max(DATEANDTIME) as DateMax, ');
+          SQL.Add(' count(ID) as cnt ');
+          SQL.Add(' FROM STATION ');
+          SQL.Add(' where CRUISE_ID=:CR_ID ');
+          ParamByName('CR_ID').AsInteger:=ID;
+         Open;
+           if Qt1.FieldByName('cnt').AsInteger>0 then begin
+             LatMin:=Qt1.FieldByName('LatMin').Value;
+             LatMax:=Qt1.FieldByName('LatMax').Value;
+             LonMin:=Qt1.FieldByName('LonMin').Value;
+             LonMax:=Qt1.FieldByName('LonMax').Value;
+             DateMin:=Qt1.FieldByName('DateMin').Value;
+             DateMax:=Qt1.FieldByName('DateMax').Value;
+             cnt:=Qt1.FieldByName('cnt').Value;
            end;
-         end;
-
+           if Qt1.FieldByName('cnt').AsInteger=0 then begin
+             LatMin:=0;
+             LatMax:=0;
+             LonMin:=0;
+             LonMax:=0;
+             DateMin:=EncodeDate(1900, 01, 01);
+             DateMax:=EncodeDate(1900, 01, 01);
+             cnt:=0;
+           end;
+         Close;
        end;
-      Procedures.ProgressTaskbar(k, frmdm.QCruise.RecordCount-1);
+
+      with frmdm.q1 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' UPDATE CRUISE SET ');
+        SQL.Add(' LATITUDE_MIN=:LatMin, ');
+        SQL.Add(' LATITUDE_MAX=:LatMax, ');
+        SQL.Add(' LONGITUDE_MIN=:LonMin, ');
+        SQL.Add(' LONGITUDE_MAX=:LonMax, ');
+        SQL.Add(' DATE_START_DATABASE=:DateMin, ');
+        SQL.Add(' DATE_END_DATABASE=:DateMax, ');
+        SQL.Add(' STATIONS_DATABASE=:cnt ');
+        SQL.Add(' WHERE ID=:CR_ID ');
+        ParamByName('CR_ID').AsInteger:=ID;
+        ParamByName('LatMin').Value:=LatMin;
+        ParamByName('LatMax').Value:=LatMax;
+        ParamByName('LonMin').Value:=LonMin;
+        ParamByName('LonMax').Value:=LonMax;
+        ParamByName('DateMin').Value:=DateMin;
+        ParamByName('DateMax').Value:=DateMax;
+        ParamByName('cnt').Value:=cnt;
+       ExecSQL;
+      end;
+
+      end; // if SELECTED=true
+
+      Procedures.ProgressTaskbar(k, Qt.RecordCount-1);
       frmdm.QCruise.Next;
-    end;    }
+     end;
 
-  finally
-    Closefile(dat);
-    frmdm.QCruise.Locate('ID', ID_OLD, []);
-    frmdm.QCruise.EnableControls;
-  end;
+      finally
+        Qt.Close;
+        Trt.Commit;
+        Qt.Free;
+        Trt.Free;
+        frmdm.TR.CommitRetaining;
+      end;
 
-  if MessageDlg('Cruise info was successfuly updated',
+     if MessageDlg('Cruise info was successfuly updated',
       mtInformation, [mbOk], 0)=mrOk then Procedures.ProgressTaskbar(0, 0);
-
-  if err_cnt>0 then OpenDocument(GlobalUnloadPath+'CatalogUpdate.txt');
 end;
 
 
@@ -2506,6 +2419,16 @@ begin
      frmbathymetry_plot := nil;
    end;
 end;
+
+procedure Tfrmosmain.iQCflagfromfileClick(Sender: TObject);
+begin
+  OD.Filter:='Text files|*.TXT;*.txt';
+    if OD.Execute then begin
+     osqc_setflags.SetFlags(OD.FileName);
+      If MessageDlg('QC flags have been set', mtInformation, [mbOk], 0)=mrOk then exit;
+    end;
+end;
+
 
 procedure Tfrmosmain.iQC_dbar_meterClick(Sender: TObject);
 begin
@@ -3199,33 +3122,32 @@ begin
 
     with DBGridStation1 do begin
      Ini.writeInteger( 'osmain', 'DBGridStation1_Height', Height);
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col00',  Columns[0].Width);  //CheckBox
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col01',  Columns[1].Width);  //STATION ID
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col02',  Columns[2].Width);  //CRUISE ID
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col03',  Columns[3].Width);  //FLAG
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col04',  Columns[4].Width);  //LATITUDE
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col05',  Columns[5].Width);  //LONGITUDE
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col06',  Columns[6].Width);  //DATE
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col07',  Columns[7].Width);  //SOURCE
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col08',  Columns[8].Width);  //PLATFORM
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col09',  Columns[9].Width);  //COUNTRY
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col00',  Columns[0].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col01',  Columns[1].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col02',  Columns[2].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col03',  Columns[3].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col04',  Columns[4].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col05',  Columns[5].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col06',  Columns[6].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col07',  Columns[7].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col08',  Columns[8].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col09',  Columns[9].Width);
     end;
 
     with DBGridStation2 do begin
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col00',  Columns[0].Width );  //DEPTH
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col01',  Columns[1].Width );  //LAST_LEVEL_M
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col02',  Columns[2].Width );  //LAST_LEVEL_DBAR
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col03',  Columns[3].Width );  //ST_NUM
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col04',  Columns[4].Width );  //CAST
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col05',  Columns[5].Width );  //ACESSION
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col06',  Columns[6].Width );  //ST_NUM_ORIGIN
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col07',  Columns[7].Width );  //INSTRUMENT
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col08',  Columns[8].Width );  //VERSION
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col09',  Columns[9].Width);  //MERGED
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col10',  Columns[10].Width);  //DATE_ADDED
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col11',  Columns[11].Width);  //DATE_UPDATED
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col00',  Columns[0].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col01',  Columns[1].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col02',  Columns[2].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col03',  Columns[3].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col04',  Columns[4].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col05',  Columns[5].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col06',  Columns[6].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col07',  Columns[7].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col08',  Columns[8].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col09',  Columns[9].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col10',  Columns[10].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation2_Col11',  Columns[11].Width);
      Ini.writeInteger( 'osmain', 'DBGridStation2_Col12',  Columns[12].Width);
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col13',  Columns[13].Width);
     end;
 
 

@@ -67,7 +67,7 @@ type
   private
     function AddLineSeries (AChart: TChart; ATitle: String; AColor:TColor; sName:string):TLineSeries;
     procedure HighlightSeries(ASeries: TBasicChartSeries);
-    procedure GetProfile(ID, PROF_NUM: integer; INSTR_NAME: string);
+    procedure GetProfile(ID, prof_num, instr_id: integer);
   public
     procedure ChangeID(ID:integer);
   end;
@@ -211,7 +211,7 @@ end;
 procedure Tfrmprofile_station_single.ChangeID(ID:integer);
 var
   Ini:TIniFile;
-  k, tt, prof_num:integer;
+  k, tt, prof_num, instr_id:integer;
   TRt:TSQLTransaction;
   Qt1, Qt2:TSQLQuery;
   Instr_name, TabName, SName, isbest:string;
@@ -313,8 +313,6 @@ mik:=-1;
   exit;
  end;
 
-
-
  //
  if not Qt1.IsEmpty then begin
   Chart1.Series.Clear;
@@ -328,9 +326,20 @@ mik:=-1;
      end;
 
      Instr_name:=trim(Copy(TabName, 1, Pos(',', TabName)-1));
+      with Qt2 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' SELECT ID FROM INSTRUMENT ');
+        SQL.Add(' WHERE NAME=:INSTR_NAME ');
+        ParamByName('INSTR_NAME').AsString:=INSTR_NAME;
+       Open;
+         instr_id:=Qt1.Fields[0].AsInteger;
+       Close;
+      end;
+
      Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
 
-     sName:=instr_name+'_'+inttostr(prof_num)+isbest;
+     sName:='s'+inttostr(instr_id)+'_'+inttostr(prof_num)+isbest;
 
      inc(mik);
     // showmessage(inttostr(mik));
@@ -343,13 +352,11 @@ mik:=-1;
            SQL.Add( CurrentParTable);
            SQL.Add(' WHERE ');
            SQL.Add( CurrentParTable+'.ID=:ID AND ');
-           SQL.Add( CurrentParTable+'.INSTRUMENT_ID IN ');
-           SQL.Add('(SELECT ID FROM INSTRUMENT WHERE ');
-           SQL.Add('INSTRUMENT.NAME=:INSTR_NAME) AND ');
+           SQL.Add( CurrentParTable+'.INSTRUMENT_ID=:INSTR_ID AND ');
            SQL.Add( CurrentParTable+'.PROFILE_NUMBER=:PROF_NUM');
            SQL.Add(' ORDER BY LEV_DBAR, LEV_M');
            ParamByName('ID').AsInteger:=ID;
-           ParamByName('INSTR_NAME').AsString:=INSTR_NAME;
+           ParamByName('INSTR_ID').AsInteger:=INSTR_ID;
            ParamByName('PROF_NUM').AsInteger:=PROF_NUM;
          Open;
         end;
@@ -388,7 +395,9 @@ end;
 procedure Tfrmprofile_station_single.TabControl1Change(Sender: TObject);
 Var
   TabName, Instr_name, SName, isbest: string;
-  Prof_num, ss: integer;
+  Prof_num, instr_id, ss: integer;
+  TRt:TSQLTransaction;
+  Qt1:TSQLQuery;
 begin
   TabName:=TabControl1.Tabs.Strings[TabControl1.TabIndex];
   if Pos('[', TabName) <> 0 then begin
@@ -397,8 +406,32 @@ begin
   end else isbest:='';
 
   Instr_name:=trim(Copy(TabName, 1, Pos(',', TabName)-1));
+  try
+     TRt:=TSQLTransaction.Create(self);
+     TRt.DataBase:=frmdm.IBDB;
+
+     Qt1:=TSQLQuery.Create(self);
+     Qt1.Database:=frmdm.IBDB;
+     Qt1.Transaction:=TRt;
+
+      with Qt1 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' SELECT ID FROM INSTRUMENT ');
+        SQL.Add(' WHERE NAME=:INSTR_NAME ');
+        ParamByName('INSTR_NAME').AsString:=INSTR_NAME;
+       Open;
+         instr_id:=Qt1.Fields[0].AsInteger;
+       Close;
+      end;
+  finally
+    Trt.Commit;
+    Qt1.Free;
+    Trt.Free;
+  end;
+
   Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
-  SName:=Instr_name+'_'+inttostr(prof_num)+isbest;
+  SName:='s'+inttostr(instr_id)+'_'+inttostr(prof_num)+isbest;
 
   for ss:=0 to Chart1.Series.Count-1 do
       if Chart1.Series[ss].Name=sName then begin
@@ -414,12 +447,12 @@ begin
         TLineSeries(Chart1.Series[ss]).ZPosition:=0;
       end;
 
-  GetProfile(frmdm.Q.FieldByName('ID').AsInteger, prof_num, Instr_name);
+  GetProfile(frmdm.Q.FieldByName('ID').AsInteger, prof_num, Instr_id);
 
 end;
 
 
-procedure Tfrmprofile_station_single.GetProfile(ID, PROF_NUM: integer; INSTR_NAME:string);
+procedure Tfrmprofile_station_single.GetProfile(ID, PROF_NUM, instr_id: integer);
 Var
   Ini: TIniFile;
   count, items_id, k, LNum:integer;
@@ -451,13 +484,11 @@ begin
            SQL.Add( CurrentParTable);
            SQL.Add(' WHERE ');
            SQL.Add( CurrentParTable+'.ID=:ID AND ');
-           SQL.Add( CurrentParTable+'.INSTRUMENT_ID IN ');
-           SQL.Add('(SELECT ID FROM INSTRUMENT WHERE ');
-           SQL.Add('INSTRUMENT.NAME=:INSTR_NAME) AND ');
+           SQL.Add( CurrentParTable+'.INSTRUMENT_ID=:INSTR_ID AND ');
            SQL.Add( CurrentParTable+'.PROFILE_NUMBER=:PROF_NUM');
            SQL.Add(' ORDER BY LEV_DBAR, LEV_M');
            ParamByName('ID').AsInteger:=ID;
-           ParamByName('INSTR_NAME').AsString:=INSTR_NAME;
+           ParamByName('INSTR_ID').AsInteger:=INSTR_ID;
            ParamByName('PROF_NUM').AsInteger:=PROF_NUM;
           // showmessage(qt.SQL.Text);
          Open;
@@ -522,16 +553,14 @@ begin
          Close;
            Sql.Clear;
            SQL.Add(' SELECT UNITS.NAME_SHORT FROM ');
-           SQL.Add(CurrentParTable+ ', UNITS, INSTRUMENT ');
+           SQL.Add(CurrentParTable+ ', UNITS ');
            SQL.Add(' WHERE ');
            SQL.Add( CurrentParTable+'.UNITS_ID=UNITS.ID AND ');
-           SQL.Add( CurrentParTable+'.INSTRUMENT_ID IN ');
-           SQL.Add('(SELECT ID FROM INSTRUMENT WHERE ');
-           SQL.Add('INSTRUMENT.NAME=:INSTR_NAME) AND ');
+           SQL.Add( CurrentParTable+'.INSTRUMENT_ID=:INSTR_ID AND ');
            SQL.Add( CurrentParTable+'.PROFILE_NUMBER=:PROF_NUM AND ');
            SQL.Add( CurrentParTable+'.ID=:ID ');
            ParamByName('ID').AsInteger:=ID;
-           ParamByName('INSTR_NAME').AsString:=INSTR_NAME;
+           ParamByName('INSTR_ID').AsInteger:=INSTR_ID;
            ParamByName('PROF_NUM').AsInteger:=PROF_NUM;
          Open;
            Units:=Qtt.Fields[0].AsString;
@@ -609,12 +638,42 @@ Var
  series: TLineSeries;
  pointer: TSeriesPointer;
  instr_name, id, prof_num: string;
+ instr_id: integer;
+
+ TRt:TSQLTransaction;
+ Qt1:TSQLQuery;
 begin
   tool := ATool as TDataPointClickTool;
   if tool.Series is TLineSeries then begin
     series := TLineSeries(tool.Series);
 
-    INSTR_NAME:=Copy(series.Name, 1, Pos('_', Series.Name)-1);
+    INSTR_ID:=StrToInt(Copy(series.Name, 2, Pos('_', Series.Name)-2));
+
+    try
+     TRt:=TSQLTransaction.Create(self);
+     TRt.DataBase:=frmdm.IBDB;
+
+     Qt1:=TSQLQuery.Create(self);
+     Qt1.Database:=frmdm.IBDB;
+     Qt1.Transaction:=TRt;
+
+      with Qt1 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' SELECT NAME FROM INSTRUMENT ');
+        SQL.Add(' WHERE ID=:ID ');
+        ParamByName('ID').AsInteger:=INSTR_ID;
+       Open;
+         instr_name:=Qt1.Fields[0].AsString;
+       Close;
+      end;
+    finally
+      Trt.Commit;
+      Qt1.Free;
+      TrT.Free;
+    end;
+
+
     Prof_num:=Copy(series.name, Pos('_', Series.Name)+1, length(series.name));
 
     if Pos('__B', series.name)<>0 then

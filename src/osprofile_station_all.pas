@@ -194,6 +194,8 @@ ss:=0;
  try
   pCharts.Visible:=false;
 
+  for k:=1 to 200 do charts[k].Free;
+
   CDS.DisableControls;
   CDS.Clear;
 
@@ -243,6 +245,8 @@ ss:=0;
           CDS.FieldDefs.Add(sname+'_FL',ftInteger,0,false);
 
           inc(ss);
+
+          //showmessage(inttostr(ss));
 
           Charts[ss]:=TChart.Create(Self);
           Charts[ss].Toolset:=Toolset;

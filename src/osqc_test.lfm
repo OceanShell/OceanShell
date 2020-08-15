@@ -1,9 +1,0 @@
-object frmQC_test: TfrmQC_test
-  Left = 579
-  Height = 451
-  Top = 262
-  Width = 670
-  Caption = 'frmQC_test'
-  DesignTimePPI = 144
-  LCLVersion = '2.0.6.0'
-end
