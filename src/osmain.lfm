@@ -4,8 +4,8 @@ object frmosmain: Tfrmosmain
   Top = 178
   Width = 1382
   Caption = 'OceanShell'
-  ClientHeight = 670
-  ClientWidth = 1382
+  ClientHeight = 0
+  ClientWidth = 0
   Color = clBtnFace
   Constraints.MinHeight = 700
   Constraints.MinWidth = 1380
@@ -1501,7 +1501,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton3: TToolButton
             Left = 101
-            Height = 33
+            Height = 5
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider
@@ -1570,7 +1570,7 @@ object frmosmain: Tfrmosmain
         end
         object ToolButton8: TToolButton
           Left = 51
-          Height = 33
+          Height = 5
           Top = 0
           Caption = 'ToolButton8'
           Style = tbsDivider
@@ -1860,7 +1860,7 @@ object frmosmain: Tfrmosmain
         end
         object ToolButton1: TToolButton
           Left = 106
-          Height = 33
+          Height = 5
           Top = 0
           Caption = 'ToolButton1'
           Style = tbsDivider

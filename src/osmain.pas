@@ -503,26 +503,45 @@ begin
 
     depth_units:=Ini.ReadInteger('main', 'depth_units', 0);
 
-    (* search settings *)
-    seLatMin.Value   :=Ini.ReadFloat  ( 'osmain', 'latmin',     0);
-    seLatMax.Value   :=Ini.ReadFloat  ( 'osmain', 'latmax',     0);
-    seLonMin.Value   :=Ini.ReadFloat  ( 'osmain', 'lonmin',     0);
-    seLonMax.Value   :=Ini.ReadFloat  ( 'osmain', 'lonmax',     0);
-    chkPeriod.Checked:=Ini.ReadBool   ( 'osmain', 'period', false);
-    seIDMin.Value    :=Ini.ReadInteger( 'osmain', 'idmin',      0);
-    seIDMax.Value    :=Ini.ReadInteger( 'osmain', 'idmax',      0);
-    cbPlatform.Text  :=Ini.ReadString ( 'osmain', 'platform',  '');
-    cbCountry.Text   :=Ini.ReadString ( 'osmain', 'country',   '');
-    cbSource.Text    :=Ini.ReadString ( 'osmain', 'source',    '');
-    cbInstitute.Text :=Ini.ReadString ( 'osmain', 'institute', '');
-    cbProject.Text   :=Ini.ReadString ( 'osmain', 'project',   '');
-    dtpDateMin.DateTime:=Ini.ReadDateTime('osmain', 'datemin', now);
-    dtpDateMax.DateTime:=Ini.ReadDateTime('osmain', 'datemax', now);
-    dtpDateAddedMin.DateTime:=Ini.ReadDateTime('osmain', 'dateaddedmin', now);
-    dtpDateAddedMax.DateTime:=Ini.ReadDateTime('osmain', 'dateaddedmax', now);
-    dtpDateUpdatedMin.DateTime:=Ini.ReadDateTime('osmain', 'dateupdatedmin', now);
-    dtpDateUpdatedMax.DateTime:=Ini.ReadDateTime('osmain', 'dateupdatedmax', now);
+    (* STATION search settings *)
+    seLatMin.Value   :=Ini.ReadFloat  ( 'osmain', 'station_latmin',     0);
+    seLatMax.Value   :=Ini.ReadFloat  ( 'osmain', 'station_latmax',     0);
+    seLonMin.Value   :=Ini.ReadFloat  ( 'osmain', 'station_lonmin',     0);
+    seLonMax.Value   :=Ini.ReadFloat  ( 'osmain', 'station_lonmax',     0);
+    chkPeriod.Checked:=Ini.ReadBool   ( 'osmain', 'station_period', false);
+    seIDMin.Value    :=Ini.ReadInteger( 'osmain', 'station_idmin',      0);
+    seIDMax.Value    :=Ini.ReadInteger( 'osmain', 'station_idmax',      0);
+    cbPlatform.Text  :=Ini.ReadString ( 'osmain', 'station_platform',  '');
+    cbCountry.Text   :=Ini.ReadString ( 'osmain', 'station_country',   '');
+    cbSource.Text    :=Ini.ReadString ( 'osmain', 'station_source',    '');
+    cbInstitute.Text :=Ini.ReadString ( 'osmain', 'station_institute', '');
+    cbProject.Text   :=Ini.ReadString ( 'osmain', 'station_project',   '');
+    dtpDateMin.DateTime:=Ini.ReadDateTime('osmain', 'station_datemin', now);
+    dtpDateMax.DateTime:=Ini.ReadDateTime('osmain', 'station_datemax', now);
+    dtpDateAddedMin.DateTime:=Ini.ReadDateTime('osmain', 'station_dateaddedmin', now);
+    dtpDateAddedMax.DateTime:=Ini.ReadDateTime('osmain', 'station_dateaddedmax', now);
+    dtpDateUpdatedMin.DateTime:=Ini.ReadDateTime('osmain', 'station_dateupdatedmin', now);
+    dtpDateUpdatedMax.DateTime:=Ini.ReadDateTime('osmain', 'station_dateupdatedmax', now);
     //seCruiseStationsDatabaseMin.Value:=Ini.ReadInteger( 'osmain', 'idmax',      0);
+
+    (* CRUISE search settings *)
+    seCruiseLatMin.Value   :=Ini.ReadFloat  ( 'osmain', 'cruise_latmin',     0);
+    seCruiseLatMax.Value   :=Ini.ReadFloat  ( 'osmain', 'cruise_latmax',     0);
+    seCruiseLonMin.Value   :=Ini.ReadFloat  ( 'osmain', 'cruise_lonmin',     0);
+    seCruiseLonMax.Value   :=Ini.ReadFloat  ( 'osmain', 'cruise_lonmax',     0);
+    seCruiseIDMin.Value    :=Ini.ReadInteger( 'osmain', 'cruise_idmin',      0);
+    seCruiseIDMax.Value    :=Ini.ReadInteger( 'osmain', 'cruise_idmax',      0);
+    cbCruisePlatform.Text  :=Ini.ReadString ( 'osmain', 'cruise_platform',  '');
+    cbCruiseCountry.Text   :=Ini.ReadString ( 'osmain', 'cruise_country',   '');
+    cbCruiseSource.Text    :=Ini.ReadString ( 'osmain', 'cruise_source',    '');
+    cbCruiseInstitute.Text :=Ini.ReadString ( 'osmain', 'cruise_institute', '');
+    cbCruiseProject.Text   :=Ini.ReadString ( 'osmain', 'cruise_project',   '');
+    dtpCruiseDateMin.DateTime:=Ini.ReadDateTime('osmain', 'cruise_datemin', now);
+    dtpCruiseDateMax.DateTime:=Ini.ReadDateTime('osmain', 'cruise_datemax', now);
+    dtpCruiseDateAddedMin.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateaddedmin', now);
+    dtpCruiseDateAddedMax.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateaddedmax', now);
+    dtpCruiseDateUpdatedMin.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateupdatedmin', now);
+    dtpCruiseDateUpdatedMax.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateupdatedmax', now);
 
     (* CRUISE table columns *)
     DBMemoCruises.width := Ini.ReadInteger( 'osmain', 'pCruiseNotes_Width', 250);
@@ -664,7 +683,7 @@ begin
   end;
 
   if FileExists(DBName) then begin
-   IBName:=DBName;
+   IBName:='localhost:'+DBName;
    OpenDatabase;
   end else
    if MessageDlg('Please, specify path to Ocean.fdb', mtWarning, [mbOk], 0)=mrOk then
@@ -1616,7 +1635,7 @@ begin
    end;
 
  (*******************TEMPORARY *********************)
-  CheckDBStructure;
+  //CheckDBStructure;
  (*******************TEMPORARY *********************)
 
   DatabaseInfo;
@@ -1748,6 +1767,7 @@ Qt_DB1.Transaction:=TRt_DB1;
          IBCruiseStationsDatabaseMax:=FieldByName('ST_DATABASE_MAX').AsInteger;
          IBCruiseStationsDuplicateMax:=FieldByName('ST_DUPLICATES_MAX').AsInteger;
 
+         if (seCruiseIDMin.Value=0) and (seCruiseIDMax.Value=0) then begin
          seCruiseStationsTotalMax.Value:=IBCruiseStationsTotalMax;
          seCruiseStationsDatabaseMax.Value:=IBCruiseStationsDatabaseMax;
          seCruiseStationsDuplicateMax.Value:=IBCruiseStationsDuplicateMax;
@@ -1765,6 +1785,7 @@ Qt_DB1.Transaction:=TRt_DB1;
          dtpCruiseDateAddedMax.DateTime:=IBCruiseDateAddedMax;
          dtpCruiseDateUpdatedMin.DateTime:=IBCruiseDateUpdatedMin;
          dtpCruiseDateUpdatedMax.DateTime:=IBCruiseDateUpdatedMax;
+         end;
        end;
    end;
 
@@ -3055,25 +3076,44 @@ begin
     Ini.WriteInteger( 'osmain', 'width',  Width);
     Ini.WriteInteger( 'osmain', 'weight', Height);
 
-    (* search settings *)
-    Ini.WriteFloat   ( 'osmain', 'latmin',   seLatMin.Value);
-    Ini.WriteFloat   ( 'osmain', 'latmax',   seLatMax.Value);
-    Ini.WriteFloat   ( 'osmain', 'lonmin',   seLonMin.Value);
-    Ini.WriteFloat   ( 'osmain', 'lonmax',   seLonMax.Value);
-    Ini.WriteBool    ( 'osmain', 'period',   chkPeriod.Checked);
-    Ini.WriteInteger ( 'osmain', 'idmin',    seIDMin.Value);
-    Ini.WriteInteger ( 'osmain', 'idmax',    seIDMax.Value);
-    Ini.WriteString  ( 'osmain', 'platform', cbPlatform.Text);
-    Ini.WriteString  ( 'osmain', 'country',  cbCountry.Text);
-    Ini.WriteString  ( 'osmain', 'source',   cbSource.Text);
-    Ini.WriteString  ( 'osmain', 'institute',cbInstitute.Text);
-    Ini.WriteString  ( 'osmain', 'project',  cbProject.Text);
-    Ini.WriteDateTime( 'osmain', 'datemin',  dtpDateMin.DateTime);
-    Ini.WriteDateTime( 'osmain', 'datemax',  dtpDateMax.DateTime);
-    Ini.WriteDateTime( 'osmain', 'dateaddedmin',   dtpDateAddedMin.DateTime);
-    Ini.WriteDateTime( 'osmain', 'dateaddedmax',   dtpDateAddedMax.DateTime);
-    Ini.WriteDateTime( 'osmain', 'dateupdatedmin', dtpDateUpdatedMin.DateTime);
-    Ini.WriteDateTime( 'osmain', 'dateupdatedmax', dtpDateUpdatedMax.DateTime);
+    (* STATION search settings *)
+    Ini.WriteFloat   ( 'osmain', 'station_latmin',   seLatMin.Value);
+    Ini.WriteFloat   ( 'osmain', 'station_latmax',   seLatMax.Value);
+    Ini.WriteFloat   ( 'osmain', 'station_lonmin',   seLonMin.Value);
+    Ini.WriteFloat   ( 'osmain', 'station_lonmax',   seLonMax.Value);
+    Ini.WriteBool    ( 'osmain', 'station_period',   chkPeriod.Checked);
+    Ini.WriteInteger ( 'osmain', 'station_idmin',    seIDMin.Value);
+    Ini.WriteInteger ( 'osmain', 'station_idmax',    seIDMax.Value);
+    Ini.WriteString  ( 'osmain', 'station_platform', cbPlatform.Text);
+    Ini.WriteString  ( 'osmain', 'station_country',  cbCountry.Text);
+    Ini.WriteString  ( 'osmain', 'station_source',   cbSource.Text);
+    Ini.WriteString  ( 'osmain', 'station_institute',cbInstitute.Text);
+    Ini.WriteString  ( 'osmain', 'station_project',  cbProject.Text);
+    Ini.WriteDateTime( 'osmain', 'station_datemin',  dtpDateMin.DateTime);
+    Ini.WriteDateTime( 'osmain', 'station_datemax',  dtpDateMax.DateTime);
+    Ini.WriteDateTime( 'osmain', 'station_dateaddedmin',   dtpDateAddedMin.DateTime);
+    Ini.WriteDateTime( 'osmain', 'station_dateaddedmax',   dtpDateAddedMax.DateTime);
+    Ini.WriteDateTime( 'osmain', 'station_dateupdatedmin', dtpDateUpdatedMin.DateTime);
+    Ini.WriteDateTime( 'osmain', 'station_dateupdatedmax', dtpDateUpdatedMax.DateTime);
+
+    (* CRUISE search settings *)
+    Ini.WriteFloat   ( 'osmain', 'cruise_latmin',   seCruiseLatMin.Value);
+    Ini.WriteFloat   ( 'osmain', 'cruise_latmax',   seCruiseLatMax.Value);
+    Ini.WriteFloat   ( 'osmain', 'cruise_lonmin',   seCruiseLonMin.Value);
+    Ini.WriteFloat   ( 'osmain', 'cruise_lonmax',   seCruiseLonMax.Value);
+    Ini.WriteInteger ( 'osmain', 'cruise_idmin',    seCruiseIDMin.Value);
+    Ini.WriteInteger ( 'osmain', 'cruise_idmax',    seCruiseIDMax.Value);
+    Ini.WriteString  ( 'osmain', 'cruise_platform', cbCruisePlatform.Text);
+    Ini.WriteString  ( 'osmain', 'cruise_country',  cbCruiseCountry.Text);
+    Ini.WriteString  ( 'osmain', 'cruise_source',   cbCruiseSource.Text);
+    Ini.WriteString  ( 'osmain', 'cruise_institute',cbCruiseInstitute.Text);
+    Ini.WriteString  ( 'osmain', 'cruise_project',  cbCruiseProject.Text);
+    Ini.WriteDateTime( 'osmain', 'cruise_datemin',  dtpCruiseDateMin.DateTime);
+    Ini.WriteDateTime( 'osmain', 'cruise_datemax',  dtpCruiseDateMax.DateTime);
+    Ini.WriteDateTime( 'osmain', 'cruise_dateaddedmin',   dtpCruiseDateAddedMin.DateTime);
+    Ini.WriteDateTime( 'osmain', 'cruise_dateaddedmax',   dtpCruiseDateAddedMax.DateTime);
+    Ini.WriteDateTime( 'osmain', 'cruise_dateupdatedmin', dtpCruiseDateUpdatedMin.DateTime);
+    Ini.WriteDateTime( 'osmain', 'cruise_dateupdatedmax', dtpCruiseDateUpdatedMax.DateTime);
 
     (* cruise table columns *)
     Ini.WriteInteger( 'osmain', 'pCruiseNotes_Width',   DBMemoCruises.width);
