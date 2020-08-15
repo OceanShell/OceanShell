@@ -132,6 +132,7 @@ type
     iVisualization: TMenuItem;
     iPlotBathymetry: TMenuItem;
     iQCflagfromfile: TMenuItem;
+    iExportCIA: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
     iBottomDepthGEBCO: TMenuItem;
@@ -282,6 +283,7 @@ type
     procedure iDIVAndClick(Sender: TObject);
     procedure iDuplicatesClick(Sender: TObject);
     procedure iBottomDepthGEBCOClick(Sender: TObject);
+    procedure iExportCIAClick(Sender: TObject);
     procedure iInitialDatabaseClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
@@ -431,6 +433,8 @@ uses
 (* data export *)
   osexport_divand,
   osexport_ascii,
+  osexport_CIA,
+
 
 (* QC *)
   osqc_dbar_meters_consistency,
@@ -2337,6 +2341,17 @@ finally
  FreeMemory(start);
  nc_close(ncid);  // Close nc file
 end;
+end;
+
+procedure Tfrmosmain.iExportCIAClick(Sender: TObject);
+begin
+  frmExport_CIA := TfrmExport_CIA.Create(Self);
+   try
+    if not frmExport_CIA.ShowModal = mrOk then exit;
+   finally
+     frmExport_CIA.Free;
+     frmExport_CIA := nil;
+   end;
 end;
 
 
