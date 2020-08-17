@@ -774,6 +774,8 @@ val_dt,min_dt,max_dt :TDateTime;
 TSL_y: array of integer;
 TSL_m: MY;
 
+lab_dens: real;
+
 begin
    memo1.Lines.Add('variables statistics in layers');
    memo1.Lines.Add('lat/lon step='+floattostr(step));
@@ -928,7 +930,9 @@ begin
      if tbl = 'P_OXYGEN' then begin
      if unit_id=3 then vu:=true
      else begin
-       getdefaultunits(tbl,unit_id,3,val,val_conv,isconverted);
+      // GetLabDensity(station_ID, instrument_id, profile_number, lt, ln, lev_m, lab_dens);
+      lab_dens:=1.025;
+      getdefaultunits(tbl,unit_id,3,val,lab_dens,val_conv,isconverted);
        if isconverted=true then begin  val:=val_conv; unit_id:=3; vu:=true; end;
      end;
      end;
@@ -1047,6 +1051,8 @@ add_y,add_m: boolean;
 val_dt,min_dt,max_dt :TDateTime;
 TSL_y: array of integer;
 TSL_m: MY;
+
+Lab_dens: real;
 
 begin
    memo1.Lines.Add('variables statistics in arbitrary layer');
@@ -1205,7 +1211,8 @@ begin
      if tbl = 'P_OXYGEN' then begin
      if unit_id=3 then vu:=true
      else begin
-       getdefaultunits(tbl,unit_id,3,val,val_conv,isconverted);
+       lab_dens:=1.025;
+       getdefaultunits(tbl,unit_id,3,val,lab_dens,val_conv,isconverted);
        if isconverted=true then begin  val:=val_conv; unit_id:=3; vu:=true; end;
      end;
      end;

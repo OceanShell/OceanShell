@@ -100,7 +100,7 @@ fn,fn_in,tbl:string;
 vu,vf,val_outside_sd,new_id,isconverted:boolean;
 DT1,DT2: TDateTime;
 
-
+Lat, Lon, lab_dens:real;
 
 begin
    DT1:=NOW;
@@ -204,6 +204,8 @@ begin
 {ID}while not frmdm.Q.EOF do begin
 
      station_id:=frmdm.Q.FieldByName('ID').AsInteger;
+     Lat:=frmdm.Q.FieldByName('LATITUDE').Value;
+     Lon:=frmdm.Q.FieldByName('LONGITUDE').Value;
 
      with frmdm.q1 do begin
        Close;
@@ -239,7 +241,8 @@ begin
     if tbl = 'P_OXYGEN' then begin
     if unit_id=3 then vu:=true
     else begin
-      getdefaultunits(tbl,unit_id,3,val,val_conv,isconverted);
+      GetLabDensity(station_ID, instrument_id, profile_number, Lat, Lon, lev_m, lab_dens);
+      getdefaultunits(tbl,unit_id,3,val,lab_dens,val_conv,isconverted);
       if isconverted=true then begin  val:=val_conv; unit_id:=3; vu:=true; end;
     end;
     end;

@@ -367,7 +367,7 @@ procedure Tfrmprofile_plot_all.AddToPlot(ID, INSTR_ID, PROF_NUM:integer;
   INSTR_NAME: string; prof_best, ToUpdate:boolean);
 Var
 k, flag, units:integer;
-lev, val1, val_out:real;
+lev, val1, val_out, lab_dens, Lat, Lon:real;
 sName:TComponentName;
 lev_m, lev_d:Variant;
 isConverted:boolean=false;
@@ -408,6 +408,9 @@ try
      Last;
      First;
     end;
+
+    Lat:=frmdm.Q.FieldByName('LATITUDE').Value;
+    Lon:=frmdm.Q.FieldByName('LONGITUDE').Value;
 
     Src:=frmdm.Q.FieldByName('SRC').AsString;
     for k:=0 to high(chkSourceList) do begin
@@ -457,13 +460,17 @@ try
      if depth_units=0 then lev:=lev_m else lev:=lev_d;
 
      if (rbUnitsDefault.Checked=true) and (units<>units_default) then begin
-       osunitsconversion.GetDefaultUnits(CurrentParTable, units, units_default,
-                                         val1, val_out, isconverted);
 
-       if isConverted=true then val1:=val_out;
+       osunitsconversion.GetLabDensity(ID, INSTR_ID, PROF_NUM, Lat, Lon, LEV_M,
+                                       lab_dens);
+
+       osunitsconversion.GetDefaultUnits(CurrentParTable, units, units_default,
+                                         val1, lab_dens, val_out, isconverted);
+
+       if isConverted=true then val1:=val_out else val1:=-9999;
      end;
 
-        TLineSeries(Chart1.Series[mik]).AddXY(val1,lev);
+        if val1<>-9999 then TLineSeries(Chart1.Series[mik]).AddXY(val1,lev);
       Qt.Next;
     end;
     Qt.Close;

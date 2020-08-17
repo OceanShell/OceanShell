@@ -1771,11 +1771,11 @@ Qt_DB1.Transaction:=TRt_DB1;
          IBCruiseStationsDatabaseMax:=FieldByName('ST_DATABASE_MAX').AsInteger;
          IBCruiseStationsDuplicateMax:=FieldByName('ST_DUPLICATES_MAX').AsInteger;
 
-         if (seCruiseIDMin.Value=0) and (seCruiseIDMax.Value=0) then begin
          seCruiseStationsTotalMax.Value:=IBCruiseStationsTotalMax;
          seCruiseStationsDatabaseMax.Value:=IBCruiseStationsDatabaseMax;
          seCruiseStationsDuplicateMax.Value:=IBCruiseStationsDuplicateMax;
 
+         if (seCruiseIDMin.Value=0) and (seCruiseIDMax.Value=0) then begin
          seCruiseIDMin.Value:=IDCruiseMin;
          seCruiseIDMax.Value:=IDCruiseMax;
          seCruiseLatMin.Value:=IBCruiseLatMin;
