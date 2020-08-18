@@ -133,6 +133,7 @@ type
     iPlotBathymetry: TMenuItem;
     iQCflagfromfile: TMenuItem;
     iExportCIA: TMenuItem;
+    iQC_WideRanges: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
     iBottomDepthGEBCO: TMenuItem;
@@ -294,6 +295,7 @@ type
     procedure iPlotBathymetryClick(Sender: TObject);
     procedure iQCflagfromfileClick(Sender: TObject);
     procedure iQC_dbar_meterClick(Sender: TObject);
+    procedure iQC_WideRangesClick(Sender: TObject);
     procedure iSelectCruiseClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
     procedure iSelectEntryClick(Sender: TObject);
@@ -439,6 +441,7 @@ uses
 (* QC *)
   osqc_dbar_meters_consistency,
   osqc_duplicates,
+  osqc_wideranges,
   osqc_meanprofile,
   osqc_setflags,
 
@@ -2474,6 +2477,17 @@ begin
    finally
      frmqc_dbar_meters_consistency.Free;
      frmqc_dbar_meters_consistency:= nil;
+   end;
+end;
+
+procedure Tfrmosmain.iQC_WideRangesClick(Sender: TObject);
+begin
+  frmQC_WideRanges := TfrmQC_WideRanges.Create(Self);
+   try
+    if not frmQC_WideRanges.ShowModal = mrOk then exit;
+   finally
+     frmQC_WideRanges.Free;
+     frmQC_WideRanges:= nil;
    end;
 end;
 
