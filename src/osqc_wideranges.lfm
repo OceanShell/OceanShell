@@ -1,19 +1,19 @@
 object frmQC_WideRanges: TfrmQC_WideRanges
   Left = 643
-  Height = 1064
+  Height = 879
   Top = 89
-  Width = 1339
+  Width = 1116
   Caption = 'frmQC_WideRanges'
-  ClientHeight = 1064
-  ClientWidth = 1339
-  DesignTimePPI = 144
+  ClientHeight = 879
+  ClientWidth = 1116
+  DesignTimePPI = 120
   OnShow = FormShow
   LCLVersion = '2.0.6.0'
   object CheckGroup1: TCheckGroup
-    Left = 29
-    Height = 710
-    Top = 58
-    Width = 432
+    Left = 24
+    Height = 592
+    Top = 48
+    Width = 360
     AutoFill = True
     Caption = 'DB tables'
     ChildSizing.LeftRightSpacing = 6
@@ -29,10 +29,10 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     TabOrder = 0
   end
   object btnSelectAll: TBitBtn
-    Left = 29
-    Height = 38
-    Top = 787
-    Width = 113
+    Left = 24
+    Height = 32
+    Top = 656
+    Width = 94
     Caption = 'Select all'
     Font.Color = clNavy
     OnClick = btnSelectAllClick
@@ -40,10 +40,10 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     TabOrder = 1
   end
   object btnSetFlags: TBitBtn
-    Left = 931
-    Height = 38
-    Top = 787
-    Width = 382
+    Left = 776
+    Height = 32
+    Top = 656
+    Width = 318
     Caption = 'Set PQF2=1 outside defined ranges'
     Font.Color = clRed
     Font.Style = [fsBold]
@@ -52,49 +52,49 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     TabOrder = 2
   end
   object StringGrid1: TStringGrid
-    Left = 490
-    Height = 701
-    Top = 67
-    Width = 826
+    Left = 408
+    Height = 584
+    Top = 56
+    Width = 688
     ColCount = 3
-    Font.Height = -14
+    Font.Height = -12
     ParentFont = False
     TabOrder = 3
-    TitleFont.Height = -14
+    TitleFont.Height = -12
   end
   object Label1: TLabel
-    Left = 806
-    Height = 25
-    Top = 10
-    Width = 176
+    Left = 672
+    Height = 20
+    Top = 8
+    Width = 144
     Caption = 'Variables and ranges'
     Font.Style = [fsBold]
     ParentColor = False
     ParentFont = False
   end
   object Label2: TLabel
-    Left = 710
-    Height = 25
-    Top = 38
-    Width = 392
+    Left = 592
+    Height = 20
+    Top = 32
+    Width = 332
     Caption = '(variables will be converted into the default units )'
     ParentColor = False
     ParentFont = False
   end
   object CheckBox1: TCheckBox
-    Left = 509
-    Height = 29
-    Top = 797
-    Width = 144
+    Left = 424
+    Height = 24
+    Top = 664
+    Width = 121
     Caption = 'Write into DB?'
     ParentFont = False
     TabOrder = 4
   end
   object Memo1: TMemo
     Left = 0
-    Height = 220
-    Top = 844
-    Width = 1339
+    Height = 183
+    Top = 696
+    Width = 1116
     Align = alBottom
     Lines.Strings = (
       'Memo1'
@@ -103,10 +103,10 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     TabOrder = 5
   end
   object Edit1: TEdit
-    Left = 1142
-    Height = 33
-    Top = 19
-    Width = 173
+    Left = 952
+    Height = 28
+    Top = 16
+    Width = 144
     ParentFont = False
     TabOrder = 6
     Text = 'rows in table'

@@ -179,8 +179,8 @@ range_unknown,isconverted,isoutlier :boolean;
 DT1,DT2: TDateTime;
 
 {lab density}
-id,instr_id,prof_num: integer;
-lev_m,lat,lon,lab_dens :real;
+//id,instr_id,prof_num: integer;
+//lev_m,lat,lon,lab_dens :real;
 
 begin
 
@@ -220,20 +220,28 @@ begin
     with frmdm.q1 do begin
       Close;
       SQL.Clear;
-      SQL.Add(' select * from '+tbl);
+      SQL.Add(' select val, units_id from '+tbl);
       Open;
     end;
 
+    {with frmdm.q1 do begin
+      Close;
+      SQL.Clear;
+      SQL.Add(' select * from '+tbl);
+      Open;
+    end;}
+
 
 {w}while not frmdm.q1.EOF do begin
-     id:=frmdm.q1.FieldByName('id').AsInteger;
-     lev_m:=frmdm.q1.FieldByName('lev_m').AsFloat;
      val:=frmdm.q1.FieldByName('val').AsFloat;
      unit_tbl:=frmdm.q1.FieldByName('units_id').AsInteger;
-     instr_id:=frmdm.q1.FieldByName('instrument_id').AsInteger;
-     prof_num:=frmdm.q1.FieldByName('profile_number').AsInteger;
 
-     with frmdm.q2 do begin
+     //id:=frmdm.q1.FieldByName('id').AsInteger;
+     //lev_m:=frmdm.q1.FieldByName('lev_m').AsFloat;
+     //instr_id:=frmdm.q1.FieldByName('instrument_id').AsInteger;
+     //prof_num:=frmdm.q1.FieldByName('profile_number').AsInteger;
+
+     {with frmdm.q2 do begin
        Close;
        SQL.Clear;
        SQL.Add(' select latitude, longitude from STATION ');
@@ -243,7 +251,7 @@ begin
        Lat:=frmdm.q2.FieldByName('latitude').AsFloat;
        Lon:=frmdm.q2.FieldByName('longitude').AsFloat;
        Close;
-     end;
+     end;}
 
      val_t:=val_t+1;
 
