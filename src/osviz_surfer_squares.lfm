@@ -1,19 +1,19 @@
 object frmviz_surfer_squares: Tfrmviz_surfer_squares
-  Left = 141
-  Height = 970
-  Top = 6
-  Width = 1570
+  Left = 487
+  Height = 808
+  Top = 85
+  Width = 1308
   Caption = 'frmviz_surfer_squares'
-  ClientHeight = 0
-  ClientWidth = 0
-  DesignTimePPI = 144
+  ClientHeight = 808
+  ClientWidth = 1308
+  DesignTimePPI = 120
   OnShow = FormShow
   LCLVersion = '2.0.6.0'
   object Memo1: TMemo
     Left = 0
-    Height = 134
-    Top = 836
-    Width = 1570
+    Height = 112
+    Top = 696
+    Width = 1308
     Align = alBottom
     Lines.Strings = (
       'Memo1'
@@ -22,10 +22,10 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     TabOrder = 0
   end
   object CheckGroup1: TCheckGroup
-    Left = 10
-    Height = 595
-    Top = 48
-    Width = 480
+    Left = 8
+    Height = 496
+    Top = 40
+    Width = 400
     AutoFill = True
     Caption = 'Variables'
     ChildSizing.LeftRightSpacing = 6
@@ -37,15 +37,15 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
     Columns = 2
-    Font.Height = -14
+    Font.Height = -12
     ParentFont = False
     TabOrder = 1
   end
   object btnProfilesInTables: TBitBtn
-    Left = 144
-    Height = 29
-    Top = 662
-    Width = 161
+    Left = 120
+    Height = 24
+    Top = 552
+    Width = 134
     Caption = 'Profiles in  tables'
     Font.Color = clGreen
     OnClick = btnProfilesInTablesClick
@@ -53,30 +53,30 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     TabOrder = 2
   end
   object ListBox1: TListBox
-    Left = 394
-    Height = 38
-    Top = 653
-    Width = 48
+    Left = 328
+    Height = 32
+    Top = 544
+    Width = 40
     ItemHeight = 0
     ParentFont = False
     TabOrder = 3
     Visible = False
   end
   object Label1: TLabel
-    Left = 1024
-    Height = 25
-    Top = 360
-    Width = 144
+    Left = 853
+    Height = 20
+    Top = 300
+    Width = 118
     Caption = 'Stations selected'
     Font.Style = [fsBold]
     ParentColor = False
     ParentFont = False
   end
   object btnSelectAll_Variables: TBitBtn
-    Left = 10
-    Height = 26
-    Top = 662
-    Width = 113
+    Left = 8
+    Height = 22
+    Top = 552
+    Width = 94
     Caption = 'Select all'
     Font.Color = clGreen
     OnClick = btnSelectAll_VariablesClick
@@ -84,10 +84,10 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     TabOrder = 4
   end
   object CheckGroup2: TCheckGroup
-    Left = 509
-    Height = 595
-    Top = 48
-    Width = 480
+    Left = 424
+    Height = 496
+    Top = 40
+    Width = 400
     AutoFill = True
     Caption = 'Layers'
     ChildSizing.LeftRightSpacing = 6
@@ -99,15 +99,15 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
     Columns = 2
-    Font.Height = -14
+    Font.Height = -12
     ParentFont = False
     TabOrder = 5
   end
   object btnSelectAll_Layers: TBitBtn
-    Left = 509
-    Height = 29
-    Top = 662
-    Width = 132
+    Left = 424
+    Height = 24
+    Top = 552
+    Width = 110
     Caption = 'Select all'
     Font.Color = clGreen
     OnClick = btnSelectAll_LayersClick
@@ -115,10 +115,10 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     TabOrder = 6
   end
   object btnSamplesInLayers: TBitBtn
-    Left = 653
-    Height = 29
-    Top = 662
-    Width = 173
+    Left = 544
+    Height = 24
+    Top = 552
+    Width = 144
     Caption = 'Samples In Layers'
     Font.Color = clGreen
     OnClick = btnSamplesInLayersClick
@@ -126,11 +126,11 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     TabOrder = 7
   end
   object Memo2: TMemo
-    Left = 1008
-    Height = 317
-    Top = 10
-    Width = 540
-    Font.Height = -16
+    Left = 840
+    Height = 264
+    Top = 8
+    Width = 450
+    Font.Height = -13
     Lines.Strings = (
       'Important   (computing of number of stations/ profiles/ variable statistics/'
       '                    time series (ts) legth in squares)'
@@ -147,65 +147,65 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     TabOrder = 8
   end
   object CheckBox1: TCheckBox
-    Left = 576
-    Height = 29
-    Top = 10
-    Width = 145
+    Left = 480
+    Height = 24
+    Top = 8
+    Width = 121
     Caption = 'Arbitrary layer:'
     ParentFont = False
     TabOrder = 9
   end
   object Edit1: TEdit
-    Left = 739
-    Height = 33
-    Top = 5
-    Width = 67
+    Left = 616
+    Height = 28
+    Top = 4
+    Width = 56
     ParentFont = False
     TabOrder = 10
     Text = '5'
   end
   object Edit2: TEdit
-    Left = 854
-    Height = 33
-    Top = 5
-    Width = 62
+    Left = 712
+    Height = 28
+    Top = 4
+    Width = 52
     ParentFont = False
     TabOrder = 11
     Text = '15'
   end
   object Label2: TLabel
-    Left = 816
-    Height = 25
-    Top = 10
-    Width = 20
+    Left = 680
+    Height = 20
+    Top = 8
+    Width = 17
     Caption = '->'
     Font.Style = [fsBold]
     ParentColor = False
     ParentFont = False
   end
   object Label3: TLabel
-    Left = 1024
-    Height = 25
-    Top = 392
-    Width = 355
+    Left = 853
+    Height = 20
+    Top = 327
+    Width = 294
     Caption = 'Minimum number of samples in a square >='
     ParentColor = False
     ParentFont = False
   end
   object Edit3: TEdit
-    Left = 1392
-    Height = 33
-    Top = 384
-    Width = 43
+    Left = 1160
+    Height = 28
+    Top = 320
+    Width = 36
     ParentFont = False
     TabOrder = 12
     Text = '1'
   end
   object RadioGroup1: TRadioGroup
-    Left = 1008
-    Height = 114
-    Top = 432
-    Width = 172
+    Left = 840
+    Height = 95
+    Top = 360
+    Width = 143
     AutoFill = True
     Caption = 'Squares'
     ChildSizing.LeftRightSpacing = 6
@@ -215,8 +215,8 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 84
-    ClientWidth = 168
+    ClientHeight = 70
+    ClientWidth = 139
     ItemIndex = 0
     Items.Strings = (
       '5 x 5'
@@ -227,10 +227,10 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     TabOrder = 13
   end
   object btnCompute: TBitBtn
-    Left = 1229
-    Height = 36
-    Top = 510
-    Width = 206
+    Left = 1024
+    Height = 30
+    Top = 425
+    Width = 172
     Caption = 'Compute'
     Font.Color = clRed
     OnClick = btnComputeClick
@@ -238,43 +238,46 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     TabOrder = 14
   end
   object GroupBox1: TGroupBox
-    Left = 10
-    Height = 128
-    Top = 696
-    Width = 979
+    Left = 8
+    Height = 107
+    Top = 580
+    Width = 816
     Caption = 'Plot'
-    ClientHeight = 98
-    ClientWidth = 975
+    ClientHeight = 82
+    ClientWidth = 812
+    ParentFont = False
     TabOrder = 15
     object cbAllOutputFiles: TComboBox
-      Left = 24
-      Height = 33
-      Top = 8
-      Width = 920
-      ItemHeight = 25
+      Left = 20
+      Height = 28
+      Top = 7
+      Width = 767
+      ItemHeight = 20
       OnDropDown = cbAllOutputFilesDropDown
       OnSelect = cbAllOutputFilesSelect
+      ParentFont = False
       Style = csDropDownList
       TabOrder = 0
     end
     object btnPlot: TButton
-      Left = 846
-      Height = 33
-      Top = 48
-      Width = 98
+      Left = 705
+      Height = 28
+      Top = 40
+      Width = 82
       Caption = 'Plot'
       Enabled = False
       OnClick = btnPlotClick
+      ParentFont = False
       TabOrder = 1
     end
     object btnOpenFolder: TBitBtn
-      Left = 24
-      Height = 33
+      Left = 20
+      Height = 28
       Hint = 'Open data folder'
-      Top = 48
-      Width = 33
+      Top = 40
+      Width = 28
       Font.Color = clWindowText
-      Font.Height = -17
+      Font.Height = -14
       Font.Name = 'Tahoma'
       Glyph.Data = {
         76010000424D7601000000000000760000002800000020000000100000000100
@@ -299,14 +302,14 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
       TabOrder = 2
     end
     object btnOpenScript: TBitBtn
-      Left = 72
-      Height = 33
+      Left = 60
+      Height = 28
       Hint = 'Open script'
-      Top = 48
-      Width = 33
+      Top = 40
+      Width = 28
       Enabled = False
       Font.Color = clWindowText
-      Font.Height = -17
+      Font.Height = -14
       Font.Name = 'Tahoma'
       Glyph.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
@@ -351,25 +354,27 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
       TabOrder = 3
     end
     object cbColumn: TComboBox
-      Left = 640
-      Height = 33
-      Top = 48
-      Width = 192
+      Left = 533
+      Height = 28
+      Top = 40
+      Width = 160
       Enabled = False
-      ItemHeight = 25
+      ItemHeight = 20
       OnSelect = cbColumnSelect
+      ParentFont = False
       Style = csDropDownList
       TabOrder = 4
     end
     object btnSurferSettings: TBitBtn
-      Left = 120
-      Height = 33
+      Left = 100
+      Height = 28
       Hint = 'Open Surfer settings'
-      Top = 48
-      Width = 33
+      Top = 40
+      Width = 28
       Images = frmicons.IL1
       ImageIndex = 1011
       OnClick = btnSurferSettingsClick
+      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 5
@@ -381,7 +386,7 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     Database = frmdm.IBDB
     Transaction = frmdm.TR
     Params = <>
-    left = 154
-    top = 422
+    left = 128
+    top = 352
   end
 end

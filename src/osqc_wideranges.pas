@@ -18,9 +18,19 @@ type
     CheckBox1: TCheckBox;
     CheckGroup1: TCheckGroup;
     Edit1: TEdit;
+    Edit2: TEdit;
+    Edit3: TEdit;
+    Edit4: TEdit;
+    Edit5: TEdit;
     Label1: TLabel;
     Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
     Memo1: TMemo;
+    RadioGroup1: TRadioGroup;
     StringGrid1: TStringGrid;
     procedure btnSelectAllClick(Sender: TObject);
     procedure btnSetFlagsClick(Sender: TObject);
@@ -170,41 +180,56 @@ end;
 
 procedure TfrmQC_WideRanges.btnSetFlagsClick(Sender: TObject);
 var
-i,ktbl :integer;
+i,ktbl,klt,kln :integer;
 unit_tbl,unit_default,val_c,val_nc,val_t :integer;
-outliers_count :integer;
+outliers_count,step,sq_count :integer;
 val,val_conv,val_min,val_max :real;
+ltn,lts,lnw,lne :real;
 tbl,var_name :string;
 range_unknown,isconverted,isoutlier :boolean;
 DT1,DT2: TDateTime;
 
+{PQF2 update}
+id,instr_id,prof_num: integer;
+lev_m :real;
+
 {lab density}
-//id,instr_id,prof_num: integer;
-//lev_m,lat,lon,lab_dens :real;
+//lat,lon,lab_dens :real;
 
 begin
 
   DT1:=NOW;
   memo1.Lines.Add('...start: '+datetimetostr(DT1));
 
+  case RadioGroup1.ItemIndex of
+     0: step:=10;
+     1: step:=5;
+     2: step:=1;
+  end;
+
 
 {T}for ktbl:=0 to CheckGroup1.Items.Count-1 do begin
 {C}if CheckGroup1.Checked[ktbl] then begin
 
    tbl:=CheckGroup1.Items.Strings[ktbl]; {selected table}
-   val_t:=0;    {number of               values in a table}
-   val_c:=0;    {number of     converted values}
-   val_nc:=0;   {number of not converted values}
-   outliers_count:=0;
+   Edit1.Text:=tbl;
 
    {...apply range}
 {R}for i:=1 to StringGrid1.RowCount-1 do begin
     var_name:=StringGrid1.Cells[0,i];
-{P}if tbl='P_'+var_name then begin
+{V}if tbl='P_'+var_name then begin
 
-    memo1.Lines.Add(inttostr(i)+#9+tbl);
+    memo1.Lines.Add(tbl);
     range_unknown:=false;
 
+    with frmdm.q1 do begin
+      Close;
+      SQL.Clear;
+      SQL.Add(' select count(id) from '+tbl);
+      Open;
+      Edit2.Text:=inttostr(FieldByName('count').AsInteger);
+      Close;
+    end;
 
     if trystrtofloat(StringGrid1.Cells[1,i],val_min) then val_min:=strtofloat(StringGrid1.Cells[1,i]) else range_unknown:=true;
     if trystrtofloat(StringGrid1.Cells[2,i],val_max) then val_max:=strtofloat(StringGrid1.Cells[2,i]) else range_unknown:=true;
@@ -215,84 +240,109 @@ begin
      Exit;
     end;
 
-{CF}if CheckBox1.Checked = false then begin
+{WF}if CheckBox1.Checked = false then begin
+
+   sq_count:=0;
+   val_t:=0;    {number of               values in a table}
+   val_c:=0;    {number of     converted values}
+   val_nc:=0;   {number of not converted values}
+   outliers_count:=0;
+
+
+     {.....squares to reduce selection size}
+       klt:=0;
+{Lt}repeat
+       inc(klt);
+       ltn:=90-step*(klt-1);
+       lts:=90-step*klt;
+
+       kln:=0;
+{Ln}repeat
+       inc(kln);
+       lnw:=-180+step*(kln-1);
+       lne:=-180+step*kln;
+
+       sq_count:=sq_count+1;
+       Edit3.Text:=inttostr(sq_count);
+       Application.ProcessMessages;
 
     with frmdm.q1 do begin
       Close;
       SQL.Clear;
-      SQL.Add(' select val, units_id from '+tbl);
+      SQL.Add(' select val,units_id from STATION,'+tbl);
+      SQL.Add(' where station.id='+tbl+'.id ');
+      SQL.Add(' and latitude>:lts and latitude<=:ltn ');
+      SQL.Add(' and longitude>=:lnw and longitude<:lne ');
+      ParamByName('ltn').AsFloat:=ltn;
+      ParamByName('lts').AsFloat:=lts;
+      ParamByName('lnw').AsFloat:=lnw;
+      ParamByName('lne').AsFloat:=lne;
       Open;
     end;
-
-    {with frmdm.q1 do begin
-      Close;
-      SQL.Clear;
-      SQL.Add(' select * from '+tbl);
-      Open;
-    end;}
-
 
 {w}while not frmdm.q1.EOF do begin
      val:=frmdm.q1.FieldByName('val').AsFloat;
      unit_tbl:=frmdm.q1.FieldByName('units_id').AsInteger;
-
      //id:=frmdm.q1.FieldByName('id').AsInteger;
      //lev_m:=frmdm.q1.FieldByName('lev_m').AsFloat;
      //instr_id:=frmdm.q1.FieldByName('instrument_id').AsInteger;
      //prof_num:=frmdm.q1.FieldByName('profile_number').AsInteger;
 
-     {with frmdm.q2 do begin
-       Close;
-       SQL.Clear;
-       SQL.Add(' select latitude, longitude from STATION ');
-       SQL.Add(' where id=:id ');
-       ParamByName('id').AsInteger:=id;
-       Open;
-       Lat:=frmdm.q2.FieldByName('latitude').AsFloat;
-       Lon:=frmdm.q2.FieldByName('longitude').AsFloat;
-       Close;
-     end;}
-
      val_t:=val_t+1;
 
      if  val_t mod 10000=0 then begin
-       Edit1.Text:=inttostr(val_t);
+       Edit4.Text:=inttostr(val_t);
        Application.ProcessMessages;
      end;
 
      //memo1.Lines.Add(inttostr(val_t)+#9+floattostr(val)+#9+inttostr(unit_tbl));
 
-      {...conversion}
-      isconverted:=false;
-      val_conv:=-9999;
-   if unit_tbl=unit_default then begin val_c:=val_c+1; isconverted:=true; end;
-   if unit_tbl<>unit_default then begin
+     isoutlier:=false;
+   if unit_tbl=unit_default then begin
+       if val<val_min then isoutlier:=true;
+       if val>val_max then isoutlier:=true;
+   end;
 
-     // default old procedure with dens=1025
+   if isoutlier=true then begin
+     outliers_count:=outliers_count+1;
+     Edit5.Text:=inttostr(outliers_count);
+   end;
+
+   {...conversion}
+     isconverted:=false;
+     val_conv:=9999;
+{c}if unit_tbl<>unit_default then begin
+
      osunitsconversion.GetDefaultUnits(tbl, unit_tbl, unit_default,
                                        val, val_conv, isconverted);
-
-     // new procedure calculating lab density
-  (*   osunitsconversion.GetDefaultUnitsExact(tbl, unit_tbl, unit_default, ID
+     {osunitsconversion.GetDefaultUnitsExact(tbl, unit_tbl, unit_default, ID
                                        instr_id, prof_num, val, lat, lon,
-                                       Lev_m, val_conv, isconverted); *)
+                                       Lev_m, val_conv, isconverted);}
 
+    if isconverted=true then begin
+      val:=val_conv;
+      val_c:=val_c+1;
+      isoutlier:=false;
+      if val<val_min then isoutlier:=true;
+      if val>val_max then isoutlier:=true;
+      if isoutlier=true then begin
+        outliers_count:=outliers_count+1;
+        Edit5.Text:=inttostr(outliers_count);
+      end;
+    end
+    else val_nc:=val_nc+1;
 
-       if isconverted=true then begin val:=val_conv; isconverted:=true; end
-     else val_nc:=val_nc+1;
-   end;
-
-     isoutlier:=false;
-   if (isconverted=true) then begin
-   if val<val_min then isoutlier:=true;
-   if val>val_max then isoutlier:=true;
-   end;
-
-   if isoutlier=true then outliers_count:=outliers_count+1;
+{c}end;
 
      frmdm.q1.Next;
 {w}end;
      frmdm.q1.Close;
+
+
+{Ln}until lne=180;
+{Lt}until lts=-90;
+
+     Edit4.Text:=inttostr(val_t);
 
      memo1.Lines.Add(inttostr(i)
      +#9+tbl
@@ -300,19 +350,167 @@ begin
      +#9+floattostr(val_max)
      +#9+'unit_default='+inttostr(unit_default)
      +#9+'outliers='+inttostr(outliers_count)
-     +#9+'total/converted/not_converted='+inttostr(val_t)+'/'+inttostr(val_c)+'/'+inttostr(val_nc)
-     );
+     +#9+'total/converted/not_converted='+inttostr(val_t)+'/'+inttostr(val_c)+'/'+inttostr(val_nc));
+
+{WF}end; {write false - control without flags writing}
 
 
-{CF}end;
+{......update flags in DB}
+{WT}if CheckBox1.Checked = true then begin
+
+   sq_count:=0;
+   val_t:=0;    {number of               values in a table}
+   val_c:=0;    {number of     converted values}
+   val_nc:=0;   {number of not converted values}
+   outliers_count:=0;
 
 
-{P}end;
-{R}end;
+     {.....squares to reduce selection size}
+       klt:=0;
+{Lt}repeat
+       inc(klt);
+       ltn:=90-step*(klt-1);
+       lts:=90-step*klt;
+
+       kln:=0;
+{Ln}repeat
+       inc(kln);
+       lnw:=-180+step*(kln-1);
+       lne:=-180+step*kln;
+
+       sq_count:=sq_count+1;
+       Edit3.Text:=inttostr(sq_count);
+       Application.ProcessMessages;
+
+    with frmdm.q1 do begin
+      Close;
+      SQL.Clear;
+      SQL.Add(' select id,lev_m,val,units_id,instrument_id,profile_number from STATION,'+tbl);
+      SQL.Add(' where station.id='+tbl+'.id ');
+      SQL.Add(' and latitude>:lts and latitude<=:ltn ');
+      SQL.Add(' and longitude>=:lnw and longitude<:lne ');
+      ParamByName('ltn').AsFloat:=ltn;
+      ParamByName('lts').AsFloat:=lts;
+      ParamByName('lnw').AsFloat:=lnw;
+      ParamByName('lne').AsFloat:=lne;
+      Open;
+    end;
 
 
-{C}end;
-{T}end;
+
+{w}while not frmdm.q1.EOF do begin
+     id:=frmdm.q1.FieldByName('id').AsInteger;
+     lev_m:=frmdm.q1.FieldByName('lev_m').AsFloat;
+     val:=frmdm.q1.FieldByName('val').AsFloat;
+     unit_tbl:=frmdm.q1.FieldByName('units_id').AsInteger;
+     instr_id:=frmdm.q1.FieldByName('instrument_id').AsInteger;
+     prof_num:=frmdm.q1.FieldByName('profile_number').AsInteger;
+
+     val_t:=val_t+1;
+
+     if  val_t mod 10000=0 then begin
+       Edit4.Text:=inttostr(val_t);
+       Application.ProcessMessages;
+     end;
+
+     //memo1.Lines.Add(inttostr(val_t)+#9+floattostr(val)+#9+inttostr(unit_tbl));
+
+     isoutlier:=false;
+   if unit_tbl=unit_default then begin
+       if val<val_min then isoutlier:=true;
+       if val>val_max then isoutlier:=true;
+   end;
+
+{OUT}if isoutlier=true then begin
+     outliers_count:=outliers_count+1;
+     Edit5.Text:=inttostr(outliers_count);
+     with frmdm.q2 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' UPDATE '+tbl+' SET PQF2=:QF WHERE ');
+       SQL.Add(' ID=:ID AND LEV_M=:LEV_M AND VAL=:VAL AND ');
+       SQL.Add(' INSTRUMENT_ID=:INSTR_ID AND ');
+       SQL.Add(' PROFILE_NUMBER=:PROF_NUM ');
+       ParamByName('ID').Value:=id;
+       ParamByName('QF').Value:=1;
+       ParamByName('LEV_M').Value:=lev_m;
+       ParamByName('VAL').Value:=val;
+       ParamByName('INSTR_ID').Value:=instr_id;
+       ParamByName('PROF_NUM').Value:=prof_num;
+      ExecSQL;
+     end;
+{OUT}end;
+
+   {...conversion}
+     isconverted:=false;
+     val_conv:=9999;
+{c}if unit_tbl<>unit_default then begin
+
+     osunitsconversion.GetDefaultUnits(tbl, unit_tbl, unit_default,
+                                       val, val_conv, isconverted);
+     {osunitsconversion.GetDefaultUnitsExact(tbl, unit_tbl, unit_default, ID
+                                       instr_id, prof_num, val, lat, lon,
+                                       Lev_m, val_conv, isconverted);}
+
+{conv}if isconverted=true then begin
+      val:=val_conv;
+      val_c:=val_c+1;
+      isoutlier:=false;
+      if val<val_min then isoutlier:=true;
+      if val>val_max then isoutlier:=true;
+
+{OUT}if isoutlier=true then begin
+     outliers_count:=outliers_count+1;
+     Edit5.Text:=inttostr(outliers_count);
+     with frmdm.q2 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' UPDATE '+tbl+' SET PQF2=:QF WHERE ');
+       SQL.Add(' ID=:ID AND LEV_M=:LEV_M AND VAL=:VAL AND ');
+       SQL.Add(' INSTRUMENT_ID=:INSTR_ID AND ');
+       SQL.Add(' PROFILE_NUMBER=:PROF_NUM ');
+       ParamByName('ID').Value:=id;
+       ParamByName('QF').Value:=1;
+       ParamByName('LEV_M').Value:=lev_m;
+       ParamByName('VAL').Value:=val;
+       ParamByName('INSTR_ID').Value:=instr_id;
+       ParamByName('PROF_NUM').Value:=prof_num;
+      ExecSQL;
+     end;
+{OUT}end;
+
+{conv}end
+      else val_nc:=val_nc+1;
+
+{c}end;
+
+     frmdm.q1.Next;
+{w}end;
+     frmdm.q1.Close;
+
+
+{Ln}until lne=180;
+{Lt}until lts=-90;
+
+     Edit4.Text:=inttostr(val_t);
+
+     memo1.Lines.Add(inttostr(i)
+     +#9+tbl
+     +#9+floattostr(val_min)+'->'
+     +#9+floattostr(val_max)
+     +#9+'unit_default='+inttostr(unit_default)
+     +#9+'outliers='+inttostr(outliers_count)
+     +#9+'total/converted/not_converted='+inttostr(val_t)+'/'+inttostr(val_c)+'/'+inttostr(val_nc));
+
+{WT}end; {write true - control without flags writing}
+
+
+{V}end; {check if variable range is filled}
+{R}end; {ranges cycle}
+
+
+{C}end; {table is checked }
+{T}end; {tables cycle}
 
     DT2:=NOW;
     memo1.Lines.Add('');
