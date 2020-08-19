@@ -241,8 +241,7 @@ begin
     if tbl = 'P_OXYGEN' then begin
     if unit_id=3 then vu:=true
     else begin
-      GetLabDensity(station_ID, instrument_id, profile_number, Lat, Lon, lev_m, lab_dens);
-      getdefaultunits(tbl,unit_id,3,val,lab_dens,val_conv,isconverted);
+      getdefaultunits(tbl,unit_id,3,val,val_conv,isconverted);
       if isconverted=true then begin  val:=val_conv; unit_id:=3; vu:=true; end;
     end;
     end;

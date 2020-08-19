@@ -260,14 +260,14 @@ begin
    if unit_tbl=unit_default then begin val_c:=val_c+1; isconverted:=true; end;
    if unit_tbl<>unit_default then begin
 
-     //getdefaultunits(tbl,unit_tbl,unit_default,val,val_conv,isconverted);
-
-
-     osunitsconversion.GetLabDensity(ID, INSTR_ID, PROF_NUM, Lat, Lon, LEV_M,
-                                     lab_dens);
-
+     // default old procedure with dens=1025
      osunitsconversion.GetDefaultUnits(tbl, unit_tbl, unit_default,
-                                       val, lab_dens, val_conv, isconverted);
+                                       val, val_conv, isconverted);
+
+     // new procedure calculating lab density
+  (*   osunitsconversion.GetDefaultUnitsExact(tbl, unit_tbl, unit_default, ID
+                                       instr_id, prof_num, val, lat, lon,
+                                       Lev_m, val_conv, isconverted); *)
 
 
        if isconverted=true then begin val:=val_conv; isconverted:=true; end

@@ -461,11 +461,8 @@ try
 
      if (rbUnitsDefault.Checked=true) and (units<>units_default) then begin
 
-       osunitsconversion.GetLabDensity(ID, INSTR_ID, PROF_NUM, Lat, Lon, LEV_M,
-                                       lab_dens);
-
        osunitsconversion.GetDefaultUnits(CurrentParTable, units, units_default,
-                                         val1, lab_dens, val_out, isconverted);
+                                         val1, val_out, isconverted);
 
        if isConverted=true then val1:=val_out else val1:=-9999;
      end;
