@@ -224,6 +224,7 @@ begin
    Edit4.Text:='';
    Edit5.Text:='';
    Edit6.Text:='';
+   Edit7.Text:='';
 
    tbl:=CheckGroup1.Items.Strings[ktbl]; {selected table}
    Edit1.Text:=tbl;
@@ -582,7 +583,7 @@ begin
        with frmdm.q3 do begin
          Close;
          SQL.Clear;
-         SQL.Add(' select PQF2, count(PQF2) from'+tbl);
+         SQL.Add(' select PQF2, count(PQF2) from '+tbl);
          SQL.Add(' group by PQF2 ');
          Open;
        end;
