@@ -1,11 +1,11 @@
 object frmQC_WideRanges: TfrmQC_WideRanges
   Left = 318
   Height = 879
-  Top = 178
-  Width = 1407
+  Top = 112
+  Width = 1483
   Caption = 'frmQC_WideRanges'
   ClientHeight = 879
-  ClientWidth = 1407
+  ClientWidth = 1483
   DesignTimePPI = 120
   OnShow = FormShow
   LCLVersion = '2.0.6.0'
@@ -40,9 +40,9 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     TabOrder = 1
   end
   object btnSetFlags: TBitBtn
-    Left = 1112
+    Left = 1144
     Height = 32
-    Top = 648
+    Top = 600
     Width = 270
     Caption = 'Set PQF2=1 outside defined ranges'
     Font.Color = clRed
@@ -82,9 +82,9 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     ParentFont = False
   end
   object CheckBox1: TCheckBox
-    Left = 1112
+    Left = 1216
     Height = 24
-    Top = 600
+    Top = 536
     Width = 121
     Caption = 'Write into DB?'
     ParentFont = False
@@ -94,7 +94,7 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     Left = 0
     Height = 183
     Top = 696
-    Width = 1407
+    Width = 1483
     Align = alBottom
     Lines.Strings = (
       'Memo1'
@@ -102,18 +102,10 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     ParentFont = False
     TabOrder = 5
   end
-  object Edit1: TEdit
-    Left = 1216
-    Height = 28
-    Top = 424
-    Width = 184
-    ParentFont = False
-    TabOrder = 6
-  end
   object RadioGroup1: TRadioGroup
-    Left = 1168
+    Left = 1208
     Height = 95
-    Top = 280
+    Top = 384
     Width = 143
     AutoFill = True
     Caption = 'Squares'
@@ -133,77 +125,130 @@ object frmQC_WideRanges: TfrmQC_WideRanges
       '1 x 1'
     )
     ParentFont = False
+    TabOrder = 6
+  end
+  object GroupBox1: TGroupBox
+    Left = 1120
+    Height = 272
+    Top = 56
+    Width = 328
+    Caption = 'Statistics'
+    ClientHeight = 247
+    ClientWidth = 324
     TabOrder = 7
-  end
-  object Edit2: TEdit
-    Left = 1216
-    Height = 28
-    Top = 456
-    Width = 116
-    TabOrder = 8
-  end
-  object Edit3: TEdit
-    Left = 1216
-    Height = 28
-    Top = 488
-    Width = 116
-    TabOrder = 9
-  end
-  object Edit4: TEdit
-    Left = 1216
-    Height = 28
-    Top = 520
-    Width = 116
-    TabOrder = 10
-  end
-  object Label3: TLabel
-    Left = 1168
-    Height = 20
-    Top = 432
-    Width = 37
-    Caption = 'table:'
-    ParentColor = False
-  end
-  object Label4: TLabel
-    Left = 1136
-    Height = 20
-    Top = 464
-    Width = 69
-    Caption = 'total rows:'
-    ParentColor = False
-  end
-  object Label5: TLabel
-    Left = 1112
-    Height = 20
-    Top = 496
-    Width = 97
-    Caption = 'current square:'
-    ParentColor = False
-  end
-  object Label6: TLabel
-    Left = 1128
-    Height = 20
-    Top = 528
-    Width = 78
-    Caption = 'current row:'
-    ParentColor = False
-  end
-  object Edit5: TEdit
-    Left = 1216
-    Height = 28
-    Top = 552
-    Width = 100
-    TabOrder = 11
-  end
-  object Label7: TLabel
-    Left = 1144
-    Height = 20
-    Top = 560
-    Width = 57
-    Caption = 'outliers:'
-    Font.Color = clRed
-    Font.Style = [fsBold]
-    ParentColor = False
-    ParentFont = False
+    object Label7: TLabel
+      Left = 68
+      Height = 20
+      Top = 136
+      Width = 57
+      Caption = 'outliers:'
+      Font.Color = clRed
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Edit5: TEdit
+      Left = 136
+      Height = 28
+      Top = 136
+      Width = 116
+      TabOrder = 0
+    end
+    object Label6: TLabel
+      Left = 47
+      Height = 20
+      Top = 104
+      Width = 78
+      Caption = 'current row:'
+      ParentColor = False
+    end
+    object Label5: TLabel
+      Left = 28
+      Height = 20
+      Top = 72
+      Width = 97
+      Caption = 'current square:'
+      ParentColor = False
+    end
+    object Label4: TLabel
+      Left = 56
+      Height = 20
+      Top = 40
+      Width = 69
+      Caption = 'total rows:'
+      ParentColor = False
+    end
+    object Label3: TLabel
+      Left = 88
+      Height = 20
+      Top = 8
+      Width = 37
+      Caption = 'table:'
+      ParentColor = False
+    end
+    object Edit4: TEdit
+      Left = 136
+      Height = 28
+      Top = 104
+      Width = 116
+      TabOrder = 1
+    end
+    object Edit3: TEdit
+      Left = 136
+      Height = 28
+      Top = 72
+      Width = 116
+      TabOrder = 2
+    end
+    object Edit2: TEdit
+      Left = 136
+      Height = 28
+      Top = 40
+      Width = 116
+      TabOrder = 3
+    end
+    object Edit1: TEdit
+      Left = 136
+      Height = 28
+      Top = 8
+      Width = 184
+      ParentFont = False
+      TabOrder = 4
+    end
+    object Label8: TLabel
+      Left = 21
+      Height = 20
+      Top = 176
+      Width = 104
+      Caption = 'units converted:'
+      Font.Color = clBlue
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label9: TLabel
+      Left = 23
+      Height = 20
+      Top = 200
+      Width = 102
+      Caption = 'not converted:'
+      Font.Color = clBlue
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Edit6: TEdit
+      Left = 136
+      Height = 28
+      Top = 168
+      Width = 100
+      TabOrder = 5
+    end
+    object Edit7: TEdit
+      Left = 136
+      Height = 28
+      Top = 200
+      Width = 100
+      TabOrder = 6
+    end
   end
 end
