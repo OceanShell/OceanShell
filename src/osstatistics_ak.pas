@@ -164,15 +164,26 @@ end;
 
 
 procedure Tfrmosstatistics_AK.btnGetTblStatisticsClick(Sender: TObject);
+Type
+  DataSource=record
+    ds_id :integer;
+    ds_name :string;
+    id_min :integer;
+    id_max :integer;
+  end;
+  DB_DataSource = array of DataSource;
+
 var
+DS :DB_DataSource;
+
 i,ktbl,kfl,kds :integer;
 st_count,samples_count,ds_id,ds_id_min,ds_id_max,units_id :integer;
+s,id_min,id_max :integer;
 lm_min,lm_max,val_min,val_max,val_avg :real;
 tbl,str,str_flags,ds_name,str_units :string;
 count_flags:array[0..9] of integer;
 var_selected :boolean;
 DT1,DT2:TDateTime;
-Label 10;
 begin
 
 
@@ -197,9 +208,42 @@ begin
    with frmdm.q1 do begin
      Close;
      SQL.Clear;
-     SQL.Add(' select id, name, station_id_min, station_id_max from SOURCE ');
+     SQL.Add(' select min(station_id_min), max(station_id_max) from SOURCE ');
+     Open;
+     id_min:=FieldByName('min').AsInteger;
+     id_max:=FieldByName('max').AsInteger;
+     Close;
+   end;
+
+   s:=1;
+   setlength(DS,s);
+   DS[s-1].ds_id:=0;
+   DS[s-1].ds_name:='All_DSs';
+   DS[s-1].id_min:=id_min;
+   DS[s-1].id_max:=id_max;
+
+   with frmdm.q1 do begin
+     Close;
+     SQL.Clear;
+     SQL.Add(' select * from SOURCE ');
      Open;
    end;
+{ds}while not frmdm.q1.EOF do begin
+   ds_id:=frmdm.q1.FieldByName('id').AsInteger;
+   ds_name:=frmdm.q1.FieldByName('name').AsString;
+   ds_id_min:=frmdm.q1.FieldByName('station_id_min').AsInteger;
+   ds_id_max:=frmdm.q1.FieldByName('station_id_max').AsInteger;
+
+   s:=s+1;
+   setlength(DS,s);
+   DS[s-1].ds_id:=ds_id;
+   DS[s-1].ds_name:=ds_name;
+   DS[s-1].id_min:=ds_id_min;
+   DS[s-1].id_max:=ds_id_max;
+
+   frmdm.q1.Next;
+{ds}end;
+   frmdm.q1.Close;
 
 
 {T}for ktbl:=0 to CheckGroup1.Items.Count-1 do begin
@@ -207,20 +251,12 @@ begin
 
    tbl:=CheckGroup1.Items.Strings[ktbl];
 
-    kds:=-1;
-    frmdm.q1.First;
-{ds}while not frmdm.q1.EOF do begin
+{ds}for kds:=0 to High(DS) do begin
 
-10: kds:=kds+1;
-    ds_name:='All_DSs';
-    ds_id:=0;
-
-    if kds>0 then begin
-     ds_id:=frmdm.q1.FieldByName('id').AsInteger;
-     ds_name:=frmdm.q1.FieldByName('name').AsString;
-     ds_id_min:=frmdm.q1.FieldByName('station_id_min').AsInteger;
-     ds_id_max:=frmdm.q1.FieldByName('station_id_max').AsInteger;
-    end;
+   ds_id:=DS[kds].ds_id;
+   ds_name:=DS[kds].ds_name;
+   ds_id_min:=DS[kds].id_min;
+   ds_id_max:=DS[kds].id_max;
 
    with frmdm.q2 do begin
     Close;
@@ -230,12 +266,10 @@ begin
     SQL.Add(' min(val) as val_min, max(val) as val_max, avg(val) as val_avg ');
     SQL.Add(' from '+tbl);
     SQL.Add(' where PQF2>=:PQF2 ');
+    SQL.Add(' and id>=:ds_id_min and id<=:ds_id_max ');
     ParamByName('PQF2').AsInteger:=strtoint(Edit1.Text);
-    if kds>0 then begin
-      SQL.Add(' and id>=:ds_id_min and id<=:ds_id_max ');
-      ParamByName('ds_id_min').AsInteger:=ds_id_min;
-      ParamByName('ds_id_max').AsInteger:=ds_id_max;
-    end;
+    ParamByName('ds_id_min').AsInteger:=ds_id_min;
+    ParamByName('ds_id_max').AsInteger:=ds_id_max;
     Open;
     st_count:=FieldByName('st_count').AsInteger;
     samples_count:=FieldByName('samples_count').AsInteger;
@@ -252,11 +286,9 @@ begin
      Close;
      SQL.Clear;
      SQL.Add(' Select distinct(units_id) from '+tbl);
-    if kds>0 then begin
-      SQL.Add(' where id>=:ds_id_min and id<=:ds_id_max ');
-      ParamByName('ds_id_min').AsInteger:=ds_id_min;
-      ParamByName('ds_id_max').AsInteger:=ds_id_max;
-    end;
+     SQL.Add(' where id>=:ds_id_min and id<=:ds_id_max ');
+     ParamByName('ds_id_min').AsInteger:=ds_id_min;
+     ParamByName('ds_id_max').AsInteger:=ds_id_max;
      Open;
    end;
 
@@ -276,11 +308,9 @@ begin
      SQL.Add(' Select count(PQF2) as QF_count ');
      SQL.Add(' from '+tbl);
      SQL.Add(' where PQF2= ' + inttostr(kfl));
-    if kds>0 then begin
-      SQL.Add(' and id>=:ds_id_min and id<=:ds_id_max ');
-      ParamByName('ds_id_min').AsInteger:=ds_id_min;
-      ParamByName('ds_id_max').AsInteger:=ds_id_max;
-    end;
+     SQL.Add(' and id>=:ds_id_min and id<=:ds_id_max ');
+     ParamByName('ds_id_min').AsInteger:=ds_id_min;
+     ParamByName('ds_id_max').AsInteger:=ds_id_max;
      Open;
      count_flags[kfl]:=frmdm.q3.FieldByName('QF_count').AsInteger;
      Close;
@@ -310,13 +340,10 @@ begin
 
     Application.ProcessMessages;
 
-    if kds=0 then GoTo 10;
-     frmdm.q1.Next;
 {ds}end;
 
 {C}end;
 {T}end;
-     frmdm.q1.Close;
 
      DT2:=NOW;
      memo1.Lines.Add('');
@@ -324,6 +351,9 @@ begin
      memo1.Lines.Add('...time spent: '+timetostr(DT2-DT1));
 
 end;
+
+
+
 
 procedure Tfrmosstatistics_AK.btnGetDuplicatesClick(Sender: TObject);
 Type

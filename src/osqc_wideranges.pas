@@ -104,7 +104,7 @@ begin
       StringGrid1.Cells[5,ktbl+1]:='Dimensionless or unit less';
     end;
     if tbl='P_TEMPERATURE' then begin
-      StringGrid1.Cells[1,ktbl+1]:=floattostr(0);
+      StringGrid1.Cells[1,ktbl+1]:=floattostr(-3);
       StringGrid1.Cells[2,ktbl+1]:=floattostr(40);
       StringGrid1.Cells[3,ktbl+1]:='1';
       StringGrid1.Cells[4,ktbl+1]:='°C';
