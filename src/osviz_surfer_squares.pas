@@ -474,15 +474,6 @@ begin
    DT1:=NOW;
    memo1.Lines.Add('...start: '+datetimetostr(DT1));
 
-   with frmdm.q1 do begin
-     Close;
-     SQL.Clear;
-     SQL.Add(' select count(id) as st_in_sq from STATION ');
-     SQL.Add(' where latitude>:lts and latitude<=:ltn ');
-     SQL.Add(' and longitude>=:lnw and longitude<:lne ');
-     Prepare;
-   end;
-
    sq_index:=floattostr(step)+'x'+floattostr(step)+'_';
    fn:=user_path+sq_index + 'stations_0.txt';
    assignfile(fo,fn);
@@ -511,8 +502,16 @@ begin
       ln:=(lnw+lne)/2;
       //memo1.Lines.Add(#9+inttostr(kln)+#9+floattostr(lnw)+'->'+floattostr(lne)+#9+floattostr(ln));
 
-
+      {...no duplicates, PQF2>2}
       with frmdm.q1 do begin
+        Close;
+        SQL.Clear;
+        SQL.Add(' select count(id) as st_in_sq from STATION ');
+        SQL.Add(' where duplicate=false ');
+        SQL.Add(' and latitude>:lts and latitude<=:ltn ');
+        {...select data from 180 meridian}
+        if lne<>180 then SQL.Add(' and longitude>=:lnw and longitude<:lne ')
+                    else SQL.Add(' and longitude>=:lnw and longitude<=:lne ');
         ParamByName('ltn').AsFloat:=ltn;
         ParamByName('lts').AsFloat:=lts;
         ParamByName('lnw').AsFloat:=lnw;
@@ -530,7 +529,6 @@ begin
 {Lt}until lts=-90;
       closefile(fo);
       closefile(fo1);
-      frmdm.q1.UnPrepare;
 
       DT2:=NOW;
       memo1.Lines.Add('');
@@ -645,7 +643,10 @@ begin
         SQL.Add(' select distinct(station.id), dateandtime from STATION,'+tbl);
         SQL.Add(' where station.id='+tbl+'.id and duplicate=false');
         SQL.Add(' and latitude>:lts and latitude<=:ltn ');
-        SQL.Add(' and longitude>=:lnw and longitude<:lne ');
+        {...select data from 180 meridian}
+        if lne<>180 then SQL.Add(' and longitude>=:lnw and longitude<:lne ')
+                    else SQL.Add(' and longitude>=:lnw and longitude<=:lne ');
+        //SQL.Add(' and longitude>=:lnw and longitude<:lne ');
         SQL.Add(' and PQF2>2 ');
         ParamByName('ltn').AsFloat:=ltn;
         ParamByName('lts').AsFloat:=lts;
@@ -877,7 +878,10 @@ begin
         SQL.Add(' select dateandtime,val,units_id from STATION,'+tbl);
         SQL.Add(' where station.id='+tbl+'.id and duplicate=false');
         SQL.Add(' and latitude>:lts and latitude<=:ltn ');
-        SQL.Add(' and longitude>=:lnw and longitude<:lne ');
+        {...select data from 180 meridian}
+        if lne<>180 then SQL.Add(' and longitude>=:lnw and longitude<:lne ')
+                    else SQL.Add(' and longitude>=:lnw and longitude<=:lne ');
+        //SQL.Add(' and longitude>=:lnw and longitude<:lne ');
         SQL.Add(' and lev_m>=:L1 and lev_m<:L2 ');
         SQL.Add(' and PQF2>2 ');
         ParamByName('ltn').AsFloat:=ltn;
@@ -1155,7 +1159,10 @@ begin
         SQL.Add(' select dateandtime,val,units_id from STATION,'+tbl);
         SQL.Add(' where station.id='+tbl+'.id and duplicate=false');
         SQL.Add(' and latitude>:lts and latitude<=:ltn ');
-        SQL.Add(' and longitude>=:lnw and longitude<:lne ');
+        {...select data from 180 meridian}
+        if lne<>180 then SQL.Add(' and longitude>=:lnw and longitude<:lne ')
+                    else SQL.Add(' and longitude>=:lnw and longitude<=:lne ');
+        //SQL.Add(' and longitude>=:lnw and longitude<:lne ');
         SQL.Add(' and lev_m>=:L1 and lev_m<:L2 ');
         SQL.Add(' and PQF2>2 ');
         ParamByName('ltn').AsFloat:=ltn;
