@@ -922,21 +922,25 @@ begin
        tbl:='P_TEMPERATURE';
        units_id:=1;
        val1:=temp_arr[ll];
+       if (val1=99999) or (val1<-2.5) or (val1>40) then val1:=-9999;
      end;
      2: begin
        tbl:='P_SALINITY';
        units_id:=2;
        val1:=sal_arr[ll];
+       if (val1=99999) or (val1<2) or (val1>41) then val1:=-9999;
      end;
      3: begin
        tbl:='P_OXYGEN';
        units_id:=3;
        val1:=oxy_arr[ll];
+       if (val1=99999) or (val1<5) or (val1>600) then val1:=-9999;
      end;
     end;
 
    lev_m:=-gibbsseawater.gsw_z_from_p(pres_arr[ll], lat, 0, 0);
 
+   if val1<>-9999 then begin
     with Qt do begin
      Close;
       SQL.Clear;
@@ -959,6 +963,7 @@ begin
       ParamByName('PROFILE_BEST').AsBoolean:=true;
      ExecSQL;
     end;
+   end;// not -9999
 
    end;//tables
   end;
@@ -1135,7 +1140,7 @@ Var
 
  stdate, stdate_upd, max_date:TDateTime;
  stnum, tbl:string;
- cast, QF:integer;
+ cast, QF, cnt_t, cnt_s, cnt_o:integer;
 begin
 memo1.Clear;
  try
@@ -1158,30 +1163,55 @@ memo1.Clear;
      with Qt1 do begin
       Close;
        SQL.Clear;
-       SQL.Add('SELECT ID FROM STATION ORDER BY ID ');
+       SQL.Add('SELECT ID FROM STATION WHERE ID>20000001 and ID<30000000 ORDER BY ID ');
       Open;
      end;
 
      while not Qt1.EOF do begin
 
-      with Qt2 do begin
+     with Qt2 do begin
        Close;
         SQL.Clear;
-        SQL.Add(' SELECT ID FROM P_OXYGEN ');
+        SQL.Add(' SELECT count(ID) FROM P_TEMPERATURE ');
         SQL.Add(' WHERE ID=:ID ');
         ParamByName('ID').AsInteger:=Qt1.FieldByName('ID').AsInteger;
        Open;
+        cnt_t:=Qt2.Fields[0].Value;
+       Close;
       end;
 
-      if Qt2.IsEmpty=true then begin
-       with Qt3 do begin
+      with Qt2 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' SELECT count(ID) FROM P_SALINITY ');
+        SQL.Add(' WHERE ID=:ID ');
+        ParamByName('ID').AsInteger:=Qt1.FieldByName('ID').AsInteger;
+       Open;
+        cnt_s:=Qt2.Fields[0].Value;
+       Close;
+      end;
+
+      with Qt2 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' SELECT count(ID) FROM P_OXYGEN ');
+        SQL.Add(' WHERE ID=:ID ');
+        ParamByName('ID').AsInteger:=Qt1.FieldByName('ID').AsInteger;
+       Open;
+        cnt_o:=Qt2.Fields[0].Value;
+       Close;
+      end;
+
+      if (cnt_t=0) and (cnt_s=0) and (cnt_o=0) then begin
+      { with Qt3 do begin
         Close;
          SQL.Clear;
          SQL.Add(' DELETE FROM STATION ');
          SQL.Add(' WHERE ID=:ID ');
          ParamByName('ID').AsInteger:=Qt1.FieldByName('ID').AsInteger;
         ExecSQL;
-       end;
+       end;  }
+      memo1.Lines.add(inttostr(Qt1.FieldByName('ID').AsInteger));
       end;
 
       Qt1.Next;

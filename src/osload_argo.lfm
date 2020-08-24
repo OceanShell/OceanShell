@@ -64,7 +64,7 @@ object frmload_argo: Tfrmload_argo
     Height = 38
     Top = 232
     Width = 240
-    Caption = '5. Update SYNTETIC'
+    Caption = '5. Update SYNTHETIC'
     OnClick = btnSyntheticClick
     TabOrder = 5
   end

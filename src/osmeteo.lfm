@@ -1,0 +1,761 @@
+object frmmeteo: Tfrmmeteo
+  Left = 538
+  Height = 600
+  Top = 185
+  Width = 844
+  Caption = 'frmmeteo'
+  ClientHeight = 600
+  ClientWidth = 844
+  Color = clBtnFace
+  Constraints.MinHeight = 600
+  Constraints.MinWidth = 832
+  DesignTimePPI = 144
+  Font.Color = clWindowText
+  Font.Height = -17
+  Font.Name = 'MS Sans Serif'
+  OnClose = FormClose
+  OnShow = FormShow
+  LCLVersion = '2.0.6.0'
+  Visible = True
+  object Panel1: TPanel
+    Left = 0
+    Height = 296
+    Top = 0
+    Width = 844
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 296
+    ClientWidth = 844
+    Font.Color = clWindowText
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    ParentFont = False
+    TabOrder = 0
+    object GroupBox1: TGroupBox
+      Left = 24
+      Height = 272
+      Top = 16
+      Width = 790
+      ClientHeight = 247
+      ClientWidth = 786
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ParentFont = False
+      TabOrder = 0
+      object Label1: TLabel
+        Cursor = crHandPoint
+        Left = 9
+        Height = 20
+        Top = 112
+        Width = 115
+        Caption = 'Dry temperature'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label1Click
+      end
+      object Label2: TLabel
+        Cursor = crHandPoint
+        Left = 9
+        Height = 20
+        Top = 144
+        Width = 120
+        Caption = 'Wet temperature'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label2Click
+      end
+      object Label3: TLabel
+        Cursor = crHandPoint
+        Left = 261
+        Height = 20
+        Top = 16
+        Width = 63
+        Caption = 'Pressure'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label3Click
+      end
+      object Label4: TLabel
+        Cursor = crHandPoint
+        Left = 9
+        Height = 20
+        Top = 16
+        Width = 100
+        Caption = 'Wind direction'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label4Click
+      end
+      object Label5: TLabel
+        Cursor = crHandPoint
+        Left = 9
+        Height = 20
+        Top = 48
+        Width = 84
+        Caption = 'Wind speed'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label5Click
+      end
+      object Label6: TLabel
+        Cursor = crHandPoint
+        Left = 261
+        Height = 20
+        Top = 48
+        Width = 106
+        Caption = 'Cloud common'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label6Click
+      end
+      object Label7: TLabel
+        Left = 261
+        Height = 20
+        Top = 112
+        Width = 75
+        Caption = 'Cloud type'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentColor = False
+        ParentFont = False
+      end
+      object Label8: TLabel
+        Cursor = crHandPoint
+        Left = 9
+        Height = 20
+        Top = 80
+        Width = 55
+        Caption = 'Visibility'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label8Click
+      end
+      object Label9: TLabel
+        Cursor = crHandPoint
+        Left = 9
+        Height = 20
+        Top = 176
+        Width = 125
+        Caption = 'Absolute humidity'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label9Click
+      end
+      object Label10: TLabel
+        Cursor = crHandPoint
+        Left = 9
+        Height = 20
+        Top = 207
+        Width = 119
+        Caption = 'Relative humidity'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label10Click
+      end
+      object Label11: TLabel
+        Cursor = crHandPoint
+        Left = 261
+        Height = 20
+        Top = 176
+        Width = 88
+        Caption = 'Wave height'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label11Click
+      end
+      object Label19: TLabel
+        Cursor = crHandPoint
+        Left = 501
+        Height = 20
+        Top = 176
+        Width = 107
+        Caption = 'Surface salinity'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label19Click
+      end
+      object Label18: TLabel
+        Cursor = crHandPoint
+        Left = 500
+        Height = 20
+        Top = 144
+        Width = 147
+        Caption = 'Surface temperature'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label18Click
+      end
+      object Label17: TLabel
+        Cursor = crHandPoint
+        Left = 501
+        Height = 20
+        Top = 48
+        Width = 139
+        Caption = 'Water transparency'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label17Click
+      end
+      object Label16: TLabel
+        Cursor = crHandPoint
+        Left = 501
+        Height = 20
+        Top = 80
+        Width = 81
+        Caption = 'Water color'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label16Click
+      end
+      object Label15: TLabel
+        Cursor = crHandPoint
+        Left = 501
+        Height = 20
+        Top = 112
+        Width = 61
+        Caption = 'Weather'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label15Click
+      end
+      object Label14: TLabel
+        Cursor = crHandPoint
+        Left = 261
+        Height = 20
+        Top = 207
+        Width = 69
+        Caption = 'Sea state'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label14Click
+      end
+      object Label13: TLabel
+        Cursor = crHandPoint
+        Left = 500
+        Height = 20
+        Top = 16
+        Width = 88
+        Caption = 'Wave period'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label13Click
+      end
+      object Label12: TLabel
+        Cursor = crHandPoint
+        Left = 261
+        Height = 20
+        Top = 144
+        Width = 104
+        Caption = 'Wave direction'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label12Click
+      end
+      object Label20: TLabel
+        Cursor = crHandPoint
+        Left = 261
+        Height = 20
+        Top = 80
+        Width = 68
+        Caption = 'Cloud low'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = Label20Click
+      end
+      object DBEdit3: TDBEdit
+        Left = 141
+        Height = 28
+        Top = 72
+        Width = 110
+        DataField = 'VISIBILITY'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 2
+      end
+      object DBEdit8: TDBEdit
+        Left = 381
+        Height = 28
+        Top = 8
+        Width = 110
+        DataField = 'PRESSURE'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 7
+      end
+      object DBEdit7: TDBEdit
+        Left = 141
+        Height = 28
+        Top = 200
+        Width = 110
+        DataField = 'HUMREL'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 6
+      end
+      object DBEdit6: TDBEdit
+        Left = 141
+        Height = 28
+        Top = 168
+        Width = 110
+        DataField = 'HUMABS'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 5
+      end
+      object DBEdit5: TDBEdit
+        Left = 141
+        Height = 28
+        Top = 136
+        Width = 110
+        DataField = 'TEMPWET'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 4
+      end
+      object DBEdit4: TDBEdit
+        Left = 141
+        Height = 28
+        Top = 104
+        Width = 110
+        DataField = 'TEMPDRY'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 3
+      end
+      object DBEdit2: TDBEdit
+        Left = 141
+        Height = 28
+        Top = 40
+        Width = 110
+        DataField = 'WINDSPEED'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 1
+      end
+      object DBEdit9: TDBEdit
+        Left = 381
+        Height = 28
+        Top = 40
+        Width = 110
+        DataField = 'CLOUDCOMMON'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 8
+      end
+      object DBEdit10: TDBEdit
+        Left = 381
+        Height = 28
+        Top = 104
+        Width = 110
+        DataField = 'CLOUDTYPE'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 10
+        OnDblClick = DBEdit10DblClick
+      end
+      object DBEdit19: TDBEdit
+        Left = 660
+        Height = 28
+        Top = 168
+        Width = 110
+        DataField = 'SURFSALT'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 19
+      end
+      object DBEdit18: TDBEdit
+        Left = 660
+        Height = 28
+        Top = 136
+        Width = 110
+        DataField = 'SURFTEMP'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 18
+      end
+      object DBEdit17: TDBEdit
+        Left = 660
+        Height = 28
+        Top = 104
+        Width = 110
+        DataField = 'WEATHER'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 17
+      end
+      object DBEdit16: TDBEdit
+        Left = 660
+        Height = 28
+        Top = 72
+        Width = 110
+        DataField = 'WATERCOLOR'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 16
+      end
+      object DBEdit15: TDBEdit
+        Left = 660
+        Height = 28
+        Top = 40
+        Width = 110
+        DataField = 'WATERTRANSP'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 15
+      end
+      object DBEdit14: TDBEdit
+        Left = 660
+        Height = 28
+        Top = 8
+        Width = 110
+        DataField = 'WAVEPERIOD'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 14
+      end
+      object DBEdit13: TDBEdit
+        Left = 381
+        Height = 28
+        Top = 200
+        Width = 110
+        DataField = 'SEASTATE'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 13
+      end
+      object DBEdit12: TDBEdit
+        Left = 381
+        Height = 28
+        Top = 168
+        Width = 110
+        DataField = 'WAVEHEIGHT'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 12
+      end
+      object DBEdit20: TDBEdit
+        Left = 224
+        Height = 28
+        Top = 352
+        Width = 98
+        DataField = 'ABSNUM'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 21
+        TabStop = False
+        Visible = False
+      end
+      object DBComboBox2: TDBComboBox
+        Left = 381
+        Height = 28
+        Top = 136
+        Width = 110
+        DataField = 'WAVEDIR'
+        DropDownCount = 20
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ItemHeight = 20
+        Items.Strings = (
+          'С'
+          'ССВ'
+          'СВ'
+          'ВСВ'
+          'В'
+          'ВЮВ'
+          'ЮВ'
+          'ЮЮВ'
+          'Ю'
+          'ЮЮЗ'
+          'ЮЗ'
+          'ЗЮЗ'
+          'З'
+          'ЗСЗ'
+          'СЗ'
+          'ССЗ'
+        )
+        MaxLength = 0
+        OnDblClick = DBComboBox1DblClick
+        ParentFont = False
+        TabOrder = 11
+      end
+      object DBEdit1: TDBEdit
+        Left = 381
+        Height = 28
+        Top = 72
+        Width = 110
+        DataField = 'CLOUDLOW'
+        CharCase = ecNormal
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        MaxLength = 0
+        ParentFont = False
+        TabOrder = 9
+      end
+      object DBComboBox1: TDBComboBox
+        Left = 141
+        Height = 28
+        Top = 8
+        Width = 110
+        DataField = 'WINDDIR'
+        DropDownCount = 20
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ItemHeight = 20
+        Items.Strings = (
+          'С'
+          'ССВ'
+          'СВ'
+          'ВСВ'
+          'В'
+          'ВЮВ'
+          'ЮВ'
+          'ЮЮВ'
+          'Ю'
+          'ЮЮЗ'
+          'ЮЗ'
+          'ЗЮЗ'
+          'З'
+          'ЗСЗ'
+          'СЗ'
+          'ССЗ'
+        )
+        MaxLength = 0
+        OnDblClick = DBComboBox1DblClick
+        ParentFont = False
+        TabOrder = 0
+      end
+      object btnPrior: TButton
+        Left = 500
+        Height = 28
+        Top = 200
+        Width = 69
+        Caption = 'Prior'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnClick = btnPriorClick
+        ParentFont = False
+        TabOrder = 22
+        TabStop = False
+      end
+      object btnNext: TButton
+        Left = 579
+        Height = 28
+        Top = 200
+        Width = 72
+        Caption = 'Next'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnClick = btnNextClick
+        ParentFont = False
+        TabOrder = 23
+        TabStop = False
+      end
+      object btnCommit: TButton
+        Left = 660
+        Height = 28
+        Top = 200
+        Width = 110
+        Caption = 'Commit'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnClick = btnCommitClick
+        ParentFont = False
+        TabOrder = 20
+      end
+    end
+  end
+  object Chart1: TChart
+    Left = 0
+    Height = 304
+    Top = 296
+    Width = 844
+    AxisList = <    
+      item
+        Marks.LabelBrush.Style = bsClear
+        Minors = <>
+        Title.LabelFont.Orientation = 900
+        Title.LabelBrush.Style = bsClear
+      end    
+      item
+        Alignment = calBottom
+        Marks.LabelBrush.Style = bsClear
+        Minors = <>
+        Title.LabelBrush.Style = bsClear
+      end>
+    BackColor = clWhite
+    Foot.Brush.Color = clBtnFace
+    Foot.Font.Color = clBlue
+    Title.Brush.Color = clBtnFace
+    Title.Font.Color = clBlue
+    Title.Text.Strings = (
+      'TAChart'
+    )
+    Align = alClient
+    object Series1: TLineSeries
+    end
+  end
+  object QM: TSQLQuery
+    FieldDefs = <>
+    Database = frmdm.IBDB
+    Transaction = frmdm.TR
+    Params = <>
+    left = 133
+    top = 347
+  end
+end
