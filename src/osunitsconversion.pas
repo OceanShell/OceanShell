@@ -23,6 +23,38 @@ procedure  GetDefaultUnits(par:string; units, units_default: integer; val_in: re
 begin
  val_out:=-9999;
 
+ if (par='P_ALKALINITY') then begin
+   (* Milli-equivalent per liter (5) -> Micro-mole per kilogram (3) *)
+   if (units=5) and (units_default=3) then val_out:=val_in*1000/1.025; //≈ 2000-2500
+ end;
+
+
+ if (par='P_AMMONIUM') then begin
+   (* Micro-gram per liter (4) ->    Micro-gram per kilogram (14) *)
+   if (units=4) and (units_default=14) then val_out:=val_in/1.025;
+ end;
+
+ if (par='P_CHLOROPHYLL') then begin
+   (* Micro-gram per liter (4) ->    Micro-gram per kilogram (14) *)
+   if (units=4) and (units_default=14) then val_out:=val_in/1.025;
+ end;
+
+
+ if (par='P_DIC') then begin
+   (* Milli-mole per liter (7) -> Micro-mole per kilogram (3) *)
+   if (units=7) and (units_default=3) then val_out:=val_in*1000/1.025;
+ end;
+
+ if (par='P_DIN') then begin
+   (* Micro-gram per liter (4) -> Micro-gram per kilogram (14) *)
+   if (units=4) and (units_default=14) then val_out:=val_in/1.025;
+ end;
+
+ if (par='P_SF6') then begin
+   (* Nano-mole per kilogram (12) ->     Femto-mole per kilogram (19) *)
+   if (units=12) and (units_default=19) then val_out:=val_in*1e6;
+ end;
+
  if (par='P_OXYGEN') then begin
     {1 μmol O2 = .022391 ml
      1 ml/l = 103/22.391 = 44.661 μmol/l
@@ -33,7 +65,7 @@ begin
    if (units=21) and (units_default=3) then val_out:=44.661*val_in/1.025; //g/l ≈ g/kg × 1.025
  end;
 
- if (par='P_NITRATE') then begin
+ if (par='P_NITRATE') or (par='P_NITRATENITRITE') then begin
    {1 μg NO3/l = 1/ MW NO3 μg/l = 0.016128 μmol NO3/l
    1 μg NO3/l = MW N/MW NO3 = 0.225897 μg N/l
    1 μg N/l = 1/MW N = 0.071394 μmol N/l
@@ -110,7 +142,7 @@ Var
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
 
-  SA, sp, p, t, lab_dens:real;
+  SA, sp, p, t, t_pot, t_lab, lab_dens, real_dens:real;
 begin
  val_out:=-9999;
 
@@ -122,12 +154,17 @@ begin
    Qt.Database:=frmdm.IBDB;
    Qt.Transaction:=TRt;
 
-   sp:=-9999;
+   sp:=-9999; t:=-9999;
    with Qt do begin
     Close;
      SQL.Clear;
-     SQL.Add(' SELECT VAL FROM P_SALINITY ');
+     SQL.Add(' SELECT P_TEMPERATURE.VAL AS TVAL, P_SALINITY.VAL AS SVAL');
+     SQL.Add(' FROM P_TEMPERATURE, P_SALINITY ');
      SQL.Add(' WHERE ');
+     SQL.Add(' P_SALINITY.ID=P_TEMPERATURE.ID AND ');
+     SQL.Add(' P_SALINITY.LEV_M=P_TEMPERATURE.LEV_M AND ');
+     SQL.Add(' P_SALINITY.INSTRUMENT_ID=P_TEMPERATURE.INSTRUMENT_ID AND ');
+     SQL.Add(' P_SALINITY.PROFILE_NUMBER=P_TEMPERATURE.PROFILE_NUMBER AND ');
      SQL.Add(' P_SALINITY.ID=:ID AND ');
      SQL.Add(' P_SALINITY.LEV_M=:LEV AND ');
      SQL.Add(' P_SALINITY.INSTRUMENT_ID=:INSTR_ID AND ');
@@ -137,7 +174,10 @@ begin
      ParamByName('INSTR_ID').Value:=instr_id;
      ParamByName('PROF_NUM').Value:=prof_num;
     Open;
-      if not Qt.IsEmpty then sp:=Qt.Fields[0].Value;
+      if not Qt.IsEmpty then begin
+        sp:=Qt.FieldByName('SVAL').Value;
+        t :=Qt.FieldByName('TVAL').Value;
+      end;
     Close;
    end;
  finally
@@ -146,22 +186,57 @@ begin
    Trt.Free;
  end;
 
- if sp=-9999 then exit; // terminate if there is no salinity
+ if (sp=-9999) or (t=-9999) then exit; // terminate if there is no salinity
 
  p:=10.1325; //atmosheric pressure, dbar
- t:=22;      //laboratory temperature
+ t_lab:=22;  //laboratory temperature
+
  SA  := gsw_SA_from_SP(sp, p, lon, lat);
- lab_dens:= gsw_rho_t_exact(SA, t, p); // kg/m3
+ lab_dens:= gsw_rho_t_exact(SA, t_lab, p); // kg/m3
  lab_dens:=lab_dens/1000;
 
- if (par='P_OXYGEN') then begin
+ real_dens:=gsw_rho_t_exact(SA, t, p);
+ real_dens:=real_dens/1000;
 
-     (* Milliliter per liter to Micro-mole per kilogram *)
-   if (units=21) and (units_default=3) then val_out:=44.661*val_in/lab_dens; //g/l ≈ g/kg × 1.025
+
+  if (par='P_ALKALINITY') then begin
+   (* Milli-equivalent per liter (5) -> Micro-mole per kilogram (3) *)
+   if (units=5) and (units_default=3) then val_out:=val_in*1000/lab_dens; //≈ 2000-2500
  end;
 
- if (par='P_NITRATE') then begin
 
+ if (par='P_AMMONIUM') then begin
+   (* Micro-gram per liter (4) ->    Micro-gram per kilogram (14) *)
+   if (units=4) and (units_default=14) then val_out:=val_in/lab_dens;
+ end;
+
+ if (par='P_CHLOROPHYLL') then begin
+   (* Micro-gram per liter (4) ->    Micro-gram per kilogram (14) *)
+   if (units=4) and (units_default=14) then val_out:=val_in/real_dens;
+ end;
+
+
+ if (par='P_DIC') then begin
+   (* Milli-mole per liter (7) -> Micro-mole per kilogram (3) *)
+   if (units=7) and (units_default=3) then val_out:=val_in*1000/lab_dens;
+ end;
+
+ if (par='P_DIN') then begin
+   (* Micro-gram per liter (4) -> Micro-gram per kilogram (14) *)
+   if (units=4) and (units_default=14) then val_out:=val_in/lab_dens;
+ end;
+
+ if (par='P_SF6') then begin
+   (* Nano-mole per kilogram (12) ->     Femto-mole per kilogram (19) *)
+   if (units=12) and (units_default=19) then val_out:=val_in*1e6;
+ end;
+
+ if (par='P_OXYGEN') then begin
+   (* Milliliter per liter to Micro-mole per kilogram *)
+   if (units=21) and (units_default=3) then val_out:=44.661*val_in/real_dens; //g/l ≈ g/kg × 1.025
+ end;
+
+ if (par='P_NITRATE') or (par='P_NITRATENITRITE') then begin
    (* Micro-gram per liter to Micro-mole per kilogram *)
    if (units=4)  and (units_default=3) then val_out:=0.016128*val_in/lab_dens; //g/l ≈ g/kg × 1.025
    (* Micro-gram per kilogram to Micro-mole per kilogram *)

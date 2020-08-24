@@ -134,6 +134,7 @@ type
     iQCflagfromfile: TMenuItem;
     iExportCIA: TMenuItem;
     iQC_WideRanges: TMenuItem;
+    iMeteo: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
     iBottomDepthGEBCO: TMenuItem;
@@ -278,6 +279,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure GroupBox2Click(Sender: TObject);
     procedure iAboutClick(Sender: TObject);
     procedure iDBStatisticsClick(Sender: TObject);
     procedure iDBStatistics_AKClick(Sender: TObject);
@@ -292,6 +294,7 @@ type
     procedure iLoad_ITPClick(Sender: TObject);
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
+    procedure iMeteoClick(Sender: TObject);
     procedure iPlotBathymetryClick(Sender: TObject);
     procedure iQCflagfromfileClick(Sender: TObject);
     procedure iQC_dbar_meterClick(Sender: TObject);
@@ -385,7 +388,7 @@ var
 
   frmprofile_station_all_open, frmprofile_station_single_open :boolean;
   frmmap_open, frmprofile_plot_all_open, frmparameters_list_open: boolean;
-
+  frmmeteo_open: boolean;
 
 const
    NC_NOWRITE   = 0;    // file for reading
@@ -453,6 +456,7 @@ uses
   osprofile_station_single,
   osprofile_plot_all,
   osbathymetry_plot,
+  osmeteo,
 
 (* statistics *)
   osstatistics,
@@ -482,7 +486,7 @@ begin
 
 (* flags on open forms *)
  frmprofile_station_all_open:=false; frmprofile_station_single_open:=false;
- frmmap_open:=false; frmparameters_list_open:=false;
+ frmmap_open:=false; frmparameters_list_open:=false; frmmeteo_open:=false;
  frmprofile_plot_all_open:=false;
 
  (* Define Global Path *)
@@ -673,6 +677,11 @@ begin
  OnResize(Self);
  SetFocus;
  Application.ProcessMessages;
+end;
+
+procedure Tfrmosmain.GroupBox2Click(Sender: TObject);
+begin
+
 end;
 
 
@@ -2009,7 +2018,6 @@ begin
    cbCruiseSource.Items:=cbSource.Items;
    cbCruiseInstitute.Items:=cbInstitute.Items;
    cbCruiseProject.Items:=cbProject.Items;
-
 end;
 
 
@@ -2446,6 +2454,17 @@ finally
   frmloadWOD18.Free;
   frmloadWOD18 := nil;
 end;
+end;
+
+procedure Tfrmosmain.iMeteoClick(Sender: TObject);
+begin
+  if frmmeteo_open=true then frmmeteo.SetFocus else
+     begin
+        frmmeteo := Tfrmmeteo.Create(Self);
+        frmmeteo.Show;
+     end;
+ //  frmmeteo.btnShowSelectedClick(self);
+   frmmeteo_open:=true;
 end;
 
 procedure Tfrmosmain.iPlotBathymetryClick(Sender: TObject);
@@ -3226,6 +3245,12 @@ begin
    finally
      Ini.Free;
    end;
+
+   cbPlatform.Clear;
+   cbCountry.Clear;
+   cbSource.Clear;
+   cbInstitute.Clear;
+   cbProject.Clear;
 end;
 
 procedure Tfrmosmain.FormDestroy(Sender: TObject);
