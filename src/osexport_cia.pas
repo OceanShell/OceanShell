@@ -196,6 +196,7 @@ tbl_seq: array[1..34] of string; {GLODAP 2019.v2}
 
 {GLODAP}
 theta,sigma0,sigma1,sigma2,sigma3,sigma4,gamma :real;
+column :array[1..102] of string;
 
 begin
 
@@ -237,6 +238,138 @@ begin
     tbl_seq[33]:='tdn';
     tbl_seq[34]:='chlorophyll';
 
+
+
+
+
+    {str:='cruise,station,cast,year,month,day,hour,minute,latitude,longitude,'
+    +'bottomdepth,maxsampdepth,bottle,pressure,depth,temperature,theta,'
+    +'salinity,salinityf,salinityqc,sigma0,sigma1,sigma2,sigma3,sigma4,gamma,'
+    +'oxygen,oxygenf,oxygenqc,aou,aouf,nitrate,nitratef,nitrateqc,nitrite,nitritef,'
+    +'silicate,silicatef,silicateqc,phosphate,phosphatef,phosphateqc,tco2,tco2f,tco2qc,'
+    +'talk,talkf,talkqc,phts25p0,phts25p0f,phtsinsitutp,phtsinsitutpf,phtsqc,cfc11,'
+    +'pcfc11,cfc11f,cfc11qc,cfc12,pcfc12,cfc12f,cfc12qc,cfc113,pcfc113,cfc113f,cfc113qc,'
+    +'ccl4,pccl4,ccl4f,ccl4qc,sf6,psf6,sf6f,c13,c13f,c13qc,c14,c14f,c14err,h3,h3f,h3err,'
+    +'he3,he3f,he3err,he,hef,heerr,neon,neonf,neonerr,o18,o18f,toc,tocf,doc,docf,don,donf,'
+    +'tdn,tdnf,chla,chlaf'; }
+
+
+{cruise,station,cast,year,month,day,hour,minute,latitude,longitude,}
+column[1]:='cruise';
+column[2]:='station';
+column[3]:='cast';
+column[4]:='year';
+column[5]:='month';
+column[6]:='day';
+column[7]:='hour';
+column[8]:='minute';
+column[9]:='latitude';
+column[10]:='longitude';
+column[11]:='bottomdepth';
+column[12]:='maxsampdepth';
+{bottle,pressure,depth,temperature,theta,}
+column[13]:='bottle';
+column[14]:='pressure';
+column[15]:='depth';
+column[16]:='temperature';
+column[17]:='theta';
+{salinity,salinityf,salinityqc,sigma0,sigma1,sigma2,sigma3,sigma4,gamma,}
+column[18]:='salinity';
+column[19]:='salinityf';
+column[20]:='salinityqc';
+column[21]:='sigma0';
+column[22]:='sigma1';
+column[23]:='sigma2';
+column[24]:='sigma3';
+column[25]:='sigma4';
+column[26]:='gamma';
+{oxygen,oxygenf,oxygenqc,aou,aouf,nitrate,nitratef,nitrateqc,nitrite,nitritef,}
+column[27]:='oxygen';
+column[28]:='oxygenf';
+column[29]:='oxygenqc';
+column[30]:='aou';
+column[31]:='aouf';
+column[32]:='nitrate';
+column[33]:='nitratef';
+column[34]:='nitrateqc';
+column[35]:='nitrite';
+column[36]:='nitritef';
+{silicate,silicatef,silicateqc,phosphate,phosphatef,phosphateqc,tco2,tco2f,tco2qc}
+column[37]:='silicate';
+column[38]:='silicatef';
+column[39]:='silicateqc';
+column[40]:='phosphate';
+column[41]:='phosphatef';
+column[42]:='phosphateqc';
+column[43]:='tco2';
+column[44]:='tco2f';
+column[45]:='tco2qc';
+{talk,talkf,talkqc,phts25p0,phts25p0f,phtsinsitutp,phtsinsitutpf,phtsqc,cfc11}
+column[46]:='talk';
+column[47]:='talkf';
+column[48]:='talkqc';
+column[49]:='phts25p0';
+column[50]:='phts25p0f';
+column[51]:='phtsinsitutp';
+column[52]:='phtsinsitutpf';
+column[53]:='phtsqc';
+column[54]:='cfc11';
+{pcfc11,cfc11f,cfc11qc,cfc12,pcfc12,cfc12f,cfc12qc,cfc113,pcfc113,cfc113f,cfc113qc}
+column[55]:='pcfc11';
+column[56]:='cfc11f';
+column[57]:='cfc11qc';
+column[58]:='cfc12';
+column[59]:='pcfc12';
+column[60]:='cfc12f';
+column[61]:='cfc12qc';
+column[62]:='cfc113';
+column[63]:='pcfc113';
+column[64]:='cfc113f';
+column[65]:='cfc113qc';
+{ccl4,pccl4,ccl4f,ccl4qc,sf6,psf6,sf6f,c13,c13f,c13qc,c14,c14f,c14err,h3,h3f,h3err}
+column[66]:='ccl4';
+column[67]:='pccl4';
+column[68]:='ccl4f';
+column[69]:='ccl4qc';
+column[70]:='sf6';
+column[71]:='psf6';
+column[72]:='sf6f';
+column[73]:='c13';
+column[74]:='c13f';
+column[75]:='c13qc';
+column[76]:='c14';
+column[77]:='c14f';
+column[78]:='c14err';
+column[79]:='h3';
+column[80]:='h3f';
+column[81]:='h3err';
+{he3,he3f,he3err,he,hef,heerr,neon,neonf,neonerr,o18,o18f,toc,tocf,doc,docf,don,donf}
+column[82]:='he3';
+column[83]:='he3f';
+column[84]:='he3err';
+column[85]:='he';
+column[86]:='hef';
+column[87]:='heerr';
+column[88]:='neon';
+column[89]:='neonf';
+column[90]:='neonerr';
+column[91]:='o18';
+column[92]:='o18f';
+column[93]:='toc';
+column[94]:='tocf';
+column[95]:='doc';
+column[96]:='docf';
+column[97]:='don';
+column[98]:='donf';
+{tdn,tdnf,chla,chlaf}
+column[99]:='tdn';
+column[100]:='tdnf';
+column[101]:='chla';
+column[102]:='chlaf';
+
+    str:='';
+    for i:=1 to 102 do if i<102 then str:=str+column[i]+',' else str:=str+column[i];
+
     {...geographic region}
     memo1.Lines.Add('Latitude : '+floattostr(SLatMin)+'->'+floattostr(SLatMax));
     memo1.Lines.Add('Longitude: '+floattostr(SLonMin)+'->'+floattostr(SLonMax));
@@ -252,16 +385,7 @@ begin
     memo1.Lines.Add(fn);
     assignfile(fo2,fn);
     rewrite(fo2);
-    str:='cruise,station,cast,year,month,day,hour,minute,latitude,longitude,'
-    +'bottomdepth,maxsampdepth,bottle,pressure,depth,temperature,theta,'
-    +'salinity,salinityf,salinityqc,sigma0,sigma1,sigma2,sigma3,sigma4,gamma,'
-    +'oxygen,oxygenf,oxygenqc,aou,aouf,nitrate,nitratef,nitrateqc,nitrite,nitritef,'
-    +'silicate,silicatef,silicateqc,phosphate,phosphatef,phosphateqc,tco2,tco2f,tco2qc,'
-    +'talk,talkf,talkqc,phts25p0,phts25p0f,phtsinsitutp,phtsinsitutpf,phtsqc,cfc11,'
-    +'pcfc11,cfc11f,cfc11qc,cfc12,pcfc12,cfc12f,cfc12qc,cfc113,pcfc113,cfc113f,cfc113qc,'
-    +'ccl4,pccl4,ccl4f,ccl4qc,sf6,psf6,sf6f,c13,c13f,c13qc,c14,c14f,c14err,h3,h3f,h3err,'
-    +'he3,he3f,he3err,he,hef,heerr,neon,neonf,neonerr,o18,o18f,toc,tocf,doc,docf,don,donf,'
-    +'tdn,tdnf,chla,chlaf';
+
     writeln(fo2,str);
 
     fn:=user_path+'new_levels.txt';
@@ -1743,17 +1867,17 @@ begin
      +inttostr(CS[klev].salinity_PQF2)+','
      +inttostr(CS[klev].salinity_SQF)+','
      +floattostr(sigma0)+','
-     +inttostr(CS[klev].salinity_PQF2)+','
+     //+inttostr(CS[klev].salinity_PQF2)+','
      +floattostr(sigma1)+','
-     +inttostr(CS[klev].salinity_PQF2)+','
+     //+inttostr(CS[klev].salinity_PQF2)+','
      +floattostr(sigma2)+','
-     +inttostr(CS[klev].salinity_PQF2)+','
+     //+inttostr(CS[klev].salinity_PQF2)+','
      +floattostr(sigma3)+','
-     +inttostr(CS[klev].salinity_PQF2)+','
+     //+inttostr(CS[klev].salinity_PQF2)+','
      +floattostr(sigma4)+','
-     +inttostr(CS[klev].salinity_PQF2)+','
+     //+inttostr(CS[klev].salinity_PQF2)+','
      +floattostr(gamma)+','
-     +inttostr(CS[klev].salinity_PQF2)+','
+     //+inttostr(CS[klev].salinity_PQF2)+','
      //+'  3_oxygen: '
      +floattostr(CS[klev].oxygen_val)+','  //P_OXYGEN(3)
      +inttostr(CS[klev].oxygen_PQF2)+','
@@ -1789,46 +1913,52 @@ begin
      +inttostr(CS[klev].phts25p0_PQF2)+','
      +inttostr(CS[klev].phts25p0_SQF)+','
      //+'  12_phtsinsitutp: '
-     +floattostr(CS[klev].phtsinsitutp_val)+','  //P_PHTSINSITUTP(3)
+     +floattostr(CS[klev].phtsinsitutp_val)+','  //P_PHTSINSITUTP(2)
      +inttostr(CS[klev].phtsinsitutp_PQF2)+','
-     +inttostr(CS[klev].phtsinsitutp_SQF)+','
-     //+'  13_cfc11: '
-     +floattostr(CS[klev].cfc11_val)+','  //P_CFC11(3)
+     //+inttostr(CS[klev].phtsinsitutp_SQF)+',' //один флаг на оба PH
+     //+'  13_cfc11: ' +'  14_pcfc11: '
+     +floattostr(CS[klev].cfc11_val)+','  //P_CFC11+P_PCFC11(4): cfc11,pcfc11,cfc11f,cfc11qc
+     +floattostr(CS[klev].pcfc11_val)+','
      +inttostr(CS[klev].cfc11_PQF2)+','
      +inttostr(CS[klev].cfc11_SQF)+','
      //+'  14_pcfc11: '
-     +floattostr(CS[klev].pcfc11_val)+','  //P_PCFC11(2)
-     +inttostr(CS[klev].pcfc11_PQF2)+','
-     //+'  15_cfc12: '
-     +floattostr(CS[klev].cfc12_val)+','  //P_CFC12(3)
+     //+floattostr(CS[klev].pcfc11_val)+','
+     //+inttostr(CS[klev].pcfc11_PQF2)+','
+     //+'  15_cfc12: ' +'  16_pcfc12: '
+     +floattostr(CS[klev].cfc12_val)+','  //P_CFC12+P_PCFC12(4): cfc12,pcfc12,cfc12f,cfc12qc
+     +floattostr(CS[klev].pcfc12_val)+','
      +inttostr(CS[klev].cfc12_PQF2)+','
      +inttostr(CS[klev].cfc12_SQF)+','
-     //+'  16_pcfc12: '
-     +floattostr(CS[klev].pcfc12_val)+','  //P_PCFC12(2)
-     +inttostr(CS[klev].pcfc12_PQF2)+','
+     //+'  16_pcfc12: ' +'  18_pcfc113: '
+     //+floattostr(CS[klev].pcfc12_val)+','  //P_PCFC12(2)
+     //+inttostr(CS[klev].pcfc12_PQF2)+','
      //+'  17_cfc113: '
-     +floattostr(CS[klev].cfc113_val)+','  //P_CFC113(3)
+     +floattostr(CS[klev].cfc113_val)+','  //P_CFC113+P_PCFC113(4): cfc113,pcfc113,cfc113f,cfc113qc
+     +floattostr(CS[klev].pcfc113_val)+','
      +inttostr(CS[klev].cfc113_PQF2)+','
      +inttostr(CS[klev].cfc113_SQF)+','
      //+'  18_pcfc113: '
-     +floattostr(CS[klev].pcfc113_val)+','  //P_P_PCFC113(2)
-     +inttostr(CS[klev].pcfc113_PQF2)+','
-     //+'  19_ccl4: '
-     +floattostr(CS[klev].ccl4_val)+','  //P_CCL4(3)
+     //+floattostr(CS[klev].pcfc113_val)+','  //P_PCFC113(2)
+     //+inttostr(CS[klev].pcfc113_PQF2)+','
+     //+'  19_ccl4: ' +'  20_pccl4: '
+     +floattostr(CS[klev].ccl4_val)+','  //P_CCL4+P_PCCL4(4): CCL4,pCCL4,CCL4f,CCL4qc
+     +floattostr(CS[klev].pccl4_val)+','
      +inttostr(CS[klev].ccl4_PQF2)+','
      +inttostr(CS[klev].ccl4_SQF)+','
      //+'  20_pccl4: '
-     +floattostr(CS[klev].pccl4_val)+','  //P_PCCL4(2)
-     +inttostr(CS[klev].pccl4_PQF2)+','
-     //+'  21_sf6: '
-     +floattostr(CS[klev].sf6_val)+','  //P_SF6(2)
+     //+floattostr(CS[klev].pccl4_val)+','  //P_PCCL4(2)
+     //+inttostr(CS[klev].pccl4_PQF2)+','
+     //+'  21_sf6: '+'  22_sf6: '
+     +floattostr(CS[klev].sf6_val)+','  //P_SF6+P_PSF6(3)
+     +floattostr(CS[klev].psf6_val)+','
      +inttostr(CS[klev].sf6_PQF2)+','
      //+'  22_sf6: '
-     +floattostr(CS[klev].psf6_val)+','  //P_PSF6(2)
-     +inttostr(CS[klev].psf6_PQF2)+','
+     //+floattostr(CS[klev].psf6_val)+','  //P_PSF6(2)
+     //+inttostr(CS[klev].psf6_PQF2)+','
      //+'  23_c13: '
      +floattostr(CS[klev].c13_val)+','  //P_C13(2)
      +inttostr(CS[klev].c13_PQF2)+','
+     +inttostr(CS[klev].c13_SQF)+','
      //+'  24_c14: '
      +floattostr(CS[klev].c14_val)+','  //P_C14(3 val+QF+err)
      +inttostr(CS[klev].c14_PQF2)+','

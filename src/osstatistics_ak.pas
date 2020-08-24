@@ -45,7 +45,7 @@ uses osmain,dm;
 
 procedure Tfrmosstatistics_AK.FormShow(Sender: TObject);
 var
-mik:integer;
+k,mik:integer;
 source_id,count_cruise,source_id_min,source_id_max:integer;
 stations_count,duplicate_count:integer;
 source_name,str:string;
@@ -57,11 +57,15 @@ memo1.Lines.Add('');
 
 CheckGroup1.items:=frmosmain.ListBox1.Items;
 
+   {...two cases: all cruises/not empty cruises}
+{2}for k:=1 to 2 do begin
 
 with frmdm.q1 do begin
   Close;
   SQL.Clear;
   SQL.Add(' select source_id, count(source_id) as count_cruise from CRUISE ');
+  if k=2 then
+  SQL.Add(' where stations_database>0 ');
   SQL.Add(' group by source_id ');
   Open;
 end;
@@ -135,6 +139,9 @@ while not frmdm.q1.EOF do begin
 end;
   frmdm.q1.Close;
   frmdm.q2.UnPrepare;
+
+{2}end;
+
 end;
 
 
