@@ -14,6 +14,7 @@ type
   TfrmExport_CIA = class(TForm)
     btnExport: TBitBtn;
     CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
     Edit1: TEdit;
     Label1: TLabel;
     Label2: TLabel;
@@ -21,6 +22,7 @@ type
     procedure btnExportClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
+    procedure qf_ocean_to_woce(qf_ocean:integer; var qf_woce:integer);
 
   public
 
@@ -33,7 +35,7 @@ var
 implementation
 
 {$R *.lfm}
-uses osmain,dm;
+uses osmain,dm,sortbufds,GibbsSeaWater;
 
 { TfrmExport_CIA }
 
@@ -181,8 +183,9 @@ count_cruises,count_stations,dup_in_cruise :integer;
 lev_index :integer;
 YY,MM,DD,HH,M,SS,MS :word;
 st_db,st_dup,s,cast_number,bottom_depth :integer;
-lastlevel_dbar :real;
-new_lev :boolean;
+qf_ocean,qf_woce :integer;
+lastlevel_dbar,lat,lon :real;
+new_lev,v_comp :boolean;
 
 nodc_code :string[4];
 user_path,fn,expocode,str,str_md: string;
@@ -197,6 +200,9 @@ tbl_seq: array[1..34] of string; {GLODAP 2019.v2}
 {GLODAP}
 theta,sigma0,sigma1,sigma2,sigma3,sigma4,gamma :real;
 column :array[1..102] of string;
+
+{GibbsSeaWater}
+sp,sa,t_insitu,ct :real;
 
 begin
 
@@ -427,6 +433,9 @@ column[102]:='chlaf';
 {.....selected cruises}
      count_cruises:=0;
      count_stations:=0;
+
+     SortBufDataSet(frmdm.QCruise, 'ID');
+
      frmdm.QCruise.First;
 {QC}while not frmdm.QCruise.EOF do begin
 
@@ -524,6 +533,9 @@ column[102]:='chlaf';
     if frmdm.q1.FieldByName('lastlevel_dbar').IsNull=false then
     lastlevel_dbar:=frmdm.q1.FieldByName('lastlevel_dbar').AsFloat;
 
+    lat:=frmdm.q1.FieldByName('latitude').AsFloat;
+    lon:=frmdm.q1.FieldByName('longitude').AsFloat;
+
     str_md:=inttostr(cruise_id)+','
         +inttostr(station_id)+','
         +inttostr(frmdm.q1.FieldByName('cast_number').AsInteger)+','
@@ -532,8 +544,8 @@ column[102]:='chlaf';
         +inttostr(DD)+','
         +inttostr(HH)+','
         +inttostr(M)+','
-        +floattostr(frmdm.q1.FieldByName('latitude').AsFloat)+','
-        +floattostr(frmdm.q1.FieldByName('longitude').AsFloat)+','
+        +floattostr(lat)+','
+        +floattostr(lon)+','
         +inttostr(bottom_depth)+','
         +floattostr(lastlevel_dbar)+',';
 
@@ -1828,31 +1840,234 @@ column[102]:='chlaf';
            CS[s-1].chlorophyll_SQF:=SQF;
         end;
 {P_}end;
-
-
-
-
-{next table}
-
-
-    {computed values}
-    theta:=-9999;
-    sigma0:=-9999;
-    sigma1:=-9999;
-    sigma2:=-9999;
-    sigma3:=-9999;
-    sigma4:=-9999;
-    gamma:=-9999;
-
-     frmdm.q2.Next;
+      {next table}
+      frmdm.q2.Next;
 {L}end;
 {EMPTY}end;
 
      frmdm.q2.Close;
 {T}end;
 
-     {добавляем }
+{.....UPLOAD INTO DATA.CSV}
 {LEV}for klev:=1 to High(CS) do begin
+
+    {ARE: We should use data from cruises with that has at least one of the following
+    variables in addition to T+S: O2, PO4, NO3, Si, Alk, DIC; i.e. at least
+    one of the biogeochemical variables of interest}
+    {25.08.2020 I would definitely prefer using calculated density. }
+
+      v_comp:=false; {variables composition at the depth level}
+
+     if (CS[klev].temperature_val<>-9999) and (CS[klev].salinity_val<>-9999) then begin
+       if (CS[klev].oxygen_val<>-9999) then v_comp:=true;
+       if (CS[klev].phosphate_val<>-9999) then v_comp:=true;
+       if (CS[klev].nitrate_val<>-9999) then v_comp:=true;
+       if (CS[klev].silicate_val<>-9999) then v_comp:=true;
+       if (CS[klev].talk_val<>-9999) then v_comp:=true;
+       if (CS[klev].tco2_val<>-9999) then v_comp:=true;
+     end;
+
+{COMP}if v_comp=true then begin
+     {...computed values THETA, SIGMA}
+     theta:=-9999;
+     sigma0:=-9999;
+     sigma1:=-9999;
+     sigma2:=-9999;
+     sigma3:=-9999;
+     sigma4:=-9999;
+     gamma:=-9999;
+
+
+{.....CALCULATED VALUES}
+     lev_dbar:=CS[klev].lev_dbar;
+     sp:=CS[klev].salinity_val;            //practical salinity
+     t_insitu:=CS[klev].temperature_val;
+
+    if (sp<>-9999) and (t_insitu<>-9999) then begin
+     {absolute salinity (sa) from practical salinity (sp)}
+      sa:= GibbsSeaWater.gsw_sa_from_sp(sp, lev_dbar, lon, lat);
+     {potential temperature}
+      theta:=GibbsSeaWater.gsw_pt0_from_t(sa,t_insitu,lev_dbar);
+     {conservative temperature}
+      ct:=GibbsSeaWater.gsw_ct_from_t(sa, t_insitu, lev_dbar);
+
+      {... in-sity density}
+      //gdv:=-9;
+      //gdv:=GibbsSeaWater.gsw_rho_t_exact(sp,tv,lev_dbar);
+      //gdv_sa:=GibbsSeaWater.gsw_rho_t_exact(sa,tv,lev_dbar);
+
+      {... potential density}
+     {sa     : Absolute Salinity                               [g/kg]
+      t      : in-situ temperature                             [deg C]
+      p      : sea pressure                                    [dbar]
+      p_ref  : reference sea pressure                          [dbar]
+      gsw_pot_rho_t_exact : potential density                  [kg/m^3]}
+
+      //sigma0:=gsw_pot_rho_t_exact(sp,t_insitu,lev_dbar,0)-1000;
+      {sigma0:=gsw_pot_rho_t_exact(sa,t_insitu,lev_dbar,0)-1000;
+      sigma1:=gsw_pot_rho_t_exact(sa,t_insitu,lev_dbar,1000)-1000;
+      sigma2:=gsw_pot_rho_t_exact(sa,t_insitu,lev_dbar,2000)-1000;
+      sigma3:=gsw_pot_rho_t_exact(sa,t_insitu,lev_dbar,3000)-1000;
+      sigma4:=gsw_pot_rho_t_exact(sa,t_insitu,lev_dbar,4000)-1000;}
+
+      {sigma0:=gsw_pot_rho_t_exact(sa,theta,lev_dbar,0)-1000;
+      sigma1:=gsw_pot_rho_t_exact(sa,theta,lev_dbar,1000)-1000;
+      sigma2:=gsw_pot_rho_t_exact(sa,theta,lev_dbar,2000)-1000;
+      sigma3:=gsw_pot_rho_t_exact(sa,theta,lev_dbar,3000)-1000;
+      sigma4:=gsw_pot_rho_t_exact(sa,theta,lev_dbar,4000)-1000;}
+
+     {potential density anomaly with reference to surface}
+      sigma0:=GibbsSeaWater.gsw_sigma0(sa,ct);
+     {potential density anomaly with reference pressure of 1000 dbar}
+      sigma1:=GibbsSeaWater.gsw_sigma1(sa,ct);
+     {potential density anomaly with reference pressure of 2000 dbar}
+      sigma2:=GibbsSeaWater.gsw_sigma2(sa,ct);
+     {potential density anomaly with reference pressure of 3000 dbar}
+      sigma3:=GibbsSeaWater.gsw_sigma3(sa,ct);
+     {potential density anomaly with reference pressure of 4000 dbar}
+      sigma4:=GibbsSeaWater.gsw_sigma4(sa,ct);
+    end;
+
+
+{.....PQF2 CONVERSION OCEAN.FDB -> WOCE}
+{QF}if CheckBox2.Checked then begin
+
+      qf_ocean:=CS[klev].temperature_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].temperature_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].salinity_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].salinity_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].oxygen_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].oxygen_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].aou_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].aou_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].nitrate_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].nitrate_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].nitrite_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].nitrite_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].silicate_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].silicate_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].phosphate_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].phosphate_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].tco2_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].tco2_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].talk_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].talk_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].phts25p0_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].phts25p0_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].phtsinsitutp_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].phtsinsitutp_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].cfc11_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].cfc11_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].pcfc11_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].pcfc11_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].cfc12_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].cfc12_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].pcfc12_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].pcfc12_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].cfc113_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].cfc113_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].pcfc113_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].pcfc113_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].ccl4_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].ccl4_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].pccl4_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].pccl4_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].sf6_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].sf6_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].psf6_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].psf6_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].c13_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].c13_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].c14_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].c14_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].h3_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].h3_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].he_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].he_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].neon_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].neon_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].o18_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].o18_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].toc_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].toc_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].doc_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].doc_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].don_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].don_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].tdn_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].tdn_PQF2:=qf_woce;
+
+      qf_ocean:=CS[klev].chlorophyll_PQF2;
+      qf_ocean_to_woce(qf_ocean,qf_woce);
+      CS[klev].chlorophyll_PQF2:=qf_woce;
+
+     {SQF should not be changed}
+     {there are only 0 or 1 in P_ tables}
+
+{QF}end;
 
      str:=str_md                              {number of related fields in data file}
      +inttostr(CS[klev].bottle_number)+','    //P_TEMPERATURE(5)
@@ -1861,22 +2076,22 @@ column[102]:='chlaf';
      +floattostr(CS[klev].lev_m)+','
      //+'  1_temp: '
      +floattostr(CS[klev].temperature_val)+','
-     +floattostr(theta)+','
+     +floattostrF(theta,ffFixed,7,3)+','
      //+'  2_salt: '
-     +floattostr(CS[klev].salinity_val)+','  //P_SALINITY(15)
+     +floattostr(CS[klev].salinity_val)+','  //P_SALINITY(9)
      +inttostr(CS[klev].salinity_PQF2)+','
      +inttostr(CS[klev].salinity_SQF)+','
-     +floattostr(sigma0)+','
+     +floattostrF(sigma0,ffFixed,7,3)+','
      //+inttostr(CS[klev].salinity_PQF2)+','
-     +floattostr(sigma1)+','
+     +floattostrF(sigma1,ffFixed,7,3)+','
      //+inttostr(CS[klev].salinity_PQF2)+','
-     +floattostr(sigma2)+','
+     +floattostrF(sigma2,ffFixed,7,3)+','
      //+inttostr(CS[klev].salinity_PQF2)+','
-     +floattostr(sigma3)+','
+     +floattostrF(sigma3,ffFixed,7,3)+','
      //+inttostr(CS[klev].salinity_PQF2)+','
-     +floattostr(sigma4)+','
+     +floattostrF(sigma4,ffFixed,7,3)+','
      //+inttostr(CS[klev].salinity_PQF2)+','
-     +floattostr(gamma)+','
+     +floattostrF(gamma,ffFixed,7,3)+','
      //+inttostr(CS[klev].salinity_PQF2)+','
      //+'  3_oxygen: '
      +floattostr(CS[klev].oxygen_val)+','  //P_OXYGEN(3)
@@ -2001,6 +2216,7 @@ column[102]:='chlaf';
 
      writeln(fo2,str);
 
+{COMP}end;
 {LEV}end;
 
 
@@ -2024,6 +2240,19 @@ column[102]:='chlaf';
     memo1.Lines.Add('...time spent: '+timetostr(DT2-DT1));
 
 end;
+
+
+procedure TfrmExport_CIA.qf_ocean_to_woce(qf_ocean:integer; var qf_woce:integer);
+begin
+    {WOCE flags according Table 1 in GLODAP article}
+    if qf_ocean =-9999 then qf_woce:=9; //there is no sample -> data not received/not used/sample not drawn/no data
+    if qf_ocean =0     then qf_woce:=9; //not checked -> data not received/not used/sample not drawn/no data
+    if qf_ocean =1     then qf_woce:=4; //        bad -> bad/not used
+    if qf_ocean =2     then qf_woce:=3; // suspitious -> questionable/not used
+    if qf_ocean =3     then qf_woce:=0; // calculated -> not used/interpolated or calculated value
+    if qf_ocean>=4     then qf_woce:=2; // acceptable -> acceptable
+end;
+
 
 end.
 

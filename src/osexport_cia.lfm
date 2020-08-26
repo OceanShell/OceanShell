@@ -2,10 +2,10 @@ object frmExport_CIA: TfrmExport_CIA
   Left = 887
   Height = 367
   Top = 325
-  Width = 638
+  Width = 797
   Caption = 'frmExport_CIA'
   ClientHeight = 367
-  ClientWidth = 638
+  ClientWidth = 797
   DesignTimePPI = 120
   OnShow = FormShow
   LCLVersion = '2.0.6.0'
@@ -13,7 +13,7 @@ object frmExport_CIA: TfrmExport_CIA
     Left = 0
     Height = 209
     Top = 158
-    Width = 638
+    Width = 797
     Align = alBottom
     Lines.Strings = (
       'Memo1'
@@ -21,18 +21,19 @@ object frmExport_CIA: TfrmExport_CIA
     TabOrder = 0
   end
   object btnExport: TBitBtn
-    Left = 472
+    Left = 32
     Height = 30
-    Top = 80
-    Width = 144
+    Top = 48
+    Width = 176
     Caption = 'Export'
     Font.Color = clRed
+    Font.Style = [fsBold]
     OnClick = btnExportClick
     ParentFont = False
     TabOrder = 1
   end
   object CheckBox1: TCheckBox
-    Left = 480
+    Left = 16
     Height = 24
     Top = 120
     Width = 136
@@ -40,27 +41,37 @@ object frmExport_CIA: TfrmExport_CIA
     TabOrder = 2
   end
   object Label1: TLabel
-    Left = 16
+    Left = 312
     Height = 20
-    Top = 16
-    Width = 393
-    Caption = 'Cruise is not a duplicate if number  of duplicate stations <='
+    Top = 104
+    Width = 418
+    Caption = 'Cruise is not a duplicate if the number  of duplicate stations <='
     ParentColor = False
   end
   object Edit1: TEdit
-    Left = 416
+    Left = 736
     Height = 28
-    Top = 16
+    Top = 96
     Width = 44
     TabOrder = 3
     Text = '0'
   end
   object Label2: TLabel
-    Left = 24
+    Left = 312
     Height = 20
-    Top = 40
-    Width = 291
-    Caption = 'Ignore duplicates box should be unchecked '
+    Top = 128
+    Width = 444
+    Caption = '(Ignore duplicates box ON THE MAIN FORM should be unchecked )'
     ParentColor = False
+  end
+  object CheckBox2: TCheckBox
+    Left = 32
+    Height = 24
+    Top = 20
+    Width = 184
+    Caption = 'Convert PQF2 to WOCE?'
+    Checked = True
+    State = cbChecked
+    TabOrder = 4
   end
 end
