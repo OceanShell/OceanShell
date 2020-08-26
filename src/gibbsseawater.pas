@@ -2690,7 +2690,7 @@ gsw_sigma0  : potential density anomaly with reference pressure of 0
 (48 term equation)
 *)
 // double gsw_sigma0(double sa, double ct);
-function  gsw_sigma0(sa, ct:double):integer; cdecl; external libgswteos;
+function  gsw_sigma0(sa, ct:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -2704,7 +2704,7 @@ ct     : Conservative Temperature                        [deg C]
 sigma1 : potential density anomaly with reference pressure of 1000
 *)
 // double gsw_sigma1(double sa, double ct);
-function  gsw_sigma1(sa, ct:double):integer; cdecl; external libgswteos;
+function  gsw_sigma1(sa, ct:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -2718,7 +2718,7 @@ ct     : Conservative Temperature                        [deg C]
 sigma2 : potential density anomaly with reference pressure of 2000
 *)
 // double gsw_sigma2(double sa, double ct);
-function  gsw_sigma2(sa, ct:double):integer; cdecl; external libgswteos;
+function  gsw_sigma2(sa, ct:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -2732,7 +2732,7 @@ ct     : Conservative Temperature                        [deg C]
 sigma3 : potential density anomaly with reference pressure of 3000
 *)
 // double gsw_sigma3(double sa, double ct);
-function  gsw_sigma3(sa, ct:double):integer; cdecl; external libgswteos;
+function  gsw_sigma3(sa, ct:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -2746,7 +2746,7 @@ ct     : Conservative Temperature                        [deg C]
 sigma4  : potential density anomaly with reference pressure of 4000
 *)
 // double gsw_sigma4(double sa, double ct);
-function  gsw_sigma4(sa, ct:double):integer; cdecl; external libgswteos;
+function  gsw_sigma4(sa, ct:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -2762,7 +2762,7 @@ p      : sea pressure                                    [dbar]
 sound_speed  : speed of sound in seawater                [m/s]
 *)
 // double gsw_sound_speed(double sa, double ct, double p);
-function  gsw_sound_speed(sa, ct, p:double):integer; cdecl; external libgswteos;
+function  gsw_sound_speed(sa, ct, p:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -2775,7 +2775,7 @@ p   =  sea pressure                                             [ dbar ]
 sound_speed_ice  =  compression speed of sound in ice            [ m/s ]
 *)
 // double gsw_sound_speed_ice(double t, double p);
-function  gsw_sound_speed_ice(t, p:double):integer; cdecl; external libgswteos;
+function  gsw_sound_speed_ice(t, p:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -2788,7 +2788,7 @@ p      : sea pressure                                    [dbar]
 gsw_sound_speed_t_exact : sound speed                    [m/s]
 *)
 // double gsw_sound_speed_t_exact(double sa, double t, double p);
-function  gsw_sound_speed_t_exact(sa, t, p:double):integer; cdecl; external libgswteos;
+function  gsw_sound_speed_t_exact(sa, t, p:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -2822,7 +2822,7 @@ p      : sea pressure                                    [dbar]
 specvol_anom  :  specific volume anomaly of seawater
 *)
 // double gsw_specvol_anom_standard(double sa, double ct, double p);
-function  gsw_specvol_anom_standard(sa, ct, p:double):integer; cdecl; external libgswteos;
+function  gsw_specvol_anom_standard(sa, ct, p:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -2838,7 +2838,7 @@ p      : sea pressure                                    [dbar]
 specvol: specific volume                                 [m^3/kg]
 *)
 // double gsw_specvol(double sa, double ct, double p);
-function  gsw_specvol(sa, ct, p:double):integer; cdecl; external libgswteos;
+function  gsw_specvol(sa, ct, p:double):double; cdecl; external libgswteos;
 
 
 (*
@@ -2889,7 +2889,7 @@ p  =  sea pressure                                              [ dbar ]
 specvol_ice  =  specific volume                               [ m^3/kg ]
 *)
 // double gsw_specvol_ice(double t, double p);
-function  gsw_specvol_ice(t, p:double):integer; cdecl; external libgswteos;
+function  gsw_specvol_ice(t, p:double):double; cdecl; external libgswteos;
 
 
 (*
