@@ -15,6 +15,7 @@ type
     btnExport: TBitBtn;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
+    CheckBox3: TCheckBox;
     Edit1: TEdit;
     Label1: TLabel;
     Label2: TLabel;
@@ -30,12 +31,12 @@ type
 
 var
   frmExport_CIA: TfrmExport_CIA;
-  fo1,fo2,fo3 :text;
+  fo1,fo2,fo3,fo4 :text;
 
 implementation
 
 {$R *.lfm}
-uses osmain,dm,sortbufds,GibbsSeaWater;
+uses osmain,dm,sortbufds,GibbsSeaWater,osunitsconversion;
 
 { TfrmExport_CIA }
 
@@ -192,7 +193,7 @@ user_path,fn,expocode,str,str_md: string;
 DT1,DT2,cr_DT,st_DT:TDateTime;
 
 {P_ tables}
-PQF2,SQF,bottle_number,units_id :integer;
+PQF2,SQF,bottle_number,units_id,units_def,instr_id,prof_num :integer;
 lev_dbar,lev_m,val,valerr :real;
 tbl: string;
 tbl_seq: array[1..34] of string; {GLODAP 2019.v2}
@@ -203,6 +204,10 @@ column :array[1..102] of string;
 
 {GibbsSeaWater}
 sp,sa,t_insitu,ct :real;
+
+{units conversion}
+val_conv,val_rep :real;
+isconverted :boolean;
 
 begin
 
@@ -401,7 +406,21 @@ column[102]:='chlaf';
     str:='cruise'+#9+'station'+#9+'tbl'+#9+'lev_dbar'+#9+'lev_m';
     writeln(fo3,str);
 
-
+    fn:=user_path+'converted_units.txt';
+    memo1.Lines.Add(fn);
+    assignfile(fo4,fn);
+    rewrite(fo4);
+    str:='tbl'
+    +#9+'cruise_id'
+    +#9+'station_id'
+    +#9+'unit_rep'
+    +#9+'unit_default'
+    +#9+'instrument_id'
+    +#9+'profile_num'
+    +#9+'lev_m'
+    +#9+'val'
+    +#9+'val_conv';
+    writeln(fo4,str);
 
     memo1.Lines.Add('');
     if CheckBox1.Checked then
@@ -694,7 +713,18 @@ column[102]:='chlaf';
       SQL.Add(' where id=:station_id ');
       ParamByName('station_id').AsInteger:=station_id;
       Open;
-    end;
+     end;
+
+     {#NEW}
+     {with frmdm.q2 do begin
+      Close;
+      SQL.Clear;
+      SQL.Add(' select * from STATION, '+tbl);
+      SQL.Add(' where STATION.id='+tbl+'.id');
+      SQL.Add(' STATION.id=:station_id ');
+      ParamByName('station_id').AsInteger:=station_id;
+      Open;
+    end;}
 
 
 {EMPTY}if frmdm.q2.IsEmpty=false then begin
@@ -712,6 +742,10 @@ column[102]:='chlaf';
     if frmdm.q2.FieldByName('bottle_number').IsNull=false
     then bottle_number:=frmdm.q2.FieldByName('bottle_number').AsInteger;
     units_id:=frmdm.q2.FieldByName('units_id').AsInteger;
+    instr_id:=frmdm.q2.FieldByName('instrument_id').AsInteger;
+    prof_num:=frmdm.q2.FieldByName('profile_number').AsInteger;
+
+    {lat, lon from q1}
 
     {...five tables have additinal field - counting error}
     if (tbl='P_C14') or (tbl='P_H3') or (tbl='P_HE3') or (tbl='P_HE') or (tbl='P_NEON')
@@ -721,9 +755,9 @@ column[102]:='chlaf';
       then valerr:=frmdm.q2.FieldByName('val').AsFloat;
     end;
 
+
     {здесь конвертация единиц базы в единицы по умолчанию GLODAP}
 
-    {здесь конвертация флагов базы во флаги GLODAP WOCE}
 
 
     {объеденяем данные из всех таблиц в динамическом массиве CS}
@@ -877,6 +911,51 @@ column[102]:='chlaf';
 
 {3}
 {P_}if tbl='P_OXYGEN' then begin
+
+
+   {conversion units_default=3}
+      units_def:=3;
+{C}if (val<>-9999) and (units_id<>3) then begin
+//showmessage('oxygen='+floattostr(val)+'  units_id='+inttostr(units_id));
+      isconverted:=false;
+      val_rep:=val;
+      val_conv:=-9999;
+{1}if CheckBox3.Checked then begin
+
+      {writeln(fo4,tbl,
+       #9,inttostr(cruise_id),
+       #9,'station_id=',inttostr(station_id),
+       #9,inttostr(units_id),
+       #9,inttostr(units_def),
+       #9,floattostr(lev_m),
+       #9,floattostr(val),'->',floattostr(val_conv),
+       #9,'lat=',floattostr(lat),
+       #9,'lon=',floattostr(lon),
+       #9,'inst_id=',inttostr(instr_id),
+       #9,'prof_num=',inttostr(prof_num));}
+
+     GetDefaultUnitsExact(tbl,units_id,units_def,station_id,instr_id,prof_num,val,lat,lon,lev_m,val_conv,isconverted);
+     if isconverted=true then val:=val_conv;
+{1}end
+{2}else begin
+     GetDefaultUnits(tbl,units_id,units_def,val,val_conv,isconverted);
+     if isconverted=true then val:=val_conv;
+{2}end;
+
+   if isconverted=true then begin
+        writeln(fo4,tbl,
+        #9,inttostr(cruise_id),
+        #9,inttostr(station_id),
+        #9,inttostr(units_id),
+        #9,inttostr(units_def),
+        #9,inttostr(instr_id),
+        #9,inttostr(prof_num),
+        #9,floattostr(lev_m),
+        #9,floattostr(val_rep),
+        #9,floattostr(val_conv));
+    end;
+{C}end;
+
         new_lev:=true;
     {cs}for i:=1 to High(CS) do begin
         if lev_dbar=CS[i].lev_dbar then begin new_lev:=false; lev_index:=i end;
@@ -1931,6 +2010,7 @@ column[102]:='chlaf';
 
 {.....PQF2 CONVERSION OCEAN.FDB -> WOCE}
 {QF}if CheckBox2.Checked then begin
+      qf_woce:=9;
 
       qf_ocean:=CS[klev].temperature_PQF2;
       qf_ocean_to_woce(qf_ocean,qf_woce);
@@ -2231,6 +2311,7 @@ column[102]:='chlaf';
      closefile(fo1);
      closefile(fo2);
      closefile(fo3);
+     closefile(fo4);
 
     DT2:=NOW;
     memo1.Lines.Add('');
