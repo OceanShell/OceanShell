@@ -18,6 +18,10 @@ type
   { Tfrmprofile_station_all }
 
   Tfrmprofile_station_all = class(TForm)
+    pFiller: TPanel;
+    rbPQF1: TRadioButton;
+    rbPQF2: TRadioButton;
+    rbSQF: TRadioButton;
     SetFlagAbove: TMenuItem;
     SetFlagBelow: TMenuItem;
     Toolset: TChartToolset;
@@ -57,6 +61,9 @@ type
   //  procedure DBGridEh1KeyUp(Sender: TObject; var Key: Word;
   //    Shift: TShiftState);
     procedure FormShow(Sender: TObject);
+    procedure rbPQF1Click(Sender: TObject);
+    procedure rbPQF2Click(Sender: TObject);
+    procedure rbSQFClick(Sender: TObject);
     procedure SetFlagAboveClick(Sender: TObject);
     procedure SetFlagBelowClick(Sender: TObject);
 
@@ -143,6 +150,12 @@ Ini := TIniFile.Create(IniFileName);
     Height:=Ini.ReadInteger( 'parameters_station', 'Height', 500);
     //CheckListBox1.Width :=Ini.ReadInteger( 'parameters_station', 'listbox1', 200);
     pCharts.Height      :=Ini.ReadInteger( 'parameters_station', 'pCharts',  200);
+
+    case Ini.ReadInteger( 'osmain', 'QCFlagType', 1) of
+      0: rbPQF1.Checked:=true;
+      1: rbPQF2.Checked:=true;
+      2: rbSQF.Checked:=true;
+    end;
   finally
    Ini.Free;
   end;
@@ -157,13 +170,14 @@ end;
 
 procedure Tfrmprofile_station_all.ChangeID(ID:integer);
 Var
+Ini:TIniFile;
 k, i, fl, ff, pp, ss, cc, count_st, units_id, Flag_, instr_id, prof_num:integer;
-PQF, PQF2, SQF: integer;
+QF: integer;
 cur_l, Val_, min_lev, max_lev:real;
 lev_d, lev_m: Variant;
 prof_best:boolean;
 Units_, par, par_name, col_title, instr_name, isbest, sName, buf_str:string;
-cds_name, LeftAxisTitle: string;
+cds_name, flag_type, LeftAxisTitle: string;
 
 TRt:TSQLTransaction;
 Qt, Qt1, Qt2:TSQLQuery;
@@ -172,6 +186,17 @@ begin
 //Memo1.Clear; Memo1.Visible:=false;
 Caption:='All parameters: '+inttostr(ID);
 //CheckListBox1.Clear;
+
+Ini := TIniFile.Create(IniFileName);
+try
+  case Ini.ReadInteger('osmain', 'QCFlagType', 1) of
+    0: flag_type:='PQF1';
+    1: flag_type:='PQF2';
+    2: flag_type:='SQF';
+  end;
+finally
+ Ini.Free;
+end;
 
 
 TRt:=TSQLTransaction.Create(self);
@@ -338,9 +363,7 @@ ss:=0;
       Lev_m   :=Qt.FieldByName('LEV_M').AsVariant;
       Lev_d   :=Qt.FieldByName('LEV_DBAR').AsVariant;
       Val_    :=Qt.FieldByName('VAL').AsFloat;
-     // PQF     :=Qt.FieldByName('PQF').AsInteger;
-      PQF2    :=Qt.FieldByName('PQF2').AsInteger;
-     // SQF     :=Qt.FieldByName('SQF').AsInteger;
+      QF      :=Qt.FieldByName(flag_type).AsInteger;
       Units_  :=Qt.FieldByName('NAME_SHORT').AsString;
 
       min_lev := min(min_lev, lev_m);
@@ -357,7 +380,7 @@ ss:=0;
            (CDS.FieldByName('LEV_M').AsFloat=Lev_m) then begin
             CDS.edit;
              CDS.FieldByName(cds_name).AsFloat:=Val_;
-             CDS.FieldByName(cds_name+'_FL').AsInteger:=PQF2;
+             CDS.FieldByName(cds_name+'_FL').AsInteger:=QF;
             // CDS.FieldByName(cds_name+'_PQF2').AsInteger:=PQF2;
             // CDS.FieldByName(cds_name+'_SQF').AsInteger:=SQF;
             CDS.Post;  fl:=0;
@@ -370,7 +393,7 @@ ss:=0;
          CDS.FieldByName('LEV_DBAR').AsFloat:=Lev_d;
          CDS.FieldByName('LEV_M').AsFloat:=Lev_m;
          CDS.FieldByName(cds_name).AsFloat:=Val_;
-         CDS.FieldByName(cds_name+'_FL').AsInteger:=PQF2;
+         CDS.FieldByName(cds_name+'_FL').AsInteger:=QF;
          CDS.Post;
       end;
       inc(Count_st);
@@ -451,7 +474,7 @@ ss:=0;
   pCharts.Visible:=true;
  end;
 
- // CheckChartSize;
+  CheckChartSize;
 end;
 
 
@@ -498,7 +521,7 @@ try
            SQL.Add(' UPDATE ');
            SQL.Add(par);
            SQL.Add(' SET ');
-           SQL.Add(' LEV_M=:LEV_M, VAL=:val, PQF2=:PQF2 ');
+           SQL.Add(' LEV_M=:LEV_M, VAL=:val, '+flag_type+'=:QF ');
            SQL.Add(' WHERE ' );
            SQL.Add(' ID=:ID AND LEV_DBAR=:lev_d AND ');
            SQL.Add(' INSTRUMENT_ID IN (SELECT ID FROM INSTRUMENT ');
@@ -510,7 +533,7 @@ try
            ParamByName('lev_d').AsFloat:=CDS.FieldByName('lev_dbar').AsFloat;
            ParamByName('lev_m').AsFloat:=CDS.FieldByName('lev_m').AsFloat;
            ParamByName('VAL').AsFloat:=CDS.FieldByName(sname).AsFloat;
-           ParamByName('PQF2').AsFloat:=CDS.FieldByName(sname+'_FL').AsFloat;
+           ParamByName('QF').AsInteger:=CDS.FieldByName(sname+'_FL').AsInteger;
          ExecSQL;
         end;
       frmdm.TR.CommitRetaining;
@@ -539,7 +562,14 @@ procedure Tfrmprofile_station_all.CheckChartSize;
 Var
 k, CountChecked:integer;
 begin
-  CountChecked:=0;
+ pFiller.Width:=ToolBar1.Width-
+                (btnSetFlag.Width+
+                 btnCommit.Width+
+                 rbPQF1.Width+
+                 rbPQF2.Width+
+                 rbSQF.Width)-20;
+ Application.ProcessMessages;
+ // CountChecked:=0;
  //  for k:=0 to CheckListBox1.Count-1 do if CheckListBox1.Checked[k]=true then inc(CountChecked);
  //   if CountChecked>0 then
  //    for k:=0 to frmosmain.listbox1.Items.Count-1 do Charts[k].Width:=round(pCharts.Width/CountChecked);
@@ -817,6 +847,50 @@ Ini := TIniFile.Create(IniFileName);
 CDS.Free;
 
 frmprofile_station_all_open:=false;
+end;
+
+
+
+procedure Tfrmprofile_station_all.rbPQF1Click(Sender: TObject);
+Var
+  Ini:TIniFile;
+begin
+  Ini := TIniFile.Create(IniFileName);
+  try
+    Ini.WriteInteger( 'osmain', 'QCFlagType', 0);
+  finally
+    Ini.Free;
+  end;
+ChangeID(frmdm.Q.FieldByName('ID').Value);
+end;
+
+
+
+procedure Tfrmprofile_station_all.rbPQF2Click(Sender: TObject);
+Var
+  Ini:TIniFile;
+begin
+Ini := TIniFile.Create(IniFileName);
+  try
+    Ini.WriteInteger( 'osmain', 'QCFlagType', 1);
+  finally
+    Ini.Free;
+  end;
+ChangeID(frmdm.Q.FieldByName('ID').Value);
+end;
+
+
+procedure Tfrmprofile_station_all.rbSQFClick(Sender: TObject);
+Var
+  Ini:TIniFile;
+begin
+Ini := TIniFile.Create(IniFileName);
+  try
+    Ini.WriteInteger( 'osmain', 'QCFlagType', 2);
+  finally
+    Ini.Free;
+  end;
+ChangeID(frmdm.Q.FieldByName('ID').Value);
 end;
 
 

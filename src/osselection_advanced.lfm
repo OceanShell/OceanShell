@@ -1,7 +1,7 @@
 object frmadvancedselection: Tfrmadvancedselection
-  Left = 675
+  Left = 649
   Height = 409
-  Top = 304
+  Top = 305
   Width = 568
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
@@ -16,15 +16,87 @@ object frmadvancedselection: Tfrmadvancedselection
     Height = 344
     Top = 0
     Width = 568
-    ActivePage = TabSheet3
+    ActivePage = TabSheet1
     Align = alTop
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Around point'
-    end
-    object TabSheet2: TTabSheet
-      Caption = 'Around section'
+      ClientHeight = 306
+      ClientWidth = 560
+      object GroupBox1: TGroupBox
+        Left = 24
+        Height = 200
+        Top = 16
+        Width = 278
+        Caption = 'Position'
+        ClientHeight = 170
+        ClientWidth = 274
+        TabOrder = 0
+        object Label1: TLabel
+          Left = 16
+          Height = 25
+          Top = 27
+          Width = 63
+          Caption = 'Latitude'
+          ParentColor = False
+        end
+        object Label2: TLabel
+          Left = 16
+          Height = 25
+          Top = 67
+          Width = 80
+          Caption = 'Longitude'
+          ParentColor = False
+        end
+        object seAroundPointLat: TFloatSpinEdit
+          Left = 128
+          Height = 28
+          Top = 24
+          Width = 122
+          Alignment = taCenter
+          DecimalPlaces = 5
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 180
+          MinValue = -180
+          ParentFont = False
+          TabOrder = 0
+          Value = 0
+        end
+        object seAroundPointLon: TFloatSpinEdit
+          Left = 128
+          Height = 28
+          Top = 64
+          Width = 122
+          Alignment = taCenter
+          DecimalPlaces = 5
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          MaxValue = 180
+          MinValue = -180
+          ParentFont = False
+          TabOrder = 1
+          Value = 0
+        end
+        object seAroundPointRaduis: TSpinEdit
+          Left = 128
+          Height = 33
+          Top = 104
+          Width = 122
+          TabOrder = 2
+        end
+        object Label3: TLabel
+          Left = 16
+          Height = 25
+          Top = 112
+          Width = 87
+          Caption = 'Radius, km'
+          ParentColor = False
+        end
+      end
     end
     object TabSheet3: TTabSheet
       Caption = 'Predefined region'
@@ -65,6 +137,7 @@ object frmadvancedselection: Tfrmadvancedselection
     Top = 355
     Width = 113
     Caption = 'Select'
+    OnClick = btnAdvancedSelectClick
     TabOrder = 1
   end
 end

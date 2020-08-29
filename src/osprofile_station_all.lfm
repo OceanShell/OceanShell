@@ -4,8 +4,8 @@ object frmprofile_station_all: Tfrmprofile_station_all
   Top = 259
   Width = 1099
   Caption = 'All parameters'
-  ClientHeight = 621
-  ClientWidth = 1099
+  ClientHeight = 0
+  ClientWidth = 0
   Color = clBtnFace
   DesignTimePPI = 144
   Font.Color = clWindowText
@@ -62,6 +62,41 @@ object frmprofile_station_all: Tfrmprofile_station_all
       Top = 2
       Caption = 'ToolButton3'
       Style = tbsDivider
+    end
+    object rbPQF1: TRadioButton
+      Left = 465
+      Height = 29
+      Top = 2
+      Width = 69
+      Caption = 'PQF1'
+      OnClick = rbPQF1Click
+      TabOrder = 0
+    end
+    object rbPQF2: TRadioButton
+      Left = 534
+      Height = 29
+      Top = 2
+      Width = 69
+      Caption = 'PQF2'
+      OnClick = rbPQF2Click
+      TabOrder = 1
+    end
+    object rbSQF: TRadioButton
+      Left = 603
+      Height = 29
+      Top = 2
+      Width = 60
+      Caption = 'SQF'
+      OnClick = rbSQFClick
+      TabOrder = 2
+    end
+    object pFiller: TPanel
+      Left = 210
+      Height = 33
+      Top = 2
+      Width = 255
+      BevelOuter = bvNone
+      TabOrder = 3
     end
   end
   object Panel1: TPanel

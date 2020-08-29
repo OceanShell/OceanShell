@@ -6,7 +6,7 @@ interface
 
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Controls,
-  StdCtrls, CheckLst, ComCtrls, Forms, Dialogs, IniFiles, SQLDB;
+  StdCtrls, CheckLst, ComCtrls, Forms, Dialogs, ExtCtrls, IniFiles, SQLDB;
 
 type
 
@@ -15,6 +15,7 @@ type
   Tfrmparameters_list = class(TForm)
     chklInstrument: TCheckListBox;
     PageControl1: TPageControl;
+    rgQCFlagType: TRadioGroup;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     chklQCFlags: TCheckListBox;
@@ -30,6 +31,7 @@ type
     procedure btnAmountOfProfilesClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure btnCancelClick(Sender: TObject);
+    procedure rgQCFlagTypeSelectionChanged(Sender: TObject);
 
   private
     { Private declarations }
@@ -93,6 +95,8 @@ end;
    try
     Width := Ini.ReadInteger( 'osparameters_list', 'width',  423);
     Height:= Ini.ReadInteger( 'osparameters_list', 'weight', 525);
+
+    rgQCFlagType.ItemIndex:=Ini.ReadInteger( 'osmain', 'QCFlagType', 1);
 
     for k:=0 to chklQCFlags.Count-1 do
       chklQCFlags.Checked[k]:=Ini.ReadBool('osparameters_list', 'QCF'+inttostr(k), true);
@@ -324,6 +328,18 @@ end;
 procedure Tfrmparameters_list.btnCancelClick(Sender: TObject);
 begin
   cancel_fl:= true;
+end;
+
+procedure Tfrmparameters_list.rgQCFlagTypeSelectionChanged(Sender: TObject);
+Var
+  Ini:TIniFile;
+begin
+ Ini := TIniFile.Create(IniFileName);
+ try
+   Ini.WriteInteger( 'osmain', 'QCFlagType', rgQCFlagType.ItemIndex);
+ finally
+   Ini.Free;
+ end;
 end;
 
 

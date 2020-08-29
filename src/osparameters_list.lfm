@@ -1,12 +1,12 @@
 object frmparameters_list: Tfrmparameters_list
-  Left = 770
+  Left = 723
   Height = 525
-  Top = 294
-  Width = 554
+  Top = 274
+  Width = 441
   BorderIcons = [biSystemMenu]
   Caption = 'Profiles selection'
   ClientHeight = 525
-  ClientWidth = 554
+  ClientWidth = 441
   Color = clBtnFace
   Constraints.MinHeight = 525
   Constraints.MinWidth = 375
@@ -24,7 +24,7 @@ object frmparameters_list: Tfrmparameters_list
     Left = 0
     Height = 525
     Top = 0
-    Width = 554
+    Width = 441
     ActivePage = TabSheet1
     Align = alClient
     Font.Color = clWindowText
@@ -36,7 +36,7 @@ object frmparameters_list: Tfrmparameters_list
     object TabSheet1: TTabSheet
       Caption = 'Parameter'
       ClientHeight = 492
-      ClientWidth = 546
+      ClientWidth = 433
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -45,7 +45,7 @@ object frmparameters_list: Tfrmparameters_list
         Left = 12
         Height = 420
         Top = 12
-        Width = 519
+        Width = 406
         Anchors = [akTop, akLeft, akRight, akBottom]
         Columns = 2
         Font.Color = clWindowText
@@ -65,7 +65,7 @@ object frmparameters_list: Tfrmparameters_list
         Height = 26
         Hint = 'Amount of profiles in tables'
         Top = 448
-        Width = 407
+        Width = 294
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Amount of profiles'
         Font.Color = clWindowText
@@ -76,7 +76,7 @@ object frmparameters_list: Tfrmparameters_list
         TabOrder = 1
       end
       object btnCancel: TButton
-        Left = 434
+        Left = 321
         Height = 26
         Top = 448
         Width = 97
@@ -93,12 +93,12 @@ object frmparameters_list: Tfrmparameters_list
     object TabSheet3: TTabSheet
       Caption = 'Instrument'
       ClientHeight = 492
-      ClientWidth = 416
+      ClientWidth = 433
       object chklInstrument: TCheckListBox
         Left = 12
         Height = 460
         Top = 12
-        Width = 388
+        Width = 405
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
         Font.Height = -17
@@ -111,7 +111,7 @@ object frmparameters_list: Tfrmparameters_list
     object TabSheet2: TTabSheet
       Caption = 'QC Flag'
       ClientHeight = 492
-      ClientWidth = 416
+      ClientWidth = 433
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -119,9 +119,9 @@ object frmparameters_list: Tfrmparameters_list
       ParentFont = False
       object chklQCFlags: TCheckListBox
         Left = 12
-        Height = 460
-        Top = 12
-        Width = 388
+        Height = 396
+        Top = 76
+        Width = 405
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
         Font.Height = -17
@@ -143,6 +143,31 @@ object frmparameters_list: Tfrmparameters_list
         Data = {
           09000000000000000000000000
         }
+      end
+      object rgQCFlagType: TRadioGroup
+        Left = 12
+        Height = 56
+        Top = 8
+        Width = 405
+        Anchors = [akTop, akLeft, akRight]
+        AutoFill = True
+        ChildSizing.LeftRightSpacing = 6
+        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+        ChildSizing.EnlargeVertical = crsHomogenousChildResize
+        ChildSizing.ShrinkHorizontal = crsScaleChilds
+        ChildSizing.ShrinkVertical = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 3
+        ClientHeight = 31
+        ClientWidth = 401
+        Columns = 3
+        Items.Strings = (
+          'PQF1'
+          'PQF2'
+          'SQF'
+        )
+        OnSelectionChanged = rgQCFlagTypeSelectionChanged
+        TabOrder = 1
       end
     end
   end

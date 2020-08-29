@@ -457,7 +457,7 @@ Var
   Ini: TIniFile;
   count, items_id, k, LNum:integer;
   Avg, Sum, Dif2, ValX, SD, ValX_Sum:real;
-  lev, val, flag_, avg_lev, avg_val:real;
+  lev, val, avg_lev, avg_val:real;
   val_sum, lev_sum, lev_min, lev_max, val_min, val_max:real;
   units, tbl, depth_units_str:string;
   Depth_units: integer;
@@ -512,7 +512,7 @@ begin
       end;
 
       Val:=Qt.FieldByName('VAL').AsFloat;
-      Flag_:=Qt.FieldByName('PQF2').AsFloat;
+      //Flag_:=Qt.FieldByName('PQF2').AsFloat;
 
       Val_sum:=Val_sum+Val;
       Lev_sum:=Lev_sum+Lev;

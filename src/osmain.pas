@@ -2013,11 +2013,25 @@ begin
    TrT.Free;
   end;
 
-   cbCruisePlatform.Items:=cbPlatform.Items;
-   cbCruiseCountry.Items:=cbCountry.Items;
-   cbCruiseSource.Items:=cbSource.Items;
-   cbCruiseInstitute.Items:=cbInstitute.Items;
-   cbCruiseProject.Items:=cbProject.Items;
+   cbCruisePlatform.Clear;
+   for pp:=0 to cbPlatform.Count-1 do
+     cbCruisePlatform.AddItem(cbPlatform.Items.Strings[pp], cbUnchecked, true);
+
+   cbCruiseCountry.Clear;
+   for pp:=0 to cbCountry.Count-1 do
+     cbCruiseCountry.AddItem(cbCountry.Items.Strings[pp], cbUnchecked, true);
+
+   cbCruiseSource.Clear;
+   for pp:=0 to cbSource.Count-1 do
+     cbCruiseSource.AddItem(cbSource.Items.Strings[pp], cbUnchecked, true);
+
+   cbCruiseInstitute.Clear;
+   for pp:=0 to cbInstitute.Count-1 do
+     cbCruiseInstitute.AddItem(cbInstitute.Items.Strings[pp], cbUnchecked, true);
+
+   cbCruiseProject.Clear;
+   for pp:=0 to cbProject.Count-1 do
+     cbCruiseProject.AddItem(cbProject.Items.Strings[pp], cbUnchecked, true);
 end;
 
 

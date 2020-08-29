@@ -73,7 +73,7 @@ type
 var
   frmprofile_plot_all: Tfrmprofile_plot_all;
   mik, Units_default:integer;
-  flag_st, instr_st, units_default_name:string;
+  flag_type, flag_st, instr_st, units_default_name:string;
   chkSourceList:array of TCheckBox;
 
 
@@ -236,6 +236,14 @@ begin
   Ini := TIniFile.Create(IniFileName);
   try
 
+   case Ini.ReadInteger( 'osmain', 'QCFlagType', 1) of
+    0: flag_type:='PQF1';
+    1: flag_type:='PQF2';
+    2: flag_type:='SQF';
+   end;
+
+ //  showmessage(flag_type);
+
    flag_st:='';
    for k:=0 to 8 do
     if Ini.ReadBool('osparameters_list', 'QCF'+inttostr(k), true) then
@@ -392,10 +400,10 @@ try
     with Qt do begin
      Close;
       SQL.Clear;
-      SQL.Add(' select LEV_DBAR, LEV_M, VAL, PQF2, UNITS_ID from ');
-      SQL.Add( CurrentParTable );
-      SQL.Add(' where ID=:ID AND ');
-      SQL.Add(' PQF2 in ('+flag_st+') AND ');
+      SQL.Add(' SELECT LEV_DBAR, LEV_M, VAL, UNITS_ID, '+flag_type);
+      SQL.Add(' FROM '+ CurrentParTable );
+      SQL.Add(' WHERE ID=:ID AND ');
+      SQL.Add( flag_type +' IN ('+flag_st+') AND ');
       SQL.Add(' INSTRUMENT_ID=:INSTR_ID AND ');
       SQL.Add(' PROFILE_NUMBER=:PROF_NUM ');
       if chkShowBest.Checked then
@@ -453,7 +461,7 @@ try
      lev_m := Qt.FieldByName('LEV_M').AsVariant;
      lev_d := Qt.FieldByName('LEV_DBAR').AsVariant;
      val1  := Qt.FieldByName('VAL').AsFloat;
-     flag  := Qt.FieldByName('PQF2').AsInteger;
+     flag  := Qt.FieldByName(flag_type).AsInteger;
      units := Qt.FieldByName('UNITS_ID').AsInteger;
 
      (* units for the vertical axis *)
