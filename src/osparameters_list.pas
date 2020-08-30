@@ -14,15 +14,18 @@ type
 
   Tfrmparameters_list = class(TForm)
     chklInstrument: TCheckListBox;
+    chkPQF1: TCheckListBox;
+    chkSQF: TCheckListBox;
     PageControl1: TPageControl;
-    rgQCFlagType: TRadioGroup;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
-    chklQCFlags: TCheckListBox;
+    chkPQF2: TCheckListBox;
     lbParameters: TListBox;
     btnAmountOfProfiles: TButton;
     btnCancel: TButton;
     TabSheet3: TTabSheet;
+    TabSheet4: TTabSheet;
+    TabSheet5: TTabSheet;
 
     procedure CheckToolName(ToolName:string);
     procedure FormShow(Sender: TObject);
@@ -31,7 +34,6 @@ type
     procedure btnAmountOfProfilesClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure btnCancelClick(Sender: TObject);
-    procedure rgQCFlagTypeSelectionChanged(Sender: TObject);
 
   private
     { Private declarations }
@@ -96,10 +98,14 @@ end;
     Width := Ini.ReadInteger( 'osparameters_list', 'width',  423);
     Height:= Ini.ReadInteger( 'osparameters_list', 'weight', 525);
 
-    rgQCFlagType.ItemIndex:=Ini.ReadInteger( 'osmain', 'QCFlagType', 1);
+    for k:=0 to chkPQF1.Count-1 do
+      chkPQF1.Checked[k]:=Ini.ReadBool('osparameters_list', 'PQF1_'+inttostr(k), true);
 
-    for k:=0 to chklQCFlags.Count-1 do
-      chklQCFlags.Checked[k]:=Ini.ReadBool('osparameters_list', 'QCF'+inttostr(k), true);
+    for k:=0 to chkPQF2.Count-1 do
+      chkPQF2.Checked[k]:=Ini.ReadBool('osparameters_list', 'PQF2_'+inttostr(k), true);
+
+    for k:=0 to chkSQF.Count-1 do
+      chkSQF.Checked[k]:=Ini.ReadBool('osparameters_list', 'SQF_'+inttostr(k), true);
 
     for k:=0 to chklInstrument.Count-1 do
       chklInstrument.Checked[k]:=Ini.ReadBool('osparameters_list', 'Instrument'+inttostr(k), true);
@@ -307,8 +313,14 @@ begin
    Ini.WriteInteger( 'osparameters_list', 'width',  Width);
    Ini.WriteInteger( 'osparameters_list', 'weight', Height);
 
-   for k:=0 to chklQCFlags.Count-1 do
-     Ini.WriteBool( 'osparameters_list', 'QCF'+inttostr(k), chklQCFlags.Checked[k]);
+   for k:=0 to chkPQF1.Count-1 do
+     Ini.WriteBool( 'osparameters_list', 'PQF1_'+inttostr(k), chkPQF1.Checked[k]);
+
+   for k:=0 to chkPQF2.Count-1 do
+     Ini.WriteBool( 'osparameters_list', 'PQF2_'+inttostr(k), chkPQF2.Checked[k]);
+
+   for k:=0 to chkSQF.Count-1 do
+     Ini.WriteBool( 'osparameters_list', 'SQF_'+inttostr(k), chkSQF.Checked[k]);
 
    for k:=0 to chklInstrument.Count-1 do
      Ini.WriteBool('osparameters_list', 'Instrument'+inttostr(k),  chklInstrument.Checked[k]);
@@ -328,18 +340,6 @@ end;
 procedure Tfrmparameters_list.btnCancelClick(Sender: TObject);
 begin
   cancel_fl:= true;
-end;
-
-procedure Tfrmparameters_list.rgQCFlagTypeSelectionChanged(Sender: TObject);
-Var
-  Ini:TIniFile;
-begin
- Ini := TIniFile.Create(IniFileName);
- try
-   Ini.WriteInteger( 'osmain', 'QCFlagType', rgQCFlagType.ItemIndex);
- finally
-   Ini.Free;
- end;
 end;
 
 

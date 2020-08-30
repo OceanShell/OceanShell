@@ -73,7 +73,7 @@ type
 var
   frmprofile_plot_all: Tfrmprofile_plot_all;
   mik, Units_default:integer;
-  flag_type, flag_st, instr_st, units_default_name:string;
+  PQF1_st, PQF2_st, SQF_st, instr_st, units_default_name:string;
   chkSourceList:array of TCheckBox;
 
 
@@ -236,18 +236,26 @@ begin
   Ini := TIniFile.Create(IniFileName);
   try
 
-   case Ini.ReadInteger( 'osmain', 'QCFlagType', 1) of
-    0: flag_type:='PQF1';
-    1: flag_type:='PQF2';
-    2: flag_type:='SQF';
-   end;
 
  //  showmessage(flag_type);
 
-   flag_st:='';
+   PQF1_st:='';
    for k:=0 to 8 do
-    if Ini.ReadBool('osparameters_list', 'QCF'+inttostr(k), true) then
-      flag_st:=flag_st+','+inttostr(k);
+    if Ini.ReadBool('osparameters_list', 'PQF1_'+inttostr(k), true) then
+      PQF1_st:=PQF1_st+','+inttostr(k);
+   PQF1_st:=copy(PQF1_st, 2, length(PQF1_st));
+
+   PQF2_st:='';
+   for k:=0 to 8 do
+    if Ini.ReadBool('osparameters_list', 'PQF2_'+inttostr(k), true) then
+      PQF2_st:=PQF2_st+','+inttostr(k);
+   PQF2_st:=copy(PQF2_st, 2, length(PQF2_st));
+
+   SQF_st:='';
+   for k:=0 to 1 do
+    if Ini.ReadBool('osparameters_list', 'SQF_'+inttostr(k), true) then
+      SQF_st:=SQF_st+','+inttostr(k);
+   SQF_st:=copy(SQF_st, 2, length(SQF_st));
 
    instr_st:='';
    for k:=0 to 17 do
@@ -258,9 +266,9 @@ begin
     Ini.Free;
    end;
 
-flag_st:=copy(flag_st, 2, length(flag_st));
-if trim(flag_st)='' then
-if MessageDlg('Select at least one QC flag', mtWarning, [mbOk], 0)=mrOk then exit;
+
+if (trim(PQF1_st)='') or (trim(PQF2_st)='') or (trim(SQF_st)='') then
+if MessageDlg('Please, set QC flags', mtWarning, [mbOk], 0)=mrOk then exit;
 
 instr_st:=copy(instr_st, 2, length(instr_st));
 if trim(instr_st)='' then
@@ -400,10 +408,12 @@ try
     with Qt do begin
      Close;
       SQL.Clear;
-      SQL.Add(' SELECT LEV_DBAR, LEV_M, VAL, UNITS_ID, '+flag_type);
+      SQL.Add(' SELECT LEV_DBAR, LEV_M, VAL, UNITS_ID ');
       SQL.Add(' FROM '+ CurrentParTable );
       SQL.Add(' WHERE ID=:ID AND ');
-      SQL.Add( flag_type +' IN ('+flag_st+') AND ');
+      SQL.Add(' PQF1 IN ('+PQF1_st+') AND ');
+      SQL.Add(' PQF2 IN ('+PQF2_st+') AND ');
+      SQL.Add(' SQF IN ('+SQF_st+') AND ');
       SQL.Add(' INSTRUMENT_ID=:INSTR_ID AND ');
       SQL.Add(' PROFILE_NUMBER=:PROF_NUM ');
       if chkShowBest.Checked then
@@ -461,7 +471,7 @@ try
      lev_m := Qt.FieldByName('LEV_M').AsVariant;
      lev_d := Qt.FieldByName('LEV_DBAR').AsVariant;
      val1  := Qt.FieldByName('VAL').AsFloat;
-     flag  := Qt.FieldByName(flag_type).AsInteger;
+    // flag  := Qt.FieldByName(flag_type).AsInteger;
      units := Qt.FieldByName('UNITS_ID').AsInteger;
 
      (* units for the vertical axis *)

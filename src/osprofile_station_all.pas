@@ -84,6 +84,7 @@ var
   ToolDPH: array of TDataPointHintTool;
   cbUnits: array of TComboBox;
   Ks:integer;
+  flag_type:string;
 
 
 implementation
@@ -177,7 +178,7 @@ cur_l, Val_, min_lev, max_lev:real;
 lev_d, lev_m: Variant;
 prof_best:boolean;
 Units_, par, par_name, col_title, instr_name, isbest, sName, buf_str:string;
-cds_name, flag_type, LeftAxisTitle: string;
+cds_name, LeftAxisTitle: string;
 
 TRt:TSQLTransaction;
 Qt, Qt1, Qt2:TSQLQuery;

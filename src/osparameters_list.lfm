@@ -108,19 +108,14 @@ object frmparameters_list: Tfrmparameters_list
         TabOrder = 0
       end
     end
-    object TabSheet2: TTabSheet
-      Caption = 'QC Flag'
+    object TabSheet4: TTabSheet
+      Caption = 'PQF1'
       ClientHeight = 492
       ClientWidth = 433
-      Font.Color = clWindowText
-      Font.Height = -17
-      Font.Name = 'MS Sans Serif'
-      ImageIndex = 1
-      ParentFont = False
-      object chklQCFlags: TCheckListBox
+      object chkPQF1: TCheckListBox
         Left = 12
-        Height = 396
-        Top = 76
+        Height = 460
+        Top = 12
         Width = 405
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
@@ -144,30 +139,67 @@ object frmparameters_list: Tfrmparameters_list
           09000000000000000000000000
         }
       end
-      object rgQCFlagType: TRadioGroup
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'PQF2'
+      ClientHeight = 492
+      ClientWidth = 433
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ImageIndex = 1
+      ParentFont = False
+      object chkPQF2: TCheckListBox
         Left = 12
-        Height = 56
-        Top = 8
+        Height = 460
+        Top = 12
         Width = 405
-        Anchors = [akTop, akLeft, akRight]
-        AutoFill = True
-        ChildSizing.LeftRightSpacing = 6
-        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
-        ChildSizing.EnlargeVertical = crsHomogenousChildResize
-        ChildSizing.ShrinkHorizontal = crsScaleChilds
-        ChildSizing.ShrinkVertical = crsScaleChilds
-        ChildSizing.Layout = cclLeftToRightThenTopToBottom
-        ChildSizing.ControlsPerLine = 3
-        ClientHeight = 31
-        ClientWidth = 401
-        Columns = 3
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
         Items.Strings = (
-          'PQF1'
-          'PQF2'
-          'SQF'
+          '[0]   Not checked'
+          '[1]   Bad      '
+          '[2]   Suspicious        '
+          '[3]   Calculated'
+          '[4]   Acceptable'
+          '[5]   Passed primary QC'
+          '[6]   Passed expert control'
+          '[7]   Passed secondary QC and quality confirmed'
+          '[8]   Passed secondary QC and adjusted'
         )
-        OnSelectionChanged = rgQCFlagTypeSelectionChanged
-        TabOrder = 1
+        ItemHeight = 27
+        ParentFont = False
+        TabOrder = 0
+        Data = {
+          09000000000000000000000000
+        }
+      end
+    end
+    object TabSheet5: TTabSheet
+      Caption = 'SQF'
+      ClientHeight = 492
+      ClientWidth = 433
+      object chkSQF: TCheckListBox
+        Left = 12
+        Height = 460
+        Top = 12
+        Width = 405
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Items.Strings = (
+          '[0]   Not checked'
+          '[1]   Bad'
+        )
+        ItemHeight = 27
+        ParentFont = False
+        TabOrder = 0
+        Data = {
+          020000000000
+        }
       end
     end
   end
