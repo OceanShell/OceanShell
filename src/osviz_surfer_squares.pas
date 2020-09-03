@@ -1028,11 +1028,12 @@ Type
 
 var
 i,kt,klt,kln: integer;
-tbl_count,unit_id: integer;
+tbl_count,station_id,PQF1,unit_id: integer;
 L1,L2,val: real;
 ltn,lts,lt,lnw,lne,ln :real;
 sq_index,tbl,L1_str,L2_str,var_name,dir_name: string;
 DT1,DT2 :TDateTime;
+skip :boolean;
 
 {units conversion}
 val_conv:real;
@@ -1156,7 +1157,7 @@ begin
       with frmdm.q1 do begin
         Close;
         SQL.Clear;
-        SQL.Add(' select dateandtime,val,units_id from STATION,'+tbl);
+        SQL.Add(' select station.id as station_id, dateandtime,val,PQF1,units_id from STATION,'+tbl);
         SQL.Add(' where station.id='+tbl+'.id and duplicate=false');
         SQL.Add(' and latitude>:lts and latitude<=:ltn ');
         {...select data from 180 meridian}
@@ -1177,9 +1178,18 @@ begin
      n:=0;
 {W}while not frmdm.q1.EOF do begin
 
+     station_id:=frmdm.q1.FieldByName('station_id').AsInteger;
      val:=frmdm.q1.FieldByName('val').AsFloat;
+     PQF1:=frmdm.q1.FieldByName('PQF1').AsInteger;
      unit_id:=frmdm.q1.FieldByName('units_id').AsInteger;
      val_dt:=frmdm.q1.FieldByName('dateandtime').AsDateTime;
+
+     {...skip unchecked samples from ITP and ARGO}
+      skip:=false;
+      if (station_id>=10000001) and (station_id<=15000001) and (PQF1=0) then skip:=true;  //ITP
+      if (station_id>=20000001) and (station_id<=30000001) and (PQF1=0) then skip:=true;  //ARGO
+
+{SKIP}if skip=false then begin
 
      DecodeDate(val_dt,y,m,d);
 
@@ -1225,6 +1235,7 @@ begin
      if max_dt<val_dt then max_dt:=val_dt;
 {U}end;
 
+{SKIP}end;
      frmdm.q1.Next;
 {W}end;
      frmdm.q1.Close;
