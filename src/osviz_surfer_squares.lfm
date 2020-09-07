@@ -241,17 +241,17 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
     Left = 8
     Height = 107
     Top = 580
-    Width = 816
+    Width = 1264
     Caption = 'Plot'
     ClientHeight = 82
-    ClientWidth = 812
+    ClientWidth = 1260
     ParentFont = False
     TabOrder = 15
     object cbAllOutputFiles: TComboBox
       Left = 20
       Height = 28
       Top = 7
-      Width = 767
+      Width = 1220
       ItemHeight = 20
       OnDropDown = cbAllOutputFilesDropDown
       OnSelect = cbAllOutputFilesSelect
@@ -260,9 +260,9 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
       TabOrder = 0
     end
     object btnPlot: TButton
-      Left = 705
+      Left = 1158
       Height = 28
-      Top = 40
+      Top = 48
       Width = 82
       Caption = 'Plot'
       Enabled = False
@@ -354,9 +354,9 @@ object frmviz_surfer_squares: Tfrmviz_surfer_squares
       TabOrder = 3
     end
     object cbColumn: TComboBox
-      Left = 533
+      Left = 968
       Height = 28
-      Top = 40
+      Top = 48
       Width = 160
       Enabled = False
       ItemHeight = 20

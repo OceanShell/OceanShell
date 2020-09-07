@@ -421,7 +421,9 @@ end;
 
 procedure Tfrmviz_surfer_squares.cbAllOutputFilesDropDown(Sender: TObject);
 begin
- cbAllOutputFiles.Items:=FindAllFiles(user_path, '*.txt', true);
+ //cbAllOutputFiles.Items:=FindAllFiles(user_path, '*.txt', true);
+ //AK
+ cbAllOutputFiles.Items:=FindAllFiles(user_path, '*.txt', false);
 end;
 
 
@@ -1114,6 +1116,11 @@ begin
    writeln(fo,'lon'+#9+'lat'+#9+'n'+#9+'md'+#9+'sd'+#9+'min'+#9+'max'+#9+'unit_id'
    +#9+'min_dt'+#9+'max_dt'+#9+'TSL_y'+#9+'TSL_m');
 
+   fn:=dir_name+sq_index+var_name+'_'+L1_str+'-'+L2_str+'_arbitrary_mask.txt';
+   assignfile(fo1,fn);
+   rewrite(fo1);
+   writeln(fo1,'lon'+#9+'lat');
+
 {.....var staistics in squares and layer }
          klt:=0;
 {Lt}repeat
@@ -1217,6 +1224,9 @@ begin
      val_conv:=-999;
      isconverted:=false;
 
+
+     if tbl = 'P_TEMPERATURE' then vu:=true;
+     if tbl = 'P_SALINITY' then vu:=true;
      if tbl = 'P_OXYGEN' then begin
      if unit_id=3 then vu:=true
      else begin
@@ -1243,6 +1253,7 @@ begin
      ts_length_years:=High(TSL_y);
      ts_length_months:=High(TSL_m);
 
+    {...without zero}
 {n}if n>=strtoint(Edit3.Text) then begin
      md:=s1/n;
      sd:=(s2-s1*s1/n)/n;
@@ -1264,9 +1275,13 @@ begin
 
 {n}end;
 
+    {...without zero}
+     if n=0 then writeln(fo1,floattostr(ln),#9,floattostr(lt));
+
 {Ln}until lne=180;
 {Lt}until lts=-90;
      closefile(fo);
+     closefile(fo1);
 {TC}end;
 {T} end;
 

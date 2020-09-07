@@ -300,6 +300,7 @@ begin
     end;
 
 {w}while not frmdm.q1.EOF do begin
+     //station_id:=frmdm.q1.FieldByName('station_id').AsInteger;
      val:=frmdm.q1.FieldByName('val').AsFloat;
      unit_tbl:=frmdm.q1.FieldByName('units_id').AsInteger;
      //id:=frmdm.q1.FieldByName('id').AsInteger;
@@ -493,18 +494,18 @@ begin
      {osunitsconversion.GetDefaultUnitsExact(tbl, unit_tbl, unit_default, ID
                                        instr_id, prof_num, val, lat, lon,
                                        Lev_m, val_conv, isconverted);}
-
 {conv}if isconverted=true then begin
-      val:=val_conv;
+      //val:=val_conv;
       val_c:=val_c+1;
       Edit6.Text:=inttostr(val_c);
       isoutlier:=false;
-      if val<val_min then isoutlier:=true;
-      if val>val_max then isoutlier:=true;
+      if val_conv<val_min then isoutlier:=true;
+      if val_conv>val_max then isoutlier:=true;
 
 {OUT}if isoutlier=true then begin
      outliers_count:=outliers_count+1;
      Edit5.Text:=inttostr(outliers_count);
+
      with frmdm.q2 do begin
       Close;
        SQL.Clear;
