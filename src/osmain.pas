@@ -135,6 +135,7 @@ type
     iExportCIA: TMenuItem;
     iQC_WideRanges: TMenuItem;
     iMeteo: TMenuItem;
+    iqc_sd_analysis: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
     iBottomDepthGEBCO: TMenuItem;
@@ -298,6 +299,7 @@ type
     procedure iPlotBathymetryClick(Sender: TObject);
     procedure iQCflagfromfileClick(Sender: TObject);
     procedure iQC_dbar_meterClick(Sender: TObject);
+    procedure iqc_sd_analysisClick(Sender: TObject);
     procedure iQC_WideRangesClick(Sender: TObject);
     procedure iSelectCruiseClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
@@ -446,6 +448,7 @@ uses
   osqc_duplicates,
   osqc_wideranges,
   osqc_meanprofile,
+  osqc_sdanalysis,
   osqc_setflags,
 
 (* tools *)
@@ -2510,6 +2513,17 @@ begin
    finally
      frmqc_dbar_meters_consistency.Free;
      frmqc_dbar_meters_consistency:= nil;
+   end;
+end;
+
+procedure Tfrmosmain.iqc_sd_analysisClick(Sender: TObject);
+begin
+  frmQC_sdanalysis := TfrmQC_sdanalysis.Create(Self);
+   try
+    if not frmQC_sdanalysis.ShowModal = mrOk then exit;
+   finally
+     frmQC_sdanalysis.Free;
+     frmQC_sdanalysis:= nil;
    end;
 end;
 
