@@ -307,6 +307,9 @@ procedure Tfrmsupporttables.PageControl1Change(Sender: TObject);
 Var
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
+
+  k: integer;
+  tbl, tbl_missing:string;
 begin
  if Q.Active then btnsave.onClick(Self);
 
@@ -459,6 +462,18 @@ begin
    if not Q.IsEmpty then
      Caption:='Codes: '+CodesTblName+' ['+inttostr(Q.RecordCount)+']' else
      Caption:='Codes: '+CodesTblName;
+
+
+   // check if there's any tables in the database not in DATABASE_TABLES
+   if CodesTblName='DATABASE_TABLES' then begin
+    tbl_missing:='';
+     for k:=0 to frmosmain.ListBox1.Count-1 do begin
+      tbl:=frmosmain.ListBox1.Items.Strings[k];
+      if VarIsNull(Q.Locate('NAME_TABLE', tbl, [])) then tbl_missing:=tbl_missing+#13;
+     end;
+    if trim(tbl_missing)<>'' then
+      showmessage('Tables NOT in DATABASE_TABLES:'+tbl_missing);
+   end;
 
    Navigation;
    ResizeColumns(self);

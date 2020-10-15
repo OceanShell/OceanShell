@@ -21,6 +21,7 @@ type
     cbKrigType: TComboBox;
     cbMethod: TComboBox;
     chkFillContour: TCheckBox;
+    chkCustomGridSize: TCheckBox;
     chkUseClr: TCheckBox;
     chkUseLvl: TCheckBox;
     chkSearch: TCheckBox;
@@ -50,6 +51,7 @@ type
     GroupBox5: TGroupBox;
     GroupBox6: TGroupBox;
     GroupBox7: TGroupBox;
+    GroupBox8: TGroupBox;
     label1: TLabel;
     Label10: TLabel;
     Label11: TLabel;
@@ -65,6 +67,7 @@ type
     Label20: TLabel;
     Label21: TLabel;
     Label22: TLabel;
+    Label23: TLabel;
     Label24: TLabel;
     Label25: TLabel;
     Label26: TLabel;
@@ -73,6 +76,7 @@ type
     Label29: TLabel;
     Label3: TLabel;
     Label30: TLabel;
+    Label31: TLabel;
     Label32: TLabel;
     Label33: TLabel;
     Label5: TLabel;
@@ -83,6 +87,8 @@ type
     PageControl1: TPageControl;
     rgMinCurvature: TGroupBox;
     seAnisAngle: TSpinEdit;
+    seRows: TSpinEdit;
+    seCols: TSpinEdit;
     seFilter: TSpinEdit;
     seIDPower: TSpinEdit;
     seIDSmooth: TSpinEdit;
@@ -243,12 +249,19 @@ Ini := TIniFile.Create(IniFileName);
  // rgOrientation.ItemIndex    :=Ini.ReadInteger  (src, 'ColourScaleOrient',   0);
   seColScaleLbFreq.Value     :=Ini.ReadInteger  (src, 'ColourScaleLbFreq',   1);
 
+
+  chkCustomGridSize.Checked  :=Ini.ReadBool   (IntSrc, 'CustomGridSize',     false);
+  seRows.Value               :=Ini.ReadInteger(IntSrc, 'Rows',               100);
+  seCols.Value               :=Ini.ReadInteger(IntSrc, 'Cols',               100);
+
   chkFillContour.Checked     :=Ini.ReadBool     (src, 'FillContour',         true);
   chkUseClr.Checked          :=Ini.ReadBool     (src, 'UseCLR',              false);
   chkUseLvl.Checked          :=Ini.ReadBool     (src, 'UseLVL',              false);
   eclrpath.Text              :=Ini.ReadString   (src, 'clr',                 '');
   elvlpath.Text              :=Ini.ReadString   (src, 'lvl',                 '');
 
+  if not FileExists(eclrpath.Text) then eclrpath.Font.Color:=clRed else eclrpath.Font.Color:=clGreen;
+  if not FileExists(elvlpath.Text) then elvlpath.Font.Color:=clRed else elvlpath.Font.Color:=clGreen;
  finally
    Ini.Free;
  end;
@@ -313,6 +326,10 @@ begin
 
  //   Ini.WriteString (IntSrc, 'IntervalX',           seIntervalX.Text);
  //   Ini.WriteString (IntSrc, 'IntervalY',           seIntervalY.Text);
+
+    Ini.WriteBool   (IntSrc, 'CustomGridSize',      chkCustomGridSize.Checked);
+    Ini.WriteInteger(IntSrc, 'Rows',                seRows.Value);
+    Ini.WriteInteger(IntSrc, 'Cols',                seCols.Value);
 
     Ini.WriteString (IntSrc, 'LevelFirst',          seLevelFirst.Text);
     Ini.WriteString (IntSrc, 'LevelSet',            seLevelSet.Text);

@@ -18,10 +18,10 @@ object frmload_argo: Tfrmload_argo
     TabOrder = 0
   end
   object Memo1: TMemo
-    Left = 296
+    Left = 304
     Height = 463
     Top = 168
-    Width = 1064
+    Width = 1056
     ScrollBars = ssBoth
     TabOrder = 1
   end
@@ -30,24 +30,24 @@ object frmload_argo: Tfrmload_argo
     Height = 38
     Top = 296
     Width = 240
-    Caption = '6. Update CORE'
+    Caption = '6. Load/update CORE'
     OnClick = btnCoreClick
     TabOrder = 2
   end
   object ePath: TEdit
-    Left = 296
+    Left = 304
     Height = 33
     Top = 112
-    Width = 1064
+    Width = 1056
     TabOrder = 3
-    Text = 'X:\Data_Oceanography\_ARGO\202007-ArgoData\dac\'
+    Text = 'X:\Data_Oceanography\_ARGO\202009-ArgoData\dac\'
   end
   object Label1: TLabel
     Left = 24
     Height = 25
     Top = 72
-    Width = 599
-    Caption = '2. Unpack the archive in a folder ( requires more than 300 GB of disk space )'
+    Width = 616
+    Caption = '2. Unpack the archive into a folder ( requires more than 300 GB of disk space )'
     ParentColor = False
   end
   object Button3: TButton
@@ -64,7 +64,7 @@ object frmload_argo: Tfrmload_argo
     Height = 38
     Top = 232
     Width = 240
-    Caption = '5. Update SYNTHETIC'
+    Caption = '5. Load/update SYNTHETIC'
     OnClick = btnSyntheticClick
     TabOrder = 5
   end
@@ -102,8 +102,8 @@ object frmload_argo: Tfrmload_argo
     Left = 24
     Height = 25
     Top = 120
-    Width = 201
-    Caption = '3. Path to the data folder:'
+    Width = 265
+    Caption = '3. Specify path to the data folder:'
     ParentColor = False
   end
   object Label5: TLabel
@@ -119,7 +119,7 @@ object frmload_argo: Tfrmload_argo
     Height = 38
     Top = 593
     Width = 241
-    Caption = 'Delete stations without params'
+    Caption = 'Delete empty stations'
     OnClick = Button2Click
     TabOrder = 7
   end

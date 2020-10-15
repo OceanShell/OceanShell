@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, SQLDB, DB,
-  DateUtils, Variants, BufDataset, LCLIntf;
+  DateUtils, Variants, BufDataset, LCLIntf, Buttons;
 
 type
 
@@ -82,7 +82,7 @@ begin
 if not FileExists(epath.text+'ar_index_global_meta.txt') then
   if MessageDlg('ar_index_global_meta.txt cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
 
-memo1.Clear;
+Memo1.Clear;
 try
     TRt:=TSQLTransaction.Create(self);
     TRt.DataBase:=frmdm.IBDB;
@@ -219,7 +219,7 @@ try
           ExecSQL;
       end;
      inc(cnt_updated);
-     memo1.lines.add('Updated -> '+inttostr(ID));
+     Memo1.lines.add('Updated -> '+inttostr(ID));
      Trt.CommitRetaining;
     end;
    end;
@@ -249,10 +249,14 @@ try
       SQL.Clear;
       SQL.Add('insert into CRUISE');
       SQL.Add(' (ID, platform_id, source_id, institute_id, project_id, ');
-      SQL.Add(' DATE_ADDED, DATE_UPDATED, CRUISE_NUMBER, PI, NOTES) ');
+      SQL.Add(' DATE_ADDED, DATE_UPDATED, DATE_START_TOTAL, DATE_END_TOTAL, ');
+      SQL.Add(' DATE_START_DATABASE, DATE_END_DATABASE, CRUISE_NUMBER, PI, ');
+      SQL.Add(' NOTES, STATIONS_TOTAL, STATIONS_DATABASE, STATIONS_DUPLICATES) ');
       SQL.Add(' VALUES ' );
       SQL.Add(' (:ID, :platform_id, :source_id, :institute_id, :project_id, ');
-      SQL.Add(' :DATE_ADDED, :DATE_UPDATED, :CRUISE_NUMBER, :PI, :NOTES) ');
+      SQL.Add(' :DATE_ADDED, :DATE_UPDATED, :DATE_START_TOTAL, :DATE_END_TOTAL, ');
+      SQL.Add(' :DATE_START_DATABASE, :DATE_END_DATABASE, :CRUISE_NUMBER, :PI, ');
+      SQL.Add(' :NOTES, :STATIONS_TOTAL, :STATIONS_DATABASE, :STATIONS_DUPLICATES) ');
       ParamByName('ID').Value:=ID;
       ParamByName('platform_id').Value:=ID;
       ParamByName('source_id').Value:=5;
@@ -260,16 +264,23 @@ try
       ParamByName('project_id').Value:=project_id;
       ParamByName('date_added').Value:=stdate_upd;
       ParamByName('date_updated').Value:=stdate_upd;
+      ParamByName('date_start_total').Value:=stdate_upd;
+      ParamByName('date_end_total').Value:=stdate_upd;
+      ParamByName('date_start_database').Value:=stdate_upd;
+      ParamByName('date_end_database').Value:=stdate_upd;
       ParamByName('cruise_number').Value:=platf;
+      ParamByName('stations_total').Value:=0;
+      ParamByName('stations_database').Value:=0;
+      ParamByName('stations_duplicates').Value:=0;
       ParamByName('PI').Value:=pi;
       ParamByName('NOTES').Value:=notes_str;
      ExecSQL;
     end;
     inc(cnt_added);
-    memo1.lines.add('New -> '+inttostr(ID));
+    Memo1.lines.add('New -> '+inttostr(ID));
 
     end else
-     memo1.lines.add('Missing codes -> '+inttostr(ID)); //-9
+     Memo1.lines.add('Missing codes -> '+inttostr(ID)); //-9
    end; // qt empty
 
   Qt1.Close;
@@ -304,7 +315,7 @@ try
       end;
       Trt.CommitRetaining;
 
-    memo1.lines.add('Removed -> '+inttostr(ID));
+    Memo1.lines.add('Removed -> '+inttostr(ID));
     inc(cnt_removed);
     end;
     Qt1.Next;
@@ -318,10 +329,10 @@ finally
    Qt2.Free;
    Trt.Free;
    ID_buf.Free;
-   memo1.lines.add('=====');
-   memo1.lines.add('Added: '+inttostr(cnt_added));
-   memo1.lines.add('Updated: '+inttostr(cnt_updated));
-   memo1.lines.add('Removed: '+inttostr(cnt_removed));
+   Memo1.lines.add('=====');
+   Memo1.lines.add('Added: '+inttostr(cnt_added));
+   Memo1.lines.add('Updated: '+inttostr(cnt_updated));
+   Memo1.lines.add('Removed: '+inttostr(cnt_removed));
  end;
 end;
 
@@ -350,7 +361,7 @@ begin
 if not FileExists(epath.text+'ar_index_global_prof.txt') then
   if MessageDlg('ar_index_global_prof.txt cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
 
-memo1.Clear;
+Memo1.Clear;
   try
      TRt:=TSQLTransaction.Create(self);
      TRt.DataBase:=frmdm.IBDB;
@@ -496,7 +507,7 @@ memo1.Clear;
            ExecSQL;
          end;
 
-         memo1.lines.add('Updated: '+platf+'_'+stnum);
+         Memo1.lines.add('Updated: '+platf+'_'+stnum);
         end;
        end;
 
@@ -530,7 +541,7 @@ memo1.Clear;
           ParamByName('QCFLAG').Value:=QF;
          ExecSQL;
         end;
-       memo1.lines.add('Inserted: '+platf+'_'+stnum);
+       Memo1.lines.add('Inserted: '+platf+'_'+stnum);
        end; //q2
        Qt1.Close;
 
@@ -545,12 +556,12 @@ memo1.Clear;
      Qt1.Free;
      Qt2.Free;
      Trt.Free;
-     memo1.lines.add('=====');
-     memo1.lines.add('Done!');
-     memo1.lines.add('Unchanged: '+inttostr(cnt_kept));
-     memo1.lines.add('Updated: '  +inttostr(cnt_updated));
-     memo1.lines.add('Added: '    +inttostr(cnt_new));
-     memo1.lines.add('Skipped: '  +inttostr(cnt_skipped));
+     Memo1.lines.add('=====');
+     Memo1.lines.add('Done!');
+     Memo1.lines.add('Unchanged: '+inttostr(cnt_kept));
+     Memo1.lines.add('Updated: '  +inttostr(cnt_updated));
+     Memo1.lines.add('Added: '    +inttostr(cnt_new));
+     Memo1.lines.add('Skipped: '  +inttostr(cnt_skipped));
    end;
 end;
 
@@ -578,7 +589,7 @@ begin
 if not FileExists(epath.text+'argo_synthetic-profile_index.txt') then
   if MessageDlg('argo_synthetic-profile_index.txt cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
 
-memo1.Clear;
+Memo1.Clear;
   try
      TRt:=TSQLTransaction.Create(self);
      TRt.DataBase:=frmdm.IBDB;
@@ -757,7 +768,7 @@ memo1.Clear;
          (* writing updated profiles *)
          WriteSynteticProfile(ePath.text+fname, id, StLat);
 
-         memo1.lines.add('Updated: '+platf+'_'+stnum);
+         Memo1.lines.add('Updated: '+platf+'_'+stnum);
         end;
        end;
 
@@ -791,7 +802,7 @@ memo1.Clear;
           ParamByName('QCFLAG').Value:=QF;
          ExecSQL;
         end;
-       memo1.lines.add('Inserted: '+platf+'_'+stnum);
+       Memo1.lines.add('Inserted: '+platf+'_'+stnum);
        end; //q2
        Qt1.Close;
        Trt.CommitRetaining;
@@ -810,12 +821,12 @@ memo1.Clear;
      Qt1.Free;
      Qt2.Free;
      Trt.Free;
-     memo1.lines.add('=====');
-     memo1.lines.add('Done!');
-     memo1.lines.add('Unchanged: '+inttostr(cnt_kept));
-     memo1.lines.add('Updated: '  +inttostr(cnt_updated));
-     memo1.lines.add('Added: '    +inttostr(cnt_new));
-     memo1.lines.add('Skipped: '  +inttostr(cnt_skipped));
+     Memo1.lines.add('=====');
+     Memo1.lines.add('Done!');
+     Memo1.lines.add('Unchanged: '+inttostr(cnt_kept));
+     Memo1.lines.add('Updated: '  +inttostr(cnt_updated));
+     Memo1.lines.add('Added: '    +inttostr(cnt_new));
+     Memo1.lines.add('Skipped: '  +inttostr(cnt_skipped));
    end;
 end;
 
@@ -852,7 +863,7 @@ begin
 
   nc_inq_dimid (ncid, pAnsiChar('N_PROF'), varidp);
   nc_inq_dimlen(ncid, varidp, n_prof);
-  if n_prof>1 then memo1.lines.add(inttostr(n_prof)+'   '+fname);
+  if n_prof>1 then Memo1.lines.add(inttostr(n_prof)+'   '+fname);
 
   nc_inq_dimid (ncid, pAnsiChar('N_PARAM'), varidp);
   nc_inq_dimlen(ncid, varidp, n_param);
@@ -1021,7 +1032,7 @@ Var
  id:integer;
  id_str:string;
 begin
- memo1.clear;
+ Memo1.clear;
 
     TRt:=TSQLTransaction.Create(self);
     TRt.DataBase:=frmdm.IBDB;
@@ -1102,7 +1113,7 @@ begin
    PI:=trim(pchar(ip));
 
  //  showmessage(proj+'   '+PI);
-   memo1.lines.Add(proj);
+   Memo1.lines.Add(proj);
    nc_close(ncid);
 
   until eof(dat);
@@ -1131,8 +1142,6 @@ begin
 end;
 
 
-
-
 procedure Tfrmload_argo.Button2Click(Sender: TObject);
 Var
  Qt2, Qt1, Qt3:TSQLQuery;
@@ -1142,7 +1151,7 @@ Var
  stnum, tbl:string;
  cast, QF, cnt_t, cnt_s, cnt_o:integer;
 begin
-memo1.Clear;
+Memo1.Clear;
  try
     TRt:=TSQLTransaction.Create(self);
     TRt.DataBase:=frmdm.IBDB;
@@ -1211,7 +1220,7 @@ memo1.Clear;
          ParamByName('ID').AsInteger:=Qt1.FieldByName('ID').AsInteger;
         ExecSQL;
        end;  }
-      memo1.Lines.add(inttostr(Qt1.FieldByName('ID').AsInteger));
+      Memo1.Lines.add(inttostr(Qt1.FieldByName('ID').AsInteger));
       end;
 
       Qt1.Next;

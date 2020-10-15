@@ -4,27 +4,23 @@ unit ostimedepthdiagram;
 
 interface
 
-uses  LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-      StdCtrls, ExtCtrls, BufDataset, IniFiles, DB, Dialogs, DateUtils, Buttons, Spin,
-      ComCtrls, Math;
+uses  LCLIntf, LCLType, SysUtils, Variants, Classes,
+      Graphics, Controls, Forms, StdCtrls, ExtCtrls, BufDataset, IniFiles,
+      SQLDB, DB, Dialogs, DateUtils, Buttons, Spin, ComCtrls, Math;
 
 type
+
+  { Tfrmtimedepthdiagram }
+
   Tfrmtimedepthdiagram = class(TForm)
+    btnGetData: TButton;
     btnPlot: TButton;
-    rgParameters: TGroupBox;
-    Label3: TLabel;
-    Label5: TLabel;
-    cbParameters: TComboBox;
-    cbLvl: TComboBox;
-    seX: TSpinEdit;
-    seY: TSpinEdit;
+    rgVariable: TRadioGroup;
     rgDataFile: TRadioGroup;
     GroupBox2: TGroupBox;
-    Label1: TLabel;
     Label6: TLabel;
     SEYY1: TSpinEdit;
     SEYY2: TSpinEdit;
-    btnGetData: TButton;
     mLog: TMemo;
     lbMonthlyLevels: TListBox;
     Memo1: TMemo;
@@ -32,25 +28,33 @@ type
     btnOpenFolder: TBitBtn;
     btnOpenScript: TBitBtn;
 
+    procedure FormShow(Sender: TObject);
     procedure btnPlotClick(Sender: TObject);
-    procedure cbParametersChange(Sender: TObject);
-    procedure TimeSeriesAtLevels;
-    procedure TimeSeriesAtLevels_Prf;
     procedure rgDataFileClick(Sender: TObject);
     procedure cbParametersSelect(Sender: TObject);
- //   procedure FormClose(Sender: TObject; var Action: TCloseAction);
+
     procedure btnGetDataClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
+
     procedure btnSettingsClick(Sender: TObject);
     procedure btnOpenFolderClick(Sender: TObject);
     procedure btnOpenScriptClick(Sender: TObject);
-
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
 
   private
-    procedure MeanByMonth;
-    procedure MeanByYear;
+
+    procedure ClearAllRecords(ADataset: TBufDataset);
+    procedure GetExactRecordCount(ADataset: TBufDataset; Var RecCnt:integer);
+
+    procedure InitialDataFromDB;
+    procedure MeanByMonthOnStandardLevels;
+    procedure InitialDataOnStandardLevels;
+    procedure SeasonalCycleRemoval;
+    procedure BlnFileByData;
+    procedure MeanProfileNoSeasons;
+    procedure MonthlyMeanAndAnomaliesToFile;
+    procedure AnnualMean;
     procedure MonthsDifference;
-    procedure GetScriptSmooth;
+    procedure TimeSeriesAtLevels;
 
   public
     { Public declarations }
@@ -58,986 +62,85 @@ type
 
 var
   frmtimedepthdiagram: Tfrmtimedepthdiagram;
-  Script, dat, dat1, dat_r, dat_i, dat_m, dat_Month, dat_bln, dat_sdlev, dat_SdLevPRF:text;
-  TDDCDS, MCDS, cdsMeanPrf,cdsTTDMonth,cdsLastLevBln,cdsSdLev:TBufDataSet;
-  numcol,CountGap:integer;
-  Koef, dif, kf_int,kf_real,StartDate:real;
   TDDPath, CurrentFile:string;
-  MinDate:TDateTime;
-  isNew:boolean=true;
+
+  TDDCDS, MCDS, cdsTTDMonth, cdsMeanPrf:TBufDataSet;
+
+  Units_default: integer;
+  Units_default_name, Parameter_name: string;
 
 implementation
 
-uses osmain, dm, procedures, surfer_settings;
+uses osmain, dm, surfer_settings, surfer_tdd, osunitsconversion,
+     osverticalinterpolation;
 
 {$R *.lfm}
 
 
+procedure Tfrmtimedepthdiagram.ClearAllRecords(ADataset: TBufDataset);
+begin
+  ADataset.DisableControls;
+  try
+    ADataset.First;
+    while not ADataset.EoF do
+      ADataset.Delete;
+  finally
+    ADataset.EnableControls;
+  end;
+end;
+
+
+procedure Tfrmtimedepthdiagram.GetExactRecordCount(ADataset: TBufDataset;
+  Var RecCnt:integer);
+begin
+  RecCnt := 0;
+  with ADataset do begin
+    First;
+    while not(EOF) do begin
+      inc(RecCnt);
+      Next;
+    end;
+  end;
+end;
+
+
 procedure Tfrmtimedepthdiagram.FormShow(Sender: TObject);
 Var
- flist:TSearchRec;
+ k: integer;
+ Ini:TIniFile;
+
+ Qt:TSQLQuery;
+ TRt:TSQLTransaction;
 begin
   memo1.Clear;
   mLog.clear;
 
  (* Устанавливаем пути *)
- TDDPath:=GlobalPath+'unload\tddiagrams\'+ExtractFileName(IBName)+'\'; // в папку с именем базы
- if not DirectoryExists(GlobalPath+'unload\tddiagrams\') then CreateDir(GlobalPath+'unload\tddiagrams\');
+ TDDPath:=GlobalPath+'unload'+PathDelim+'tddiagrams'+PathDelim; // в папку с именем базы
  if not DirectoryExists(TDDPath) then CreateDir(TDDPath);
- if not DirectoryExists(TDDPath+'MonthlyProfiles\') then CreateDir(TDDPath+'MonthlyProfiles\');
- if not DirectoryExists(TDDPath+'SeriesAtSdLevelsInitialPrf\') then CreateDir(TDDPath+'SeriesAtSdLevelsInitialPrf\');
- if not DirectoryExists(TDDPath+'SeriesAtSdLevelsMonthlyMean\') then CreateDir(TDDPath+'SeriesAtSdLevelsMonthlyMean\');
+ if not DirectoryExists(TDDPath+'MonthlyProfiles'+PathDelim) then CreateDir(TDDPath+'MonthlyProfiles'+PathDelim);
+ if not DirectoryExists(TDDPath+'SeriesAtSdLevelsInitial'+PathDelim) then CreateDir(TDDPath+'SeriesAtSdLevelsInitialPrf'+PathDelim);
+ if not DirectoryExists(TDDPath+'SeriesAtSdLevelsMonthlyMean'+PathDelim) then CreateDir(TDDPath+'SeriesAtSdLevelsMonthlyMean'+PathDelim);
 
- (* загружаем список *.lvl файлов *)
- cbLvl.Clear;
- cbLvl.Items.Add('');
- flist.Name:='';
-  FindFirst(GlobalPath+'support\lvl\'+'*.lvl',faAnyFile, flist);
-   if flist.Name<>'' then cbLvl.Items.Add(flist.Name);
-  while findnext(flist)=0 do cbLvl.Items.Add(flist.Name);
- if cbLvl.Items.Count=0 then cbLvl.Enabled:=false;
- FindClose(flist);
-
- seYY1.Text:=Copy(frmosmain.sbselection.Panels[5].Text, 7, 4);
- seYY2.Text:=Copy(frmosmain.sbselection.Panels[6].Text, 7, 4);
-
- rgParameters.Enabled:=false;
- rgDataFile.Enabled:=false;
-end;
-
-
-procedure Tfrmtimedepthdiagram.btnGetDataClick(Sender: TObject);
-var
-Ini:TIniFile;
-mik,mik_lev:integer;
-StDateTime, D1,D2, T1, T2,dmin,dmax, TimeStart:TDateTime;
-Year, month, day, hour, min, sec, msec:word;
-ymin,ymax,y,m,n,sdlev,dsum,dyear:integer;
-absnum, k, TFl,SFl,l, i, c, fi, IntLev:integer;
-Enable, FlagIsSet, st_ex:boolean;
-TransLev,  year_m,  MaxDate,  MaxDepth,TimeTR,x1,x2:real;
-an,anSCR,valSCR,ULev,DLev,st_time,st_timeTR, time1:real;
-SVan,Lev, TVal, SVal, StLat, pres, DVal, IntVal,lmin,lmax,x:real;
-P, D, N2:array[1..10000] of real;
-Mean, Val, anom:real;
-st,str,buf_str:string;
-
-CountStep,ky:integer;
-Ystep,YBeg,Yend,Y1,Y2,ULevMin,DLevMax :real;
-
-yb,mb,db,ye,me,de:word;
-date1,date2,dateb,datee:TDateTime;
-begin
- btnGetData.Enabled:=false;
-
- mLog.Clear;
- mLog.lines.add('Start: '+TimetoStr(Now));
- TimeStart:=Now;
-
- (* Читаем настройки из файла *)
- try
-   Ini := TIniFile.Create(IniFileName);
-    Ini.ReadSection('Standart levels', memo1.Lines);
-  finally
-   Ini.Free;
-  end;
-
-
-  frmdm.Q.IndexFieldNames:='dateandtime'; //force sorting
-
-  // creading client datasets
+ (* Creading global client datasets *)
   TDDCDS:=TBufDataSet.Create(nil);
    with TDDCDS.FieldDefs do begin
-      Add('absnum' ,ftInteger  ,0 ,false);
-      Add('date'   ,ftDateTime ,0 ,false);
-      Add('time'   ,ftDateTime ,0 ,false);
-      Add('year'   ,ftInteger  ,0 ,false);
-      Add('month'  ,ftInteger  ,0 ,false);
-      Add('day'    ,ftInteger  ,0 ,false);
-      Add('hour'   ,ftInteger  ,0 ,false);
-      Add('min'    ,ftInteger  ,0 ,false);
-      Add('lev'    ,ftInteger  ,0 ,false);
-      Add('val'    ,ftFloat    ,0 ,false);
-      Add('anom'   ,ftFloat    ,0 ,false);
+      Add('ID'       ,ftInteger  ,0 ,false);
+      Add('date_dec' ,ftFloat    ,0 ,false);
+      Add('date_date',ftDateTime ,0 ,false);
+      Add('yy'       ,ftInteger  ,0 ,false);
+      Add('mn'       ,ftInteger  ,0 ,false);
+      Add('dd'       ,ftInteger  ,0 ,false);
+      Add('hh'       ,ftInteger  ,0 ,false);
+      Add('mm'       ,ftInteger  ,0 ,false);
+      Add('ss'       ,ftInteger  ,0 ,false);
+      Add('lev'      ,ftInteger  ,0 ,false);
+      Add('val'      ,ftFloat    ,0 ,false);
+      Add('anom'     ,ftFloat    ,0 ,false);
    end;
   TDDCDS.CreateDataSet;
-//  TDDCDS.LogChanges:=false;
 
-  cdsMeanPrf:=TBufDataSet.Create(nil);
-   with cdsMeanPrf.FieldDefs do begin
-      Add('lev'    ,ftInteger ,0 ,false);
-      Add('n'      ,ftInteger ,0 ,false);
-      Add('val'    ,ftFloat   ,0 ,false);
-      Add('valSCR' ,ftFloat   ,0 ,false);
-   end;
-  cdsMeanPrf.CreateDataSet;
-//  cdsMeanPrf.LogChanges:=false;
-
-  cdsTTDMonth:=TBufDataSet.Create(nil);
-   with cdsTTDMonth.FieldDefs do begin
-      Add('timeTR' ,ftInteger ,0 ,false);
-      Add('sdlev'  ,ftInteger ,0 ,false);
-      Add('time'   ,ftFloat   ,0 ,false);
-      Add('val'    ,ftFloat   ,0 ,false);
-      Add('valSCR' ,ftFloat   ,0 ,false);
-      Add('an'     ,ftFloat   ,0 ,false);
-      Add('anSCR'  ,ftFloat   ,0 ,false);
-      Add('n'      ,ftInteger ,0 ,false);
-   end;
-  cdsTTDMonth.CreateDataSet;
- // cdsTTDMonth.LogChanges:=false;
-
-
-    cdsLastLevBln:=TBufDataSet.Create(nil);
-   with cdsLastLevBln.FieldDefs do begin
-    Add('time',ftFloat,0,true);
-    Add('timeTR',ftFloat,0,true);
-    Add('ULev',ftFloat,0,true);
-    Add('DLev',ftFloat,0,true);
-   end;
-    cdsLastLevBln.CreateDataSet;
-  //  cdsLastLevBln.LogChanges:=false;
-
-
-// Assigning output files
-AssignFile(dat_r,     TDDPath+'Real.dat');  Rewrite(dat_r);     // real data
-AssignFile(dat_i,     TDDPath+'StLev.dat'); Rewrite(dat_i);     // interpolated onto st. levels
-AssignFile(dat_month, TDDPath+'Month.dat'); Rewrite(dat_month); // monthly averaged
-AssignFile(dat_bln,   TDDPath+'Month.bln'); Rewrite(dat_bln);   // blank file
-
-writeln(dat_r,    'Date':15, 'lev':10, 'val':10, 'absnum':10, 'date':15, 'time':15);
-writeln(dat_i,    'Date':15, 'lev':10, 'val':10, 'absnum':10, 'date':15, 'time':15, 'anomaly':10);
-writeln(dat_month,'Date':15, 'lev':10, 'val':15, 'valSCR':15, 'anom':15, 'anSCR':15, 'n':8);
-
-frmdm.Q.DisableControls;
-frmdm.Q.First;
-D2:=frmdm.Q.FieldByName('StDate').AsDateTime;
-T2:=frmdm.Q.FieldByName('StTime').AsDateTime;
-frmdm.Q.Last;
-D1:=frmdm.Q.FieldByName('StDate').AsDateTime;
-T1:=frmdm.Q.FieldByName('StTime').AsDateTime;
-
-MaxDepth:=frmdm.Q.FieldValues['LevelMax'];
-
-DecodeDate(D1, Year, month, day);
-DecodeTime(T1,hour,min,sec,msec);
-MaxDate:=Year+(month-1)/12+day/365+hour/(24*365)+min/(3600*365);
-DecodeDate(D2, Year, month, day);
-DecodeTime(T2,hour,min,sec,msec);
-MinDate:=Year+(month-1)/12+day/365+hour/(24*365)+min/(3600*365);
-
- mLog.lines.add('Unloading data from database... ');
- Application.ProcessMessages;
-
- try
- //ODBDM.IBTransaction1.StartTransaction;
- frmdm.Q.First;
- while not frmdm.Q.Eof do begin //w
-    absnum:=frmdm.Q.fieldByName('ID').Value;
-    StDateTime:=frmdm.Q.fieldByName('DATEANDTIME').Value;
-    StLat:=frmdm.Q.fieldByName('LATITUDE').Value;
-
-    DecodeDateTime(Stdatetime, Year, month, day, hour, min, sec, msec);
-
-    year_m:=year+(month-1)/12+
-            day/DaysInAYear(year)+
-            hour/(24*DaysInAYear(year))+
-            min/(3600*DaysInAYear(year));
-
-
-     // Обнуляем массивы
-     for k:=1 to 10000 do begin
-      D[k]:=0;
-      P[k]:=0;
-      N2[k]:=0;
-     end;
-
- if (CurrentParTable<>'DENSITY') and (CurrentParTable<>'BUOYANCY') then begin  //p
-  { with ODBDM.ib1q2 do begin
-     Close;
-       SQL.Clear;
-       SQL.Add(' Select level_, value_, flag_ from ');
-       SQL.Add(CurrentParTable);
-       SQL.Add(' where absnum=:absnum ');
-       SQL.Add(' order by level_ ');
-       ParamByName('absnum').AsInteger:=absnum;
-     Open;
-   end;
-
-    k:=0;
-    while not ODBDM.ib1q2.eof do begin
-     Lev :=ODBDM.ib1q2.FieldByName('level_').AsFloat;
-     TVal:=ODBDM.ib1q2.FieldByName('value_').AsFloat;
-     TFL :=ODBDM.ib1q2.FieldByName('flag_').AsInteger;
-
-       FlagIsSet:=false;
-    if TFL>0 then ProfilesSelection.FlagAnalysis(TFL,FlagIsSet);
-      if FlagIsSet=false then begin
-       inc(k);
-         D[k]:=Lev;
-         P[k]:=TVal;
-     end;
-    ODBDM.ib1q2.Next;
-  end;      }
- end; //p
-
-
- if (CurrentParTable='DENSITY') or (CurrentParTable='BUOYANCY') then begin //d
-//showmessage('...density');
-  { with ODBDM.ib1q2 do begin
-    Close;
-    SQL.Clear;
-    SQL.Add(' select * ');
-    SQL.Add(' from P_TEMPERATURE, P_SALINITY ');
-    SQL.Add(' where P_TEMPERATURE.absnum=:absnum ');
-    SQL.Add(' and P_TEMPERATURE.absnum=P_SALINITY.absnum ');
-    SQL.Add(' and P_TEMPERATURE.Level_=P_SALINITY.Level_ ');
-    SQL.Add(' order by P_TEMPERATURE.Level_ ');
-    ParamByName('Absnum') .AsInteger:=Absnum;
-    Open;
-   end;
-    k:=0;
-    while not ODBDM.ib1q2.eof do begin
-         Lev :=ODBDM.ib1q2.FieldByName('level_').AsFloat;
-         TVal:=ODBDM.ib1q2.FieldByName('value_').AsFloat;
-         TFL :=ODBDM.ib1q2.FieldByName('flag_').AsInteger;
-         SVal:=ODBDM.ib1q2.FieldByName('value_1').AsFloat;
-         SFL :=ODBDM.ib1q2.FieldByName('flag_1').AsInteger;
-
-    FlagIsSet:=false;
-    if TFL>0 then ProfilesSelection.FlagAnalysis(TFL,FlagIsSet);
-    if SFL>0 then ProfilesSelection.FlagAnalysis(SFL,FlagIsSet);
-
-   if (FlagIsSet=false) then begin
-        Depth_to_Pressure(lev,stLat,0,pres);
-        pres:=0;  //depth to pressure
-        IEOS80(pres,TVal,SVal,svan,DVal);   //International Eq. Of State 1980
-//showmessage('dval='+floattostr(dval));
-         if DVal>0 then begin
-           inc(k);
-            D[k]:=Lev;
-            P[k]:=DVal;
-         end;
-    end;
-    ODBDM.ib1q2.Next; }
-   end;
-
-   if (CurrentParTable='BUOYANCY') then begin
-    for i:=1 to k-1 do N2[i]:=Pi/((P[i+1]+P[i])/2)*(P[i+1]-P[i])/(D[i+1]-D[i]);
-     for i:=1 to k-1 do P[i]:=1000*N2[i]; //Умножаем на 1000 для наглядности
-     P[k]:=P[k-1];
-    end;
-  end; //d
-
-
-(* Исходные профили в файл real.dat.  k-число горизонтов *)
-  for fi:=1 to k do
-     writeln(dat_r,  year_m:15:5,         //реальная дата
-                    -D[fi]:10:1,          //глубина
-                     P[fi]:10:3,          //параметр
-                     absnum:10,           //абсолютный номер
-                     datetostr(stdatetime):25); //время наблюдения
-
-
-(* интерполяция на стандартный горизонт *)
- for c:=0 to memo1.Lines.Count-1 do begin
-   IntLev:=strtoint(Memo1.Lines.Strings[c]);
-    IntVal:=-999;
-   for i:=1 to k do begin
-     Enable:=false;
-     //Интерполируем на ст. гор-т
-     if (IntLev=0) and (D[i]<5) then begin
-       IntVal:=P[i];
-        Enable:=true;
-       break;
-     end;
-
-     if D[i]=IntLev then begin
-       IntVal:=P[i];
-       Enable:=true;
-      break;
-     end;
-
-     try  // trying to interpolate
-     if (IntLev>D[i]) and (IntLev<D[i+1]) then begin
-           //c - number of levels at profile;  i - sequential number of level
-                                                  //       LU1     LU2    X      LD1      LD2     ->
-       if (c=2)             then ODBPr_VertInt(IntLev, -9,     D[i], D[i+1], -9,      -9,     P[i], P[i+1], -9,      IntVal, Enable); //x + + x
-       if (c>2) and (i=1)   then ODBPr_VertInt(IntLev, -9,     D[i], D[i+1], D[i+2],  -9,     P[i], P[i+1], P[i+2],  IntVal, Enable); //x + + +
-       if (c>2) and (i=c-1) then ODBPr_VertInt(IntLev, D[i-1], D[i], D[i+1], -9,      P[i-1], P[i], p[i+1], -9,      IntVal, Enable); //+ + + x
-       if (c>3) and (i<>1)  and (i<>c-1)
-                            then ODBPr_VertInt(IntLev, D[i-1], D[i], D[i+1], D[i+2],  P[i-1], P[i], P[i+1], P[i+2],  IntVal, Enable); //+ + + +
-       if enable=true then  break;
-     end;
-     except
-       enable:=false;
-     end;
-   end;
-
-     if (Enable=true) and (IntVal<>-999) then begin
-      MaxDepth:=IntLev;
-
-     {  with TDDCDS do begin
-         Append;
-           FieldByName('absnum').AsInteger:=absnum;
-           FieldByName('date').AsDateTime :=stdate;
-           FieldByName('time').AsDateTime :=sttime;
-           FieldByName('year').AsInteger  :=year;
-           FieldByName('month').AsInteger :=month;
-           FieldByName('day').AsInteger   :=day;
-           FieldByName('hour').AsInteger  :=hour;
-           FieldByName('min').AsInteger   :=min;
-           FieldByName('lev').AsInteger   :=IntLev;
-           FieldByName('val').AsFloat     :=IntVal;
-         Post;
-       end;
-    end;  }
-  end;
- frmdm.Q.Next;
- end;  //w
- finally
- // ODBDM.IBTransaction1.Commit;
-  frmdm.Q.EnableControls;
- end;
-
- MeanByMonth;
-
-
- {
-  TDDCDS.first;
-  while not TDDCDS.Eof do begin  //w
-   absnum :=TDDCDS.FieldByName('absnum').asInteger;
-   stdate :=TDDCDS.FieldByName('date').AsDateTime;
-   sttime :=TDDCDS.FieldByName('time').asDateTime;
-   lev    :=TDDCDS.FieldByName('lev').asInteger;
-   Val    :=TDDCDS.FieldByName('Val').asfloat;
-   year   :=TDDCDS.FieldByName('year').asInteger;
-   Month  :=TDDCDS.FieldByName('month').asInteger;
-   Hour   :=TDDCDS.FieldByName('hour').asInteger;
-   Min    :=TDDCDS.FieldByName('min').asInteger;
-
-     //исключение сезонного хода
-   if not VarIsNull(MCDS.Locate('level', floattostr(lev),[])) and
-      not VarIsNull(MCDS.FieldByName(inttostr(month)+'_md').AsVariant) then begin
-
-       anom:=Val-MCDS.FieldByName(inttostr(month)+'_md').Asfloat;
-
-       with TDDCDS do begin
-        Edit;
-           FieldByName('anom').AsFloat:=anom;
-         Post;
-       end;
-
-        year_m:=TDDCDS.FieldByName('year').asInteger+
-               (TDDCDS.FieldByName('month').asInteger-1)/12+
-                TDDCDS.FieldByName('day').asInteger/DaysInAYear(TDDCDS.FieldByName('year').asInteger)+
-                TDDCDS.FieldByName('hour').asInteger/(24*DaysInAYear(TDDCDS.FieldByName('year').asInteger))+
-                TDDCDS.FieldByName('min').asInteger/(3600*DaysInAYear(TDDCDS.FieldByName('year').asInteger));
-
-    // Пишем файл на стандартных горизонтах
-     writeln(dat_i, year_m:15:5,
-                    -lev:10:1,
-                    val:10:3,
-                    absnum:10,
-                    datetostr(stdate):15,
-                    timetostr(sttime):15,
-                    anom:10:3);
-   end; //if not empty
-
-    TDDCDS.Next;
-   end;  //w
-
-   CloseFile(dat_r);  //Закрываем файл с начальными данными
-   CloseFile(dat_i);  //Закрываем файл на ст. горизонтах
-
-
-
-(* расчет среднемесячных аномалий с исключенным сезонным ходом *)
-    TDDcds.First;
-    mik:=0;
-  while not TDDCDS.Eof do begin  //w
-   mik:=mik+1;
-    stdate:=TDDCDS.FieldByName('date').asDateTime;
-    year  :=TDDCDS.FieldByName('year').asInteger;
-    lev   :=TDDCDS.FieldByName('lev').asInteger;
-
-   if mik=1 then begin
-    dmin:=stdate; dmax:=stdate;
-    ymin:=year; ymax:=year;
-    lmin:=lev;  lmax:=lev;
-   end;
-
-   if stdate<dmin then dmin:=stdate;
-   if stdate>dmax then dmax:=stdate;
-   if year<ymin then ymin:=year;
-   if year>ymax then ymax:=year;
-   if lev<lmin then lmin:=lev;
-   if lev>lmax then lmax:=lev;
-
-   TDDCDS.Next;
-  end; //w
-
-  { kf_int:=(ymax-ymin)/lmax;
-
-   mLog.Clear;
-   mLog.Lines.Add('year min->max: '+inttostr(ymin)+'->'+inttostr(ymax));
-   mLog.Lines.Add('lev  min->max: '+floattostr(lmin)+'->'+floattostr(lmax));
-   mLog.Lines.Add('kf_int= '+floattostr(kf_int));
-   mLog.Lines.Add('date min->max: '+datetostr(dmin)+'->'+datetostr(dmax));
-   kf_int:=(dmax-dmin)/lmax;
-   mLog.Lines.Add('kf_int= '+floattostr(kf_int));  }
-
-    DecodeDate(dmin, year, month, day);
-    dsum:=0;
-    for i:=1 to month-1 do dsum:=dsum+DaysInAMonth(year,i);
-    dsum:=dsum+15;           //число дней к середине месяца
-    dYear:=DaysInAYear(year); //число дней в году
-    x1:=year+dsum/dYear;
-   // StartDate:=x1;
-
-    DecodeDate(dmax, year, month, day);
-    dsum:=0;
-    for i:=1 to month-1 do dsum:=dsum+DaysInAMonth(year,i);
-    dsum:=dsum+15;           //число дней к середине месяца
-    dYear:=DaysInAYear(year); //число дней в году
-    x2:=year+dsum/dYear;
-
-  // showmessage(floattostr(x2)+#9+floattostr(x2)+#9+floattostr(lmax));
-   kf_int:=(x2-x1)/lmax;
-  // mLog.Lines.Add('kf_int= '+floattostr(kf_int));
-
-
-//1.добавляем среднемесячные значения в cdsTDDMonth
- for y:=ymin to ymax do begin //y
-  for m:=1 to 12 do begin  //m
-    dsum:=0;
-    for i:=1 to m-1 do dsum:=dsum+DaysInAMonth(y,i);
-    dsum:=dsum+15;           //число дней к середине месяца
-    dYear:=DaysInAYear(y); //число дней в году
-    x:=y+dsum/dYear;
-
-    cdsMeanPrf.EmptyDataSet;
-    //
-  for c:=0 to memo1.Lines.Count-1 do begin
-   cdsMeanPrf.Append;
-   cdsMeanPrf.FieldByName('lev').AsInteger:=strtoint(Memo1.Lines.Strings[c]);
-   cdsMeanPrf.FieldByName('n').AsInteger:=0;
-   cdsMeanPrf.FieldByName('val').AsInteger:=0;
-   cdsMeanPrf.FieldByName('valSCR').AsInteger:=0;
-   cdsMeanPrf.Post;
-  end;
-
-
-    //three months centered mean
-    case m of
-    1:     begin
-            yb:=y-1; mb:=12; db:=1;
-            ye:=y;   me:=2;  de:=DaysInAMonth(ye,me);
-            date1:=encodedate(yb,mb,db);
-            date2:=encodedate(ye,me,de);
-           end;
-    2..11: begin
-            yb:=y; mb:=m-1; db:=1;
-            ye:=y; me:=m+1; de:=DaysInAMonth(ye,me);
-            date1:=encodedate(yb,mb,db);
-            date2:=encodedate(ye,me,de);
-
-             (*showmessage('  yb= '+inttostr(yb)
-               +'  ye= '+inttostr(ye)
-               +'  mb= '+inttostr(mb)
-               +'  me= '+inttostr(me)
-               +'  db= '+inttostr(db)
-               +'  de= '+inttostr(de));*)
-        end;
-    12:    begin
-            yb:=y;   mb:=11; db:=1;
-            ye:=y+1; me:=1;  de:=DaysInAMonth(ye,me);
-            date1:=encodedate(yb,mb,db);
-            date2:=encodedate(ye,me,de);
-           end;
-     end; //case
-
-     //если есть хоть одно наблюдение внутри месяца, расчет средних
-     //исключение экстрополяции за пределы периода наблюдений
-     de:=DaysInAMonth(y,m);
-     dateb:=encodedate(y,m,de);
-     datee:=encodedate(y,m,1);
-
-   //monthly mean
-   TDDcds.Filter:='year='+inttostr(y)+' and month='+inttostr(m);
-
-
-    //three months centered mean
-   // centered mean if data within measured period
-   //showmessage('datemin='+datetostr(dmin)+'  datemax='+datetostr(dmax));
- if (dateb>=dmin) and (datee<=dmax) then begin  //p
-    TDDcds.Filtered:=true;
-    TDDCDS.First;
-    st_ex:=false;
-  while not TDDCDS.Eof do begin  //w
-    st_ex:=true;
-
-    sdlev:=TDDCDS.FieldByName('lev').asInteger;
-    val  :=TDDCDS.FieldByName('val').asfloat;
-    anom :=TDDCDS.FieldByName('anom').asfloat;
-
-
-   if not VarIsNull(cdsMeanPrf.Locate('lev',sdlev,[])) then begin
-    //statistics stored in cdsMeanPrf
-    cdsMeanPrf.Edit;
-    cdsMeanPrf.FieldByName('n').AsInteger:=cdsMeanPrf.FieldByName('n').AsInteger+1;
-    cdsMeanPrf.FieldByName('val').AsFloat:=cdsMeanPrf.FieldByName('val').AsFloat+val;
-    cdsMeanPrf.FieldByName('valSCR').AsFloat:=cdsMeanPrf.FieldByName('valSCR').AsFloat+anom;
-
-    cdsMeanPrf.Post;
-   end;
-
-    TDDCDS.Next;
-  end;  //w
-
-    cdsMeanPrf.First;  //средний профиль для данного месяца данного года
-    mik_lev:=0;
-  while not cdsMeanPrf.Eof do begin  //pr
-    n:=cdsMeanPrf.FieldByName('n').asInteger;
-    sdlev:=cdsMeanPrf.FieldByName('lev').asInteger;
-    val:=cdsMeanPrf.FieldByName('val').asfloat;
-    valSCR:=cdsMeanPrf.FieldByName('valSCR').asfloat;
-
-
-  if n>0 then begin  //i
-
-     //создание бланковочного файла по последнему горизонту
-     mik_lev:=mik_lev+1;
-     if mik_lev=1 then Ulev:=-sdlev;  //верхний горизонт
-                       Dlev:=-sdlev;  //нижний горизонт
-
-
-     val:=val/n;        //среднемес значение на гор
-     valSCR:=valSCR/n; //среднемесячные значение с исключенным сезонным ходом
-
-
-    (* mLog.Lines.Add(inttostr(y)
-     +#9+inttostr(m)
-     +#9+inttostr(sdlev)
-     +#9+inttostr(n)
-     +#9+floattostrF(val,ffFixed,10,5)); *)
-
-     TimeTr:=(x-x1)/kf_int;
-     //writeln(dat_Month, TimeTR:10:5, -sdlev:8, x:12:5, val:15:4, n:8);
-     cdsTTDMonth.Append;
-     cdsTTDMonth.FieldByName('timeTR').AsFloat:=TimeTR;
-     cdsTTDMonth.FieldByName('sdlev').AsInteger:=sdlev;
-     cdsTTDMonth.FieldByName('time').AsFloat:=x;
-     cdsTTDMonth.FieldByName('val').AsFloat:=val;
-     cdsTTDMonth.FieldByName('valSCR').AsFloat:=valSCR; //val с искл сез ходом!!!
-     cdsTTDMonth.FieldByName('an').AsFloat:=0;
-     cdsTTDMonth.FieldByName('anSCR').AsFloat:=0;
-     cdsTTDMonth.FieldByName('n').AsInteger:=n;
-     cdsTTDMonth.Post;
-
-  end; //i
-
-    cdsMeanPrf.Next;
-  end; //pr
-
-
-   //заполняем бланковочный cds
-   if st_ex=true then begin
-    cdsLastLevBln.Append;
-    cdsLastLevBln.FieldByName('time').AsFloat:=x;
-    cdsLastLevBln.FieldByName('timeTR').AsFloat:=TimeTR;
-    cdsLastLevBln.FieldByName('ULev').AsFloat:=ULev;
-    cdsLastLevBln.FieldByName('DLev').AsFloat:=DLev;
-    cdsLastLevBln.Post;
-   end;
-
-   end; //within period  //p
-  end; //m
-  end; //y
-
-   mLog.Lines.Add('...monthly mean values added to cdsTTDMonth');
-   Application.ProcessMessages;
-
-//1a. проверка на дырки
-    Ystep:=2;
-    cdsLastLevBln.First;
-    Ybeg:=cdsLastLevBln.FieldByName('time').AsFloat;
-    cdsLastLevBln.Last;
-    Yend:=cdsLastLevBln.FieldByName('time').AsFloat;
-    CountStep:=trunc((Yend-Ybeg)/Ystep)+1;
-
-    { mLog.Lines.Add('');
-     mLog.Lines.Add('Ybeg='+floattostrF(ybeg,ffFixed,10,3));
-     mLog.Lines.Add('Yend='+floattostrF(yend,ffFixed,10,3));
-     mLog.Lines.Add('CountStep='+inttostr(CountStep));
-     mLog.Lines.Add('step y1 y2 countGap'); }
-
-     CountGap:=0;
-    for ky:=1 to CountStep do begin
-     Y1:=Ybeg+Ystep*(ky-1);
-     Y2:=Ybeg+Ystep*ky;
-
-     cdsLastLevBln.Filter:='time>='+floattostr(Y1)+' and time<='+floattostr(Y2);
-     cdsLastLevBln.Filtered:=true;
-     if cdsLastLevBln.RecordCount=0 then CountGap:=CountGap+1;
-
-    { mLog.Lines.Add(inttostr(ky)
-        +#9+floattostrF(y1,ffFixed,10,3)
-        +#9+floattostrF(y2,ffFixed,10,3)
-        +#9+inttostr(CountGap)
-        );  }
-     end;
-      cdsLastLevBln.Filtered:=false;
-
-//1b. в файл без дырок
-  if CountGap=0 then begin  //g
-
-    writeln(dat_bln,(CountStep*4+1):5, 0:5);
-
-    //последовательно верхние горизонты
-  for ky:=1 to CountStep do begin  //y
-
-    ULevMin:=-9999;
-    DLevMax:=9999;
-
-    Y1:=Ybeg+Ystep*(ky-1);
-    Y2:=Ybeg+Ystep*ky;
-
-    cdsLastLevBln.First;
-    cdsLastLevBln.Filter:='time>='+floattostr(Y1)+' and time<='+floattostr(Y2);
-    cdsLastLevBln.Filtered:=true;
-    //минимальный горизонт за заданный промежуток времени
-   while not cdsLastLevBln.Eof do begin
-    ULev:=cdsLastLevBln.FieldByName('ULev').AsFloat;
-    if ULev>ULevMin then ULevMin:=ULev;
-    cdsLastLevBln.Next;
-   end;
-    writeln(dat_bln,Y1:12:5,ULevMin:10:1);
-    writeln(dat_bln,Y2:12:5,ULevMin:10:1);
-  end; //y
-      cdsLastLevBln.Filtered:=false;
-
-    //нижние горизонты в обратном порядке
-  for ky:=1 to CountStep do begin  //y
-
-    ULevMin:=-9999;
-    DLevMax:=9999;
-
-    Y1:=Yend-Ystep*(ky-1);
-    Y2:=Yend-Ystep*ky;
-
-    cdsLastLevBln.First;
-    cdsLastLevBln.Filter:='time>='+floattostr(Y2)+' and time<='+floattostr(Y1);
-    cdsLastLevBln.Filtered:=true;
-    //минимальный горизонт за заданный промежуток времени
-   while not cdsLastLevBln.Eof do begin
-    DLev:=cdsLastLevBln.FieldByName('DLev').AsFloat;
-    if DLev<DLevMax then DLevMax:=DLev;
-    //showmessage(floattostr(dlev)+'  '+floattostr(dlevMax));
-    cdsLastLevBln.Next;
-   end;
-    writeln(dat_bln,Y1:12:5,DLevMax:10:1);
-    writeln(dat_bln,Y2:12:5,DLevMax:10:1);
-  end;  //y
-      cdsLastLevBln.Filtered:=false;
-    //первая станция верхний горизонт
-    cdsLastLevBln.First;
-    writeln(dat_bln,cdsLastLevBln.FieldByName('time').AsFloat:12:5,
-                  cdsLastLevBln.FieldByName('ULev').AsFloat:10:1);
-
-  end;  //g
-
-
-//1c. в файл c пропусками
-  if CountGap>0 then begin  //h
-
-
-   //определяем min/max горизонт по всему набору данных
-    cdsLastLevBln.First;
-   while not cdsLastLevBln.Eof do begin
-    ULev:=cdsLastLevBln.FieldByName('ULev').AsFloat;
-    DLev:=cdsLastLevBln.FieldByName('DLev').AsFloat;
-    if DLev<DLevMax then DLevMax:=DLev;
-    if ULev>ULevMin then ULevMin:=ULev;
-    cdsLastLevBln.Next;
-   end;
-
-   mLog.Lines.Add('lev min/max= '+floattostr(ULevMin)+'/'+floattostr(DLevMax));
-   Application.ProcessMessages;
-
-
-    writeln(dat_bln,(CountStep*4+1):5, 0:5);
-
-    //последовательно верхние горизонты
-  for ky:=1 to CountStep do begin  //y
-
-    //ULevMin:=-9999;
-    //DLevMax:=9999;
-
-    Y1:=Ybeg+Ystep*(ky-1);
-    Y2:=Ybeg+Ystep*ky;
-
-    cdsLastLevBln.First;
-    cdsLastLevBln.Filter:='time>='+floattostr(Y1)+' and time<='+floattostr(Y2);
-    cdsLastLevBln.Filtered:=true;
-    //минимальный горизонт за заданный промежуток времени
-   while not cdsLastLevBln.Eof do begin
-    ULev:=cdsLastLevBln.FieldByName('ULev').AsFloat;
-    if ULev>ULevMin then ULevMin:=ULev;
-    cdsLastLevBln.Next;
-   end;
-    writeln(dat_bln,Y1:12:5,ULevMin:10:1);
-    writeln(dat_bln,Y2:12:5,ULevMin:10:1);
-
-
-  end;  //y
-      cdsLastLevBln.Filtered:=false;
-
-    //нижние горизонты в обратном порядке
-  for ky:=1 to CountStep do begin  //y
-
-    ULevMin:=-9999;
-    DLevMax:=9999;
-
-    Y1:=Yend-Ystep*(ky-1);
-    Y2:=Yend-Ystep*ky;
-
-    cdsLastLevBln.First;
-    cdsLastLevBln.Filter:='time>='+floattostr(Y2)+' and time<='+floattostr(Y1);
-    cdsLastLevBln.Filtered:=true;
-    //минимальный горизонт за заданный промежуток времени
-   while not cdsLastLevBln.Eof do begin
-    DLev:=cdsLastLevBln.FieldByName('DLev').AsFloat;
-    if DLev<DLevMax then DLevMax:=DLev;
-    //showmessage(floattostr(dlev)+'  '+floattostr(dlevMax));
-    cdsLastLevBln.Next;
-   end;
-    writeln(dat_bln,Y1:12:5,DLevMax:10:1);
-    writeln(dat_bln,Y2:12:5,DLevMax:10:1);
-  end;  //y
-      cdsLastLevBln.Filtered:=false;
-    //первая станция верхний горизонт
-    cdsLastLevBln.First;
-    writeln(dat_bln,cdsLastLevBln.FieldByName('time').AsFloat:12:5,
-                  cdsLastLevBln.FieldByName('ULev').AsFloat:10:1);
-
-  end;  //h
-
-    closefile(dat_bln);
-    cdsLastLevBln.EmptyDataSet;
-    cdsLastLevBln.Free;
-
-
-//2. расчет средних на стандартных горизонтах по среднемесячным данным
-
-
-
-(*===================СРЕДНИЙ ПРОФИЛЬ. УКАЗЫВАЕМ ПЕРИОД ОСРЕДНЕНИЯ=============*)
-(*===================ВАЖНО!!! ПРОФИЛЬ ИСПОЛЬЗУЕТСЯ ПРИ РАСЧЕТЕ АНОМАЛИЙ=======*)
-// Очищаем набор данных для среднего профиля
-    cdsMeanPrf.First;
-   while not cdsMeanPrf.Eof do begin
-    cdsMeanPrf.Edit;
-    cdsMeanPrf.FieldByName('n').AsInteger:=0;
-    cdsMeanPrf.FieldByName('val').AsFloat:=0;
-    cdsMeanPrf.FieldByName('valSCR').AsFloat:=0;
-    cdsMeanPrf.Post;
-    cdsMeanPrf.Next;
-   end;
-
- (* Рассчитываем средний профиль для заданного периода *)
-  cdsTTDMonth.First;
-   while not cdsTTDMonth.Eof do begin
-    time1  :=cdsTTDMonth.FieldByName('time').AsFloat;
-
-    // Если дата в диапазоне, считаем среднее
-    if (time1>=seYY1.Value) and (time1<=seYY2.Value) then begin
-      sdlev  :=cdsTTDMonth.FieldByName('sdlev').AsInteger;
-      val    :=cdsTTDMonth.FieldByName('val').AsFloat;
-      valSCR :=cdsTTDMonth.FieldByName('valSCR').AsFloat;
-
-       with cdsMeanPrf do begin
-         if not VarIsNull(Locate('lev',sdlev,[])) then begin
-          Edit;
-            FieldByName('n').AsInteger:=FieldByName('n').AsInteger+1; //число значений на горизонте
-            FieldByName('val').AsFloat:=FieldByName('val').AsFloat+val;
-            FieldByName('valSCR').AsFloat:=FieldByName('valSCR').AsFloat+valSCR;
-          Post;
-         end;
-       end;
-    end;
-    cdsTTDMonth.Next;
-   end;
-
-   //среднемноголетний профиль значений и значений с искл. сезонным ходом
-   //для выбранного диапазона лет!!!
-   cdsMeanPrf.First;
-  while not cdsMeanPrf.Eof do begin  //w
-    lev:=cdsMeanPrf.FieldByName('lev').AsInteger;
-    n:=cdsMeanPrf.FieldByName('n').AsInteger;
-    val:=cdsMeanPrf.FieldByName('val').AsFloat;
-    valSCR:=cdsMeanPrf.FieldByName('valSCR').AsFloat;
-
-    if n>0 then begin
-     cdsMeanPrf.Edit;
-      cdsMeanPrf.FieldByName('val').AsFloat:=val/n;
-      cdsMeanPrf.FieldByName('valSCR').AsFloat:=valSCR/n;
-     cdsMeanPrf.Post;
-    end;
-
-    cdsMeanPrf.Next;
-  end; //w
-
-  mLog.Lines.Add('...mean values at sdlev added to cdsMeanPrf');
-  Application.ProcessMessages;
-(*========================КОНЕЦ РАСЧЕТА СРЕДНЕГО ПРОФИЛЯ======================*)
-
-
-
-(*===============================АНОМАЛИИ=====================================*)
-  cdsTTDMonth.First;
-  while not cdsTTDMonth.Eof do begin  //w
-    sdlev:=cdsTTDMonth.FieldByName('sdlev').AsInteger;
-    val:=cdsTTDMonth.FieldByName('val').AsFloat;
-    valSCR:=cdsTTDMonth.FieldByName('valSCR').AsFloat;
-    cdsMeanPrf.Locate('lev',sdlev,[]);
-
-    cdsTTDMonth.Edit;
-    cdsTTDMonth.FieldByName('an').AsFloat:=
-       cdsTTDMonth.FieldByName('val').AsFloat-cdsMeanPrf.FieldByName('val').AsFloat;
-    cdsTTDMonth.FieldByName('anSCR').AsFloat:=
-       cdsTTDMonth.FieldByName('valSCR').AsFloat-cdsMeanPrf.FieldByName('valSCR').AsFloat;
-    cdsTTDMonth.Post;
-
-   { if sdlev=1400 then
-     showmessage(floattostr(cdsTTDMonth.FieldByName('valSCR').AsFloat)+'   '+
-                 floattostr(cdsMeanPrf.FieldByName('valSCR').AsFloat)+'   '+
-                 floattostr(cdsTTDMonth.FieldByName('anSCR').AsFloat)); }
-
-    cdsTTDMonth.Next;
-  end; //w
-  mLog.Lines.Add('...anomalies are computed');
-  Application.ProcessMessages;
-(*======================КОНЕЦ РАСЧЕТА АНОМАЛИЙ================================*)
-
-
-//3. в файл среднемесячные значения
-  try
-    cdsTTDMonth.First;
-   while not cdsTTDMonth.Eof do begin  //w
-    timeTR :=cdsTTDMonth.FieldByName('timeTR').AsFloat;
-    sdlev  :=cdsTTDMonth.FieldByName('sdlev' ).AsInteger;
-    time1  :=cdsTTDMonth.FieldByName('time'  ).AsFloat;
-    val    :=cdsTTDMonth.FieldByName('val'   ).AsFloat;
-    valSCR :=cdsTTDMonth.FieldByName('valSCR').AsFloat;
-    an     :=cdsTTDMonth.FieldByName('an'    ).AsFloat;
-    anSCR  :=cdsTTDMonth.FieldByName('anSCR' ).AsFloat;
-    n      :=cdsTTDMonth.FieldByName('n'     ).AsInteger;
-
-    (* пишем среднемесячные значения в файл *)
-     writeln(dat_Month, time1:15:5,
-                       -sdlev:10,
-                        val:15:4,
-                        valSCR:15:4,
-                        an:15:4,
-                        anSCR:15:4,
-                        n:8);
-
-    cdsTTDMonth.Next;
-   end; //w
-   mLog.Lines.Add('...file month.dat has been created');
-  except
-   mLog.Lines.Add('...file month.dat - FAILED!');
-  end;
-  Application.ProcessMessages;
-
-
-   try
-    TimeSeriesAtLevels;
-     mLog.Lines.Add('...files with Monthly Mean time series - SUCCESS!');
-   except
-     mLog.Lines.Add('...files with Monthly Mean time series - FAILED!');
-   end;
-   Application.ProcessMessages;
-
-
-   try
-    TDDCDS.Filtered:=false;
-    TimeSeriesAtLevels_PRF;
-     mLog.Lines.Add('...files with INITIAL time series - SUCCESS!');
-   except
-     mLog.Lines.Add('...files with INITIAL time series - FAILED!');
-   end;
-   Application.ProcessMessages;
-
-
-    closefile(dat_Month);
-    cdsMeanPrf.EmptyDataSet;
-    cdsMeanPrf.Free;
-    TDDCDS.Free;
-    cdsTTDMonth.Free;
-    MCDS.Free;
-
-    AssignFile(dat_month, TDDPath+'Month.dat'); reset(dat_month);
-    cbParameters.clear;
-    cbParameters.Text:='Select column...';
-    readln(dat_month, st);
-    buf_str:='';
-    k:=0;
-   repeat
-    inc(k);
-       if (st[k]<>' ') and (ord(st[k])<>0) then
-          buf_str:=buf_str+st[k];
-       if (st[k]=' ') or (ord(st[k])=0) then begin
-       cbParameters.Items.Add(trim(buf_str));
-       buf_str:='';
-       end;
-   until (ord(st[k])=0) or (eof(dat_month));
-
-  Closefile(dat_month); // Закрываем файл с бланковкой
-
-  for k:=0 to 2 do cbParameters.Items.Delete(0);
-
-
- (* Файл с разницей значений по месяцам *)
- try
-  MonthsDifference;
-   mLog.Lines.Add('...monthly difference - SUCCESS!');
- except
-   mLog.Lines.Add('...monthly difference - FAILED!');
- end;
-
- (* Средние по годам *)
- try
-  MeanByYear;
-   mLog.Lines.Add('...mean by years - SUCCESS!');
- except
-   mLog.Lines.Add('...mean by years - FAILED!');
- end;
-
- mLog.Lines.Add('==================');
- mLog.Lines.Add('Done! Time spent: '+Timetostr(Now-TimeStart));
- Application.ProcessMessages;
-
- rgDataFile.Enabled:=true;
- btnGetData.Enabled:=true;
-if rgDataFile.ItemIndex<>-1 then rgDataFile.OnClick(self);  }
-end;
-////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////END OF GET_DATA///////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////// }
-
-
-
-(* Среднемесячные значения на стандартных горизонтах *)
-procedure Tfrmtimedepthdiagram.MeanByMonth;
-Var
-k, Lev,c, count:integer;
-Mean, Val, Mean2:real;
-vmd, vsd0, vsd, min, max:real;
-MonthlyProfilesFileName:string;
-begin
- MCDS:=TBufDataSet.Create(nil);
+  MCDS:=TBufDataSet.Create(nil);
    with MCDS.FieldDefs do begin
       Add('level',ftInteger,0,false);
      for k:=1 to 12 do begin
@@ -1054,7 +157,400 @@ begin
        Add('year_max',ftFloat,0,false);
    end;
   MCDS.CreateDataSet;
- // MCDS.LogChanges:=false;
+
+
+  cdsTTDMonth:=TBufDataSet.Create(nil);
+   with cdsTTDMonth.FieldDefs do begin
+      Add('timeTR' ,ftInteger ,0 ,false);
+      Add('sdlev'  ,ftInteger ,0 ,false);
+      Add('time'   ,ftFloat   ,0 ,false);
+      Add('val'    ,ftFloat   ,0 ,false);
+      Add('valSCR' ,ftFloat   ,0 ,false);
+      Add('an'     ,ftFloat   ,0 ,false);
+      Add('anSCR'  ,ftFloat   ,0 ,false);
+      Add('n'      ,ftInteger ,0 ,false);
+   end;
+  cdsTTDMonth.CreateDataSet;
+
+
+  cdsMeanPrf:=TBufDataSet.Create(nil);
+   with cdsMeanPrf.FieldDefs do begin
+      Add('lev'    ,ftInteger ,0 ,false);
+      Add('n'      ,ftInteger ,0 ,false);
+      Add('val'    ,ftFloat   ,0 ,false);
+      Add('valSCR' ,ftFloat   ,0 ,false);
+   end;
+  cdsMeanPrf.CreateDataSet;
+
+  Ini := TIniFile.Create(IniFileName);
+   try
+    seYY1.Value:=Ini.ReadInteger('tdd', 'YearMin', 1957);
+    seYY2.Value:=Ini.ReadInteger('tdd', 'YearMax', 1990);
+   finally
+    Ini.Free;
+   end;
+
+  try
+   TRt:=TSQLTransaction.Create(self);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt:=TSQLQuery.Create(self);
+   Qt.Database:=frmdm.IBDB;
+   Qt.Transaction:=TRt;
+
+   with Qt do begin
+    Close;
+       SQL.Clear;
+       SQL.Add(' SELECT ');
+       SQL.Add(' DATABASE_TABLES.UNITS_ID_DEFAULT, ');
+       SQL.Add(' DATABASE_TABLES.NAME, ');
+       SQL.Add(' UNITS.NAME_SHORT FROM ');
+       SQL.Add(' DATABASE_TABLES, UNITS WHERE  ');
+       SQL.Add(' DATABASE_TABLES.UNITS_ID_DEFAULT=UNITS.ID AND  ');
+       SQL.Add(' DATABASE_TABLES.NAME_TABLE='+QuotedStr(CurrentParTable));
+      Open;
+       Parameter_name:=Qt.FieldByName('NAME').AsString;
+       Units_default:=Qt.FieldByName('UNITS_ID_DEFAULT').AsInteger;
+       Units_default_name:=Qt.FieldByName('NAME_SHORT').AsString;
+      Close;
+   end;
+   Trt.Commit;
+  finally
+   Qt.Free;
+   Trt.Free;
+  end;
+
+ rgDataFile.Enabled:=false;
+end;
+
+
+procedure Tfrmtimedepthdiagram.btnGetDataClick(Sender: TObject);
+var
+  TimeStart0:TDateTime;
+begin
+ btnGetData.Enabled:=false;
+
+ mLog.Clear;
+ TimeStart0:=Now; //the very beginning of calculations
+
+ mLog.Lines.Add('Start: '+TimeToStr(now));
+
+ (* Cleaning up client datasets *)
+ ClearAllRecords(TDDCDS);
+ ClearAllRecords(MCDS);
+ ClearAllRecords(cdsTTDMonth);
+ ClearAllRecords(cdsMeanPrf);
+
+  InitialDataFromDB;           // Unloading initial data into text
+
+  MeanByMonthOnStandardLevels; // Calculating mean monthly values on standard levels
+
+  InitialDataOnStandardLevels; // Unloading data on standard levels
+
+  SeasonalCycleRemoval;        // Removing seasonal cycle
+
+  BlnFileByData;               // Creating blank file
+
+  MeanProfileNoSeasons;
+
+  MonthlyMeanAndAnomaliesToFile;
+
+  TimeSeriesAtLevels;          //unloading data to files by standard levels
+
+  MonthsDifference;
+
+  AnnualMean;
+
+
+ mLog.Lines.Add('==================');
+ mLog.Lines.Add('Done! Time spent: '+Timetostr(Now-TimeStart0));
+ Application.ProcessMessages;
+
+ rgDataFile.Enabled:=true;
+ btnGetData.Enabled:=true;
+
+ if rgDataFile.ItemIndex<>-1 then rgDataFile.OnClick(self);
+end;
+
+
+(* Exctracting data from DB and interpolating onto standard levels *)
+procedure Tfrmtimedepthdiagram.InitialDataFromDB;
+Var
+  Ini: TIniFile;
+  PQF1_st, PQF2_st, SQF_st, instr_st:string; // QC flags and instruments
+
+  dat_real, dat_int:text; //output files
+
+  Qt:TSQLQuery;
+  TRt:TSQLTransaction;
+
+  StDateAndTime: TDateTime;
+  StLat:real;
+
+  ID, k, fi, i, units: integer;
+  yy, mn, dd, hh, mm, ss, ms:word;
+
+  P, D: array of real; //arrays for pressure (P) and depth (D)
+  date_dec, lev_m, lev_d, lev, val1, val_out:real;
+  IntLev: integer;
+  IntVal: real;
+
+  isconverted, isinterpolated: boolean;
+  TimeStart:TDateTime;
+begin
+ TimeStart:=now;
+
+(* Читаем настройки из файла *)
+ try
+   Ini := TIniFile.Create(IniFileName);
+    depth_units:=Ini.ReadInteger('main', 'depth_units', 0);
+
+    Ini.ReadSection('standard_levels', memo1.Lines);
+
+    if memo1.Lines.Count=0 then begin
+      Ini.WriteString('standard_levels','0','');
+      Ini.WriteString('standard_levels','10','');
+      Ini.WriteString('standard_levels','20','');
+      Ini.WriteString('standard_levels','30','');
+      Ini.WriteString('standard_levels','50','');
+      Ini.WriteString('standard_levels','75','');
+      Ini.WriteString('standard_levels','100','');
+      Ini.WriteString('standard_levels','125','');
+      Ini.WriteString('standard_levels','150','');
+      Ini.WriteString('standard_levels','200','');
+      Ini.WriteString('standard_levels','250','');
+      Ini.WriteString('standard_levels','300','');
+      Ini.WriteString('standard_levels','400','');
+      Ini.WriteString('standard_levels','500','');
+      Ini.WriteString('standard_levels','600','');
+      Ini.WriteString('standard_levels','700','');
+      Ini.WriteString('standard_levels','800','');
+      Ini.WriteString('standard_levels','900','');
+      Ini.WriteString('standard_levels','1000','');
+      Ini.WriteString('standard_levels','1100','');
+      Ini.WriteString('standard_levels','1200','');
+      Ini.WriteString('standard_levels','1300','');
+      Ini.WriteString('standard_levels','1400','');
+      Ini.WriteString('standard_levels','1500','');
+      Ini.WriteString('standard_levels','1750','');
+      Ini.WriteString('standard_levels','2000','');
+      Ini.WriteString('standard_levels','2500','');
+      Ini.WriteString('standard_levels','3000','');
+      Ini.WriteString('standard_levels','3500','');
+      Ini.WriteString('standard_levels','4000','');
+      Ini.WriteString('standard_levels','4500','');
+      Ini.WriteString('standard_levels','5000','');
+      Ini.WriteString('standard_levels','5500','');
+
+      Ini.ReadSection('standard_levels', memo1.Lines);
+    end;
+
+   PQF1_st:='';
+   for k:=0 to 8 do
+    if Ini.ReadBool('osparameters_list', 'PQF1_'+inttostr(k), true) then
+      PQF1_st:=PQF1_st+','+inttostr(k);
+   PQF1_st:=copy(PQF1_st, 2, length(PQF1_st));
+
+   PQF2_st:='';
+   for k:=0 to 8 do
+    if Ini.ReadBool('osparameters_list', 'PQF2_'+inttostr(k), true) then
+      PQF2_st:=PQF2_st+','+inttostr(k);
+   PQF2_st:=copy(PQF2_st, 2, length(PQF2_st));
+
+   SQF_st:='';
+   for k:=0 to 1 do
+    if Ini.ReadBool('osparameters_list', 'SQF_'+inttostr(k), true) then
+      SQF_st:=SQF_st+','+inttostr(k);
+   SQF_st:=copy(SQF_st, 2, length(SQF_st));
+
+   instr_st:='';
+   for k:=0 to 17 do
+    if Ini.ReadBool('osparameters_list', 'Instrument'+inttostr(k), true) then
+      instr_st:=instr_st+','+inttostr(k);
+
+  finally
+   Ini.Free;
+  end;
+
+  if (trim(PQF1_st)='') or (trim(PQF2_st)='') or (trim(SQF_st)='') then
+   if MessageDlg('Please, set QC flags', mtWarning, [mbOk], 0)=mrOk then exit;
+
+
+  instr_st:=copy(instr_st, 2, length(instr_st));
+   if trim(instr_st)='' then
+    if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then exit;
+
+  frmdm.Q.IndexFieldNames:='dateandtime'; //force sorting
+
+  try
+  // Assigning output files
+  AssignFile(dat_real, TDDPath+'Real.dat');  Rewrite(dat_real); // real data
+  writeln(dat_real, 'Date':10, 'lev':10, 'val':10, 'ID':10, 'date':11, 'time':9);
+
+   TRt:=TSQLTransaction.Create(self);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt:=TSQLQuery.Create(self);
+   Qt.Database:=frmdm.IBDB;
+   Qt.Transaction:=TRt;
+
+ frmdm.Q.First;
+ while not frmdm.Q.Eof do begin //w
+  ID:=frmdm.Q.fieldByName('ID').Value;
+  StDateAndTime:=frmdm.Q.fieldByName('DATEANDTIME').Value;
+  StLat:=frmdm.Q.fieldByName('LATITUDE').Value;
+
+  DecodeDateTime(StDateAndTime, yy, mn, dd, hh, mm, ss, ms);
+
+  date_dec:=yy+(mn-1)/12+
+            dd/DaysInAYear(yy)+
+            hh/(24*DaysInAYear(yy))+
+            mm/(3600*DaysInAYear(yy))+
+            ss/(3600*60*DaysInAYear(yy));
+
+
+   with Qt do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' SELECT LEV_DBAR, LEV_M, VAL, UNITS_ID ');
+      SQL.Add(' FROM '+ CurrentParTable );
+      SQL.Add(' WHERE ID=:ID AND ');
+      SQL.Add(' PQF1 IN ('+PQF1_st+') AND ');
+      SQL.Add(' PQF2 IN ('+PQF2_st+') AND ');
+      SQL.Add(' SQF  IN ('+SQF_st+')  AND ');
+      SQL.Add(' INSTRUMENT_ID IN ('+instr_st+') AND ');
+      SQL.Add(' PROFILE_BEST=TRUE ');
+      SQL.Add(' ORDER BY LEV_DBAR, LEV_M ');
+      ParamByName('ID').AsInteger:=ID;
+     Open;
+     Last;
+     First;
+    end;
+
+    SetLength(P, Qt.RecordCount);
+    SetLength(D, Qt.RecordCount);
+
+    k:=0;
+    while not Qt.eof do begin
+     lev_m :=Qt.FieldByName('LEV_M').AsFloat;
+     lev_d :=Qt.FieldByName('LEV_DBAR').AsFloat;
+     val1  :=Qt.FieldByName('VAL').AsFloat;
+     units :=Qt.FieldByName('UNITS_ID').AsInteger;
+
+     (* units for the vertical axis *)
+     if depth_units=0 then lev:=lev_m else lev:=lev_d;
+
+     (* units conversion *)
+     if units<>units_default then begin
+       osunitsconversion.GetDefaultUnits(CurrentParTable, units, units_default, val1, val_out, isconverted);
+         if isConverted=true then val1:=val_out else val1:=-9999;
+     end;
+
+     if val1<>-9999 then begin
+         D[k]:=Lev;
+         P[k]:=Val1;
+       inc(k);
+     end;
+    Qt.Next;
+  end;
+
+
+(* Initial data to real.dat  *)
+  for fi:=0 to k-1 do
+     writeln(dat_real, date_dec:10:5,  //date (decimal)
+                       D[fi]:10:3,     //depth
+                       P[fi]:10:3,     //value
+                       ID:10,          //id
+                       datetostr(stdateandtime):11,  //date
+                       timetostr(stdateandtime):9); //time
+
+ // showmessage(inttostr(k));
+
+
+(* interpolation onto standard levels *)
+ for fi:=0 to memo1.Lines.Count-1 do begin
+   IntLev:=strtoint(Memo1.Lines.Strings[fi]);
+  // showmessage(inttostr(intlev));
+   IntVal:=-999;
+   for i:=0 to k-1 do begin
+     isinterpolated:=false;
+
+     if (IntLev=0) and (D[i]<5) then begin
+       IntVal:=P[i];
+        isinterpolated:=true;
+       break;
+     end;
+
+     if D[i]=IntLev then begin
+       IntVal:=P[i];
+       isinterpolated:=true;
+      break;
+     end;
+
+     try  // trying to interpolate
+     if (IntLev>D[i]) and (IntLev<D[i+1]) then begin
+           //c - number of levels at profile;  i - sequential number of level
+                                                  //       LU1     LU2    X      LD1      LD2     ->
+       if (fi=2)              then ODBPr_VertInt(IntLev, -9,     D[i], D[i+1], -9,      -9,     P[i], P[i+1], -9,      IntVal, isinterpolated); //x + + x
+       if (fi>2) and (i=1)    then ODBPr_VertInt(IntLev, -9,     D[i], D[i+1], D[i+2],  -9,     P[i], P[i+1], P[i+2],  IntVal, isinterpolated); //x + + +
+       if (fi>2) and (i=fi-1) then ODBPr_VertInt(IntLev, D[i-1], D[i], D[i+1], -9,      P[i-1], P[i], p[i+1], -9,      IntVal, isinterpolated); //+ + + x
+       if (fi>3) and (i<>1)  and (i<>fi-1)
+                              then ODBPr_VertInt(IntLev, D[i-1], D[i], D[i+1], D[i+2],  P[i-1], P[i], P[i+1], P[i+2],  IntVal, isinterpolated); //+ + + +
+       if isinterpolated=true then  break;
+     end;
+     except
+       isinterpolated:=false;
+     end;
+   end;
+
+     if (isinterpolated=true) and (IntVal<>-999) then begin
+       with TDDCDS do begin
+         Append;
+           FieldByName('ID').AsInteger  :=ID;
+           FieldByName('date_dec').AsFloat:=date_dec;
+           FieldByName('date_date').AsDateTime :=stdateandtime;
+           FieldByName('yy').AsInteger  :=yy;
+           FieldByName('mn').AsInteger  :=mn;
+           FieldByName('dd').AsInteger  :=dd;
+           FieldByName('hh').AsInteger  :=hh;
+           FieldByName('mm').AsInteger  :=mm;
+           FieldByName('ss').AsInteger  :=ss;
+           FieldByName('lev').AsInteger :=IntLev;
+           FieldByName('val').AsFloat   :=IntVal;
+         Post;
+       end;
+    end;
+  end;
+
+  // showmessage(inttostr(k));
+ frmdm.Q.Next;
+ end;  //w
+
+ finally
+  Trt.Commit;
+  Qt.Close;
+  Qt.Free;
+  Trt.Free;
+
+  CloseFile(dat_real);
+  frmdm.Q.EnableControls;
+ end;
+
+mLog.Lines.Add('1. Initial data unloaded from database ('+timetostr(Now-TimeStart)+')');
+Application.ProcessMessages;
+end;
+
+(* Monthly mean values on Standard levles *)
+procedure Tfrmtimedepthdiagram.MeanByMonthOnStandardLevels;
+Var
+k, Lev, c, count:integer;
+Mean, Val, Mean2:real;
+vmd, vsd0, vsd, min, max, val1:real;
+MonthlyProfilesFileName:string;
+dat_m:text;
+TimeStart:TDateTime;
+begin
+TimeStart:=now;
 
   for c:=0 to memo1.Lines.Count-1 do begin
    MCDS.Append;
@@ -1067,29 +563,32 @@ for k:=1 to 12 do begin
  for c:=0 to memo1.Lines.Count-1 do begin
    lev:=strtoint(Memo1.Lines.Strings[c]);
 
-   //Считаем аномалии по заданному периоду!!!
-   TDDCDS.Filter:='Lev='+Memo1.Lines.Strings[c]+ ' and month='+inttostr(k)+
-                  ' and Year>='+SeYY1.Text+' and Year<='+SeYY2.Text; //Диапазон лет
+   // anomalies for user specified period
+   TDDCDS.Filter:='Lev='+Memo1.Lines.Strings[c]+ ' and mn='+inttostr(k)+
+                  ' and yy>='+SeYY1.Text+' and yy<='+SeYY2.Text; //Диапазон лет
 
    TDDCDS.Filtered:=true;
    TDDCDS.First;
 
+   GetExactRecordCount(TDDCDS, Count);
+  // mlog.Lines.add(inttostr(k)+'   '+inttostr(lev)+'   '+inttostr(count));
 
-   if TDDCDS.RecordCount>0 then begin
+   if Count>0 then begin
     mean:=0; mean2:=0; val:=0;
     min:=9999; max:=-9999; vsd:=0; vmd:=0;
-     while not TDDCDS.Eof do begin
-      val:=TDDCDS.FieldByName('Val').asfloat;
 
-      if val>max then max:=val;
-      if val<min then min:=val;
+    TDDCDS.First;
+    while not TDDCDS.Eof do begin
+      val1:=TDDCDS.FieldByName('Val').asfloat;
 
-      Mean:=Mean+Val;
-      mean2:=mean2+(Val*Val);
+      if val1>max then max:=val1;
+      if val1<min then min:=val1;
+
+      Mean:=Mean+Val1;
+      mean2:=mean2+(Val1*Val1);
       TDDCDS.Next;
      end;
 
-    count:=TDDCDS.RecordCount;
     vmd:=mean/Count;
     vsd0:=(mean2-mean*mean/count)/count;
     if vsd0>0 then vsd:=sqrt(vsd0);
@@ -1104,11 +603,10 @@ for k:=1 to 12 do begin
            FieldByName(inttostr(k)+'_max').Asfloat:=max;
          Post;
        end;
-     // showmessage(inttostr(k)+'   '+inttostr(lev)+'   '+
-     //             floattostr(MCDS.FieldByName(inttostr(k)+'_md').Asfloat)+'   '+
-    //              floattostr(MCDS.FieldByName(inttostr(k)+'_max').Asfloat));
+    {  showmessage(inttostr(k)+'   '+inttostr(lev)+'   '+
+                  floattostr(MCDS.FieldByName(inttostr(k)+'_md').Asfloat)+'   '+
+                  floattostr(MCDS.FieldByName(inttostr(k)+'_max').Asfloat)); }
    end;
-
     TDDCDS.Filtered:=false;
  end;
  end;
@@ -1123,7 +621,7 @@ for k:=1 to 12 do begin
      min:=9999; max:=-9999;
      vsd:=0; vmd:=0;
      For k:=1 to 12 do
-      if MCDS.FieldByName(inttostr(k)+'_md').AsVariant<>null then begin
+      if not VarIsNull(MCDS.FieldByName(inttostr(k)+'_md').AsVariant) then begin
           Val:=MCDS.FieldByName(inttostr(k)+'_md').AsFloat;
            if val>max then max:=val;
            if val<min then min:=val;
@@ -1186,363 +684,593 @@ for k:=1 to 12 do begin
         MCDS.Next;
      end;
  CloseFile(dat_m);
+
+ mLog.Lines.Add('2. Monthly mean values calculated ('+timetostr(Now-TimeStart)+')');
+ Application.ProcessMessages;
 end;
 
-
-(* Выбираем файл для построения и читаем первую строчку *)
-procedure Tfrmtimedepthdiagram.rgDataFileClick(Sender: TObject);
+(* Unloading data interpolated onto standard levels *)
+procedure Tfrmtimedepthdiagram.InitialDataOnStandardLevels;
 Var
-k, NumPar:integer;
-st, buf_str:string;
+dat_int:text;
+ID, mn: integer;
+lev, val1, date_dec, anom: real;
+date_date:TDateTime;
+TimeStart:TDateTime;
 begin
- Case rgDataFile.ItemIndex of
-  -1: Exit;
-   0: CurrentFile:=TDDPath+'Real.dat';
-   1: CurrentFile:=TDDPath+'StLev.dat';
-   2: CurrentFile:=TDDPath+'Month.dat';
-   3: CurrentFile:=TDDPath+'Year.dat';
-   4: CurrentFile:=TDDPath+'Month_dif.dat';
-   5: CurrentFile:=TDDPath+'Year_dif.dat';
- End;
+TimeStart:=now;
 
- cbParameters.Clear;
- AssignFile(Dat, CurrentFile); Reset(dat);
-  readln(dat, st);
-   buf_str:=''; NumPar:=0;
-   For k:=1 to length(st) do begin
-     if (st[k]<>' ') then buf_str:=buf_str+st[k];
-       if ((st[k]=' ') and (buf_str<>'')) or (k=length(st))  then begin
-         inc(NumPar); // Убираем первые три поля
-          if NumPar>2 then cbParameters.Items.Add(trim(buf_str));
-          buf_str:='';
-       end;
+try
+  AssignFile(dat_int,  TDDPath+'StLev.dat'); Rewrite(dat_int);  // interpolated onto st. levels
+  writeln(dat_int,  'Date_dec':10, 'Level':10, 'Value':10, 'Anomaly':10, 'ID':10, 'Date':11, 'Time':9);
+
+  TDDCDS.first;
+ while not TDDCDS.Eof do begin  //w
+  ID       :=TDDCDS.FieldByName('ID').Value;
+  date_dec :=TDDCDS.FieldByName('date_dec').Value;
+  date_date:=TDDCDS.FieldByName('date_date').Value;
+  lev      :=TDDCDS.FieldByName('lev').Value;
+  val1     :=TDDCDS.FieldByName('val').Value;
+  mn       :=TDDCDS.FieldByName('mn').Value;
+
+
+  if not VarIsNull(MCDS.Locate('level', floattostr(lev),[])) and
+     not VarIsNull(MCDS.FieldByName(inttostr(mn)+'_md').AsVariant) then begin
+
+      anom:=Val1-MCDS.FieldByName(inttostr(mn)+'_md').Asfloat;
+
+      with TDDCDS do begin
+       Edit;
+          FieldByName('anom').Value:=anom;
+        Post;
+      end;
+
+   // Пишем файл на стандартных горизонтах
+    writeln(dat_int, date_dec:10:5,
+                     lev:10:0,
+                     val1:10:3,
+                     anom:10:3,
+                     ID:10,
+                     datetostr(date_date):11,
+                     timetostr(date_date):9);
+  end; //if not empty
+
+   TDDCDS.Next;
+  end;  //w
+ finally
+  CloseFile(dat_int);  //Закрываем файл на ст. горизонтах
+ end;
+
+ mLog.Lines.Add('3. Data on standard levels unloaded ('+timetostr(Now-TimeStart)+')');
+ Application.ProcessMessages;
+end;
+
+(* Removing seasonal cycle *)
+procedure Tfrmtimedepthdiagram.SeasonalCycleRemoval;
+Var
+  dat:text;
+  i, mik, mik_lev, y, m, dSum, dYear, c, n: integer;
+  lev: integer;
+  yy, mn, dd: word;
+  ymin, ymax, lmin, lmax, sdlev, ULev, DLev:integer;
+
+
+  x1, x2, kf_int, x, val1, anom, valSCR, TimeTR: real;
+
+  yb,mb,db,ye,me,de:word;
+  date1, date2, dateb,datee:TDateTime;
+
+  st_ex:boolean;
+  TimeStart, stdt, dmin, dmax:TDateTime;
+begin
+ TimeStart:=now;
+
+ AssignFile(dat,  TDDPath+'blank.dat'); Rewrite(dat); //text file with uppest and lowest levels
+ writeln(dat, 'Date_dec':10, 'ULev':10, 'DLev':10);
+
+
+ TDDcds.First;
+ mik:=0;
+  while not TDDCDS.Eof do begin  //w
+    mik:=mik+1;
+    stdt:=TDDCDS.FieldByName('date_date').asDateTime;
+    yy  :=TDDCDS.FieldByName('yy').asInteger;
+    lev :=TDDCDS.FieldByName('lev').asInteger;
+
+    if mik=1 then begin
+      dmin:=stdt; dmax:=stdt;
+      ymin:=yy;   ymax:=yy;
+      lmin:=lev;  lmax:=lev;
    end;
-  CloseFile(Dat);
-  cbParameters.Text:='Select parameter...';
-  cbParameters.Enabled:=true;
-  rgParameters.Enabled:=true;
+
+   if stdt<dmin then dmin:=stdt;
+   if stdt>dmax then dmax:=stdt;
+
+   if yy<ymin then ymin:=yy;
+   if yy>ymax then ymax:=yy;
+
+   if lev<lmin then lmin:=lev;
+   if lev>lmax then lmax:=lev;
+
+  TDDCDS.Next;
+ end; //w
+
+// showmessage('calculated max/min');
+
+{ kf_int:=(ymax-ymin)/lmax;
+
+mLog.Clear;
+mLog.Lines.Add('year min->max: '+inttostr(ymin)+'->'+inttostr(ymax));
+mLog.Lines.Add('lev  min->max: '+floattostr(lmin)+'->'+floattostr(lmax));
+mLog.Lines.Add('kf_int= '+floattostr(kf_int));
+mLog.Lines.Add('date min->max: '+datetostr(dmin)+'->'+datetostr(dmax));
+kf_int:=(dmax-dmin)/lmax;
+mLog.Lines.Add('kf_int= '+floattostr(kf_int));  }
+
+ DecodeDate(dmin, yy, mn, dd);
+ dsum:=0;
+ for i:=1 to mn-1 do dsum:=dsum+DaysInAMonth(yy, i);
+ dsum:=dsum+15;           //число дней к середине месяца
+ dYear:=DaysInAYear(yy); //число дней в году
+ x1:=yy+dsum/dYear;
+
+
+ DecodeDate(dmax, yy, mn, dd);
+ dsum:=0;
+ for i:=1 to mn-1 do dsum:=dsum+DaysInAMonth(yy,i);
+ dsum:=dsum+15;           //число дней к середине месяца
+ dYear:=DaysInAYear(yy); //число дней в году
+ x2:=yy+dsum/dYear;
+
+// showmessage(floattostr(x2)+#9+floattostr(x2)+#9+floattostr(lmax));
+kf_int:=(x2-x1)/lmax;
+//  mLog.Lines.Add('kf_int= '+floattostr(kf_int));
+
+// showmessage(floattostr(kf_int));
+
+
+  //1.добавляем среднемесячные значения в cdsTDDMonth
+  for y:=ymin to ymax do begin //y
+    for m:=1 to 12 do begin  //m
+      dsum:=0;
+      for i:=1 to m-1 do dsum:=dsum+DaysInAMonth(y,i);
+      dsum:=dsum+15;           //число дней к середине месяца
+      dYear:=DaysInAYear(y); //число дней в году
+      x:=y+dsum/dYear;
+
+
+      ClearAllRecords(cdsMeanPrf);
+      for c:=0 to memo1.Lines.Count-1 do begin
+        with cdsMeanPrf do begin
+          Append;
+            FieldByName('lev').AsInteger:=strtoint(Memo1.Lines.Strings[c]);
+            FieldByName('n').AsInteger:=0;
+            FieldByName('val').AsInteger:=0;
+            FieldByName('valSCR').AsInteger:=0;
+          Post;
+        end;
+      end;
+
+       //three months centered mean
+     case m of
+        1:begin
+         yb:=y-1; mb:=12; db:=1;
+         ye:=y;   me:=2;  de:=DaysInAMonth(ye,me);
+         date1:=encodedate(yb,mb,db);
+         date2:=encodedate(ye,me,de);
+        end;
+        2..11: begin
+         yb:=y; mb:=m-1; db:=1;
+         ye:=y; me:=m+1; de:=DaysInAMonth(ye,me);
+         date1:=encodedate(yb,mb,db);
+         date2:=encodedate(ye,me,de);
+
+          (*showmessage('  yb= '+inttostr(yb)
+            +'  ye= '+inttostr(ye)
+            +'  mb= '+inttostr(mb)
+            +'  me= '+inttostr(me)
+            +'  db= '+inttostr(db)
+            +'  de= '+inttostr(de));*)
+       end;
+       12: begin
+         yb:=y;   mb:=11; db:=1;
+         ye:=y+1; me:=1;  de:=DaysInAMonth(ye,me);
+         date1:=encodedate(yb,mb,db);
+         date2:=encodedate(ye,me,de);
+       end;
+    end; //case
+
+    //если есть хоть одно наблюдение внутри месяца, расчет средних
+    //исключение экстрополяции за пределы периода наблюдений
+    de:=DaysInAMonth(y,m);
+    dateb:=encodedate(y,m,de);
+    datee:=encodedate(y,m,1);
+
+    //monthly mean
+    TDDcds.Filter:='yy='+inttostr(y)+' and mn='+inttostr(m);
+
+
+    //three months centered mean
+    // centered mean if data within measured period
+    //showmessage('datemin='+datetostr(dmin)+'  datemax='+datetostr(dmax));
+    if (dateb>=dmin) and (datee<=dmax) then begin  //p
+      TDDcds.Filtered:=true;
+      TDDCDS.First;
+      st_ex:=false;
+      while not TDDCDS.Eof do begin  //w
+        st_ex:=true;
+
+       sdlev:=TDDCDS.FieldByName('lev').asInteger;
+       val1 :=TDDCDS.FieldByName('val').asfloat;
+       anom :=TDDCDS.FieldByName('anom').asfloat;
+
+
+       if not VarIsNull(cdsMeanPrf.Locate('lev',sdlev,[])) then begin
+         //statistics stored in cdsMeanPrf
+         cdsMeanPrf.Edit;
+         cdsMeanPrf.FieldByName('n').AsInteger:=cdsMeanPrf.FieldByName('n').AsInteger+1;
+         cdsMeanPrf.FieldByName('val').AsFloat:=cdsMeanPrf.FieldByName('val').AsFloat+val1;
+         cdsMeanPrf.FieldByName('valSCR').AsFloat:=cdsMeanPrf.FieldByName('valSCR').AsFloat+anom;
+         cdsMeanPrf.Post;
+       end;
+      TDDCDS.Next;
+    end;  //w
+
+
+    cdsMeanPrf.First;  //средний профиль для данного месяца данного года
+    mik_lev:=0;
+    while not cdsMeanPrf.Eof do begin  //pr
+      n:=cdsMeanPrf.FieldByName('n').asInteger;
+      sdlev:=cdsMeanPrf.FieldByName('lev').asInteger;
+      val1:=cdsMeanPrf.FieldByName('val').asfloat;
+      valSCR:=cdsMeanPrf.FieldByName('valSCR').asfloat;
+
+
+      if n>0 then begin  //i
+
+      //создание бланковочного файла по последнему горизонту
+      mik_lev:=mik_lev+1;
+      if mik_lev=1 then Ulev:=sdlev;  //верхний горизонт
+      Dlev:=sdlev;  //нижний горизонт
+
+
+      val1:=val1/n;        //среднемес значение на гор
+      valSCR:=valSCR/n; //среднемесячные значение с исключенным сезонным ходом
+
+
+      TimeTr:=(x-x1)/kf_int;
+  //writeln(dat_Month, TimeTR:10:5, -sdlev:8, x:12:5, val:15:4, n:8);
+      with cdsTTDMonth do begin
+        Append;
+          FieldByName('timeTR').AsFloat:=TimeTR;
+          FieldByName('sdlev').AsInteger:=sdlev;
+          FieldByName('time').AsFloat:=x;
+          FieldByName('val').AsFloat:=val1;
+          FieldByName('valSCR').AsFloat:=valSCR; //val с искл сез ходом!!!
+          FieldByName('an').AsFloat:=0;
+          FieldByName('anSCR').AsFloat:=0;
+          FieldByName('n').AsInteger:=n;
+       Post;
+      end;
+     end; //i
+    cdsMeanPrf.Next;
+   end; //pr
+
+   //заполняем бланковочный cds
+   if st_ex=true then begin
+     Writeln(dat, x:10:5, ULev:10, DLev:10)
+    {with cdsLastLevBln do begin
+      Append;
+        FieldByName('time').AsFloat:=x;
+        FieldByName('ULev').AsFloat:=ULev;
+        FieldByName('DLev').AsFloat:=DLev;
+      Post;
+    end; }
+   end;
+   end; //within period  //p
+  end; //m
+ end; //y
+ CloseFile(dat);
+
+ mLog.Lines.Add('4. Seasonal cycle removed ('+timetostr(Now-TimeStart)+')');
+ Application.ProcessMessages;
+end;
+
+(* Creating blank file by data *)
+procedure Tfrmtimedepthdiagram.BlnFileByData;
+Var
+  dat:text;
+  Ky, Ystep, CountStep, cnt: integer;
+  ybeg, yend, Y1, Y2, x: real;
+  ULevMin_all, DLevMax_all, ULevMin, DLevMax, ULev, DLev: integer;
+
+  cdsLastLevBln:TBufDataSet;
+  TimeStart:TDateTime;
+begin
+  TimeStart:=now;
+
+  cdsLastLevBln:=TBufDataSet.Create(nil);
+   with cdsLastLevBln.FieldDefs do begin
+    Add('time',  ftFloat,0,true);
+    Add('ULev',  ftInteger,0,true);
+    Add('DLev',  ftInteger,0,true);
+   end;
+  cdsLastLevBln.CreateDataSet;
+
+  ULevMin_all:=99999;
+  DLevMax_all:=0;
+
+  AssignFile(dat,  TDDPath+'Blank.dat'); Reset(dat);  // blank file
+  readln(dat);
+  repeat
+    readln(dat, x, ULev, DLev);
+
+    ULevMin_all:=min(ULevMin_all, ULev);
+    DLevMax_all:=max(DLevMax_all, DLev);
+
+    with cdsLastLevBln do begin
+      Append;
+        FieldByName('time').Value:=x;
+        FieldByName('ULev').Value:=ULev;
+        FieldByName('DLev').Value:=DLev;
+      Post;
+    end;
+  until eof(dat);
+  CloseFile(dat);
+
+//  showmessage(inttostr(ULevMin_all)+'   '+inttostr(DLevMax_all));
+
+  AssignFile(dat,  TDDPath+'Blank.bln'); Rewrite(dat);  // blank file
+
+    // проверка на дырки
+    Ystep:=2;
+    cdsLastLevBln.First;
+    Ybeg:=cdsLastLevBln.FieldByName('time').AsFloat;
+    cdsLastLevBln.Last;
+    Yend:=cdsLastLevBln.FieldByName('time').AsFloat;
+    CountStep:=trunc((Yend-Ybeg)/Ystep)+1;
+
+    { mLog.Lines.Add('');
+     mLog.Lines.Add('Ybeg='+floattostrF(ybeg,ffFixed,10,3));
+     mLog.Lines.Add('Yend='+floattostrF(yend,ffFixed,10,3));
+     mLog.Lines.Add('CountStep='+inttostr(CountStep));
+     mLog.Lines.Add('step y1 y2 countGap'); }
+
+  {   CountGap:=0;
+    for ky:=1 to CountStep do begin
+     Y1:=Ybeg+Ystep*(ky-1);
+     Y2:=Ybeg+Ystep*ky;
+
+     cdsLastLevBln.Filter:='time>='+floattostr(Y1)+' and time<='+floattostr(Y2);
+     cdsLastLevBln.Filtered:=true;
+
+     GetExactRecordCount(cdsLastLevBln, cnt);
+     if cnt=0 then CountGap:=CountGap+1;
+
+    { mLog.Lines.Add(inttostr(ky)
+        +#9+floattostrF(y1,ffFixed,10,3)
+        +#9+floattostrF(y2,ffFixed,10,3)
+        +#9+inttostr(CountGap)
+        ); }
+     end;
+     cdsLastLevBln.Filtered:=false;  }
+
+  writeln(dat,(CountStep*4+1):5, 0:5);
+
+    //последовательно верхние горизонты
+  for ky:=1 to CountStep do begin  //y
+
+    Y1:=Ybeg+Ystep*(ky-1);
+    Y2:=Ybeg+Ystep*ky;
+
+    cdsLastLevBln.First;
+    cdsLastLevBln.Filter:='time>='+floattostr(Y1)+' and time<='+floattostr(Y2);
+    cdsLastLevBln.Filtered:=true;
+
+    GetExactRecordCount(cdsLastLevBln, cnt);
+
+   // showmessage(inttostr(cnt));
+
+    if cnt>0 then begin
+
+    ULevMin:=99999;
+    //минимальный горизонт за заданный промежуток времени
+    cdsLastLevBln.First;
+     while not cdsLastLevBln.Eof do begin
+      ULev:=cdsLastLevBln.FieldByName('ULev').Value;
+       ULevMin:=min(ULev, ULevMin);
+      // showmessage(inttostr(ulev)+'   '+inttostr(ulevmin));
+      cdsLastLevBln.Next;
+     end;
+  //   showmessage('final: inttostr(ulevmin));
+      writeln(dat,Y1:12:5,ULevMin:10);
+      writeln(dat,Y2:12:5,ULevMin:10);
+    end else begin
+     writeln(dat,Y1:12:5,ULevMin_all:10);
+     writeln(dat,Y2:12:5,ULevMin_all:10);
+    end;
+  end;  //y
+  cdsLastLevBln.Filtered:=false;
+
+    //нижние горизонты в обратном порядке
+  for ky:=1 to CountStep do begin  //
+
+    Y1:=Yend-Ystep*(ky-1);
+    Y2:=Yend-Ystep*ky;
+
+    cdsLastLevBln.First;
+    cdsLastLevBln.Filter:='time>='+floattostr(Y2)+' and time<='+floattostr(Y1);
+    cdsLastLevBln.Filtered:=true;
+
+    GetExactRecordCount(cdsLastLevBln, cnt);
+
+    if cnt>0 then begin
+
+     DLevMax:=0;
+    //минимальный горизонт за заданный промежуток времени
+     cdsLastLevBln.First;
+     while not cdsLastLevBln.Eof do begin
+      DLev:=cdsLastLevBln.FieldByName('DLev').VAlue;
+      DLevMax:=max(DLevMax,DLev);
+   // showmessage(floattostr(dlev)+'  '+floattostr(dlevMax));
+      cdsLastLevBln.Next;
+     end;
+      writeln(dat,Y1:12:5,DLevMax:10);
+      writeln(dat,Y2:12:5,DLevMax:10);
+     end else begin
+      writeln(dat,Y1:12:5,ULevMin_all:10);
+      writeln(dat,Y2:12:5,ULevMin_all:10);
+     end;
+     end;  //y
+      cdsLastLevBln.Filtered:=false;
+    //первая станция верхний горизонт
+    cdsLastLevBln.First;
+    writeln(dat,cdsLastLevBln.FieldByName('time').AsFloat:12:5,
+                  cdsLastLevBln.FieldByName('ULev').Value:10);
+
+//  end;  //h
+
+  cdsLastLevBln.Free;
+  CloseFile(dat);
+
+
+  mLog.Lines.Add('5. Blank file created ('+timetostr(Now-TimeStart)+')');
+  Application.ProcessMessages;
+end;
+
+(* Mean profile for data without seasonal cycle *)
+procedure Tfrmtimedepthdiagram.MeanProfileNoSeasons;
+Var
+  sdlev, n: integer;
+  Time1, Val1, ValSCR: real;
+  TimeStart:TDateTime;
+begin
+  TimeStart:=now;
+
+// Очищаем набор данных для среднего профиля
+    cdsMeanPrf.First;
+   while not cdsMeanPrf.Eof do begin
+    cdsMeanPrf.Edit;
+    cdsMeanPrf.FieldByName('n').AsInteger:=0;
+    cdsMeanPrf.FieldByName('val').AsFloat:=0;
+    cdsMeanPrf.FieldByName('valSCR').AsFloat:=0;
+    cdsMeanPrf.Post;
+    cdsMeanPrf.Next;
+   end;
+
+ (* Рассчитываем средний профиль для заданного периода *)
+  cdsTTDMonth.First;
+   while not cdsTTDMonth.Eof do begin
+    time1  :=cdsTTDMonth.FieldByName('time').AsFloat;
+
+    // Если дата в диапазоне, считаем среднее
+    if (time1>=seYY1.Value) and (time1<=seYY2.Value) then begin
+      sdlev  :=cdsTTDMonth.FieldByName('sdlev').AsInteger;
+      val1   :=cdsTTDMonth.FieldByName('val').Value;
+      valSCR :=cdsTTDMonth.FieldByName('valSCR').Value;
+
+       with cdsMeanPrf do begin
+         if not VarIsNull(Locate('lev',sdlev,[])) then begin
+          Edit;
+            FieldByName('n').AsInteger:=FieldByName('n').AsInteger+1; //число значений на горизонте
+            FieldByName('val').AsFloat:=FieldByName('val').AsFloat+val1;
+            FieldByName('valSCR').AsFloat:=FieldByName('valSCR').AsFloat+valSCR;
+          Post;
+         end;
+       end;
+    end;
+    cdsTTDMonth.Next;
+   end;
+
+   //среднемноголетний профиль значений и значений с искл. сезонным ходом
+   //для выбранного диапазона лет!!!
+   cdsMeanPrf.First;
+  while not cdsMeanPrf.Eof do begin  //w
+   // sdlev:=cdsMeanPrf.FieldByName('lev').AsInteger;
+    n:=cdsMeanPrf.FieldByName('n').AsInteger;
+    val1:=cdsMeanPrf.FieldByName('val').AsFloat;
+    valSCR:=cdsMeanPrf.FieldByName('valSCR').AsFloat;
+
+    if n>0 then begin
+     cdsMeanPrf.Edit;
+      cdsMeanPrf.FieldByName('val').AsFloat:=val1/n;
+      cdsMeanPrf.FieldByName('valSCR').AsFloat:=valSCR/n;
+     cdsMeanPrf.Post;
+    end;
+
+    cdsMeanPrf.Next;
+  end; //w
+
+  (* anomalies *)
+  cdsTTDMonth.First;
+  while not cdsTTDMonth.Eof do begin  //w
+    sdlev:=cdsTTDMonth.FieldByName('sdlev').AsInteger;
+    val1:=cdsTTDMonth.FieldByName('val').AsFloat;
+    valSCR:=cdsTTDMonth.FieldByName('valSCR').AsFloat;
+    cdsMeanPrf.Locate('lev',sdlev,[]);
+
+    cdsTTDMonth.Edit;
+    cdsTTDMonth.FieldByName('an').AsFloat:=
+       cdsTTDMonth.FieldByName('val').AsFloat-cdsMeanPrf.FieldByName('val').AsFloat;
+    cdsTTDMonth.FieldByName('anSCR').AsFloat:=
+       cdsTTDMonth.FieldByName('valSCR').AsFloat-cdsMeanPrf.FieldByName('valSCR').AsFloat;
+    cdsTTDMonth.Post;
+
+    cdsTTDMonth.Next;
+  end; //w
+
+  mLog.Lines.Add('6. Anomalies with seasonal cycle removed ('+timetostr(Now-TimeStart)+')');
+  Application.ProcessMessages;
 end;
 
 
-procedure Tfrmtimedepthdiagram.GetScriptSmooth;
+(* Writing monthly results to file *)
+procedure Tfrmtimedepthdiagram.MonthlyMeanAndAnomaliesToFile;
 Var
-Ini:TIniFile;
-DateMin, DateMax, LevMin, LevMax:real;
-date1, lev, kf_int, DateTr:real;
-str, IntMethod:string;
+  dat:text;
+  TimeStart:TDateTime;
 begin
-(* Ищем максимальные и минимальные даты и глубины *)
-   AssignFile(Dat, CurrentFile); Reset(Dat);
-   DateMin:=9999; DateMax:=-9999; LevMin:=9999; LevMax:=-9999;
-    readln(dat);
-     repeat
-     readln(dat, date1,  lev);
-       DateMin:=Min(date1, DateMin);
-       DateMax:=Max(date1, DateMax);
-       LevMin:=Min(lev, LevMin);
-       LevMax:=Max(lev, LevMax);
-     until eof(dat);
+  TimeStart:=now;
+
+  AssignFile(dat, TDDPath+'Month.dat'); Rewrite(dat);   // monthly averaged
+  writeln(dat, 'Date':10, 'lev':10, 'val':10, 'valSCR':10, 'anom':10, 'anSCR':10, 'n':8);
+
+
+   cdsTTDMonth.First;
+   while not cdsTTDMonth.Eof do begin  //w
+  //  timeTR :=cdsTTDMonth.FieldByName('timeTR').AsFloat;
+
+
+    (* пишем среднемесячные значения в файл *)
+     writeln(dat, cdsTTDMonth.FieldByName('time'  ).AsFloat:10:5,
+                  cdsTTDMonth.FieldByName('sdlev' ).AsInteger:10,
+                  cdsTTDMonth.FieldByName('val'   ).AsFloat:10:3,
+                  cdsTTDMonth.FieldByName('valSCR').AsFloat:10:3,
+                  cdsTTDMonth.FieldByName('an'    ).AsFloat:10:3,
+                  cdsTTDMonth.FieldByName('anSCR' ).AsFloat:10:3,
+                  cdsTTDMonth.FieldByName('n'     ).AsInteger:8);
+
+    cdsTTDMonth.Next;
+   end; //w
    CloseFile(dat);
 
-
-   // Коэффициент трансформации
-   kf_int:=(DateMax-DateMin)/(LevMax-LevMin);
-   StartDate:=DateMin;
-
-   // Формируем файл для построения
-   AssignFile(Dat,  CurrentFile); Reset(Dat);
-    readln(Dat, str);
-   AssignFile(Dat1, TDDPath+'Data.plt'); Rewrite(Dat1);
-    writeln(Dat1, 'Date':15, 'Date_tr':15, Copy(str, 15, length(str)));
-
-    repeat
-      readln(Dat, str);
-       Date1:=StrToFloat(Copy(str, 1, 15));
-       DateTr:=((Date1-StartDate)/kf_int);
-      writeln(Dat1, Date1:15:5, DateTr:15:5, Copy(str, 15, length(str)));
-    until eof(Dat);
-    CloseFile(Dat);
-    CloseFile(Dat1);
-
-    AssignFile(Script, TDDPath+'Script.bas'); Rewrite(Script);
-
-(* Читаем настройки из файла *)
- try
-   Ini := TIniFile.Create(IniFileName);
-   IntMethod:=Ini.ReadString   ('TDD', 'Algorithm', 'srfKriging');
-
-     WriteLn(Script, 'Sub Main');
-     WriteLn(Script, 'Dim Surf, Diagram, Doc, Var As Object');
-     WriteLn(Script, '');
-     WriteLn(Script, 'pathDataFile ="'+TDDPath+'Data.plt'+'"');
-    // WriteLn(Script, 'pathDataFile ="'+TDDPath+'Month.dat"');
-     WriteLn(Script, 'pathBlnFile ="'+TDDPath+'Month.bln"');
-     WriteLn(Script, 'PathGRD = "'+TDDPath+'Grid.grd"');
-
-     WriteLn(Script, '');
-     WriteLn(Script, 'Set Surf = CreateObject("Surfer.Application") ');
-     WriteLn(Script, '');
-     WriteLn(Script, 'Surf.Visible = True');
-     WriteLn(Script, '  Set Doc = Surf.Documents.Add ');
-     WriteLn(Script, '  Set Diagram = Doc.Windows(1)');
-     WriteLn(Script, '  Diagram.AutoRedraw = False');
-     WriteLn(Script, '  Doc.PageSetup.Orientation = srfLandscape');
-     WriteLn(Script, '  Doc.DefaultFill.Pattern="Solid"');
-     WriteLn(Script, '  Doc.DefaultFill.ForeColor=srfColorBlack20');
-     WriteLn(Script, '');
-
-     (* Анизотропия - АК*)
-     writeln(script, '  Set Var=Surf.NewVarioComponent( _');
-     writeln(script, '  VarioType:=srfVarLinear, _');
-     writeln(script, '  AnisotropyRatio:='+Ini.ReadString('TDD', 'AnisotropyRatio', '1')+', _');
-     writeln(script, '  AnisotropyAngle:='+Ini.ReadString('TDD', 'AnisotropyAngle', '0' )+')');
-     writeln(Script, '');
-
-//создание грида
-     WriteLn(Script, 'Surf.GridData(DataFile:=pathDataFile, _');
-     WriteLn(Script, '	xCol:=2, _');  //трансформированное время
-     WriteLn(Script, '  yCol:=3, _');  //реальная глубина с минусом
-     WriteLn(Script, '  zCol:='+inttostr(cbParameters.ItemIndex+4)+', _');  //номер колонки
-     WriteLn(Script, '  numRows:='+IntToStr(seY.Value)+', _');
-     WriteLn(Script, '  numCols:='+IntToStr(seX.Value)+', _');
-     WriteLn(Script, '  Algorithm:='+IntMethod+', _');
-
-     (* Для анизотропии - АК*)
-     writeln(script, '  KrigVariogram:=Var, _');
-     writeln(script, '  AnisotropyRatio:='+Ini.ReadString('TDD', 'AnisotropyRatio', '1')+', _');
-     writeln(script, '  AnisotropyAngle:='+Ini.ReadString('TDD', 'AnisotropyAngle', '0' )+', _');
-
-     (* Настройки для различных методов интерполяции *)
-  (* Настройки для различных методов интерполяции *)
-  if IntMethod='srfKriging'  then begin
-    WriteLn(script, '       KrigType:='          +Ini.ReadString('TDD', 'KrigType',          'srfKrigPoint')+', _');
-    WriteLn(script, '       KrigDriftType:='     +Ini.ReadString('TDD', 'KrigDriftType',     'srfDriftNone')+', _');
-    WriteLn(script, '       SearchEnable:=1, _');  //not Ini.ReadBool('Fields', 'SearchEnable',       true);
-    WriteLn(script, '       SearchNumSectors:='  +Ini.ReadString('TDD', 'SearchNumSectors',  '4')  +', _');
-    WriteLn(script, '       SearchMinData:='     +Ini.ReadString('TDD', 'SearchMinData',     '16') +', _');
-    WriteLn(script, '       SearchMaxData:='     +Ini.ReadString('TDD', 'SearchMaxData',     '64') +', _');
-    WriteLn(script, '       SearchDataPerSect:=' +Ini.ReadString('TDD', 'SearchDataPerSect', '8')  +', _');
-    WriteLn(script, '       SearchMaxEmpty:='    +Ini.ReadString('TDD', 'SearchMaxEmpty',    '3')  +', _');
-    WriteLn(script, '       SearchRad1:='        +Ini.ReadString('TDD', 'SearchRad1',        '1')  +', _');
-    WriteLn(script, '       SearchRad2:='        +Ini.ReadString('TDD', 'SearchRad2',        '1')  +', _');
-    WriteLn(script, '       SearchAngle:='       +Ini.ReadString('TDD', 'SearchAngle',       '0')  +', _');
-  end;
-  if IntMethod='srfInverseDistanse' then begin
-    WriteLn(script, '       SearchEnable:='       +Ini.ReadString('TDD', 'SearchEnable',      '0')  +', _');
-    WriteLn(script, '       SearchNumSectors:='   +Ini.ReadString('TDD', 'SearchNumSectors',  '4')  +', _');
-    WriteLn(script, '       SearchMinData:='      +Ini.ReadString('TDD', 'SearchMinData',     '16') +', _');
-    WriteLn(script, '       SearchMaxData:='      +Ini.ReadString('TDD', 'SearchMaxData',     '64') +', _');
-    WriteLn(script, '       SearchDataPerSect:='  +Ini.ReadString('TDD', 'SearchDataPerSect', '8')  +', _');
-    WriteLn(script, '       SearchMaxEmpty:='     +Ini.ReadString('TDD', 'SearchMaxEmpty',    '3')  +', _');
-    WriteLn(script, '       SearchRad1:='         +Ini.ReadString('TDD', 'SearchRad1',        '1')  +', _');
-    WriteLn(script, '       SearchRad2:='         +Ini.ReadString('TDD', 'SearchRad2',        '1')  +', _');
-    WriteLn(script, '       SearchAngle:='        +Ini.ReadString('TDD', 'SearchAngle',       '0')  +', _');
-    WriteLn(script, '       AnisotropyRatio:='    +Ini.ReadString('TDD', 'AnisotropyRatio',   '1')  +', _');
-    WriteLn(script, '       AnisotropyAngle:='    +Ini.ReadString('TDD', 'AnisotropyAngle',   '0')  +', _');
-    WriteLn(script, '       IDPower:='            +Ini.ReadString('TDD', 'IDPower',           '2')  +', _');
-    WriteLn(script, '       IDSmoothing:='        +Ini.ReadString('TDD', 'IDSmoothing',       '0')  +', _');
-  end;
-  if IntMethod='srfNaturalNeighbor' then begin
-    WriteLn(script, '       AnisotropyRatio:='    +Ini.ReadString('TDD', 'AnisotropyRatio',   '1')  +', _');
-    WriteLn(script, '       AnisotropyAngle:='    +Ini.ReadString('TDD', 'AnisotropyAngle',   '0')  +', _');
-  end;
-  if IntMethod='srfNearestNeighbor' then begin
-    WriteLn(script, '       SearchRad1:='         +Ini.ReadString('TDD', 'SearchRad1',        '1')  +', _');
-    WriteLn(script, '       SearchRad2:='         +Ini.ReadString('TDD', 'SearchRad2',        '1')  +', _');
-    WriteLn(script, '       SearchAngle:='        +Ini.ReadString('TDD', 'SearchAngle',       '0')  +', _');
-  end;
-  if IntMethod='srfMinCurvature' then begin
-    WriteLn(script, '       MCMaxResidual:='      +Ini.ReadString('TDD', 'MCMaxResidual',     '1E-9')+', _');
-    WriteLn(script, '       MCMaxIterations:='    +Ini.ReadString('TDD', 'MCMaxIterations',   '1E+5')+', _');
-    WriteLn(script, '       MCInternalTension:='  +Ini.ReadString('TDD', 'MCInternalTension', '1')  +', _');
-    WriteLn(script, '       MCBoundaryTension:='  +Ini.ReadString('TDD', 'MCBoundaryTension', '0')  +', _');
-    WriteLn(script, '       MCRelaxationFactor:=' +Ini.ReadString('TDD', 'MCRelaxationFactor','0')  +', _');
-    WriteLn(script, '       AnisotropyRatio:='    +Ini.ReadString('TDD', 'AnisotropyRatio',   '1')  +', _');
-    WriteLn(script, '       AnisotropyAngle:='    +Ini.ReadString('TDD', 'AnisotropyAngle',   '0')  +', _');
-  end;
-  if IntMethod='srfRadialBasis' then begin
-    WriteLn(script, '       AnisotropyRatio:='    +Ini.ReadString('TDD', 'AnisotropyRatio',   '1')  +', _');
-    WriteLn(script, '       AnisotropyAngle:='    +Ini.ReadString('TDD', 'AnisotropyAngle',   '0')  +', _');
-  end;
-  if IntMethod='srfTriangulation' then begin
-    WriteLn(script, '       AnisotropyRatio:='    +Ini.ReadString('TDD', 'AnisotropyRatio',   '1')  +', _');
-    WriteLn(script, '       AnisotropyAngle:='    +Ini.ReadString('TDD', 'AnisotropyAngle',   '0')  +', _');
-  end;
-  if IntMethod='srfInverseDistanse' then begin
-    WriteLn(script, '       SearchMinData:='      +Ini.ReadString('TDD', 'SearchMinData',     '16') +', _');
-    WriteLn(script, '       SearchRad1:='         +Ini.ReadString('TDD', 'SearchRad1',        '1')  +', _');
-    WriteLn(script, '       SearchRad2:='         +Ini.ReadString('TDD', 'SearchRad2',        '1')  +', _');
-    WriteLn(script, '       SearchAngle:='        +Ini.ReadString('TDD', 'SearchAngle',       '0')  +', _');
-  end;
-     WriteLn(Script, '  DupMethod:=srfDupNone, _');
-     WriteLn(Script, '  ShowReport:=False, _');
-     WriteLn(Script, '  OutGrid:=PathGRD)');
-     WriteLn(Script, '');
-
-//создание трансформированного грида
-     WriteLn(Script, 'Surf.GridTransform(InGrid:=PathGRD, _');
-     WriteLn(Script, '  Operation:=srfGridTransScale, _');
-     WriteLn(Script, '  XScale:='+floattostr(kf_int)+', _');  //коэффициент трансформации
-     WriteLn(Script, '  YScale:=1, _');
-     WriteLn(Script, '  OutGrid:=PathGRD)');
-     WriteLn(Script, '');
-
-
-//сглаживание -> фильтрация
-  if Ini.ReadInteger('TDD', 'Filter', 0)>0 then begin
-     WriteLn(Script, 'Surf.GridFilter(InGrid:=PathGRD, _');
-		 WriteLn(Script, '  Filter:=srfFilterGaussian, _');
-		 WriteLn(Script, '  NumPasses:='+Ini.ReadString('TDD', 'Filter', '0')+', _');    //число прогонов из формы
-		 WriteLn(Script, '  OutGrid:=PathGRD)');
-     WriteLn(Script, '');
-  end;
-
-//добавление сдвига
-    WriteLn(Script, 'Surf.GridTransform(InGrid:=PathGRD, _');
-    WriteLn(Script, '  Operation:=srfGridTransOffset, _');
-    WriteLn(Script, '  XOffset:='+floattostr(StartDate)+', _');
-    WriteLn(Script, '  YOffset:=1, _');
-    WriteLn(Script, '  OutGrid:=PathGRD)');
-    WriteLn(Script, '');
-
-if CountGap=0 then begin
-//бланковка по вернему/нижнему минимальному/максимальному горизонтам
-//внутри заданного временного интервала
-     WriteLn(Script, 'Surf.GridBlank(InGrid:=PathGRD, _');
-     WriteLn(Script, '  BlankFile:=pathBlnFile, _');
-     WriteLn(Script, '  Outgrid:=PathGRD, _');
-     WriteLn(Script, '  outfmt:=1)');
-     WriteLn(Script, '');
+   mLog.Lines.Add('7. File month.dat has been created ('+timetostr(Now-TimeStart)+')');
+   Application.ProcessMessages;
 end;
-
-//NEW?
-if CountGap>0 then begin
-//бланковка по вернему/нижнему минимальному/максимальному горизонтам
-//внутри заданного временного интервала
-     WriteLn(Script, 'Surf.GridBlank(InGrid:=PathGRD, _');
-     WriteLn(Script, '  BlankFile:=pathBlnFile, _');
-     WriteLn(Script, '  Outgrid:=PathGRD, _');
-     WriteLn(Script, '  outfmt:=1)');
-     WriteLn(Script, '');
-end;
-
- (* Строим основной плот, убираем верхние и боковые метки*)
-    WriteLn(Script, 'Set ContourMapFrame=Doc.Shapes.AddContourMap(PathGRD)');
-    WriteLn(Script, 'Set Axes = ContourMapFrame.Axes');
-    WriteLn(Script, 'Set Axis = Axes("top axis")');
-    WriteLn(Script, 'Axis.MajorTickType = srfTickNone');
-    WriteLn(Script, 'Set Axis = Axes("right axis")');
-    WriteLn(Script, 'Axis.MajorTickType = srfTickNone');
-    WriteLn(Script, '');
-
-
- //   WriteLn(Script, 'Set contour1 = ContourMapFrame.Overlays("Contours") ');
- //   WriteLn(Script, '');
-
-//post1->положение узлов на диаграмме
-    WriteLn(Script, 'Set PostMap2=Doc.Shapes.AddPostMap(DataFileName:=pathDataFile, _');
-    WriteLn(Script, '   xCol:=1, _');  //Реальное время
-    WriteLn(Script, '   yCol:=3)');    //Глубина
-    WriteLn(Script, 'Set sampleMarks = PostMap2.Overlays(1)');
-    WriteLn(Script, '    With SampleMarks');
-    WriteLn(Script, '        .LabCol='+inttostr(numcol));
-    WriteLn(Script, '        .LabelFont.Size=4');
-    WriteLn(Script, '        .Symbol.Index=15');
-    WriteLn(Script, '        .Symbol.Size=0.03');
-    WriteLn(Script, '        .Symbol.Color=srfColorBlue');
-    WriteLn(Script, '        .Visible=False');
-    WriteLn(Script, '        .LabelAngle=0');
-    WriteLn(Script, '    End With');
-    WriteLn(Script, '');
-    WriteLn(Script, '');
-
-
-//объединение объектов -> OverlayMaps
-    WriteLn(Script, 'Doc.Shapes.SelectAll');
-    WriteLn(Script, 'Set NewMap = Doc.Selection.OverlayMaps');
-    WriteLn(Script, 'NewMap.xLength=20');
-    WriteLn(Script, 'NewMap.yLength=10');
-
-//фон->Background
-   // WriteLn(Script, 'NewMap.BackgroundFill.Pattern = "6.25% Black"');
-   // WriteLn(Script, 'NewMap.BackgroundFill.ForeColor = srfColorBlack30');
-
-//определение положения левого нижнего угла
-    WriteLn(Script, 'L = NewMap.Left');
-    WriteLn(Script, 'B = NewMap.top-NewMap.Height');
-    WriteLn(Script, 'Set ContourMap = NewMap.Overlays(1)');
-
-//цветная заливка->FillContours
- if (cbLvl.Enabled) and (cblvl.ItemIndex>-1) and (cblvl.Text<>'') then begin
-    WriteLn(Script, '   With ContourMap');
-    WriteLn(Script, '     .Levels.LoadFile("'+GlobalPath+'support\lvl\'+cbLvl.Text+'")');
-    WriteLn(Script, '     .FillContours = True');
-    WriteLn(Script, '     .ShowColorScale = True');
-    WriteLn(Script, '     .ColorScale.Top = NewMap.Top-0.2');
-    WriteLn(Script, '     .ColorScale.Height = NewMap.Height-0.7');
-    WriteLn(Script, '     .ColorScale.Left = NewMap.Left+NewMap.Width+0.4');
-    WriteLn(Script, '    End With');
- end;
-
-//масштабирование
-    WriteLn(Script, 'Diagram.Zoom(srfZoomFitToWindow)');
-    WriteLn(Script, 'Diagram.AutoRedraw = True');
-    WriteLn(Script, '');
-    WriteLn(Script, 'End Sub');
- finally
-   Ini.Free;
- end;
-
- CloseFile(script);
- btnPlot.Enabled:=true;
-end;
-
 
 (* Временные серии на стандартных горизонтах, пишем в файлы *)
 procedure Tfrmtimedepthdiagram.TimeSeriesAtLevels;
 var
-n,sdlev:integer;
-timeTR,time1,val1,valSCR,an,anscr:real;
-LookupRes:variant;
+k, cnt, n, sdlev:integer;
 fName:string;
+dat:text;
+TimeStart:TDateTime;
 begin
+TimeStart:=now;
 
-    cdsSdLev:=TBufDataSet.Create(nil);
-   with cdsSdLev.FieldDefs do begin
-      Add('sdlev',ftInteger,0,false);
-   end;
-    cdsSdLev.CreateDataSet;
-  //  cdsSdLev.LogChanges:=false;
-
-
-   //определяем стандартные горизонты
-    cdsTTDMonth.First;
-{w}while not cdsTTDMonth.Eof do begin
-    sdlev:=cdsTTDMonth.FieldByName('sdlev').AsInteger;
-
-    cdsSdLev.Lookup('sdlev',sdlev,'sdlev');
-
-    LookupRes:=cdsSdLev.Lookup('sdlev',sdlev,'sdlev');
-    if VarIsNull(LookupRes) then begin
-     cdsSdLev.Append;
-     cdsSdLev.FieldByName('sdlev').AsFloat:=sdlev;
-     cdsSdLev.Post;
-    end;
-    LookupRes:='';
-
-     //writeln(dat_Month, TimeTR:10:5, -sdlev:8, time:12:5,
-     // val:15:4,an:15:4,anSCR:15:4, n:8);
-
-    cdsTTDMonth.Next;
-{w}end;
-
-    //пишем временные серии
-     cdsSdLev.First;
-{L}while not cdsSdLev.Eof do begin
-    sdLev:=cdsSdLev.FieldByName('sdlev').AsInteger;
-
-    cdsTTDMonth.Filter:='sdlev='+inttostr(sdlev);
-    cdsTTDMonth.Filtered:=true;
+  //пишем временные серии
+for k:=0 to memo1.Lines.Count-1 do begin
+  sdLev:=StrToInt(memo1.Lines.Strings[k]);
 
     if sdLev=0 then fName:='0000';
     if Length(Inttostr(sdlev))=1 then fName:='000'+inttostr(sdlev);
@@ -1550,120 +1278,59 @@ begin
     if Length(Inttostr(sdlev))=3 then fName:='0'  +inttostr(sdlev);
     if Length(Inttostr(sdlev))=4 then fName:=inttostr(sdlev);
 
-    //Series at standard levels
-    AssignFile(dat_sdlev, TDDPath+'SeriesAtSdLevelsMonthlyMean\'+fName+'.dat'); Rewrite(dat_sdlev);
-    writeln(dat_sdlev,'time':12, 'val':9, 'valSCR':9, 'anom':9, 'anSCR':9, 'n':7);
+  cdsTTDMonth.Filtered:=false;
+  cdsTTDMonth.Filter:='sdlev='+inttostr(sdlev);
+  cdsTTDMonth.Filtered:=true;
 
-{w}while not cdsTTDMonth.Eof do begin
-    timeTR :=cdsTTDMonth.FieldByName('timeTR').AsFloat;
-    sdlev  :=cdsTTDMonth.FieldByName('sdlev').AsInteger;
-    time1  :=cdsTTDMonth.FieldByName('time').AsFloat;
-    val1   :=cdsTTDMonth.FieldByName('val').AsFloat;
-    valSCR :=cdsTTDMonth.FieldByName('valSCR').AsFloat;
-    an     :=cdsTTDMonth.FieldByName('an').AsFloat;
-    anSCR  :=cdsTTDMonth.FieldByName('anSCR').AsFloat;
-    n      :=cdsTTDMonth.FieldByName('n').AsInteger;
+  GetExactRecordCount(cdsTTDMonth, cnt);
 
-    writeln(dat_sdlev, time1:12:5, val1:9:3,valSCR:9:3,an:9:3,anscr:9:3,n:7);
+  if cnt>0 then begin
+    AssignFile(dat, TDDPath+'SeriesAtSdLevelsMonthlyMean'+PathDelim+fName+'.dat'); Rewrite(dat);
+    writeln(dat,'time':10, 'val':10, 'valSCR':10, 'anom':10, 'anSCR':10, 'n':8);
 
-    cdsTTDMonth.Next;
-{w}end;
-     closefile(dat_sdlev);
-     cdsSdLev.Next;
-{L}end;
+    cdsTTDMonth.First;
+    while not cdsTTDMonth.Eof do begin
+     writeln(dat, cdsTTDMonth.FieldByName('time').AsFloat:10:5,
+                  cdsTTDMonth.FieldByName('val').AsFloat:10:3,
+                  cdsTTDMonth.FieldByName('valSCR').AsFloat:10:3,
+                  cdsTTDMonth.FieldByName('an').AsFloat:10:3,
+                  cdsTTDMonth.FieldByName('anSCR').AsFloat:10:3,
+                  cdsTTDMonth.FieldByName('n').AsInteger:8);
 
-  //  cdsSdLev.EmptyDataSet;
-    cdsSdLev.Free;
-end;
-
-
-
-//output
-//time series at standard levels
-//initial interpolated profiles
-procedure Tfrmtimedepthdiagram.TimeSeriesAtLevels_Prf;
-var
-n,sdlev,absnum:integer;
-year,month,hour,min:word;
-timePRF,val,valSCR,an,anscr:real;
-LookupRes:variant;
-prfdate,prftime:TDateTime;
-ftemp:string;
-begin
-    cdsSdLev:=TBufDataSet.Create(nil);
-   with cdsSdLev.FieldDefs do begin
-      Add('sdlev',ftInteger,0,false);
-   end;
-    cdsSdLev.CreateDataSet;
-  //  cdsSdLev.LogChanges:=false;
-
-
-   //определяем стандартные горизонты
-    TDDcds.First;
-{w}while not TDDcds.Eof do begin
-    sdlev:=TDDcds.FieldByName('lev').AsInteger;
-
-    cdsSdLev.Lookup('sdlev',sdlev,'sdlev');
-
-    LookupRes:=cdsSdLev.Lookup('sdlev',sdlev,'sdlev');
-    if VarIsNull(LookupRes) then begin
-     cdsSdLev.Append;
-     cdsSdLev.FieldByName('sdlev').AsFloat:=sdlev;
-     cdsSdLev.Post;
+     cdsTTDMonth.Next;
     end;
-    LookupRes:='';
-    TDDcds.Next;
-{w}end;
+     closefile(dat);
+  end; // cnt cdsTTDMonth >0
 
 
-    //пишем временные серии
-     cdsSdLev.First;
-{L}while not cdsSdLev.Eof do begin
-    sdLev:=cdsSdLev.FieldByName('sdlev').AsInteger;
+  TDDcds.Filtered:=false;
+  TDDcds.Filter:='lev='+inttostr(sdlev);
+  TDDcds.Filtered:=true;
 
-    TDDcds.Filter:='lev='+inttostr(sdlev);
-    TDDcds.Filtered:=true;
+  GetExactRecordCount(cdsTTDMonth, cnt);
 
+  if cnt>0 then begin
+    AssignFile(dat, TDDPath+'SeriesAtSdLevelsInitialPrf'+PathDelim+fName+'.dat'); Rewrite(dat);
+    writeln(dat,'time':10, 'val':10, 'ID':10, 'Date':11, 'Time':9);
 
-    if sdLev=0 then ftemp:='0000';
-    if Length(Inttostr(sdlev))=1 then ftemp:='000'+inttostr(sdlev);
-    if Length(Inttostr(sdlev))=2 then ftemp:='00' +inttostr(sdlev);
-    if Length(Inttostr(sdlev))=3 then ftemp:='0'  +inttostr(sdlev);
-    if Length(Inttostr(sdlev))=4 then ftemp:=inttostr(sdlev);
+    TDDcds.First;
+    while not TDDcds.Eof do begin
 
-    //Series at standard levels
-    AssignFile(dat_sdlevPrf, TDDPath+'SeriesAtSdLevelsInitialPrf\'+ftemp+'.dat'); Rewrite(dat_sdlevPrf);
-    writeln(dat_sdlevPrf,'time_tr':12, 'val':10, 'absnum':10, 'Date':12, 'Time':10);
-
-{w}while not TDDcds.Eof do begin
-
-   absnum:=TDDCDS.FieldByName('absnum').asInteger;
-   prfdate:=TDDCDS.FieldByName('date').AsDateTime;
-   prftime:=TDDCDS.FieldByName('time').asDateTime;
-   sdlev:=TDDCDS.FieldByName('lev').asInteger;
-   Val:=TDDCDS.FieldByName('Val').asfloat;
-   year:=TDDCDS.FieldByName('year').asInteger;
-   Month:=TDDCDS.FieldByName('month').asInteger;
-   Hour:=TDDCDS.FieldByName('hour').asInteger;
-   Min:=TDDCDS.FieldByName('min').asInteger;
-
-        timePRF:=TDDCDS.FieldByName('year').asInteger+
-               (TDDCDS.FieldByName('month').asInteger-1)/12+
-               TDDCDS.FieldByName('day').asInteger/365+
-               TDDCDS.FieldByName('hour').asInteger/(24*365)+
-               TDDCDS.FieldByName('min').asInteger/(3600*365);
-
-    writeln(dat_sdlevPrf,timePRF:12:5,val:10:3,absnum:10,datetostr(prfdate):12,
-            timetostr(prftime):10);
+    writeln(dat,TDDCDS.FieldByName('date_dec').AsFloat:10:5,
+                TDDCDS.FieldByName('Val').asfloat:10:3,
+                TDDCDS.FieldByName('ID').asInteger:10,
+                datetostr(TDDCDS.FieldByName('date_date').asDateTime):11,
+                timetostr(TDDCDS.FieldByName('date_date').asDateTime):9);
 
     TDDcds.Next;
-{w}end;
-     closefile(dat_sdlevPrf);
-     cdsSdLev.Next;
-{L}end;
+    end;
+   closefile(dat);
+  end; // cnt TDDCDS >0
 
-  //  cdsSdLev.EmptyDataSet;
-    cdsSdLev.Free;
+ end; //levels
+
+mLog.Lines.Add('8. Time series on st. levels ('+timetostr(Now-TimeStart)+')');
+Application.ProcessMessages;
 end;
 
 
@@ -1676,7 +1343,11 @@ timetr, date1, date_old, lev, val1, val_old:real;
 fdb:TSearchRec;
 Path:string;
 DateMin, DateMax, LevMin, LevMax, DateMid:real;
+
+dat, dat1:text;
+TimeStart:TDateTime;
 begin
+TimeStart:=now;
  //Загружаем список файлов
   path:=TDDPath+'SeriesAtSdLevelsMonthlyMean\';
    fdb.Name:='';
@@ -1687,7 +1358,7 @@ begin
 
 
   AssignFile(dat1, TDDPath+'Month_dif.dat'); Rewrite(dat1);
-  Writeln(dat1, 'Date':15, 'lev':10, 'valDif':10);
+  Writeln(dat1, 'Date':10, 'lev':10, 'valDif':10);
 
   for k:=0 to lbMonthlyLevels.Count-1 do begin
    AssignFile(dat, Path+lbMonthlyLevels.Items.Strings[k]); Reset(dat);
@@ -1702,7 +1373,7 @@ begin
         end;
         if c>1 then begin
         //  if Date1-Date_old<=0.2 then begin //Если разница по времени больше 2х месяцев - пропускаем
-             writeln(dat1, Date_old:15:5, -lev:10:1, (Val_old-Val1):10:3);
+             writeln(dat1, Date_old:10:5, lev:10:0, (Val_old-Val1):10:3);
           Val_old:=Val1;
           Date_old:=Date1;
         end;
@@ -1710,11 +1381,14 @@ begin
     Closefile(dat);
   end;
  CloseFile(dat1);
+
+ mLog.Lines.Add('9. Difference between two seq. months ('+timetostr(Now-TimeStart)+')');
+ Application.ProcessMessages;
 end;
 
 
 
-procedure Tfrmtimedepthdiagram.MeanByYear;
+procedure Tfrmtimedepthdiagram.AnnualMean;
 Var
 YCDS:TBufDataSet;
 k, c, YY, YY_old, count:integer;
@@ -1723,9 +1397,12 @@ timetr, date1, lev, val1, val_old, lev1:real;
 ValMean, Sum:real;
 fdb:TSearchRec;
 DateMin, DateMax, LevMin, LevMax, DateMid:real;
+dat, dat1:text;
+TimeStart:TDateTime;
 begin
+TimeStart:=now;
  (* Загружаем список файлов *)
-  path:=TDDPath+'SeriesAtSdLevelsMonthlyMean\';
+  path:=TDDPath+'SeriesAtSdLevelsMonthlyMean'+PathDelim;
    fdb.Name:='';
    lbMonthlyLevels.Clear;
     FindFirst(Path+'*.dat',faAnyFile, fdb);
@@ -1734,7 +1411,7 @@ begin
 
 
   AssignFile(dat1, TDDPath+'Year.dat'); Rewrite(dat1);
-  Writeln(dat1, 'Date':15, 'lev':10, 'YearVal':10, 'YearAnom':10);
+  Writeln(dat1, 'Date':10, 'lev':10, 'Value':10, 'Anom':10);
 
   for k:=0 to lbMonthlyLevels.Count-1 do begin
     Lev:=StrToFloat(Copy(lbMonthlyLevels.Items.Strings[k],1,4));
@@ -1797,15 +1474,57 @@ begin
         while not YCDS.Eof do begin
          YY  :=YCDS.FieldByName('year').AsInteger;
          Val1:=YCDS.FieldByName('md').AsFloat;
-            Writeln(dat1, YY:15, -lev:10:0, Val1:10:3, (Val1-ValMean):10:3);
+            Writeln(dat1, YY:10, lev:10:0, Val1:10:3, (Val1-ValMean):10:3);
          YCDS.Next;
         end;
      end;
       YCDS.Free;
   end;
  CloseFile(dat1);
+
+ mLog.Lines.Add('9. Yearly averaged data ('+timetostr(Now-TimeStart)+')');
+ Application.ProcessMessages;
 end;
 
+
+(* Выбираем файл для построения и читаем первую строчку *)
+procedure Tfrmtimedepthdiagram.rgDataFileClick(Sender: TObject);
+begin
+
+ rgVariable.Items.Clear;
+ Case rgDataFile.ItemIndex of
+  -1: Exit;
+   0: begin
+       CurrentFile:=TDDPath+'Real.dat';
+       rgVariable.Items.Add('Value');
+      end;
+   1: begin
+       CurrentFile:=TDDPath+'StLev.dat';
+       rgVariable.Items.Add('Value');
+       rgVariable.Items.Add('Anomaly');
+      end;
+   2: begin
+       CurrentFile:=TDDPath+'Month.dat';
+       rgVariable.Items.Add('Value');
+       rgVariable.Items.Add('Value SCR');
+       rgVariable.Items.Add('Anomaly');
+       rgVariable.Items.Add('Anomaly SCR');
+      end;
+   3: begin
+       CurrentFile:=TDDPath+'Year.dat';
+       rgVariable.Items.Add('Value');
+       rgVariable.Items.Add('Anomaly');
+      end;
+   4: begin
+       CurrentFile:=TDDPath+'Month_dif.dat';
+       rgVariable.Items.Add('Value');
+      end;
+ End;
+
+ rgVariable.ItemIndex:=0;
+ btnPlot.Enabled:=true;
+ btnOpenScript.Enabled:=true;
+end;
 
 procedure Tfrmtimedepthdiagram.cbParametersSelect(Sender: TObject);
 begin
@@ -1814,16 +1533,9 @@ begin
 end;
 
 
-procedure Tfrmtimedepthdiagram.cbParametersChange(Sender: TObject);
-begin
-   numcol:=cbParameters.ItemIndex+4;
-  // showmessage('numcol='+inttostr(numcol));
-end;
-
-
 procedure Tfrmtimedepthdiagram.btnOpenFolderClick(Sender: TObject);
 begin
-   OpenDocument(PChar(TDDPath)); { *Converted from ShellExecute* }
+   OpenDocument(PChar(TDDPath));
 end;
 
 
@@ -1831,10 +1543,8 @@ procedure Tfrmtimedepthdiagram.btnOpenScriptClick(Sender: TObject);
 Var
 ScriptFile:string;
 begin
- //GetScript; // Пересоздаем скрипт
- GetScriptSmooth;
  ScriptFile:=TDDPath+'Script.bas';
-  if FileExists(ScriptFile) then  OpenDocument(PChar(ScriptFile)); { *Converted from ShellExecute* }
+  if FileExists(ScriptFile) then  OpenDocument(PChar(ScriptFile));
 end;
 
 
@@ -1853,51 +1563,42 @@ end;
 
 procedure Tfrmtimedepthdiagram.btnPlotClick(Sender: TObject);
 var
-cmd, Scripter:string;
-StartupInfo:  TStartupInfo;
-//ProcessInfo:  TProcessInformation;
-Ini:TIniFile;
+cmd:string;
+col: integer;
 begin
-if cbParameters.itemIndex=-1 then exit;
 
- GetScriptSmooth;
+ col:=rgVariable.ItemIndex+4;
 
-  Ini := TIniFile.Create(IniFileName); // settings from file
-  try
-   scripter:=Ini.ReadString('Main', 'SurferPath', '');
-  finally
-    Ini.Free;
-  end;
+ surfer_tdd.GetTDDScript(CurrentFile,
+                         Parameter_name+', '+trim(Units_default_name),
+                         col
+                         );
 
-{ If FileExists(Scripter)=false then
-   if MessageDlg('Check Surfer Scripter path', mtWarning, [mbOk], 0)=mrOk then begin
-    Preferences:= TPreferences.Create(Self);
-     Preferences.pcPreferences.ActivePageIndex:=0;
-     try
-      if  Preferences.ShowModal = mrOk then
-     finally
-      Preferences.Free;
-      Preferences := nil;
-     end;
-   exit;
-  end; }
 
- (*Запуск скрипта на исполнение*)
- { cmd:=Concat('"'+Scripter, '"', ' -x ', '"', TDDPath+'script.bas"');
-  Fillchar(startupInfo, Sizeof(StartupInfo), #0);
-  StartupInfo.cb:=Sizeof(StartupInfo);
-   if CreateProcess(nil, Pchar(cmd), nil, nil, false,
-      CREATE_NO_WINDOW, nil, nil, StartupInfo, ProcessInfo) then begin
-      WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
-      FileClose(ProcessInfo.hProcess); { *Converted from CloseHandle* }
-   end; }
+ cmd:=Concat(' -x ', '"', TDDPath+'script.bas"');
+
+ frmosmain.RunScript(2, cmd, nil);
 end;
 
 
-{procedure Tfrmtimedepthdiagram.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure Tfrmtimedepthdiagram.FormClose(Sender: TObject;
+  var CloseAction: TCloseAction);
+Var
+  Ini:TIniFile;
 begin
-  isNew:=true;
-  TDDOpen:=false;
-end;}
+
+ Ini := TIniFile.Create(IniFileName);
+ try
+  Ini.WriteInteger('tdd', 'YearMin', seYY1.Value);
+  Ini.WriteInteger('tdd', 'YearMax', seYY2.Value);
+ finally
+  Ini.Free;
+ end;
+
+  TDDCDS.Free;
+  cdsTTDMonth.Free;
+  MCDS.Free;
+  cdsMeanPrf.Free;
+end;
 
 end.

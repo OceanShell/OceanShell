@@ -236,26 +236,26 @@ object frmsurfersettings: Tfrmsurfersettings
         Left = 14
         Height = 92
         Top = 304
-        Width = 360
+        Width = 242
         Caption = '   '
         ClientHeight = 62
-        ClientWidth = 356
+        ClientWidth = 238
         ParentFont = False
         TabOrder = 3
         object Label22: TLabel
           Left = 16
           Height = 25
-          Top = 20
+          Top = 16
           Width = 124
           Caption = 'Label frequency'
           ParentColor = False
           ParentFont = False
         end
         object seColScaleLbFreq: TSpinEdit
-          Left = 261
+          Left = 160
           Height = 33
           Top = 8
-          Width = 75
+          Width = 61
           MaxValue = 999
           MinValue = 1
           ParentFont = False
@@ -392,6 +392,66 @@ object frmsurfersettings: Tfrmsurfersettings
         Width = 118
         Caption = 'Fill contour'
         TabOrder = 7
+      end
+      object GroupBox8: TGroupBox
+        Left = 272
+        Height = 92
+        Top = 304
+        Width = 307
+        Caption = '   '
+        ClientHeight = 62
+        ClientWidth = 303
+        ParentFont = False
+        TabOrder = 8
+        object Label23: TLabel
+          Left = 16
+          Height = 25
+          Top = 16
+          Width = 42
+          Caption = 'Rows'
+          ParentColor = False
+          ParentFont = False
+        end
+        object seRows: TSpinEdit
+          Left = 70
+          Height = 33
+          Top = 8
+          Width = 75
+          MaxValue = 999
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 0
+          Value = 2
+        end
+        object Label31: TLabel
+          Left = 168
+          Height = 25
+          Top = 16
+          Width = 34
+          Caption = 'Cols'
+          ParentColor = False
+          ParentFont = False
+        end
+        object seCols: TSpinEdit
+          Left = 214
+          Height = 33
+          Top = 8
+          Width = 74
+          MaxValue = 999
+          MinValue = 1
+          ParentFont = False
+          TabOrder = 1
+          Value = 2
+        end
+      end
+      object chkCustomGridSize: TCheckBox
+        Left = 280
+        Height = 29
+        Top = 304
+        Width = 97
+        Caption = 'Grid size'
+        ParentFont = False
+        TabOrder = 9
       end
     end
     object TabSheet2: TTabSheet

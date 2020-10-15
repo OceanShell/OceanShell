@@ -48,12 +48,7 @@ var
 
 implementation
 
-uses osmain, dm, osprofile_plot_all;
-
-    {QProfilesFRM, QDensityFRM, ToolTSDiagramFRM,
-     ToolFields,  SelectionFRM, ToolTimeDepthDiagram, SectionsFRM,
-     StatAtSLFRM, ODBProcedures, ToolTimeSeries, MeanProfileFRM,
-     SectionAnomaliesFRM; }
+uses osmain, dm, osprofile_plot_all, ostimedepthdiagram;
 
 {$R *.lfm}
 
@@ -181,17 +176,17 @@ begin
     end;
 
     //Запускаем временные серии
- {   if Caption='TDDIAGRAMS' then begin
-     frmTDDiagram:= TfrmTDDiagram.Create(Self);
-      try
-       if frmTDDiagram.ShowModal = mrOk then
-      finally
-       frmTDDiagram.Free;
-       frmTDDiagram:= nil;
-      end;
+    if Caption='TDDIAGRAMS' then begin
+     frmtimedepthdiagram := Tfrmtimedepthdiagram.Create(Self);
+     try
+      if not frmtimedepthdiagram.ShowModal = mrOk then exit;
+     finally
+      frmtimedepthdiagram.Free;
+      frmtimedepthdiagram := nil;
+     end;
     end;
 
-    if Caption='TIME SERIES' then begin
+ {   if Caption='TIME SERIES' then begin
      frmTimeSeries:= TfrmTimeSeries.Create(Self);
      try
       if not frmTimeSeries.ShowModal = mrOk then exit;

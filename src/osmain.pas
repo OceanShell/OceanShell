@@ -6,9 +6,9 @@ interface
 
 uses
   SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, LCLType,
-  Menus, Dialogs, ActnList, StdCtrls, IniFiles, ExtCtrls, DateUtils, sqldb, DB,
-  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math, Grids,
-  LCLIntf, ComboEx;
+  Menus, Dialogs, ActnList, StdCtrls, IniFiles, ExtCtrls, DateUtils, sqldb,
+  DB, Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math,
+  Grids, LCLIntf, ComboEx;
 
 type
 
@@ -70,7 +70,6 @@ type
     chkNOTProject: TCheckBox;
     chkCruiseNOTSource: TCheckBox;
     chkParameters: TCheckGroup;
-    chkinstrument: TCheckGroup;
     chkPeriod: TCheckBox;
     chkCruiseIgnoreDuplicates: TCheckBox;
     DBGridCruise1: TDBGrid;
@@ -81,16 +80,12 @@ type
     DBMemoCruises: TDBMemo;
     DBMemoEntriy: TDBMemo;
     dtpCruiseDateAddedMax: TDateTimePicker;
-    dtpDateAddedMin: TDateTimePicker;
     dtpCruiseDateAddedMin: TDateTimePicker;
     dtpCruiseDateMax: TDateTimePicker;
     dtpCruiseDateMin: TDateTimePicker;
     dtpCruiseDateUpdatedMax: TDateTimePicker;
-    dtpDateUpdatedMin: TDateTimePicker;
     dtpDateMin: TDateTimePicker;
     dtpDateMax: TDateTimePicker;
-    dtpDateAddedMax: TDateTimePicker;
-    dtpDateUpdatedMax: TDateTimePicker;
     dtpCruiseDateUpdatedMin: TDateTimePicker;
     eEntry_ID: TEdit;
     eEntry_Title: TEdit;
@@ -101,9 +96,7 @@ type
     GroupBox12: TGroupBox;
     GroupBox2: TGroupBox;
     gbAuxiliaryParameters: TGroupBox;
-    GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
-    GroupBox6: TGroupBox;
     GroupBox7: TGroupBox;
     GroupBox8: TGroupBox;
     GroupBox9: TGroupBox;
@@ -135,7 +128,7 @@ type
     iExportCIA: TMenuItem;
     iQC_WideRanges: TMenuItem;
     iMeteo: TMenuItem;
-    iqc_sd_analysis: TMenuItem;
+    iTDdiagrams: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
     iBottomDepthGEBCO: TMenuItem;
@@ -169,7 +162,6 @@ type
     sbSelection: TStatusBar;
     ODir: TSelectDirectoryDialog;
     ScrollBox1: TScrollBox;
-    ScrollBox2: TScrollBox;
     seCruiseStationsDuplicateMin: TSpinEdit;
     seCruiseStationsTotalMin: TSpinEdit;
     seCruiseStationsDatabaseMin: TSpinEdit;
@@ -250,7 +242,12 @@ type
     procedure btnSelectCruisesClick(Sender: TObject);
     procedure btnSelectIDClick(Sender: TObject);
     procedure btnSelectStationsClick(Sender: TObject);
-    procedure DBGridCruise1CellClick(Column: TColumn);
+    procedure cbCountryDropDown(Sender: TObject);
+    procedure cbInstituteDropDown(Sender: TObject);
+    procedure cbPlatformDropDown(Sender: TObject);
+    procedure cbProjectDropDown(Sender: TObject);
+    procedure cbSourceDropDown(Sender: TObject);
+  //  procedure DBGridCruise1CellClick(Column: TColumn);
     procedure DBGridCruise1ColumnSized(Sender: TObject);
     procedure DBGridCruise1EditingDone(Sender: TObject);
     procedure DBGridCruise1PrepareCanvas(sender: TObject; DataCol: Integer;
@@ -258,13 +255,13 @@ type
     procedure DBGridCruise1SelectEditor(Sender: TObject; Column: TColumn;
       var Editor: TWinControl);
     procedure DBGridCruise1TitleClick(Column: TColumn);
-    procedure DBGridCruise1UserCheckboxState(Sender: TObject; Column: TColumn;
-      var AState: TCheckboxState);
+  //  procedure DBGridCruise1UserCheckboxState(Sender: TObject; Column: TColumn;
+ //     var AState: TCheckboxState);
     procedure DBGridCruise2EditingDone(Sender: TObject);
     procedure DBGridCruise2SelectEditor(Sender: TObject; Column: TColumn;
       var Editor: TWinControl);
     procedure DBGridCruise2TitleClick(Column: TColumn);
-    procedure DBGridEntryCellClick(Column: TColumn);
+  //  procedure DBGridEntryCellClick(Column: TColumn);
     procedure DBGridEntryColumnSized(Sender: TObject);
     procedure DBGridEntryTitleClick(Column: TColumn);
     procedure DBGridEntryUserCheckboxState(Sender: TObject; Column: TColumn;
@@ -299,7 +296,6 @@ type
     procedure iPlotBathymetryClick(Sender: TObject);
     procedure iQCflagfromfileClick(Sender: TObject);
     procedure iQC_dbar_meterClick(Sender: TObject);
-    procedure iqc_sd_analysisClick(Sender: TObject);
     procedure iQC_WideRangesClick(Sender: TObject);
     procedure iSelectCruiseClick(Sender: TObject);
     procedure iNewDatabaseClick(Sender: TObject);
@@ -308,6 +304,7 @@ type
     procedure iSettingsClick(Sender: TObject);
     procedure iStandarddeviationslayersClick(Sender: TObject);
     procedure iSupportTablesClick(Sender: TObject);
+    procedure iTDdiagramsClick(Sender: TObject);
     procedure iUpdateLastLevelClick(Sender: TObject);
     procedure iUpdateUnitsClick(Sender: TObject);
     procedure iVisualizationSurferSquaresClick(Sender: TObject);
@@ -325,13 +322,17 @@ type
     procedure SearchINSTITUTE(Sender:TObject);
     procedure SearchPROJECT(Sender:TObject);
     procedure FetchEntries;
-    procedure PopulatePickLists;
+
     procedure GetIDListCruise(Var id_str:string);
     procedure GetIDListEntry(Var id_str:string);
     procedure GetIDListStation(Var id_str:string);
-
     procedure SelectGetCruisesFromStation(SQL_str:string);
 
+    procedure PopulatePLATFORMList;
+    procedure PopulateCOUNTRYList;
+    procedure PopulateSOURCEList;
+    procedure PopulateINSTITUTEList;
+    procedure PopulatePROJECTList;
   public
 
  //   RecListCruise  :TBookmarklist;
@@ -448,7 +449,6 @@ uses
   osqc_duplicates,
   osqc_wideranges,
   osqc_meanprofile,
-  osqc_sdanalysis,
   osqc_setflags,
 
 (* tools *)
@@ -467,6 +467,7 @@ uses
 
 (* visualization *)
   osviz_surfer_squares
+
 ;
 
 {$R *.lfm}
@@ -532,10 +533,10 @@ begin
     cbProject.Text   :=Ini.ReadString ( 'osmain', 'station_project',   '');
     dtpDateMin.DateTime:=Ini.ReadDateTime('osmain', 'station_datemin', now);
     dtpDateMax.DateTime:=Ini.ReadDateTime('osmain', 'station_datemax', now);
-    dtpDateAddedMin.DateTime:=Ini.ReadDateTime('osmain', 'station_dateaddedmin', now);
-    dtpDateAddedMax.DateTime:=Ini.ReadDateTime('osmain', 'station_dateaddedmax', now);
-    dtpDateUpdatedMin.DateTime:=Ini.ReadDateTime('osmain', 'station_dateupdatedmin', now);
-    dtpDateUpdatedMax.DateTime:=Ini.ReadDateTime('osmain', 'station_dateupdatedmax', now);
+   // dtpDateAddedMin.DateTime:=Ini.ReadDateTime('osmain', 'station_dateaddedmin', now);
+  //  dtpDateAddedMax.DateTime:=Ini.ReadDateTime('osmain', 'station_dateaddedmax', now);
+  //  dtpDateUpdatedMin.DateTime:=Ini.ReadDateTime('osmain', 'station_dateupdatedmin', now);
+  //  dtpDateUpdatedMax.DateTime:=Ini.ReadDateTime('osmain', 'station_dateupdatedmax', now);
     //seCruiseStationsDatabaseMin.Value:=Ini.ReadInteger( 'osmain', 'idmax',      0);
 
     (* CRUISE search settings *)
@@ -593,13 +594,12 @@ begin
     With DBGridEntry do begin
      Columns[0].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col00',  30); //CheckBox
      Columns[1].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col01',  50); //ID
-     Columns[2].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col02', 100); //Type
-     Columns[3].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col03', 150); //Title
-     Columns[4].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col04',  60); //Stations
-     Columns[5].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col05',  70); //Start date
-     Columns[6].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col06',  70); //Finish date
-     Columns[7].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col07',  70); //Date_added
-     Columns[8].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col08',  70); //Date_upfated
+     Columns[2].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col02', 150); //Title
+     Columns[3].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col03',  60); //Stations
+     Columns[4].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col04',  70); //Start date
+     Columns[5].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col05',  70); //Finish date
+     Columns[6].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col06',  70); //Date_added
+     Columns[7].Width :=Ini.ReadInteger( 'osmain', 'DBGridEntry_Col07',  70); //Date_upfated
     end;
 
     with DBGridStation1 do begin
@@ -667,7 +667,7 @@ begin
 
 
  (* disabling menu items *)
-  for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
+ // for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
 
  (* list of unique sources - only those selected *)
  Source_unq:=TStringList.Create;
@@ -806,8 +806,8 @@ try
                           ' (Extract(Day from DATEANDTIME)<= :SSDayMax)) ';
     end;
 
-    SQL_str:=SQL_str+'  AND (STATION.DATE_ADDED between :SSDateAddedMin and :SSDateAddedMax) ';
-    SQL_str:=SQL_str+'  AND (STATION.DATE_UPDATED between :SSDateUpdatedMin and :SSDateUpdatedMax) ';
+ //   SQL_str:=SQL_str+'  AND (STATION.DATE_ADDED between :SSDateAddedMin and :SSDateAddedMax) ';
+ //   SQL_str:=SQL_str+'  AND (STATION.DATE_UPDATED between :SSDateUpdatedMin and :SSDateUpdatedMax) ';
 
     (* End of Date and Time *)
 
@@ -879,10 +879,10 @@ try
        ParamByName('SSDateMin').AsDateTime:=dtpDateMin.DateTime;
        ParamByName('SSDateMax').AsDateTime:=dtpDateMax.DateTime;
      end;
-    ParamByName('SSDateAddedMin').AsDateTime:=dtpDateAddedMin.DateTime;
-    ParamByName('SSDateAddedMax').AsDateTime:=dtpDateAddedMax.DateTime;
-    ParamByName('SSDateUpdatedMin').AsDateTime:=dtpDateUpdatedMin.DateTime;
-    ParamByName('SSDateUpdatedMax').AsDateTime:=dtpDateUpdatedMax.DateTime;
+   // ParamByName('SSDateAddedMin').AsDateTime:=dtpDateAddedMin.DateTime;
+   // ParamByName('SSDateAddedMax').AsDateTime:=dtpDateAddedMax.DateTime;
+   // ParamByName('SSDateUpdatedMin').AsDateTime:=dtpDateUpdatedMin.DateTime;
+  //  ParamByName('SSDateUpdatedMax').AsDateTime:=dtpDateUpdatedMax.DateTime;
 
    Open;
  end;
@@ -1396,10 +1396,10 @@ begin
   dtpDateMax.DateTime:=IBDateMax;
   chkPeriod.Checked:=false;
 
-  dtpDateAddedMin.DateTime:=IBDateAddedMin;
+  {dtpDateAddedMin.DateTime:=IBDateAddedMin;
   dtpDateAddedMax.DateTime:=IBDateAddedMax;
   dtpDateUpdatedMin.DateTime:=IBDateUpdatedMin;
-  dtpDateUpdatedMax.DateTime:=IBDateUpdatedMax;
+  dtpDateUpdatedMax.DateTime:=IBDateUpdatedMax;  }
 
   for k:=0 to chkParameters.Items.Count-1 do
     chkParameters.Checked[k]:=false;
@@ -1603,6 +1603,17 @@ begin
   frmparameters_list_open:=true;
 end;
 
+procedure Tfrmosmain.iTDdiagramsClick(Sender: TObject);
+begin
+  if frmparameters_list_open=true then frmparameters_list.SetFocus else
+     begin
+       frmparameters_list := Tfrmparameters_list.Create(Self);
+       frmparameters_list.Show;
+     end;
+  frmparameters_list.Caption:='TDDIAGRAMS';
+  frmparameters_list_open:=true;
+end;
+
 
 procedure Tfrmosmain.btnAdvancedSelectionClick(Sender: TObject);
 begin
@@ -1744,10 +1755,10 @@ Qt_DB1.Transaction:=TRt_DB1;
 
            dtpDateMin.DateTime:=IBDateMin;
            dtpDateMax.DateTime:=IBDateMax;
-           dtpDateAddedMin.DateTime:=IBDateAddedMin;
+           {dtpDateAddedMin.DateTime:=IBDateAddedMin;
            dtpDateAddedMax.DateTime:=IBDateAddedMax;
            dtpDateUpdatedMin.DateTime:=IBDateUpdatedMin;
-           dtpDateUpdatedMax.DateTime:=IBDateUpdatedMax;
+           dtpDateUpdatedMax.DateTime:=IBDateUpdatedMax;}
          end;
 
       end else for k:=1 to 7 do sbDatabase.Panels[k].Text:='---';
@@ -1833,8 +1844,6 @@ Qt_DB1.Transaction:=TRt_DB1;
    (* Loading ENTRY list *)
    FetchEntries;
 
-   (* Populating picklists in both grids *)
-   PopulatePickLists;
 
    (* cleaning selection info *)
    for k:=1 to 7 do sbSelection.Panels[k].Text:='---';
@@ -1916,8 +1925,6 @@ begin
   if not frmdm.QCruise.IsEmpty then
     tsSelectedCruises.Caption:='Selected cruises: '+inttostr(frmdm.QCruise.RecordCount);
 
-
-
   if frmprofile_plot_all_open then begin
     frmprofile_plot_all.Close;
     frmprofile_plot_all:= Tfrmprofile_plot_all.Create(nil);
@@ -1946,12 +1953,20 @@ begin
   Application.ProcessMessages;
 end;
 
-procedure Tfrmosmain.PopulatePickLists;
+procedure Tfrmosmain.cbPlatformDropDown(Sender: TObject);
+begin
+  PopulatePlatformList;
+end;
+
+
+procedure Tfrmosmain.PopulatePlatformList;
 Var
-  pp:integer;
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
+  pp: integer;
 begin
+ if cbPlatform.Count>0 then exit;
+
   try
    TRt:=TSQLTransaction.Create(self);
    TRt.DataBase:=frmdm.IBDB;
@@ -1961,54 +1976,20 @@ begin
    Qt.Transaction:=TRt;
 
    DBGridCruise1.Columns[2].PickList.Clear; //PLATFORM
-   DBGridCruise1.Columns[4].PickList.Clear; //SOURCE
-
-   DBGridCruise2.Columns[0].PickList.Clear; //COUNTRY
-   DBGridCruise2.Columns[1].PickList.Clear; //INSTITUTE
-   DBGridCruise2.Columns[2].PickList.Clear; //PROJECT
-
-   DBGridEntry.Columns[2].PickList.Clear;
 
    cbPlatform.Clear;
-   cbCountry.Clear;
-   cbSource.Clear;
-   cbInstitute.Clear;
-   cbProject.Clear;
 
-    For pp:=1 to 7 do begin
-      Qt.Close;
-       case pp of
-         1: Qt.SQL.Text:=' SELECT DISTINCT NAME FROM PLATFORM ORDER BY NAME ';
-         2: Qt.SQL.Text:=' SELECT DISTINCT NAME FROM COUNTRY ORDER BY NAME ';
-         3: Qt.SQL.Text:=' SELECT DISTINCT NAME FROM SOURCE ORDER BY NAME ';
-         4: Qt.SQL.Text:=' SELECT DISTINCT NAME FROM INSTITUTE ORDER BY NAME ';
-         5: Qt.SQL.Text:=' SELECT DISTINCT NAME FROM PROJECT ORDER BY NAME ';
-         6: Qt.SQL.Text:=' SELECT DISTINCT NAME FROM ENTRY_TYPE ORDER BY NAME ';
-         7: Qt.SQL.Text:=' SELECT DISTINCT NAME FROM INSTRUMENT ORDER BY ID ';
-       end;
-      Qt.Open;
+   Qt.Close;
+   Qt.SQL.Text:=' SELECT DISTINCT NAME FROM PLATFORM ORDER BY NAME ';
+   Qt.Open;
 
-      while not Qt.Eof do begin
-        case pp of
-         1: cbPlatform.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
-         2: cbCountry.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
-         3: cbSource.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
-         4: cbInstitute.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
-         5: cbProject.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
-         6: DBGridEntry.Columns[2].PickList.Add(Qt.Fields[0].AsString);
-         7: chkInstrument.Items.Add(Qt.Fields[0].AsString);
-        end;
-       Qt.Next;
-      end;
+   while not Qt.Eof do begin
+     cbPlatform.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
+    Qt.Next;
+   end;
 
-      DBGridCruise1.Columns[2].PickList:=cbPlatform.Items;
-      DBGridCruise1.Columns[4].PickList:=cbSource.Items;
+   DBGridCruise1.Columns[2].PickList:=cbPlatform.Items;
 
-      DBGridCruise2.Columns[0].PickList:=cbCountry.Items;
-      DBGridCruise2.Columns[1].PickList:=cbInstitute.Items;
-      DBGridCruise2.Columns[2].PickList:=cbProject.Items;
-
-    end;
     Qt.Close;
     TRt.Commit;
   finally
@@ -2019,18 +2000,197 @@ begin
    cbCruisePlatform.Clear;
    for pp:=0 to cbPlatform.Count-1 do
      cbCruisePlatform.AddItem(cbPlatform.Items.Strings[pp], cbUnchecked, true);
+end;
+
+procedure Tfrmosmain.cbCountryDropDown(Sender: TObject);
+begin
+  PopulateCountryList;
+end;
+
+procedure Tfrmosmain.PopulateCOUNTRYList;
+Var
+  pp:integer;
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
+begin
+  if cbCountry.Count>0 then exit;
+
+  try
+   TRt:=TSQLTransaction.Create(self);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt:=TSQLQuery.Create(self);
+   Qt.Database:=frmdm.IBDB;
+   Qt.Transaction:=TRt;
+
+
+   DBGridCruise2.Columns[0].PickList.Clear; //COUNTRY
+   cbCountry.Clear;
+
+   Qt.Close;
+   Qt.SQL.Text:=' SELECT DISTINCT NAME FROM COUNTRY ORDER BY NAME ';
+   Qt.Open;
+
+   while not Qt.Eof do begin
+     cbCountry.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
+    Qt.Next;
+   end;
+
+   DBGridCruise2.Columns[0].PickList:=cbCountry.Items;
+
+   Qt.Close;
+   TRt.Commit;
+  finally
+   Qt.Free;
+   TrT.Free;
+  end;
 
    cbCruiseCountry.Clear;
    for pp:=0 to cbCountry.Count-1 do
      cbCruiseCountry.AddItem(cbCountry.Items.Strings[pp], cbUnchecked, true);
+end;
+
+procedure Tfrmosmain.cbSourceDropDown(Sender: TObject);
+begin
+  PopulateSourceList;
+end;
+
+procedure Tfrmosmain.PopulateSOURCEList;
+Var
+  pp:integer;
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
+begin
+
+  if cbSource.Count>0 then exit;
+
+  try
+   TRt:=TSQLTransaction.Create(self);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt:=TSQLQuery.Create(self);
+   Qt.Database:=frmdm.IBDB;
+   Qt.Transaction:=TRt;
+
+   DBGridCruise1.Columns[4].PickList.Clear; //SOURCE
+
+   cbSource.Clear;
+
+   Qt.Close;
+   Qt.SQL.Text:=' SELECT DISTINCT NAME FROM SOURCE ORDER BY NAME ';
+   Qt.Open;
+
+      while not Qt.Eof do begin
+        cbSource.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
+       Qt.Next;
+      end;
+
+      DBGridCruise1.Columns[4].PickList:=cbSource.Items;
+
+    Qt.Close;
+    TRt.Commit;
+  finally
+   Qt.Free;
+   TrT.Free;
+  end;
 
    cbCruiseSource.Clear;
    for pp:=0 to cbSource.Count-1 do
      cbCruiseSource.AddItem(cbSource.Items.Strings[pp], cbUnchecked, true);
+end;
+
+procedure Tfrmosmain.cbInstituteDropDown(Sender: TObject);
+begin
+  PopulateInstituteList;
+end;
+
+procedure Tfrmosmain.PopulateINSTITUTEList;
+Var
+  pp:integer;
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
+begin
+
+  if cbInstitute.Count>0 then exit;
+
+  try
+   TRt:=TSQLTransaction.Create(self);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt:=TSQLQuery.Create(self);
+   Qt.Database:=frmdm.IBDB;
+   Qt.Transaction:=TRt;
+
+   DBGridCruise2.Columns[1].PickList.Clear; //INSTITUTE
+
+   cbInstitute.Clear;
+
+   Qt.Close;
+   Qt.SQL.Text:=' SELECT DISTINCT NAME FROM INSTITUTE ORDER BY NAME ';
+   Qt.Open;
+
+      while not Qt.Eof do begin
+        cbInstitute.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
+       Qt.Next;
+      end;
+
+      DBGridCruise2.Columns[1].PickList:=cbInstitute.Items;
+      DBGridCruise2.Columns[2].PickList:=cbProject.Items;
+
+    Qt.Close;
+    TRt.Commit;
+  finally
+   Qt.Free;
+   TrT.Free;
+  end;
 
    cbCruiseInstitute.Clear;
    for pp:=0 to cbInstitute.Count-1 do
      cbCruiseInstitute.AddItem(cbInstitute.Items.Strings[pp], cbUnchecked, true);
+end;
+
+procedure Tfrmosmain.cbProjectDropDown(Sender: TObject);
+begin
+  PopulateProjectList;
+end;
+
+procedure Tfrmosmain.PopulatePROJECTList;
+Var
+  pp:integer;
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
+begin
+
+   if cbProject.Count>0 then exit;
+  try
+   TRt:=TSQLTransaction.Create(self);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt:=TSQLQuery.Create(self);
+   Qt.Database:=frmdm.IBDB;
+   Qt.Transaction:=TRt;
+
+   DBGridCruise2.Columns[2].PickList.Clear; //PROJECT
+   cbProject.Clear;
+
+
+   Qt.Close;
+   Qt.SQL.Text:=' SELECT DISTINCT NAME FROM PROJECT ORDER BY NAME ';
+   Qt.Open;
+
+      while not Qt.Eof do begin
+        cbProject.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
+       Qt.Next;
+      end;
+
+      DBGridCruise2.Columns[2].PickList:=cbProject.Items;
+
+    Qt.Close;
+    TRt.Commit;
+  finally
+   Qt.Free;
+   TrT.Free;
+  end;
 
    cbCruiseProject.Clear;
    for pp:=0 to cbProject.Count-1 do
@@ -2186,7 +2346,7 @@ Var
   ID, k : integer;
 
   TRt:TSQLTransaction;
-  Qt, Qt1:TSQLQuery;
+  Qt1:TSQLQuery;
 
   LatMin, LatMax, LonMin, LonMax: real;
   DateMin, DateMax: TDateTime;
@@ -2196,9 +2356,9 @@ begin
     TRt:=TSQLTransaction.Create(self);
     TRt.DataBase:=frmdm.IBDB;
 
-    Qt:=TSQLQuery.Create(self);
-    Qt.Database:=frmdm.IBDB;
-    Qt.Transaction:=TRt;
+    Qt1:=TSQLQuery.Create(self);
+    Qt1.Database:=frmdm.IBDB;
+    Qt1.Transaction:=TRt;
 
      frmdm.QCruise.DisableControls;
      frmdm.QCruise.First;
@@ -2210,8 +2370,10 @@ begin
       if frmdm.QCruise.FieldByName('SELECTED').AsBoolean=true then begin
         ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
 
+       // showmessage(inttostr(id));
+
         cnt:=0;
-        with Qt do begin
+        with Qt1 do begin
          Close;
           SQL.Clear;
           SQL.Add(' SELECT ');
@@ -2272,16 +2434,17 @@ begin
 
       end; // if SELECTED=true
 
-      Procedures.ProgressTaskbar(k, Qt.RecordCount-1);
+      Procedures.ProgressTaskbar(k, frmdm.QCruise.RecordCount-1);
       frmdm.QCruise.Next;
      end;
 
       finally
-        Qt.Close;
+        Qt1.Close;
         Trt.Commit;
-        Qt.Free;
+        Qt1.Free;
         Trt.Free;
         frmdm.TR.CommitRetaining;
+        frmdm.QCruise.EnableControls;
       end;
 
      if MessageDlg('Cruise info was successfuly updated',
@@ -2513,17 +2676,6 @@ begin
    finally
      frmqc_dbar_meters_consistency.Free;
      frmqc_dbar_meters_consistency:= nil;
-   end;
-end;
-
-procedure Tfrmosmain.iqc_sd_analysisClick(Sender: TObject);
-begin
-  frmQC_sdanalysis := TfrmQC_sdanalysis.Create(Self);
-   try
-    if not frmQC_sdanalysis.ShowModal = mrOk then exit;
-   finally
-     frmQC_sdanalysis.Free;
-     frmQC_sdanalysis:= nil;
    end;
 end;
 
@@ -2810,6 +2962,10 @@ end;
 procedure Tfrmosmain.DBGridCruise1SelectEditor(Sender: TObject;
   Column: TColumn; var Editor: TWinControl);
 begin
+
+    if (Column.Index=2) and (cbPlatform.Count=0) then PopulatePlatformList;
+    if (Column.Index=4) and (cbSource.Count=0)   then PopulateSourceList;
+
     if (Column.Index=2) or (Column.Index=4) then begin
      if (Editor is TCustomComboBox) then
       with Editor as TCustomComboBox do
@@ -2826,6 +2982,10 @@ end;
 procedure Tfrmosmain.DBGridCruise2SelectEditor(Sender: TObject;
   Column: TColumn; var Editor: TWinControl);
 begin
+    if (Column.Index=0) and (cbCountry.Count=0)   then PopulateCountryList;
+    if (Column.Index=1) and (cbInstitute.Count=0) then PopulateInstituteList;
+    if (Column.Index=2) and (cbProject.Count=0)   then PopulateProjectList;
+
     if (Column.Index<=2) then begin
      if (Editor is TCustomComboBox) then
       with Editor as TCustomComboBox do
@@ -3102,26 +3262,6 @@ begin
 
 end;
 
-procedure Tfrmosmain.DBGridCruise1UserCheckboxState(Sender: TObject;
-  Column: TColumn; var AState: TCheckboxState);
-begin
- // if RecListCruise.CurrentRowSelected then AState := cbChecked else AState := cbUnchecked;
-end;
-
-
-procedure Tfrmosmain.DBGridCruise1CellClick(Column: TColumn);
-begin
-  //if Column.Index=0 then
-  //  RecListCruise.CurrentRowSelected := not RecListCruise.CurrentRowSelected;
-  if frmprofile_plot_all_open=true then CDSNavigation;
-end;
-
-procedure Tfrmosmain.DBGridEntryCellClick(Column: TColumn);
-begin
-  if Column.Index=0 then
-  //  RecListEntry.CurrentRowSelected := not RecListEntry.CurrentRowSelected;
-end;
-
 
 procedure Tfrmosmain.FormResize(Sender: TObject);
 begin
@@ -3167,10 +3307,10 @@ begin
     Ini.WriteString  ( 'osmain', 'station_project',  cbProject.Text);
     Ini.WriteDateTime( 'osmain', 'station_datemin',  dtpDateMin.DateTime);
     Ini.WriteDateTime( 'osmain', 'station_datemax',  dtpDateMax.DateTime);
-    Ini.WriteDateTime( 'osmain', 'station_dateaddedmin',   dtpDateAddedMin.DateTime);
+  {  Ini.WriteDateTime( 'osmain', 'station_dateaddedmin',   dtpDateAddedMin.DateTime);
     Ini.WriteDateTime( 'osmain', 'station_dateaddedmax',   dtpDateAddedMax.DateTime);
     Ini.WriteDateTime( 'osmain', 'station_dateupdatedmin', dtpDateUpdatedMin.DateTime);
-    Ini.WriteDateTime( 'osmain', 'station_dateupdatedmax', dtpDateUpdatedMax.DateTime);
+    Ini.WriteDateTime( 'osmain', 'station_dateupdatedmax', dtpDateUpdatedMax.DateTime);}
 
     (* CRUISE search settings *)
     Ini.WriteFloat   ( 'osmain', 'cruise_latmin',   seCruiseLatMin.Value);
@@ -3233,7 +3373,6 @@ begin
      Ini.WriteInteger( 'osmain', 'DBGridEntry_Col05',  Columns[5].Width);
      Ini.WriteInteger( 'osmain', 'DBGridEntry_Col06',  Columns[6].Width);
      Ini.WriteInteger( 'osmain', 'DBGridEntry_Col07',  Columns[7].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridEntry_Col08',  Columns[8].Width);
     end;
 
     with DBGridStation1 do begin

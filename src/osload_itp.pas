@@ -6,55 +6,35 @@ interface
 
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, DateUtils, DB, SQLDB, Math;
+  Dialogs, StdCtrls, ComCtrls, DateUtils, DB, SQLDB, Math, Zipper;
 
 type
 
   { TfrmLoadITP }
 
   TfrmLoadITP = class(TForm)
-    btnLoadGridData: TButton;
-    btnLoadMicro: TButton;
-    btnLoadMicroSami: TButton;
-    Button1: TButton;
-    Button2: TButton;
-    Button3: TButton;
-    btnTimeReapload: TButton;
-    Button4: TButton;
-    Button5: TButton;
-    Button6: TButton;
-    Button7: TButton;
+    btnOpenZIP: TButton;
+    btnLoad: TButton;
     chkShowMetadata: TCheckBox;
-    chkShowProfiles: TCheckBox;
-    chkWrite: TCheckBox;
     ListBox1: TListBox;
-    Memo1: TMemo;
-    PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
+    ListBox2: TListBox;
+    mLog: TMemo;
 
-    procedure btnLoadGridDataClick(Sender: TObject);
-    procedure btnLoadMicroClick(Sender: TObject);
-    procedure btnLoadMicroSamiClick(Sender: TObject);
-    procedure btnTimeReaploadClick(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
-    procedure Button5Click(Sender: TObject);
-    procedure Button6Click(Sender: TObject);
-    procedure Button7Click(Sender: TObject);
+    procedure btnOpenZIPClick(Sender: TObject);
+    procedure btnLoadClick(Sender: TObject);
 
   private
     { Private declarations }
+    procedure WriteData;
   public
     { Public declarations }
   end;
 
 var
   frmLoadITP: TfrmLoadITP;
-  Path:string;
-  Dat:text;
+  ITP_in_path, ITP_out_path, ITP_cruise:string;
+  ITP_isfinal:boolean=false;
+
 
 implementation
 
@@ -63,73 +43,124 @@ implementation
 uses osmain, Procedures, dm, GibbsSeaWater;
 
 
-procedure TfrmLoadITP.Button1Click(Sender: TObject);
+procedure TfrmLoadITP.btnOpenZIPClick(Sender: TObject);
 Var
-fdb:TSearchRec;
+  k: integer;
 begin
-SelectDirectory('Select folder', '' , path);
-//path:='C:\_ITP\grddata\';
- if path<>'' then begin
-   path:=path+'\';
-   fdb.Name:='';
-    listbox1.Clear;
-     FindFirst(Path+'*.dat',faAnyFile, fdb);
-   if fdb.Name<>'' then listbox1.Items.Add(fdb.Name);
-  while findnext(fdb)=0 do Listbox1.Items.Add(fdb.Name);
+ mLog.Clear;
+ ListBox2.Clear;
+
+ // Selecting data in ZIP archive
+ frmosmain.OD.Filter:='Zip files|*.zip';
+ frmosmain.OD.Options:=frmosmain.OD.Options+[ofAllowMultiSelect];
+ if frmosmain.OD.Execute then begin
+  for k:=0 to frmosmain.OD.Files.Count-1 do
+    ListBox2.Items.Add(ExtractFileName(frmosmain.OD.Files[k]));
+
+  ITP_in_path:=ExtractFilePath(frmosmain.OD.Files[0]);
+  btnLoad.Enabled:=true;
  end;
-memo1.Clear;
 end;
 
 
-{%ITP 10, profile 1: year day longitude(E+) latitude(N+) ndepths
-2007  253.75003  -132.2286  84.9833  755
-%pressure(dbar) temperature(C) salinity nobs
-  5.9   -1.5629   28.9234  14
-  6.9   -1.5627   28.9244   4
-  8.0   -1.5628   28.9235   4}
-procedure TfrmLoadITP.Button2Click(Sender: TObject);
+procedure TfrmLoadITP.btnLoadClick(Sender: TObject);
 Var
-k,yyyy, ndepth, id, row, levnum, p, oxy_fl, c, ff, cast, pp, units_id:integer;
+  UnZipper: TUnZipper;
+  fdb:TSearchRec;
+  zipfile:string;
+  k: integer;
+begin
+ // Path to temporal folder
+ ITP_out_path:=GlobalUnloadPath+PathDelim+'temp'+PathDelim;
+   if not DirectoryExists(ITP_out_path) then CreateDir(ITP_out_path);
+
+ // loop over ZIP files
+ for k:=0 to listbox2.Items.Count-1 do begin
+  ClearDir(ITP_out_path);
+
+  zipfile:=ITP_in_path+listbox2.Items.Strings[k];
+
+  ListBox2.ItemIndex:=k;
+
+ // Unzipping data into temp folder
+  UnZipper := TUnZipper.Create;
+  try
+    UnZipper.FileName := zipfile;
+    UnZipper.OutputPath := ITP_out_path;
+    UnZipper.Examine;
+    UnZipper.UnZipAllFiles;
+  finally
+    UnZipper.Free;
+  end;
+
+  // Reading file names into listbox (only for CTD data)
+   fdb.Name:='';
+    listbox1.Clear;
+     FindFirst(ITP_out_path+'*.dat',faAnyFile, fdb);
+   if (fdb.Name<>'') and (pos('grd',fdb.Name)>0) then listbox1.Items.Add(fdb.Name);
+
+   while findnext(fdb)=0 do
+   if (pos('grd',fdb.Name)>0) then Listbox1.Items.Add(fdb.Name);
+
+  // checking if the file is final or realtime
+  if Pos('final', ExtractFileName(zipfile))>0 then ITP_isfinal:=true else ITP_isfinal:=false;
+
+
+  // cruise number
+  if ITP_isfinal=true then
+   ITP_cruise:=copy(ExtractFileName(zipfile), 4, length(ExtractFileName(zipfile))-12) else
+   ITP_cruise:=copy(ExtractFileName(zipfile), 4, length(ExtractFileName(zipfile))-14);
+
+  mLog.Lines.Add('Processing '+ExtractFileName(zipfile)+'...');
+  Application.ProcessMessages;
+
+  (* THE MAIN PROCEDURE - WRITING DATA TO DB *)
+  WriteData;
+
+  mLog.Lines.Add('Done!');
+  mLog.Lines.Add('');
+  Application.ProcessMessages;
+ end;
+
+ frmosmain.DatabaseInfo;
+ Showmessage('Completed!');
+end;
+
+
+procedure TfrmLoadITP.WriteData;
+Var
+dat:text;
+k,yyyy, ndepth, id, row, levnum, p, oxy_fl, c, ff, cast, pp, units_id, maxID:integer;
 yy, mn, dd, hour, min, sec, msec:word;
 hh,mm,ss,mss:real;
 date1, lon, lat:real;
 pres, lev, temp, sal, oxy, u, v, w, turb, chl, cdom, par, nobs, val, lev_m:real;
 st, CurFile, tbl:string;
 stDate, StTime:TDateTime;
-stvessel, stnumincruise, st_param, buf_str, cruise:string;
+stvessel, stnumincruise, st_param, buf_str:string;
 withdepth:boolean;
 
-TRt:TSQLTransaction;
-Qt:TSQLQuery;
 TempList:TListBox;
 
-cruise_id, ID_MIN, ID_MAX:integer;
+QCFlag, PQF1, PQF2, SQF: integer;
+tmp1, tmp2:real;
+
+cruise_id, ID_MIN, ID_MAX, cnt_added:integer;
 begin
+ ID_MIN:=10000000+strtoint(ITP_cruise)*10000;
+ ID_MAX:=10000000+strtoint(ITP_cruise)*10000+9999;
 
+ cnt_added:=0;
 
-{frmosmain.ProgressBar1.Position:=0;
-frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
+ //showmessage(inttostr(id_min)+'   '+inttostr(id_max));
 
- cruise:=ListBox1.Items.Strings[0];
- cruise:=copy(cruise, 4, pos('grd', cruise)-4);
-
- ID_MIN:=10000000+strtoint(cruise)*10000;
- ID_MAX:=10000000+strtoint(cruise)*10000+9999;
-
-// showmessage(inttostr(id_min)+'   '+inttostr(id_max));
-
- if chkWrite.Checked then begin
-   (* temporary transaction for main database *)
-   TRt:=TSQLTransaction.Create(self);
-   TRt.DataBase:=frmdm.IBDB;
-
-   (* temporary query for main database *)
-   Qt:=TSQLQuery.Create(self);
-   Qt.Database:=frmdm.IBDB;
-   Qt.Transaction:=TRt;
-
-
-   with Qt do begin
+  (* If FINAL then removing old (relatime) stations from the database *)
+  if ITP_isfinal=true then begin
+   QCFlag:=4;
+   PQF1:=4;
+   PQF2:=4;
+   SQF:=0;
+   with frmdm.q1 do begin
      Close;
       SQL.Clear;
       SQL.Add(' DELETE FROM STATION ');
@@ -138,8 +169,32 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
       ParamByName('ID_MAX').AsInteger:=ID_MAX;
      ExecSQL;
     end;
-    Trt.CommitRetaining;
+    frmdm.TR.CommitRetaining;
   end;
+
+
+  (* if realtime data then selecting the last exisitng station *)
+  if ITP_isfinal=false then begin
+   QCFlag:=0;
+   PQF1:=0;
+   PQF2:=0;
+   SQF:=0;
+   with frmdm.q1 do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' SELECT MAX(ID) FROM STATION ');
+      SQL.Add(' WHERE ID BETWEEN :ID_MIN AND :ID_MAX ');
+      ParamByName('ID_MIN').AsInteger:=ID_MIN;
+      ParamByName('ID_MAX').AsInteger:=ID_MAX;
+     Open;
+      MaxID:=frmdm.q1.Fields[0].AsInteger;
+     Close;
+    end;
+    frmdm.TR.CommitRetaining;
+    if MaxID=0 then MaxID:=ID_MIN;
+  end;
+
+//  showmessage(inttostr(maxID));
 
   For ff:=0 to ListBox1.Count-1 do begin
 
@@ -161,10 +216,10 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
 
     cruise_id:=10000000+strtoint(stvessel);
 
-   // showmessage(inttostr(id)+'   '+inttostr(cruise_id));
+  //  showmessage(inttostr(id)+'   '+inttostr(cruise_id));
 
 
-    AssignFile(dat, Path+CurFile); Reset(dat);
+    AssignFile(dat, ITP_out_path+CurFile); Reset(dat);
   //  try
       readln(dat, st);
 
@@ -197,15 +252,15 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
 
     StDate:=EncodeDateTime(yy, mn, dd, hour, min, sec, msec);
 
-    if chkShowMetadata.Checked then
-      memo1.Lines.Add(inttostr(id)
+    if chkShowMetadata.Checked=true then
+      mLog.Lines.Add(inttostr(id)
       +#9+DateTimetostr(stDate)
       +#9+floattostr(lon)
       +#9+floattostr(lat));
 
-     if chkWrite.Checked then begin
-      //try
-       with Qt do begin
+      // if final of realtime updated
+      if (ITP_isfinal=true) or (ID>MaxID) then begin
+       with frmdm.q1 do begin
         Close;
         SQL.Clear;
         SQL.Add(' INSERT INTO STATION ' );
@@ -223,7 +278,7 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
         ParamByName('CRUISE_ID'        ).Value:=Cruise_ID;
         ParamByName('ST_NUMBER_ORIGIN' ).Value:=stnumincruise;
         ParamByName('CAST_NUMBER'      ).Value:=cast;
-        ParamByName('QCFLAG'           ).Value:=4;
+        ParamByName('QCFLAG'           ).Value:=QCFlag;
         ParamByName('STVERSION'        ).Value:=0;
         ParamByName('DUPLICATE'        ).Value:=false;
         ParamByName('MERGED'           ).Value:=0;
@@ -231,13 +286,14 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
         ParamByName('DATE_UPDATED'     ).Value:=Now;
         ExecSQL;
        end;
-
-       Trt.CommitRetaining;
+       inc(cnt_added);
+       frmdm.TR.CommitRetaining;
+      end;
+    end;
     { except
-       memo1.Lines.Add(CurFile);
+       mLog.Lines.Add(CurFile);
        TrT.RollbackRetaining;
      end;  }
-   end;
 {
 %pressure(dbar) temperature(C) salinity dissolved_oxygen nobs
 %pressure(dbar) temperature(C) salinity nobs
@@ -261,6 +317,7 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
        v:=-9999;
        w:=-9999;
 
+       (* FOR FINAL PROFILES *)
        if st_param='%pressure(dbar) temperature(C) salinity dissolved_oxygen nobs' then begin
          readln(dat, pres, temp, sal, oxy);
        end;
@@ -270,7 +327,7 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
        end;
 
        if st_param='%pressure(dbar) temperature(C) salinity nobs east(cm/s) north(cm/s) vert(cm/s) nacm' then begin
-         readln(dat, pres, temp, sal, oxy, nobs, u, v, w);
+         readln(dat, pres, temp, sal, nobs, u, v, w);
        end;
 
        if st_param='%pressure(dbar) temperature(C) salinity dissolved_oxygen(umol/kg) nobs turbidity(e-4) chlorophyll_a(ug/l) CDOM(ppb) nbio' then begin
@@ -282,9 +339,24 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
        end;
 
 
+       (* FOR REALTIME PROFILES *)
+       if st_param='%year day pressure(dbar) temperature(C) salinity' then begin
+         readln(dat, tmp1, tmp2, pres, temp, sal);
+       end;
 
-      if chkShowProfiles.Checked then
-      memo1.Lines.Add(inttostr(levnum)
+       if st_param='%year day pressure(dbar) temperature(C) salinity oxygen(umol/kg)' then  begin
+         readln(dat, tmp1, tmp2, pres, temp, sal, oxy);
+       end;
+
+
+       if st_param='%year day pressure(dbar) temperature(C) salinity oxygen(umol/kg) turbidity(10e-4/m s/r) chlorophyll(ug/l) cdom(ppb) par(V)' then begin
+         readln(dat, tmp1, tmp2, pres, temp, sal, oxy, turb, chl, cdom, par);
+       end;
+
+
+
+      {
+      mLog.Lines.Add(inttostr(levnum)
                   +#9+floattostr(pres)
                   +#9+floattostr(temp)
                   +#9+floattostr(sal)
@@ -296,9 +368,8 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
                   +#9+floattostr(u)
                   +#9+floattostr(v)
                   +#9+floattostr(w)
-                  );
+                  );}
 
-       if chkWrite.Checked then begin
         for pp:=1 to 7 do begin
          // showmessage('here');
           case pp of
@@ -333,49 +404,46 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
               units_id:=4;
             end;
             7: begin
-              tbl:='P_PAR_ITP';
+              tbl:='P_PAR';
                if not isNaN(par)then val:=par else val:=-9999;
               units_id:=21;
             end;
           end;
          //  showmessage('here2'+'   '+floattostr(val));
-         // memo1.lines.add(tbl+'   '+floattostr(val)+'   '+inttostr(units_id));
+         // mLog.lines.add(tbl+'   '+floattostr(val)+'   '+inttostr(units_id));
 
 
 
           if (val<>-9999) then begin
+            if (ITP_isfinal=true) or (ID>MaxID) then begin
+
           lev_m:=-gibbsseawater.gsw_z_from_p(pres, lat, 0, 0);
-         // try
-           with Qt do begin
+           with frmdm.q1 do begin
             Close;
              SQL.Clear;
              SQL.Add(' insert into ');
              SQL.Add(tbl);
-             SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF1, PQF2, UNITS_ID, ');
+             SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF1, PQF2, SQF, UNITS_ID, ');
              SQL.Add('  INSTRUMENT_ID, PROFILE_NUMBER, PROFILE_BEST) ');
              SQL.Add(' values ');
-             SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF1, :PQF2, :UNITS_ID, ');
+             SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF1, :PQF2, :SQF, :UNITS_ID, ');
              SQL.Add('  :INSTRUMENT_ID, :PROFILE_NUMBER, :PROFILE_BEST) ');
              ParamByName('ID').AsInteger:=id;
              ParamByName('LEV_DBAR').AsFloat:=pres;
              ParamByName('LEV_M').AsFloat:=lev_m;
              ParamByName('VAL').AsFloat:=val;
-             ParamByName('PQF1').AsInteger:=4;
-             ParamByName('PQF2').AsInteger:=4;
+             ParamByName('PQF1').AsInteger:=PQF1;
+             ParamByName('PQF2').AsInteger:=PQF2;
+             ParamByName('SQF').AsInteger:=SQF;
              ParamByName('UNITS_ID').AsInteger:=units_id;
              ParamByName('INSTRUMENT_ID').AsInteger:=5;
              ParamByName('PROFILE_NUMBER').AsInteger:=1;
              ParamByName('PROFILE_BEST').AsBoolean:=true;
             ExecSQL;
            end;
-           Trt.CommitRetaining;
-         { except
-           memo1.Lines.Add(CurFile+'   '+floattostr(pres));
-           TrT.RollbackRetaining;
-          end;  }
+           frmdm.TR.CommitRetaining;
+          end;
         end;
-
-       end;
 
     end;
   end;
@@ -384,694 +452,10 @@ frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
 
      CloseFile(Dat);
   end;
- end;
- if chkWrite.Checked then begin
-  Qt.Close;
-  Qt.free;
-  TrT.Commit;
-  TrT.Free;
 
-  //frmosmain.DatabaseInfo;
- end;
-Showmessage('Done!');
+  mLog.Lines.Add('Added '+IntToStr(cnt_added)+' stations');
+  Application.ProcessMessages;
 end;
 
-
-
-procedure TfrmLoadITP.btnLoadMicroClick(Sender: TObject);
-begin
-//%ITP 54, microcat 7521 at 6 dbar
-//%year day latitude longitude temperature(C) salinity
-//2011  218.96876  77.001 -140.100   -1.2267   25.8016
-end;
-
-
-
-
-procedure TfrmLoadITP.btnLoadGridDataClick(Sender: TObject);
-Var
-k,yyyy, ndepth, id, row, levnum, p, oxy_fl, c, ff, cast, pp, units_id:integer;
-yy, mn, dd, hour, min, sec, msec:word;
-hh,mm,ss,mss:real;
-date1, lon, lat, tmp1, tmp2 :real;
-pres, lev, temp, sal, oxy, u, v, w, turb, chl, cdom, par, nobs, val, lev_m:real;
-st, CurFile, tbl:string;
-stDate, StTime:TDateTime;
-stvessel, stnumincruise, st_param, buf_str:string;
-withdepth:boolean;
-
-TRt:TSQLTransaction;
-Qt:TSQLQuery;
-TempList:TListBox;
-
-cruise_id:integer;
-begin
-
-
-{frmosmain.ProgressBar1.Position:=0;
-frmosmain.ProgressBar1.Max:=ListBox1.Count;  }
-
- if chkWrite.Checked then begin
-   (* temporary transaction for main database *)
-   TRt:=TSQLTransaction.Create(self);
-   TRt.DataBase:=frmdm.IBDB;
-
-   (* temporary query for main database *)
-   Qt:=TSQLQuery.Create(self);
-   Qt.Database:=frmdm.IBDB;
-   Qt.Transaction:=TRt;
- end;
-
-  For ff:=0 to ListBox1.Count-1 do begin
-
-    CurFile:=ListBox1.Items.Strings[ff];
-
-    ListBox1.ItemIndex:=ff;
-    Application.ProcessMessages;
-
-    p:=4; stvessel:='';
-    while not (curFile[p]='g') do begin
-      stvessel:=stvessel+curFile[p];
-      inc(p);
-    end;
-    stNumincruise:=Inttostr(Strtoint(copy(curFile,length(curFile)-7,4)));
-
-    cast:=1;
-
-    id:=strtoint(stvessel)*10000+strtoint(stnumincruise);
-
-  //  showmessage(copy(curFile,length(curFile)-7,4));
-
-    AssignFile(dat, Path+CurFile); Reset(dat);
-    try
-      readln(dat, st);
-
-    //  if copy(st, 10, 10) = 'deployment' then cast:=strtoint(trim(copy(st,
-      readln(dat, st);
-     // readln(dat, yyyy, date, lon, lat, ndepth);
-    // 2008   68.26684  -109.6607  83.9657  757
-      yyyy:=StrToInt(trim(copy(st, 1, 4)));
-      if lowercase(trim(copy(st, 7, 9)))<>'nan'   then date1:=StrToFloat(trim(copy(st, 7, 9)))  else date1:=-999;
-      if lowercase(trim(copy(st, 17, 10)))<>'nan' then lon :=StrToFloat(trim(copy(st, 17, 10))) else lon:=-999;
-      if lowercase(trim(copy(st, 28, 8)))<>'nan'  then lat :=StrToFloat(trim(copy(st, 28, 8)))  else lat:=-999;
-      if lowercase(trim(copy(st, 37, 4)))<>'nan'  then ndepth:=StrToInt(trim(copy(st, 37, 4)))  else ndepth:=-999;
-     except
-       Showmessage(CurFile);
-    end;
-
-
-  if (date1<>-999) and (lat<>-999) and (lon<>-999) then begin
-    stDate:=EncodeDateDay(yyyy,trunc(date1));
-    decodeDate(stDate, yy, mn, dd);
-
-    hh :=frac(date1)*24;
-    hour:=trunc(hh);
-    mm :=frac(hh)*60;
-    min :=trunc(mm);
-    ss :=frac(mm)*60;
-    sec :=trunc(ss);
-    mss:=frac(ss)*100;
-    msec:=trunc(mss);
-
-   {
-    memo1.lines.add(floattostr(hh)+'   '+inttostr(hour));
-    memo1.lines.add(floattostr(mm)+'   '+inttostr(min));
-    memo1.lines.add(floattostr(ss)+'   '+inttostr(sec));  }
-
-
-
-    StDate:=EncodeDateTime(yy, mn, dd, hour, min, sec, msec);
-
-   // memo1.lines.add(datetimetostr(stdate));
-
-    if chkShowMetadata.Checked then
-      memo1.Lines.Add(inttostr(id)
-      +#9+DateTimetostr(stDate)
-      +#9+floattostr(lon)
-      +#9+floattostr(lat));
-
-    cruise_id:={1000+}strtoint(stvessel);
-
-     if chkWrite.Checked then begin
-      try
-       with Qt do begin
-        Close;
-        SQL.Clear;
-        SQL.Add(' INSERT INTO STATION ' );
-        SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, CRUISE_ID, ' );
-        SQL.Add('  INSTRUMENT_ID, ST_NUMBER_ORIGIN, CAST_NUMBER, QCFLAG, ' );
-        SQL.Add('  STVERSION, DUPLICATE, MERGED, DATE_ADDED)' );
-        SQL.Add(' VALUES ' );
-        SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :CRUISE_ID, ' );
-        SQL.Add('  :INSTRUMENT_ID, :ST_NUMBER_ORIGIN, :CAST_NUMBER, :QCFLAG, ' );
-        SQL.Add('   :STVERSION, :DUPLICATE, :MERGED, :DATE_ADDED) ' );
-        ParamByName('ID'               ).Value:=ID;
-        ParamByName('LATITUDE'         ).Value:=lat;
-        ParamByName('LONGITUDE'        ).Value:=lon;
-        ParamByName('DATEANDTIME'      ).Value:=StDate;
-        ParamByName('CRUISE_ID'        ).Value:=Cruise_ID; //ID from CRUISE_WOD found by <WOD cruise number identification number>
-        ParamByName('INSTRUMENT_ID'    ).Value:=5;
-        ParamByName('ST_NUMBER_ORIGIN' ).Value:=stnumincruise;
-        ParamByName('CAST_NUMBER'      ).Value:=cast;
-        ParamByName('QCFLAG'           ).Value:=4;
-        ParamByName('STVERSION'        ).Value:=0;
-        ParamByName('DUPLICATE'        ).Value:=false;
-        ParamByName('MERGED'           ).Value:=0;
-        ParamByName('DATE_ADDED'       ).Value:=Now;
-        ExecSQL;
-       end;
-
-       Trt.CommitRetaining;
-     except
-       memo1.Lines.Add('Error: '+CurFile);
-       TrT.RollbackRetaining;
-     end;
-   end;
-
-{
-%year day pressure(dbar) temperature(C) salinity
-%year day pressure(dbar) temperature(C) salinity oxygen(umol/kg)
-%year day pressure(dbar) temperature(C) salinity oxygen(umol/kg) turbidity(10e-4/m s/r) chlorophyll(ug/l) cdom(ppb) par(V)
-}
-     readln(dat, st_param);
-
-     For levnum:=1 to ndepth do begin
-
-       pres:=-9999;
-       temp:=-9999;
-       sal:=-9999;
-       oxy:=-9999;
-       cdom:=-9999;
-       chl:=-9999;
-       turb:=-9999;
-       par:=-9999;
-       u:=-9999;
-       v:=-9999;
-       w:=-9999;
-
-       if st_param='%year day pressure(dbar) temperature(C) salinity' then begin
-         readln(dat, tmp1, tmp2, pres, temp, sal);
-       end;
-
-       if st_param='%year day pressure(dbar) temperature(C) salinity oxygen(umol/kg)' then  begin
-         readln(dat, tmp1, tmp2, pres, temp, sal, oxy);
-       end;
-
-
-       if st_param='%year day pressure(dbar) temperature(C) salinity oxygen(umol/kg) turbidity(10e-4/m s/r) chlorophyll(ug/l) cdom(ppb) par(V)' then begin
-         readln(dat, tmp1, tmp2, pres, temp, sal, oxy, turb, chl, cdom, par);
-       end;
-
-
-
-      if chkShowProfiles.Checked then
-      memo1.Lines.Add(inttostr(levnum)
-                  +#9+floattostr(pres)
-                  +#9+floattostr(temp)
-                  +#9+floattostr(sal)
-                  +#9+floattostr(oxy)
-                  +#9+floattostr(cdom)
-                  +#9+floattostr(turb)
-                  +#9+floattostr(chl)
-                  +#9+floattostr(par)
-                  +#9+floattostr(u)
-                  +#9+floattostr(v)
-                  +#9+floattostr(w)
-                  );
-
-       if chkWrite.Checked then begin
-        for pp:=1 to 7 do begin
-         // showmessage('here');
-          case pp of
-            1: begin
-               tbl:='P_TEMPERATURE_ITP';
-                if not isNaN(temp) then val:=temp else val:=-9999;
-               units_id:=1;
-            end;
-            2: begin
-               tbl:='P_SALINITY_ITP';
-                if not isNaN(sal)then val:=sal else val:=-9999;
-               units_id:=2;
-            end;
-            3: begin
-               tbl:='P_OXYGEN_ITP';
-                if not isNaN(oxy) then val:=oxy else val:=-9999;
-               units_id:=3;
-            end;
-            4: begin
-              tbl:='P_CDOM_ITP';
-               if not isNaN(cdom)then val:=cdom else val:=-9999;
-              units_id:=24;
-            end;
-            5: begin
-              tbl:='P_TURBIDITY_ITP';
-               if not isNaN(turb)then val:=turb else val:=-9999;
-              units_id:=22;
-            end;
-            6: begin
-              tbl:='P_CHLA_ITP';
-               if not isNaN(chl)then val:=chl else val:=-9999;
-              units_id:=4;
-            end;
-            7: begin
-              tbl:='P_PAR_ITP';
-               if not isNaN(par)then val:=par else val:=-9999;
-              units_id:=23;
-            end;
-          end;
-         //  showmessage('here2'+'   '+floattostr(val));
-         // memo1.lines.add(tbl+'   '+floattostr(val)+'   '+inttostr(units_id));
-
-
-
-          if (val<>-9999) then begin
-
-          lev_m:=-gibbsseawater.gsw_z_from_p(pres, lat, 0, 0);
-          try
-           with Qt do begin
-            Close;
-             SQL.Clear;
-             SQL.Add(' insert into ');
-             SQL.Add(tbl);
-             SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF1, PQF2, UNITS_ID) ');
-             SQL.Add(' values ');
-             SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF1, :PQF2, :UNITS_ID) ');
-             ParamByName('ID').AsInteger:=id;
-             ParamByName('LEV_DBAR').AsFloat:=pres;
-             ParamByName('LEV_M').AsFloat:=lev_m;
-             ParamByName('VAL').AsFloat:=val;
-             ParamByName('PQF1').AsInteger:=4;
-             ParamByName('PQF2').AsInteger:=4;
-             ParamByName('UNITS_ID').AsInteger:=units_id;
-            ExecSQL;
-           end;
-           Trt.CommitRetaining;
-          except
-        //   memo1.Lines.Add(CurFile+'   '+floattostr(pres));
-           TrT.RollbackRetaining;
-          end;
-        end;
-
-       end;
-
-    end;
-  end;
-  //   frmosmain.ProgressBar1.Position:=frmosmain.ProgressBar1.Position+1;
-  //   Application.processMessages;
-
-     CloseFile(Dat);
-  end;
- end;
- if chkWrite.Checked then begin
-  Qt.Close;
-  Qt.free;
-  TrT.Commit;
-  TrT.Free;
-
-  frmosmain.DatabaseInfo;
- end;
-Showmessage('Done!');
-end;
-
-
-
-
-
-procedure TfrmLoadITP.btnLoadMicroSamiClick(Sender: TObject);
-Var
-TRt:TSQLTransaction;
-Qt:TSQLQuery;
-TempList:TListBox;
-
-cruise_id:integer;
-begin
- //
-end;
-
-
-
-procedure TfrmLoadITP.Button3Click(Sender: TObject);
-var
-k, i, c, fl:integer;
-CurFile, buf_str, st:string;
-
-begin
-
-//%ITP 1, profile 1: year day longitude(E+) latitude(N+) ndepths
-//2005  228.25001  -150.1313  78.8267  751
-//%pressure(dbar) temperature(C) salinity nobs
-
-   For k:=0 to ListBox1.Count-1 do begin
-    CurFile:=ListBox1.Items.Strings[k];
-
-    ListBox1.ItemIndex:=k;
-    Application.ProcessMessages;
-
-    AssignFile(dat, Path+CurFile); Reset(dat);
-
-      readln(dat, st);
-      readln(dat, st);
-      readln(dat, st);
-
-     { c:=1;
-      repeat
-        buf_str:='';
-        repeat
-         inc(c);
-          if st[c]<>' ' then buf_str:=buf_str+st[c];
-        until (st[c]=' ') or (c=length(st));
-
-        fl:=0;
-        for i:=0 to memo1.Lines.Count-1 do
-          if memo1.Lines.Strings[i]=trim(buf_str) then fl:=1;
-
-        if fl=0 then memo1.lines.add(trim(buf_str));
-      until c=length(st);  }
-
-        fl:=0;
-        for i:=0 to memo1.Lines.Count-1 do
-          if memo1.Lines.Strings[i]=trim(st) then fl:=1;
-
-        if fl=0 then memo1.lines.add(trim(st));
-
-   // check for microcats
-     //   if copy(st, 1,1)<>'%' then memo1.lines.add(CurFile);
-
-
-      closefile(dat);
-   end;
-
-end;
-
-
-
-procedure TfrmLoadITP.btnTimeReaploadClick(Sender: TObject);
-Var
-TRt:TSQLTransaction;
-Qt:TSQLQuery;
-
-ff, id, p, yyyy:integer;
-st, CurFile, stnumincruise, stvessel:string;
-yy, mn, dd:word;
-hh, mm, ss, mss: real;
-hour, min, sec, msec: integer;
-date1, StDate:TDateTime;
-begin
-
-   TRt:=TSQLTransaction.Create(self);
-   TRt.DataBase:=frmdm.IBDB;
-
-   (* temporary query for main database *)
-   Qt:=TSQLQuery.Create(self);
-   Qt.Database:=frmdm.IBDB;
-   Qt.Transaction:=TRt;
-
-  try
-  For ff:=0 to ListBox1.Count-1 do begin
-
-    CurFile:=ListBox1.Items.Strings[ff];
-
-    ListBox1.ItemIndex:=ff;
-    Application.ProcessMessages;
-
-    p:=4; stvessel:='';
-    while not (curFile[p]='g') do begin
-      stvessel:=stvessel+curFile[p];
-      inc(p);
-    end;
-    stNumincruise:=Inttostr(Strtoint(copy(curFile,length(curFile)-7,4)));
-    id:=strtoint(stvessel)*10000+strtoint(stnumincruise);
-
-
-    AssignFile(dat, Path+CurFile); Reset(dat);
-
-      readln(dat, st);
-      readln(dat, st);
-
-      yyyy:=StrToInt(trim(copy(st, 1, 4)));
-      if lowercase(trim(copy(st, 7, 9)))<>'nan'   then date1:=StrToFloat(trim(copy(st, 7, 9)))  else date1:=-999;
-
-
-    stDate:=EncodeDateDay(yyyy,trunc(date1));
-    decodeDate(stDate, yy, mn, dd);
-
-    hh :=frac(date1)*24;
-    hour:=trunc(hh);
-    mm :=frac(hh)*60;
-    min :=trunc(mm);
-    ss :=frac(mm)*60;
-    sec :=trunc(ss);
-    mss:=frac(ss)*100;
-    msec:=trunc(mss);
-
-    StDate:=EncodeDateTime(yy, mn, dd, hour, min, sec, msec);
-
-    memo1.lines.add(CurFIle+'   '+Datetimetostr(stdate));
-    try
-      with Qt do begin
-        Close;
-        SQL.Clear;
-        SQL.Add(' UPDATE STATION SET DATEANDTIME=:DD WHERE ID=:ID ' );
-        ParamByName('ID').Value:=ID;
-        ParamByName('DD').Value:=StDate;
-        ExecSQL;
-       end;
-
-       Trt.CommitRetaining;
-     except
-       memo1.Lines.Add(CurFile);
-       TrT.RollbackRetaining;
-     end;
-    end;
-  finally
-  Qt.Close;
-  Qt.free;
-  TrT.Commit;
-  TrT.Free;
-  end;
-  Showmessage('Done!');
-end;
-
-
-
-procedure TfrmLoadITP.Button4Click(Sender: TObject);
-Var
- dat:text;
- st:string;
-begin
-
- AssignFile(dat, 'X:\Data_Oceanography\_ITP\to_move.txt'); reset(dat);
-
- repeat
-  readln(dat, st);
-
-  RenameFile('C:\_ITP\grddata\'+st, 'C:\_ITP\grddata\bad\'+st);
-
- until eof(dat);
- closefile(dat);
-end;
-
-
-
-procedure TfrmLoadITP.Button5Click(Sender: TObject);
-Var
-  ff, ID: integer;
-  tbl: string;
-  Lat, lev_d, lev_m: real;
-  TRt:TSQLTransaction;
-  Qt1, Qt2:TSQLQuery;
-begin
-   TRt:=TSQLTransaction.Create(self);
-   TRt.DataBase:=frmdm.IBDB;
-
-   Qt1:=TSQLQuery.Create(self);
-   Qt1.Database:=frmdm.IBDB;
-   Qt1.Transaction:=TRt;
-
-   Qt2:=TSQLQuery.Create(self);
-   Qt2.Database:=frmdm.IBDB;
-   Qt2.Transaction:=TRt;
-
-  try
-  For ff:=1 to frmosmain.ListBox1.Count-1 do begin
-    tbl:=frmosmain.ListBox1.Items.Strings[ff];
-
-  with Qt1 do begin
-   Close;
-    SQL.Clear;
-    SQL.Add(' SELECT ');
-    SQL.Add(' STATION.ID, STATION.LATITUDE, '+tbl+'.LEV_DBAR ');
-    SQL.Add(' FROM STATION, '+tbl);
-    SQL.Add(' WHERE STATION.ID='+tbl+'.ID ');
-    SQL.Add(' ORDER BY STATION.ID, '+tbl+'.ID ');
-   Open;
-  end;
-
-  while not Qt1.EOF do begin
-   ID:=Qt1.FieldByName('ID').AsInteger;
-   lat:=Qt1.FieldByName('LATITUDE').AsFloat;
-   lev_d:=Qt1.FieldByName('LEV_DBAR').AsFloat;
-
-    lev_m:=-gibbsseawater.gsw_z_from_p(lev_d, lat, 0, 0);
-
-   with Qt2 do begin
-   Close;
-    SQL.Clear;
-    SQL.Add(' UPDATE '+tbl);
-    SQL.Add(' SET LEV_M=:lev_m ');
-    SQL.Add(' WHERE ID=:ID and LEV_DBAR=:lev_d ');
-    ParamByName('ID').AsInteger:=ID;
-    ParamByName('lev_m').AsFloat:=lev_m;
-    ParamByName('lev_d').AsFloat:=lev_d;
-   ExecSqL;
-  end;
-
-
-
-  //  memo1.Lines.Add(inttostr(ID)+'   '+floattostr(lev_d)+'   '+floattostr(lev_m));
-  //  Application.ProcessMessages;
-    Qt1.Next;
-  end;
-  TrT.CommitRetaining;
-  end;
-
-  finally
-  Qt1.close;
-  Qt2.Close;
-  Trt.Commit;
-  Qt1.Free;
-  Qt2.Free;
-  TrT.Free;
-  end;
-end;
-
-
-
-procedure TfrmLoadITP.Button6Click(Sender: TObject);
-Var
-  ff, ID: integer;
-  tbl: string;
-  Lat, lev_d, lev_m: real;
-  TRt:TSQLTransaction;
-  Qt1, Qt2:TSQLQuery;
-begin
-   TRt:=TSQLTransaction.Create(self);
-   TRt.DataBase:=frmdm.IBDB;
-
-   Qt1:=TSQLQuery.Create(self);
-   Qt1.Database:=frmdm.IBDB;
-   Qt1.Transaction:=TRt;
-
-   Qt2:=TSQLQuery.Create(self);
-   Qt2.Database:=frmdm.IBDB;
-   Qt2.Transaction:=TRt;
-
- try
-  frmdm.Q.First;
-  while not frmdm.Q.EOF do begin
-    ID := frmdm.Q.FieldByName('ID').AsInteger;
-
-    For ff:=1 to frmosmain.ListBox1.Count-1 do begin
-      tbl:=frmosmain.ListBox1.Items.Strings[ff];
-
-      with Qt1 do begin
-       Close;
-        SQL.Clear;
-        SQL.Add(' SELECT ID, LEV_DBAR FROM ');
-        SQL.Add(tbl);
-        SQL.Add(' WHERE ID=:ID ');
-        ParamByName('ID').AsInteger:=ID;
-       Open;
-       Last;
-       First;
-      end;
-
-      if (Qt1.RecordCount<=10) and (Qt1.FieldByName('LEV_DBAR').AsFloat>10) then begin
-       with Qt2 do begin
-        Close;
-         SQL.Clear;
-         SQL.Add(' UPDATE '+tbl);
-         SQL.Add(' SET PQF2=2 ');
-         SQL.Add(' WHERE ID=:ID ');
-         ParamByName('ID').AsInteger:=ID;
-        ExecSqL;
-       end;
-     // memo1.Lines.Add(inttostr(ID));
-      end;
-    end; //tbl
-
-    frmdm.Q.Next;
-  end; //Q
-
-  finally
-  Trt.Commit;
-  Qt1.close;
-  Qt2.Close;
-  Qt1.Free;
-  Qt2.Free;
-  TrT.Free;
-  end;
-end;
-
-procedure TfrmLoadITP.Button7Click(Sender: TObject);
-Var
-  ff, ID: integer;
-  tbl: string;
-  Lat, lev_d, lev_m: real;
-  TRt:TSQLTransaction;
-  Qt1, Qt2:TSQLQuery;
-begin
-   TRt:=TSQLTransaction.Create(self);
-   TRt.DataBase:=frmdm.IBDB;
-
-   Qt1:=TSQLQuery.Create(self);
-   Qt1.Database:=frmdm.IBDB;
-   Qt1.Transaction:=TRt;
-
-   Qt2:=TSQLQuery.Create(self);
-   Qt2.Database:=frmdm.IBDB;
-   Qt2.Transaction:=TRt;
-
- try
-
-  with Qt1 do begin
-   Close;
-    SQL.Clear;
-    SQL.Add(' SELECT ID FROM STATION ');
-    SQL.Add(' WHERE ID BETWEEN 10000000 AND 15000000 ');
-    SQL.Add(' AND QCFLAG=0 ');
-    SQL.Add(' ORDER BY ID ');
-   Open;
-  end;
-
-  while not Qt1.EOF do begin
-
-     For ff:=1 to frmosmain.ListBox1.Count-1 do begin
-      tbl:=frmosmain.ListBox1.Items.Strings[ff];
-
-      with Qt2 do begin
-       Close;
-        SQL.Clear;
-        SQL.Add(' UPDATE '+tbl);
-        SQL.Add(' SET PQF1=0, PQF2=0 ');
-        SQL.Add(' WHERE ID=:ID ');
-        ParamByName('ID').AsInteger:=Qt1.FieldByName('ID').AsInteger;
-       ExecSqL;
-      end;
-     end;
-
-    Qt1.Next;
-  end;
-  TrT.CommitRetaining;
-
-  finally
-  Trt.Commit;
-  Qt1.close;
-  Qt2.Close;
-  Qt1.Free;
-  Qt2.Free;
-  TrT.Free;
-  end;
-end;
 
 end.
