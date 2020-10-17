@@ -22,7 +22,7 @@ Var
 begin
   tmp_lst:=TStringList.Create;
 
-  frmdm.IBDB.GetTableNames(tmp_lst, False);
+{  frmdm.IBDB.GetTableNames(tmp_lst, False);
 
   temp_fl:=false;
   for k:=0 to tmp_lst.Count-1 do begin
@@ -67,6 +67,7 @@ begin
    end;
    frmdm.TR.CommitRetaining;
   end;
+}
 
 
   frmdm.IBDB.GetFieldNames('CRUISE', tmp_lst);
@@ -74,21 +75,21 @@ begin
   temp_fl:=false;
   for k:=0 to tmp_lst.Count-1 do begin
     fld_name:=tmp_lst.Strings[k];
-    if fld_name='SELECTED' then temp_fl:=true;
+    if fld_name='FINAL' then temp_fl:=true;
   end;
 
   if temp_fl=false then begin
    With frmdm.q1 do begin
      Close;
        SQL.Clear;
-       SQL.Add(' ALTER TABLE CRUISE ADD SELECTED BOOLEAN ');
+       SQL.Add(' ALTER TABLE CRUISE ADD FINAL BOOLEAN ');
      ExecSQL;
    end;
    frmdm.TR.CommitRetaining;
   end;
 
 
-  temp_fl:=false;
+ { temp_fl:=false;
   for k:=0 to tmp_lst.Count-1 do begin
     fld_name:=tmp_lst.Strings[k];
     if fld_name='DUPLICATE' then temp_fl:=true;
@@ -120,7 +121,7 @@ begin
      ExecSQL;
    end;
    frmdm.TR.CommitRetaining;
-  end;
+  end;    }
 
 
 end;

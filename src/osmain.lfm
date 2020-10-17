@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 236
+  Left = 257
   Height = 700
-  Top = 232
+  Top = 161
   Width = 1382
   Caption = 'OceanShell'
   ClientHeight = 670
@@ -1425,7 +1425,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton3: TToolButton
             Left = 101
-            Height = 34
+            Height = 5
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider
@@ -1504,7 +1504,7 @@ object frmosmain: Tfrmosmain
         end
         object ToolButton8: TToolButton
           Left = 51
-          Height = 5
+          Height = 34
           Top = 0
           Caption = 'ToolButton8'
           Style = tbsDivider
@@ -1605,6 +1605,11 @@ object frmosmain: Tfrmosmain
             item
               Title.Caption = 'St. dup'
               FieldName = 'STATIONS_DUPLICATES'
+            end          
+            item
+              ButtonStyle = cbsCheckboxColumn
+              Title.Caption = 'Final'
+              FieldName = 'FINAL'
             end>
           DataSource = frmdm.DSCruise
           FixedCols = 0
@@ -2450,7 +2455,6 @@ object frmosmain: Tfrmosmain
     end
     object MenuItem2: TMenuItem
       Caption = '-'
-      Visible = False
     end
     object iUpdateCruise: TMenuItem
       Caption = 'Update cruise info'

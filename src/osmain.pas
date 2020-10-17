@@ -277,7 +277,6 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure GroupBox2Click(Sender: TObject);
     procedure iAboutClick(Sender: TObject);
     procedure iDBStatisticsClick(Sender: TObject);
     procedure iDBStatistics_AKClick(Sender: TObject);
@@ -680,11 +679,6 @@ begin
  OnResize(Self);
  SetFocus;
  Application.ProcessMessages;
-end;
-
-procedure Tfrmosmain.GroupBox2Click(Sender: TObject);
-begin
-
 end;
 
 
@@ -1107,7 +1101,7 @@ begin
       SQL.Add(' CRUISE.LONGITUDE_MIN, CRUISE.LONGITUDE_MAX, CRUISE.EXPOCODE, ');
       SQL.Add(' CRUISE.PI, CRUISE.NOTES, CRUISE.STATIONS_TOTAL, ');
       SQL.Add(' CRUISE.STATIONS_DATABASE, CRUISE.STATIONS_DUPLICATES, ');
-      SQL.Add(' CRUISE.SELECTED ');
+      SQL.Add(' CRUISE.SELECTED, CRUISE.FINAL ');
       SQL.Add(' FROM CRUISE, PLATFORM, COUNTRY, SOURCE, INSTITUTE, PROJECT ');
       SQL.Add(' WHERE ');
       SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
@@ -1403,6 +1397,9 @@ begin
 
   for k:=0 to chkParameters.Items.Count-1 do
     chkParameters.Checked[k]:=false;
+
+  for k:=0 to cgQCFlag.Items.Count-1 do
+    cgQCFlag.Checked[k]:=true;
 end;
 
 
@@ -1665,7 +1662,7 @@ begin
    end;
 
  (*******************TEMPORARY *********************)
-  //CheckDBStructure;
+  CheckDBStructure;
  (*******************TEMPORARY *********************)
 
   DatabaseInfo;
@@ -2350,7 +2347,7 @@ Var
 
   LatMin, LatMax, LonMin, LonMax: real;
   DateMin, DateMax: TDateTime;
-  cnt: integer;
+  cnt, ID_old: integer;
 begin
    try
     TRt:=TSQLTransaction.Create(self);
@@ -2359,6 +2356,8 @@ begin
     Qt1:=TSQLQuery.Create(self);
     Qt1.Database:=frmdm.IBDB;
     Qt1.Transaction:=TRt;
+
+    ID_old:=frmdm.QCruise.FieldByName('ID').AsInteger;
 
      frmdm.QCruise.DisableControls;
      frmdm.QCruise.First;
@@ -2444,6 +2443,8 @@ begin
         Qt1.Free;
         Trt.Free;
         frmdm.TR.CommitRetaining;
+
+        frmdm.QCruise.Locate('ID', ID_old, []);
         frmdm.QCruise.EnableControls;
       end;
 
@@ -2951,6 +2952,13 @@ begin
     (column.FieldName='DATE_UPDATED') then begin
     TDBGrid(sender).Canvas.Brush.Color := clBtnFace;
  end;
+
+ {if (column.FieldName='FINAL') then begin
+    if TDBGrid(Sender).DataSource.DataSet.FieldByName('FINAL').AsBoolean=true then
+     TDBGrid(Sender).Canvas.brush.Color  := $40FF00 else
+     TDBGrid(Sender).Canvas.brush.Color  := $F5A9A9;
+ end;  }
+
 
  if (gdRowHighlight in AState) then begin
     TDBGrid(Sender).Canvas.Brush.Color := clNavy;

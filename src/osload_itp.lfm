@@ -26,7 +26,7 @@ object frmLoadITP: TfrmLoadITP
     Height = 38
     Top = 16
     Width = 248
-    Caption = 'Select *.zip files'
+    Caption = 'Select *.zip file(s)'
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'

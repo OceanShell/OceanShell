@@ -25,7 +25,8 @@ type
 
   private
     { Private declarations }
-    procedure WriteData;
+    procedure WriteData(ITP_ID:integer);
+    procedure UpdateCruiseInfo(ITP_ID:integer);
   public
     { Public declarations }
   end;
@@ -74,6 +75,9 @@ begin
  ITP_out_path:=GlobalUnloadPath+PathDelim+'temp'+PathDelim;
    if not DirectoryExists(ITP_out_path) then CreateDir(ITP_out_path);
 
+ btnOpenZIP.Enabled:=false;
+ btnLoad.Enabled:=false;
+
  // loop over ZIP files
  for k:=0 to listbox2.Items.Count-1 do begin
   ClearDir(ITP_out_path);
@@ -115,7 +119,9 @@ begin
   Application.ProcessMessages;
 
   (* THE MAIN PROCEDURE - WRITING DATA TO DB *)
-  WriteData;
+  WriteData(StrToInt(ITP_cruise));
+
+  UpdateCruiseInfo(StrToInt(ITP_cruise));
 
   mLog.Lines.Add('Done!');
   mLog.Lines.Add('');
@@ -123,11 +129,15 @@ begin
  end;
 
  frmosmain.DatabaseInfo;
+
+ btnOpenZIP.Enabled:=true;
+ btnLoad.Enabled:=true;
+
  Showmessage('Completed!');
 end;
 
 
-procedure TfrmLoadITP.WriteData;
+procedure TfrmLoadITP.WriteData(ITP_ID:integer);
 Var
 dat:text;
 k,yyyy, ndepth, id, row, levnum, p, oxy_fl, c, ff, cast, pp, units_id, maxID:integer;
@@ -152,7 +162,66 @@ begin
 
  cnt_added:=0;
 
+ cruise_id:=10000000+ITP_ID;
+
  //showmessage(inttostr(id_min)+'   '+inttostr(id_max));
+
+   (* checking if buoy is already in the database *)
+   with frmdm.q1 do begin
+    Close;
+       SQL.Clear;
+       SQL.Add(' SELECT ID FROM CRUISE WHERE ID=:ID ');
+     ParamByName('ID').AsInteger:= cruise_id;
+    Open;
+   end;
+
+   if frmdm.q1.IsEmpty=true then begin
+     with frmdm.q2 do begin
+       Close;
+        Sql.Clear;
+        SQL.Add(' INSERT INTO PLATFORM ');
+        SQL.Add(' (ID, NAME, COUNTRY_ID) ');
+        SQL.Add(' VALUES ' );
+        SQL.Add(' (:ID, :name, :country_id) ');
+        ParamByName('ID').Value:=cruise_id;
+        ParamByName('name').Value:='ITP '+ inttostr(ITP_ID);
+        ParamByName('country_id').Value:=186;
+       ExecSQL;
+      end;
+    frmdm.TR.CommitRetaining;
+
+    with frmdm.Q2 do begin
+     Close;
+      SQL.Clear;
+      SQL.Add('insert into CRUISE');
+      SQL.Add(' (ID, platform_id, source_id, institute_id, project_id, ');
+      SQL.Add(' DATE_ADDED, DATE_UPDATED, DATE_START_TOTAL, DATE_END_TOTAL, ');
+      SQL.Add(' DATE_START_DATABASE, DATE_END_DATABASE, CRUISE_NUMBER,');
+      SQL.Add(' STATIONS_TOTAL, STATIONS_DATABASE, STATIONS_DUPLICATES) ');
+      SQL.Add(' VALUES ' );
+      SQL.Add(' (:ID, :platform_id, :source_id, :institute_id, :project_id, ');
+      SQL.Add(' :DATE_ADDED, :DATE_UPDATED, :DATE_START_TOTAL, :DATE_END_TOTAL, ');
+      SQL.Add(' :DATE_START_DATABASE, :DATE_END_DATABASE, :CRUISE_NUMBER, ');
+      SQL.Add(' :STATIONS_TOTAL, :STATIONS_DATABASE, :STATIONS_DUPLICATES) ');
+      ParamByName('ID').Value:=Cruise_ID;
+      ParamByName('platform_id').Value:=Cruise_ID;
+      ParamByName('source_id').Value:=2;
+      ParamByName('institute_id').Value:=244;
+      ParamByName('project_id').Value:=165;
+      ParamByName('date_added').Value:=now;
+      ParamByName('date_updated').Value:=now;
+      ParamByName('date_start_total').Value:=now;
+      ParamByName('date_end_total').Value:=now;
+      ParamByName('date_start_database').Value:=now;
+      ParamByName('date_end_database').Value:=now;
+      ParamByName('cruise_number').Value:=ITP_ID;
+      ParamByName('stations_total').Value:=0;
+      ParamByName('stations_database').Value:=0;
+      ParamByName('stations_duplicates').Value:=0;
+     ExecSQL;
+    end;
+    frmdm.TR.CommitRetaining;
+  end;
 
   (* If FINAL then removing old (relatime) stations from the database *)
   if ITP_isfinal=true then begin
@@ -200,6 +269,7 @@ begin
 
     CurFile:=ListBox1.Items.Strings[ff];
 
+
     ListBox1.ItemIndex:=ff;
     Application.ProcessMessages;
 
@@ -213,10 +283,6 @@ begin
     cast:=1;
 
     id:=10000000+strtoint(stvessel)*10000+strtoint(stnumincruise);
-
-    cruise_id:=10000000+strtoint(stvessel);
-
-  //  showmessage(inttostr(id)+'   '+inttostr(cruise_id));
 
 
     AssignFile(dat, ITP_out_path+CurFile); Reset(dat);
@@ -282,8 +348,8 @@ begin
         ParamByName('STVERSION'        ).Value:=0;
         ParamByName('DUPLICATE'        ).Value:=false;
         ParamByName('MERGED'           ).Value:=0;
-        ParamByName('DATE_ADDED'       ).Value:=Now;
-        ParamByName('DATE_UPDATED'     ).Value:=Now;
+        ParamByName('DATE_ADDED'       ).Value:=filedatetodatetime(FileAge(CurFile));
+        ParamByName('DATE_UPDATED'     ).Value:=filedatetodatetime(FileAge(CurFile));
         ExecSQL;
        end;
        inc(cnt_added);
@@ -457,5 +523,102 @@ begin
   Application.ProcessMessages;
 end;
 
+
+procedure TfrmLoadITP.UpdateCruiseInfo(ITP_ID:integer);
+Var
+TRt:TSQLTransaction;
+Qt1:TSQLQuery;
+
+cnt, cruise_id: integer;
+latmin, latmax, lonmin, lonmax:real;
+datemin, datemax, dateupd:TDateTime;
+begin
+
+  cruise_id:=10000000+ITP_ID;
+
+  try
+      TRt:=TSQLTransaction.Create(self);
+      TRt.DataBase:=frmdm.IBDB;
+
+      Qt1:=TSQLQuery.Create(self);
+      Qt1.Database:=frmdm.IBDB;
+      Qt1.Transaction:=TRt;
+
+      cnt:=0;
+      with Qt1 do begin
+        Close;
+          SQL.Clear;
+          SQL.Add(' SELECT ');
+          SQL.Add(' min(LATITUDE) as LatMin, ');
+          SQL.Add(' max(LATITUDE) as LatMax, ');
+          SQL.Add(' min(LONGITUDE) as LonMin, ');
+          SQL.Add(' max(LONGITUDE) as LonMax, ');
+          SQL.Add(' min(DATEANDTIME) as DateMin, ');
+          SQL.Add(' max(DATEANDTIME) as DateMax, ');
+          SQL.Add(' max(DATE_UPDATED) as DateUpd, ');
+          SQL.Add(' count(ID) as cnt ');
+          SQL.Add(' FROM STATION ');
+          SQL.Add(' where CRUISE_ID=:CR_ID ');
+          ParamByName('CR_ID').AsInteger:=cruise_id;
+        Open;
+        if Qt1.FieldByName('cnt').AsInteger>0 then begin
+          LatMin:=Qt1.FieldByName('LatMin').Value;
+          LatMax:=Qt1.FieldByName('LatMax').Value;
+          LonMin:=Qt1.FieldByName('LonMin').Value;
+          LonMax:=Qt1.FieldByName('LonMax').Value;
+          DateMin:=Qt1.FieldByName('DateMin').Value;
+          DateMax:=Qt1.FieldByName('DateMax').Value;
+          DateUpd:=Qt1.FieldByName('DateUpd').Value;
+          cnt:=Qt1.FieldByName('cnt').Value;
+        end;
+        if Qt1.FieldByName('cnt').AsInteger=0 then begin
+          LatMin:=0;
+          LatMax:=0;
+          LonMin:=0;
+          LonMax:=0;
+          DateMin:=EncodeDate(1900, 01, 01);
+          DateMax:=EncodeDate(1900, 01, 01);
+          DateUpd:=EncodeDate(1900, 01, 01);
+          cnt:=0;
+        end;
+      Close;
+  end;
+
+        with frmdm.q1 do begin
+         Close;
+          SQL.Clear;
+          SQL.Add(' UPDATE CRUISE SET ');
+          SQL.Add(' LATITUDE_MIN=:LatMin, ');
+          SQL.Add(' LATITUDE_MAX=:LatMax, ');
+          SQL.Add(' LONGITUDE_MIN=:LonMin, ');
+          SQL.Add(' LONGITUDE_MAX=:LonMax, ');
+          SQL.Add(' DATE_UPDATED=:DateUpd, ');
+          SQL.Add(' DATE_START_DATABASE=:DateMin, ');
+          SQL.Add(' DATE_START_TOTAL=:DateMin, ');
+          SQL.Add(' DATE_END_DATABASE=:DateMax, ');
+          SQL.Add(' DATE_END_TOTAL=:DateMax, ');
+          SQL.Add(' STATIONS_DATABASE=:cnt, ');
+          SQL.Add(' STATIONS_TOTAL=:cnt ');
+          SQL.Add(' WHERE ID=:CR_ID ');
+          ParamByName('CR_ID').AsInteger:=cruise_id;
+          ParamByName('LatMin').Value:=LatMin;
+          ParamByName('LatMax').Value:=LatMax;
+          ParamByName('LonMin').Value:=LonMin;
+          ParamByName('LonMax').Value:=LonMax;
+          ParamByName('DateMin').Value:=DateMin;
+          ParamByName('DateMax').Value:=DateMax;
+          ParamByName('DateUpd').Value:=DateUpd;
+          ParamByName('cnt').Value:=cnt;
+         ExecSQL;
+        end;
+
+        finally
+          Qt1.Close;
+          Trt.Commit;
+          Qt1.Free;
+          Trt.Free;
+          frmdm.TR.CommitRetaining;
+        end;
+end;
 
 end.
