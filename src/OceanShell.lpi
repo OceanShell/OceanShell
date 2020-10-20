@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="52">
+    <Units Count="53">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -370,6 +370,12 @@
         <Filename Value="sortbufds.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit51>
+      <Unit52>
+        <Filename Value="osexport_cia.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+        <UnitName Value="osExport_CIA"/>
+      </Unit52>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -1,126 +1,71 @@
 object frmload_argo: Tfrmload_argo
-  Left = 270
-  Height = 660
-  Top = 188
-  Width = 1388
+  Left = 472
+  Height = 551
+  Top = 200
+  Width = 803
   Caption = 'Load ARGO'
-  ClientHeight = 660
-  ClientWidth = 1388
+  ClientHeight = 551
+  ClientWidth = 803
   DesignTimePPI = 144
+  Position = poOwnerFormCenter
   LCLVersion = '2.0.6.0'
   object btnCruise: TButton
     Left = 24
     Height = 38
-    Top = 168
+    Top = 80
     Width = 240
-    Caption = '4. Update CRUISE'
+    Caption = '1. CRUISE'
     OnClick = btnCruiseClick
     TabOrder = 0
   end
   object Memo1: TMemo
-    Left = 304
-    Height = 463
-    Top = 168
-    Width = 1056
+    Left = 24
+    Height = 375
+    Top = 144
+    Width = 752
     ScrollBars = ssBoth
     TabOrder = 1
   end
   object btnCore: TButton
-    Left = 25
+    Left = 536
     Height = 38
-    Top = 296
+    Top = 80
     Width = 240
-    Caption = '6. Load/update CORE'
+    Caption = '3. CORE'
     OnClick = btnCoreClick
     TabOrder = 2
   end
   object ePath: TEdit
-    Left = 304
+    Left = 136
     Height = 33
-    Top = 112
-    Width = 1056
+    Top = 24
+    Width = 592
     TabOrder = 3
-    Text = 'X:\Data_Oceanography\_ARGO\202009-ArgoData\dac\'
-  end
-  object Label1: TLabel
-    Left = 24
-    Height = 25
-    Top = 72
-    Width = 616
-    Caption = '2. Unpack the archive into a folder ( requires more than 300 GB of disk space )'
-    ParentColor = False
-  end
-  object Button3: TButton
-    Left = 24
-    Height = 38
-    Top = 552
-    Width = 113
-    Caption = 'Button3'
-    OnClick = Button3Click
-    TabOrder = 4
+    Text = 'X:\Data_Oceanography\_ARGO\202010-ArgoData\dac\'
   end
   object btnSynthetic: TButton
-    Left = 24
+    Left = 280
     Height = 38
-    Top = 232
+    Top = 80
     Width = 240
-    Caption = '5. Load/update SYNTHETIC'
+    Caption = '2. SYNTHETIC'
     OnClick = btnSyntheticClick
-    TabOrder = 5
-  end
-  object Button1: TButton
-    Left = 152
-    Height = 38
-    Top = 552
-    Width = 113
-    Caption = 'project'
-    OnClick = Button1Click
-    TabOrder = 6
-  end
-  object Label2: TLabel
-    Left = 24
-    Height = 25
-    Top = 24
-    Width = 252
-    Caption = '1. Download latest data archive:'
-    ParentColor = False
-  end
-  object Label3: TLabel
-    Cursor = crHandPoint
-    Left = 288
-    Height = 25
-    Top = 24
-    Width = 358
-    Caption = ' https://www.seanoe.org/data/00311/42182/'
-    Font.Color = clBlue
-    Font.Style = [fsUnderline]
-    ParentColor = False
-    ParentFont = False
-    OnClick = Label3Click
+    TabOrder = 4
   end
   object Label4: TLabel
     Left = 24
     Height = 25
-    Top = 120
-    Width = 265
-    Caption = '3. Specify path to the data folder:'
+    Top = 32
+    Width = 93
+    Caption = 'Data folder:'
     ParentColor = False
   end
-  object Label5: TLabel
-    Left = 24
-    Height = 25
-    Top = 520
-    Width = 178
-    Caption = 'Temporary procedures'
-    ParentColor = False
-  end
-  object Button2: TButton
-    Left = 24
-    Height = 38
-    Top = 593
-    Width = 241
-    Caption = 'Delete empty stations'
-    OnClick = Button2Click
-    TabOrder = 7
+  object Button1: TButton
+    Left = 743
+    Height = 33
+    Top = 24
+    Width = 33
+    Caption = '...'
+    TabOrder = 5
   end
 end

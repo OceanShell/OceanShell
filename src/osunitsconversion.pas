@@ -11,7 +11,7 @@ procedure GetDefaultUnits(par:string; units, units_default: integer; val_in: rea
   Var val_out:real; Var isconverted:boolean);
 
 procedure GetDefaultUnitsExact(par:string; units, units_default, ID,
-  instr_id, prof_num: integer; val_in, Lat, Lon, LEV_DBAR: real;
+  instr_id, prof_num: integer; val_in, Lat, Lon, LEV_M: real;
   Var val_out:real; Var isconverted:boolean);
 
 
@@ -136,13 +136,13 @@ end;
 
 (* Use density calculated from in situ salinity and T=22 deg C,  atmospheric pressure = 1 ATM  *)
 procedure GetDefaultUnitsExact(par:string; units, units_default, ID,
-  instr_id, prof_num: integer; val_in, Lat, Lon, LEV_DBAR: real;
+  instr_id, prof_num: integer; val_in, Lat, Lon, LEV_M: real;
   Var val_out:real; Var isconverted:boolean);
 Var
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
 
-  SA, sp, p, p_ref, t, t_lab, lab_dens, pot_dens, pot_temp:real;
+  SA, sp, p, p_ref, t, t_lab, lab_dens, pot_dens, pot_temp, LEV_DBAR:real;
 begin
  val_out:=-9999;
 
@@ -158,11 +158,13 @@ begin
    with Qt do begin
     Close;
      SQL.Clear;
-     SQL.Add(' SELECT P_TEMPERATURE.VAL AS TVAL, P_SALINITY.VAL AS SVAL');
+     SQL.Add(' SELECT P_TEMPERATURE.VAL AS TVAL, ');
+     SQL.Add(' SELECT P_TEMPERATURE.LEV_DBAR AS TLEV, ');
+     SQL.Add(' P_SALINITY.VAL AS SVAL ');
      SQL.Add(' FROM P_TEMPERATURE, P_SALINITY ');
      SQL.Add(' WHERE ');
      SQL.Add(' P_SALINITY.ID=P_TEMPERATURE.ID AND ');
-     SQL.Add(' P_SALINITY.LEV_M=P_TEMPERATURE.LEV_DBAR AND ');
+     SQL.Add(' P_SALINITY.LEV_M=P_TEMPERATURE.LEV_M AND ');
      SQL.Add(' P_SALINITY.INSTRUMENT_ID=P_TEMPERATURE.INSTRUMENT_ID AND ');
      SQL.Add(' P_SALINITY.PROFILE_NUMBER=P_TEMPERATURE.PROFILE_NUMBER AND ');
      SQL.Add(' P_SALINITY.ID=:ID AND ');
@@ -172,11 +174,12 @@ begin
      SQL.Add(' and P_TEMPERATURE.PQF2<>1 and P_TEMPERATURE.PQF2<>2 ');
      SQL.Add(' and P_SALINITY.PQF2<>1 and P_SALINITY.PQF2<>2 ');
      ParamByName('ID').Value:=ID;
-     ParamByName('LEV').Value:=LEV_DBAR;
+     ParamByName('LEV').Value:=LEV_M;
      ParamByName('INSTR_ID').Value:=instr_id;
      ParamByName('PROF_NUM').Value:=prof_num;
     Open;
       if not Qt.IsEmpty then begin
+        LEV_DBAR:=Qt.FieldByName('TLEV').Value;
         sp:=Qt.FieldByName('SVAL').Value;
         t :=Qt.FieldByName('TVAL').Value;
       end;
@@ -281,7 +284,6 @@ begin
 
  // if no conversion done
  if val_out<>-9999 then isconverted:=true else isconverted:=false;
-
 end;
 
 
