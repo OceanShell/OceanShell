@@ -911,14 +911,17 @@ try
     // predefined region
     if pcRegion.ActivePageIndex=2 then begin
 
+    if cbPredefinedRegion.ItemIndex<0 then
+     if MessageDlg('Choose a region first', mtWarning, [mbOk], 0)=mrOk then exit;
+
     ArbytraryRegion.GetArbirtaryRegion(
       GlobalSupportPath+'sea_borders'+PathDelim+cbPredefinedRegion.Text+'.bln',
       LatMin, LatMax, LonMin, LonMax);
 
-    showmessage(floattostr(LatMIn)+'   '+
+ {   showmessage(floattostr(LatMIn)+'   '+
                 floattostr(latmax)+'   '+
                 floattostr(lonmin)+'   '+
-                floattostr(lonmax));
+                floattostr(lonmax));  }
 
       with frmdm.q1 do begin
        Close;
@@ -982,9 +985,9 @@ try
     if pcDateandTime.ActivePageIndex=0 then begin
     // From date to date
       if chkPeriod.Checked=false then begin
-       SQL_str:=SQL_str+'  AND (DATEANDTIME between '+
-                        DateTimeToStr(dtpDateMin.DateTime)+' AND '+
-                        DateTimeToStr(dtpDateMax.DateTime)+') ';
+       SQL_str:=SQL_str+'  AND (DATEANDTIME BETWEEN '+
+                        QuotedStr(DateTimeToStr(dtpDateMin.DateTime))+' AND '+
+                        QuotedStr(DateTimeToStr(dtpDateMax.DateTime))+') ';
       end;
 
      //Date in Period
@@ -1016,16 +1019,16 @@ try
 
     (* DATE_ADDED *)
     if pcDateandTime.ActivePageIndex=1 then begin
-      SQL_str:=SQL_str+'  AND (STATION.DATE_ADDED between '+
-      DateTimeToStr(dtpDateAddedMin.DateTime)+' AND '+
-      DateTimeToStr(dtpDateAddedMax.DateTime)+' ) ';
+      SQL_str:=SQL_str+'  AND (STATION.DATE_ADDED BETWEEN '+
+                       QuotedStr(DateTimeToStr(dtpDateAddedMin.DateTime))+' AND '+
+                       QuotedStr(DateTimeToStr(dtpDateAddedMax.DateTime))+' ) ';
     end;
 
     (* DATE_UPDATED *)
     if pcDateandTime.ActivePageIndex=2 then begin
      SQL_str:=SQL_str+'  AND (STATION.DATE_UPDATED between '+
-     DateTimeToStr(dtpDateUpdatedMin.DateTime)+' AND '+
-     DateTimeToStr(dtpDateUpdatedMax.DateTime)+' ) ';
+                      QuotedStr(DateTimeToStr(dtpDateUpdatedMin.DateTime))+' AND '+
+                      QuotedStr(DateTimeToStr(dtpDateUpdatedMax.DateTime))+' ) ';
     end;
     end; // dates
 
@@ -1500,7 +1503,7 @@ begin
   frmdm.QCruise.EnableControls;
  end;
 
-  if frmdm.TR.Active=true then frmdm.TR.Commit;
+  if frmdm.TR.Active=true then frmdm.TR.CommitRetaining;
    with frmdm.Q do begin
      Close;
       SQL.Clear;
@@ -1596,7 +1599,7 @@ begin
                     ' STATION.ID IN (SELECT STATION_ID FROM STATION_ENTRY WHERE '+
                     ' ENTRY_ID IN (SELECT ID FROM TEMPORARY_ID_LIST)) ';
 
-   if frmdm.TR.Active=true then frmdm.TR.Commit;
+   if frmdm.TR.Active=true then frmdm.TR.CommitRetaining;
      with frmdm.Q do begin
        Close;
         SQL.Clear;
@@ -1625,6 +1628,13 @@ begin
   chkIDRange.Checked:=false;
   chkQCFlag.Checked:=false;
   chkParameter.Checked:=false;
+
+
+  seAroundPointLat.Value:=0;
+  seAroundPointLon.Value:=0;
+  seAroundPointRaduis.Value:=0;
+
+  cbPredefinedRegion.Items.Clear;
 
   seLatMin.Value:=StationLatMin;
   seLatMax.Value:=StationLatMax;
@@ -1959,6 +1969,9 @@ Var
   Qt:TSQLQuery;
 begin
 if btnSaveEntry.Enabled=true then btnSaveEntry.OnClick(self);
+
+if VarIsNull(frmdm.QEntry.FieldByName('ID').Value) then
+ if MessageDlg('Add new entry first', mtWarning, [mbOk], 0)=mrOk then exit;
 
 ID_Entry:=frmdm.QEntry.FieldByName('ID').Value;
 
