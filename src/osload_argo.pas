@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, SQLDB, DB,
-  DateUtils, Variants, BufDataset, LCLIntf, Buttons;
+  DateUtils, Variants, BufDataset, LCLIntf, Buttons, ExtCtrls;
 
 type
 
@@ -14,21 +14,22 @@ type
 
   Tfrmload_argo = class(TForm)
     btnCruise: TButton;
-    btnSynthetic: TButton;
-    btnCore: TButton;
-    Button1: TButton;
+    btnStation: TButton;
+    btnSelectDataFolder: TButton;
+    btnDeleteEmptyStations: TButton;
     ePath: TEdit;
     Label4: TLabel;
     Memo1: TMemo;
+    rgDataType: TRadioGroup;
 
-    procedure btnCoreClick(Sender: TObject);
     procedure btnCruiseClick(Sender: TObject);
-    procedure btnSyntheticClick(Sender: TObject);
+    procedure btnDeleteEmptyStationsClick(Sender: TObject);
+    procedure btnStationClick(Sender: TObject);
+    procedure btnSelectDataFolderClick(Sender: TObject);
 
   private
     procedure GetCodes(argo_code:string; Var country_id, institute_id,
       project_id:integer);
-    procedure ReadMetadata(fname:string; isCore:boolean);
     procedure WriteProfile(fname:string; id: integer; StLat: real;
       isCore:boolean; QF: integer);
   public
@@ -44,7 +45,7 @@ implementation
 
 { Tfrmload_argo }
 
-uses osmain, dm, declarations_netcdf, GibbsSeaWater;
+uses osmain, dm, declarations_netcdf, GibbsSeaWater, procedures;
 
 
 procedure Tfrmload_argo.GetCodes(argo_code:string; Var country_id, institute_id, project_id:integer);
@@ -67,6 +68,11 @@ begin
  if argo_code='NM' then begin institute_id:=823; project_id:=69;  country_id:=231; end;
 end;
 
+
+procedure Tfrmload_argo.btnSelectDataFolderClick(Sender: TObject);
+begin
+  if frmosmain.ODir.Execute then ePath.Text:=frmosmain.ODir.FileName+PathDelim;
+end;
 
 
 (* reading ar_index_global_meta.txt and updating CRUISE *)
@@ -347,59 +353,40 @@ finally
    CloseFile(dat2);
    CloseFile(dat3);
 
-
-   Memo1.lines.add('Added: '+inttostr(cnt_added));
-   Memo1.lines.add('Updated: '+inttostr(cnt_updated));
-   Memo1.lines.add('Removed: '+inttostr(cnt_removed));
-   Memo1.lines.add('');
-
-   memo1.lines.add('Done! Time spent: '+timetostr(now-DateStart));
+   With memo1.lines do begin
+     add('Added: '+inttostr(cnt_added));
+     add('Updated: '+inttostr(cnt_updated));
+     add('Removed: '+inttostr(cnt_removed));
+     add('');
+     add('Done! Time spent: '+timetostr(now-DateStart));
+   end;
 
    OpenDocument(PChar(log_path));
  end;
 end;
 
-procedure Tfrmload_argo.btnSyntheticClick(Sender: TObject);
-Var
-  fname:string;
-begin
-fname:='argo_synthetic-profile_index.txt';
- if not FileExists(epath.text+fname) then
-   if MessageDlg(fname+' cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
-
-  ReadMetadata(epath.text+fname, false);
-end;
-
-procedure Tfrmload_argo.btnCoreClick(Sender: TObject);
-Var
-  fname: string;
-begin
-fname:='ar_index_global_prof.txt';
- if not FileExists(epath.text+fname) then
-   if MessageDlg(fname+' cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
-
-  ReadMetadata(epath.text+fname, true);
-end;
-
 
 (* Reading input metadata file *)
-procedure Tfrmload_argo.ReadMetadata(fname:string; isCore:boolean);
+procedure Tfrmload_argo.btnStationClick(Sender: TObject);
 Type
   MDFromDatabase=record
     ID:integer;
     Cruise_ID:integer;
     StNum:string;
     Date_upd:TDateTime;
-  end;
+end;
+MDDB=array of MDFromDatabase;
 
-  MDDB=array of MDFromDatabase;
 Var
   dat:text;
+  isCore:boolean;
+
   ID, c, k, max_id, pp:integer;
-  cnt_str, cnt_kept, cnt_updated, cnt_new, cnt_skipped: integer;
+  cnt_str, cnt_kept, cnt_updated, cnt_new, cnt_skipped, cnt_error: integer;
   k_db, cc, par_cnt: integer;
 
   st, date_str, platf, buf_str, date_upd:string;
+  fname:string;
   cruise_id: integer;
 
   lat, lon:string;
@@ -413,30 +400,33 @@ Var
   stnum, tbl, log_path:string;
   cast, QF:integer;
 
-  dat1, dat2, dat3, dat4:text;
+  dat1, dat2, dat3, dat4, dat5:text;
   DateStart:TDateTime;
 
-
- ff: array of PAnsiChar;
- lenp: size_t;
  QF_str: string;
-
- id_db_arr, cr_id_arr:array of integer;
- st_num_arr:array of string;
- d_upd_arr: array of TDateTime;
 
  MDDB_arr: MDDB;
  ALength: Cardinal;
-
-//id_db_arr, cr_id_arr, st_num_arr, d_upd_arr: TStringList;
-
 begin
 
+ case rgDataType.ItemIndex of
+  0: begin
+      fname:='argo_synthetic-profile_index.txt';
+      isCore:=false;
+  end;
+  1: begin
+      fname:='ar_index_global_prof.txt';
+      isCore:=true;
+  end;
+ end;
 
-DateStart:=now;
-memo1.Clear;
-memo1.lines.add('Start: '+timetostr(DateStart));
-memo1.lines.add('');
+ if not FileExists(epath.text+fname) then
+   if MessageDlg(fname+' cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
+
+  DateStart:=now;
+  memo1.Clear;
+  memo1.lines.add('Start: '+timetostr(DateStart));
+  memo1.lines.add('');
 
   try
      TRt:=TSQLTransaction.Create(self);
@@ -487,26 +477,34 @@ memo1.lines.add('');
  // showmessage(inttostr(k_db));
 
 
-  log_path:=epath.text+PathDelim+'_Logs'+PathDelim;
+  // path to log directory
+  log_path:=epath.text+PathDelim+'_logs'+PathDelim;
     if not DirectoryExists(log_path) then CreateDir(log_path);
 
-  AssignFile(dat1, log_path+'STATION_added.txt');   rewrite(dat1);
-  AssignFile(dat2, log_path+'STATION_updated.txt'); rewrite(dat2);
-  AssignFile(dat3, log_path+'STATION_skipped.txt'); rewrite(dat3);
-  AssignFile(dat4, log_path+'STATION_file_missing.txt'); rewrite(dat4);
+  // assigning log files
+  AssignFile(dat1, log_path+'STATION_added.txt');   rewrite(dat1); // new sations
+  AssignFile(dat2, log_path+'STATION_updated.txt'); rewrite(dat2); // updated
+  AssignFile(dat3, log_path+'STATION_skipped_metadata.txt'); rewrite(dat3); // missing metadata - skipping
+  AssignFile(dat4, log_path+'STATION_missing_file.txt'); rewrite(dat4); // missing initial files
+  AssignFile(dat5, log_path+'STATION_insert_error.txt'); rewrite(dat5);
 
   // opening input file
-  AssignFile(dat, fname); reset(dat);
+  AssignFile(dat, epath.text+fname); reset(dat);
 
   // skipping the header
   repeat
    readln(dat, st);
   until copy(st,1, 4)='file';
 
-//  for k:=1 to 143960 do readln(dat, st);
+    for k:=1 to 519000 do readln(dat, st);
 
-  // setting counters to 0
-  cnt_str:=0; cnt_kept:=0; cnt_updated:=0; cnt_new:=0; cnt_skipped:=0;
+  // setting all counters to 0
+  cnt_str:=0;
+  cnt_kept:=0;
+  cnt_updated:=0;
+  cnt_new:=0;
+  cnt_skipped:=0;
+  cnt_error:=0;
 
   // reading input file string by string, filling up arrays
   repeat
@@ -514,7 +512,7 @@ memo1.lines.add('');
 
    inc(cnt_str);
 
-  // if cnt_str>=1000 then exit;
+   if cnt_str>300000 then exit;
 
    c:=0; pp:=0;
    //reading first 4 columns
@@ -715,7 +713,9 @@ memo1.lines.add('');
         writeln(dat1, inttostr(max_id)+#9+platf+'_'+stnum);
        except
          Trt.RollbackRetaining;
-         memo1.Lines.add(st);
+         inc(cnt_error);
+         writeln(dat5, st);
+         flush(dat5);
        end;
       end; //ID=0 -> writing a new station
 
@@ -744,6 +744,7 @@ memo1.lines.add('');
        add('Updated: '  +inttostr(cnt_updated));
        add('Added: '    +inttostr(cnt_new));
        add('Skipped: '  +inttostr(cnt_skipped));
+       add('Insert error: '+inttostr(cnt_error));
        add('');
        add('Done! Time spent: '+timetostr(now-DateStart));
      end;
@@ -756,21 +757,16 @@ end;
 procedure Tfrmload_argo.WriteProfile(fname:string; id: integer; StLat: real;
   isCore:boolean; QF: integer);
 Var
- k, ncid, varidp, pp, ll, par, prof_fl, units_id, par_cnt: integer;
- var_name, tbl: string;
+ ncid, varidp, pp, ll, units_id: integer;
+ var_name, tbl, QF_str: string;
  n_prof, n_levels, n_param: size_t;
- vtype: nc_type; //nc_inq_var
  ip: array of single;
+ ff: array of PAnsiChar;
  pres_arr, temp_arr, sal_arr, oxy_arr:array of single;
  val1, lev_m: real;
-
-
- ff: array of PAnsiChar;
- lenp: size_t;
- QF_str, par_str: string;
  TRt:TSQLTransaction;
  Qt:TSQLQuery;
-
+ dat:text;
 begin
  try
    TRt:=TSQLTransaction.Create(nil);
@@ -787,7 +783,7 @@ begin
 
   (* if data file has more than 1 profile - skip it *)
   if n_prof>1 then begin
-    Memo1.lines.add(inttostr(n_prof)+'   '+fname);
+    memo1.lines.add(inttostr(n_prof)+'   '+fname);
     exit;
   end;
 
@@ -797,6 +793,21 @@ begin
 
   nc_inq_dimid (ncid, pAnsiChar('N_LEVELS'), varidp);
   nc_inq_dimlen(ncid, varidp, n_levels);
+
+
+ { nc_inq_varid (ncid, pAnsiChar('STATION_PARAMETERS'), varidp);
+  SetLength(ip, n_prof*n_param*16);
+  nc_get_var_text(ncid, varidp, );
+  op_inst:=trim(pchar(ip));
+
+
+  (N_PROF, N_PARAM, STRING16)
+
+   STATION_PARAMETERS =
+  "PRES            ",
+  "TEMP            ",
+  "PSAL            ",
+  "CNDC            " ;   }
 
   (* !!! just pres, temp, dsal, doxy!!! *)
   QF_str:='';
@@ -814,8 +825,8 @@ begin
   SetLength(oxy_arr,  n_levels);
 
 
-  for par:=1 to n_param do begin
-     case par of
+  for pp:=1 to n_param do begin
+     case pp of
       1: begin
          var_name:='PRES';
       end;
@@ -846,7 +857,7 @@ begin
      SetLength(ip, n_levels);
      nc_get_var_float(ncid, varidp, ip);
 
-     case par of
+     case pp of
       1: pres_arr:=ip;
       2: temp_arr:=ip;
       3: sal_arr:=ip;
@@ -916,6 +927,11 @@ begin
    end;//tables
   end;
 
+  pres_arr:=nil;
+  temp_arr:=nil;
+  sal_arr:=nil;
+  oxy_arr:=nil;
+
  finally
   nc_close(ncid);
 
@@ -928,7 +944,127 @@ begin
   sal_arr:=nil;
   oxy_arr:=nil;
  end;
+end;
 
+
+
+procedure Tfrmload_argo.btnDeleteEmptyStationsClick(Sender: TObject);
+Var
+ Qt1, Qt2:TSQLQuery;
+ TRt:TSQLTransaction;
+
+ log_path:string;
+ k, cnt, cnt_t, cnt_s, cnt_o, cnt_del:integer;
+ dat: text;
+
+ DateStart: TDateTime;
+begin
+Memo1.Clear;
+
+  DateStart:=now;
+
+  memo1.Clear;
+  memo1.lines.add('Start: '+timetostr(DateStart));
+  memo1.lines.add('');
+
+   log_path:=epath.text+PathDelim+'_logs'+PathDelim;
+    if not DirectoryExists(log_path) then CreateDir(log_path);
+
+   AssignFile(dat, log_path+'Empty.txt');   rewrite(dat);
+
+ try
+    TRt:=TSQLTransaction.Create(self);
+    TRt.DataBase:=frmdm.IBDB;
+
+    Qt1:=TSQLQuery.Create(self);
+    Qt1.Database:=frmdm.IBDB;
+    Qt1.Transaction:=TRt;
+
+    Qt2:=TSQLQuery.Create(self);
+    Qt2.Database:=frmdm.IBDB;
+    Qt2.Transaction:=TRt;
+
+     with Qt1 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add('SELECT ID FROM STATION WHERE ID>20000001 and ID<30000000 ORDER BY ID ');
+      Open;
+      Last;
+      First;
+     end;
+
+     cnt:=Qt1.RecordCount;
+     k:=0;
+     cnt_del:=0;
+     while not Qt1.EOF do begin
+
+     with Qt2 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' SELECT count(ID) FROM P_TEMPERATURE ');
+        SQL.Add(' WHERE ID=:ID ');
+        ParamByName('ID').AsInteger:=Qt1.FieldByName('ID').AsInteger;
+       Open;
+        cnt_t:=Qt2.Fields[0].Value;
+       Close;
+      end;
+
+      with Qt2 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' SELECT count(ID) FROM P_SALINITY ');
+        SQL.Add(' WHERE ID=:ID ');
+        ParamByName('ID').AsInteger:=Qt1.FieldByName('ID').AsInteger;
+       Open;
+        cnt_s:=Qt2.Fields[0].Value;
+       Close;
+      end;
+
+      with Qt2 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' SELECT count(ID) FROM P_OXYGEN ');
+        SQL.Add(' WHERE ID=:ID ');
+        ParamByName('ID').AsInteger:=Qt1.FieldByName('ID').AsInteger;
+       Open;
+        cnt_o:=Qt2.Fields[0].Value;
+       Close;
+      end;
+
+      if (cnt_t=0) and (cnt_s=0) and (cnt_o=0) then begin
+       with Qt2 do begin
+        Close;
+         SQL.Clear;
+         SQL.Add(' DELETE FROM STATION ');
+         SQL.Add(' WHERE ID=:ID ');
+         ParamByName('ID').AsInteger:=Qt1.FieldByName('ID').AsInteger;
+        ExecSQL;
+       end;
+
+       inc(cnt_del);
+       writeln(dat, Qt1.FieldByName('ID').AsInteger);
+      end;
+
+      inc(k);
+      ProgressTaskbar(k, cnt);
+
+      Qt1.Next;
+     end;
+     Closefile(dat);
+
+     with memo1.Lines do begin
+       add('Removed: '  +inttostr(cnt_del));
+       add('');
+       add('Done! Time spent: '+timetostr(now-DateStart));
+     end;
+    OpenDocument(PChar(log_path+'Empty.txt'));
+
+ finally
+  Trt.Commit;
+  Qt1.Free;
+  Qt2.Free;
+  Trt.Free;
+ end;
 end;
 
 

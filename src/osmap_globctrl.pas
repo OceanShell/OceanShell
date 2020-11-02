@@ -22,7 +22,8 @@ Interface
 
 Uses
   Classes, SysUtils, Forms, Controls, Graphics, LCLType, Math, IniFiles,
-  osmain, dm, osmap_datastreams, osmap_geometry, osmap_wkt, Dialogs;
+  osmain, dm, osmap_datastreams, osmap_geometry, osmap_wkt, Dialogs,
+  Variants;
 
 Type
   TPointArray = Array Of TPoint;
@@ -58,10 +59,14 @@ Type
     HD2: Integer; {Screen space square of the horizon distance. }
     R: Integer; { The projected radius of the globe. }
     VS: TCoordinate; { The view scaling factor. }
-    X_arr, Y_arr, ID_arr: array of integer;
+    X_arr, Y_arr, ID_arr: array of int64;
     Pointer_Radius:Integer; {Station pointer size in pixels}
     Color_Pointer_Inner:TColor; {Station pointer color}
     Color_Pointer_Border:TColor; {Station pointer border color}
+    Pointer_Radius_Cruise:Integer; {Station pointer size in pixels}
+    Color_Pointer_Inner_Cruise:TColor; {Station pointer color}
+    Color_Pointer_Border_Cruise:TColor; {Station pointer border color}
+
     Color_Selection_Cross:TColor; {Selection cross color}
     Color_Map_Background:TColor;
     Color_Globe_Disc: TColor;
@@ -198,11 +203,18 @@ Var
 Begin
   Ini := TIniFile.Create(IniFileName);
  try
-   Pointer_Radius:=Ini.ReadInteger( 'osmap', 'pointer_size', 2)+1;
    Zoom_step     :=Ini.ReadInteger( 'osmap', 'zoom_step',  50);
    Show_Stars     :=Ini.ReadBool   ( 'osmap', 'show_stars', true);
-   Color_Pointer_Inner  :=StringToColor(Ini.ReadString( 'osmap', 'pointer_inner_color',   'clYellow'));
+
+   Pointer_Radius:=Ini.ReadInteger( 'osmap', 'pointer_size', 2)+1;
+   Color_Pointer_Inner  :=StringToColor(Ini.ReadString( 'osmap', 'pointer_inner_color',   'clRed'));
    Color_Pointer_Border :=StringToColor(Ini.ReadString( 'osmap', 'pointer_border_color',  'clBlack'));
+
+   Pointer_Radius_Cruise:=Ini.ReadInteger( 'osmap', 'pointer_size_cruise', 2)+1;
+   Color_Pointer_Inner_Cruise :=StringToColor(Ini.ReadString( 'osmap', 'pointer_inner_color_cruise',   'clYellow'));
+   Color_Pointer_Border_Cruise :=StringToColor(Ini.ReadString( 'osmap', 'pointer_border_color_cruise',  'clBlack'));
+
+
    Color_Selection_Cross:=StringToColor(Ini.ReadString( 'osmap', 'selection_cross_color', 'clRed'));
    Color_Map_Background :=StringToColor(Ini.ReadString( 'osmap', 'map_background_color',  'clNavy'));
    Color_Globe_Disc     :=StringToColor(Ini.ReadString( 'osmap', 'globe_disc_color',      'clAqua'));
@@ -306,8 +318,10 @@ Begin
       for i:=0 to High(X_arr) do begin
         if (X>=X_arr[i]-Pointer_Radius) and (X<=X_arr[i]+Pointer_Radius) and
            (Y>=Y_arr[i]-Pointer_Radius) and (Y<=Y_arr[i]+Pointer_Radius) then begin
-           frmdm.Q.Locate('ID', ID_arr[i], []);
-           frmosmain.CDSNavigation;
+           if frmdm.Q.Locate('ID', ID_arr[i], [])=true then begin
+            frmosmain.CDSNavigation;
+            break;
+           end;
         end;
       end;
      end;
@@ -320,7 +334,8 @@ Procedure TGlobeControl.MouseMove(Shift: TShiftState; X, Y: Integer);
 Var
   DLat, DLon: TCoordinate;
 Begin
- if FBufferBitmap.Canvas.Pixels[X, Y]=Color_Pointer_Inner then
+ if (FBufferBitmap.Canvas.Pixels[X, Y]=Color_Pointer_Inner) or
+    (FBufferBitmap.Canvas.Pixels[X, Y]=Color_Pointer_Inner_Cruise) then
      cursor:=crHandPoint else
      cursor:=crDefault;
 
@@ -418,7 +433,7 @@ End;
 
 Procedure TGlobeControl.DrawGlobe;
 Var
-  ID, cur_id, i, k, X, Y: integer;
+  ID, Cr_ID,cur_id, i, k, X, Y: integer;
   P: TPoint;
   Lon: TCoordinate;
   Lat: TCoordinate;
@@ -557,12 +572,7 @@ Begin
 
   //     showmessage('9.3');
      { Draw stations }
-      pen.Color := Color_Pointer_Border;
-      pen.Style := psSolid;
-      brush.Color := Color_Pointer_Inner;
-
-      (* if marker is too small show the main color *)
-      if Pointer_Radius=1 then pen.Color:=brush.Color;
+     pen.Style := psSolid;
 
       if SCount>0 then begin
        //showmessage(inttostr(SCount));
@@ -577,13 +587,34 @@ Begin
         frmdm.Q.DisableControls;
         frmdm.Q.first;
         while not frmdm.Q.EOF do begin
-          ID :=frmdm.Q.FieldByName('ID').AsInteger;
-          Lat:=frmdm.Q.FieldByName('LATITUDE').AsFloat;
-          lon:=frmdm.Q.FieldByName('LONGITUDE').AsFloat;
+          ID   :=frmdm.Q.FieldByName('ID').Value;
+          Lat  :=frmdm.Q.FieldByName('LATITUDE').Value;
+          lon  :=frmdm.Q.FieldByName('LONGITUDE').Value;
+          Cr_ID:=frmdm.Q.FieldByName('CRUISE_ID').Value;
 
             { If transformation successful }
             if Transform(Lat, Lon, P) then begin
-              Ellipse(P.X-Pointer_Radius, P.Y-Pointer_Radius, P.X+Pointer_Radius, P.Y+Pointer_Radius);
+             if Cr_ID=frmdm.QCruise.FieldByName('ID').Value then begin
+                brush.Color := Color_Pointer_Inner_cruise;
+                pen.Color   := Color_Pointer_Border_cruise;
+
+                if Pointer_Radius_cruise=1 then pen.Color:=brush.Color;
+
+                Ellipse(P.X-Pointer_Radius_cruise,
+                        P.Y-Pointer_Radius_cruise,
+                        P.X+Pointer_Radius_cruise,
+                        P.Y+Pointer_Radius_cruise);
+             end else begin
+                brush.Color := Color_Pointer_Inner;
+                pen.Color   := Color_Pointer_Border;
+
+                if Pointer_Radius=1 then pen.Color:=brush.Color;
+
+                Ellipse(P.X-Pointer_Radius,
+                        P.Y-Pointer_Radius,
+                        P.X+Pointer_Radius,
+                        P.Y+Pointer_Radius);
+             end;
 
               inc(i);
                 X_arr[i]:=P.X;

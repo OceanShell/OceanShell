@@ -16,25 +16,9 @@ type
     btnAdvancedSelect: TButton;
     chkinstrument: TCheckGroup;
     ComboBox1: TComboBox;
-    dtpDateAddedMax: TDateTimePicker;
-    dtpDateAddedMin: TDateTimePicker;
-    dtpDateUpdatedMax: TDateTimePicker;
-    dtpDateUpdatedMin: TDateTimePicker;
-    GroupBox1: TGroupBox;
-    GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
-    GroupBox6: TGroupBox;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
     PageControl1: TPageControl;
-    seAroundPointLat: TFloatSpinEdit;
-    seAroundPointLon: TFloatSpinEdit;
-    seAroundPointRaduis: TSpinEdit;
     TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
 
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;

@@ -97,8 +97,35 @@ object frmdm: Tfrmdm
   object QEntry: TSQLQuery
     MaxIndexesCount = 100
     FieldDefs = <>
+    AfterEdit = QEntryAfterEdit
     Database = IBDB
     Transaction = TR
+    InsertSQL.Strings = (
+      'INSERT INTO ENTRY'
+      '(ID,ENTRY_TYPE_ID,TITLE,DATE_START,DATE_END,'
+      'STATIONS_AMOUNT,DATE_ADDED,DATE_UPDATED,NOTES)'
+      'VALUES'
+      '(:ID,:ENTRY_TYPE_ID,:TITLE,:DATE_START,:DATE_END,'
+      ':STATIONS_AMOUNT,:DATE_ADDED,:DATE_UPDATED,:NOTES)'
+    )
+    UpdateSQL.Strings = (
+      'UPDATE ENTRY SET'
+      'ENTRY_TYPE_ID=:ENTRY_TYPE_ID,'
+      'TITLE=:TITLE,'
+      'DATE_START=:DATE_START,'
+      'DATE_END=:DATE_END,'
+      'STATIONS_AMOUNT=:STATIONS_AMOUNT,'
+      'DATE_ADDED=:DATE_ADDED,'
+      'DATE_UPDATED=:DATE_UPDATED,'
+      'NOTES=:NOTES'
+      'WHERE ID=:OLD_ID'
+      ''
+      ''
+      ''
+    )
+    DeleteSQL.Strings = (
+      'DELETE FROM ENTRY WHERE ID=:ID'
+    )
     Params = <>
     left = 336
     top = 24

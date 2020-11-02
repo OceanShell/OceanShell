@@ -9,7 +9,7 @@ uses
   Registry, ShlObj, comobj, Win32Int, InterfaceBase,
 {$ENDIF}
 
-  SysUtils, Variants, Dialogs, DateUtils, Forms, osmain;
+  SysUtils, Variants, Dialogs, DateUtils, Forms, osmain, Math;
 
 function CheckKML:boolean;
 function ClearDir(Dir:string ): boolean;
@@ -17,6 +17,7 @@ function ClearDir(Dir:string ): boolean;
 (* ProgressBar on taskbar in WINDOWS *)
 procedure ProgressTaskbar(k, max_k : integer);
 procedure Distance(ln0,ln1,lt0,lt1:real; var Dist:real);
+procedure PositionByDistance(Lat0, Lon0, Dist: real; var dlat, dlon:real);
 
 (* Date encoding function *)
 function DateEncode(Year,Month,Day,Hour,Minutes:word;
@@ -114,6 +115,33 @@ begin
 Dist:=sqrt(lnkm*lnkm+ltkm*ltkm);
 end;
 
+
+procedure PositionByDistance(Lat0, Lon0, Dist: real; var dlat, dlon:real);
+Var
+  theta, a, b, c, d: double;
+  lat, lon :double;
+begin
+  // convert to radians
+  lat0 := lat0*Pi/180;
+  lon0 := lon0*Pi/180;
+  dist := dist/6371;
+  theta:= 270*Pi/180;
+
+  lat := arcsin(sin(lat0)*cos(dist)+cos(lat0)*sin(dist)*cos(0));
+  d:= arctan2(sin(theta)*sin(dist)*cos(lat0), cos(dist)-sin(lat0)*sin(lat));
+
+  a:=lon0-d+pi;
+  b:=2*pi;
+  c:= a - b * Int(a / b);
+
+  lon := c - pi;
+
+  dlat:=(lat-lat0)*180/pi;
+  dlon:=(lon-lon0)*180/pi;
+
+//  showmessage(floattostr(dlat)+'   '+floattostr(dlon));
+
+end;
 
 {updated 9.10.2004}
 function DateEncode(Year,Month,Day,Hour,Minutes:word;

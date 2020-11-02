@@ -32,26 +32,25 @@ object frmosmap_settings: Tfrmosmap_settings
     TabIndex = 0
     TabOrder = 1
     object TabSheet1: TTabSheet
-      Caption = 'Marker'
+      Caption = 'Station'
       ClientHeight = 282
       ClientWidth = 698
       object rgPointerSize: TRadioGroup
         Left = 24
-        Height = 96
+        Height = 208
         Top = 12
-        Width = 314
+        Width = 130
         AutoFill = True
-        Caption = 'Marker radius, pixels'
+        Caption = 'Radius, pixels'
         ChildSizing.LeftRightSpacing = 6
         ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
         ChildSizing.EnlargeVertical = crsHomogenousChildResize
         ChildSizing.ShrinkHorizontal = crsScaleChilds
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
-        ChildSizing.ControlsPerLine = 5
-        ClientHeight = 66
-        ClientWidth = 310
-        Columns = 5
+        ChildSizing.ControlsPerLine = 1
+        ClientHeight = 178
+        ClientWidth = 126
         ItemIndex = 2
         Items.Strings = (
           '2'
@@ -64,11 +63,11 @@ object frmosmap_settings: Tfrmosmap_settings
         TabOrder = 0
       end
       object GroupBox1: TGroupBox
-        Left = 360
+        Left = 176
         Height = 96
         Top = 12
         Width = 314
-        Caption = 'Marker inner color'
+        Caption = 'Inner color'
         ClientHeight = 66
         ClientWidth = 310
         ParentFont = False
@@ -78,19 +77,19 @@ object frmosmap_settings: Tfrmosmap_settings
           Height = 30
           Top = 12
           Width = 264
-          DefaultColorColor = clYellow
+          DefaultColorColor = clRed
           Selected = clYellow
+          Style = [cbStandardColors]
           ItemHeight = 24
-          ParentFont = False
           TabOrder = 0
         end
       end
       object GroupBox2: TGroupBox
-        Left = 360
+        Left = 176
         Height = 96
-        Top = 120
+        Top = 124
         Width = 314
-        Caption = 'Marker border color'
+        Caption = 'Border color'
         ClientHeight = 66
         ClientWidth = 310
         ParentFont = False
@@ -100,22 +99,103 @@ object frmosmap_settings: Tfrmosmap_settings
           Height = 30
           Top = 12
           Width = 264
-          DefaultColorColor = clYellow
+          Style = [cbStandardColors, cbPrettyNames]
           ItemHeight = 24
           ParentFont = False
           TabOrder = 0
         end
       end
+    end
+    object TabSheet4: TTabSheet
+      Caption = 'Cruise'
+      ClientHeight = 282
+      ClientWidth = 698
+      object GroupBox9: TGroupBox
+        Left = 176
+        Height = 96
+        Top = 12
+        Width = 314
+        Caption = 'Inner color'
+        ClientHeight = 66
+        ClientWidth = 310
+        ParentFont = False
+        TabOrder = 0
+        object ColorPointerInnerCruise: TColorBox
+          Left = 24
+          Height = 30
+          Top = 12
+          Width = 264
+          DefaultColorColor = clYellow
+          Selected = clYellow
+          Style = [cbStandardColors]
+          ItemHeight = 24
+          TabOrder = 0
+        end
+      end
+      object GroupBox10: TGroupBox
+        Left = 176
+        Height = 96
+        Top = 124
+        Width = 314
+        Caption = 'Border color'
+        ClientHeight = 66
+        ClientWidth = 310
+        ParentFont = False
+        TabOrder = 1
+        object ColorPointerBorderCruise: TColorBox
+          Left = 24
+          Height = 30
+          Top = 12
+          Width = 264
+          DefaultColorColor = clYellow
+          Style = [cbStandardColors, cbPrettyNames]
+          ItemHeight = 24
+          ParentFont = False
+          TabOrder = 0
+        end
+      end
+      object rgPointerSizeCruise: TRadioGroup
+        Left = 24
+        Height = 208
+        Top = 12
+        Width = 130
+        AutoFill = True
+        Caption = 'Radius, pixels'
+        ChildSizing.LeftRightSpacing = 6
+        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+        ChildSizing.EnlargeVertical = crsHomogenousChildResize
+        ChildSizing.ShrinkHorizontal = crsScaleChilds
+        ChildSizing.ShrinkVertical = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 1
+        ClientHeight = 178
+        ClientWidth = 126
+        ItemIndex = 2
+        Items.Strings = (
+          '2'
+          '3'
+          '4'
+          '5'
+          '6'
+        )
+        ParentFont = False
+        TabOrder = 2
+      end
+    end
+    object TabSheet5: TTabSheet
+      Caption = 'Marker'
+      ClientHeight = 282
+      ClientWidth = 698
       object GroupBox3: TGroupBox
         Left = 24
         Height = 96
-        Top = 120
+        Top = 12
         Width = 314
         Caption = 'Selection marker ("cross") color'
         ClientHeight = 66
         ClientWidth = 310
         ParentFont = False
-        TabOrder = 3
+        TabOrder = 0
         object ColorSelectionCross: TColorBox
           Left = 24
           Height = 30
@@ -123,6 +203,7 @@ object frmosmap_settings: Tfrmosmap_settings
           Width = 264
           DefaultColorColor = clYellow
           Selected = clRed
+          Style = [cbStandardColors, cbPrettyNames]
           ItemHeight = 24
           ParentFont = False
           TabOrder = 0
@@ -130,7 +211,7 @@ object frmosmap_settings: Tfrmosmap_settings
       end
     end
     object TabSheet2: TTabSheet
-      Caption = 'Colors'
+      Caption = 'Map'
       ClientHeight = 282
       ClientWidth = 698
       object GroupBox5: TGroupBox
@@ -232,12 +313,12 @@ object frmosmap_settings: Tfrmosmap_settings
     end
     object TabSheet3: TTabSheet
       Caption = 'Controls'
-      ClientHeight = 274
+      ClientHeight = 282
       ClientWidth = 698
       object GroupBox4: TGroupBox
         Left = 24
         Height = 86
-        Top = 16
+        Top = 12
         Width = 146
         Caption = 'Zoom step'
         ClientHeight = 56

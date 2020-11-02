@@ -105,7 +105,7 @@ var
   FBPath, OceanPath, cmd, ScriptFile: String;
 begin
 
-showmessage('here');
+//showmessage('here');
 
   (* Looking for installed Firebird *)
   lReg := TRegistry.Create;
@@ -280,7 +280,7 @@ begin
    DB_OCEAN.Connected:=True;
 
 
-   for k:=1 to 8 do begin
+   for k:=1 to 9 do begin
      case k of
       1: begin
         Q_OCEAN.Close;
@@ -518,12 +518,34 @@ begin
            ExecSQL;
           end;
           Q_OCEAN.Next;
+         end;
+         TR_OCEAN.CommitRetaining;
         end;
-        TR_OCEAN.CommitRetaining;
-      end;
 
-     end; //end of case
-   end; // 1-8
+        9: begin
+        Q_OCEAN.Close;
+        Q_OCEAN.SQL.Text:='SELECT * FROM ENTRY_TYPE ORDER BY ID';
+        Q_OCEAN.Open;
+
+        while not Q_OCEAN.EOF do begin
+          With Q_NEW do begin
+            Close;
+             SQL.Clear;
+             SQL.Add(' INSERT INTO ENTRY_TYPE ');
+             SQL.Add(' (ID, NAME, DESCRIPTION) ');
+             SQL.Add(' VALUES ');
+             SQL.Add(' (:ID, :NAME, :DESCRIPTION) ');
+             ParamByName('ID').Value:=Q_OCEAN.FieldByName('ID').Value;
+             ParamByName('NAME').Value:=Q_OCEAN.FieldByName('NAME').Value;
+             ParamByName('DESCRIPTION').Value:=Q_OCEAN.FieldByName('DESCRIPTION').Value;
+           ExecSQL;
+          end;
+          Q_OCEAN.Next;
+      end;
+      TR_OCEAN.CommitRetaining;
+     end; //9
+    end; //end of case
+   end; // 1-9
 
  finally
   TR_NEW.Commit;

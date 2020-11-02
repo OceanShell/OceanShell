@@ -23,13 +23,13 @@ object frmsupporttables: Tfrmsupporttables
     Height = 792
     Top = 33
     Width = 1501
-    ActivePage = tsTables
+    ActivePage = tbSource
     Align = alClient
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
     ParentFont = False
-    TabIndex = 0
+    TabIndex = 2
     TabOrder = 0
     OnChange = PageControl1Change
     object tsTables: TTabSheet
@@ -1537,6 +1537,106 @@ object frmsupporttables: Tfrmsupporttables
         end
       end
       object mNotesCountry: TMemo
+        Left = 983
+        Height = 759
+        Top = 0
+        Width = 510
+        Align = alRight
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnKeyUp = mNotesPlatformKeyUp
+        ParentFont = False
+        ScrollBars = ssVertical
+        TabOrder = 1
+      end
+    end
+    object tsFlag: TTabSheet
+      Caption = 'FLAG'
+      ClientHeight = 759
+      ClientWidth = 1493
+      object Panel22: TPanel
+        Left = 0
+        Height = 759
+        Top = 0
+        Width = 983
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 759
+        ClientWidth = 983
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 0
+        object Panel23: TPanel
+          Left = 0
+          Height = 32
+          Top = 0
+          Width = 983
+          Align = alTop
+          BevelOuter = bvNone
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 0
+        end
+        object DBGridFlag: TDBGrid
+          Left = 0
+          Height = 727
+          Top = 32
+          Width = 983
+          Align = alClient
+          AlternateColor = 13631478
+          AutoAdvance = aaNone
+          Color = 13627366
+          Columns = <          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'ID'
+              Width = 94
+              FieldName = 'ID'
+            end          
+            item
+              ButtonStyle = cbsPickList
+              DropDownRows = 20
+              Title.Caption = 'QF'
+              Width = 150
+              FieldName = 'QF'
+            end          
+            item
+              MinSize = 15
+              MaxSize = 300
+              Title.Caption = 'Name'
+              Width = 300
+              FieldName = 'NAME'
+            end>
+          DataSource = DS
+          FixedCols = 0
+          Flat = True
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+          ParentFont = False
+          Scrollbars = ssVertical
+          TabOrder = 1
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -17
+          TitleFont.Name = 'MS Sans Serif'
+          OnCellClick = DBGridPlatformCellClick
+          OnColumnSized = FormResize
+          OnEditingDone = DBGridTablesEditingDone
+          OnKeyUp = DBGridPlatformKeyUp
+          OnPrepareCanvas = DBGridPlatformPrepareCanvas
+          OnSelectEditor = DBGridTablesSelectEditor
+          OnTitleClick = DBGridCountryTitleClick
+        end
+      end
+      object mNotesFlag: TMemo
         Left = 983
         Height = 759
         Top = 0

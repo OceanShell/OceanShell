@@ -5,7 +5,7 @@ unit arbytraryregion;
 interface
 
 uses
-  Classes, SysUtils, ncmain;
+  Classes, SysUtils;
 
 var
   Num_point_BLN:array[1..1] of integer;
@@ -13,35 +13,35 @@ var
   Long_min_BLN,Lat_min_BLN, lat_p, lon_p:real;
 
 
-Function GetArbirtaryRegion(sea_border:string):boolean;
+Procedure GetArbirtaryRegion(sea_border:string;
+  Var LatMin, LatMax, LonMin, LonMax: real);
+
 Function Point_Status(Long_p,Lat_p:real):byte;
 
 implementation
 
 
-function GetArbirtaryRegion(sea_border:string):boolean;
+Procedure GetArbirtaryRegion(sea_border:string;
+  Var LatMin, LatMax, LonMin, LonMax: real);
 var
   fin:text;
   fname, st: string;
-  lat, lon, ltmin, ltmax, lnmin, lnmax:real;
+  lat, lon:real;
   ci1:integer;
 begin
 
-  fname:= GlobalSupportPath+'sea_borders'+PathDelim+sea_border+'.bln';
+  fname:=sea_border;
 
-  if not FileExists(fname) then begin
-   Result:=false;
-   exit;
-  end;
+  if not FileExists(fname) then exit;
 
   AssignFile(fin, fname ); reset(fin);
   readln(fin, st);
 
    ci1:=1;
-   Ltmin:=-90;
-   Ltmax:=ltmin;
-   lnmin:=180;
-   lnmax:=lnmin;
+   Latmin:=90;
+   Latmax:=-90;
+   lonmin:=180;
+   lonmax:=-180;
 
   repeat
    readln(fin, st);
@@ -52,14 +52,14 @@ begin
       Coord_BLN[1,ci1]:=lon;
       Coord_BLN[2,ci1]:=lat;
 
-      if Coord_BLN[1,ci1]<lnmin then
-        lnmin:=Coord_BLN[1,ci1];
-      if Coord_BLN[1,ci1]>lnmax then
-        lnmax:=Coord_BLN[1,ci1];
-      if Coord_BLN[2,ci1]<ltmin then
-        ltmin:=Coord_BLN[2,ci1];
-      if Coord_BLN[2,ci1]>ltmax then
-        ltmax:=Coord_BLN[2,ci1];
+      if Coord_BLN[1,ci1]<lonmin then
+        lonmin:=Coord_BLN[1,ci1];
+      if Coord_BLN[1,ci1]>lonmax then
+        lonmax:=Coord_BLN[1,ci1];
+      if Coord_BLN[2,ci1]<latmin then
+        latmin:=Coord_BLN[2,ci1];
+      if Coord_BLN[2,ci1]>latmax then
+        latmax:=Coord_BLN[2,ci1];
       inc(ci1);
   until eof(fin);
   CloseFile(fin);
@@ -68,8 +68,8 @@ begin
     Coord_BLN[2,ci1]:=Coord_BLN[2,1];
     Num_point_BLN[1]:=ci1;
 
-    Long_min_BLN:=lnmin;
-    Lat_min_bln:=ltmin;
+    Long_min_BLN:=lonmin;
+    Lat_min_bln:=latmin;
 end;
 
 

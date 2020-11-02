@@ -145,16 +145,14 @@ if CurrentParTable<>'' then
   cbParameters.ItemIndex:=cbParameters.Items.IndexOf(CurrentParTable) else
   cbParameters.ItemIndex:=0;
 
-DBGridSingleProfile.Columns[3].PickList.Clear;
-DBGridSingleProfile.Columns[4].PickList.Clear;
-DBGridSingleProfile.Columns[5].PickList.Clear;
+  // QF pick lists
+  DBGridSingleProfile.Columns[3].PickList.Clear;
+  DBGridSingleProfile.Columns[4].PickList.Clear;
+  DBGridSingleProfile.Columns[5].PickList.Clear;
 
-// QF pick lists
-for k:=0 to 8 do begin
- DBGridSingleProfile.Columns[3].PickList.Add(IntToStr(k));
- DBGridSingleProfile.Columns[4].PickList.Add(IntToStr(k));
- DBGridSingleProfile.Columns[5].PickList.Add(IntToStr(k));
-end;
+  DBGridSingleProfile.Columns[3].PickList:=frmosmain.DBGridStation1.Columns[9].PickList;
+  DBGridSingleProfile.Columns[4].PickList:=frmosmain.DBGridStation1.Columns[9].PickList;
+  DBGridSingleProfile.Columns[5].PickList:=frmosmain.DBGridStation1.Columns[9].PickList;
 
 try
   TRt:=TSQLTransaction.Create(self);
@@ -649,6 +647,8 @@ begin
 
     INSTR_ID:=StrToInt(Copy(series.Name, 2, Pos('_', Series.Name)-2));
 
+  //  showmessage(inttostr(instr_ID));
+
     try
      TRt:=TSQLTransaction.Create(self);
      TRt.DataBase:=frmdm.IBDB;
@@ -679,11 +679,16 @@ begin
     if Pos('__B', series.name)<>0 then
       Prof_num:=StringReplace(Prof_num, '__B', ' [BEST]', []);
 
+  //  showmessage(prof_num);
+
     TabControl1.TabIndex:=TabControl1.IndexOfTabWithCaption(INSTR_NAME+', Profile '+Prof_num);
     TabControl1.OnChange(self);
 
     if (tool.PointIndex<>-1) then begin
-     Qt.Locate('Lev_m', series.YValue[tool.PointIndex], []);
+      if depth_units=0 then
+        Qt.Locate('LEV_M', series.YValue[tool.PointIndex], []) else
+        Qt.Locate('LEV_DBAR', series.YValue[tool.PointIndex], []);
+
      current_index:=tool.PointIndex;
     end;
   end;

@@ -118,25 +118,8 @@ Var
 ID:Integer;
 par:string;
 begin
-CDS:=TBufDataSet.Create(nil);
-
-
-       { cbUnits[ks]:=TComboBox.Create(self);
-          with cbUnits[ks] do begin
-            Parent:=pUnits;
-            Name:=Par;
-            Align:=alLeft;
-            Style:=csDropDownList;
-          end; }
-
-
-   //  end;
-
- //    CDS.CreateDataSet;
- //    CDS.IndexFieldNames:=CDS.FieldbyName('Lev_m').FieldName+';'+
- //                         CDS.FieldbyName('Lev_dbar').FieldName;
-
- ID:=frmdm.Q.FieldByName('ID').AsInteger;
+ CDS:=TBufDataSet.Create(nil);
+  ID:=frmdm.Q.FieldByName('ID').AsInteger;
  ChangeID(ID);
 end;
 
@@ -457,10 +440,9 @@ ss:=0;
     if (k mod 2=1) then begin
       DBGrid1.Columns[k].Title.Caption:='QF';
       DBGrid1.Columns[k].Width:=40;
+
       //QCFlags
-      with DBGrid1.Columns[k].PickList do begin
-        for ff:=0 to 8 do Add(inttostr(ff));
-      end;
+      DBGrid1.Columns[k].PickList:=frmosmain.DBGridStation1.Columns[9].PickList;
     end else begin
      // DBGrid1.Columns[k].Footer.ValueType:=fvtAvg;
     end;

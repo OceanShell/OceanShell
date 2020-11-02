@@ -20,7 +20,7 @@ Var
   temp_fl:boolean;
   tbl_name, fld_name:string;
 begin
-  tmp_lst:=TStringList.Create;
+ // tmp_lst:=TStringList.Create;
 
 {  frmdm.IBDB.GetTableNames(tmp_lst, False);
 
@@ -70,7 +70,7 @@ begin
 }
 
 
-  frmdm.IBDB.GetFieldNames('CRUISE', tmp_lst);
+ { frmdm.IBDB.GetFieldNames('CRUISE', tmp_lst);
 
   temp_fl:=false;
   for k:=0 to tmp_lst.Count-1 do begin
@@ -86,7 +86,7 @@ begin
      ExecSQL;
    end;
    frmdm.TR.CommitRetaining;
-  end;
+  end;     }
 
 
  { temp_fl:=false;

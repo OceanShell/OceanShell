@@ -22,6 +22,7 @@ type
     btndelete: TToolButton;
     btnUpdateQC: TBitBtn;
     DBGridTables: TDBGrid;
+    DBGridFlag: TDBGrid;
     DBGridUnits: TDBGrid;
     DBGridPlatform: TDBGrid;
     DBGridCountry: TDBGrid;
@@ -62,6 +63,7 @@ type
     mNotesInstitute: TMemo;
     mNotesCountry: TMemo;
     mNotesInstrument: TMemo;
+    mNotesFlag: TMemo;
     mNotesUnits: TMemo;
     mNotesProject: TMemo;
     mNotesSource: TMemo;
@@ -79,6 +81,8 @@ type
     ePlatform_Name: TEdit;
     Panel20: TPanel;
     Panel21: TPanel;
+    Panel22: TPanel;
+    Panel23: TPanel;
     Panel28: TPanel;
     Panel3: TPanel;
     ePlatform_NODC: TEdit;
@@ -88,6 +92,7 @@ type
     Q: TSQLQuery;
     Splitter1: TSplitter;
     PageControl1: TPageControl;
+    tsFlag: TTabSheet;
     tsTables: TTabSheet;
     tbInstrument: TTabSheet;
     tbUnits: TTabSheet;
@@ -249,12 +254,17 @@ begin
     end;
 
     With DBGridCountry do begin
-     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridCountry _Col00',  50);
-     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridCountry _Col01',  50);
-     Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridCountry _Col02',  50);
-     Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridCountry _Col03',  300);
+     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridCountry_Col00',  50);
+     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridCountry_Col01',  50);
+     Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridCountry_Col02',  50);
+     Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridCountry_Col03',  300);
     end;
 
+    With DBGridFlag do begin
+     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBFlag_Col00',  50);
+     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBFlag_Col01',  50);
+     Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBFlag_Col02',  50);
+    end;
   finally
   end;
 
@@ -270,6 +280,7 @@ begin
  eInstitute_ID.OnChange    := @SearchID;
  eInstrument_ID.OnChange   := @SearchID;
  eUnits_ID.OnChange        := @SearchID;
+// eFlag_ID.OnChange        := @SearchID;
 
  (* NAME *)
  eTables_NAME.OnChange     := @SearchNAME;
@@ -448,6 +459,11 @@ begin
        CodesTblName:='COUNTRY';
        Q.SQL.text:='Select ID, NODC_CODE, ISO3166_CODE, NAME '+
                    'FROM COUNTRY ORDER BY NAME';
+     end;
+  8: begin
+       CodesTblName:='FLAG';
+       Q.SQL.text:='Select ID, QF, NAME '+
+                   'FROM FLAG ORDER BY QF';
      end;
  end;
 
@@ -700,6 +716,10 @@ begin
        mNotesUnits.Clear;
        mNotesUnits.Lines.Text:=notes_str;
      end;
+     if CodesTblName='Flag' then begin
+       mNotesFlag.Clear;
+       mNotesFlag.Lines.Text:=notes_str;
+     end;
   end;
 
 
@@ -778,7 +798,8 @@ begin
          ((CodesTblName='INSTRUMENT') and (mNotesInstrument.Lines.Text<>'')) or
          ((CodesTblName='PROJECT') and (mNotesProject.Lines.Text<>'')) or
          ((CodesTblName='INSTITUTE') and (mNotesInstitute.Lines.Text<>'')) or
-         ((CodesTblName='COUNTRY') and (mNotesCountry.Lines.Text<>''))then begin
+         ((CodesTblName='COUNTRY') and (mNotesCountry.Lines.Text<>'')) or
+         ((CodesTblName='FLAG') and (mNotesFlag.Lines.Text<>'')) then begin
 
       try
         TRt:=TSQLTransaction.Create(self);
@@ -795,13 +816,14 @@ begin
           SQL.Add(' where ID=:ID ');
           ParamByName('ID').AsInteger:=Q.FieldByName('ID').AsInteger;
           if (CodesTblName='DATABASE_TABLES') then ParamByName('NOTES').AsWideString:=mNotesTables.Lines.Text;
-          if (CodesTblName='PLATFORM') then ParamByName('NOTES').AsWideString:=mNotesPlatform.Lines.Text;
-          if (CodesTblName='SOURCE') then ParamByName('NOTES').AsWideString:=mNotesSource.Lines.Text;
-          if (CodesTblName='PROJECT') then ParamByName('NOTES').AsWideString:=mNotesProject.Lines.Text;
-          if (CodesTblName='INSTITUTE') then ParamByName('NOTES').AsWideString:=mNotesInstitute.Lines.Text;
-          if (CodesTblName='INSTRUMENT') then ParamByName('NOTES').AsWideString:=mNotesInstrument.Lines.Text;
-          if (CodesTblName='UNITS') then ParamByName('NOTES').AsWideString:=mNotesUnits.Lines.Text;
-          if (CodesTblName='COUNTRY') then ParamByName('NOTES').AsWideString:=mNotesCountry.Lines.Text;
+          if (CodesTblName='PLATFORM')        then ParamByName('NOTES').AsWideString:=mNotesPlatform.Lines.Text;
+          if (CodesTblName='SOURCE')          then ParamByName('NOTES').AsWideString:=mNotesSource.Lines.Text;
+          if (CodesTblName='PROJECT')         then ParamByName('NOTES').AsWideString:=mNotesProject.Lines.Text;
+          if (CodesTblName='INSTITUTE')       then ParamByName('NOTES').AsWideString:=mNotesInstitute.Lines.Text;
+          if (CodesTblName='INSTRUMENT')      then ParamByName('NOTES').AsWideString:=mNotesInstrument.Lines.Text;
+          if (CodesTblName='UNITS')           then ParamByName('NOTES').AsWideString:=mNotesUnits.Lines.Text;
+          if (CodesTblName='COUNTRY')         then ParamByName('NOTES').AsWideString:=mNotesCountry.Lines.Text;
+          if (CodesTblName='FLAG')            then ParamByName('NOTES').AsWideString:=mNotesFlag.Lines.Text;
          ExecSQL;
         end;
       finally

@@ -27,6 +27,7 @@ type
     procedure DataModuleDestroy(Sender: TObject);
     procedure QCruiseAfterEdit(DataSet: TDataSet);
     procedure QCruiseBeforePost(DataSet: TDataSet);
+    procedure QEntryAfterEdit(DataSet: TDataSet);
 
   private
     { private declarations }
@@ -54,6 +55,11 @@ end;
 procedure Tfrmdm.QCruiseBeforePost(DataSet: TDataSet);
 begin
   QCruise.FieldByName('DATE_UPDATED').AsDateTime:=now;
+end;
+
+procedure Tfrmdm.QEntryAfterEdit(DataSet: TDataSet);
+begin
+  frmosmain.btnSaveEntry.Enabled:=true;
 end;
 
 procedure Tfrmdm.DataModuleDestroy(Sender: TObject);
