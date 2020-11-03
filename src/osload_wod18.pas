@@ -939,7 +939,7 @@ begin
          if ParErFlag2>0 then ParFlag:=2;
          if ParVal<>-9 then begin
          mEx:=1;
-         UID:=5; //ocean.fdb unit ID: Milli-equivalent per liter
+         UID:=6; //ocean.fdb unit ID: micro-atmosphere
          writeln(f_pCO2,inttostr(absnum),
          #9,floattostrF(Lev_dbar,ffFixed,7,1),
          #9,floattostr(Lev_m),
