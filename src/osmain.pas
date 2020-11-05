@@ -58,24 +58,22 @@ type
     cbProject: TCheckComboBox;
     cbSource: TCheckComboBox;
     cgQCFlag: TCheckGroup;
-    chkCruiseDateTotal: TCheckBox;
-    chkCruiseDateAdded: TCheckBox;
-    CheckBox3: TCheckBox;
-    chkCruiseDateUpdated: TCheckBox;
+    cgCruiseQCFlag: TCheckGroup;
     chkCruiseIDRange: TCheckBox;
-    chkIDRange: TCheckBox;
+    chkCRUISENumStations: TCheckBox;
+    chkCRUISEDateandtime: TCheckBox;
+    chkCRUISERegion: TCheckBox;
     chkDateandTime: TCheckBox;
+    chkIDRange: TCheckBox;
     chkPeriod: TCheckBox;
     chkQCFlag: TCheckBox;
     chkCruiseNOTSourceNum: TCheckBox;
-    chkCRUISENumStations: TCheckBox;
     chkNOTCountry: TCheckBox;
     chkNOTInstitute: TCheckBox;
     chkNOTPlatform: TCheckBox;
     chkNOTProject: TCheckBox;
     chkNOTSource: TCheckBox;
-    chklParameter: TCheckGroup;
-    chkRegion: TCheckBox;
+    cgParameter: TCheckGroup;
     chkParameter: TCheckBox;
     chkIgnoreDup: TCheckBox;
     chkCruiseNOTCountry: TCheckBox;
@@ -86,6 +84,8 @@ type
     chkCruiseIgnoreDup: TCheckBox;
     cbEntryType: TComboBox;
     cbPredefinedRegion: TComboBox;
+    chkCruiseQCFlag: TCheckBox;
+    chkRegion: TCheckBox;
     DBGridCruise1: TDBGrid;
     DBGridCruise2: TDBGrid;
     DBGridEntry: TDBGrid;
@@ -95,10 +95,10 @@ type
     DBMemoEntriy: TDBMemo;
     dtpCruiseDateAddedMax: TDateTimePicker;
     dtpCruiseDateAddedMin: TDateTimePicker;
-    dtpCruiseDateTotMax: TDateTimePicker;
     dtpCruiseDateDBMax: TDateTimePicker;
-    dtpCruiseDateTotMin: TDateTimePicker;
     dtpCruiseDateDBMin: TDateTimePicker;
+    dtpCruiseDateTotMax: TDateTimePicker;
+    dtpCruiseDateTotMin: TDateTimePicker;
     dtpCruiseDateUpdatedMax: TDateTimePicker;
     dtpCruiseDateUpdatedMin: TDateTimePicker;
     dtpDateAddedMax: TDateTimePicker;
@@ -109,22 +109,16 @@ type
     dtpDateUpdatedMin: TDateTimePicker;
     gbAuxiliaryParameters: TGroupBox;
     gbAuxiliaryParameters1: TGroupBox;
-    GroupBox10: TGroupBox;
     GroupBox11: TGroupBox;
     GroupBox12: TGroupBox;
-    GroupBox13: TGroupBox;
-    GroupBox14: TGroupBox;
-    GroupBox2: TGroupBox;
-    GroupBox4: TGroupBox;
+    gbCruiseDateandTime: TGroupBox;
+    gbIDRange: TGroupBox;
+    gbDateandTime: TGroupBox;
+    gbRegion: TGroupBox;
     GroupBox7: TGroupBox;
-    GroupBox8: TGroupBox;
-    GroupBox9: TGroupBox;
     iProfilesAll: TMenuItem;
     ishowselectedstation: TMenuItem;
     iUpdateLastLevel: TMenuItem;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
     iLoad_Pangaea_CTD_tab: TMenuItem;
     iLoad_WOD18: TMenuItem;
     iMap: TMenuItem;
@@ -174,6 +168,8 @@ type
     iQC: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
+    pcCruiseDateandTime: TPageControl;
+    pcCruiseNumStations: TPageControl;
     pcRegion: TPageControl;
     pcDateandTime: TPageControl;
     Panel1: TPanel;
@@ -192,14 +188,14 @@ type
     seAroundPointLat: TFloatSpinEdit;
     seAroundPointLon: TFloatSpinEdit;
     seAroundPointRaduis: TSpinEdit;
+    seCruiseStationsDatabaseMax: TSpinEdit;
+    seCruiseStationsDatabaseMin: TSpinEdit;
+    seCruiseStationsDuplicateMax: TSpinEdit;
+    seCruiseStationsDuplicateMin: TSpinEdit;
+    seCruiseStationsTotalMax: TSpinEdit;
+    seCruiseStationsTotalMin: TSpinEdit;
     seIDMax: TSpinEdit;
     seIDMin: TSpinEdit;
-    seCruiseStationsDuplicateMin: TSpinEdit;
-    seCruiseStationsTotalMin: TSpinEdit;
-    seCruiseStationsDatabaseMin: TSpinEdit;
-    seCruiseStationsTotalMax: TSpinEdit;
-    seCruiseStationsDatabaseMax: TSpinEdit;
-    seCruiseStationsDuplicateMax: TSpinEdit;
     seCruiseIDMax: TSpinEdit;
     seCruiseIDMin: TSpinEdit;
     seCruiseLatMax: TFloatSpinEdit;
@@ -238,11 +234,18 @@ type
     Splitter3: TSplitter;
     Splitter4: TSplitter;
     TabSheet1: TTabSheet;
+    TabSheet10: TTabSheet;
+    TabSheet11: TTabSheet;
+    TabSheet12: TTabSheet;
+    TabSheet13: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
     TabSheet6: TTabSheet;
+    TabSheet7: TTabSheet;
+    TabSheet8: TTabSheet;
+    TabSheet9: TTabSheet;
     tsSelectedCruises: TTabSheet;
     tbCruise: TToolBar;
     ToolButton8: TToolButton;
@@ -289,6 +292,11 @@ type
     procedure cbPredefinedRegionDropDown(Sender: TObject);
     procedure cbProjectDropDown(Sender: TObject);
     procedure cbSourceDropDown(Sender: TObject);
+    procedure chkDateandTimeChange(Sender: TObject);
+    procedure chkIDRangeChange(Sender: TObject);
+    procedure chkParameterChange(Sender: TObject);
+    procedure chkQCFlagChange(Sender: TObject);
+    procedure chkRegionChange(Sender: TObject);
     procedure DBGridCruise1CellClick(Column: TColumn);
   //  procedure DBGridCruise1CellClick(Column: TColumn);
     procedure DBGridCruise1ColumnSized(Sender: TObject);
@@ -375,6 +383,8 @@ type
     procedure PopulatePROJECTList;
 
     procedure SaveSettingsStationSearch;
+
+    procedure LoadSettingsCruiseSearch;
     procedure SaveSettingsCruiseSearch;
 
   public
@@ -623,9 +633,6 @@ begin
     chkIDRange.Checked     := Ini.ReadBool( 'osmain', 'station_chkIDRange',     false);
     chkParameter.Checked   := Ini.ReadBool( 'osmain', 'station_chkVariables',   false);
     chkQCFlag.Checked      := Ini.ReadBool( 'osmain', 'station_chkQCFlag',      false);
-   // chkDateAdded.Checked   := Ini.ReadBool( 'osmain', 'station_chkDateAdded',   false);
-   // chkDateUpdated.Checked := Ini.ReadBool( 'osmain', 'station_chkDateUpdated', false);
-
 
     (* CRUISE table columns *)
     DBMemoCruises.width := Ini.ReadInteger( 'osmain', 'pCruiseNotes_Width', 250);
@@ -710,6 +717,11 @@ begin
     Ini.Free;
   end;
 
+  chkRegion.OnChange(self);
+  chkDateandTime.OnChange(self);
+  chkIDRange.OnChange(self);
+  chkParameter.OnChange(self);
+  chkQCFlag.OnChange(self);
 
  (* Works on double click *)
   If ParamCount<>0 then begin
@@ -1076,17 +1088,17 @@ try
 
     (* Parameters *)
     if chkParameter.Checked=true then begin
-     for k:=0 to chklParameter.Items.Count-1 do
-       if chklParameter.Checked[k] then
-        SQL_str:=SQL_str+' AND STATION.ID IN (SELECT DISTINCT(ID) FROM P_'+
-                         chklParameter.Items.Strings[k]+') ';
+     for k:=0 to cgParameter.Items.Count-1 do
+       if cgParameter.Checked[k] then
+        SQL_str:=SQL_str+' AND STATION.ID IN (SELECT DISTINCT(ID) FROM '+
+                         cgParameter.Items.Strings[k]+') ';
     end;
 
 
     if chkIgnoreDup.Checked=true then
       SQL_str:=SQL_str+' AND STATION.DUPLICATE=FALSE ';
 
-   // showmessage(sql_str);
+ //   showmessage(sql_str);
 
    if frmdm.TR.Active=true then frmdm.TR.Commit;
    with frmdm.Q do begin
@@ -1280,7 +1292,7 @@ Var
   k: integer;
   NotCondCountry, NotCondPlatform, NotCondSource:string;
   NotCondInstitute, NotCondProject, NotCondSourceNum:string;
-  SQL_str: string;
+  SQL_str, QCFlag_str: string;
 begin
 
  SaveSettingsCruiseSearch;
@@ -1308,47 +1320,103 @@ begin
 
       (* IDs *)
       if chkCruiseIDRange.Checked then begin
-        SQL.Add(' AND (CRUISE.ID BETWEEN :SSIDMin AND :SSIDMax) ');
+        SQL.Add(' AND (CRUISE.ID BETWEEN '+seCruiseIDMin.Text+' AND '+seCruiseIDMax.Text+')');
       end;
 
      (* Coordinates *)
-     SQL.Add(' AND ((LATITUDE_MIN>=:SSLatMin AND LATITUDE_MAX<=:SSLatMax) OR ');
-     SQL.Add('      (LATITUDE_MIN BETWEEN :SSLatMin AND :SSLatMax) OR ');
-     SQL.Add('      (LATITUDE_MAX BETWEEN :SSLatMin AND :SSLatMax)) ');
+     if chkCruiseRegion.Checked then begin
+     SQL.Add(' AND ((LATITUDE_MIN>='+seCruiseLatMin.Text+' AND LATITUDE_MAX<='+seCruiseLatMax.Text+') OR ');
+     SQL.Add('      (LATITUDE_MIN BETWEEN '+seCruiseLatMin.Text+' AND '+seCruiseLatMin.Text+') OR ');
+     SQL.Add('      (LATITUDE_MAX BETWEEN '+seCruiseLatMin.Text+' AND '+seCruiseLatMin.Text+')) ');
 
      if seLonMax.Value>=seLonMin.Value then
-      SQL.Add(' AND ((LONGITUDE_MIN>=:SSLonMin AND LONGITUDE_MAX<=:SSLonMax) OR ');
-      SQL.Add('      (LONGITUDE_MIN BETWEEN :SSLonMin AND :SSLonMax) OR ');
-      SQL.Add('      (LONGITUDE_MAX BETWEEN :SSLonMin AND :SSLonMax)) ');
+      SQL.Add(' AND ((LONGITUDE_MIN>='+seCruiseLonMin.Text+'  AND LONGITUDE_MAX<='+seCruiseLonMax.Text+') OR ');
+      SQL.Add('      (LONGITUDE_MIN BETWEEN'+seCruiseLonMin.Text+'  AND '+seCruiseLonMax.Text+') OR ');
+      SQL.Add('      (LONGITUDE_MAX BETWEEN'+seCruiseLonMin.Text+'  AND '+seCruiseLonMax.Text+')) ');
 
      (* FIX NEEDED HERE *)
      if seLonMax.Value<seLonMin.Value then
-      SQL.Add(' AND ((LONGITUDE_MIN>=:SSLonMin AND LONGITUDE_MAX<=180) OR'+
-              '      (LONGITUDE_MIN>=-180 AND LONGITUDE_MAX<=:SSLonMax)) ');
-
-     SQL.Add('  AND ((DATE_START_DATABASE >= :SSDateDBMin) AND (DATE_END_DATABASE <= :SSDateDBMax) OR ');
-     SQL.Add('       (DATE_START_DATABASE BETWEEN :SSDateDBMin AND :SSDateDBMax) OR ');
-     SQL.Add('       (DATE_END_DATABASE BETWEEN :SSDateDBMin AND :SSDateDBMax)) ');
-
-     if chkCruiseDateTotal.Checked then begin
-       SQL.Add('  AND ((DATE_START_TOTAL >= :SSDateTotMin) AND (DATE_END_TOTAL <= :SSDateTotMax) OR ');
-       SQL.Add('       (DATE_START_TOTAL BETWEEN :SSDateTotMin AND :SSDateTotMax) OR ');
-       SQL.Add('       (DATE_END_TOTAL BETWEEN :SSDateTotMin AND :SSDateTotMax)) ');
+      SQL.Add(' AND ((LONGITUDE_MIN>='+seCruiseLonMin.Text+' AND LONGITUDE_MAX<=180) OR'+
+              '      (LONGITUDE_MIN>=-180 AND LONGITUDE_MAX<='+seCruiseLonMax.Text+')) ');
      end;
-     if chkCruiseDateAdded.Checked then begin
-       SQL.Add('  AND (CRUISE.DATE_ADDED between :SSDateAddedMin and :SSDateAddedMax) ');
-     end;
-     if chkCruiseDateUpdated.Checked then begin
-       SQL.Add('  AND (CRUISE.DATE_UPDATED between :SSDateUpdatedMin and :SSDateUpdatedMax) ');
+
+
+     if chkCruiseDateandTime.Checked then begin
+      case pcCruiseDateandTime.ActivePageIndex of
+        0: begin
+            SQL.Add(' AND ((DATE_START_DATABASE >= ');
+            SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateDBMin.DateTime))+' AND ');
+            SQL.Add('       DATE_END_DATABASE <=  ');
+            SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateDBMax.DateTime))+') OR ');
+            SQL.Add('      (DATE_START_DATABASE BETWEEN ');
+            SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateDBMin.DateTime))+' AND ');
+            SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateDBMax.DateTime))+') OR ');
+            SQL.Add('      (DATE_END_DATABASE BETWEEN ');
+            SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateDBMin.DateTime))+' AND ');
+            SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateDBMax.DateTime))+'))');
+        end;
+        1: begin
+           SQL.Add(' AND ((DATE_START_TOTAL >=');
+           SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateTotMin.DateTime))+' AND ');
+           SQL.Add('       DATE_END_TOTAL <=  ');
+           SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateTotMax.DateTime))+') OR ');
+           SQL.Add('      (DATE_START_TOTAL BETWEEN ');
+           SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateTotMin.DateTime))+' AND ');
+           SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateTotMax.DateTime))+') OR ');
+           SQL.Add('      (DATE_END_TOTAL BETWEEN ');
+           SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateTotMin.DateTime))+' AND ');
+           SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateTotMax.DateTime))+'))');
+        end;
+       2: begin
+           SQL.Add('  AND (CRUISE.DATE_ADDED BETWEEN ');
+           SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateAddedMin.DateTime))+' AND ');
+           SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateAddedMax.DateTime)));
+       end;
+       3: begin
+           SQL.Add('  AND (CRUISE.DATE_UPDATED BETWEEN ');
+           SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateUpdatedMin.DateTime))+' AND ');
+           SQL.Add(QuotedStr(DateTimeToStr(dtpCruiseDateUpdatedMax.DateTime)));
+       end;
+      end;
      end;
 
     if chkCRUISENumStations.Checked=true then begin
-     SQL.Add('  AND (STATIONS_TOTAL >= :SSStationsTotalMin) AND (STATIONS_TOTAL <= :SSStationsTotalMax)  ');
-     SQL.Add('  AND (STATIONS_DATABASE >= :SSStationsDBMin) AND (STATIONS_DATABASE <= :SSStationsDBMax)  ');
-     SQL.Add('  AND (STATIONS_DUPLICATES >= :SSStationsDupMin) AND (STATIONS_DUPLICATES <= :SSStationsDupMax)  ');
+      case pcCruiseNumStations.ActivePageIndex of
+        0: begin
+           SQL.Add('  AND (STATIONS_DATABASE >='+seCruiseStationsDatabaseMin.Text+') ');
+           SQL.Add('  AND (STATIONS_DATABASE <='+seCruiseStationsDatabaseMax.Text+') ');
+        end;
+        1: begin
+           SQL.Add('  AND (STATIONS_TOTAL >='+seCruiseStationsTotalMin.Text+') ');
+           SQL.Add('  AND (STATIONS_TOTAL <='+seCruiseStationsTotalMax.Text+') ');
+        end;
+        2: begin
+           SQL.Add('  AND (STATIONS_DUPLICATES >='+seCruiseStationsDuplicateMin.Text+') ');
+           SQL.Add('  AND (STATIONS_DUPLICATES <='+seCruiseStationsDuplicateMax.Text+') ');
+
+        end;
+      end;
     end;
 
+   //extra parameters
     SQL_str:='';
+
+    (* QC Flag *)
+    if chkCruiseQCFlag.Checked=true then begin
+     QCFlag_str:='';
+     for k:=0 to cgCruiseQCFlag.Items.Count-1 do
+      if cgCruiseQCFlag.Checked[k]=true then
+       QCFlag_str:=QCFlag_str+
+                  copy(cgCruiseQCFlag.Items.Strings[k], 2, Pos(']',
+                       cgCruiseQCFlag.Items.Strings[k])-2)+',';
+     QCFlag_str:=copy(QCFlag_str, 1, length(QCFlag_str)-1);
+
+     if trim(QCFlag_str)<>'' then
+      SQL_str:=SQL_str+' AND CRUISE.ID IN (SELECT STATION.CRUISE_ID '+
+                       ' FROM STATION WHERE STATION.QCFLAG IN '+
+                       ' ('+QCFlag_str+')) ';
+    end;
+
     if cbCruisePlatform.Text<>'' then begin
       SQL_str:=SQL_str+' AND '+NotCondSource    +' PLATFORM.NAME IN (';
      for k:=0 to cbCruisePlatform.Count-1 do
@@ -1403,44 +1471,7 @@ begin
     SQL.Add( SQL_str);
     SQL.Add(' ORDER BY PLATFORM.NAME, CRUISE.DATE_START_TOTAL ' );
 
-  if chkCruiseIDRange.Checked then begin
-    ParamByName('SSIDMin').Value:=seCruiseIDMin.Value;
-    ParamByName('SSIDMax').Value:=seCruiseIDMax.Value;
-  end;
-
-    ParamByName('SSLatMin').AsFloat:=seCruiseLatMin.Value;
-    ParamByName('SSLatMax').AsFloat:=seCruiseLatMax.Value;
-    ParamByName('SSLonMin').AsFloat:=seCruiseLonMin.Value;
-    ParamByName('SSLonMax').AsFloat:=seCruiseLonMax.Value;
-
-  if chkCRUISENumStations.Checked=true then begin
-    ParamByName('SSStationsTotalMin').AsInteger:=seCruiseStationsTotalMin.Value;
-    ParamByName('SSStationsTotalMax').AsInteger:=seCruiseStationsTotalMax.Value;
-    ParamByName('SSStationsDBMin').AsInteger:=seCruiseStationsDatabaseMin.Value;
-    ParamByName('SSStationsDBMax').AsInteger:=seCruiseStationsDatabaseMax.Value;
-    ParamByName('SSStationsDupMin').AsInteger:=seCruiseStationsDuplicateMin.Value;
-    ParamByName('SSStationsDupMax').AsInteger:=seCruiseStationsDuplicateMax.Value;
-  end;
-
-    ParamByName('SSDateDBMin').AsDateTime:=dtpCruiseDateDBMin.DateTime;
-    ParamByName('SSDateDBMax').AsDateTime:=dtpCruiseDateDBMax.DateTime;
-
-  if chkCruiseDateTotal.Checked then begin
-    ParamByName('SSDateTotMin').AsDateTime:=dtpCruiseDateTotMin.DateTime;
-    ParamByName('SSDateTotMax').AsDateTime:=dtpCruiseDateTotMax.DateTime;
-  end;
-
-  if chkCruiseDateAdded.Checked then begin
-    ParamByName('SSDateAddedMin').AsDateTime:=dtpCruiseDateAddedMin.DateTime;
-    ParamByName('SSDateAddedMax').AsDateTime:=dtpCruiseDateAddedMax.DateTime;
-  end;
-
-  if chkCruiseDateUpdated.Checked then begin
-    ParamByName('SSDateUpdatedMin').AsDateTime:=dtpCruiseDateUpdatedMin.DateTime;
-    ParamByName('SSDateUpdatedMax').AsDateTime:=dtpCruiseDateUpdatedMax.DateTime;
-  end;
-
-   //showmessage(frmdm.QCruise.SQL.Text);
+   showmessage(frmdm.QCruise.SQL.Text);
    Open;
    Last;
    First;
@@ -1559,9 +1590,6 @@ begin
      Post;
     end;
 
-    frmdm.QEntry.DisableControls;
-    frmdm.QEntry.First;
-
     With frmdm.q1 do begin
      Close;
       SQL.Clear;
@@ -1570,6 +1598,9 @@ begin
     end;
     frmdm.TR.CommitRetaining;
 
+
+    frmdm.QEntry.DisableControls;
+    frmdm.QEntry.First;
     while not frmdm.QEntry.EOF do begin
      if frmdm.QEntry.FieldByName('SELECTED').AsBoolean=true then begin
       //inc(cnt);
@@ -1671,8 +1702,8 @@ begin
   dtpDateUpdatedMin.DateTime:=StationDateUpdatedMin;
   dtpDateUpdatedMax.DateTime:=StationDateUpdatedMax;
 
-  for k:=0 to chklParameter.Items.Count-1 do
-    chklParameter.Checked[k]:=false;
+  for k:=0 to cgParameter.Items.Count-1 do
+    cgParameter.Checked[k]:=false;
 
   for k:=0 to cgQCFlag.Items.Count-1 do
     cgQCFlag.Checked[k]:=true;
@@ -1686,9 +1717,9 @@ begin
 
   chkCRUISENumStations.Checked:=false;
   chkCRUISEIDRange.Checked:=false;
-  chkCRUISEDateTotal.Checked:=false;
-  chkCRUISEDateAdded.Checked:=false;
-  chkCRUISEDateUpdated.Checked:=false;
+  chkCruiseRegion.Checked:=false;
+  chkCruiseDateandtime.Checked:=false;
+  chkCruiseQCFlag.Checked:=false;
 
   seCruiseStationsTotalMin.Value:=0;
   seCruiseStationsTotalMax.Value:=CruiseStationsTotalMax;
@@ -2209,10 +2240,10 @@ Qt_DB1.Transaction:=TRt_DB1;
      TempList.Free;
    end;
 
-   chklParameter.Visible:=false;
-   chklParameter.Items.Clear;
-   chklParameter.Items:=ListBox1.Items;
-   chklParameter.Visible:=true;
+   cgParameter.Visible:=false;
+   cgParameter.Items.Clear;
+   cgParameter.Items:=ListBox1.Items;
+   cgParameter.Visible:=true;
 
 
    (* cleaning selection info *)
@@ -2288,37 +2319,10 @@ var
 begin
   (* Search CRUISE *)
   if (PageControl1.PageIndex=1) and (CRUISEInfoObtained=false) then begin
-   Ini := TIniFile.Create(IniFileName);
-   try
-    seCruiseLatMin.Value   :=Ini.ReadFloat  ( 'osmain', 'cruise_latmin',     0);
-    seCruiseLatMax.Value   :=Ini.ReadFloat  ( 'osmain', 'cruise_latmax',     0);
-    seCruiseLonMin.Value   :=Ini.ReadFloat  ( 'osmain', 'cruise_lonmin',     0);
-    seCruiseLonMax.Value   :=Ini.ReadFloat  ( 'osmain', 'cruise_lonmax',     0);
-    seCruiseIDMin.Value    :=Ini.ReadInteger( 'osmain', 'cruise_idmin',      0);
-    seCruiseIDMax.Value    :=Ini.ReadInteger( 'osmain', 'cruise_idmax',      0);
-    cbCruisePlatform.Text  :=Ini.ReadString ( 'osmain', 'cruise_platform',  '');
-    cbCruiseCountry.Text   :=Ini.ReadString ( 'osmain', 'cruise_country',   '');
-    cbCruiseSource.Text    :=Ini.ReadString ( 'osmain', 'cruise_source',    '');
-    cbCruiseCruiseNum.Text :=Ini.ReadString ( 'osmain', 'cruise_cruisenum', '');
-    cbCruiseInstitute.Text :=Ini.ReadString ( 'osmain', 'cruise_institute', '');
-    cbCruiseProject.Text   :=Ini.ReadString ( 'osmain', 'cruise_project',   '');
-    dtpCruiseDateDBMin.DateTime:=Ini.ReadDateTime('osmain', 'cruise_datedbmin', now);
-    dtpCruiseDateDBMax.DateTime:=Ini.ReadDateTime('osmain', 'cruise_datedbmax', now);
-    dtpCruiseDateTotMin.DateTime:=Ini.ReadDateTime('osmain', 'cruise_datetotmin', now);
-    dtpCruiseDateTotMax.DateTime:=Ini.ReadDateTime('osmain', 'cruise_datetotmax', now);
-    dtpCruiseDateAddedMin.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateaddedmin', now);
-    dtpCruiseDateAddedMax.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateaddedmax', now);
-    dtpCruiseDateUpdatedMin.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateupdatedmin', now);
-    dtpCruiseDateUpdatedMax.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateupdatedmax', now);
-    chkCruiseIgnoreDup.Checked  :=Ini.ReadBool('osmain', 'cruise_chkCruiseIgnoreDuplicates', false);
-    chkCRUISENumStations.Checked:=Ini.ReadBool('osmain', 'cruise_chkCruiseNumStations',      false);
-    chkCRUISEIDRange.Checked    :=Ini.ReadBool('osmain', 'cruise_chkCruiseIDRange',          false);
-    chkCRUISEDateTotal.Checked  :=Ini.ReadBool('osmain', 'cruise_chkCruiseDateTotal',        false);
-    chkCRUISEDateAdded.Checked  :=Ini.ReadBool('osmain', 'cruise_chkCruiseDateAdded',        false);
-    chkCRUISEDateUpdated.Checked:=Ini.ReadBool('osmain', 'cruise_chkCruiseDateUpdated',      false);
-   finally
-    Ini.Free;
-   end;
+
+    LoadSettingsCruiseSearch;
+
+    cgCruiseQCFlag.Items:=cgQCFlag.Items;
 
     TRt:=TSQLTransaction.Create(self);
     TRt.DataBase:=frmdm.IBDB;
@@ -2640,6 +2644,32 @@ procedure Tfrmosmain.cbSourceDropDown(Sender: TObject);
 begin
   PopulateSourceList;
   cbCruiseCruiseNum.Clear;
+end;
+
+
+procedure Tfrmosmain.chkRegionChange(Sender: TObject);
+begin
+  gbRegion.Enabled:=chkRegion.Checked;
+end;
+
+procedure Tfrmosmain.chkDateandTimeChange(Sender: TObject);
+begin
+  gbDateandTime.Enabled:=chkDateandTime.Checked;
+end;
+
+procedure Tfrmosmain.chkIDRangeChange(Sender: TObject);
+begin
+  gbIDRange.Enabled:=chkIDRange.Checked;
+end;
+
+procedure Tfrmosmain.chkParameterChange(Sender: TObject);
+begin
+  cgParameter.Enabled:=chkParameter.Checked;
+end;
+
+procedure Tfrmosmain.chkQCFlagChange(Sender: TObject);
+begin
+  cgQCFlag.Enabled:=chkQCFlag.Checked;
 end;
 
 procedure Tfrmosmain.DBGridCruise1CellClick(Column: TColumn);
@@ -3931,6 +3961,45 @@ begin
   end;
 end;
 
+
+(* Loading CRUISE search settings *)
+procedure Tfrmosmain.LoadSettingsCruiseSearch;
+Var
+  Ini:TIniFile;
+begin
+  Ini := TIniFile.Create(IniFileName);
+    try
+     seCruiseLatMin.Value   :=Ini.ReadFloat  ( 'osmain', 'cruise_latmin',     0);
+     seCruiseLatMax.Value   :=Ini.ReadFloat  ( 'osmain', 'cruise_latmax',     0);
+     seCruiseLonMin.Value   :=Ini.ReadFloat  ( 'osmain', 'cruise_lonmin',     0);
+     seCruiseLonMax.Value   :=Ini.ReadFloat  ( 'osmain', 'cruise_lonmax',     0);
+     seCruiseIDMin.Value    :=Ini.ReadInteger( 'osmain', 'cruise_idmin',      0);
+     seCruiseIDMax.Value    :=Ini.ReadInteger( 'osmain', 'cruise_idmax',      0);
+     cbCruisePlatform.Text  :=Ini.ReadString ( 'osmain', 'cruise_platform',  '');
+     cbCruiseCountry.Text   :=Ini.ReadString ( 'osmain', 'cruise_country',   '');
+     cbCruiseSource.Text    :=Ini.ReadString ( 'osmain', 'cruise_source',    '');
+     cbCruiseCruiseNum.Text :=Ini.ReadString ( 'osmain', 'cruise_cruisenum', '');
+     cbCruiseInstitute.Text :=Ini.ReadString ( 'osmain', 'cruise_institute', '');
+     cbCruiseProject.Text   :=Ini.ReadString ( 'osmain', 'cruise_project',   '');
+     dtpCruiseDateDBMin.DateTime:=Ini.ReadDateTime('osmain', 'cruise_datedbmin', now);
+     dtpCruiseDateDBMax.DateTime:=Ini.ReadDateTime('osmain', 'cruise_datedbmax', now);
+     dtpCruiseDateTotMin.DateTime:=Ini.ReadDateTime('osmain', 'cruise_datetotmin', now);
+     dtpCruiseDateTotMax.DateTime:=Ini.ReadDateTime('osmain', 'cruise_datetotmax', now);
+     dtpCruiseDateAddedMin.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateaddedmin', now);
+     dtpCruiseDateAddedMax.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateaddedmax', now);
+     dtpCruiseDateUpdatedMin.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateupdatedmin', now);
+     dtpCruiseDateUpdatedMax.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateupdatedmax', now);
+     chkCruiseIgnoreDup.Checked   :=Ini.ReadBool('osmain', 'cruise_chkCruiseIgnoreDuplicates', false);
+     chkCRUISENumStations.Checked :=Ini.ReadBool('osmain', 'cruise_chkCruiseNumStations',      false);
+     chkCRUISEIDRange.Checked     :=Ini.ReadBool('osmain', 'cruise_chkCruiseIDRange',          false);
+     chkCRUISEDateandtime.Checked :=Ini.ReadBool('osmain', 'cruise_chkCruiseDateandtime',      false);
+     chkCRUISERegion.Checked      :=Ini.ReadBool('osmain', 'cruise_chkCruiseRegion',           false);
+     chkCruiseQCFlag.Checked      :=Ini.ReadBool('osmain', 'cruise_chkQCFlag',                 false);
+    finally
+     Ini.Free;
+    end;
+end;
+
 (* Saving CRUISE search settings *)
 procedure Tfrmosmain.SaveSettingsCruiseSearch;
 Var
@@ -3961,9 +4030,9 @@ begin
     Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseIgnoreDuplicates', chkCruiseIgnoreDup.Checked);
     Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseNumStations',      chkCRUISENumStations.Checked);
     Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseIDRange',          chkCRUISEIDRange.Checked);
-    Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseDateTotal',        chkCRUISEDateTotal.Checked);
-    Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseDateAdded',        chkCRUISEDateAdded.Checked);
-    Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseDateUpdated',      chkCRUISEDateUpdated.Checked);
+    Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseDateandtime',      chkCRUISEDateandtime.Checked);
+    Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseRegion',           chkCRUISERegion.Checked);
+    Ini.WriteBool    ( 'osmain', 'cruise_chkQCFlag',                 chkCruiseQCFlag.Checked);
   finally
     Ini.Free;
   end;

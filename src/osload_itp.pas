@@ -179,6 +179,15 @@ begin
      with frmdm.q2 do begin
        Close;
         Sql.Clear;
+        SQL.Add(' SELECT ID FROM PLATFORM ');
+        SQL.Add(' WHERE ID=:ID ');
+        ParamByName('ID').Value:=cruise_id;
+       Open;
+      end;
+     if frmdm.q2.IsEmpty then begin
+      with frmdm.q3 do begin
+       Close;
+        Sql.Clear;
         SQL.Add(' INSERT INTO PLATFORM ');
         SQL.Add(' (ID, NAME, COUNTRY_ID) ');
         SQL.Add(' VALUES ' );
@@ -188,7 +197,8 @@ begin
         ParamByName('country_id').Value:=186;
        ExecSQL;
       end;
-    frmdm.TR.CommitRetaining;
+      frmdm.TR.CommitRetaining;
+    end;
 
     with frmdm.Q2 do begin
      Close;
