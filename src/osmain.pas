@@ -693,7 +693,7 @@ begin
      Columns[1].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col01',  50);
      Columns[2].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col02', 150);
      Columns[3].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col03', 100);
-     Columns[4].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col04',  70);
+     Columns[4].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col04', 100);
      Columns[5].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col05',  70);
      Columns[6].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col06',  70);
      Columns[7].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col07',  70);
@@ -721,8 +721,8 @@ begin
      Columns[1].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col01',    60);  //STATION ID
      Columns[2].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col02',    60);  //CRUISE ID
      Columns[3].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col03',    60);  //FLAG
-     Columns[4].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col04',    80);  //LATITUDE
-     Columns[5].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col05',    80);  //LONGITUDE
+     Columns[4].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col04',    60);  //LATITUDE
+     Columns[5].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col05',    60);  //LONGITUDE
      Columns[6].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col06',    60);  //DATE
      Columns[7].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col07',    60);  //SOURCE
      Columns[8].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col08',    60);  //PLATFORM
