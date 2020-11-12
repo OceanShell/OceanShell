@@ -418,7 +418,7 @@ try
       SQL.Add(' PROFILE_NUMBER=:PROF_NUM ');
       if chkShowBest.Checked then
         SQL.Add(' AND PROFILE_BEST=TRUE ');
-      SQL.Add(' ORDER BY LEV_DBAR, LEV_M ');
+      SQL.Add(' ORDER BY LEV_DBAR');
       ParamByName('ID').AsInteger:=ID;
       ParamByName('INSTR_ID').AsInteger:=INSTR_ID;
       ParamByName('PROF_NUM').AsInteger:=PROF_NUM;
@@ -430,7 +430,7 @@ try
     Lat:=frmdm.Q.FieldByName('LATITUDE').Value;
     Lon:=frmdm.Q.FieldByName('LONGITUDE').Value;
 
-    Src:=frmdm.Q.FieldByName('SRC').AsString;
+    Src:=frmdm.QCruise.FieldByName('SOURCE').AsString;
     for k:=0 to high(chkSourceList) do begin
      if Pos('(', chkSourceList[k].Caption)>0 then
        src_name:=copy(chkSourceList[k].Caption, 1, Pos('(', chkSourceList[k].Caption)-2) else

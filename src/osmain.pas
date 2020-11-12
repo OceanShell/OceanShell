@@ -7,7 +7,7 @@ interface
 uses
   SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, LCLType,
   Menus, Dialogs, ActnList, StdCtrls, IniFiles, ExtCtrls, DateUtils, sqldb, DB,
-  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process,
+  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, DBDateTimePicker, Process,
   Math, Grids, LCLIntf, ComboEx, DBExtCtrls;
 
 type
@@ -93,20 +93,22 @@ type
     chkRegion: TCheckBox;
     DBCruiseCountry: TDBComboBox;
     DBCruiseInstitute: TDBComboBox;
-    DBCruiseLonMin1: TDBEdit;
-    DBCruiseProject: TDBComboBox;
-    DBCruisePI: TDBComboBox;
-    DBCruiseUpdated: TDBDateEdit;
-    DBCruiseUpdated1: TDBDateEdit;
-    DBCruiseUpdated2: TDBDateEdit;
-    DBCrusieAdded: TDBDateEdit;
-    DBCrusieDateStartTotal: TDBDateEdit;
-    DBCrusieDateEndTotal: TDBDateEdit;
-    DBCrusieExpocode: TDBEdit;
-    DBCruiseLatMin: TDBEdit;
     DBCruiseLatMax: TDBEdit;
-    DBCruiseLonMin: TDBEdit;
+    DBCruiseLatMin: TDBEdit;
     DBCruiseLonMax: TDBEdit;
+    DBCruiseLonMin1: TDBEdit;
+    DBCrusieAdded1: TDBDateEdit;
+    DBCrusieAdded2: TDBDateEdit;
+    DBStationAccessionNum: TDBEdit;
+    DBStationSourceID: TDBEdit;
+    DBCruiseLonMin: TDBEdit;
+    DBCruiseProject: TDBComboBox;
+    DBCruiseUpdated: TDBDateEdit;
+    DBCrusiePI: TDBEdit;
+    DBCrusieExpocode: TDBEdit;
+    DBStationUpdated: TDBDateEdit;
+    DBStationAdded: TDBDateEdit;
+    DBCrusieAdded: TDBDateEdit;
     DBGridCruise: TDBGrid;
     DBGridEntry: TDBGrid;
     DBGridStation: TDBGrid;
@@ -128,12 +130,15 @@ type
     dtpDateUpdatedMin: TDateTimePicker;
     gbAuxiliaryParameters: TGroupBox;
     gbAuxiliaryParameters1: TGroupBox;
+    GroupBox1: TGroupBox;
     GroupBox11: TGroupBox;
     GroupBox12: TGroupBox;
     gbCruiseDateandTime: TGroupBox;
     gbIDRange: TGroupBox;
     gbDateandTime: TGroupBox;
     gbRegion: TGroupBox;
+    GroupBox3: TGroupBox;
+    GroupBox4: TGroupBox;
     GroupBox7: TGroupBox;
     iProfilesAll: TMenuItem;
     ishowselectedstation: TMenuItem;
@@ -150,17 +155,18 @@ type
     Label12: TLabel;
     Label13: TLabel;
     Label14: TLabel;
+    Label15: TLabel;
     Label16: TLabel;
     Label17: TLabel;
     Label18: TLabel;
+    Label19: TLabel;
     Label2: TLabel;
+    Label20: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
-    Label8: TLabel;
-    Label9: TLabel;
     lbResetSearchCruises: TLabel;
     lbResetSearchStations: TLabel;
     MenuItem10: TMenuItem;
@@ -204,7 +210,6 @@ type
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     Panel3: TPanel;
-    pCruiseFiller: TPanel;
     pDataCruise: TPanel;
     pcCruiseDateandTime: TPageControl;
     pcCruiseNumStations: TPageControl;
@@ -1507,9 +1512,9 @@ begin
   end;
 
   tsSelectedStations.TabVisible:= not frmdm.QCruise.IsEmpty;
+  tsSelectedStations.Caption:='Cruises: '+inttostr(frmdm.QCruise.RecordCount);
   PageControl1.ActivePageIndex:=3;
-
- Application.ProcessMessages;
+  Application.ProcessMessages;
 end;
 
 
@@ -2552,6 +2557,9 @@ begin
   iStandarddeviationslayers.Enabled:=items_enabled;
 
   tsSelectedStations.TabVisible:=items_enabled;
+  PageControl1.ActivePageIndex:=3;
+  tsSelectedStations.Caption:='Cruises: '+inttostr(frmdm.QCruise.RecordCount)+'; '+
+                              'Stations: '+inttostr(frmdm.Q.RecordCount);
 
   if frmprofile_plot_all_open then begin
     frmprofile_plot_all.Close;
