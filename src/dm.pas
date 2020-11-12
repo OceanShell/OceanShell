@@ -13,6 +13,7 @@ type
 
   Tfrmdm = class(TDataModule)
     DS: TDataSource;
+    DSCruiseDetails: TDataSource;
     DSEntry: TDataSource;
     DSCruise: TDataSource;
     IBDB: TIBConnection;
@@ -20,13 +21,14 @@ type
     q1: TSQLQuery;
     q2: TSQLQuery;
     q3: TSQLQuery;
+    QCruiseDetails: TSQLQuery;
     QCruise: TSQLQuery;
     QEntry: TSQLQuery;
     TR: TSQLTransaction;
 
     procedure DataModuleDestroy(Sender: TObject);
     procedure QCruiseAfterEdit(DataSet: TDataSet);
-    procedure QCruiseBeforePost(DataSet: TDataSet);
+    procedure QCruiseAfterScroll(DataSet: TDataSet);
     procedure QEntryAfterEdit(DataSet: TDataSet);
 
   private
@@ -52,9 +54,17 @@ begin
  frmosmain.btnSaveCruise.Enabled:=true;
 end;
 
-procedure Tfrmdm.QCruiseBeforePost(DataSet: TDataSet);
+procedure Tfrmdm.QCruiseAfterScroll(DataSet: TDataSet);
+Var
+  ID: int64;
 begin
-  QCruise.FieldByName('DATE_UPDATED').AsDateTime:=now;
+ ID:=QCruise.FieldByName('ID').Value;
+ with QCruiseDetails do begin
+  Close;
+   SQL.Clear;
+   SQL.Add(CruiseDetailSQL+Inttostr(ID));
+  Open;
+ end;
 end;
 
 procedure Tfrmdm.QEntryAfterEdit(DataSet: TDataSet);

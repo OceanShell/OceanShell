@@ -5,13 +5,9 @@ unit osmeteo;
 interface
 
 uses
-  SysUtils, Variants, Classes, Graphics, Controls, Forms, IniFiles, sqldb,
-  Menus, ExtCtrls, StdCtrls, DBCtrls, TAGraph, TASeries;
-
-//Series, TeEngine, StdCtrls, ToolWin, ComCtrls, ExtCtrls, TeeProcs,
-//  Chart, DBCtrls, MaskEdit, DB, sqldb,
-//  IniFiles, Dialogs, TAGraph, TASeries, DateUtils, LCLIntf, LCLType, LMessages, Messages, ;
-
+  SysUtils, Variants, Classes, Graphics, Controls, Forms, IniFiles, sqldb, db,
+  Menus, ExtCtrls, StdCtrls, DBCtrls, TAGraph, TASeries, TATools,
+  TAIntervalSources;
 
 type
 
@@ -19,11 +15,9 @@ type
 
   Tfrmmeteo = class(TForm)
     Chart1: TChart;
+    DateTimeIntSrc: TDateTimeIntervalChartSource;
+    DSMeteo: TDataSource;
     Series1: TLineSeries;
-    //QM: TSQLQuery;
-    //DS: TDataSource;
-    //MDS: TClientDataSet;
-   // MP: TDataSetProvider;
     GroupBox1: TGroupBox;
     Label1: TLabel;
     Label2: TLabel;
@@ -66,22 +60,17 @@ type
     DBComboBox2: TDBComboBox;
     DBEdit1: TDBEdit;
     DBComboBox1: TDBComboBox;
-   // Chart1: TChart;
-   // Series1: TLineSeries;
-   // Series2: TPointSeries;
-    btnPrior: TButton;
-    btnNext: TButton;
     btnCommit: TButton;
     Panel1: TPanel;
-    QM: TSQLQuery;
+    QMeteo: TSQLQuery;
 
-    procedure ChangeAbsnum;
-  //  procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure ChangeID(ID:int64);
+
+    procedure FormShow(Sender: TObject);
     procedure btnCommitClick(Sender: TObject);
     procedure DBComboBox1DblClick(Sender: TObject);
-    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
- //   procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
-    procedure FormShow(Sender: TObject);
+
+
     procedure DBEdit10DblClick(Sender: TObject);
   //  procedure Series1Click(Sender: TChartSeries; ValueIndex: Integer;
   //    Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -104,8 +93,7 @@ type
     procedure Label15Click(Sender: TObject);
     procedure Label18Click(Sender: TObject);
     procedure Label19Click(Sender: TObject);
-    procedure btnPriorClick(Sender: TObject);
-    procedure btnNextClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
 
   private
     procedure GetTimeSeries(ParameterName, ParameterCaption:string);
@@ -136,34 +124,30 @@ Ini := TIniFile.Create(IniFileName);
   finally
    Ini.Free;
   end;
- //ODBDM.CDSMD.IndexFieldNames:='stdate;sttime';
-// ChangeAbsnum;
+ frmdm.Q.IndexFieldNames:='DATEANDTIME';
+
+ ChangeID(frmdm.Q.FieldByName('ID').Value);
 end;
 
-procedure Tfrmmeteo.ChangeAbsnum;
-Var
- ID:integer;
+procedure Tfrmmeteo.ChangeID(ID:int64);
 begin
 Caption:='Meteo';
 DBCombobox1.Focused;
 Series1.Clear;
-
- ID:=frmdm.Q.FieldByName('ID').AsInteger;
-
- QM.SQL.Text:='Select * from METEO where ID='+inttostr(ID);
- Qm.Open;
-
+ QMeteo.Close;
+ QMeteo.SQL.Text:='Select * from METEO where ID='+inttostr(ID);
+ QMeteo.Open;
 end;
 
 procedure Tfrmmeteo.btnCommitClick(Sender: TObject);
 begin
 DBEdit20.Text:=inttostr(frmdm.Q.FieldByName('ID').AsInteger);
  try
-  QM.ApplyUpdates(0);
+  QMeteo.ApplyUpdates(0);
   frmdm.TR.CommitRetaining;
  except
   frmdm.TR.RollbackRetaining;
-  QM.CancelUpdates;
+  QMeteo.CancelUpdates;
  end;
 end;
 
@@ -263,67 +247,52 @@ with series1 do
 end;
        }
 
-procedure Tfrmmeteo.btnPriorClick(Sender: TObject);
-begin
-{if ODBDM.CDSMD.Active then begin
-  btnNext.Enabled:=true;
-   ODBDM.CDSMD.Prior;
-    if ODBDM.CDSMD.RecNo=1 then btnPrior.Enabled:=false;
-   Main.CDSNavigation;
-end; }
-end;
-
-procedure Tfrmmeteo.btnNextClick(Sender: TObject);
-begin
-{if ODBDM.CDSMD.Active then begin
-btnPrior.Enabled:=true;
-  ODBDM.CDSMD.Next;
-  if ODBDM.CDSMD.Eof then btnNext.Enabled:=false;
-Main.CDSNavigation;
-end; }
-end;
-
 procedure Tfrmmeteo.GetTimeSeries(ParameterName, ParameterCaption:string);
 Var
-bkm:TBytes;
-par:string;
-absnum:integer;
-NumInCr:string;
-StDate, StTime, Date:TDateTime;
-year, month, day, hour, min, sec, msec:word;
+ID, OldID:int64;
+date1:TDateTime;
+
+TRt:TSQLTransaction;
+Qt:TSQLQuery;
 begin
-{Series1.Clear;
-Series2.Clear;
+Series1.Clear;
+
 Caption:='Meteo: '+ParameterCaption;
-  bkm:=ODBDM.CDSMD.Bookmark;
-  ODBDM.CDSMD.DisableControls;
-  ODBDM.IBTransaction1.StartTransaction;
+OldID:=frmdm.Q.FieldByName('ID').AsInteger;
+
+ frmdm.Q.DisableControls;
  try
-  ODBDM.CDSMD.First;
-    while not ODBDM.CDSMD.Eof do begin
-      absnum:=ODBDM.CDSMD.FieldByName('Absnum').AsInteger;
-      stdate:=ODBDM.CDSMD.FieldByName('stdate').AsDateTime;
-      DecodeDate(stdate,year, month,day);
-      sttime:=ODBDM.CDSMD.FieldByName('sttime').AsDateTime;
-      DecodeTime(sttime,hour,min,sec,msec);
-      Date:=EncodeDateTime(year,month,day,hour,min,sec,msec);
-       with ODBDM.ib1q2 do begin
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt:=TSQLQuery.Create(self);
+  Qt.Database:=frmdm.IBDB;
+  Qt.Transaction:=TRt;
+
+  frmdm.Q.First;
+    while not frmdm.Q.Eof do begin
+      ID:=frmdm.Q.FieldByName('ID').AsInteger;
+      date1:=frmdm.Q.FieldByName('DATEANDTIME').AsDateTime;
+
+       with Qt do begin
         Close;
           SQL.Clear;
           SQL.Add(' Select '+ParameterName+' from METEO ');
-          SQL.Add(' where absnum='+inttostr(Absnum));
+          SQL.Add(' where ID='+inttostr(ID));
        Open;
       end;
-     If ODBDM.ib1q2.Fields[0].AsVariant<>null then
-        Series1.AddXY(Date, ODBDM.ib1q2.Fields[0].AsFloat, DateToStr(StDate));
-     ODBDM.ib1q2.Close;
-     ODBDM.CDSMD.Next;
+     If not VarIsNull(Qt.Fields[0].AsVariant) then
+        Series1.AddXY(date1, Qt.Fields[0].Value);
+     Qt.Close;
+    frmdm.Q.Next;
   end;
  finally
-   ODBDM.IBTransaction1.Commit;
-   ODBDM.CDSMD.Bookmark:=bkm;
-   ODBDM.CDSMD.EnableControls;
- end;  }
+   Trt.Commit;
+   Qt.Free;
+   Trt.Free;
+   frmdm.Q.Locate('ID', OldID, []);
+   frmdm.Q.EnableControls;
+ end;
 end;
 
 procedure Tfrmmeteo.Label4Click(Sender: TObject);

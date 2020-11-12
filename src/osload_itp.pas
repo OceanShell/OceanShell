@@ -336,6 +336,7 @@ begin
 
       // if final of realtime updated
       if (ITP_isfinal=true) or (ID>MaxID) then begin
+       try
        with frmdm.q1 do begin
         Close;
         SQL.Clear;
@@ -364,13 +365,8 @@ begin
        end;
        inc(cnt_added);
        frmdm.TR.CommitRetaining;
-      end;
-    end;
-    { except
-       mLog.Lines.Add(CurFile);
-       TrT.RollbackRetaining;
-     end;  }
-{
+
+       {
 %pressure(dbar) temperature(C) salinity dissolved_oxygen nobs
 %pressure(dbar) temperature(C) salinity nobs
 %pressure(dbar) temperature(C) salinity nobs east(cm/s) north(cm/s) vert(cm/s) nacm
@@ -523,6 +519,14 @@ begin
 
     end;
   end;
+
+       except
+       frmdm.TR.RollbackRetaining;
+       mLog.Lines.Add('Insert error: '+st);
+       //exit;
+       end;
+      end;
+    end;
   //   frmosmain.ProgressBar1.Position:=frmosmain.ProgressBar1.Position+1;
   //   Application.processMessages;
 

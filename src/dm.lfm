@@ -4,7 +4,7 @@ object frmdm: Tfrmdm
   Height = 285
   HorizontalOffset = 742
   VerticalOffset = 361
-  Width = 412
+  Width = 590
   PPI = 144
   object IBDB: TIBConnection
     Connected = False
@@ -38,61 +38,36 @@ object frmdm: Tfrmdm
     MaxIndexesCount = 100
     FieldDefs = <>
     AfterEdit = QCruiseAfterEdit
-    BeforePost = QCruiseBeforePost
+    AfterScroll = QCruiseAfterScroll
     Database = IBDB
     Transaction = TR
     SQL.Strings = (
       ''
     )
     InsertSQL.Strings = (
-      'INSERT INTO CRUISE'
-      '(ID, PLATFORM_ID, INSTITUTE_ID, PROJECT_ID,'
-      'SOURCE_ID, CRUISE_NUMBER, DATE_START_TOTAL, DATE_END_TOTAL,'
-      'DATE_START_DATABASE, DATE_END_DATABASE, STATIONS_TOTAL,'
-      'STATIONS_DATABASE, STATIONS_DUPLICATES, LATITUDE_MIN,'
-      'LATITUDE_MAX, LONGITUDE_MIN, LONGITUDE_MAX,'
-      'DATE_ADDED, DATE_UPDATED, NOTES)'
-      'VALUES'
-      '(:ID, :PLATFORM_ID, :INSTITUTE_ID, :PROJECT_ID,'
-      ':SOURCE_ID, :CRUISE_NUMBER, :DATE_START_TOTAL, :DATE_END_TOTAL,'
-      ':DATE_START_DATABASE, :DATE_END_DATABASE, :STATIONS_TOTAL,'
-      ':STATIONS_DATABASE, :STATIONS_DUPLICATES, :LATITUDE_MIN,'
-      ':LATITUDE_MAX, :LONGITUDE_MIN, :LONGITUDE_MAX,'
-      ':DATE_ADDED, :DATE_UPDATED, :NOTES)'
+      ''
       ''
     )
     UpdateSQL.Strings = (
       'UPDATE CRUISE SET'
       'PLATFORM_ID=:PLATFORM_ID,'
-      'INSTITUTE_ID=:INSTITUTE_ID,'
-      'PROJECT_ID=:PROJECT_ID,'
       'SOURCE_ID=:SOURCE_ID,'
       'CRUISE_NUMBER=:CRUISE_NUMBER,'
-      'DATE_START_TOTAL=:DATE_START_TOTAL,'
-      'DATE_END_TOTAL=:DATE_END_TOTAL,'
       'DATE_START_DATABASE=:DATE_START_DATABASE,'
       'DATE_END_DATABASE=:DATE_END_DATABASE,'
-      'STATIONS_TOTAL=:STATIONS_TOTAL,'
       'STATIONS_DATABASE=:STATIONS_DATABASE,'
       'STATIONS_DUPLICATES=:STATIONS_DUPLICATES,'
-      'LATITUDE_MIN=:LATITUDE_MIN,'
-      'LATITUDE_MAX=:LATITUDE_MAX,'
-      'LONGITUDE_MIN=:LONGITUDE_MIN,'
-      'LONGITUDE_MAX=:LONGITUDE_MAX,'
-      'DATE_ADDED=:DATE_ADDED,'
-      'DATE_UPDATED=:DATE_UPDATED,'
-      'NOTES=:NOTES'
       'WHERE ID=:OLD_ID'
       ''
       ''
       ''
     )
     DeleteSQL.Strings = (
-      'DELETE FROM CRUISE WHERE ID=:ID'
+      ''
     )
     Params = <>
-    left = 252
-    top = 24
+    left = 176
+    top = 104
   end
   object QEntry: TSQLQuery
     MaxIndexesCount = 100
@@ -127,23 +102,23 @@ object frmdm: Tfrmdm
       'DELETE FROM ENTRY WHERE ID=:ID'
     )
     Params = <>
-    left = 336
-    top = 24
+    left = 180
+    top = 200
   end
   object DSCruise: TDataSource
     DataSet = QCruise
-    left = 252
-    top = 108
+    left = 264
+    top = 104
   end
   object DSEntry: TDataSource
     DataSet = QEntry
-    left = 336
-    top = 108
+    left = 264
+    top = 200
   end
   object DS: TDataSource
     DataSet = Q
-    left = 180
-    top = 108
+    left = 264
+    top = 24
   end
   object q1: TSQLQuery
     MaxIndexesCount = 100
@@ -151,8 +126,8 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 180
-    top = 208
+    left = 36
+    top = 144
   end
   object q2: TSQLQuery
     MaxIndexesCount = 100
@@ -160,8 +135,8 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 252
-    top = 208
+    left = 96
+    top = 144
   end
   object q3: TSQLQuery
     MaxIndexesCount = 100
@@ -169,7 +144,21 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 336
-    top = 208
+    left = 36
+    top = 224
+  end
+  object QCruiseDetails: TSQLQuery
+    MaxIndexesCount = 100
+    FieldDefs = <>
+    Database = IBDB
+    Transaction = TR
+    Params = <>
+    left = 368
+    top = 104
+  end
+  object DSCruiseDetails: TDataSource
+    DataSet = QCruiseDetails
+    left = 496
+    top = 104
   end
 end

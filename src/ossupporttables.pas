@@ -21,8 +21,8 @@ type
     btnsave: TToolButton;
     btndelete: TToolButton;
     btnUpdateQC: TBitBtn;
-    DBGridTables: TDBGrid;
     DBGridFlag: TDBGrid;
+    DBGridTables: TDBGrid;
     DBGridUnits: TDBGrid;
     DBGridPlatform: TDBGrid;
     DBGridCountry: TDBGrid;
@@ -31,8 +31,6 @@ type
     DBGridInstrument: TDBGrid;
     DBGridSource: TDBGrid;
     DS: TDataSource;
-    eInstitute_NameFull: TEdit;
-    eProject_NameFull: TEdit;
     eTables_ID: TEdit;
     eTables_NAME: TEdit;
     eCountry_NODC: TEdit;
@@ -63,7 +61,6 @@ type
     mNotesInstitute: TMemo;
     mNotesCountry: TMemo;
     mNotesInstrument: TMemo;
-    mNotesFlag: TMemo;
     mNotesUnits: TMemo;
     mNotesProject: TMemo;
     mNotesSource: TMemo;
@@ -81,8 +78,6 @@ type
     ePlatform_Name: TEdit;
     Panel20: TPanel;
     Panel21: TPanel;
-    Panel22: TPanel;
-    Panel23: TPanel;
     Panel28: TPanel;
     Panel3: TPanel;
     ePlatform_NODC: TEdit;
@@ -90,6 +85,7 @@ type
     Panel8: TPanel;
     Panel9: TPanel;
     Q: TSQLQuery;
+    rgFlag: TRadioGroup;
     Splitter1: TSplitter;
     PageControl1: TPageControl;
     tsFlag: TTabSheet;
@@ -155,6 +151,7 @@ type
     procedure ePlatfo(Sender: TObject);
     procedure ePlatform_(Sender: TObject);
     procedure eCountry_ISOChange(Sender: TObject);
+    procedure rgFlagClick(Sender: TObject);
 
 
   private
@@ -242,7 +239,7 @@ begin
      Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col00',  50);
      Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col01',  50);
      Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col02',  200);
-     Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col03',  200);
+   //  Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col03',  200);
     end;
 
     With DBGridInstitute do begin
@@ -250,7 +247,7 @@ begin
      Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col01',  50);
      Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col02',  50);
      Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col03',  300);
-     Columns[4].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col04',  300);
+   //  Columns[4].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col04',  300);
     end;
 
     With DBGridCountry do begin
@@ -261,9 +258,8 @@ begin
     end;
 
     With DBGridFlag do begin
-     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBFlag_Col00',  50);
-     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBFlag_Col01',  50);
-     Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBFlag_Col02',  50);
+     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridFlag_Col00',  50);
+     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridFlag_Col01',  50);
     end;
   finally
   end;
@@ -318,6 +314,8 @@ procedure Tfrmsupporttables.PageControl1Change(Sender: TObject);
 Var
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
+  Qt1, Qt2, Qt3, Qt4:TSQLQuery;
+  DS1, DS2, DS3, DS4:TDataSource;
 
   k: integer;
   tbl, tbl_missing:string;
@@ -447,12 +445,12 @@ begin
      end;
   5: begin
        CodesTblName:='PROJECT';
-       Q.SQL.text:='Select ID, WOD_ID, NAME, NAME_FULL '+
+       Q.SQL.text:='Select ID, WOD_ID, NAME '+
                    'FROM PROJECT ORDER BY NAME';
      end;
   6: begin
        CodesTblName:='INSTITUTE';
-       Q.SQL.text:='Select ID, WOD_ID, NODC_CODE, NAME, NAME_FULL '+
+       Q.SQL.text:='Select ID, WOD_ID, NODC_CODE, NAME '+
                    'FROM INSTITUTE ORDER BY NAME';
      end;
   7: begin
@@ -461,9 +459,9 @@ begin
                    'FROM COUNTRY ORDER BY NAME';
      end;
   8: begin
-       CodesTblName:='FLAG';
-       Q.SQL.text:='Select ID, QF, NAME '+
-                   'FROM FLAG ORDER BY QF';
+      CodesTblName:='FLAG_'+rgFlag.Items.Strings[rgFlag.ItemIndex];
+       Q.SQL.text:='Select ID, NAME '+
+                   'FROM '+CodesTblName+' ORDER BY ID';
      end;
  end;
 
@@ -544,14 +542,14 @@ begin
    eProject_ID.Width:=DBGridProject.Columns[0].Width;
    eProject_WOD.Width:=DBGridProject.Columns[1].Width;
    eProject_NAME.Width:=DBGridProject.Columns[2].Width;
-   eProject_NAMEFULL.Width:=DBGridProject.Columns[3].Width;
+   //eProject_NAMEFULL.Width:=DBGridProject.Columns[3].Width;
  end;
  if CodesTblName='INSTITUTE' then begin
    eInstitute_ID.Width:=DBGridInstitute.Columns[0].Width;
    eInstitute_NODC.Width:=DBGridInstitute.Columns[1].Width;
    eInstitute_WOD.Width:=DBGridInstitute.Columns[2].Width;
    eInstitute_NAME.Width:=DBGridInstitute.Columns[3].Width;
-   eINstitute_NAMEFULL.Width:=DBGridInstitute.Columns[4].Width;
+  // eINstitute_NAMEFULL.Width:=DBGridInstitute.Columns[4].Width;
  end;
  if CodesTblName='INSTRUMENT' then begin
     occup:=trunc(DBGridInstrument.Width-25-
@@ -665,7 +663,8 @@ begin
   end;
 
 
- if (Q.FieldByName('ID').AsInteger>0) then begin
+ if (Q.FieldByName('ID').AsInteger>0) and
+    (PageControl1.ActivePageIndex<8) then begin
   TRt:=TSQLTransaction.Create(self);
   TRt.DataBase:=frmdm.IBDB;
   Qt :=TSQLQuery.Create(self);
@@ -715,10 +714,6 @@ begin
      if CodesTblName='UNITS' then begin
        mNotesUnits.Clear;
        mNotesUnits.Lines.Text:=notes_str;
-     end;
-     if CodesTblName='Flag' then begin
-       mNotesFlag.Clear;
-       mNotesFlag.Lines.Text:=notes_str;
      end;
   end;
 
@@ -798,8 +793,7 @@ begin
          ((CodesTblName='INSTRUMENT') and (mNotesInstrument.Lines.Text<>'')) or
          ((CodesTblName='PROJECT') and (mNotesProject.Lines.Text<>'')) or
          ((CodesTblName='INSTITUTE') and (mNotesInstitute.Lines.Text<>'')) or
-         ((CodesTblName='COUNTRY') and (mNotesCountry.Lines.Text<>'')) or
-         ((CodesTblName='FLAG') and (mNotesFlag.Lines.Text<>'')) then begin
+         ((CodesTblName='COUNTRY') and (mNotesCountry.Lines.Text<>'')) then begin
 
       try
         TRt:=TSQLTransaction.Create(self);
@@ -823,7 +817,6 @@ begin
           if (CodesTblName='INSTRUMENT')      then ParamByName('NOTES').AsWideString:=mNotesInstrument.Lines.Text;
           if (CodesTblName='UNITS')           then ParamByName('NOTES').AsWideString:=mNotesUnits.Lines.Text;
           if (CodesTblName='COUNTRY')         then ParamByName('NOTES').AsWideString:=mNotesCountry.Lines.Text;
-          if (CodesTblName='FLAG')            then ParamByName('NOTES').AsWideString:=mNotesFlag.Lines.Text;
          ExecSQL;
         end;
       finally
@@ -903,6 +896,11 @@ begin
   Q.Locate('ISO3166_CODE',eCountry_ISO.Text,[loCaseInsensitive, loPartialKey]);
 end;
 
+procedure Tfrmsupporttables.rgFlagClick(Sender: TObject);
+begin
+  PageControl1.OnChange(self);
+end;
+
 (* COUNTRY *)
 procedure Tfrmsupporttables.ePlatform_CountryChange(Sender: TObject);
 begin
@@ -940,13 +938,13 @@ end;
 
 procedure Tfrmsupporttables.eProject_NameFullChange(Sender: TObject);
 begin
- Q.Filter:='NAME_FULL = '+QuotedStr('*'+eProject_NAMEFULL.Text+'*');
+ //Q.Filter:='NAME_FULL = '+QuotedStr('*'+eProject_NAMEFULL.Text+'*');
  Q.Filtered:=true;
 end;
 
 procedure Tfrmsupporttables.eInstitute_NameFullChange(Sender: TObject);
 begin
- Q.Filter:='NAME_FULL = '+QuotedStr('*'+eInstitute_NAMEFULL.Text+'*');
+ //Q.Filter:='NAME_FULL = '+QuotedStr('*'+eInstitute_NAMEFULL.Text+'*');
  Q.Filtered:=true;
 end;
 
@@ -1180,7 +1178,7 @@ begin
      Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col00', Columns[0].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col01', Columns[1].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col02', Columns[2].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col03', Columns[3].Width);
+   //  Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col03', Columns[3].Width);
     end;
 
     With DBGridInstitute do begin
@@ -1188,7 +1186,7 @@ begin
      Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col01', Columns[1].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col02', Columns[2].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col03', Columns[3].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col04', Columns[4].Width);
+  //   Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col04', Columns[4].Width);
     end;
 
     With DBGridCountry do begin
@@ -1197,6 +1195,10 @@ begin
      Ini.WriteInteger( 'ossupporttables', 'DBGridCountry_Col02', Columns[2].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridCountry_Col03', Columns[3].Width);
     end;
+
+    With DBGridFlag do begin
+     Ini.WriteInteger( 'ossupporttables', 'DBGridFlag_Col00', Columns[0].Width);
+     Ini.WriteInteger( 'ossupporttables', 'DBGridFlag_Col01', Columns[1].Width);    end;
 
    finally
      Ini.Free;

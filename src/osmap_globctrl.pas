@@ -59,7 +59,6 @@ Type
     HD2: Integer; {Screen space square of the horizon distance. }
     R: Integer; { The projected radius of the globe. }
     VS: TCoordinate; { The view scaling factor. }
-    X_arr, Y_arr, ID_arr: array of int64;
     Pointer_Radius:Integer; {Station pointer size in pixels}
     Color_Pointer_Inner:TColor; {Station pointer color}
     Color_Pointer_Border:TColor; {Station pointer border color}
@@ -315,10 +314,10 @@ Begin
 
   If ssLeft In Shift Then
     if cursor=crHandPoint then begin
-      for i:=0 to High(X_arr) do begin
-        if (X>=X_arr[i]-Pointer_Radius) and (X<=X_arr[i]+Pointer_Radius) and
-           (Y>=Y_arr[i]-Pointer_Radius) and (Y<=Y_arr[i]+Pointer_Radius) then begin
-           if frmdm.Q.Locate('ID', ID_arr[i], [])=true then begin
+      for i:=0 to High(MapDataset) do begin
+        if (X>=MapDataset[i].x-Pointer_Radius) and (X<=MapDataset[i].x+Pointer_Radius) and
+           (Y>=MapDataset[i].y-Pointer_Radius) and (Y<=MapDataset[i].y+Pointer_Radius) then begin
+           if frmdm.Q.Locate('ID', MapDataset[i].ID, [])=true then begin
             frmosmain.CDSNavigation;
             break;
            end;
@@ -575,22 +574,15 @@ Begin
      pen.Style := psSolid;
 
       if SCount>0 then begin
-       //showmessage(inttostr(SCount));
-      try
        cur_id:=frmdm.Q.FieldByName('ID').AsInteger;
 
-       SetLength(X_arr,  SCount);
-       SetLength(Y_arr,  SCount);
-       SetLength(ID_arr, SCount);
+       for k:=0 to high(MapDataset)-1 do begin
 
-        i:=0;
-        frmdm.Q.DisableControls;
-        frmdm.Q.first;
-        while not frmdm.Q.EOF do begin
-          ID   :=frmdm.Q.FieldByName('ID').Value;
-          Lat  :=frmdm.Q.FieldByName('LATITUDE').Value;
-          lon  :=frmdm.Q.FieldByName('LONGITUDE').Value;
-          Cr_ID:=frmdm.Q.FieldByName('CRUISE_ID').Value;
+         ID:=MapDataset[k].ID;
+         Cr_ID:=MapDataset[k].Cruise_ID;
+         Lat:=MapDataset[k].Latitude;
+         Lon:=MapDataset[k].Longitude;
+
 
             { If transformation successful }
             if Transform(Lat, Lon, P) then begin
@@ -616,18 +608,13 @@ Begin
                         P.Y+Pointer_Radius);
              end;
 
-              inc(i);
-                X_arr[i]:=P.X;
-                Y_arr[i]:=P.Y;
-                ID_arr[i]:=ID;
+             MapDataset[k].x:=P.X;
+             MapDataset[k].y:=P.Y;
             end;
-
-         frmdm.Q.Next;
         end;
-      finally
-        frmdm.Q.Locate('ID', cur_id, []);
-        frmdm.Q.EnableControls;
-      end;
+
+       frmdm.Q.Locate('ID', cur_id, []);
+
 
       { Draw marker cross. }
         If Transform(Marker.Lat, Marker.Lon, P) Then
