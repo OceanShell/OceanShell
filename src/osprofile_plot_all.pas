@@ -430,7 +430,7 @@ try
     Lat:=frmdm.Q.FieldByName('LATITUDE').Value;
     Lon:=frmdm.Q.FieldByName('LONGITUDE').Value;
 
-    Src:=frmdm.QCruise.Lookup('ID', frmdm.Q.FieldByName('CRUISE_ID').Value, 'SOURCE');
+    Src:=frmdm.QCruise.FieldByName('SOURCE').AsString;
     for k:=0 to high(chkSourceList) do begin
      if Pos('(', chkSourceList[k].Caption)>0 then
        src_name:=copy(chkSourceList[k].Caption, 1, Pos('(', chkSourceList[k].Caption)-2) else
