@@ -65,7 +65,7 @@ begin
    if (units=21) and (units_default=3) then val_out:=44.661*val_in/1.025; //g/l ≈ g/kg × 1.025
  end;
 
- if (par='P_NITRATE') or (par='P_NITRATENITRITE') then begin
+ if (par='P_ ,') or (par='P_NITRATENITRITE') then begin
    {1 μg NO3/l = 1/ MW NO3 μg/l = 0.016128 μmol NO3/l
    1 μg NO3/l = MW N/MW NO3 = 0.225897 μg N/l
    1 μg N/l = 1/MW N = 0.071394 μmol N/l
