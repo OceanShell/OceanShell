@@ -13,15 +13,24 @@ type
   { Tfrmosstatistics_AK }
 
   Tfrmosstatistics_AK = class(TForm)
+    btnGetTblStatisticsConverted: TBitBtn;
     btnGetDuplicates: TBitBtn;
     btnSelectAll: TBitBtn;
     btnGetTblStatistics: TBitBtn;
+    CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
     CheckGroup1: TCheckGroup;
     Edit1: TEdit;
+    Edit2: TEdit;
+    Edit3: TEdit;
+    GroupBox1: TGroupBox;
     Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
     Memo1: TMemo;
     procedure btnGetDuplicatesClick(Sender: TObject);
     procedure btnGetTblStatisticsClick(Sender: TObject);
+    procedure btnGetTblStatisticsConvertedClick(Sender: TObject);
     procedure btnSelectAllClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
@@ -35,7 +44,7 @@ var
 
 implementation
 
-uses osmain,dm;
+uses osmain,dm, osunitsconversion;
 
 {$R *.lfm}
 
@@ -169,7 +178,7 @@ end;
 
 
 
-
+{statistics by source without units conversion}
 procedure Tfrmosstatistics_AK.btnGetTblStatisticsClick(Sender: TObject);
 Type
   DataSource=record
@@ -181,7 +190,7 @@ Type
   DB_DataSource = array of DataSource;
 
 var
-DS :DB_DataSource;
+DS :DB_DataSource;    //datasets id limits
 
 i,ktbl,kfl,kds :integer;
 st_count,samples_count,ds_id,ds_id_min,ds_id_max,units_id :integer;
@@ -362,6 +371,7 @@ end;
 
 
 
+{duplicates number by source}
 procedure Tfrmosstatistics_AK.btnGetDuplicatesClick(Sender: TObject);
 Type
   source = record
@@ -492,6 +502,372 @@ begin
     memo1.Lines.Add('...stop: '+datetimetostr(DT2));
     memo1.Lines.Add('...time spent: '+timetostr(DT2-DT1));
 end;
+
+
+procedure Tfrmosstatistics_AK.btnGetTblStatisticsConvertedClick(Sender: TObject
+  );
+var
+i,kt,ks,mik :integer;
+units_count,st,sel_size,step,row1,row2,sc :integer;
+units_def,station_id :integer;
+lat,lon :real;
+units_name :string;
+tbl,str :string;
+var_selected,convert,isconverted :boolean;
+DT1,DT2:TDateTime;
+
+{P_tables}
+val,cv1,cv2,lev_m :real;
+PQF2,units_id,instr_id,prf_num :integer;
+//best :boolean;
+//lev_dbar,lev_m,val,cv1,cv2 :real;
+//PQF1,PQF2,SQF,WQF :integer;
+//btl_num,units_id,instr_id,prf_num,prf_best :integer;
+
+{staistics for converted values}
+cv1_count,cv2_count,ncv1_count,jv_count :integer;
+ncv1_min,ncv1_max,cv1_min,cv2_min,cv1_max,cv2_max,jv_min,jv_max :real;
+ncv1_md,cv1_md,cv2_md,jv_md :double;
+
+{sincle unit in table}
+st_count,samples_count :integer;
+lm_min,lm_max,val_min,val_max,val_avg :real;
+
+begin
+   var_selected:=false;
+   for i:=0 to CheckGroup1.Items.Count-1 do
+   if CheckGroup1.Checked[i] then var_selected:=true;
+
+   if var_selected=false then begin
+     showmessage('Variable not selected');
+     Exit;
+   end;
+
+   DT1:=NOW;
+   memo1.Lines.Add('...start: '+datetimetostr(DT1));
+   memo1.Lines.Add('');
+   memo1.Lines.Add('PDF2>='+Edit1.Text);
+   memo1.lines.Add('statistics by tables with units conversion if formula exists ');
+   str:='tbl'+#9+'stations#'+#9+'samples#'+#9+'lev_m_min'+#9+'lev_m_max'
+   +#9+'val_min'+#9+'val_max'+#9+'val_avg';
+
+{T}for kt:=0 to CheckGroup1.Items.Count-1 do begin
+{C}if CheckGroup1.Checked[kt] then begin
+
+   tbl:=CheckGroup1.Items.Strings[kt];
+   GroupBox1.Caption:=tbl;
+   Edit2.Text:='';
+   Edit3.Text:='';
+
+   memo1.Lines.Add('');
+   memo1.Lines.Add(tbl);
+
+   {...default unit values to be converted}
+   with frmdm.q2 do begin
+     Close;
+     SQL.Clear;
+     SQL.Add(' select * from DATABASE_TABLES ');
+     SQL.Add(' where name_table=:nt ');
+     ParamByName('nt').AsString:=tbl;
+     Open;
+     units_def:=FieldByName('units_id_default').AsInteger;
+     Close;
+   end;
+
+   with frmdm.q3 do begin
+     Close;
+     SQL.Clear;
+     SQL.Add(' select name_short as ns from UNITS ');
+     SQL.Add(' where id=:units_id ');
+     ParamByName('units_id').AsInteger:=units_def;
+     Open;
+     units_name:=frmdm.q3.FieldByName('ns').AsString;
+     Close;
+   end;
+
+   memo1.Lines.Add('default unit: '+inttostr(units_def)+' ('+units_name+')');
+
+   {...units statistics in the table}
+   memo1.Lines.Add('{...number of samples by unit}');
+
+   with frmdm.q2 do begin
+     Close;
+     SQL.Clear;
+     SQL.Add(' select units_id, count(units_id) from '+tbl);
+     SQL.Add(' group by units_id ');
+     Open;
+   end;
+
+   mik:=0;
+{U}while not frmdm.q2.EOF do begin
+   mik:=mik+1;
+   units_id:=frmdm.q2.FieldByName('units_id').AsInteger;
+   units_count:=frmdm.q2.FieldByName('count').AsInteger;
+
+   with frmdm.q3 do begin
+     Close;
+     SQL.Clear;
+     SQL.Add(' select name_short as ns from UNITS ');
+     SQL.Add(' where id=:units_id ');
+     ParamByName('units_id').AsInteger:=units_id;
+     Open;
+     units_name:=frmdm.q3.FieldByName('ns').AsString;
+     Close;
+   end;
+
+   memo1.Lines.Add(inttostr(units_id)+' ('+units_name+'): '+#9+inttostr(units_count));
+
+   frmdm.q2.Next;
+{U}end;
+   frmdm.q2.Close;
+
+   if mik=1 then convert:=false else convert:=true;
+
+
+      {.....units convertion - need to read all records}
+{C=T}if convert=true then begin
+   {.....samples number in table}
+  with frmdm.q2 do begin
+    Close;
+    SQL.Clear;
+    SQL.Add(' select count(id) as samples_count from '+tbl);
+    Open;
+    st:=FieldByName('samples_count').AsInteger;
+    Edit2.Text:=inttostr(st);
+    memo1.Lines.Add('Total samples in table '+inttostr(st));
+    Close;
+  end;
+    Application.ProcessMessages;
+
+    sel_size:=5000000;
+    if st>sel_size then step:=trunc(st/sel_size) else step:=1;
+    memo1.Lines.Add('Query divided on '+inttostr(step)+' steps');
+
+    sc:=0;
+    {converted statistics ICES}
+    cv1_count:=0;
+    cv1_min:=9999;
+    cv1_max:=-9999;
+    cv1_md:=0;
+    {converted statistics ADVANCED}
+    cv2_count:=0;
+    cv2_min:=9999;
+    cv2_max:=-9999;
+    cv2_md:=0;
+    {not converted}
+    ncv1_count:=0;
+    ncv1_min:=9999;
+    ncv1_max:=-9999;
+    ncv1_md:=0;
+    {joint}
+    jv_count:=0;
+    jv_min:=9999;
+    jv_max:=-9999;
+    jv_md:=0;
+
+{STEP}for ks:=1 to step do begin
+      row1:=1+sel_size*(ks-1);
+      row2:=sel_size*ks;
+      if ks=step then row2:=st;
+      memo1.Lines.Add('step='+inttostr(ks)+'  '+inttostr(row1)+'->'+inttostr(row2));
+
+      with frmdm.q1 do begin
+        Close;
+        SQL.Clear;
+        SQL.Add(' select id,lev_m,val,PQF2,units_id,instrument_id,profile_number from '+tbl);
+        SQL.Add(' rows :row1 to :row2 ');
+        ParamByName('row1').AsInteger:=row1;
+        ParamByName('row2').AsInteger:=row2;
+        Open;
+      end;
+
+    frmdm.q1.First;
+{S}while not frmdm.q1.EOF do begin
+
+   sc:=sc+1;  //samples count
+
+   cv1:=-9999;
+   cv2:=-9999;
+
+   if sc mod 1000=0 then begin
+     Edit3.Text:=inttostr(sc);
+     Application.ProcessMessages;
+   end;
+
+   if (st<1000000) and (sc mod 10=0) then begin
+     Edit3.Text:=inttostr(sc);
+     Application.ProcessMessages;
+   end;
+
+   //Edit3.Text:=inttostr(sc);
+   //Application.ProcessMessages;
+
+   station_id:=frmdm.q1.FieldByName('id').AsInteger;
+   //lev_dbar:=frmdm.q1.FieldByName('lev_dbar').AsFloat;
+   lev_m:=frmdm.q1.FieldByName('lev_m').AsFloat;
+   val:=frmdm.q1.FieldByName('val').AsFloat;
+   //PQF1:=frmdm.q1.FieldByName('PQF1').AsInteger;
+   PQF2:=frmdm.q1.FieldByName('PQF2').AsInteger;
+   //SQF:=frmdm.q1.FieldByName('SQF').AsInteger;
+   //btl_num:=frmdm.q1.FieldByName('bottle_number').AsInteger;
+   units_id:=frmdm.q1.FieldByName('units_id').AsInteger;
+   instr_id:=frmdm.q1.FieldByName('instrument_id').AsInteger;
+   prf_num:=frmdm.q1.FieldByName('profile_number').AsInteger;
+   //best:=frmdm.q1.FieldByName('profile_best').AsBoolean;
+   //if best=true then prf_best:=1 else prf_best:=0;
+
+{PQF2}if PQF2>=strtoint(Edit1.Text) then begin
+
+   if units_id=units_def then begin
+     {statistics for not converted values}
+       ncv1_count:=ncv1_count+1; //convereted value 1 count
+       ncv1_md:=ncv1_md+val;
+       if ncv1_min>val then ncv1_min:=val;
+       if ncv1_max<val then ncv1_max:=val;
+
+     {joint statistics for converted and not converted values}
+       jv_count:=jv_count+1; //convereted value 1 count
+       jv_md:=jv_md+val;
+       if jv_min>val then jv_min:=val;
+       if jv_max<val then jv_max:=val;
+   end
+{CONVERSION}else begin
+
+{ICES}if CheckBox1.Checked then begin
+     isconverted:=false;
+     getdefaultunits(tbl,units_id,units_def,val,cv1,isconverted);
+     {statistics for converted values}
+{isconv}if isconverted=true then begin
+       cv1_count:=cv1_count+1;
+       cv1_md:=cv1_md+cv1;
+       if cv1_min>cv1 then cv1_min:=cv1;
+       if cv1_max<cv1 then cv1_max:=cv1;
+
+       {joint statistics for converted and not converted values}
+       jv_count:=jv_count+1;
+       jv_md:=jv_md+cv1;
+       if jv_min>cv1 then jv_min:=cv1;
+       if jv_max<cv1 then jv_max:=cv1;
+{isconv}end;
+{ICES}end;
+
+{advanced}if CheckBox2.Checked then begin
+   with frmdm.q2 do begin
+     Close;
+     SQL.Clear;
+     SQL.Add(' select latitude, longitude from STATION ');
+     SQL.Add(' where id=:station_id ');
+     Open;
+     lat:=frmdm.q2.FieldByName('latitude').AsFloat;
+     lon:=frmdm.q2.FieldByName('longitude').AsFloat;
+     Close;
+   end;
+
+     isconverted:=false;
+     GetDefaultUnitsExact(tbl,units_id,units_def,station_id,instr_id,prf_num,val,lat,lon,lev_m,cv2,isconverted);
+
+{isconv}if isconverted=true then begin
+       cv2_count:=cv2_count+1;
+       cv2_md:=cv2_md+cv2;
+       if cv2_min>cv2 then cv2_min:=cv2;
+       if cv2_max<cv2 then cv2_max:=cv2;
+{isconv}end;
+
+{advanced}end;
+
+{CONVERSION}end;
+
+{PQF2}end;
+
+      frmdm.q1.Next;
+{S}end;
+   Edit3.Text:=inttostr(sc);
+{STEP}end;
+
+  if ncv1_count<>0 then ncv1_md:=ncv1_md/ncv1_count;
+  if cv1_count<>0  then cv1_md:=cv1_md/cv1_count;
+  if cv2_count<>0  then cv2_md:=cv2_md/cv2_count;
+  if jv_count<>0   then jv_md:=jv_md/jv_count;
+
+  memo1.Lines.Add('');
+  if CheckBox2.Checked then
+  memo1.Lines.Add('...ICES statistics not converted/ converted/ joint values/ advances')
+  else
+  memo1.Lines.Add('...ICES statistics not converted/ converted/ joint values');
+  memo1.Lines.Add('Joint statistics includes only values after simple ICES conversion !!!');
+  memo1.Lines.Add('count'+#9+'md'+#9+'min'+#9+'max');
+  memo1.Lines.Add(inttostr(ncv1_count)
+  +#9+floattostrF(ncv1_md,ffFixed,12,3)
+  +#9+floattostrF(ncv1_min,ffFixed,12,3)
+  +#9+floattostrF(ncv1_max,ffFixed,12,3));
+  memo1.Lines.Add(inttostr(cv1_count)
+  +#9+floattostrF(cv1_md,ffFixed,12,3)
+  +#9+floattostrF(cv1_min,ffFixed,12,3)
+  +#9+floattostrF(cv1_max,ffFixed,12,3));
+  memo1.Lines.Add(inttostr(jv_count)
+  +#9+floattostrF(jv_md,ffFixed,12,3)
+  +#9+floattostrF(jv_min,ffFixed,12,3)
+  +#9+floattostrF(jv_max,ffFixed,12,3));
+  if CheckBox2.Checked then
+   memo1.Lines.Add(inttostr(cv2_count)
+   +#9+floattostrF(cv2_md,ffFixed,12,3)
+   +#9+floattostrF(cv2_min,ffFixed,12,3)
+   +#9+floattostrF(cv2_max,ffFixed,12,3));
+{C=T}end;
+
+
+{.....without units conversion - only query }
+{C=F}if convert=false then begin
+  with frmdm.q2 do begin
+   Close;
+   SQL.Clear;
+   SQL.Add(' Select count(distinct(ID)) as st_count, count(*) as samples_count, ');
+   SQL.Add(' min(lev_m) as lm_min, max(lev_m) as lm_max,  ');
+   SQL.Add(' min(val) as val_min, max(val) as val_max, avg(val) as val_avg ');
+   SQL.Add(' from '+tbl);
+   SQL.Add(' where PQF2>=:PQF2 ');
+   ParamByName('PQF2').AsInteger:=strtoint(Edit1.Text);
+   Open;
+   st_count:=FieldByName('st_count').AsInteger;
+   samples_count:=FieldByName('samples_count').AsInteger;
+   lm_min:=FieldByName('lm_min').AsFloat;
+   lm_max:=FieldByName('lm_max').AsFloat;
+   val_min:=FieldByName('val_min').AsFloat;
+   val_max:=FieldByName('val_max').AsFloat;
+   val_avg:=FieldByName('val_avg').AsFloat;
+   Close;
+  end;
+
+  memo1.Lines.Add('Statistics for single unit in table ');
+  memo1.lines.Add(str);
+
+  if (st_count<>0) then
+   memo1.Lines.Add(tbl
+   +#9+inttostr(st_count)
+   +#9+inttostr(samples_count)
+   +#9+floattostrF(lm_min,ffFixed,9,1)
+   +#9+floattostrF(lm_max,ffFixed,9,1)
+   +#9+floattostrF(val_min,ffFixed,9,3)
+   +#9+floattostrF(val_max,ffFixed,9,3)
+   +#9+floattostrF(val_avg,ffFixed,9,3));
+
+   Application.ProcessMessages;
+
+{C=F}end;
+
+
+{C}end;
+{T}end;
+
+     GroupBox1.Caption:='';
+     DT2:=NOW;
+     memo1.Lines.Add('');
+     memo1.Lines.Add('...stop: '+datetimetostr(DT2));
+     memo1.Lines.Add('...time spent: '+timetostr(DT2-DT1));
+
+end;
+
+
 
 
 
