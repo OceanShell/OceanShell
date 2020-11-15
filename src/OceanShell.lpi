@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="52">
+    <Units Count="53">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -369,6 +369,13 @@
         <HasResources Value="True"/>
         <UnitName Value="osExport_CIA"/>
       </Unit51>
+      <Unit52>
+        <Filename Value="osviz_grapher_histogram.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmviz_grapfer_histogram"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit52>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

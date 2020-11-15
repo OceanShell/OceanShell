@@ -199,6 +199,8 @@ type
     MenuItem19: TMenuItem;
     MenuItem2: TMenuItem;
     iSelectEntry: TMenuItem;
+    MenuItem20: TMenuItem;
+    iVisualizationGrapferHistorgam: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     iSelectCruise: TMenuItem;
@@ -388,6 +390,7 @@ type
     procedure iTDdiagramsClick(Sender: TObject);
     procedure iUpdateLastLevelClick(Sender: TObject);
     procedure iUpdateUnitsClick(Sender: TObject);
+    procedure iVisualizationGrapferHistorgamClick(Sender: TObject);
     procedure iVisualizationSurferSquaresClick(Sender: TObject);
     procedure lbResetSearchCruisesClick(Sender: TObject);
     procedure lbResetSearchStationsClick(Sender: TObject);
@@ -583,8 +586,8 @@ uses
   osstatistics_AK,
 
 (* visualization *)
-  osviz_surfer_squares
-
+  osviz_surfer_squares,
+  osviz_grapher_histogram
 ;
 
 {$R *.lfm}
@@ -3416,6 +3419,17 @@ begin
      frmuntsupdate.Free;
      frmuntsupdate := nil;
    end;
+end;
+
+procedure Tfrmosmain.iVisualizationGrapferHistorgamClick(Sender: TObject);
+begin
+  frmviz_grapfer_histogram := Tfrmviz_grapfer_histogram.Create(Self);
+ try
+  if not frmviz_grapfer_histogram.ShowModal = mrOk then exit;
+ finally
+   frmviz_grapfer_histogram.Free;
+   frmviz_grapfer_histogram := nil;
+end;
 end;
 
 procedure Tfrmosmain.iVisualizationSurferSquaresClick(Sender: TObject);
