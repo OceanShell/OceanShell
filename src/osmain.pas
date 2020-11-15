@@ -7,8 +7,8 @@ interface
 uses
   SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, LCLType,
   Menus, Dialogs, ActnList, StdCtrls, IniFiles, ExtCtrls, DateUtils, sqldb, DB,
-  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, DBDateTimePicker, Process,
-  Math, Grids, LCLIntf, ComboEx, DBExtCtrls;
+  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math, Grids,
+  LCLIntf, ComboEx, DBExtCtrls;
 
 type
    MapDS=record
@@ -96,9 +96,9 @@ type
     DBCruiseLatMax: TDBEdit;
     DBCruiseLatMin: TDBEdit;
     DBCruiseLonMax: TDBEdit;
-    DBCruiseLonMin1: TDBEdit;
-    DBCrusieAdded1: TDBDateEdit;
-    DBCrusieAdded2: TDBDateEdit;
+    DBCrusieStationsTotal: TDBEdit;
+    DBCrusieDateStartTotal: TDBDateEdit;
+    DBCrusieDateEndTotal: TDBDateEdit;
     DBStationAccessionNum: TDBEdit;
     DBStationSourceID: TDBEdit;
     DBCruiseLonMin: TDBEdit;
@@ -195,6 +195,8 @@ type
     iVisualizationSurferSquares: TMenuItem;
     MenuItem16: TMenuItem;
     MenuItem17: TMenuItem;
+    MenuItem18: TMenuItem;
+    MenuItem19: TMenuItem;
     MenuItem2: TMenuItem;
     iSelectEntry: TMenuItem;
     MenuItem4: TMenuItem;
@@ -336,9 +338,10 @@ type
     procedure chkParameterChange(Sender: TObject);
     procedure chkQCFlagChange(Sender: TObject);
     procedure chkRegionChange(Sender: TObject);
+    procedure DBCruiseCountryDropDown(Sender: TObject);
+    procedure DBCruiseInstituteDropDown(Sender: TObject);
+    procedure DBCruiseProjectDropDown(Sender: TObject);
     procedure DBGridCruiseCellClick(Column: TColumn);
-  //  procedure DBGridCruise1CellClick(Column: TColumn);
-    procedure DBGridCruiseColumnSized(Sender: TObject);
     procedure DBGridCruiseEditingDone(Sender: TObject);
     procedure DBGridCruiseKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -347,22 +350,11 @@ type
     procedure DBGridCruiseSelectEditor(Sender: TObject; Column: TColumn;
       var Editor: TWinControl);
     procedure DBGridCruiseTitleClick(Column: TColumn);
-  //  procedure DBGridCruise1UserCheckboxState(Sender: TObject; Column: TColumn;
- //     var AState: TCheckboxState);
-    procedure DBGridCruise2EditingDone(Sender: TObject);
-    procedure DBGridCruise2SelectEditor(Sender: TObject; Column: TColumn;
-      var Editor: TWinControl);
-    procedure DBGridCruise2TitleClick(Column: TColumn);
-  //  procedure DBGridEntryCellClick(Column: TColumn);
     procedure DBGridEntryTitleClick(Column: TColumn);
-    procedure DBGridEntryUserCheckboxState(Sender: TObject; Column: TColumn;
-      var AState: TCheckboxState);
     procedure DBGridStation2CellClick(Column: TColumn);
     procedure DBGridStation2KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure DBGridStation2TitleClick(Column: TColumn);
-    procedure eCruise_IDClick(Sender: TObject);
-    procedure eCruise_NUMBERChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -401,18 +393,10 @@ type
     procedure lbResetSearchStationsClick(Sender: TObject);
     procedure iUpdateCruiseClick(Sender: TObject);
     procedure iExportASCIIClick(Sender: TObject);
+    procedure MenuItem19Click(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
 
   private
-    procedure SearchID(Sender:TObject);
-    procedure SearchPLATFORM(Sender:TObject);
-    procedure SearchCOUNTRY(Sender:TObject);
-    procedure SearchSOURCE(Sender:TObject);
-    procedure SearchPI(Sender:TObject);
-    procedure SearchINSTITUTE(Sender:TObject);
-    procedure SearchPROJECT(Sender:TObject);
-
-   // procedure SelectStationsFromTEMPORARY_ID_LIST;
     procedure SelectGetCruisesFromStation(SQL_str:string);
 
     procedure PopulatePLATFORMList;
@@ -422,7 +406,6 @@ type
     procedure PopulatePROJECTList;
 
     procedure SaveSettingsStationSearch;
-
     procedure LoadSettingsCruiseSearch;
     procedure SaveSettingsCruiseSearch;
 
@@ -453,13 +436,10 @@ type
 const
   StationSQL =
     ' SELECT '+
-    ' STATION.ID, STATION.LATITUDE, STATION.LONGITUDE, '+
-    ' STATION.DATEANDTIME, STATION.BOTTOMDEPTH, STATION.LASTLEVEL_M, '+
-    ' STATION.LASTLEVEL_DBAR, STATION.CRUISE_ID, STATION.CAST_NUMBER,  '+
-    ' STATION.ST_NUMBER_ORIGIN, STATION.ST_ID_ORIGIN, '+
-    ' STATION.QCFLAG, STATION.STVERSION, STATION.DUPLICATE, '+
-    ' STATION.BOTTOMDEPTH_GEBCO,  STATION.ACCESSION_NUMBER, '+
-    ' STATION.DATE_ADDED, STATION.DATE_UPDATED '+
+    ' ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, LASTLEVEL_M, '+
+    ' LASTLEVEL_DBAR, CRUISE_ID, CAST_NUMBER, ST_NUMBER_ORIGIN, '+
+    ' ST_ID_ORIGIN, QCFLAG, STVERSION, DUPLICATE, BOTTOMDEPTH_GEBCO,  '+
+    ' ACCESSION_NUMBER, DATE_ADDED, DATE_UPDATED, SELECTED '+
     ' FROM STATION WHERE ';
 
   CruiseSQL =
@@ -648,7 +628,6 @@ begin
     depth_units:=Ini.ReadInteger('main', 'depth_units', 0);
 
     (* STATION search settings *)
-
     pcRegion.ActivePageIndex:=Ini.ReadInteger( 'osmain', 'station_region_pcRegion', 0);
     seLatMin.Value   :=Ini.ReadFloat  ( 'osmain', 'station_latmin',     0);
     seLatMax.Value   :=Ini.ReadFloat  ( 'osmain', 'station_latmax',     0);
@@ -688,7 +667,7 @@ begin
     DBGridCruise.Height    := Ini.ReadInteger( 'osmain', 'dbGridCruise_Height',   200);
 
     (* CRUISE table columns *)
-     With DBGridCruise do begin
+    With DBGridCruise do begin
      Columns[0].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col00',  30);
      Columns[1].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col01',  50);
      Columns[2].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col02', 150);
@@ -699,8 +678,6 @@ begin
      Columns[7].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col07',  70);
      Columns[8].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col08',  70);
      Columns[9].Width :=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col09',  70);
-   //  Columns[10].Width:=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col10',  70);
-   //  Columns[11].Width:=Ini.ReadInteger( 'osmain', 'DBGridCruise_Col11',  70);
     End;
 
 
@@ -727,14 +704,10 @@ begin
      Columns[7].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col07',    60);  //SOURCE
      Columns[8].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col08',    60);  //PLATFORM
      Columns[9].Width  :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col09',    60);  //COUNTRY
-     Columns[10].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col10',    60);
-     Columns[11].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col11',    60);
-     Columns[12].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col12',    60);
-     Columns[13].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col13',    60);
-    // Columns[14].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col14',    60);
-   //  Columns[15].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col15',    60);
-   //  Columns[16].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col16',    60);
-   //  Columns[17].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation2_Col17',    60);
+     Columns[10].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col10',    60);
+     Columns[11].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col11',    60);
+     Columns[12].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col12',    60);
+     Columns[13].Width :=Ini.ReadInteger( 'osmain', 'DBGridStation1_Col13',    60);
     end;
 
    (* Essential program folders *)
@@ -745,6 +718,8 @@ begin
   finally
     Ini.Free;
   end;
+
+ // showmessage('2');
 
   chkRegion.OnChange(self);
   chkDateandTime.OnChange(self);
@@ -760,8 +735,6 @@ begin
    end;
   end;
 
-   DBGridCruise.OnColumnSized(Self);
-
  (* disabling menu items *)
  // for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
 
@@ -771,7 +744,6 @@ begin
  (* Disabling some menu items if there is no GEBCO *)
  iPlotBathymetry.Enabled:=GEBCOExists;
  iBottomDepthGEBCO.Enabled:=GEBCOExists;
-
 
  OnResize(Self);
  SetFocus;
@@ -812,16 +784,15 @@ i, k, fl:integer;
 SSYearMin,SSYearMax,SSMonthMin,SSMonthMax,SSDayMin,SSDayMax :Word;
 NotCondCountry, NotCondPlatform, NotCondSource:string;
 NotCondInstitute, NotCondProject, NotCondOrigin, SBordersFile:string;
-{
-MinDay, MaxDay, cnt:integer; }
+
 dlat, dlon, lat, lon, dist:real;
 time0, time1:TDateTime;
 buf_str, SQL_str, QCFlag_str: string;
 LatMin, LatMax, LonMin, LonMax:real;
 begin
 
-  (* saving current search settings *)
-  SaveSettingsStationSearch;
+(* saving current search settings *)
+SaveSettingsStationSearch;
 
 frmosmain.Enabled:=false;
 Application.ProcessMessages;
@@ -1169,7 +1140,6 @@ begin
      SQL.Add(' CRUISE.ID=STATION.CRUISE_ID AND ');
      SQL.Add(  SQL_str  );
      SQL.Add(' ORDER BY SOURCE.NAME ');
-     Params:=frmdm.Q.Params;
    Open;
   end;
 
@@ -1179,9 +1149,6 @@ begin
    frmdm.q1.Next;
   end;
 
- // showmessage(Source_unq.Strings[0]);
-//   showmessage(DateTimeToStr(now-t_begin));
-
 
   With frmdm.q1 do begin
    Close;
@@ -1190,7 +1157,6 @@ begin
      SQL.Add(' STATION ');
      SQL.Add(' WHERE ');
      SQL.Add(  SQL_str  );
-     Params:=frmdm.Q.Params;
    Open;
    Last;
    First;
@@ -1520,7 +1486,7 @@ end;
 
 procedure Tfrmosmain.iSelectCruiseClick(Sender: TObject);
 Var
- crID_OLD, cnt: integer;
+ crID_OLD, cnt: int64;
 // id_str: string;
 begin
   With frmdm.q1 do begin
@@ -1597,6 +1563,104 @@ begin
   CDSNavigation;
   Application.ProcessMessages;
 end;
+
+
+procedure Tfrmosmain.MenuItem19Click(Sender: TObject);
+Var
+ ID_OLD, cnt: integer;
+ SQL_str: string;
+begin
+  With frmdm.q1 do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' DELETE FROM TEMPORARY_ID_LIST ');
+   ExecSQL;
+  end;
+  frmdm.TR.CommitRetaining;
+
+ try
+  (* saving current ID *)
+  ID_old:=frmdm.Q.FieldByName('ID').AsInteger;
+
+  (* making sure that current cruise is selected *)
+  with frmdm.Q do begin
+   Edit;
+     FieldByName('SELECTED').AsBoolean:=true;
+   Post;
+  end;
+
+  frmdm.Q.DisableControls;
+  frmdm.Q.First;
+  cnt:=0;
+  while not frmdm.Q.EOF do begin
+   if frmdm.Q.FieldByName('SELECTED').AsBoolean=true then begin
+    inc(cnt);
+     With frmdm.q1 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' INSERT INTO TEMPORARY_ID_LIST ');
+       SQL.Add(' (ID) VALUES (:ID) ');
+       ParamByName('ID').Value:=frmdm.Q.FieldByName('ID').Value;
+      ExecSQL;
+     end;
+    // showmessage(inttostr(frmdm.Q.FieldByName('ID').Value));
+   end;
+   frmdm.Q.Next;
+  end;
+  frmdm.TR.CommitRetaining;
+ finally
+  frmdm.Q.Locate('ID', ID_old, []);
+  frmdm.Q.EnableControls;
+ end;
+
+  if frmdm.TR.Active=true then frmdm.TR.CommitRetaining;
+
+  SQL_str:=' STATION.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ';
+   with frmdm.Q do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(StationSQL);
+      SQL.Add(SQL_str); //('+id_str+') ');
+     Open;
+   end;
+
+  // showmessage('1');
+
+   With frmdm.q1 do begin
+   Close;
+     SQL.Clear;
+     SQL.Add(' SELECT DISTINCT(SOURCE.NAME) FROM ');
+     SQL.Add(' STATION, CRUISE, SOURCE ');
+     SQL.Add(' WHERE ');
+     SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
+     SQL.Add(' CRUISE.ID=STATION.CRUISE_ID AND ');
+     SQL.Add(' STATION.ID in (SELECT ID FROM TEMPORARY_ID_LIST) ');
+     SQL.Add(' ORDER BY SOURCE.NAME ');
+   Open;
+  end;
+
+    //  showmessage('2');
+
+  Source_unq.Clear;
+  while not frmdm.q1.EOF do begin
+     Source_unq.Add(frmdm.q1.Fields[0].AsString);
+   frmdm.q1.Next;
+  end;
+  frmdm.q1.Close;
+
+  //   showmessage('3');
+
+  if not frmdm.Q.IsEmpty then begin
+    SelectGetCruisesFromStation(SQL_str);
+  end;
+
+  //   showmessage('4');
+
+  SelectionInfo;
+  CDSNavigation;
+  Application.ProcessMessages;
+end;
+
 
 procedure Tfrmosmain.iSelectEntryClick(Sender: TObject);
 Var
@@ -2569,11 +2633,6 @@ begin
 end;
 
 
-procedure Tfrmosmain.cbPlatformDropDown(Sender: TObject);
-begin
-  PopulatePlatformList;
-end;
-
 procedure Tfrmosmain.cbPredefinedRegionDropDown(Sender: TObject);
 Var
   fdb:TSearchRec;
@@ -2593,6 +2652,10 @@ cbPredefinedRegion.Clear;
  FindClose(fdb);
 end;
 
+procedure Tfrmosmain.cbPlatformDropDown(Sender: TObject);
+begin
+  PopulatePlatformList;
+end;
 
 procedure Tfrmosmain.PopulatePlatformList;
 Var
@@ -2610,8 +2673,7 @@ begin
    Qt.Database:=frmdm.IBDB;
    Qt.Transaction:=TRt;
 
- //  DBGridCruise.Columns[2].PickList.Clear; //PLATFORM
-
+   DBGridCruise.Columns[2].PickList.Clear; //PLATFORM
    cbPlatform.Clear;
 
    Qt.Close;
@@ -2623,7 +2685,7 @@ begin
     Qt.Next;
    end;
 
-//   DBGridCruise.Columns[2].PickList:=cbPlatform.Items;
+    DBGridCruise.Columns[2].PickList:=cbPlatform.Items;
 
     Qt.Close;
     TRt.Commit;
@@ -2659,7 +2721,7 @@ begin
    Qt.Transaction:=TRt;
 
 
-  // DBGridCruise2.Columns[0].PickList.Clear; //COUNTRY
+   DBCruiseCountry.Items.Clear;
    cbCountry.Clear;
 
    Qt.Close;
@@ -2671,7 +2733,7 @@ begin
     Qt.Next;
    end;
 
- //  DBGridCruise2.Columns[0].PickList:=cbCountry.Items;
+   DBCruiseCountry.Items:=cbCountry.Items;
 
    Qt.Close;
    TRt.Commit;
@@ -2695,6 +2757,21 @@ end;
 procedure Tfrmosmain.chkRegionChange(Sender: TObject);
 begin
   gbRegion.Enabled:=chkRegion.Checked;
+end;
+
+procedure Tfrmosmain.DBCruiseCountryDropDown(Sender: TObject);
+begin
+
+end;
+
+procedure Tfrmosmain.DBCruiseInstituteDropDown(Sender: TObject);
+begin
+
+end;
+
+procedure Tfrmosmain.DBCruiseProjectDropDown(Sender: TObject);
+begin
+
 end;
 
 procedure Tfrmosmain.chkDateandTimeChange(Sender: TObject);
@@ -2721,23 +2798,26 @@ procedure Tfrmosmain.DBGridCruiseCellClick(Column: TColumn);
 Var
   ID, CrID:int64;
 begin
-  if not frmdm.Q.IsEmpty then begin
-   ID:=frmdm.Q.FieldByName('ID').Value;
-   CrID:=frmdm.QCruise.FieldByName('ID').Value;
+  if (not frmdm.Q.IsEmpty) and
+     (not VarisNull(frmdm.Q.FieldByName('ID').Value)) then begin
+     ID:=frmdm.Q.FieldByName('ID').Value;
+     CrID:=frmdm.QCruise.FieldByName('ID').Value;
 
-    if frmmap_open=true then frmmap.ChangeID(ID); //Map
+     if frmmap_open=true then frmmap.ChangeID(ID); //Map
+     if frmprofile_plot_all_open then frmprofile_plot_all.chkCruiseHighlight.OnChange(self);
 
-    if frmdm.Q.FieldByName('CRUISE_ID').Value<>CrID then
-       frmdm.Q.Locate('CRUISE_ID', CrID,[]);
+     if frmdm.Q.FieldByName('CRUISE_ID').Value<>CrID then frmdm.Q.Locate('CRUISE_ID', CrID,[]);
   end;
 end;
 
 procedure Tfrmosmain.DBGridCruiseKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if (key=VK_UP) or (key=VK_DOWN) then
-    if frmmap_open=true then
-       frmmap.ChangeID(frmdm.Q.FieldByName('ID').Value); //Map
+  if ((key=VK_UP) or (key=VK_DOWN)) and
+     (not VarIsNull(frmdm.Q.FieldByName('ID').Value)) then begin
+    if frmmap_open=true then frmmap.ChangeID(frmdm.Q.FieldByName('ID').Value); //Map
+    if frmprofile_plot_all_open then frmprofile_plot_all.chkCruiseHighlight.OnChange(self);
+  end;
 end;
 
 
@@ -2758,8 +2838,7 @@ begin
    Qt.Database:=frmdm.IBDB;
    Qt.Transaction:=TRt;
 
-  // DBGridCruise.Columns[4].PickList.Clear; //SOURCE
-
+   DBGridCruise.Columns[4].PickList.Clear; //SOURCE
    cbSource.Clear;
 
    Qt.Close;
@@ -2771,7 +2850,7 @@ begin
        Qt.Next;
       end;
 
-    //  DBGridCruise.Columns[4].PickList:=cbSource.Items;
+      DBGridCruise.Columns[4].PickList:=cbSource.Items;
 
     Qt.Close;
     TRt.Commit;
@@ -2807,8 +2886,7 @@ begin
    Qt.Database:=frmdm.IBDB;
    Qt.Transaction:=TRt;
 
-  // DBGridCruise2.Columns[1].PickList.Clear; //INSTITUTE
-
+   DBCruiseInstitute.Items.Clear;
    cbInstitute.Clear;
 
    Qt.Close;
@@ -2820,8 +2898,7 @@ begin
        Qt.Next;
       end;
 
-   //   DBGridCruise2.Columns[1].PickList:=cbInstitute.Items;
-   //   DBGridCruise2.Columns[2].PickList:=cbProject.Items;
+    DBCruiseInstitute.Items:=cbInstitute.Items;
 
     Qt.Close;
     TRt.Commit;
@@ -2847,8 +2924,9 @@ Var
   Qt:TSQLQuery;
 begin
 
-   if cbProject.Count>0 then exit;
-  try
+if cbProject.Count>0 then exit;
+
+ try
    TRt:=TSQLTransaction.Create(self);
    TRt.DataBase:=frmdm.IBDB;
 
@@ -2856,9 +2934,8 @@ begin
    Qt.Database:=frmdm.IBDB;
    Qt.Transaction:=TRt;
 
-  // DBGridCruise2.Columns[2].PickList.Clear; //PROJECT
+   DBCruiseProject.Items.Clear;
    cbProject.Clear;
-
 
    Qt.Close;
    Qt.SQL.Text:=' SELECT DISTINCT NAME FROM PROJECT ORDER BY NAME ';
@@ -2869,7 +2946,7 @@ begin
        Qt.Next;
       end;
 
-   //   DBGridCruise2.Columns[2].PickList:=cbProject.Items;
+   DBCruiseProject.Items:=cbProject.Items;
 
     Qt.Close;
     TRt.Commit;
@@ -3609,105 +3686,13 @@ begin
   if messagedlg(AboutProgram, mtInformation, [mbOk], 0)=mrOk then exit;
 end;
 
-procedure Tfrmosmain.eCruise_IDClick(Sender: TObject);
-begin
- {  eCruise_ID.Clear;
-   eCruise_PLATFORM.Clear;
-   eCruise_COUNTRY.Clear;
-   eCruise_SOURCE.Clear;
-   eCruise_Project.Clear;
-   eCruise_Institute.Clear;
-   eCruise_PI.Clear; }
-  frmdm.QCruise.Filtered:=false;
-end;
-
-
-(* ID *)
-procedure Tfrmosmain.SearchID(Sender: TObject);
-Begin
-  if (Sender as TEdit).Text='' then exit;
-    frmdm.QCruise.Locate('ID', StrToInt((Sender as TEdit).Text),[loCaseInsensitive, loPartialKey]);
-end;
-
-(* PLATFORM *)
-procedure Tfrmosmain.SearchPLATFORM(Sender: TObject);
-begin
-  frmdm.QCruise.Filter:='PLATFORM = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
-  frmdm.QCruise.Filtered:=true;
-end;
-
-procedure Tfrmosmain.eCruise_NUMBERChange(Sender: TObject);
-begin
-  frmdm.QCruise.Filter:='CRUISE_NUMBER = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
-  frmdm.QCruise.Filtered:=true;
-end;
-
-(* SOURCE *)
-procedure Tfrmosmain.SearchSOURCE(Sender: TObject);
-begin
-  frmdm.QCruise.Filter:='SOURCE = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
-  frmdm.QCruise.Filtered:=true;
-end;
-
-(* PI *)
-procedure Tfrmosmain.SearchPI(Sender: TObject);
-begin
-  frmdm.QCruise.Filter:='PI = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
-  frmdm.QCruise.Filtered:=true;
-end;
-
-(* COUNTRY*)
-procedure Tfrmosmain.SearchCOUNTRY(Sender: TObject);
-begin
-  frmdm.QCruise.Filter:='COUNTRY = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
-  frmdm.QCruise.Filtered:=true;
-end;
-
-(* INSTITUTE *)
-procedure Tfrmosmain.SearchINSTITUTE(Sender: TObject);
-begin
-  frmdm.QCruise.Filter:='INSTITUTE = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
-  frmdm.QCruise.Filtered:=true;
-end;
-
-(* PROJECT *)
-procedure Tfrmosmain.SearchPROJECT(Sender: TObject);
-begin
-  frmdm.QCruise.Filter:='PROJECT = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
-  frmdm.QCruise.Filtered:=true;
-end;
-
-
-procedure Tfrmosmain.DBGridCruiseColumnSized(Sender: TObject);
-begin
-    {eCruise_ID.Width:=DBGridCruise.Columns[0].Width+
-                      DBGridCruise.Columns[1].Width+1;
-    eCruise_PLATFORM.Width:=DBGridCruise.Columns[2].Width;
-    eCruise_NUMBER.Width:=DBGridCruise.Columns[3].Width;
-    eCruise_SOURCE.Width:=DBGridCruise.Columns[4].Width;
-
-    eCruise_COUNTRY.Width:=DBGridCruise2.Columns[0].Width;
-    eCruise_Institute.Width:=DBGridCruise2.Columns[1].Width;
-    eCruise_Project.Width:=DBGridCruise2.Columns[2].Width;
-    eCruise_PI.Width:=DBGridCruise2.Columns[3].Width; }
-end;
-
-
 procedure Tfrmosmain.DBGridCruisePrepareCanvas(sender: TObject;
   DataCol: Integer; Column: TColumn; AState: TGridDrawState);
 begin
  if ((column.Index=0) and (column.Title.Caption='')) or
-    (column.FieldName='ID') or
-    (column.FieldName='CRUISE_ID') then begin
+    (column.FieldName='ID') then begin
     TDBGrid(sender).Canvas.Brush.Color := clBtnFace;
  end;
-
- {if (column.FieldName='FINAL') then begin
-    if TDBGrid(Sender).DataSource.DataSet.FieldByName('FINAL').AsBoolean=true then
-     TDBGrid(Sender).Canvas.brush.Color  := $40FF00 else
-     TDBGrid(Sender).Canvas.brush.Color  := $F5A9A9;
- end;  }
-
 
  if (gdRowHighlight in AState) then begin
     TDBGrid(Sender).Canvas.Brush.Color := clNavy;
@@ -3719,37 +3704,15 @@ end;
 procedure Tfrmosmain.DBGridCruiseSelectEditor(Sender: TObject;
   Column: TColumn; var Editor: TWinControl);
 begin
+  if (Column.Index=2) and (cbPlatform.Count=0) then PopulatePlatformList;
+  if (Column.Index=4) and (cbSource.Count=0)   then PopulateSourceList;
 
-    if (Column.Index=2) and (cbPlatform.Count=0) then PopulatePlatformList;
-    if (Column.Index=4) and (cbSource.Count=0)   then PopulateSourceList;
-
-    if (Column.Index=2) or (Column.Index=4) then begin
-     if (Editor is TCustomComboBox) then
-      with Editor as TCustomComboBox do
-          Style := csDropDownList;
-    end;
-
-  {  if (Column.Index=5) or (Column.Index=6) then begin
-     if (Editor is TCustomComboBox) then
-       with Editor as TCustomComboBox do
-          Style := csDropDownList;
-    end; }
-end;
-
-procedure Tfrmosmain.DBGridCruise2SelectEditor(Sender: TObject;
-  Column: TColumn; var Editor: TWinControl);
-begin
-    if (Column.Index=0) and (cbCountry.Count=0)   then PopulateCountryList;
-    if (Column.Index=1) and (cbInstitute.Count=0) then PopulateInstituteList;
-    if (Column.Index=2) and (cbProject.Count=0)   then PopulateProjectList;
-
-    if (Column.Index<=2) then begin
-     if (Editor is TCustomComboBox) then
+  if (Column.Index=2) or (Column.Index=4) then begin
+    if (Editor is TCustomComboBox) then
       with Editor as TCustomComboBox do
           Style := csDropDownList;
     end;
 end;
-
 
 procedure Tfrmosmain.DBGridCruiseEditingDone(Sender: TObject);
 Var
@@ -3771,8 +3734,6 @@ begin
      Qt:=TSQLQuery.Create(self);
      Qt.Transaction:=TRt;
 
-
-     if Par='SOURCE' then begin
      With Qt do begin
       Close;
        SQL.Clear;
@@ -3781,65 +3742,7 @@ begin
       Open;
        frmdm.QCruise.Edit;
        frmdm.QCruise.FieldByName(Par+'_ID').AsInteger:=Qt.Fields[0].AsInteger;
-       //frmdm.QCruise.Post;
-      Close;
-     end;
-     end;
-
-     if Par='PLATFORM' then begin
-      With Qt do begin
-      Close;
-       SQL.Clear;
-       SQL.Add(' SELECT PLATFORM.ID, COUNTRY.NAME FROM ');
-       SQL.ADD(' PLATFORM, COUNTRY WHERE ');
-       SQL.Add(' PLATFORM.COUNTRY_ID=COUNTRY.ID AND ');
-       SQL.ADD(' PLATFORM.NAME=:NAME');
-       ParamByName('NAME').AsString:=frmdm.QCruise.FieldByName(Par).AsString;
-      Open;
-       frmdm.QCruise.Edit;
-       frmdm.QCruise.FieldByName(Par+'_ID').AsInteger:=Qt.Fields[0].AsInteger;
-       frmdm.QCruise.FieldByName('COUNTRY').AsString:=Qt.Fields[1].AsString;
-       //frmdm.QCruise.Post;
-      Close;
-     end;
-     end;
-    Finally
-     Qt.Close;
-     TRt.Commit;
-     Qt.Free;
-    end;
-  end;
-end;
-
-
-procedure Tfrmosmain.DBGridCruise2EditingDone(Sender: TObject);
-Var
- TRt:TSQLTransaction;
- Qt:TSQLQuery;
- par:string;
-begin
-  par:='';
-  Case TDBGrid(Sender).SelectedColumn.Index of
-    1: par:='INSTITUTE';
-    2: par:='PROJECT';
-  end;
-
-  if Par<>'' then begin
-    try
-     TRt:=TSQLTransaction.Create(self);
-     TRt.DataBase:=frmdm.IBDB;
-
-     Qt:=TSQLQuery.Create(self);
-     Qt.Transaction:=TRt;
-
-     With Qt do begin
-      Close;
-       SQL.Clear;
-       SQL.Add(' SELECT ID FROM '+Par+' WHERE NAME=:NAME ');
-       ParamByName('NAME').AsString:=frmdm.QCruise.FieldByName(Par).AsString;
-      Open;
-       frmdm.QCruise.Edit;
-       frmdm.QCruise.FieldByName(Par+'_ID').AsInteger:=Qt.Fields[0].AsInteger;
+       frmdm.QCruise.Post;
       Close;
      end;
     Finally
@@ -3877,12 +3780,6 @@ begin
   if Column.Index>0 then sortbufds.SortBufDataSet(frmdm.QCruise, Column.FieldName);
 end;
 
-
-procedure Tfrmosmain.DBGridCruise2TitleClick(Column: TColumn);
-begin
-  sortbufds.SortBufDataSet(frmdm.QCruise, Column.FieldName);
-end;
-
 procedure Tfrmosmain.DBGridEntryTitleClick(Column: TColumn);
 Var
   id_old:integer;
@@ -3909,12 +3806,6 @@ begin
   if Column.Index>0 then sortbufds.SortBufDataSet(frmdm.QEntry, Column.FieldName);
 end;
 
-procedure Tfrmosmain.DBGridEntryUserCheckboxState(Sender: TObject;
-  Column: TColumn; var AState: TCheckboxState);
-begin
- // if RecListEntry.CurrentRowSelected then AState := cbChecked else AState := cbUnchecked;
-end;
-
 procedure Tfrmosmain.DBGridStation2CellClick(Column: TColumn);
 begin
     frmosmain.CDSNavigation;
@@ -3932,13 +3823,15 @@ Var
   check_old: boolean;
 begin
   if Column.Index=0 then begin
-     id_old:=frmdm.Q.FieldByName('ID').AsInteger;
-  //   check_old:=RecListStation.CurrentRowSelected;
+     id_old   :=frmdm.Q.FieldByName('ID').AsInteger;
+     check_old:=frmdm.Q.FieldByName('SELECTED').Value;
      try
        frmdm.Q.DisableControls;
        frmdm.Q.First;
        while not frmdm.Q.EOF do begin
-     //   RecListStation.CurrentRowSelected := not check_old;
+          frmdm.Q.Edit;
+          frmdm.Q.FieldByName('SELECTED').Value:=not check_old;
+          frmdm.Q.Post;
          frmdm.Q.Next;
        end;
      finally
@@ -3948,7 +3841,6 @@ begin
   end;
 
   if Column.Index>0 then sortbufds.SortBufDataSet(frmdm.Q, Column.FieldName);
-
 end;
 
 
@@ -4107,7 +3999,7 @@ begin
     Ini.WriteInteger( 'osmain', 'dbGridCruise_Height',   DBGridCruise.Height);
 
     (* cruise table columns *)
-     With DBGridCruise do begin
+    With DBGridCruise do begin
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col00', Columns[0].Width);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col01', Columns[1].Width);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col02', Columns[2].Width);
@@ -4118,10 +4010,6 @@ begin
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col07', Columns[7].Width);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col08', Columns[8].Width);
      Ini.WriteInteger( 'osmain', 'DBGridCruise_Col09', Columns[9].Width);
-   //  Ini.WriteInteger( 'osmain', 'DBGridCruise_Col10', Columns[10].Width);
-   //  Ini.WriteInteger( 'osmain', 'DBGridCruise_Col11', Columns[11].Width);
-    /// Ini.WriteInteger( 'osmain', 'DBGridCruise_Col12', Columns[12].Width);
-    // Ini.WriteInteger( 'osmain', 'DBGridCruise_Col13', Columns[13].Width);
     end;
 
     With DBGridEntry do begin
@@ -4135,8 +4023,6 @@ begin
      Ini.WriteInteger( 'osmain', 'DBGridEntry_Col07',  Columns[7].Width);
     end;
 
-  //  Ini.writeInteger( 'osmain', 'DBGridStation1_Height', Height);
-
     with DBGridStation do begin
      Ini.writeInteger( 'osmain', 'DBGridStation1_Col00',  Columns[0].Width);
      Ini.writeInteger( 'osmain', 'DBGridStation1_Col01',  Columns[1].Width);
@@ -4148,14 +4034,9 @@ begin
      Ini.writeInteger( 'osmain', 'DBGridStation1_Col07',  Columns[7].Width);
      Ini.writeInteger( 'osmain', 'DBGridStation1_Col08',  Columns[8].Width);
      Ini.writeInteger( 'osmain', 'DBGridStation1_Col09',  Columns[9].Width);
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col10',  Columns[10].Width );
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col11',  Columns[11].Width );
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col12',  Columns[12].Width );
-     Ini.writeInteger( 'osmain', 'DBGridStation2_Col13',  Columns[13].Width );
-   //  Ini.writeInteger( 'osmain', 'DBGridStation2_Col14',  Columns[14].Width );
-   //  Ini.writeInteger( 'osmain', 'DBGridStation2_Col15',  Columns[15].Width );
-   //  Ini.writeInteger( 'osmain', 'DBGridStation2_Col16',  Columns[16].Width );
-   //  Ini.writeInteger( 'osmain', 'DBGridStation2_Col17',  Columns[17].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col10',  Columns[10].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col11',  Columns[11].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col12',  Columns[12].Width );
     end;
 
     Ini.WriteString( 'osmain', 'entry_type', cbEntryType.Text);

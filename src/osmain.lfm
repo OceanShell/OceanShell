@@ -231,7 +231,7 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet5: TTabSheet
               Caption = 'Added'
-              ClientHeight = 123
+              ClientHeight = 127
               ClientWidth = 248
               object dtpDateAddedMin: TDateTimePicker
                 Left = 24
@@ -288,7 +288,7 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet6: TTabSheet
               Caption = 'Updated'
-              ClientHeight = 123
+              ClientHeight = 127
               ClientWidth = 248
               object dtpDateUpdatedMin: TDateTimePicker
                 Left = 24
@@ -1599,7 +1599,7 @@ object frmosmain: Tfrmosmain
     end
     object tsMainEntries: TTabSheet
       Caption = 'Entry search'
-      ClientHeight = 713
+      ClientHeight = 733
       ClientWidth = 1372
       Font.Color = clWindowText
       Font.Height = -17
@@ -1607,7 +1607,7 @@ object frmosmain: Tfrmosmain
       ParentFont = False
       object DBGridEntry: TDBGrid
         Left = 0
-        Height = 681
+        Height = 701
         Top = 32
         Width = 1058
         Align = alClient
@@ -1668,11 +1668,10 @@ object frmosmain: Tfrmosmain
         TitleImageList = frmicons.IL1
         OnPrepareCanvas = DBGridCruisePrepareCanvas
         OnTitleClick = DBGridEntryTitleClick
-        OnUserCheckboxState = DBGridEntryUserCheckboxState
       end
       object DBMemoEntriy: TDBMemo
         Left = 1066
-        Height = 681
+        Height = 701
         Top = 32
         Width = 306
         Align = alRight
@@ -1687,7 +1686,7 @@ object frmosmain: Tfrmosmain
       end
       object Splitter2: TSplitter
         Left = 1058
-        Height = 681
+        Height = 701
         Top = 32
         Width = 8
         Align = alRight
@@ -1736,7 +1735,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton3: TToolButton
             Left = 101
-            Height = 5
+            Height = 34
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider
@@ -1871,7 +1870,6 @@ object frmosmain: Tfrmosmain
           TitleImageList = frmicons.IL1
           TitleStyle = tsStandard
           OnCellClick = DBGridCruiseCellClick
-          OnColumnSized = DBGridCruiseColumnSized
           OnEditingDone = DBGridCruiseEditingDone
           OnKeyUp = DBGridCruiseKeyUp
           OnPrepareCanvas = DBGridCruisePrepareCanvas
@@ -1899,6 +1897,7 @@ object frmosmain: Tfrmosmain
           Columns = <          
             item
               ButtonStyle = cbsCheckboxColumn
+              MaxSize = 10
               Title.Caption = ''
               Width = 30
               FieldName = 'SELECTED'
@@ -1966,6 +1965,7 @@ object frmosmain: Tfrmosmain
             end          
             item
               ButtonStyle = cbsCheckboxColumn
+              MaxSize = 10
               Title.Caption = 'Dup'
               FieldName = 'DUPLICATE'
             end>
@@ -1996,8 +1996,8 @@ object frmosmain: Tfrmosmain
         Width = 438
         HorzScrollBar.Page = 1
         HorzScrollBar.Visible = False
-        VertScrollBar.Increment = 64
-        VertScrollBar.Page = 641
+        VertScrollBar.Increment = 60
+        VertScrollBar.Page = 609
         VertScrollBar.Smooth = True
         Align = alRight
         ClientHeight = 729
@@ -2039,7 +2039,7 @@ object frmosmain: Tfrmosmain
         end
         object DBCruiseNotes: TDBMemo
           Left = 0
-          Height = 128
+          Height = 160
           Top = 352
           Width = 434
           Align = alClient
@@ -2056,49 +2056,49 @@ object frmosmain: Tfrmosmain
         end
         object Panel3: TPanel
           Left = 0
-          Height = 106
-          Top = 623
+          Height = 89
+          Top = 640
           Width = 434
           Align = alBottom
           BevelOuter = bvNone
-          ClientHeight = 106
+          ClientHeight = 89
           ClientWidth = 434
           TabOrder = 2
           object Label17: TLabel
             Left = 128
-            Height = 20
-            Top = 8
-            Width = 45
+            Height = 16
+            Top = 0
+            Width = 38
             Caption = 'Cruise'
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             ParentColor = False
             ParentFont = False
           end
           object Label18: TLabel
             Left = 290
-            Height = 20
-            Top = 8
-            Width = 51
+            Height = 16
+            Top = 0
+            Width = 41
             Caption = 'Station'
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             ParentColor = False
             ParentFont = False
           end
           object DBCrusieAdded: TDBDateEdit
             Left = 96
-            Height = 28
-            Top = 32
+            Height = 24
+            Top = 24
             Width = 155
             CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
             DateOrder = doNone
             ButtonWidth = 34
             NumGlyphs = 1
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             MaxLength = 0
             ParentFont = False
@@ -2109,15 +2109,15 @@ object frmosmain: Tfrmosmain
           end
           object DBStationAdded: TDBDateEdit
             Left = 264
-            Height = 28
-            Top = 32
+            Height = 24
+            Top = 24
             Width = 155
             CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
             DateOrder = doNone
             ButtonWidth = 34
             NumGlyphs = 1
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             MaxLength = 0
             ParentFont = False
@@ -2128,15 +2128,15 @@ object frmosmain: Tfrmosmain
           end
           object DBCruiseUpdated: TDBDateEdit
             Left = 96
-            Height = 28
-            Top = 64
+            Height = 24
+            Top = 56
             Width = 155
             CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
             DateOrder = doNone
             ButtonWidth = 34
             NumGlyphs = 1
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             MaxLength = 0
             ParentFont = False
@@ -2146,16 +2146,16 @@ object frmosmain: Tfrmosmain
             DataSource = frmdm.DSCruiseDetails
           end
           object DBStationUpdated: TDBDateEdit
-            Left = 264
-            Height = 28
-            Top = 64
+            Left = 265
+            Height = 24
+            Top = 56
             Width = 155
             CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
             DateOrder = doNone
             ButtonWidth = 34
             NumGlyphs = 1
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             MaxLength = 0
             ParentFont = False
@@ -2166,24 +2166,24 @@ object frmosmain: Tfrmosmain
           end
           object Label13: TLabel
             Left = 8
-            Height = 20
-            Top = 40
-            Width = 47
+            Height = 16
+            Top = 32
+            Width = 41
             Caption = 'Added'
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             ParentColor = False
             ParentFont = False
           end
           object Label14: TLabel
             Left = 8
-            Height = 20
-            Top = 72
-            Width = 62
+            Height = 16
+            Top = 64
+            Width = 53
             Caption = 'Updated'
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             ParentColor = False
             ParentFont = False
@@ -2262,6 +2262,7 @@ object frmosmain: Tfrmosmain
           Top = 34
           Width = 434
           Align = alTop
+          Caption = 'Cruise details'
           ClientHeight = 173
           ClientWidth = 430
           TabOrder = 4
@@ -2291,6 +2292,7 @@ object frmosmain: Tfrmosmain
             DataSource = frmdm.DSCruiseDetails
             ItemHeight = 20
             MaxLength = 0
+            OnDropDown = cbCountryDropDown
             TabOrder = 0
           end
           object DBCruiseInstitute: TDBComboBox
@@ -2303,6 +2305,7 @@ object frmosmain: Tfrmosmain
             DataSource = frmdm.DSCruiseDetails
             ItemHeight = 20
             MaxLength = 0
+            OnDropDown = cbInstituteDropDown
             TabOrder = 1
           end
           object DBCruiseProject: TDBComboBox
@@ -2315,6 +2318,7 @@ object frmosmain: Tfrmosmain
             DataSource = frmdm.DSCruiseDetails
             ItemHeight = 20
             MaxLength = 0
+            OnDropDown = cbProjectDropDown
             TabOrder = 2
           end
           object Label3: TLabel
@@ -2348,129 +2352,141 @@ object frmosmain: Tfrmosmain
         end
         object GroupBox4: TGroupBox
           Left = 0
-          Height = 143
-          Top = 480
+          Height = 128
+          Top = 512
           Width = 434
           Align = alBottom
           Caption = 'Service info'
-          ClientHeight = 118
+          ClientHeight = 107
           ClientWidth = 430
           Font.Color = clWindowText
-          Font.Height = -17
+          Font.Height = -14
           Font.Name = 'MS Sans Serif'
           ParentFont = False
           TabOrder = 5
           object Label10: TLabel
             Left = 11
-            Height = 20
+            Height = 16
             Top = 48
-            Width = 71
+            Width = 62
             Caption = 'Expocode'
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             ParentColor = False
             ParentFont = False
           end
           object DBCrusieExpocode: TDBEdit
             Left = 94
-            Height = 28
+            Height = 24
             Top = 40
             Width = 125
             DataField = 'EXPOCODE'
             DataSource = frmdm.DSCruiseDetails
             CharCase = ecNormal
+            Font.Color = clWindowText
+            Font.Height = -14
+            Font.Name = 'MS Sans Serif'
             MaxLength = 0
+            ParentFont = False
             TabOrder = 0
           end
           object Label12: TLabel
             Left = 11
-            Height = 20
+            Height = 16
             Top = 80
-            Width = 69
+            Width = 58
             Caption = 'Access. #'
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             ParentColor = False
             ParentFont = False
           end
           object DBStationAccessionNum: TDBEdit
             Left = 94
-            Height = 28
+            Height = 24
             Top = 72
             Width = 125
             DataField = 'ACCESSION_NUMBER'
             DataSource = frmdm.DS
             CharCase = ecNormal
+            Font.Color = clWindowText
+            Font.Height = -14
+            Font.Name = 'MS Sans Serif'
             MaxLength = 0
+            ParentFont = False
             TabOrder = 1
           end
           object Label15: TLabel
             Left = 232
-            Height = 20
+            Height = 16
             Top = 80
-            Width = 49
+            Width = 39
             Caption = 'Src. ID'
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             ParentColor = False
             ParentFont = False
           end
           object DBStationSourceID: TDBEdit
             Left = 292
-            Height = 28
+            Height = 24
             Top = 72
             Width = 125
             DataField = 'ST_ID_ORIGIN'
             DataSource = frmdm.DS
             CharCase = ecNormal
+            Font.Color = clWindowText
+            Font.Height = -14
+            Font.Name = 'MS Sans Serif'
             MaxLength = 0
+            ParentFont = False
             TabOrder = 2
           end
           object Label19: TLabel
             Left = 9
-            Height = 20
+            Height = 16
             Top = 16
-            Width = 62
+            Width = 49
             Caption = 'Date tot.'
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             ParentColor = False
             ParentFont = False
           end
           object Label20: TLabel
             Left = 232
-            Height = 20
+            Height = 16
             Top = 48
-            Width = 48
+            Width = 36
             Caption = 'St# tot'
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             ParentColor = False
             ParentFont = False
           end
-          object DBCruiseLonMin1: TDBEdit
+          object DBCrusieStationsTotal: TDBEdit
             Left = 292
-            Height = 28
+            Height = 24
             Top = 40
             Width = 125
             DataField = 'STATIONS_TOTAL'
             DataSource = frmdm.DSCruiseDetails
             CharCase = ecNormal
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             MaxLength = 0
             ParentFont = False
             TabOrder = 3
           end
-          object DBCrusieAdded1: TDBDateEdit
+          object DBCrusieDateStartTotal: TDBDateEdit
             Left = 94
-            Height = 28
+            Height = 24
             Top = 8
             Width = 155
             CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
@@ -2478,7 +2494,7 @@ object frmosmain: Tfrmosmain
             ButtonWidth = 34
             NumGlyphs = 1
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             MaxLength = 0
             ParentFont = False
@@ -2487,9 +2503,9 @@ object frmosmain: Tfrmosmain
             DataField = 'DATE_START_TOTAL'
             DataSource = frmdm.DSCruiseDetails
           end
-          object DBCrusieAdded2: TDBDateEdit
+          object DBCrusieDateEndTotal: TDBDateEdit
             Left = 262
-            Height = 28
+            Height = 24
             Top = 8
             Width = 155
             CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
@@ -2497,7 +2513,7 @@ object frmosmain: Tfrmosmain
             ButtonWidth = 34
             NumGlyphs = 1
             Font.Color = clWindowText
-            Font.Height = -17
+            Font.Height = -14
             Font.Name = 'MS Sans Serif'
             MaxLength = 0
             ParentFont = False
@@ -3018,6 +3034,14 @@ object frmosmain: Tfrmosmain
     object iUpdateUnits: TMenuItem
       Caption = 'Update Units'
       OnClick = iUpdateUnitsClick
+    end
+    object MenuItem18: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem19: TMenuItem
+      Caption = 'Filter selected stations'
+      ImageIndex = 1009
+      OnClick = MenuItem19Click
     end
   end
   object ODir: TSelectDirectoryDialog

@@ -159,22 +159,48 @@ end;
 
 procedure Tfrmprofile_plot_all.chkCruiseHighlightChange(Sender: TObject);
 Var
-  crID:integer;
+  ID, crID, crID_stat, ss:integer;
+  sName: string;
 begin
-{  crID:=frmdm.QCruise.FieldByName('ID').AsInteger;
+    crID:=frmdm.QCruise.FieldByName('ID').AsInteger;
 
-  if chkCruiseHighlight.Checked=true then begin
+    if chkCruiseHighlight.Checked=true then begin
+      for ss:=0 to Chart1.Series.Count-1 do begin
+       sName:=Chart1.Series[ss].Name;
+       if (Chart1.Series[ss].Active=true) then begin
+         ID:=StrToInt(copy(sname, 2, Pos('_', sname)-2));
+         crID_stat:=frmdm.Q.Lookup('ID', ID, 'CRUISE_ID');
+         if CrID_stat=CrID then begin
+           with TLineSeries(Chart1.Series[ss]) do begin
+            LinePen.Width:=3;
+            Pointer.HorizSize:=4;
+            Pointer.VertSize:=4;
+           // LinePen.Pattern:=Dottedln;
+            ZPosition:=mik;
+          end;
+         end else
+          with TLineSeries(Chart1.Series[ss]) do begin
+            LinePen.Width:=1;
+            Pointer.HorizSize:=2;
+            Pointer.VertSize:=2;
+            ZPosition:=0;
+          end;
+       end;
+      end;
+    end;
+
+   if chkCruiseHighlight.Checked=false then begin
     for ss:=0 to Chart1.Series.Count-1 do begin
-     sName:=Chart1.Series[ss].Name;
      if (Chart1.Series[ss].Active=true) then begin
-       ID:=StrToInt(copy(sname, 2, Pos('_', sname)-2));
-       crID_stat:=frmdm.Q.Lookup('ID', 'ID', 'CRUISE_ID');
-
+      with TLineSeries(Chart1.Series[ss]) do begin
+       LinePen.Width:=1;
+       Pointer.HorizSize:=2;
+       Pointer.VertSize:=2;
+       ZPosition:=0;
+      end;
      end;
     end;
-  end;
-
-  if chkCruiseHighlight.Checked=true then InitialPlot; }
+   end;
 end;
 
 
@@ -368,7 +394,7 @@ if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then 
  Chart1.AxisList.LeftAxis.Title.Caption:=LeftAxisTitle;
  ChangeID(CurrentID);
 
-Caption:=CurrentParTable+', '+inttostr(Chart1.SeriesCount-1)+' profiles';
+Caption:=CurrentParTable+', '+inttostr(Chart1.SeriesCount)+' profiles';
 rbUnitsDefault.Caption:=units_default_name; //'Default units ['+units_default_name+']';
 Application.ProcessMessages;
 end;
@@ -430,7 +456,7 @@ try
     Lat:=frmdm.Q.FieldByName('LATITUDE').Value;
     Lon:=frmdm.Q.FieldByName('LONGITUDE').Value;
 
-    Src:=frmdm.QCruise.FieldByName('SOURCE').AsString;
+    Src:=frmdm.QCruise.Lookup('ID', frmdm.Q.FieldByName('CRUISE_ID').Value, 'SOURCE');
     for k:=0 to high(chkSourceList) do begin
      if Pos('(', chkSourceList[k].Caption)>0 then
        src_name:=copy(chkSourceList[k].Caption, 1, Pos('(', chkSourceList[k].Caption)-2) else
@@ -471,7 +497,6 @@ try
      lev_m := Qt.FieldByName('LEV_M').AsVariant;
      lev_d := Qt.FieldByName('LEV_DBAR').AsVariant;
      val1  := Qt.FieldByName('VAL').AsFloat;
-    // flag  := Qt.FieldByName(flag_type).AsInteger;
      units := Qt.FieldByName('UNITS_ID').AsInteger;
 
      (* units for the vertical axis *)
@@ -514,23 +539,7 @@ begin
    ChartName:=TLineSeries(Chart1.Series[k]).Name;
    ChartName:=Copy(ChartName, 1, Pos('_', ChartName)-1);
 
- {  sName:=Chart1.Series[ss].Name;
-       ss_name:=copy(sName, Pos('_', sName)+1, (Pos('__', sName)-Pos('_', sName))-1);
-
-       for k:=0 to high(chkSourceList) do begin
-        if Pos('(', chkSourceList[k].Caption)>0 then
-        src_name:=copy(chkSourceList[k].Caption, 1, Pos('(', chkSourceList[k].Caption)-2) else
-        src_name:=chkSourceList[k].Caption;
-
-        if src_name=ss_name then clr:=s_clr[k+1];
-        end;
-                 }
-
- //  showmessage(chartname+'   '+sname);
-
    with TLineSeries(Chart1.Series[k]) do begin
-   // SeriesColor:=clRed;
-   // Pointer.Brush.Color:=clRed;
     LinePen.Width:=1;
     Pointer.HorizSize:=2;
     Pointer.VertSize:=2;
@@ -556,7 +565,7 @@ end;
 procedure Tfrmprofile_plot_all.DPCPointClick(
   ATool: TChartTool; APoint: TPoint);
 Var
- ID:integer;
+ ID, CrID:integer;
  tool: TDataPointClicktool;
  series: TLineSeries;
  k, ss:integer;
@@ -598,8 +607,8 @@ begin
 
       ID:=strtoint(copy(series.Name,2,Pos('_', series.Name)-2));
       frmdm.Q.Locate('ID', ID, []);
+      frmdm.QCruise.Locate('ID', frmdm.Q.FieldByName('CRUISE_ID').Value, []);
     end;
-     // frmosmain.CDSNavigation;
   end;
 end;
 
