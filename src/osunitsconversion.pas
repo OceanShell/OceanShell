@@ -73,7 +73,7 @@ begin
    MW N = 14.006720}
 
    (* Micro-gram per liter to Micro-mole per kilogram *)
-   if (units=4)  and (units_default=3) then val_out:=0.016128*val_in/1.025; //g/l ≈ g/kg × 1.025
+   if (units=4)  and (units_default=3) then val_out:=0.071394*val_in/1.025; //g/l ≈ g/kg × 1.025
    (* Micro-gram per kilogram to Micro-mole per kilogram *)
    if (units=14) and (units_default=3) then val_out:=0.016128*val_in;
    (* Micro-gram-atom per kilogram to Micro-mole per kilogram *)
@@ -104,7 +104,7 @@ begin
      MW P = 30.973762}
 
      (* Micro-gram per liter to Micro-mole per kilogram *)
-     if (units=4)  and (units_default=3) then val_out:=0.010529*val_in/1.025;
+     if (units=4)  and (units_default=3) then val_out:=0.032285*val_in/1.025;
      (* Micro-gram per kilogram to Micro-mole per kilogram *)
      if (units=14) and (units_default=3) then val_out:=0.010529*val_in; //g/l ≈ g/kg × 1.025
      (* Micro-gram-atom per kilogram to Micro-mole per kilogram *)
@@ -245,7 +245,7 @@ begin
 
  if (par='P_NITRATE') or (par='P_NITRATENITRITE') then begin
    (* Micro-gram per liter to Micro-mole per kilogram *)
-   if (units=4)  and (units_default=3) then val_out:=0.016128*val_in/lab_dens; //g/l ≈ g/kg × 1.025
+   if (units=4)  and (units_default=3) then val_out:=0.071394*val_in/lab_dens; //g/l ≈ g/kg × 1.025
    (* Micro-gram per kilogram to Micro-mole per kilogram *)
    if (units=14) and (units_default=3) then val_out:=0.016128*val_in;
    (* Micro-gram-atom per kilogram to Micro-mole per kilogram *)
@@ -264,7 +264,7 @@ begin
 
  if (par='P_PHOSPHATE') then begin
      (* Micro-gram per liter to Micro-mole per kilogram *)
-     if (units=4)  and (units_default=3) then val_out:=0.010529*val_in/lab_dens;
+     if (units=4)  and (units_default=3) then val_out:=0.032285*val_in/lab_dens;
      (* Micro-gram per kilogram to Micro-mole per kilogram *)
      if (units=14) and (units_default=3) then val_out:=0.010529*val_in; //g/l ≈ g/kg × 1.025
      (* Micro-gram-atom per kilogram to Micro-mole per kilogram *)
