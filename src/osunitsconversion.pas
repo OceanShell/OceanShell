@@ -75,7 +75,7 @@ begin
    (* Micro-gram per liter to Micro-mole per kilogram *)
    if (units=4)  and (units_default=3) then val_out:=0.071394*val_in/1.025; //g/l ≈ g/kg × 1.025
    (* Micro-gram per kilogram to Micro-mole per kilogram *)
-   if (units=14) and (units_default=3) then val_out:=0.016128*val_in;
+   if (units=14) and (units_default=3) then val_out:=0.071394*val_in;
    (* Micro-gram-atom per kilogram to Micro-mole per kilogram *)
    if (units=26) and (units_default=3) then val_out:=val_in; //μmol/l = μg-at/l = mmol/m3 = μM
  end;
@@ -88,9 +88,9 @@ begin
     MW N = 14.006720}
 
    (* Micro-gram per liter to Micro-mole per kilogram *)
-   if (units=4)  and (units_default=3) then val_out:=0.02174*val_in/1.025; //g/l ≈ g/kg × 1.025
+   if (units=4)  and (units_default=3) then val_out:=0.071394*val_in/1.025; //g/l ≈ g/kg × 1.025
    (* Micro-gram per kilogram to Micro-mole per kilogram *)
-   if (units=14) and (units_default=3) then val_out:=0.02174*val_in;
+   if (units=14) and (units_default=3) then val_out:=0.071394*val_in;
    (* Micro-gram-atom per kilogram to Micro-mole per kilogram *)
    if (units=26) and (units_default=3) then val_out:=val_in; //μmol/l = μg-at/l = mmol/m3 = μM
  end;
@@ -106,7 +106,7 @@ begin
      (* Micro-gram per liter to Micro-mole per kilogram *)
      if (units=4)  and (units_default=3) then val_out:=0.032285*val_in/1.025;
      (* Micro-gram per kilogram to Micro-mole per kilogram *)
-     if (units=14) and (units_default=3) then val_out:=0.010529*val_in; //g/l ≈ g/kg × 1.025
+     if (units=14) and (units_default=3) then val_out:=0.032285*val_in; //g/l ≈ g/kg × 1.025
      (* Micro-gram-atom per kilogram to Micro-mole per kilogram *)
      if (units=26) and (units_default=3) then val_out:=val_in; //μmol/l = μg-at/l = mmol/m3 = μM
  end;
@@ -247,16 +247,16 @@ begin
    (* Micro-gram per liter to Micro-mole per kilogram *)
    if (units=4)  and (units_default=3) then val_out:=0.071394*val_in/lab_dens; //g/l ≈ g/kg × 1.025
    (* Micro-gram per kilogram to Micro-mole per kilogram *)
-   if (units=14) and (units_default=3) then val_out:=0.016128*val_in;
+   if (units=14) and (units_default=3) then val_out:=0.071394*val_in;
    (* Micro-gram-atom per kilogram to Micro-mole per kilogram *)
    if (units=26) and (units_default=3) then val_out:=val_in; //μmol/l = μg-at/l = mmol/m3 = μM
  end;
 
  if (par='P_NITRITE') then begin
    (* Micro-gram per liter to Micro-mole per kilogram *)
-   if (units=4)  and (units_default=3) then val_out:=0.02174*val_in/lab_dens; //g/l ≈ g/kg × 1.025
+   if (units=4)  and (units_default=3) then val_out:=0.071394*val_in/lab_dens; //g/l ≈ g/kg × 1.025
    (* Micro-gram per kilogram to Micro-mole per kilogram *)
-   if (units=14) and (units_default=3) then val_out:=0.02174*val_in;
+   if (units=14) and (units_default=3) then val_out:=0.071394*val_in;
    (* Micro-gram-atom per kilogram to Micro-mole per kilogram *)
    if (units=26) and (units_default=3) then val_out:=val_in; //μmol/l = μg-at/l = mmol/m3 = μM
  end;
@@ -266,7 +266,7 @@ begin
      (* Micro-gram per liter to Micro-mole per kilogram *)
      if (units=4)  and (units_default=3) then val_out:=0.032285*val_in/lab_dens;
      (* Micro-gram per kilogram to Micro-mole per kilogram *)
-     if (units=14) and (units_default=3) then val_out:=0.010529*val_in; //g/l ≈ g/kg × 1.025
+     if (units=14) and (units_default=3) then val_out:=0.032285*val_in; //g/l ≈ g/kg × 1.025
      (* Micro-gram-atom per kilogram to Micro-mole per kilogram *)
      if (units=26) and (units_default=3) then val_out:=val_in; //μmol/l = μg-at/l = mmol/m3 = μM
  end;

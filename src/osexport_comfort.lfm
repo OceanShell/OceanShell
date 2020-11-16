@@ -1,0 +1,93 @@
+object frmExport_COMFORT: TfrmExport_COMFORT
+  Left = 807
+  Height = 649
+  Top = 222
+  Width = 892
+  Caption = 'frmExport_COMFORT'
+  ClientHeight = 649
+  ClientWidth = 892
+  DesignTimePPI = 120
+  OnShow = FormShow
+  LCLVersion = '2.0.6.0'
+  object CheckGroup1: TCheckGroup
+    Left = 24
+    Height = 440
+    Top = 0
+    Width = 656
+    AutoFill = True
+    Caption = 'DB tables'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.TopBottomSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 3
+    Columns = 3
+    ParentFont = False
+    TabOrder = 0
+  end
+  object btnSelectAll: TBitBtn
+    Left = 24
+    Height = 30
+    Top = 456
+    Width = 94
+    Caption = 'Select all'
+    Font.Color = clNavy
+    OnClick = btnSelectAllClick
+    ParentFont = False
+    TabOrder = 1
+  end
+  object btnExport: TBitBtn
+    Left = 710
+    Height = 30
+    Top = 408
+    Width = 166
+    Caption = 'Export'
+    Font.Color = clRed
+    Font.Style = [fsBold]
+    OnClick = btnExportClick
+    ParentFont = False
+    TabOrder = 2
+  end
+  object Memo1: TMemo
+    Left = 0
+    Height = 145
+    Top = 504
+    Width = 892
+    Align = alBottom
+    Lines.Strings = (
+      'Memo1'
+    )
+    TabOrder = 3
+  end
+  object GroupBox1: TGroupBox
+    Left = 712
+    Height = 168
+    Top = 208
+    Width = 164
+    Caption = 'Conversion'
+    ClientHeight = 143
+    ClientWidth = 160
+    TabOrder = 4
+    object CheckBox1: TCheckBox
+      Left = 24
+      Height = 24
+      Top = 32
+      Width = 53
+      Caption = 'ICES'
+      Checked = True
+      State = cbChecked
+      TabOrder = 0
+    end
+    object CheckBox2: TCheckBox
+      Left = 24
+      Height = 24
+      Top = 80
+      Width = 90
+      Caption = 'Advanced'
+      TabOrder = 1
+    end
+  end
+end

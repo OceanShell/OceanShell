@@ -3124,6 +3124,17 @@ object frmosmain: Tfrmosmain
         Caption = 'Crossover/Inversion analysis'
         OnClick = iExportCIAClick
       end
+      object MenuItem21: TMenuItem
+        Caption = 'COMFORT'
+        object iExportCOMFORT: TMenuItem
+          Caption = 'Selected stations'
+          OnClick = iExportCOMFORTClick
+        end
+        object iExportCOMFORT_table: TMenuItem
+          Caption = 'By table'
+          OnClick = iExportCOMFORT_tableClick
+        end
+      end
     end
     object iTools: TMenuItem
       Caption = 'Tools'

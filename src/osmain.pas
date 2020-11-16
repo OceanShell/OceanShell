@@ -201,6 +201,9 @@ type
     iSelectEntry: TMenuItem;
     MenuItem20: TMenuItem;
     iVisualizationGrapferHistorgam: TMenuItem;
+    MenuItem21: TMenuItem;
+    iExportCOMFORT: TMenuItem;
+    iExportCOMFORT_table: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     iSelectCruise: TMenuItem;
@@ -368,6 +371,8 @@ type
     procedure iDuplicatesClick(Sender: TObject);
     procedure iBottomDepthGEBCOClick(Sender: TObject);
     procedure iExportCIAClick(Sender: TObject);
+    procedure iExportCOMFORTClick(Sender: TObject);
+    procedure iExportCOMFORT_tableClick(Sender: TObject);
     procedure iInitialDatabaseClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
@@ -562,7 +567,8 @@ uses
   osexport_divand,
   osexport_ascii,
   osexport_CIA,
-
+  osexport_comfort,
+  osexport_comfort_table,
 
 (* QC *)
   osqc_dbar_meters_consistency,
@@ -3382,6 +3388,28 @@ begin
    finally
      frmExport_CIA.Free;
      frmExport_CIA := nil;
+   end;
+end;
+
+procedure Tfrmosmain.iExportCOMFORTClick(Sender: TObject);
+begin
+  frmExport_COMFORT := TfrmExport_COMFORT.Create(Self);
+   try
+    if not frmExport_COMFORT.ShowModal = mrOk then exit;
+   finally
+     frmExport_COMFORT.Free;
+     frmExport_COMFORT := nil;
+   end;
+end;
+
+procedure Tfrmosmain.iExportCOMFORT_tableClick(Sender: TObject);
+begin
+  frmExport_COMFORT_table := TfrmExport_COMFORT_table.Create(Self);
+   try
+    if not frmExport_COMFORT_table.ShowModal = mrOk then exit;
+   finally
+     frmExport_COMFORT_table.Free;
+     frmExport_COMFORT_table := nil;
    end;
 end;
 
