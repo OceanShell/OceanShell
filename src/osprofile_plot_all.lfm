@@ -124,10 +124,8 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
         Width = 138
         Align = alLeft
         Caption = 'Original units  '
-        Checked = True
         OnClick = rbUnitsOriginalClick
         TabOrder = 0
-        TabStop = True
       end
       object rbUnitsDefault: TRadioButton
         Left = 138
@@ -136,12 +134,14 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
         Width = 125
         Align = alLeft
         Caption = 'Default units'
+        Checked = True
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'Tahoma'
         OnClick = rbUnitsDefaultClick
         ParentFont = False
         TabOrder = 1
+        TabStop = True
       end
     end
     object btnFilter: TToolButton

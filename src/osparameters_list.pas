@@ -253,12 +253,12 @@ Qt.Transaction:=TRt;
 
 btnAmountOfProfiles.Enabled:=false;
 lbParameters.Enabled:=false;
+lbParameters.Items.Clear;
 try
  ID_cur:=frmdm.Q.FieldByName('ID').AsInteger;
  frmdm.Q.DisableControls;
-  for k_prf:=0 to lbParameters.Items.Count-1 do begin
-   tblPar:=lbParameters.Items.Strings[k_prf];
-   Application.ProcessMessages;
+  for k_prf:=0 to frmosmain.ListBox1.Count-1 do begin
+   tblPar:=frmosmain.ListBox1.Items.Strings[k_prf];
 
    if cancel_fl=false then begin
     prfCount:=0;
@@ -278,8 +278,11 @@ try
       frmdm.Q.Next;
     end;
 
-    lbParameters.Items.Strings[k_prf]:=tblPar+'   ['+inttostr(prfCount)+']';
-    Application.ProcessMessages;
+     if prfCount>0 then begin
+       lbParameters.Items.Add(tblPar+'   ['+inttostr(prfCount)+']');
+       Application.ProcessMessages;
+     end;
+
    end;
  end;
  Finally
