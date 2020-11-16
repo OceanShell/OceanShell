@@ -636,6 +636,8 @@ begin
 
     depth_units:=Ini.ReadInteger('main', 'depth_units', 0);
 
+    btnOpenOceanFDB.Enabled:=FileExists(Ini.ReadString( 'main', 'OceanFDBPath',  ''));
+
     (* STATION search settings *)
     pcRegion.ActivePageIndex:=Ini.ReadInteger( 'osmain', 'station_region_pcRegion', 0);
     seLatMin.Value   :=Ini.ReadFloat  ( 'osmain', 'station_latmin',     0);
@@ -770,15 +772,11 @@ begin
   try
    DBName:=Ini.ReadString( 'main', 'OceanFDBPath',  '');
   finally
-    Ini.free;
+    Ini.Free;
   end;
 
-  if FileExists(DBName) then begin
    IBName:='localhost:'+DBName;
    OpenDatabase;
-  end else
-   if MessageDlg('Please, specify path to Ocean.fdb', mtWarning, [mbOk], 0)=mrOk then
-    aSettings.Execute();
 end;
 
 procedure Tfrmosmain.btnRemoveEntryClick(Sender: TObject);
@@ -2382,7 +2380,7 @@ Qt_DB1.Transaction:=TRt_DB1;
 
 
    cgQCFlag.Items.Clear;
- //  DBGridStation.Columns[9].PickList.Clear;
+   DBGridStation.Columns[12].PickList.Clear;
    for k:=0 to 8 do begin
     case k of
       0: cgQCFlag.Items.Add('[0] Not checked');
@@ -2395,7 +2393,7 @@ Qt_DB1.Transaction:=TRt_DB1;
       7: cgQCFlag.Items.Add('[7] Passed secondary QC');
       8: cgQCFlag.Items.Add('[8] Adjusted');
     end;
-  //  DBGridStation.Columns[9].PickList.Add(inttostr(k));
+    DBGridStation.Columns[12].PickList.Add(inttostr(k));
    end;
 
    Ini := TIniFile.Create(IniFileName);

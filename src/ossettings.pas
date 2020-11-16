@@ -193,6 +193,8 @@ begin
   GlobalSupportPath:=eSupportPath.Text;
   GlobalUnloadPath:=eUnloadPath.Text;
 
+  frmosmain.btnOpenOceanFDB.Enabled:=FileExists(eOceanFDBPath.Text);
+
  Close;
 end;
 

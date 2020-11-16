@@ -150,9 +150,9 @@ if CurrentParTable<>'' then
   DBGridSingleProfile.Columns[4].PickList.Clear;
   DBGridSingleProfile.Columns[5].PickList.Clear;
 
- // DBGridSingleProfile.Columns[3].PickList:=frmosmain.DBGridStation1.Columns[9].PickList;
- // DBGridSingleProfile.Columns[4].PickList:=frmosmain.DBGridStation1.Columns[9].PickList;
- // DBGridSingleProfile.Columns[5].PickList:=frmosmain.DBGridStation1.Columns[9].PickList;
+  DBGridSingleProfile.Columns[3].PickList:=frmosmain.DBGridStation.Columns[12].PickList;
+  DBGridSingleProfile.Columns[4].PickList:=frmosmain.DBGridStation.Columns[12].PickList;
+  DBGridSingleProfile.Columns[5].PickList:=frmosmain.DBGridStation.Columns[12].PickList;
 
 try
   TRt:=TSQLTransaction.Create(self);

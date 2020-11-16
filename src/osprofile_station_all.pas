@@ -442,7 +442,7 @@ ss:=0;
       DBGrid1.Columns[k].Width:=40;
 
       //QCFlags
-    //  DBGrid1.Columns[k].PickList:=frmosmain.DBGridStation.Columns[9].PickList;
+      DBGrid1.Columns[k].PickList:=frmosmain.DBGridStation.Columns[12].PickList;
     end else begin
      // DBGrid1.Columns[k].Footer.ValueType:=fvtAvg;
     end;
