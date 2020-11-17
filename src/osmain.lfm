@@ -938,8 +938,8 @@ object frmosmain: Tfrmosmain
         Height = 733
         Top = 0
         Width = 1128
-        HorzScrollBar.Page = 894
-        VertScrollBar.Page = 580
+        HorzScrollBar.Page = 1072
+        VertScrollBar.Page = 696
         Align = alLeft
         BorderStyle = bsNone
         ClientHeight = 733
@@ -1103,7 +1103,7 @@ object frmosmain: Tfrmosmain
           end
           object cbCruisePlatform: TCheckComboBox
             Left = 168
-            Height = 23
+            Height = 26
             Top = 88
             Width = 584
             DropDownCount = 12
@@ -1118,7 +1118,7 @@ object frmosmain: Tfrmosmain
           end
           object cbCruiseCountry: TCheckComboBox
             Left = 168
-            Height = 23
+            Height = 26
             Top = 128
             Width = 584
             DropDownCount = 12
@@ -1133,7 +1133,7 @@ object frmosmain: Tfrmosmain
           end
           object cbCruiseSource: TCheckComboBox
             Left = 168
-            Height = 23
+            Height = 26
             Top = 16
             Width = 584
             DropDownCount = 12
@@ -1148,7 +1148,7 @@ object frmosmain: Tfrmosmain
           end
           object cbCruiseInstitute: TCheckComboBox
             Left = 168
-            Height = 23
+            Height = 26
             Top = 168
             Width = 584
             DropDownCount = 12
@@ -1163,7 +1163,7 @@ object frmosmain: Tfrmosmain
           end
           object cbCruiseProject: TCheckComboBox
             Left = 168
-            Height = 23
+            Height = 26
             Top = 208
             Width = 584
             DropDownCount = 12
@@ -1178,7 +1178,7 @@ object frmosmain: Tfrmosmain
           end
           object cbCruiseCruiseNum: TCheckComboBox
             Left = 168
-            Height = 23
+            Height = 26
             Top = 53
             Width = 584
             DropDownCount = 12
@@ -1765,8 +1765,6 @@ object frmosmain: Tfrmosmain
         Columns = <        
           item
             ButtonStyle = cbsCheckboxColumn
-            MinSize = 10
-            MaxSize = 200
             Title.Alignment = taCenter
             Title.ImageLayout = blGlyphLeft
             Title.Caption = ''
@@ -1774,44 +1772,30 @@ object frmosmain: Tfrmosmain
             FieldName = 'SELECTED'
           end        
           item
-            MinSize = 10
-            MaxSize = 200
             Title.Caption = 'Entry ID'
             FieldName = 'ID'
           end        
           item
-            MinSize = 10
-            MaxSize = 200
             Title.Caption = 'Title'
             FieldName = 'TITLE'
           end        
           item
-            MinSize = 10
-            MaxSize = 200
             Title.Caption = 'Stations'
             FieldName = 'STATIONS_AMOUNT'
           end        
           item
-            MinSize = 10
-            MaxSize = 200
             Title.Caption = 'Start date'
             FieldName = 'DATE_START'
           end        
           item
-            MinSize = 10
-            MaxSize = 200
             Title.Caption = 'Finish date'
             FieldName = 'DATE_END'
           end        
           item
-            MinSize = 10
-            MaxSize = 200
             Title.Caption = 'Added'
             FieldName = 'DATE_ADDED'
           end        
           item
-            MinSize = 10
-            MaxSize = 200
             Title.Caption = 'Updated'
             FieldName = 'DATE_UPDATED'
           end>
@@ -1899,7 +1883,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton3: TToolButton
             Left = 101
-            Height = 6
+            Height = 5
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider
@@ -1976,67 +1960,48 @@ object frmosmain: Tfrmosmain
           Columns = <          
             item
               ButtonStyle = cbsCheckboxColumn
-              MinSize = 10
               MaxSize = 10
               Title.Caption = ''
               Width = 40
               FieldName = 'SELECTED'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Cruise ID'
               FieldName = 'ID'
             end          
             item
               DropDownRows = 20
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Platform'
               FieldName = 'PLATFORM'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Cruise #'
               FieldName = 'CRUISE_NUMBER'
             end          
             item
               DropDownRows = 20
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Source'
               FieldName = 'SOURCE'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Cruise start'
               FieldName = 'DATE_START_DATABASE'
               DisplayFormat = 'DD.MM.YYYY'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Cruise end'
               FieldName = 'DATE_END_DATABASE'
               DisplayFormat = 'DD.MM.YYYY'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'St #'
               FieldName = 'STATIONS_DATABASE'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Dup #'
               FieldName = 'STATIONS_DUPLICATES'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Dup'
               Width = 30
               FieldName = 'DUPLICATE'
@@ -2085,7 +2050,6 @@ object frmosmain: Tfrmosmain
           Columns = <          
             item
               ButtonStyle = cbsCheckboxColumn
-              MinSize = 10
               MaxSize = 10
               Title.Caption = ''
               Width = 30
@@ -2118,44 +2082,30 @@ object frmosmain: Tfrmosmain
               DisplayFormat = 'DD.MM.YYYY hh:nn:ss'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Station #'
               FieldName = 'ST_NUMBER_ORIGIN'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Cast'
               FieldName = 'CAST_NUMBER'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Depth, m'
               FieldName = 'BOTTOMDEPTH'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Gebco, m'
               FieldName = 'BOTTOMDEPTH_GEBCO'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Last lev., m'
               FieldName = 'LASTLEVEL_M'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Last lev., dbar'
               FieldName = 'LASTLEVEL_DBAR'
             end          
             item
-              MinSize = 10
-              MaxSize = 200
               Title.Caption = 'Ver'
               FieldName = 'STVERSION'
             end          
@@ -2168,7 +2118,6 @@ object frmosmain: Tfrmosmain
             end          
             item
               ButtonStyle = cbsCheckboxColumn
-              MinSize = 10
               MaxSize = 10
               Title.Caption = 'Dup'
               FieldName = 'DUPLICATE'
@@ -2200,8 +2149,8 @@ object frmosmain: Tfrmosmain
         Width = 438
         HorzScrollBar.Page = 1
         HorzScrollBar.Visible = False
-        VertScrollBar.Increment = 50
-        VertScrollBar.Page = 507
+        VertScrollBar.Increment = 60
+        VertScrollBar.Page = 609
         VertScrollBar.Smooth = True
         Align = alRight
         ClientHeight = 729

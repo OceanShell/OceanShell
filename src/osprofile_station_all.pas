@@ -41,8 +41,6 @@ type
     ZMW: TZoomMouseWheelTool;
 
     procedure btnSetFlagArrowClick(Sender: TObject);
- //   procedure DBGrid1CellClick(Column: TColumn);
-//    procedure DBGrid1ColumnSized(Sender: TObject);
     procedure DBGrid1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure DBGrid1PrepareCanvas(sender: TObject; DataCol: Integer;
@@ -51,11 +49,7 @@ type
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure btnCommitClick(Sender: TObject);
- //   procedure btnAddClick(Sender: TObject);
- //   procedure btnDeleteClick(Sender: TObject);
-  //  procedure CheckListBox1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-  //  procedure iDeleteParameterClick(Sender: TObject);
     procedure iSetFlagParameterClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
   //  procedure DBGridEh1KeyUp(Sender: TObject; var Key: Word;

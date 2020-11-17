@@ -28,6 +28,7 @@ type
     TabSheet5: TTabSheet;
 
     procedure CheckToolName(ToolName:string);
+    procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure lbParametersClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -340,6 +341,13 @@ begin
   cancel_fl:= true;
 end;
 
+
+procedure Tfrmparameters_list.FormResize(Sender: TObject);
+begin
+  if Width<=450 then lbParameters.Columns:=1;
+  if (Width>450) and (Width<700) then lbParameters.Columns:=2;
+  if Width>=700 then lbParameters.Columns:=3;
+end;
 
 { Принудительно закрываем дочерние формы перед закрытием основной }
 procedure Tfrmparameters_list.FormCloseQuery(Sender: TObject;

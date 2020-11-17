@@ -66,7 +66,7 @@ type
     procedure FilterSources(Sender: TObject);
   public
     procedure AddToPlot(ID, INSTR_ID, PROF_NUM:integer; INSTR_NAME: string;
-      prof_best, ToUpdate:boolean);
+      prof_best, ToUpdate:boolean; var units_prof:integer);
     procedure ChangeID(ID:integer);
   end;
 
@@ -83,7 +83,7 @@ implementation
 
 { Tfrmprofile_plot_all }
 
-uses osmain, dm, osunitsconversion, procedures;
+uses osmain, dm, osunitsconversion;
 
 
 function Tfrmprofile_plot_all.AddLineSeries(AChart: TChart;
@@ -175,7 +175,6 @@ begin
             LinePen.Width:=3;
             Pointer.HorizSize:=4;
             Pointer.VertSize:=4;
-           // LinePen.Pattern:=Dottedln;
             ZPosition:=mik;
           end;
          end else
@@ -250,6 +249,8 @@ prof_num, instr_id: integer;
 prof_best: boolean;
 instr_name, LeftAxisTitle: string;
 
+units_prof, cnt_def, cnt_orig:integer;
+
 Qt1, Qt2:TSQLQuery;
 TRt:TSQLTransaction;
 begin
@@ -319,6 +320,8 @@ if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then 
 
    frmdm.Q.DisableControls;
    frmdm.Q.First;
+     cnt_def:=0;
+     cnt_orig:=0;
      While not frmdm.Q.Eof do begin
       ID:=frmdm.Q.FieldByName('ID').AsInteger;
 
@@ -355,7 +358,9 @@ if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then 
         prof_num :=Qt2.Fields[0].AsInteger;
         prof_best:=Qt2.Fields[1].AsBoolean;
 
-        AddToPlot(ID, INSTR_ID,  PROF_NUM, INSTR_NAME, prof_best, false);
+        AddToPlot(ID, INSTR_ID,  PROF_NUM, INSTR_NAME, prof_best, false, units_prof);
+
+        if units_prof=units_default then inc(cnt_def) else inc(cnt_orig);
        Qt2.Next;
       end;
      Qt1.Next;
@@ -364,7 +369,6 @@ if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then 
   frmdm.Q.Next;
   end;
    finally
-
     Qt1.Close;
     Qt2.Close;
     Qt1.Free;
@@ -395,7 +399,9 @@ if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then 
  ChangeID(CurrentID);
 
 Caption:=CurrentParTable+', '+inttostr(Chart1.SeriesCount)+' profiles';
-rbUnitsDefault.Caption:=units_default_name; //'Default units ['+units_default_name+']';
+rbUnitsOriginal.Caption:='Original units ('+inttostr(cnt_orig)+')';
+rbUnitsDefault.Caption:=units_default_name+' ('+inttostr(cnt_def)+')';
+
 Application.ProcessMessages;
 end;
 
@@ -406,7 +412,7 @@ end;
 
 
 procedure Tfrmprofile_plot_all.AddToPlot(ID, INSTR_ID, PROF_NUM:integer;
-  INSTR_NAME: string; prof_best, ToUpdate:boolean);
+  INSTR_NAME: string; prof_best, ToUpdate:boolean; var units_prof:integer);
 Var
 k, flag, units:integer;
 lev, val1, val_out, lab_dens, Lat, Lon:real;
@@ -499,6 +505,8 @@ try
      val1  := Qt.FieldByName('VAL').AsFloat;
      units := Qt.FieldByName('UNITS_ID').AsInteger;
 
+     if Qt.RecNo=1 then units_prof:=units;
+
      (* units for the vertical axis *)
      if depth_units=0 then lev:=lev_m else lev:=lev_d;
 
@@ -528,25 +536,36 @@ end;
 
 procedure Tfrmprofile_plot_all.SelectProfile(sName:string);
 var
-k,cs, i, c:integer;
-ChartName: string;
+k, cs, i, c:integer;
+ChartName, ss_name, src_name: string;
+clr:TColor;
 begin
-
- // src:=
   cs:=-1;
   for k:=0 to Chart1.SeriesCount-1 do begin
 
    ChartName:=TLineSeries(Chart1.Series[k]).Name;
-   ChartName:=Copy(ChartName, 1, Pos('_', ChartName)-1);
+
+   ss_name:=copy(ChartName, Pos('_', ChartName)+1,
+                (Pos('__', ChartName)-Pos('_', ChartName))-1);
+
+       for c:=0 to high(chkSourceList) do begin
+        if Pos('(', chkSourceList[c].Caption)>0 then
+        src_name:=copy(chkSourceList[c].Caption, 1, Pos('(', chkSourceList[c].Caption)-2) else
+        src_name:=chkSourceList[c].Caption;
+
+        if src_name=ss_name then clr:=s_clr[c+1];
+        end;
 
    with TLineSeries(Chart1.Series[k]) do begin
+    SeriesColor:=clr;
+    Pointer.Brush.Color:=clr;
     LinePen.Width:=1;
     Pointer.HorizSize:=2;
     Pointer.VertSize:=2;
     ZPosition:=0;
    end;
 
-   if ChartName=sName then cs:=k; //current series
+   if sName=Copy(ChartName, 1, Pos('_', ChartName)-1) then cs:=k; //current series
   end;
 
   if cs>0 then begin

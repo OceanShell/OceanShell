@@ -3848,7 +3848,7 @@ end;
 
 procedure Tfrmosmain.DBGridStation2CellClick(Column: TColumn);
 begin
-    frmosmain.CDSNavigation;
+  frmosmain.CDSNavigation;
 end;
 
 procedure Tfrmosmain.DBGridStation2KeyUp(Sender: TObject; var Key: Word;
