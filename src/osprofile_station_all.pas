@@ -52,8 +52,6 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure iSetFlagParameterClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
-  //  procedure DBGridEh1KeyUp(Sender: TObject; var Key: Word;
-  //    Shift: TShiftState);
     procedure FormShow(Sender: TObject);
     procedure rbPQF1Click(Sender: TObject);
     procedure rbPQF2Click(Sender: TObject);

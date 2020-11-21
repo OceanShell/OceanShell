@@ -895,6 +895,159 @@ object frmosmain: Tfrmosmain
           ParentFont = False
           TabOrder = 10
         end
+        object gbDepth: TGroupBox
+          Left = 24
+          Height = 152
+          Top = 832
+          Width = 360
+          ClientHeight = 127
+          ClientWidth = 356
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          ParentFont = False
+          TabOrder = 11
+          object pcDepth: TPageControl
+            Left = 24
+            Height = 96
+            Top = 8
+            Width = 312
+            ActivePage = TabSheet14
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            ParentFont = False
+            TabIndex = 0
+            TabOrder = 0
+            object TabSheet14: TTabSheet
+              Caption = 'Observed, m'
+              ClientHeight = 63
+              ClientWidth = 304
+              Font.Color = clWindowText
+              Font.Height = -17
+              Font.Name = 'MS Sans Serif'
+              ParentFont = False
+              object seDepthMin: TSpinEdit
+                Left = 16
+                Height = 28
+                Top = 16
+                Width = 120
+                Font.Color = clWindowText
+                Font.Height = -17
+                Font.Name = 'MS Sans Serif'
+                MaxValue = 12000
+                MinValue = -12000
+                ParentFont = False
+                TabOrder = 0
+              end
+              object seDepthMax: TSpinEdit
+                Left = 160
+                Height = 28
+                Top = 16
+                Width = 120
+                Font.Color = clWindowText
+                Font.Height = -17
+                Font.Name = 'MS Sans Serif'
+                MaxValue = 12000
+                MinValue = -12000
+                ParentFont = False
+                TabOrder = 1
+                Value = 12000
+              end
+            end
+            object TabSheet15: TTabSheet
+              Caption = 'GEBCO, m'
+              ClientHeight = 63
+              ClientWidth = 304
+              Font.Color = clWindowText
+              Font.Height = -17
+              Font.Name = 'MS Sans Serif'
+              ParentFont = False
+              object seGEBCOMin: TSpinEdit
+                Left = 16
+                Height = 28
+                Top = 16
+                Width = 120
+                Font.Color = clWindowText
+                Font.Height = -17
+                Font.Name = 'MS Sans Serif'
+                MaxValue = 12000
+                MinValue = -12000
+                ParentFont = False
+                TabOrder = 0
+              end
+              object seGEBCOMax: TSpinEdit
+                Left = 160
+                Height = 28
+                Top = 16
+                Width = 120
+                Font.Color = clWindowText
+                Font.Height = -17
+                Font.Name = 'MS Sans Serif'
+                MaxValue = 12000
+                MinValue = -12000
+                ParentFont = False
+                TabOrder = 1
+                Value = 12000
+              end
+            end
+            object TabSheet16: TTabSheet
+              Caption = 'Last level, m'
+              ClientHeight = 63
+              ClientWidth = 304
+              Font.Color = clWindowText
+              Font.Height = -17
+              Font.Name = 'MS Sans Serif'
+              ParentFont = False
+              object seLastLevelMin: TFloatSpinEdit
+                Left = 16
+                Height = 28
+                Top = 16
+                Width = 122
+                Alignment = taCenter
+                DecimalPlaces = 5
+                Font.Color = clWindowText
+                Font.Height = -17
+                Font.Name = 'MS Sans Serif'
+                MaxValue = 12000
+                MinValue = -12000
+                ParentFont = False
+                TabOrder = 0
+                Value = 0
+              end
+              object seLastLevelMax: TFloatSpinEdit
+                Left = 160
+                Height = 28
+                Top = 16
+                Width = 122
+                Alignment = taCenter
+                DecimalPlaces = 5
+                Font.Color = clWindowText
+                Font.Height = -17
+                Font.Name = 'MS Sans Serif'
+                MaxValue = 12000
+                MinValue = -12000
+                ParentFont = False
+                TabOrder = 1
+                Value = 0
+              end
+            end
+          end
+        end
+        object chkDepth: TCheckBox
+          Left = 48
+          Height = 29
+          Top = 830
+          Width = 79
+          Caption = 'Depth'
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          OnChange = chkDateandTimeChange
+          ParentFont = False
+          TabOrder = 12
+        end
       end
     end
     object tsMainCruises: TTabSheet
@@ -3047,9 +3200,13 @@ object frmosmain: Tfrmosmain
       object MenuItem6: TMenuItem
         Caption = '-'
       end
-      object iBottomDepthGEBCO: TMenuItem
-        Caption = 'Update depth from GEBCO'
-        OnClick = iBottomDepthGEBCOClick
+      object iInsertBottomDepthGEBCO: TMenuItem
+        Caption = 'Insert bottom depth from GEBCO'
+        OnClick = iInsertBottomDepthGEBCOClick
+      end
+      object iInsertLastLevel: TMenuItem
+        Caption = 'Insert Last Level'
+        OnClick = iInsertLastLevelClick
       end
     end
     object iImport: TMenuItem
@@ -3230,14 +3387,6 @@ object frmosmain: Tfrmosmain
       ImageIndex = 14
       OnClick = iSelectCruiseClick
     end
-    object MenuItem2: TMenuItem
-      Caption = '-'
-    end
-    object iUpdateCruise: TMenuItem
-      Caption = 'Update cruise info'
-      ImageIndex = 50
-      OnClick = iUpdateCruiseClick
-    end
   end
   object PMEntry: TPopupMenu
     Images = frmicons.IL1
@@ -3286,10 +3435,6 @@ object frmosmain: Tfrmosmain
     end
     object MenuItem17: TMenuItem
       Caption = '-'
-    end
-    object iUpdateLastLevel: TMenuItem
-      Caption = 'Update Last Level'
-      OnClick = iUpdateLastLevelClick
     end
     object iUpdateUnits: TMenuItem
       Caption = 'Update Units'

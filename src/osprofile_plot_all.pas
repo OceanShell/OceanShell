@@ -27,6 +27,7 @@ type
     pfiller: TPanel;
     rbUnitsOriginal: TRadioButton;
     rbUnitsDefault: TRadioButton;
+    StatusBar1: TStatusBar;
     ToolButton1: TToolButton;
     btnFilter: TToolButton;
     ToolButton3: TToolButton;
@@ -66,7 +67,7 @@ type
     procedure FilterSources(Sender: TObject);
   public
     procedure AddToPlot(ID, INSTR_ID, PROF_NUM:integer; INSTR_NAME: string;
-      prof_best, ToUpdate:boolean; var units_prof:integer);
+      prof_best, ToUpdate:boolean; var units_arr:array of integer);
     procedure ChangeID(ID:integer);
   end;
 
@@ -249,6 +250,7 @@ prof_num, instr_id: integer;
 prof_best: boolean;
 instr_name, LeftAxisTitle: string;
 
+units_arr: array of integer;
 units_prof, cnt_def, cnt_orig:integer;
 
 Qt1, Qt2:TSQLQuery;
@@ -358,9 +360,9 @@ if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then 
         prof_num :=Qt2.Fields[0].AsInteger;
         prof_best:=Qt2.Fields[1].AsBoolean;
 
-        AddToPlot(ID, INSTR_ID,  PROF_NUM, INSTR_NAME, prof_best, false, units_prof);
+        AddToPlot(ID, INSTR_ID,  PROF_NUM, INSTR_NAME, prof_best, false, units_arr);
 
-        if units_prof=units_default then inc(cnt_def) else inc(cnt_orig);
+        //if units_prof=units_default then inc(cnt_def) else inc(cnt_orig);
        Qt2.Next;
       end;
      Qt1.Next;
@@ -412,7 +414,7 @@ end;
 
 
 procedure Tfrmprofile_plot_all.AddToPlot(ID, INSTR_ID, PROF_NUM:integer;
-  INSTR_NAME: string; prof_best, ToUpdate:boolean; var units_prof:integer);
+  INSTR_NAME: string; prof_best, ToUpdate:boolean; var units_arr:array of integer);
 Var
 k, flag, units:integer;
 lev, val1, val_out, lab_dens, Lat, Lon:real;
@@ -505,7 +507,12 @@ try
      val1  := Qt.FieldByName('VAL').AsFloat;
      units := Qt.FieldByName('UNITS_ID').AsInteger;
 
-     if Qt.RecNo=1 then units_prof:=units;
+   {  if Qt.RecNo=1 then begin
+      for k:=1 to 30 do
+       if units_arr[k]=units then fl:=k;
+
+      if fl=0 then units_arr[fl+1]:=units;
+     end;  }
 
      (* units for the vertical axis *)
      if depth_units=0 then lev:=lev_m else lev:=lev_d;

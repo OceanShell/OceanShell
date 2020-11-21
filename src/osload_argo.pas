@@ -6,32 +6,45 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, SQLDB, DB,
-  DateUtils, Variants, BufDataset, LCLIntf, Buttons, ExtCtrls;
+  DateUtils, Variants, BufDataset, LCLIntf, Buttons, ExtCtrls, math,
+  IniFiles;
 
 type
 
   { Tfrmload_argo }
 
   Tfrmload_argo = class(TForm)
-    btnCruise: TButton;
-    btnStation: TButton;
     btnSelectDataFolder: TButton;
-    btnDeleteEmptyStations: TButton;
+    btnRun: TButton;
+    cgTasks: TCheckGroup;
     ePath: TEdit;
-    Label4: TLabel;
+    GroupBox1: TGroupBox;
+    GroupBox2: TGroupBox;
     Memo1: TMemo;
-    rgDataType: TRadioGroup;
 
-    procedure btnCruiseClick(Sender: TObject);
-    procedure btnDeleteEmptyStationsClick(Sender: TObject);
-    procedure btnStationClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormShow(Sender: TObject);
+    procedure btnRunClick(Sender: TObject);
     procedure btnSelectDataFolderClick(Sender: TObject);
 
   private
     procedure GetCodes(argo_code:string; Var country_id, institute_id,
       project_id:integer);
-    procedure WriteProfile(fname:string; id: integer; StLat: real;
-      isCore:boolean; QF: integer);
+    procedure GetTableName(var_name:string; Var tbl_name: string);
+    procedure QFMapping(argo_QF:integer; var QF:integer);
+    procedure UpdateCRUISE;
+    procedure UpdateSTATION(fname:string);
+    procedure WriteMetadata(ID, cruise_id: integer; StLat, StLon: real;
+      StDate, stdate_add_db, stdate_upd_f:TDateTime; stnum:string;
+      cast, QF:smallint);
+    procedure WriteProfile(fname:string; id: integer);
+    procedure GreyList;
+    procedure GreyListUpdateTable(cruise_id, QF:integer;
+      tbl_name:string; dd1, dd2:tDateTime);
+    procedure UpdateCruiseInfo;
+    procedure DeleteEmptyStations;
+    procedure InsertLastLevel;
+    procedure InsertGEBCODepth;
   public
 
   end;
@@ -48,24 +61,36 @@ implementation
 uses osmain, dm, declarations_netcdf, GibbsSeaWater, procedures;
 
 
-procedure Tfrmload_argo.GetCodes(argo_code:string; Var country_id, institute_id, project_id:integer);
+procedure Tfrmload_argo.FormShow(Sender: TObject);
+Var
+  Ini:TIniFile;
+  k:integer;
 begin
- country_id:=-9;
- institute_id:=-9;
- project_id:=-9;
 
- if argo_code='AO' then begin institute_id:=251; project_id:=422; country_id:=186; end;
- if argo_code='BO' then begin institute_id:=655; project_id:=31;  country_id:=229; end;
- if argo_code='CS' then begin institute_id:=48;  project_id:=27;  country_id:=164; end;
- if argo_code='HZ' then begin institute_id:=820; project_id:=69;  country_id:=231; end;
- if argo_code='IF' then begin institute_id:=388; project_id:=124; country_id:=190; end;
- if argo_code='IN' then begin institute_id:=821; project_id:=187; country_id:=196; end;
- if argo_code='JA' then begin institute_id:=538; project_id:=201; country_id:=204; end;
- if argo_code='JM' then begin institute_id:=539; project_id:=201; country_id:=204; end;
- if argo_code='KM' then begin institute_id:=125; project_id:=447; country_id:=179; end;
- if argo_code='KO' then begin institute_id:=124; project_id:=447; country_id:=179; end;
- if argo_code='ME' then begin institute_id:=822; project_id:=61;  country_id:=173; end;
- if argo_code='NM' then begin institute_id:=823; project_id:=69;  country_id:=231; end;
+  Ini := TIniFile.Create(IniFileName);
+   try
+     ePath.Text := Ini.ReadString('osload_argo', 'data_path',  '');
+   finally
+     Ini.Free;
+   end;
+
+  // all tasks checked
+  for k:=0 to cgTasks.Items.Count-1 do cgTasks.Checked[k]:=true;
+
+end;
+
+
+(* Running tasks one by one *)
+procedure Tfrmload_argo.btnRunClick(Sender: TObject);
+begin
+ memo1.Clear;
+  if cgTasks.Checked[0] then UpdateCRUISE;
+  if cgTasks.Checked[1] then UpdateSTATION('argo_synthetic-profile_index.txt');
+  if cgTasks.Checked[2] then UpdateSTATION('ar_index_global_prof.txt');
+  if cgTasks.Checked[3] then UpdateCruiseInfo;
+  if cgTasks.Checked[4] then GreyList;
+  if cgTasks.Checked[5] then InsertLastLevel;
+  if cgTasks.Checked[6] then InsertGEBCODepth;
 end;
 
 
@@ -76,7 +101,7 @@ end;
 
 
 (* reading ar_index_global_meta.txt and updating CRUISE *)
-procedure Tfrmload_argo.btnCruiseClick(Sender: TObject);
+procedure Tfrmload_argo.UpdateCRUISE;
 Var
   dat:text;
   c, k, cnt_added, cnt_updated, cnt_removed, ID:integer;
@@ -100,7 +125,9 @@ if not FileExists(epath.text+'ar_index_global_meta.txt') then
   if MessageDlg('ar_index_global_meta.txt cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
 
   DateStart:=now;
-  memo1.Clear;
+
+  memo1.lines.add('');
+  memo1.lines.add('Updating CRUISE');
   memo1.lines.add('Start: '+timetostr(DateStart));
   memo1.lines.add('');
 
@@ -358,7 +385,7 @@ finally
      add('Updated: '+inttostr(cnt_updated));
      add('Removed: '+inttostr(cnt_removed));
      add('');
-     add('Done! Time spent: '+timetostr(now-DateStart));
+     add('Done! '+datetimetostr(Now));
    end;
 
    OpenDocument(PChar(log_path));
@@ -367,26 +394,26 @@ end;
 
 
 (* Reading input metadata file *)
-procedure Tfrmload_argo.btnStationClick(Sender: TObject);
+procedure Tfrmload_argo.UpdateSTATION(fname:string);
 Type
   MDFromDatabase=record
     ID:integer;
     Cruise_ID:integer;
     StNum:string;
+    Date_ins:TDateTime;
     Date_upd:TDateTime;
 end;
 MDDB=array of MDFromDatabase;
 
 Var
   dat:text;
-  isCore:boolean;
+ // isCore:boolean;
 
-  ID, c, k, max_id, pp:integer;
-  cnt_str, cnt_kept, cnt_updated, cnt_new, cnt_skipped, cnt_error: integer;
-  k_db, cc, par_cnt: integer;
+  ID, c, k, max_id, pp:int64;
+  cnt_str, cnt_kept, cnt_updated, cnt_new, cnt_skipped, cnt_error: int64;
+  k_db, cc, par_cnt: int64;
 
   st, date_str, platf, buf_str, date_upd:string;
-  fname:string;
   cruise_id: integer;
 
   lat, lon:string;
@@ -396,7 +423,7 @@ Var
   Qt2, Qt1:TSQLQuery;
   TRt:TSQLTransaction;
 
-  stdate, stdate_upd_db, stdate_upd_f, max_date:TDateTime;
+  stdate, stdate_upd_db, stdate_add_db, stdate_upd_f, max_date:TDateTime;
   stnum, tbl, log_path:string;
   cast, QF:integer;
 
@@ -406,26 +433,17 @@ Var
  QF_str: string;
 
  MDDB_arr: MDDB;
- ALength: Cardinal;
+ ALength: Int64;
 begin
-
- case rgDataType.ItemIndex of
-  0: begin
-      fname:='argo_synthetic-profile_index.txt';
-      isCore:=false;
-  end;
-  1: begin
-      fname:='ar_index_global_prof.txt';
-      isCore:=true;
-  end;
- end;
 
  if not FileExists(epath.text+fname) then
    if MessageDlg(fname+' cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
 
   DateStart:=now;
-  memo1.Clear;
-  memo1.lines.add('Start: '+timetostr(DateStart));
+
+  memo1.lines.add('');
+  memo1.lines.add('Updating STATION from '+fname);
+  memo1.lines.add('Start: '+datetimetostr(DateStart));
   memo1.lines.add('');
 
   try
@@ -453,7 +471,8 @@ begin
       with Qt1 do begin
        Close;
         Sql.Clear;
-        SQL.Add(' select id, cruise_id, st_number_origin, date_updated from station ');
+        SQL.Add(' select id, cruise_id, st_number_origin, date_added, ');
+        SQL.Add(' date_updated from station ');
         SQL.Add(' where cruise_id between 20000001 and 30000000 ');
         SQL.Add(' order by cruise_id ');
        Open;
@@ -469,6 +488,7 @@ begin
          MDDB_arr[k_db].ID:=Qt1.FieldByName('ID').asInteger;
          MDDB_arr[k_db].Cruise_ID:=Qt1.FieldByName('CRUISE_ID').asInteger;
          MDDB_arr[k_db].StNum:=Qt1.FieldByName('st_number_origin').asString;
+         MDDB_arr[k_db].Date_ins:=Qt1.FieldByName('date_added').asDateTime;
          MDDB_arr[k_db].Date_upd:=Qt1.FieldByName('date_updated').asDateTime;
        Qt1.Next;
       end;
@@ -496,7 +516,7 @@ begin
    readln(dat, st);
   until copy(st,1, 4)='file';
 
-    for k:=1 to 519000 do readln(dat, st);
+   for k:=1 to 74600 do readln(dat, st);
 
   // setting all counters to 0
   cnt_str:=0;
@@ -510,9 +530,11 @@ begin
   repeat
    readln(dat, st);
 
+ //  showmessage(st);
+
    inc(cnt_str);
 
-   if cnt_str>300000 then exit;
+   if cnt_str>1000 then exit;
 
    c:=0; pp:=0;
    //reading first 4 columns
@@ -533,10 +555,7 @@ begin
    end;
 
    (* if data file is not found - skip it *)
-   if not FileExists(ePath.text+fname) then begin
-     writeln(dat4, fname);
-     exit;
-   end;
+   if FileExists(ePath.text+fname) then begin
 
    date_upd:=copy(st, length(st)-13, 14);
 
@@ -560,13 +579,16 @@ begin
 
    stnum:=copy(fname, pos('_', fname)+1, length(fname));
    stnum:=copy(stnum, 1, length(stnum)-3);
-  // showmessage(stnum+'   '+copy(stnum, length(stnum), 1));
 
    if copy(stnum, length(stnum), 1)='D' then begin
      stnum:=copy(stnum,1, length(stnum)-1);
      stnum:=IntToStr(StrToInt(stnum))+'D';
    end else
      stnum:=IntToStr(StrToInt(stnum));
+
+   if copy(stnum, length(stnum), 1)='D' then cast:=2 else cast:=1;
+
+ //  showmessage(stnum+'   '+copy(stnum, length(stnum), 1));
 
    if (trim(lat)<>'') and
       (trim(lon)<>'') and
@@ -594,6 +616,8 @@ begin
                           StrToInt(copy(date_upd, 13, 2)),
                           0);
 
+     //  showmessage(datetimetostr(stdate));
+
        ID:=0;
        if k_db>0 then begin
         For cc:=0 to k_db do begin
@@ -602,6 +626,7 @@ begin
 
            ID:=MDDB_arr[cc].ID;
            stdate_upd_db:=MDDB_arr[cc].Date_upd;
+           stdate_add_db:=MDDB_arr[cc].Date_ins;
 
 
            ALength := Length(MDDB_arr);
@@ -613,7 +638,7 @@ begin
         end;
        end;
      end;
-   //  showmessage(inttostr(id));
+    // showmessage(inttostr(id));
 
 
       (* station is in the database *)
@@ -625,53 +650,28 @@ begin
 
         if stdate_upd_db<stdate_upd_f then begin
          inc(cnt_updated);
-
+         // removing old station
           with Qt2 do begin
            Close;
             SQL.Clear;
-            SQL.Add(' UPDATE STATION SET ');
-            SQL.Add(' LATITUDE=:lat, ');
-            SQL.Add(' LONGITUDE=:lon, ');
-            SQL.Add(' DATEANDTIME=:date1, ');
-            SQL.Add(' QCFLAG=:QF, ');
-            SQL.Add(' DATE_UPDATED=:date_upd ');
-            SQL.Add(' where ID=:ID ');
-            ParamByName('Lat').Value:=stlat;
-            ParamByName('Lon').Value:=stlon;
-            ParamByName('date1').Value:=stdate;
-            ParamByName('QF').Value:=QF;
-            ParamByName('date_upd').Value:=stdate_upd_f;
-            ParamByName('ID').Value:=ID;
-           ExecSQL;
-          end;
-
-          (* removing old profiles *)
-         if isCore then par_cnt:=2 else par_cnt:=3;
-
-         for pp:=1 to par_cnt-1 do begin
-          case pp of
-           1: tbl:='P_TEMPERATURE';
-           2: tbl:='P_SALINITY';
-           3: tbl:='P_OXYGEN';
-          end;
-
-          with Qt2 do begin
-           Close;
-            SQL.Clear;
-            SQL.Add(' DELETE FROM '+tbl);
+            SQL.Add(' DELETE FROM STATION ');
             SQL.Add(' where ID=:ID ');
             ParamByName('ID').Value:=ID;
            ExecSQL;
-         end;
-         TRt.CommitRetaining;
-         end;
+          end;
+         TRt.Commit;
 
+         (* writing metadata into STATION *)
+         WriteMetadata(id, cruise_id, StLat, StLon, StDate,
+                       stdate_add_db, stdate_upd_f, stnum,
+                       cast, QF);
 
          (* writing updated profiles *)
-          WriteProfile(ePath.text+fname, id, StLat, isCore, QF);
+          WriteProfile(ePath.text+fname, id);
 
 
-         writeln(dat2, inttostr(id)+#9+platf+'_'+stnum);
+         writeln(dat2, inttostr(id)+#9+fname);
+         flush(dat2);
         end;
        end;
 
@@ -680,51 +680,32 @@ begin
        inc(cnt_new);
        inc(max_id);
 
-       if copy(stnum, length(stnum), 1)='D' then cast:=2 else cast:=1;
-
        try
-        with Qt2 do begin
-         Close;
-          Sql.Clear;
-          SQL.Add(' insert into STATION ');
-          SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, CRUISE_ID, ');
-          SQL.Add(' ST_NUMBER_ORIGIN, DATE_ADDED, DATE_UPDATED, ');
-          SQL.Add(' CAST_NUMBER, QCFLAG)');
-          SQL.Add(' VALUES ');
-          SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :CRUISE_ID, ');
-          SQL.Add(' :ST_NUMBER_ORIGIN, :DATE_ADDED, :DATE_UPDATED, ');
-          SQL.Add(' :CAST_NUMBER, :QCFLAG)');
-          ParamByName('ID').Value:=max_id;
-          ParamByName('latitude').Value:=StLat;
-          ParamByName('longitude').Value:=StLon;
-          ParamByName('dateandtime').Value:=StDate;
-          ParamByName('cruise_id').Value:=cruise_id;
-          ParamByName('st_number_origin').Value:=stnum;
-          ParamByName('date_added').Value:=stdate_upd_f;
-          ParamByName('date_updated').Value:=stdate_upd_f;
-          ParamByName('cast_number').Value:=cast;
-          ParamByName('QCFLAG').Value:=QF;
-         ExecSQL;
-        end;
-        Trt.CommitRetaining;
+        WriteMetadata(max_id, cruise_id, StLat, StLon, StDate,
+                      stdate_upd_f, stdate_upd_f, stnum,
+                      cast, QF);
 
-        WriteProfile(ePath.text+fname, max_id, StLat, isCore, QF);
+        WriteProfile(ePath.text+fname, max_id);
 
-        writeln(dat1, inttostr(max_id)+#9+platf+'_'+stnum);
+        writeln(dat1, inttostr(max_id)+#9+fname);
+        flush(dat1);
        except
-         Trt.RollbackRetaining;
-         inc(cnt_error);
-         writeln(dat5, st);
-         flush(dat5);
+        inc(cnt_error);
+        writeln(dat5, st);
+        flush(dat5);
        end;
       end; //ID=0 -> writing a new station
 
-
-    end; //coordinates -90 - 90; -180 - 180
-  end else begin // if some inportant metadata is missing -> skipping
+     end; //coordinates -90 - 90; -180 - 180
+    end else begin // if some inportant metadata is missing -> skipping
     inc(cnt_skipped);
     writeln(dat3, st);
     flush(dat3);
+    end;
+
+  end else begin
+   writeln(dat4, fname); // file doesn't exist
+   flush(dat4);
   end;
 
   until eof(dat);
@@ -738,6 +719,8 @@ begin
      CloseFile(dat1);
      CloseFile(dat2);
      CloseFile(dat3);
+     CloseFile(dat4);
+     CloseFile(dat5);
 
      with memo1.Lines do begin
        add('Unchanged: '+inttostr(cnt_kept));
@@ -746,7 +729,7 @@ begin
        add('Skipped: '  +inttostr(cnt_skipped));
        add('Insert error: '+inttostr(cnt_error));
        add('');
-       add('Done! Time spent: '+timetostr(now-DateStart));
+       add('Done: '+DateTimeToStr(Now));
      end;
 
    OpenDocument(PChar(log_path));
@@ -754,19 +737,69 @@ begin
 end;
 
 
-procedure Tfrmload_argo.WriteProfile(fname:string; id: integer; StLat: real;
-  isCore:boolean; QF: integer);
+procedure Tfrmload_argo.WriteMetadata(ID, cruise_id: integer; StLat, StLon: real;
+      StDate, stdate_add_db, stdate_upd_f:TDateTime; stnum:string;
+      cast, QF:smallint);
 Var
- ncid, varidp, pp, ll, units_id: integer;
+  Qt:TSQLQuery;
+  TRt:TSQLTransaction;
+begin
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt:=TSQLQuery.Create(self);
+  Qt.Database:=frmdm.IBDB;
+  Qt.Transaction:=TRt;
+ try
+  with Qt do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' INSERT INTO STATION ');
+    SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, CRUISE_ID, ');
+    SQL.Add(' ST_NUMBER_ORIGIN, DATE_ADDED, DATE_UPDATED, ');
+    SQL.Add(' CAST_NUMBER, QCFLAG)');
+    SQL.Add(' VALUES ');
+    SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :CRUISE_ID, ');
+    SQL.Add(' :ST_NUMBER_ORIGIN, :DATE_ADDED, :DATE_UPDATED, ');
+    SQL.Add(' :CAST_NUMBER, :QCFLAG)');
+    ParamByName('ID').Value:=id;
+    ParamByName('latitude').Value:=StLat;
+    ParamByName('longitude').Value:=StLon;
+    ParamByName('dateandtime').Value:=StDate;
+    ParamByName('cruise_id').Value:=cruise_id;
+    ParamByName('st_number_origin').Value:=stnum;
+    ParamByName('date_added').Value:=stdate_add_db;
+    ParamByName('date_updated').Value:=stdate_upd_f;
+    ParamByName('cast_number').Value:=cast;
+    ParamByName('QCFLAG').Value:=QF;
+   ExecSQL;
+  end;
+   Trt.Commit;
+ except
+   Trt.Rollback;
+ end;
+end;
+
+
+procedure Tfrmload_argo.WriteProfile(fname:string; id: integer);
+Var
+ ncid, varidp, ll, k, c, units_id, k_prof, k_par, QF: integer;
+ precision: integer;
  var_name, tbl, QF_str: string;
  n_prof, n_levels, n_param: size_t;
  ip: array of single;
  ff: array of PAnsiChar;
- pres_arr, temp_arr, sal_arr, oxy_arr:array of single;
- val1, lev_m: real;
+ dd: array of double;
+
+ start: PArraySize_t;
+ pres_QF, val_QF, QF_ll, pres_tbl: String;
+
+ limit_min, limit_max, stlat:double;
+ val1, lev_m, pres: double;
+ isCore, isBest: boolean;
  TRt:TSQLTransaction;
  Qt:TSQLQuery;
- dat:text;
 begin
  try
    TRt:=TSQLTransaction.Create(nil);
@@ -776,161 +809,237 @@ begin
    Qt.Database:=frmdm.IBDB;
    Qt.Transaction:=TRt;
 
+  // opening NC file
   nc_open(pansichar(AnsiString(fname)), NC_NOWRITE, ncid); // only for reading
 
+
+  // Core or synthetic?
+  nc_inq_varid (ncid, pAnsiChar('DATA_TYPE'), varidp);
+  SetLength(ff, 16);
+  nc_get_var_text(ncid, varidp, ff);
+    if trim(pchar(ff))='Argo profile' then isCore:=true else isCore:=false;
+
+  // getting number of profiles
   nc_inq_dimid (ncid, pAnsiChar('N_PROF'), varidp);
   nc_inq_dimlen(ncid, varidp, n_prof);
 
-  (* if data file has more than 1 profile - skip it *)
-  if n_prof>1 then begin
-    memo1.lines.add(inttostr(n_prof)+'   '+fname);
-    exit;
-  end;
-
+  // geting number of parameters
   nc_inq_dimid (ncid, pAnsiChar('N_PARAM'), varidp);
   nc_inq_dimlen(ncid, varidp, n_param);
 
-
+  // getting number of levels
   nc_inq_dimid (ncid, pAnsiChar('N_LEVELS'), varidp);
   nc_inq_dimlen(ncid, varidp, n_levels);
 
+//  if n_prof>1 then memo1.lines.add(inttostr(n_prof)+'   '+fname);
 
- { nc_inq_varid (ncid, pAnsiChar('STATION_PARAMETERS'), varidp);
-  SetLength(ip, n_prof*n_param*16);
-  nc_get_var_text(ncid, varidp, );
-  op_inst:=trim(pchar(ip));
+  (* Loop over profiles *)
+  For k_prof:=0 to n_prof-1 do begin
 
+   if k_prof=0 then isbest:=true else isBest:=false;
 
-  (N_PROF, N_PARAM, STRING16)
+    // getting latitude
+    nc_inq_varid (ncid, pAnsiChar('LATITUDE'), varidp);
+    start:=GetMemory(SizeOf(TArraySize_t)*n_prof);
+     start^[0]:=k_prof;
+     SetLength(dd, 1);
+      nc_get_var1_double(ncid, varidp, start^, dd);
+      StLat:=dd[0];
+    FreeMemory(start);
 
-   STATION_PARAMETERS =
-  "PRES            ",
-  "TEMP            ",
-  "PSAL            ",
-  "CNDC            " ;   }
+    // if Core file
+    if IsCore=true then begin
+      nc_inq_varid (ncid, pAnsiChar('DATA_MODE'), varidp);
+      start:=GetMemory(SizeOf(TArraySize_t)*n_prof);
+       start^[0]:=k_prof;
+       setlength(ff, 0);
+       setlength(ff, 1);
+       nc_get_var1_text(ncid, varidp, start^, ff);
+       QF_str:=pchar(ff);
+      FreeMemory(start);
+    end;
 
-  (* !!! just pres, temp, dsal, doxy!!! *)
-  QF_str:='';
-  if n_param>4 then begin
-    n_param:=4;
-    nc_inq_varid (ncid, pAnsiChar('PARAMETER_DATA_MODE'), varidp);
-    SetLength(ff, (n_prof*n_param));
-    nc_get_var_text(ncid, varidp, ff);
-    QF_str:=trim(pchar(ff));
-  end;
+    (* Loop for parameters *)
+    for k_par:=1 to n_param-1 do begin  // skipping PRES (k_par=0)
 
-  SetLength(pres_arr, n_levels);
-  SetLength(temp_arr, n_levels);
-  SetLength(sal_arr,  n_levels);
-  SetLength(oxy_arr,  n_levels);
-
-
-  for pp:=1 to n_param do begin
-     case pp of
-      1: begin
-         var_name:='PRES';
+     // if synthetic
+      if isCore=false then begin
+       nc_inq_varid (ncid, pAnsiChar('PARAMETER_DATA_MODE'), varidp);
+        start:=GetMemory(SizeOf(TArraySize_t)*n_prof*n_param);
+         start^[0]:=k_prof;
+         start^[1]:=k_par;
+         setlength(ff, 0);
+         setlength(ff, 1);
+         nc_get_var1_text(ncid, varidp, start^, ff);
+          QF_str:=trim(pchar(ff));
+         // showmessage(qf_str);
+        FreeMemory(start);
       end;
-      2: begin
-         var_name:='TEMP';
-         if trim(QF_str)<>'' then
-          if (copy(QF_str, 2, 1)='D') or
-             (copy(QF_str, 2, 1)='A') then QF:=4 else QF:=0;
+
+     // getting parameter names
+     nc_inq_varid (ncid, pAnsiChar('STATION_PARAMETERS'), varidp);
+     start:=GetMemory(SizeOf(TArraySize_t)*n_prof*n_param);
+      start^[0]:=k_prof;
+      start^[1]:=k_par;
+      var_name:='';
+      for c:=0 to 63 do begin
+        start^[2]:=c;
+        SetLength(ff, 0);
+        SetLength(ff, 1);
+         nc_get_var1_text(ncid, varidp, start^, ff);
+         var_name:=var_name+pChar(ff);
       end;
-      3: begin
-         var_name:='PSAL';
-         if trim(QF_str)<>'' then
-          if (copy(QF_str, 3, 1)='D') or
-             (copy(QF_str, 3, 1)='A') then QF:=4 else QF:=0;
-      end;
-      4: begin
-         var_name:='DOXY';
-         if trim(QF_str)<>'' then
-          if (copy(QF_str, 4, 1)='D') or
-             (copy(QF_str, 4, 1)='A') then QF:=4 else QF:=0;
-      end;
-     end; //eof case
+      var_name:=trim(var_name);
+     FreeMemory(start);
 
-
-     if QF=4 then var_name:=var_name+'_ADJUSTED';
-
-     nc_inq_varid(ncid, pAnsiChar(AnsiString(var_name)), varidp);
-     SetLength(ip, n_levels);
-     nc_get_var_float(ncid, varidp, ip);
-
-     case pp of
-      1: pres_arr:=ip;
-      2: temp_arr:=ip;
-      3: sal_arr:=ip;
-      4: oxy_arr:=ip;
-     end;
-   ip:=nil;
-  end;
-
-
-  for ll:=0 to n_levels-1 do begin
-  { showmessage(floattostr(pres_arr[ll])+'   '+
-               floattostr(temp_arr[ll])+'   '+
-               floattostr(sal_arr[ll])+'   '+
-               floattostr(oxy_arr[ll])); }
-   // skipping pressure
-   for pp:=1 to n_param-1 do begin
-    val1:=99999;
-    case pp of
-     1: begin
-       tbl:='P_TEMPERATURE';
+     tbl:='';
+     if var_name='TEMP' then begin
        units_id:=1;
-       val1:=temp_arr[ll];
-       if (val1=99999) or (val1<-2.5) or (val1>40) then val1:=-9999;
+       limit_min:=-2.5;
+       limit_max:=40;
+       precision:=-3; //0.001
      end;
-     2: begin
-       tbl:='P_SALINITY';
+     if var_name='PSAL' then begin
        units_id:=2;
-       val1:=sal_arr[ll];
-       if (val1=99999) or (val1<2) or (val1>41) then val1:=-9999;
+       limit_min:=2;
+       limit_max:=41;
+       precision:=-3; //0.001
      end;
-     3: begin
-       tbl:='P_OXYGEN';
+     if var_name='DOXY' then begin
        units_id:=3;
-       val1:=oxy_arr[ll];
-       if (val1=99999) or (val1<5) or (val1>600) then val1:=-9999;
+       limit_min:=5;
+       limit_max:=600;
+       precision:=-3; //0.001
      end;
-    end;
+     if var_name='CDOM' then begin
+       units_id:=24;
+       limit_min:=-99999;
+       limit_max:= 99999;
+       precision:=-3; //0.001
+     end;
+     if var_name='CHLA' then begin
+       units_id:=9;
+       limit_min:=-99999;
+       limit_max:= 99999;
+       precision:=-3; //0.025
+     end;
+     if var_name='NITRATE' then begin
+       units_id:=3;
+       limit_min:=-99999;
+       limit_max:= 99999;
+       precision:=-2; //0.01
+     end;
 
-   lev_m:=-gibbsseawater.gsw_z_from_p(pres_arr[ll], stlat, 0, 0);
+     if var_name='TURBIDITY' then begin
+       units_id:=25;
+       limit_min:=-99999;
+       limit_max:= 99999;
+       precision:=-3; //0.001
+     end;
+     if var_name='PH_IN_SITU_TOTAL' then begin
+       units_id:=2;
+       limit_min:=-99999;
+       limit_max:= 99999;
+       precision:=-4; //0.0001
+     end;
+     if var_name='BISULFIDE' then begin
+       units_id:=3;
+       limit_min:=-99999;
+       limit_max:= 99999;
+       precision:=-3; //0.001
+     end;
+     if var_name='DOWNWELLING_PAR' then begin
+       units_id:=23;
+       limit_min:=-99999;
+       limit_max:= 99999;
+       precision:=-3; //0.001
+     end;
 
-   if val1<>-9999 then begin
-    with Qt do begin
-     Close;
-      SQL.Clear;
-      SQL.Add(' insert into ');
-      SQL.Add(tbl);
-      SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF1, PQF2, SQF, UNITS_ID, ');
-      SQL.Add('  INSTRUMENT_ID, PROFILE_NUMBER, PROFILE_BEST) ');
-      SQL.Add(' values ');
-      SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF1, :PQF2, :SQF, :UNITS_ID, ');
-      SQL.Add('  :INSTRUMENT_ID, :PROFILE_NUMBER, :PROFILE_BEST) ');
-      ParamByName('ID').AsInteger:=id;
-      ParamByName('LEV_DBAR').AsFloat:=pres_arr[ll];
-      ParamByName('LEV_M').AsFloat:=lev_m;
-      ParamByName('VAL').AsFloat:=val1;
-      ParamByName('PQF1').AsInteger:=QF;
-      ParamByName('PQF2').AsInteger:=QF;
-      ParamByName('SQF').AsInteger:=0;
-      ParamByName('UNITS_ID').AsInteger:=units_id;
-      ParamByName('INSTRUMENT_ID').AsInteger:=11;
-      ParamByName('PROFILE_NUMBER').AsInteger:=n_prof;
-      ParamByName('PROFILE_BEST').AsBoolean:=true;
-     ExecSQL;
-    end;
-   end;// not -9999
 
-   end;//tables
-  end;
+     GetTableName(var_name, tbl);
 
-  pres_arr:=nil;
-  temp_arr:=nil;
-  sal_arr:=nil;
-  oxy_arr:=nil;
+
+     if (QF_str='A') or (QF_str='D') then begin
+        var_name:=var_name+'_ADJUSTED';
+        pres_tbl:='PRES_ADJUSTED';
+     end else pres_tbl:='PRES';
+
+    // showmessage(fname+'   '+Var_name+'   '+tbl);
+
+     if tbl<>'' then begin
+
+      start:=GetMemory(SizeOf(TArraySize_t)*n_prof*n_levels);
+      start^[0]:=k_prof;
+
+      (* Loop over levels *)
+      for ll:=0 to n_levels-1 do begin
+        start^[1]:=ll;
+
+        //pressure
+        nc_inq_varid(ncid, pAnsiChar(AnsiString(pres_tbl)), varidp);
+        SetLength(ip, 1);
+        nc_get_var1_float(ncid, varidp, start^, ip);
+        if not VarIsNull(ip[0]) then pres:=ip[0] else pres:=-9999;
+        if (pres<0) or (pres>12000) then pres:=-9999;
+
+        nc_inq_varid(ncid, pAnsiChar(AnsiString(var_name)), varidp);
+        SetLength(ip, 1);
+        nc_get_var1_float(ncid, varidp, start^, ip);
+        if not VarIsNull(ip[0]) then val1:=ip[0] else val1:=-9999;
+
+        nc_inq_varid(ncid, pAnsiChar(AnsiString(var_name+'_QC')), varidp);
+        SetLength(ff, 0);
+        SetLength(ff, 1);
+        nc_get_var1_text(ncid, varidp, start^, ff);
+        val_QF:=PChar(ff);
+
+        if (val1=99999) or
+           (val1<limit_min) or
+           (val1>limit_max) or
+           (trim(val_QF)='') then val1:=-9999;
+
+       if (pres<>-9999) and (val1<>-9999) then begin
+         lev_m:=-gibbsseawater.gsw_z_from_p(pres, stlat, 0, 0);
+
+        // ARGO QF to Ocean.fdb QF
+         QFMapping(StrToInt(val_QF), QF);
+
+     {   memo1.Lines.Add(floattostr(pres)+'   '+
+                        floattostr(val1)+'   '+
+                        inttostr(QF));  }
+
+         with Qt do begin
+          Close;
+           SQL.Clear;
+           SQL.Add(' insert into ');
+           SQL.Add(tbl);
+           SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF1, PQF2, SQF, UNITS_ID, ');
+           SQL.Add('  INSTRUMENT_ID, PROFILE_NUMBER, PROFILE_BEST) ');
+           SQL.Add(' values ');
+           SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF1, :PQF2, :SQF, :UNITS_ID, ');
+           SQL.Add('  :INSTRUMENT_ID, :PROFILE_NUMBER, :PROFILE_BEST) ');
+           ParamByName('ID').AsInteger:=id;
+           ParamByName('LEV_DBAR').AsFloat:=roundto(pres, -1);
+           ParamByName('LEV_M').AsFloat:=roundto(lev_m, -1);
+           ParamByName('VAL').AsFloat:=roundto(val1, precision);
+           ParamByName('PQF1').AsInteger:=QF;
+           ParamByName('PQF2').AsInteger:=QF;
+           ParamByName('SQF').AsInteger:=0;
+           ParamByName('UNITS_ID').AsInteger:=units_id;
+           ParamByName('INSTRUMENT_ID').AsInteger:=11;
+           ParamByName('PROFILE_NUMBER').AsInteger:=k_prof+1;
+           ParamByName('PROFILE_BEST').AsBoolean:=isBest;
+          ExecSQL;
+         end;
+       end;// not -9999
+       ip:=nil;
+       ff:=nil;
+     end; // loop ovel levels
+     FreeMemory(start);
+
+   end; // tbl<>''
+  end; // loop over tables
+ end; // loop over n_prof
 
  finally
   nc_close(ncid);
@@ -938,17 +1047,170 @@ begin
   Trt.Commit;
   Qt.Free;
   TrT.Free;
-
-  pres_arr:=nil;
-  temp_arr:=nil;
-  sal_arr:=nil;
-  oxy_arr:=nil;
  end;
 end;
 
 
+procedure Tfrmload_argo.GreyList;
+var
+ dat, dat1:text;
+ fname, buf_str, st, log_path: string;
+ cruise_id, QF, argo_QF, c, k: integer;
+ var_name, tbl_name: string;
+ DateStart, date_beg, date_end:TDateTime;
+ yy, mn, dd: word;
+begin
+ fname:='ar_greylist.txt';
+ if not FileExists(epath.text+fname) then
+   if MessageDlg(fname+' cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
 
-procedure Tfrmload_argo.btnDeleteEmptyStationsClick(Sender: TObject);
+  DateStart:=now;
+
+  memo1.lines.add('');
+  memo1.lines.add('Processing "grey" list ');
+  memo1.lines.add('Start: '+datetimetostr(DateStart));
+  memo1.lines.add('');
+
+  AssignFile(dat, epath.text+fname); reset(dat);
+  readln(dat);
+
+  log_path:=epath.text+PathDelim+'_Logs'+PathDelim;
+   if not DirectoryExists(log_path) then CreateDir(log_path);
+
+  AssignFile(dat1, log_path+'GreyList_progress.txt'); rewrite(dat1);
+
+  repeat
+   readln(dat, st);
+
+   c:=0;
+   for k:=1 to 5 do begin
+    buf_str:='';
+     repeat
+      inc(c);
+      if st[c]<>',' then buf_str:=buf_str+st[c];
+     until (st[c]=',') or (c=length(st));
+      case k of
+       1: cruise_ID:=20000000+strtoint(buf_str);
+       2: var_name:=trim(buf_str);
+       3: begin
+           yy:=StrToInt(copy(buf_str, 1, 4));
+           mn:=StrToInt(copy(buf_str, 5, 2));
+           dd:=StrToInt(copy(buf_str, 7, 2));
+           date_beg:=EncodeDate(yy, mn, dd);
+       end;
+       4: begin
+           if trim(buf_str)<>'' then begin
+            yy:=StrToInt(copy(buf_str, 1, 4));
+            mn:=StrToInt(copy(buf_str, 5, 2));
+            dd:=StrToInt(copy(buf_str, 7, 2));
+            date_end:=EncodeDate(yy, mn, dd)
+           end else
+            date_end:=EncodeDate(9999,01,01);
+       end;
+       5: argo_qf:=strtoint(buf_str);
+      end;
+   end;
+
+   QFMapping(argo_QF, QF);
+
+   if QF>0 then begin
+     if (var_name<>'PRES') then begin
+       GetTableName(var_name, tbl_name);
+       if (tbl_name<>'') then begin
+         GreyListUpdateTable(cruise_id, QF, tbl_name, date_beg, date_end);
+
+         writeln(dat1, inttostr(cruise_id)+'   '+
+                       var_name+'   '+
+                       datetostr(date_beg)+'   '+
+                       datetostr(date_end));
+         flush(dat1);
+       end else
+         writeln(dat1, 'Error: '+st);
+     end;
+
+     if (var_name='PRES') then begin
+       for k:=0 to frmosmain.ListBox1.Count-1 do begin
+         tbl_name:=frmosmain.ListBox1.Items.Strings[k];
+         GreyListUpdateTable(cruise_id, QF, tbl_name, date_beg, date_end);
+       end;
+        writeln(dat1, inttostr(cruise_id)+'   '+
+                       var_name+'   '+
+                       datetostr(date_beg)+'   '+
+                       datetostr(date_end));
+         flush(dat1);
+     end;
+   end;  //QF>0
+
+  until eof(dat);
+  CloseFile(dat);
+  CloseFile(dat1);
+
+  with memo1.Lines do begin
+    add('');
+    add('Done: '+DateTimeToStr(Now));
+  end;
+end;
+
+
+procedure Tfrmload_argo.GreyListUpdateTable(cruise_id, QF:integer;
+      tbl_name:string; dd1, dd2:tDateTime);
+Var
+  TRt:TSQLTransaction;
+  Qt, Qt1:TSQLQuery;
+begin
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt:=TSQLQuery.Create(self);
+  Qt.Database:=frmdm.IBDB;
+  Qt.Transaction:=TRt;
+
+  Qt1:=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
+
+ {  showmessage(inttostr(cruise_id)+'    '+
+        datetostr(dd1)+'   '+datetostr(dd2)+
+        tbl_name+'   '+inttostr(qf)); }
+
+  try
+   with Qt do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' SELECT ID FROM STATION WHERE ');
+     SQL.Add(' DATEANDTIME BETWEEN :dd1 AND :dd2 AND ');
+     SQL.Add(' CRUISE_ID=:cr_ID ');
+     ParamByName('cr_id').Value:=cruise_id;
+     ParamByName('dd1').Value:=dd1;
+     ParamByName('dd2').Value:=dd2;
+    Open;
+   end;
+
+   while not Qt.EOF do begin
+    with Qt1 do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' UPDATE '+tbl_name);
+      SQL.Add(' SET PQF1=:QF, PQF2=:QF ');
+      SQL.Add(' WHERE ID=:ID AND PQF1<>QF ');
+      ParamByName('ID').Value:=Qt.Fields[0].Value;
+      ParamByName('QF').Value:=QF;
+     ExecSQL;
+    end;
+    Qt.Next;
+   end;
+
+   Trt.Commit;
+  except
+    Trt.Rollback;
+  end;
+  Qt.Free;
+  Trt.Free;
+end;
+
+
+
+procedure Tfrmload_argo.DeleteEmptyStations;
 Var
  Qt1, Qt2:TSQLQuery;
  TRt:TSQLTransaction;
@@ -963,7 +1225,8 @@ Memo1.Clear;
 
   DateStart:=now;
 
-  memo1.Clear;
+  memo1.lines.add('');
+  memo1.lines.add('Removing empty stations');
   memo1.lines.add('Start: '+timetostr(DateStart));
   memo1.lines.add('');
 
@@ -1067,6 +1330,144 @@ Memo1.Clear;
  end;
 end;
 
+procedure Tfrmload_argo.UpdateCruiseInfo;
+Var
+ DateStart: TDateTime;
+ fpath, fname: string;
+ k, cnt: integer;
+ dat:text;
+ ID: int64;
+begin
+ DateStart:=now;
+
+ memo1.lines.add('');
+ memo1.lines.add('Updating CRUISE info');
+ memo1.lines.add('Start: '+DateTimeToStr(DateStart));
+ memo1.lines.add('');
+
+ fpath:=ePath.Text+'_logs'+PathDelim;
+ cnt:=0;
+ for k:=1 to 2 do begin
+  if k=1 then fname:='CRUISE_added.txt';
+  if k=2 then fname:='CRUISE_updated.txt';
+
+  if FileExists(fpath+fname) then begin
+    AssignFile(dat, fpath+fname); reset(dat);
+    while not eof(dat) do begin
+     readln(dat, ID);
+     frmosmain.UpdateCruiseInfo(ID, true);
+     inc(cnt);
+    end;
+    Closefile(dat);
+  end;
+ end;
+
+ memo1.Lines.add('Updated '+inttostr(cnt)+' cruises');
+ memo1.Lines.add('');
+ memo1.Lines.add('Done: '+DateTimeToStr(Now));
+end;
+
+
+
+procedure Tfrmload_argo.InsertLastLevel;
+Var
+ DateStart: TDateTime;
+begin
+ DateStart:=now;
+
+ memo1.lines.add('');
+ memo1.lines.add('Instering last level');
+ memo1.lines.add('Start: '+DateTimeToStr(DateStart));
+ memo1.lines.add('');
+
+   frmosmain.InsertLastLevel;
+
+ memo1.Lines.add('');
+ memo1.Lines.add('Done: '+DateTimeToStr(Now));
+end;
+
+
+procedure Tfrmload_argo.InsertGEBCODepth;
+Var
+ DateStart: TDateTime;
+begin
+ DateStart:=now;
+
+ memo1.lines.add('');
+ memo1.lines.add('Instering bottom depth from GEBCO');
+ memo1.lines.add('Start: '+DateTimeToStr(DateStart));
+ memo1.lines.add('');
+
+   frmosmain.InsertGEBCODepth;
+
+ memo1.Lines.add('');
+ memo1.Lines.add('Done: '+DateTimeToStr(Now));
+end;
+
+
+procedure Tfrmload_argo.GetTableName(var_name:string; Var tbl_name: string);
+begin
+ tbl_name:='';
+  if var_name='TEMP' then tbl_name:='P_TEMPERATURE';
+  if var_name='PSAL' then tbl_name:='P_SALINITY';
+  if var_name='DOXY' then tbl_name:='P_OXYGEN';
+  if var_name='CDOM' then tbl_name:='P_CDOM';
+  if var_name='CHLA' then tbl_name:='P_CHLOROPHYLL';
+  if var_name='NITRATE'    then tbl_name:='P_NITRATE';
+  if var_name='TURBIDITY'  then tbl_name:='P_TURBIDITY';
+  if var_name='PH_IN_SITU_TOTAL' then tbl_name:='P_PHTSINSITUTP';
+  if var_name='BISULFIDE'        then tbl_name:='P_BISULFIDE';
+  if var_name='DOWNWELLING_PAR'  then tbl_name:='P_PAR';
+end;
+
+
+procedure Tfrmload_argo.GetCodes(argo_code:string; Var country_id, institute_id, project_id:integer);
+begin
+ country_id:=-9;
+ institute_id:=-9;
+ project_id:=-9;
+
+ if argo_code='AO' then begin institute_id:=251; project_id:=422; country_id:=186; end;
+ if argo_code='BO' then begin institute_id:=655; project_id:=31;  country_id:=229; end;
+ if argo_code='CS' then begin institute_id:=48;  project_id:=27;  country_id:=164; end;
+ if argo_code='HZ' then begin institute_id:=820; project_id:=69;  country_id:=231; end;
+ if argo_code='IF' then begin institute_id:=388; project_id:=124; country_id:=190; end;
+ if argo_code='IN' then begin institute_id:=821; project_id:=187; country_id:=196; end;
+ if argo_code='JA' then begin institute_id:=538; project_id:=201; country_id:=204; end;
+ if argo_code='JM' then begin institute_id:=539; project_id:=201; country_id:=204; end;
+ if argo_code='KM' then begin institute_id:=125; project_id:=447; country_id:=179; end;
+ if argo_code='KO' then begin institute_id:=124; project_id:=447; country_id:=179; end;
+ if argo_code='ME' then begin institute_id:=822; project_id:=61;  country_id:=173; end;
+ if argo_code='NM' then begin institute_id:=823; project_id:=69;  country_id:=231; end;
+end;
+
+
+procedure Tfrmload_argo.QFMapping(argo_QF:integer; var QF:integer);
+begin
+  QF:=0;
+   case argo_QF of
+     0: QF:=0;
+     1: QF:=4;
+     2: QF:=2;
+     3: QF:=1;
+     4: QF:=1;
+     5: QF:=3;
+     8: QF:=3;
+   end;
+end;
+
+
+procedure Tfrmload_argo.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+Var
+ Ini:TIniFile;
+begin
+    Ini := TIniFile.Create(IniFileName);
+   try
+     Ini.WriteString('osload_argo', 'data_path', ePath.Text);
+   finally
+     Ini.Free;
+   end;
+end;
 
 end.
 

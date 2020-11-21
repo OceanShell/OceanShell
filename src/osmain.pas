@@ -69,6 +69,7 @@ type
     chkCRUISEDateandtime: TCheckBox;
     chkCRUISERegion: TCheckBox;
     chkDateandTime: TCheckBox;
+    chkDepth: TCheckBox;
     chkIDRange: TCheckBox;
     chkPeriod: TCheckBox;
     chkQCFlag: TCheckBox;
@@ -130,6 +131,7 @@ type
     dtpDateUpdatedMin: TDateTimePicker;
     gbAuxiliaryParameters: TGroupBox;
     gbAuxiliaryParameters1: TGroupBox;
+    gbDepth: TGroupBox;
     GroupBox1: TGroupBox;
     GroupBox11: TGroupBox;
     GroupBox12: TGroupBox;
@@ -142,13 +144,11 @@ type
     GroupBox7: TGroupBox;
     iProfilesAll: TMenuItem;
     ishowselectedstation: TMenuItem;
-    iUpdateLastLevel: TMenuItem;
     iLoad_Pangaea_CTD_tab: TMenuItem;
     iLoad_WOD18: TMenuItem;
     iMap: TMenuItem;
     iImport: TMenuItem;
     iInitialDatabase: TMenuItem;
-    iUpdateCruise: TMenuItem;
     Label1: TLabel;
     Label10: TLabel;
     Label11: TLabel;
@@ -188,7 +188,7 @@ type
     MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
-    iBottomDepthGEBCO: TMenuItem;
+    iInsertBottomDepthGEBCO: TMenuItem;
     MenuItem15: TMenuItem;
     iStandarddeviationslayers: TMenuItem;
     iVisualizationSurfer: TMenuItem;
@@ -197,8 +197,8 @@ type
     MenuItem17: TMenuItem;
     MenuItem18: TMenuItem;
     MenuItem19: TMenuItem;
-    MenuItem2: TMenuItem;
     iSelectEntry: TMenuItem;
+    iInsertLastLevel: TMenuItem;
     MenuItem20: TMenuItem;
     iVisualizationGrapferHistorgam: TMenuItem;
     MenuItem21: TMenuItem;
@@ -217,6 +217,7 @@ type
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     Panel3: TPanel;
+    pcDepth: TPageControl;
     pDataCruise: TPanel;
     pcCruiseDateandTime: TPageControl;
     pcCruiseNumStations: TPageControl;
@@ -275,9 +276,15 @@ type
     iExit: TMenuItem;
     ListBox1: TListBox;
     seCruiseLonMin: TFloatSpinEdit;
+    seDepthMin: TSpinEdit;
+    seDepthMax: TSpinEdit;
+    seGEBCOMin: TSpinEdit;
+    seGEBCOMax: TSpinEdit;
     seLatMax: TFloatSpinEdit;
     seLatMin: TFloatSpinEdit;
     seLonMax: TFloatSpinEdit;
+    seLastLevelMin: TFloatSpinEdit;
+    seLastLevelMax: TFloatSpinEdit;
     seLonMin: TFloatSpinEdit;
     Splitter1: TSplitter;
     Splitter2: TSplitter;
@@ -287,6 +294,9 @@ type
     TabSheet11: TTabSheet;
     TabSheet12: TTabSheet;
     TabSheet13: TTabSheet;
+    TabSheet14: TTabSheet;
+    TabSheet15: TTabSheet;
+    TabSheet16: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
@@ -369,7 +379,7 @@ type
     procedure iDBStatistics_AKClick(Sender: TObject);
     procedure iDIVAndClick(Sender: TObject);
     procedure iDuplicatesClick(Sender: TObject);
-    procedure iBottomDepthGEBCOClick(Sender: TObject);
+    procedure iInsertBottomDepthGEBCOClick(Sender: TObject);
     procedure iExportCIAClick(Sender: TObject);
     procedure iExportCOMFORTClick(Sender: TObject);
     procedure iExportCOMFORT_tableClick(Sender: TObject);
@@ -393,15 +403,14 @@ type
     procedure iStandarddeviationslayersClick(Sender: TObject);
     procedure iSupportTablesClick(Sender: TObject);
     procedure iTDdiagramsClick(Sender: TObject);
-    procedure iUpdateLastLevelClick(Sender: TObject);
     procedure iUpdateUnitsClick(Sender: TObject);
     procedure iVisualizationGrapferHistorgamClick(Sender: TObject);
     procedure iVisualizationSurferSquaresClick(Sender: TObject);
     procedure lbResetSearchCruisesClick(Sender: TObject);
     procedure lbResetSearchStationsClick(Sender: TObject);
-    procedure iUpdateCruiseClick(Sender: TObject);
     procedure iExportASCIIClick(Sender: TObject);
     procedure MenuItem19Click(Sender: TObject);
+    procedure iInsertLastLevelClick(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
 
   private
@@ -422,6 +431,10 @@ type
     procedure DatabaseInfo;
     procedure SelectionInfo;
     procedure CDSNavigation;
+
+    Procedure UpdateCruiseInfo(ID: int64; TotalEqualDB:boolean);
+    Procedure InsertLastLevel;
+    Procedure InsertGEBCODepth;
     procedure RunScript(ExeFlag:integer; cmd:string; Sender:TMemo);
   end;
 
@@ -673,6 +686,8 @@ begin
     chkIDRange.Checked     := Ini.ReadBool( 'osmain', 'station_chkIDRange',     false);
     chkParameter.Checked   := Ini.ReadBool( 'osmain', 'station_chkVariables',   false);
     chkQCFlag.Checked      := Ini.ReadBool( 'osmain', 'station_chkQCFlag',      false);
+    chkDepth.Checked       := Ini.ReadBool( 'osmain', 'station_chkDepth',       false);
+
 
     sbSelectedCruise.width := Ini.ReadInteger( 'osmain', 'sbSelectedCruie_Width', 400);
     DBGridCruise.Height    := Ini.ReadInteger( 'osmain', 'dbGridCruise_Height',   200);
@@ -737,6 +752,7 @@ begin
   chkIDRange.OnChange(self);
   chkParameter.OnChange(self);
   chkQCFlag.OnChange(self);
+  chkDepth.OnChange(self);
 
  (* Works on double click *)
   If ParamCount<>0 then begin
@@ -754,13 +770,12 @@ begin
 
  (* Disabling some menu items if there is no GEBCO *)
  iPlotBathymetry.Enabled:=GEBCOExists;
- iBottomDepthGEBCO.Enabled:=GEBCOExists;
+ iInsertBottomDepthGEBCO.Enabled:=GEBCOExists;
 
  OnResize(Self);
  SetFocus;
  Application.ProcessMessages;
 end;
-
 
 
 procedure Tfrmosmain.btnOpenOceanFDBClick(Sender: TObject);
@@ -1101,13 +1116,28 @@ try
                          cgParameter.Items.Strings[k]+')) ';
     end;
 
+    (* Depth *)
+    if chkDepth.Checked=true then begin
+      if pcDepth.ActivePageIndex=0 then begin
+       SQL_str:=SQL_str+' AND (STATION.BOTTOMDEPTH BETWEEN '+
+                        seDepthMin.Text+' AND '+seDepthMax.Text+') ';
+      end;
+      if pcDepth.ActivePageIndex=1 then begin
+       SQL_str:=SQL_str+' AND (STATION.BOTTOMDEPTH_GEBCO BETWEEN '+
+                        seGebcoMin.Text+' AND '+seGebcoMax.Text+') ';
+      end;
+      if pcDepth.ActivePageIndex=2 then begin
+       SQL_str:=SQL_str+' AND (STATION.LASTLEVEL_M BETWEEN '+
+                        seLastLevelMin.Text+' AND '+seLastLevelMax.Text+') ';
+      end;
+    end;
 
     if chkIgnoreDup.Checked=true then
       SQL_str:=SQL_str+' AND (STATION.DUPLICATE=FALSE) ';
 
     if copy(SQL_str, 1, 4)=' AND' then SQL_str:=Copy(SQL_str, 5, length(SQL_str));
 
-  //  showmessage(StationSQL+sql_str);
+   // showmessage(StationSQL+sql_str);
 
    if frmdm.TR.Active=true then frmdm.TR.Commit;
    with frmdm.Q do begin
@@ -2821,6 +2851,7 @@ procedure Tfrmosmain.DBGridCruiseKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if ((key=VK_UP) or (key=VK_DOWN)) and
+     (not frmdm.Q.IsEmpty) and
      (not VarIsNull(frmdm.Q.FieldByName('ID').Value)) then begin
     if frmmap_open=true then frmmap.ChangeID(frmdm.Q.FieldByName('ID').Value); //Map
     if frmprofile_plot_all_open then frmprofile_plot_all.chkCruiseHighlight.OnChange(self);
@@ -3120,185 +3151,23 @@ begin
 end;
 
 
-procedure Tfrmosmain.iUpdateLastLevelClick(Sender: TObject);
-var
-  ci1, CurrentID, k:integer;
-  Max_LLM, Max_LLD:variant;
+procedure Tfrmosmain.iInsertBottomDepthGEBCOClick(Sender: TObject);
 begin
-
-try
- CurrentID:=frmdm.Q.FieldByName('ID').AsInteger;
- frmdm.Q.DisableControls;
- frmdm.Q.First;
-
- k:=0;
- While not frmdm.Q.Eof do begin
-   inc(k);
-
-    Max_LLM:=-9;
-    Max_LLD:=-9;
-    for ci1:=0 to frmosmain.ListBox1.Count-1 do begin
-      With frmdm.q1 do begin
-       Close;
-        SQL.Clear;
-        SQL.Add(' Select max(LEV_M) as LLM, max(LEV_DBAR) as LLD from ');
-        SQL.Add(frmosmain.ListBox1.Items.Strings[ci1]);
-        SQL.Add(' where ID=:pAbsNum ');
-        Parambyname('pAbsnum').asInteger:=frmdm.Q.FieldByName('ID').AsInteger;
-       Open;
-          if not VarIsNull(frmdm.q1.Fields[0].AsVariant) then Max_LLM:=Max(Max_LLM,frmdm.q1.Fields[0].AsFloat);
-          if not VarIsNull(frmdm.q1.Fields[1].AsVariant) then Max_LLD:=Max(Max_LLD,frmdm.q1.Fields[1].AsFloat);
-       Close;
-      end;
-    end;
-
-    if Max_LLM=-9 then Max_LLM:=Null;
-    if Max_LLD=-9 then Max_LLD:=Null;
-
-    With frmdm.q1 do begin
-       Close;
-        SQL.Clear;
-        SQL.Add(' Update STATION set ');
-        SQL.Add(' LASTLEVEL_M=:LLM, ');
-        SQL.Add(' LASTLEVEL_DBAR=:LLD ');
-        SQL.Add(' where ID=:pAbsNum ');
-        Parambyname('pAbsnum').asInteger:=frmdm.Q.FieldByName('ID').AsInteger;
-        Parambyname('LLM').Value:=Max_LLM;
-        Parambyname('LLD').Value:=Max_LLD;
-       ExecSQL;
-    end;
-    Procedures.ProgressTaskbar(k, frmdm.Q.RecordCount-1);
-   frmdm.Q.Next;
- end;
- Procedures.ProgressTaskbar(0, 0);
-finally
- frmdm.Q.Refresh;
- frmdm.Q.Locate('ID',CurrentID,[loCaseInsensitive]);
- frmdm.Q.EnableControls;
-
- showmessage('Last level update completed');
-end;
+ InsertGEBCODepth;
+ Showmessage('Bottom depth from GEBCO has been updated');
 end;
 
-
-procedure Tfrmosmain.iUpdateCruiseClick(Sender: TObject);
-Var
-  ID, k : integer;
-
-  TRt:TSQLTransaction;
-  Qt1:TSQLQuery;
-
-  LatMin, LatMax, LonMin, LonMax: real;
-  DateMin, DateMax: TDateTime;
-  cnt, ID_old: integer;
+procedure Tfrmosmain.iInsertLastLevelClick(Sender: TObject);
 begin
-   try
-    TRt:=TSQLTransaction.Create(self);
-    TRt.DataBase:=frmdm.IBDB;
-
-    Qt1:=TSQLQuery.Create(self);
-    Qt1.Database:=frmdm.IBDB;
-    Qt1.Transaction:=TRt;
-
-    ID_old:=frmdm.QCruise.FieldByName('ID').AsInteger;
-
-     frmdm.QCruise.DisableControls;
-     frmdm.QCruise.First;
-
-     k:=0;
-     while not frmdm.QCruise.eof do begin
-      inc(k);
-
-      if frmdm.QCruise.FieldByName('SELECTED').AsBoolean=true then begin
-        ID:=frmdm.QCruise.FieldByName('ID').AsInteger;
-
-       // showmessage(inttostr(id));
-
-        cnt:=0;
-        with Qt1 do begin
-         Close;
-          SQL.Clear;
-          SQL.Add(' SELECT ');
-          SQL.Add(' min(LATITUDE) as LatMin, ');
-          SQL.Add(' max(LATITUDE) as LatMax, ');
-          SQL.Add(' min(LONGITUDE) as LonMin, ');
-          SQL.Add(' max(LONGITUDE) as LonMax, ');
-          SQL.Add(' min(DATEANDTIME) as DateMin, ');
-          SQL.Add(' max(DATEANDTIME) as DateMax, ');
-          SQL.Add(' count(ID) as cnt ');
-          SQL.Add(' FROM STATION ');
-          SQL.Add(' where CRUISE_ID=:CR_ID ');
-          ParamByName('CR_ID').AsInteger:=ID;
-         Open;
-           if Qt1.FieldByName('cnt').AsInteger>0 then begin
-             LatMin:=Qt1.FieldByName('LatMin').Value;
-             LatMax:=Qt1.FieldByName('LatMax').Value;
-             LonMin:=Qt1.FieldByName('LonMin').Value;
-             LonMax:=Qt1.FieldByName('LonMax').Value;
-             DateMin:=Qt1.FieldByName('DateMin').Value;
-             DateMax:=Qt1.FieldByName('DateMax').Value;
-             cnt:=Qt1.FieldByName('cnt').Value;
-           end;
-           if Qt1.FieldByName('cnt').AsInteger=0 then begin
-             LatMin:=0;
-             LatMax:=0;
-             LonMin:=0;
-             LonMax:=0;
-             DateMin:=EncodeDate(1900, 01, 01);
-             DateMax:=EncodeDate(1900, 01, 01);
-             cnt:=0;
-           end;
-         Close;
-       end;
-
-      with frmdm.q1 do begin
-       Close;
-        SQL.Clear;
-        SQL.Add(' UPDATE CRUISE SET ');
-        SQL.Add(' LATITUDE_MIN=:LatMin, ');
-        SQL.Add(' LATITUDE_MAX=:LatMax, ');
-        SQL.Add(' LONGITUDE_MIN=:LonMin, ');
-        SQL.Add(' LONGITUDE_MAX=:LonMax, ');
-        SQL.Add(' DATE_START_DATABASE=:DateMin, ');
-        SQL.Add(' DATE_END_DATABASE=:DateMax, ');
-        SQL.Add(' STATIONS_DATABASE=:cnt ');
-        SQL.Add(' WHERE ID=:CR_ID ');
-        ParamByName('CR_ID').AsInteger:=ID;
-        ParamByName('LatMin').Value:=LatMin;
-        ParamByName('LatMax').Value:=LatMax;
-        ParamByName('LonMin').Value:=LonMin;
-        ParamByName('LonMax').Value:=LonMax;
-        ParamByName('DateMin').Value:=DateMin;
-        ParamByName('DateMax').Value:=DateMax;
-        ParamByName('cnt').Value:=cnt;
-       ExecSQL;
-      end;
-
-      end; // if SELECTED=true
-
-      Procedures.ProgressTaskbar(k, frmdm.QCruise.RecordCount-1);
-      frmdm.QCruise.Next;
-     end;
-
-      finally
-        Qt1.Close;
-        Trt.Commit;
-        Qt1.Free;
-        Trt.Free;
-        frmdm.TR.CommitRetaining;
-
-        frmdm.QCruise.Locate('ID', ID_old, []);
-        frmdm.QCruise.EnableControls;
-      end;
-
-     if MessageDlg('Cruise info was successfuly updated',
-      mtInformation, [mbOk], 0)=mrOk then Procedures.ProgressTaskbar(0, 0);
+ InsertLastLevel;
+ Showmessage('Last levels have been updated');
 end;
 
 
-procedure Tfrmosmain.iBottomDepthGEBCOClick(Sender: TObject);
+procedure Tfrmosmain.InsertGEBCODepth;
 Var
-  ID, GEBCO, k: integer;
+  ID: int64;
+  GEBCO, k: integer;
   Lon, lat: real;
 
   fname: string;
@@ -3306,13 +3175,28 @@ Var
   start: PArraySize_t;
   sp:array of smallint;
   lat0, lon0, step: real;
+
+  TRt:TSQLTransaction;
+  Qt, Qt1:TSQLQuery;
 begin
    fname:=GlobalSupportPath+PathDelim+'bathymetry'+PathDelim+'GEBCO_2020.nc';
 
    if not FileExists(fname) then
     if MessageDlg('GEBCO is not found', mtWarning, [mbOk], 0)=mrOk then exit; // if there's no file
 
-   with frmdm.q1 do begin
+  try
+   TRt:=TSQLTransaction.Create(self);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt:=TSQLQuery.Create(self);
+   Qt.Database:=frmdm.IBDB;
+   Qt.Transaction:=TRt;
+
+   Qt1:=TSQLQuery.Create(self);
+   Qt1.Database:=frmdm.IBDB;
+   Qt1.Transaction:=TRt;
+
+   with Qt do begin
     Close;
      SQL.Clear;
      SQL.Add(' SELECT ID, LATITUDE, LONGITUDE FROM STATION ');
@@ -3322,7 +3206,7 @@ begin
     First;
    end;
 
-   with frmdm.q2 do begin
+   with Qt1 do begin
     Close;
      SQL.Clear;
      SQL.Add(' UPDATE STATION SET ');
@@ -3331,7 +3215,6 @@ begin
     Prepare;
    end;
 
-   try
     // opening GEBCO_2020.nc
      nc_open(pansichar(fname), NC_NOWRITE, ncid);
      start:=GetMemory(SizeOf(TArraySize_t)*2);
@@ -3341,10 +3224,10 @@ begin
      step  := 1/240;  // 15"
 
   k:=0;
-  while not frmdm.q1.EOF do begin
-   ID :=frmdm.q1.FieldByName('ID').AsInteger;
-   Lat:=frmdm.q1.FieldByName('LATITUDE').AsFloat;
-   Lon:=frmdm.q1.FieldByName('LONGITUDE').AsFloat;
+  while not Qt.EOF do begin
+   ID :=Qt.FieldByName('ID').AsInteger;
+   Lat:=Qt.FieldByName('LATITUDE').AsFloat;
+   Lon:=Qt.FieldByName('LONGITUDE').AsFloat;
 
     // search by indexes
     start^[0]:=abs(trunc((lat0-lat)/step)); // lat index
@@ -3354,7 +3237,7 @@ begin
      nc_get_var1_short(ncid, 2, start^, sp);  // sending request to the file
     GEBCO:=-sp[0]; // getting results
 
-     with frmdm.q2 do begin
+     with Qt1 do begin
        Close;
          ParamByName('ID').AsInteger:=ID;
          ParamByName('GEBCO').AsInteger:=GEBCO;
@@ -3362,20 +3245,213 @@ begin
      end;
 
    inc(k);
-   ProgressTaskbar(k, frmdm.q1.RecordCount);
+   ProgressTaskbar(k, Qt.RecordCount);
 
-   if (k mod 10000)=1 then frmdm.TR.CommitRetaining;
+   if (k mod 1000)=1 then TRt.CommitRetaining;
 
-   frmdm.q1.Next;
+   Qt.Next;
   end;
 
- ProgressTaskbar(0, 0);
- Showmessage('Bottom depth from GEBCO successfully updated');
 finally
  sp:=nil;
  FreeMemory(start);
  nc_close(ncid);  // Close nc file
+
+ ProgressTaskbar(0, 0);
+ Trt.Commit;
+ Qt.Free;
+ Qt1.Free;
+ Trt.Free;
 end;
+end;
+
+
+(* Insert LASTLEVEL where it is NULL *)
+Procedure Tfrmosmain.InsertLastLevel;
+var
+  ID: int64;
+  ci1, k, cnt:integer;
+  Max_LLM, Max_LLD:variant;
+
+  TRt:TSQLTransaction;
+  Qt, Qt1:TSQLQuery;
+begin
+
+ TRt:=TSQLTransaction.Create(self);
+ TRt.DataBase:=frmdm.IBDB;
+
+ Qt:=TSQLQuery.Create(self);
+ Qt.Database:=frmdm.IBDB;
+ Qt.Transaction:=TRt;
+
+ Qt1:=TSQLQuery.Create(self);
+ Qt1.Database:=frmdm.IBDB;
+ Qt1.Transaction:=TRt;
+
+ try
+
+  with Qt do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' SELECT ID FROM STATION ');
+    SQL.Add(' WHERE LASTLEVEL_M IS NULL ');
+    SQL.Add(' ORDER BY ID ');
+   Open;
+   Last;
+     cnt:=Qt.RecordCount;
+   First;
+  end;
+
+  k:=0;
+  While not Qt.Eof do begin
+   inc(k);
+    ID:=Qt.FieldByName('ID').Value;
+
+    Max_LLM:=-9;
+    Max_LLD:=-9;
+    for ci1:=0 to frmosmain.ListBox1.Count-1 do begin
+      With Qt1 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' Select max(LEV_M) as LLM, max(LEV_DBAR) as LLD from ');
+        SQL.Add(frmosmain.ListBox1.Items.Strings[ci1]);
+        SQL.Add(' where ID=:pAbsNum ');
+        Parambyname('pAbsnum').asInteger:=ID;
+       Open;
+          if not VarIsNull(Qt1.Fields[0].AsVariant) then Max_LLM:=Max(Max_LLM,Qt1.Fields[0].AsFloat);
+          if not VarIsNull(Qt1.Fields[1].AsVariant) then Max_LLD:=Max(Max_LLD,Qt1.Fields[1].AsFloat);
+       Close;
+      end;
+    end;
+
+    if Max_LLM=-9 then Max_LLM:=Null;
+    if Max_LLD=-9 then Max_LLD:=Null;
+
+    With Qt1 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' Update STATION set ');
+        SQL.Add(' LASTLEVEL_M=:LLM, ');
+        SQL.Add(' LASTLEVEL_DBAR=:LLD ');
+        SQL.Add(' where ID=:pAbsNum ');
+        Parambyname('pAbsnum').Value:=ID;
+        Parambyname('LLM').Value:=Max_LLM;
+        Parambyname('LLD').Value:=Max_LLD;
+       ExecSQL;
+    end;
+
+    Procedures.ProgressTaskbar(k, cnt);
+    if (k mod 1000)=1 then TRt.CommitRetaining;
+
+   Qt.Next;
+  end;
+  finally
+   Procedures.ProgressTaskbar(0, 0);
+   Trt.Commit;
+   Qt.Free;
+   Qt1.Free;
+   Trt.Free;
+  end;
+end;
+
+
+Procedure Tfrmosmain.UpdateCruiseInfo(ID: int64; TotalEqualDB:boolean);
+Var
+TRt:TSQLTransaction;
+Qt:TSQLQuery;
+
+cnt: integer;
+latmin, latmax, lonmin, lonmax:real;
+datemin, datemax, dateupd:TDateTime;
+begin
+
+
+ TRt:=TSQLTransaction.Create(self);
+ TRt.DataBase:=frmdm.IBDB;
+
+ Qt:=TSQLQuery.Create(self);
+ Qt.Database:=frmdm.IBDB;
+ Qt.Transaction:=TRt;
+
+ try
+  cnt:=0;
+  with Qt do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' SELECT ');
+    SQL.Add(' min(LATITUDE) as LatMin, ');
+    SQL.Add(' max(LATITUDE) as LatMax, ');
+    SQL.Add(' min(LONGITUDE) as LonMin, ');
+    SQL.Add(' max(LONGITUDE) as LonMax, ');
+    SQL.Add(' min(DATEANDTIME) as DateMin, ');
+    SQL.Add(' max(DATEANDTIME) as DateMax, ');
+    SQL.Add(' max(DATE_UPDATED) as DateUpd, ');
+    SQL.Add(' count(ID) as cnt ');
+    SQL.Add(' FROM STATION ');
+    SQL.Add(' where CRUISE_ID=:CR_ID ');
+    ParamByName('CR_ID').AsInteger:=ID;
+   Open;
+    if FieldByName('cnt').AsInteger>0 then begin
+      LatMin:=FieldByName('LatMin').Value;
+      LatMax:=FieldByName('LatMax').Value;
+      LonMin:=FieldByName('LonMin').Value;
+      LonMax:=FieldByName('LonMax').Value;
+      DateMin:=FieldByName('DateMin').Value;
+      DateMax:=FieldByName('DateMax').Value;
+      DateUpd:=FieldByName('DateUpd').Value;
+      cnt:=FieldByName('cnt').Value;
+    end;
+    if FieldByName('cnt').AsInteger=0 then begin
+      LatMin:=0;
+      LatMax:=0;
+      LonMin:=0;
+      LonMax:=0;
+      DateMin:=EncodeDate(1900, 01, 01);
+      DateMax:=EncodeDate(1900, 01, 01);
+      DateUpd:=EncodeDate(1900, 01, 01);
+      cnt:=0;
+    end;
+   Close;
+  end;
+
+  with Qt do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' UPDATE CRUISE SET ');
+    SQL.Add(' LATITUDE_MIN=:LatMin, ');
+    SQL.Add(' LATITUDE_MAX=:LatMax, ');
+    SQL.Add(' LONGITUDE_MIN=:LonMin, ');
+    SQL.Add(' LONGITUDE_MAX=:LonMax, ');
+    SQL.Add(' DATE_UPDATED=:DateUpd, ');
+    SQL.Add(' DATE_START_DATABASE=:DateMin, ');
+    SQL.Add(' DATE_END_DATABASE=:DateMax, ');
+    SQL.Add(' STATIONS_DATABASE=:cnt, ');
+
+    if TotalEqualDB=true then begin
+      SQL.Add(' DATE_START_TOTAL=:DateMin, ');
+      SQL.Add(' DATE_END_TOTAL=:DateMax, ');
+      SQL.Add(' STATIONS_TOTAL=:cnt ');
+    end;
+
+    SQL.Add(' WHERE ID=:CR_ID ');
+    ParamByName('CR_ID').AsInteger:=ID;
+    ParamByName('LatMin').Value:=LatMin;
+    ParamByName('LatMax').Value:=LatMax;
+    ParamByName('LonMin').Value:=LonMin;
+    ParamByName('LonMax').Value:=LonMax;
+    ParamByName('DateMin').Value:=DateMin;
+    ParamByName('DateMax').Value:=DateMax;
+    ParamByName('DateUpd').Value:=DateUpd;
+    ParamByName('cnt').Value:=cnt;
+   ExecSQL;
+  end;
+
+ finally
+  Qt.Close;
+  Trt.Commit;
+  Qt.Free;
+  Trt.Free;
+ end;
 end;
 
 procedure Tfrmosmain.iExportCIAClick(Sender: TObject);
@@ -3940,6 +4016,7 @@ begin
     Ini.WriteBool    ( 'osmain', 'station_chkVariables',        chkParameter.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkQCFlag',           chkQCFlag.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkDateandTime',      chkDateandTime.Checked);
+    Ini.WriteBool    ( 'osmain', 'station_chkDepth',            chkDepth.Checked);
 
   finally
     Ini.Free;

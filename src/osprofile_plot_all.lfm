@@ -165,7 +165,7 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
   end
   object Chart1: TChart
     Left = 0
-    Height = 504
+    Height = 468
     Top = 37
     Width = 512
     AxisList = <    
@@ -200,12 +200,12 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
   end
   object pFilter: TPanel
     Left = 512
-    Height = 504
+    Height = 468
     Top = 37
     Width = 192
     Align = alRight
     BevelOuter = bvNone
-    ClientHeight = 504
+    ClientHeight = 468
     ClientWidth = 192
     TabOrder = 2
     Visible = False
@@ -235,6 +235,17 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
       OnChange = chkCruiseHighlightChange
       TabOrder = 1
     end
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 36
+    Top = 505
+    Width = 704
+    Panels = <    
+      item
+        Width = 50
+      end>
+    SimplePanel = False
   end
   object ChartToolset1: TChartToolset
     left = 160
