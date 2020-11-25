@@ -94,12 +94,12 @@ object frmparameters_list: Tfrmparameters_list
     object TabSheet3: TTabSheet
       Caption = 'Instrument'
       ClientHeight = 492
-      ClientWidth = 433
+      ClientWidth = 367
       object chklInstrument: TCheckListBox
         Left = 12
         Height = 460
         Top = 12
-        Width = 405
+        Width = 339
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
         Font.Height = -17
@@ -112,39 +112,25 @@ object frmparameters_list: Tfrmparameters_list
     object TabSheet4: TTabSheet
       Caption = 'PQF1'
       ClientHeight = 492
-      ClientWidth = 433
+      ClientWidth = 367
       object chkPQF1: TCheckListBox
         Left = 12
         Height = 460
         Top = 12
-        Width = 405
+        Width = 339
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
-        Items.Strings = (
-          '[0]   Not checked'
-          '[1]   Bad      '
-          '[2]   Suspicious        '
-          '[3]   Calculated'
-          '[4]   Acceptable'
-          '[5]   Passed primary QC'
-          '[6]   Passed expert control'
-          '[7]   Passed secondary QC and quality confirmed'
-          '[8]   Passed secondary QC and adjusted'
-        )
-        ItemHeight = 27
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 0
-        Data = {
-          09000000000000000000000000
-        }
       end
     end
     object TabSheet2: TTabSheet
       Caption = 'PQF2'
       ClientHeight = 492
-      ClientWidth = 433
+      ClientWidth = 367
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -154,53 +140,32 @@ object frmparameters_list: Tfrmparameters_list
         Left = 12
         Height = 460
         Top = 12
-        Width = 405
+        Width = 339
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
-        Items.Strings = (
-          '[0]   Not checked'
-          '[1]   Bad      '
-          '[2]   Suspicious        '
-          '[3]   Calculated'
-          '[4]   Acceptable'
-          '[5]   Passed primary QC'
-          '[6]   Passed expert control'
-          '[7]   Passed secondary QC and quality confirmed'
-          '[8]   Passed secondary QC and adjusted'
-        )
-        ItemHeight = 27
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 0
-        Data = {
-          09000000000000000000000000
-        }
       end
     end
     object TabSheet5: TTabSheet
       Caption = 'SQF'
       ClientHeight = 492
-      ClientWidth = 433
+      ClientWidth = 367
       object chkSQF: TCheckListBox
         Left = 12
         Height = 460
         Top = 12
-        Width = 405
+        Width = 339
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
-        Items.Strings = (
-          '[0]   Not checked'
-          '[1]   Bad'
-        )
-        ItemHeight = 27
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 0
-        Data = {
-          020000000000
-        }
       end
     end
   end

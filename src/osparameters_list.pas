@@ -58,36 +58,13 @@ procedure Tfrmparameters_list.FormShow(Sender: TObject);
 Var
  Ini:TIniFile;
  k: integer;
- TRt:TSQLTransaction;
- Qt:TSQLQuery;
 begin
-TRt:=TSQLTransaction.Create(self);
-TRt.DataBase:=frmdm.IBDB;
 
-Qt:=TSQLQuery.Create(self);
-Qt.Database:=frmdm.IBDB;
-Qt.Transaction:=TRt;
 
-try
- with Qt do begin
-  Close;
-   SQL.Clear;
-   SQL.Add(' SELECT NAME from INSTRUMENT ');
-   SQL.Add(' ORDER BY ID ');
-  Open;
- end;
-
- chklInstrument.Clear;
- while not Qt.eof do begin
-  chklInstrument.Items.Add(Qt.Fields[0].AsString);
-  Qt.Next;
- end;
-finally
-  Qt.Close;
-  Trt.Commit;
-  Qt.Free;
-  Trt.Free;
-end;
+ chklInstrument.Items:=instrument_list;
+ chkPQF1.Items:=PQF1_list;
+ chkPQF2.Items:=PQF2_list;
+ chkSQF.Items :=SQF_list;
 
  Ini := TIniFile.Create(IniFileName);
    try
@@ -319,7 +296,7 @@ begin
      Ini.WriteBool( 'osparameters_list', 'PQF2_'+inttostr(k), chkPQF2.Checked[k]);
 
    for k:=0 to chkSQF.Count-1 do
-     Ini.WriteBool( 'osparameters_list', 'SQF_'+inttostr(k), chkSQF.Checked[k]);
+     Ini.WriteBool( 'osparameters_list','SQF_'+inttostr(k), chkSQF.Checked[k]);
 
    for k:=0 to chklInstrument.Count-1 do
      Ini.WriteBool('osparameters_list', 'Instrument'+inttostr(k),  chklInstrument.Checked[k]);

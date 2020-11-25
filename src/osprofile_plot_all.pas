@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
-  StdCtrls, IniFiles, SQLDB, Variants, Types, TAGraph, TATools, TASeries,
-  UXTheme, TATypes, TACustomSeries, TAChartUtils, TAEnumerators;
+  StdCtrls, IniFiles, SQLDB, Variants, Types, TAGraph, TATools, TASeries, DB,
+  UXTheme, TATypes, TACustomSeries, TAChartUtils, TAEnumerators, BufDataset;
 
 type
 
@@ -65,9 +65,10 @@ type
     procedure SelectProfile(sname:string);
     procedure InitialPlot;
     procedure FilterSources(Sender: TObject);
+
   public
     procedure AddToPlot(ID, INSTR_ID, PROF_NUM:integer; INSTR_NAME: string;
-      prof_best, ToUpdate:boolean; var units_arr:array of integer);
+      prof_best, ToUpdate:boolean; var units:integer; Var units_ok:boolean);
     procedure ChangeID(ID:integer);
   end;
 
@@ -84,7 +85,7 @@ implementation
 
 { Tfrmprofile_plot_all }
 
-uses osmain, dm, osunitsconversion;
+uses osmain, dm, osparameters_list, osunitsconversion;
 
 
 function Tfrmprofile_plot_all.AddLineSeries(AChart: TChart;
@@ -138,14 +139,14 @@ begin
 
 
   (* creating checkboxes for sources *)
-  SetLength(chkSourceList, Source_unq.Count);
+  SetLength(chkSourceList, Source_unq_list.Count);
   top_pos:=80;
-  for k:=0 to Source_unq.Count-1 do begin
+  for k:=0 to Source_unq_list.Count-1 do begin
     top_pos:=top_pos+25;
 
     chkSourceList[k]:=TCheckBox.Create(frmprofile_plot_all);
     chkSourceList[k].Parent:=pfilter;
-    chkSourceList[k].Caption:=Source_unq.Strings[k];
+    chkSourceList[k].Caption:=Source_unq_list.Strings[k];
     chkSourceList[k].Checked:=true;
     if k<=high(s_clr) then
       chkSourceList[k].Font.Color:=s_clr[k+1] else
@@ -242,16 +243,19 @@ end;
 
 procedure Tfrmprofile_plot_all.InitialPlot;
 Var
-ID, CurrentID, k, cnt, ss:integer;
+ID, CurrentID, k, cnt, ss, c:integer;
 Ini:TInifile;
-sName, src_name :string;
+sName, src_name, str_units :string;
 
-prof_num, instr_id: integer;
+prof_num, instr_id, units: integer;
 prof_best: boolean;
 instr_name, LeftAxisTitle: string;
 
 units_arr: array of integer;
 units_prof, cnt_def, cnt_orig:integer;
+
+units_buf:TBufDataset;
+units_ok: boolean;
 
 Qt1, Qt2:TSQLQuery;
 TRt:TSQLTransaction;
@@ -262,46 +266,45 @@ begin
    1: LeftAxisTitle:='Depth, [dBar]';
   end;
 
-  Ini := TIniFile.Create(IniFileName);
-  try
-
-
- //  showmessage(flag_type);
-
    PQF1_st:='';
-   for k:=0 to 8 do
-    if Ini.ReadBool('osparameters_list', 'PQF1_'+inttostr(k), true) then
-      PQF1_st:=PQF1_st+','+inttostr(k);
+   for k:=0 to frmparameters_list.chkPQF1.Items.Count-1 do
+    if frmparameters_list.chkPQF1.Checked[k] then
+      PQF1_st:=PQF1_st+','+
+               Copy(frmparameters_list.chkPQF1.Items.Strings[k], 2,
+               Pos(']', frmparameters_list.chkPQF1.Items.Strings[k])-2);
    PQF1_st:=copy(PQF1_st, 2, length(PQF1_st));
 
    PQF2_st:='';
-   for k:=0 to 8 do
-    if Ini.ReadBool('osparameters_list', 'PQF2_'+inttostr(k), true) then
-      PQF2_st:=PQF2_st+','+inttostr(k);
+   for k:=0 to frmparameters_list.chkPQF2.Items.Count-1 do
+    if frmparameters_list.chkPQF2.Checked[k] then
+      PQF2_st:=PQF2_st+','+
+               Copy(frmparameters_list.chkPQF2.Items.Strings[k], 2,
+               Pos(']', frmparameters_list.chkPQF2.Items.Strings[k])-2);
    PQF2_st:=copy(PQF2_st, 2, length(PQF2_st));
 
    SQF_st:='';
-   for k:=0 to 1 do
-    if Ini.ReadBool('osparameters_list', 'SQF_'+inttostr(k), true) then
-      SQF_st:=SQF_st+','+inttostr(k);
+   for k:=0 to frmparameters_list.chkSQF.Items.Count-1 do
+    if frmparameters_list.chkSQF.Checked[k] then
+      SQF_st:=SQF_st+','+
+               Copy(frmparameters_list.chkSQF.Items.Strings[k], 2,
+               Pos(']', frmparameters_list.chkSQF.Items.Strings[k])-2);
    SQF_st:=copy(SQF_st, 2, length(SQF_st));
 
    instr_st:='';
-   for k:=0 to 17 do
-    if Ini.ReadBool('osparameters_list', 'Instrument'+inttostr(k), true) then
-      instr_st:=instr_st+','+inttostr(k);
+   for k:=0 to frmparameters_list.chklInstrument.Items.Count-1 do
+    if frmparameters_list.chklInstrument.Checked[k] then
+      instr_st:=instr_st+','+
+               Copy(frmparameters_list.chklInstrument.Items.Strings[k], 2,
+               Pos(']', frmparameters_list.chklInstrument.Items.Strings[k])-2);
+   instr_st:=copy(instr_st, 2, length(instr_st));
 
-   finally
-    Ini.Free;
-   end;
+ //  showmessage(pqf1_st+#13+pqf2_st+#13+sqf_st+#13+instr_st);
 
+  if (trim(PQF1_st)='') or (trim(PQF2_st)='') or (trim(SQF_st)='') then
+    if MessageDlg('Please, set QC flags', mtWarning, [mbOk], 0)=mrOk then exit;
 
-if (trim(PQF1_st)='') or (trim(PQF2_st)='') or (trim(SQF_st)='') then
-if MessageDlg('Please, set QC flags', mtWarning, [mbOk], 0)=mrOk then exit;
-
-instr_st:=copy(instr_st, 2, length(instr_st));
-if trim(instr_st)='' then
-if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then exit;
+  if trim(instr_st)='' then
+    if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then exit;
 
 
  mik:=-1;
@@ -324,6 +327,14 @@ if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then 
    frmdm.Q.First;
      cnt_def:=0;
      cnt_orig:=0;
+
+   units_buf:=TBufDataSet.Create(nil);
+   with units_buf.FieldDefs do begin
+     Add('qf',  ftinteger, 0, false);
+     Add('cnt', ftinteger, 0, false);
+   end;
+   units_buf.CreateDataSet;
+
      While not frmdm.Q.Eof do begin
       ID:=frmdm.Q.FieldByName('ID').AsInteger;
 
@@ -360,9 +371,21 @@ if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then 
         prof_num :=Qt2.Fields[0].AsInteger;
         prof_best:=Qt2.Fields[1].AsBoolean;
 
-        AddToPlot(ID, INSTR_ID,  PROF_NUM, INSTR_NAME, prof_best, false, units_arr);
+        AddToPlot(ID, INSTR_ID,  PROF_NUM, INSTR_NAME, prof_best, false, units, units_ok);
 
-        //if units_prof=units_default then inc(cnt_def) else inc(cnt_orig);
+        if units_ok=true then begin
+         if VarIsNull(units_buf.Lookup('qf', units, 'qf')) then begin
+          units_buf.Append;
+          units_buf.FieldByName('qf').Value:=units;
+          units_buf.FieldByName('cnt').Value:=1;
+          units_buf.Post;
+         end else begin
+          units_buf.Locate('qf', units, []);
+          units_buf.Edit;
+          units_buf.FieldByName('cnt').Value:=units_buf.FieldByName('cnt').Value+1;
+          units_buf.Post;
+         end;
+        end;
        Qt2.Next;
       end;
      Qt1.Next;
@@ -370,6 +393,27 @@ if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then 
 
   frmdm.Q.Next;
   end;
+
+   str_units:='';
+   units_buf.First;
+   while not units_buf.EOF do begin
+     with Qt2 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' SELECT UNITS.NAME_SHORT ');
+       SQL.Add(' FROM UNITS WHERE ID='+inttostr(units_buf.Fields[0].Value));
+      Open;
+     end;
+    str_units:=str_units+'; '+
+               Qt2.Fields[0].Value+': '+
+               inttostr(units_buf.Fields[1].Value);
+    units_buf.Next;
+   end;
+   str_units:=trim(copy(str_units, 2, length(str_units)));
+   StatusBar1.Panels.Items[0].Text:=str_units;
+   rbUnitsOriginal.Caption:='Original units ('+inttostr(units_buf.RecordCount)+')';
+   rbUnitsDefault.Caption:=units_default_name;
+
    finally
     Qt1.Close;
     Qt2.Close;
@@ -378,6 +422,8 @@ if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then 
 
     Trt.Commit;
     Trt.Free;
+
+    units_buf.Free;
 
      frmdm.Q.Locate('ID',CurrentID,[]);
      frmdm.Q.EnableControls;
@@ -396,13 +442,10 @@ if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then 
      chkSourceList[k].Caption:=src_name+' ('+inttostr(cnt)+')';
     end;
 
-
  Chart1.AxisList.LeftAxis.Title.Caption:=LeftAxisTitle;
  ChangeID(CurrentID);
 
 Caption:=CurrentParTable+', '+inttostr(Chart1.SeriesCount)+' profiles';
-rbUnitsOriginal.Caption:='Original units ('+inttostr(cnt_orig)+')';
-rbUnitsDefault.Caption:=units_default_name+' ('+inttostr(cnt_def)+')';
 
 Application.ProcessMessages;
 end;
@@ -414,9 +457,10 @@ end;
 
 
 procedure Tfrmprofile_plot_all.AddToPlot(ID, INSTR_ID, PROF_NUM:integer;
-  INSTR_NAME: string; prof_best, ToUpdate:boolean; var units_arr:array of integer);
+  INSTR_NAME: string; prof_best, ToUpdate:boolean; var units:integer;
+  var units_ok:boolean);
 Var
-k, flag, units:integer;
+k, flag:integer;
 lev, val1, val_out, lab_dens, Lat, Lon:real;
 sName:TComponentName;
 lev_m, lev_d:Variant;
@@ -436,8 +480,8 @@ TRt.DataBase:=frmdm.IBDB;
 Qt:=TSQLQuery.Create(self);
 Qt.Database:=frmdm.IBDB;
 Qt.Transaction:=TRt;
-
 try
+units_ok:=false;
 
     with Qt do begin
      Close;
@@ -507,13 +551,6 @@ try
      val1  := Qt.FieldByName('VAL').AsFloat;
      units := Qt.FieldByName('UNITS_ID').AsInteger;
 
-   {  if Qt.RecNo=1 then begin
-      for k:=1 to 30 do
-       if units_arr[k]=units then fl:=k;
-
-      if fl=0 then units_arr[fl+1]:=units;
-     end;  }
-
      (* units for the vertical axis *)
      if depth_units=0 then lev:=lev_m else lev:=lev_d;
 
@@ -525,7 +562,10 @@ try
        if isConverted=true then val1:=val_out else val1:=-9999;
      end;
 
-        if val1<>-9999 then TLineSeries(Chart1.Series[mik]).AddXY(val1,lev);
+     if val1<>-9999 then begin
+      TLineSeries(Chart1.Series[mik]).AddXY(val1,lev);
+      units_ok:=true;
+     end;
       Qt.Next;
     end;
     Qt.Close;

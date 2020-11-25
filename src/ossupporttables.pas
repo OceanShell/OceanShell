@@ -827,6 +827,8 @@ begin
       end;
    end;
 
+ if Copy(CodesTblName, 1, 4)='FLAG' then frmosmain.PopulateQCFlagLists;
+
  btnSave.Enabled:=false; //Disabling Save button
 end;
 

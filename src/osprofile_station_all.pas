@@ -147,7 +147,7 @@ end;
 procedure Tfrmprofile_station_all.ChangeID(ID:integer);
 Var
 Ini:TIniFile;
-k, i, fl, ff, pp, ss, cc, count_st, units_id, Flag_, instr_id, prof_num:integer;
+k, c, i, fl, ff, pp, ss, cc, count_st, units_id, Flag_, instr_id, prof_num:integer;
 QF: integer;
 cur_l, Val_, min_lev, max_lev:real;
 lev_d, lev_m: Variant;
@@ -431,10 +431,26 @@ ss:=0;
 
     if (k mod 2=1) then begin
       DBGrid1.Columns[k].Title.Caption:='QF';
-      DBGrid1.Columns[k].Width:=40;
+      DBGrid1.Columns[k].Width:=50;
 
       //QCFlags
-      DBGrid1.Columns[k].PickList:=frmosmain.DBGridStation.Columns[12].PickList;
+      if rbPQF1.Checked then begin
+       for c:=0 to PQF1_list.Count-1 do
+        DBGrid1.Columns[k].PickList.Add(
+         Copy(PQF1_list.Strings[c], 2, Pos(']', PQF1_list.Strings[c])-2));
+      end;
+
+      if rbPQF2.Checked then begin
+       for c:=0 to PQF2_list.Count-1 do
+        DBGrid1.Columns[k].PickList.Add(
+         Copy(PQF2_list.Strings[c], 2, Pos(']', PQF2_list.Strings[c])-2));
+      end;
+
+      if rbSQF.Checked then begin
+       for c:=0 to SQF_list.Count-1 do
+        DBGrid1.Columns[k].PickList.Add(
+         Copy(SQF_list.Strings[c], 2, Pos(']', SQF_list.Strings[c])-2));
+      end;
     end else begin
      // DBGrid1.Columns[k].Footer.ValueType:=fvtAvg;
     end;

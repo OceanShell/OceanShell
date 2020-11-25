@@ -150,9 +150,17 @@ if CurrentParTable<>'' then
   DBGridSingleProfile.Columns[4].PickList.Clear;
   DBGridSingleProfile.Columns[5].PickList.Clear;
 
-  DBGridSingleProfile.Columns[3].PickList:=frmosmain.DBGridStation.Columns[12].PickList;
-  DBGridSingleProfile.Columns[4].PickList:=frmosmain.DBGridStation.Columns[12].PickList;
-  DBGridSingleProfile.Columns[5].PickList:=frmosmain.DBGridStation.Columns[12].PickList;
+  for k:=0 to PQF1_list.Count-1 do
+    DBGridSingleProfile.Columns[3].PickList.Add(
+      Copy(PQF1_list.Strings[k], 2, Pos(']', PQF1_list.Strings[k])-2));
+
+  for k:=0 to PQF2_list.Count-1 do
+    DBGridSingleProfile.Columns[4].PickList.Add(
+      Copy(PQF2_list.Strings[k], 2, Pos(']', PQF2_list.Strings[k])-2));
+
+  for k:=0 to SQF_list.Count-1 do
+    DBGridSingleProfile.Columns[5].PickList.Add(
+      Copy(SQF_list.Strings[k], 2, Pos(']', SQF_list.Strings[k])-2));
 
 try
   TRt:=TSQLTransaction.Create(self);

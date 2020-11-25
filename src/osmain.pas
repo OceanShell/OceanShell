@@ -435,6 +435,8 @@ type
     Procedure UpdateCruiseInfo(ID: int64; TotalEqualDB:boolean);
     Procedure InsertLastLevel;
     Procedure InsertGEBCODepth;
+    Procedure PopulateQCFlagLists;
+    Procedure PopulateInstrumentList;
     procedure RunScript(ExeFlag:integer; cmd:string; Sender:TMemo);
   end;
 
@@ -501,7 +503,12 @@ var
   GlobalPath, GlobalUnloadPath, GlobalSupportPath:string; //global paths for the app
   CurrentParTable: string;
 
-  Source_unq:TStringList; //list of unique sources from selection
+  Source_unq_list:TStringList; //list of unique sources from selection
+  Instrument_list: TStringList; // list of instruments
+  PQF1_list: TStringList; // list for PQF1
+  PQF2_list: TStringList; // list for PQF2
+  SQF_list : TStringList; // list for SQF
+
   depth_units: integer; //0-meters, 1-dBar
 
   StationIDMin, StationIDMax: integer;
@@ -766,7 +773,11 @@ begin
  // for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
 
  (* list of unique sources - only those selected *)
- Source_unq:=TStringList.Create;
+ Source_unq_list:=TStringList.Create;
+ Instrument_list:=TStringList.Create;
+ PQF1_list:=TStringList.Create;
+ PQF2_list:=TStringList.Create;
+ SQF_list:=TStringList.Create;
 
  (* Disabling some menu items if there is no GEBCO *)
  iPlotBathymetry.Enabled:=GEBCOExists;
@@ -1180,9 +1191,9 @@ begin
    Open;
   end;
 
-  Source_unq.Clear;
+  Source_unq_list.Clear;
   while not frmdm.q1.EOF do begin
-     Source_unq.Add(frmdm.q1.Fields[0].AsString);
+     Source_unq_list.Add(frmdm.q1.Fields[0].AsString);
    frmdm.q1.Next;
   end;
 
@@ -1589,9 +1600,9 @@ begin
    Open;
   end;
 
-  Source_unq.Clear;
+  Source_unq_list.Clear;
   while not frmdm.q1.EOF do begin
-     Source_unq.Add(frmdm.q1.Fields[0].AsString);
+     Source_unq_list.Add(frmdm.q1.Fields[0].AsString);
    frmdm.q1.Next;
   end;
   frmdm.q1.Close;
@@ -1678,9 +1689,9 @@ begin
 
     //  showmessage('2');
 
-  Source_unq.Clear;
+  Source_unq_list.Clear;
   while not frmdm.q1.EOF do begin
-     Source_unq.Add(frmdm.q1.Fields[0].AsString);
+     Source_unq_list.Add(frmdm.q1.Fields[0].AsString);
    frmdm.q1.Next;
   end;
   frmdm.q1.Close;
@@ -2255,7 +2266,7 @@ begin
    end;
 
  (*******************TEMPORARY *********************)
-  CheckDBStructure;
+  //CheckDBStructure;
  (*******************TEMPORARY *********************)
 
   DatabaseInfo;
@@ -2379,53 +2390,84 @@ Qt_DB1.Transaction:=TRt_DB1;
    cgParameter.Items:=ListBox1.Items;
    cgParameter.Visible:=true;
 
-
    (* cleaning selection info *)
    for k:=1 to 7 do sbSelection.Panels[k].Text:='---';
 
-   {
-   (* Fetching QC flags from the database *)
-   with Qt_DB1 do begin
-    Close;
-     SQL.Clear;
-     SQL.Add(' SELECT QF, NAME FROM FLAG ORDER BY QF ');
-    Open;
-   end;
+   (* getting QC flags from the database and storing them in lists *)
+   PopulateQCFlagLists;
 
+   (* getting list of all instruments *)
+   PopulateInstrumentList;
 
-   cgQCFlag.Items.Clear;
-   while not Qt_DB1.EOF do begin
-     cgQCFlag.Items.Add('['+inttostr(Qt_DB1.Fields[0].AsInteger)+'] '+Qt_DB1.Fields[1].AsString);
-    Qt_DB1.Next;
-   end;
-   }
+ Finally
+  TRt_DB1.Commit;
+  Qt_DB1.Free;
+  TRt_DB1.free;
+ end;
+end;
 
-   with Qt_DB1 do begin
-    Close;
-     SQL.Clear;
-     SQL.Add(' SELECT NAME from INSTRUMENT ');
-     SQL.Add(' ORDER BY ID ');
-    Open;
-   end;
+(* lists for QC flags *)
+Procedure Tfrmosmain.PopulateQCFlagLists;
+Var
+  Ini:TIniFile;
+  K: integer;
+  tbl_name: string;
 
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
+begin
 
-   cgQCFlag.Items.Clear;
-   DBGridStation.Columns[12].PickList.Clear;
-   for k:=0 to 8 do begin
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt :=TSQLQuery.Create(self);
+  Qt.Database:=frmdm.IBDB;
+  Qt.Transaction:=TRt;
+
+  PQF1_list.Clear;
+  PQF2_list.Clear;
+  SQF_list.Clear;
+
+  try
+   for k:=1 to 4 do begin
     case k of
-      0: cgQCFlag.Items.Add('[0] Not checked');
-      1: cgQCFlag.Items.Add('[1] Bad');
-      2: cgQCFlag.Items.Add('[2] Suspicious');
-      3: cgQCFlag.Items.Add('[3] Calculated');
-      4: cgQCFlag.Items.Add('[4] Acceptable');
-      5: cgQCFlag.Items.Add('[5] Passed primary QC');
-      6: cgQCFlag.Items.Add('[6] Passed expert QC');
-      7: cgQCFlag.Items.Add('[7] Passed secondary QC');
-      8: cgQCFlag.Items.Add('[8] Adjusted');
+     1: begin
+          tbl_name:='FLAG_STATION';
+          DBGridStation.Columns[12].PickList.Clear;
+          cgQCFlag.Items.Clear;
+        end;
+     2: tbl_name:='FLAG_PQF1';
+     3: tbl_name:='FLAG_PQF2';
+     4: tbl_name:='FLAG_SQF';
     end;
-    DBGridStation.Columns[12].PickList.Add(inttostr(k));
-   end;
 
+    with Qt do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' SELECT ID, NAME FROM '+tbl_name+' ORDER BY ID ');
+     Open;
+    end;
+
+    while not Qt.EOF do begin
+     case k of
+      1: begin
+           cgQCFlag.Items.Add('['+inttostr(Qt.Fields[0].Value)+'] '+Qt.Fields[1].Value);
+           DBGridStation.Columns[12].PickList.Add(inttostr(Qt.Fields[0].Value));
+         end;
+      2: PQF1_list.Add('['+inttostr(Qt.Fields[0].Value)+'] '+Qt.Fields[1].Value);
+      3: PQF2_list.Add('['+inttostr(Qt.Fields[0].Value)+'] '+Qt.Fields[1].Value);
+      4: SQF_list.Add ('['+inttostr(Qt.Fields[0].Value)+'] '+Qt.Fields[1].Value);
+     end;
+     Qt.Next;
+    end;
+   end;
+  finally
+   Trt.Commit;
+   Qt.Free;
+   Trt.Free;
+  end;
+
+  (* reading settings for checked flags *)
    Ini := TIniFile.Create(IniFileName);
    try
     for k:=0 to cgQCFlag.Items.Count-1 do
@@ -2433,13 +2475,43 @@ Qt_DB1.Transaction:=TRt_DB1;
    finally
      Ini.Free;
    end;
+end;
 
 
- Finally
-  TRt_DB1.Commit;
-  Qt_DB1.Free;
-  TRt_DB1.free;
- end;
+Procedure Tfrmosmain.PopulateInstrumentList;
+Var
+  K: integer;
+
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
+begin
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt :=TSQLQuery.Create(self);
+  Qt.Database:=frmdm.IBDB;
+  Qt.Transaction:=TRt;
+
+  Instrument_list.Clear;
+  try
+    with Qt do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' SELECT ID, NAME FROM INSTRUMENT ORDER BY ID ');
+     Open;
+    end;
+
+    while not Qt.EOF do begin
+      instrument_list.Add('['+inttostr(Qt.Fields[0].Value)+'] '+Qt.Fields[1].Value);
+     Qt.Next;
+    end;
+
+  finally
+   Trt.Commit;
+   Qt.Free;
+   Trt.Free;
+  end;
 end;
 
 
@@ -4174,7 +4246,10 @@ end;
 
 procedure Tfrmosmain.FormDestroy(Sender: TObject);
 begin
-  Source_unq.Free;
+  Source_unq_list.Free;
+  PQF1_list.Free;
+  PQF2_list.Free;
+  SQF_list.Free;
 
   if frmmap_open then frmmap.Close;
   if frmprofile_station_all_open then frmprofile_station_all.Close;

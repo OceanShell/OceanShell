@@ -4,8 +4,8 @@ object frmsupporttables: Tfrmsupporttables
   Top = 95
   Width = 1501
   Caption = 'Support tables'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 825
+  ClientWidth = 1501
   Color = clBtnFace
   Constraints.MinHeight = 825
   Constraints.MinWidth = 1500
