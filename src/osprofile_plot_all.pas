@@ -405,8 +405,8 @@ begin
       Open;
      end;
     str_units:=str_units+'; '+
-               Qt2.Fields[0].Value+': '+
-               inttostr(units_buf.Fields[1].Value);
+               Qt2.Fields[0].Value+' ('+
+               inttostr(units_buf.Fields[1].Value)+')';
     units_buf.Next;
    end;
    str_units:=trim(copy(str_units, 2, length(str_units)));

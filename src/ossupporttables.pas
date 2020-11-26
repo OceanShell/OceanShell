@@ -827,7 +827,8 @@ begin
       end;
    end;
 
- if Copy(CodesTblName, 1, 4)='FLAG' then frmosmain.PopulateQCFlagLists;
+ if Copy(CodesTblName, 1, 4) ='FLAG' then frmosmain.PopulateQCFlagLists;
+ if Copy(CodesTblName, 1, 10)='INSTRUMENT' then frmosmain.PopulateInstrumentList;
 
  btnSave.Enabled:=false; //Disabling Save button
 end;

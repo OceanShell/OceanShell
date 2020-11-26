@@ -2036,7 +2036,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton3: TToolButton
             Left = 101
-            Height = 5
+            Height = 34
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider
@@ -2050,7 +2050,7 @@ object frmosmain: Tfrmosmain
             OnClick = btnSaveEntryClick
           end
           object btnRemoveEntry: TToolButton
-            Left = 50
+            Left = 51
             Top = 0
             AutoSize = True
             Caption = 'Delete entry'

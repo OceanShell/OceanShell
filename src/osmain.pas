@@ -2640,8 +2640,6 @@ begin
        cbEntryType.ItemIndex:=0;
 
       cbEntryType.OnSelect(self);
-
-      //end;
     finally
       TRt.Commit;
       Qt.Free;
@@ -3115,6 +3113,8 @@ begin
 end;
 
 procedure Tfrmosmain.cbEntryTypeSelect(Sender: TObject);
+Var
+  Ini:TIniFile;
 begin
  if cbEntryType.ItemIndex>=0 then begin
    with frmdm.QEntry do begin
@@ -3134,8 +3134,13 @@ begin
    Last;
    First;
   end;
- // tsMainEntries.Caption:='Entries: ['+inttostr(frmdm.QEntry.RecordCount)+']';
-  Application.ProcessMessages;
+
+   Ini := TIniFile.Create(IniFileName);
+   try
+     Ini.WriteString( 'osmain', 'entry_type', cbEntryType.Text);
+   finally
+    Ini.Free;
+   end;
  end;
 end;
 
@@ -4227,8 +4232,6 @@ begin
      Ini.writeInteger( 'osmain', 'DBGridStation1_Col11',  Columns[11].Width );
      Ini.writeInteger( 'osmain', 'DBGridStation1_Col12',  Columns[12].Width );
     end;
-
-    Ini.WriteString( 'osmain', 'entry_type', cbEntryType.Text);
 
     for k:=0 to cgQCFlag.Items.Count-1 do
       Ini.WriteBool( 'osmain', 'QCF'+inttostr(k), cgQCFlag.Checked[k]);
