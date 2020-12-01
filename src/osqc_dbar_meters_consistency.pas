@@ -110,7 +110,10 @@ Qt.Transaction:=TRt;
 
       qt.Next;
      end;
-     ProgressTaskbar(pp, frmosmain.ListBox1.Count-1);
+     {$IFDEF WINDOWS}
+        Procedures.ProgressTaskbar(pp, frmosmain.ListBox1.Count-1);
+     {$ENDIF}
+
    end;
   finally
      closefile(dat);
@@ -118,7 +121,11 @@ Qt.Transaction:=TRt;
      TRt.Commit;
      Qt.free;
      TrT.free;
-     ProgressTaskbar(0, 0);
+
+     {$IFDEF WINDOWS}
+        Procedures.ProgressTaskbar(0, 0);
+     {$ENDIF}
+
      btnRun.Enabled:=true;
      OpenDocument(fpath+'QC_dbar_meters_corresp.txt');
    end;

@@ -139,8 +139,9 @@ Qt2.Transaction:=TRt;
         Application.ProcessMessages;
       end;
 
-    ProgressTaskbar(k, qt1.RecordCount);
-    //Application.ProcessMessages;
+     {$IFDEF WINDOWS}
+        Procedures.ProgressTaskbar(k, qt1.RecordCount);
+     {$ENDIF}
 
     Qt1.Next;
    end;
@@ -148,7 +149,10 @@ Qt2.Transaction:=TRt;
 
  finally
   Showmessage('Found '+inttostr(cnt_dup)+' duplicates');
-  ProgressTaskbar(0, 0);
+
+  {$IFDEF WINDOWS}
+    Procedures.ProgressTaskbar(0, 0);
+  {$ENDIF}
 
   btnFindDuplicates.Enabled:=true;
   frmdm.TR.CommitRetaining;

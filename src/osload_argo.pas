@@ -1309,7 +1309,9 @@ Memo1.Clear;
       end;
 
       inc(k);
-      ProgressTaskbar(k, cnt);
+      {$IFDEF WINDOWS}
+        Procedures.ProgressTaskbar(k, cnt);
+      {$ENDIF}
 
       Qt1.Next;
      end;

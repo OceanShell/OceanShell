@@ -5,9 +5,13 @@ unit osprofile_plot_all;
 interface
 
 uses
+  {$IFDEF WINDOWS}
+    UXTheme,
+  {$ENDIF}
+
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
   StdCtrls, IniFiles, SQLDB, Variants, Types, TAGraph, TATools, TASeries, DB,
-  UXTheme, TATypes, TACustomSeries, TAChartUtils, TAEnumerators, BufDataset;
+  TATypes, TACustomSeries, TAChartUtils, TAEnumerators, BufDataset;
 
 type
 
@@ -155,7 +159,10 @@ begin
     chkSourceList[k].Top:=top_pos;
     chkSourceList[k].OnChange:=@FilterSources;
 
+  {$IFDEF WINDOWS}
     SetWindowTheme(chkSourceList[k].Handle, '', '');
+  {$ENDIF}
+
   end;
 end;
 
