@@ -3356,7 +3356,10 @@ begin
      end;
 
    inc(k);
-   ProgressTaskbar(k, Qt.RecordCount);
+
+   {$IFDEF WINDOWS}
+     Procedures.ProgressTaskbar(k, Qt.RecordCount);
+   {$ENDIF}
 
    if (k mod 1000)=1 then TRt.CommitRetaining;
 
@@ -3368,7 +3371,10 @@ finally
  FreeMemory(start);
  nc_close(ncid);  // Close nc file
 
- ProgressTaskbar(0, 0);
+ {$IFDEF WINDOWS}
+   Procedures.ProgressTaskbar(0, 0);
+ {$ENDIF}
+
  Trt.Commit;
  Qt.Free;
  Qt1.Free;
@@ -3451,13 +3457,19 @@ begin
        ExecSQL;
     end;
 
-    Procedures.ProgressTaskbar(k, cnt);
+    {$IFDEF WINDOWS}
+     Procedures.ProgressTaskbar(k, cnt);
+    {$ENDIF}
+
     if (k mod 1000)=1 then TRt.CommitRetaining;
 
    Qt.Next;
   end;
   finally
-   Procedures.ProgressTaskbar(0, 0);
+   {$IFDEF WINDOWS}
+     Procedures.ProgressTaskbar(0, 0);
+   {$ENDIF}
+
    Trt.Commit;
    Qt.Free;
    Qt1.Free;

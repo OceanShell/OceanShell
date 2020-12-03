@@ -121,7 +121,9 @@ begin
            ExecSQL;
          end;
 
-      Procedures.ProgressTaskbar(k, frmdm.QCruise.RecordCount-1);
+      {$IFDEF WINDOWS}
+        Procedures.ProgressTaskbar(k, frmdm.QCruise.RecordCount-1);
+      {$ENDIF}
       frmdm.Q.Next;
     end;
 

@@ -14,8 +14,10 @@ uses
 function CheckKML:boolean;
 function ClearDir(Dir:string ): boolean;
 
+{$ifdef WINDOWS}
 (* ProgressBar on taskbar in WINDOWS *)
 procedure ProgressTaskbar(k, max_k : integer);
+{$ENDIF}
 procedure Distance(ln0,ln1,lt0,lt1:real; var Dist:real);
 procedure PositionByDistance(Lat0, Lon0, Dist: real; var dlat, dlon:real);
 

@@ -113,14 +113,19 @@ try
 
     // if cnt =10 then break;
 
+      {$IFDEF WINDOWS}
+        Procedures.ProgressTaskbar(cnt, frmdm.Q.RecordCount-1);
+      {$ENDIF}
 
-      ProgressTaskbar(cnt, frmdm.Q.RecordCount);
       frmdm.Q.Next;
     end; //Q
 
   finally
      frmdm.Q.EnableControls;
-    ProgressTaskbar(0, 0);
+
+     {$IFDEF WINDOWS}
+        Procedures.ProgressTaskbar(0, 0);
+     {$ENDIF}
 
     CloseFile(out1);
     CloseFile(out2);
