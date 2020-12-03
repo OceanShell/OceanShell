@@ -5,7 +5,7 @@ unit osbathymetry;
 interface
 
 uses
-  Classes, SysUtils, osmain, declarations_netcdf, IniFiles;
+  Classes, SysUtils, osmain, declarations_netcdf, IniFiles, dynlibs;
 
 function GEBCOExists:boolean;
 function GetGEBCODepth(Lon, Lat:real):integer;
@@ -36,6 +36,10 @@ ncid:integer;
 start: PArraySize_t;
 sp:array of smallint;
 lat0, lon0, step: real;
+
+nc_open:Tnc_open;
+nc_get_var1_short:Tnc_get_var1_short;
+nc_close:Tnc_close;
 begin
  result:=-99999;
 
@@ -48,6 +52,10 @@ begin
 
  try
   // opening GEBCO_2020.nc
+   nc_open:=Tnc_open(GetProcedureAddress(netcdf, 'nc_open'));
+   nc_get_var1_short:=Tnc_get_var1_short(GetProcedureAddress(netcdf, 'nc_get_var1_short'));
+   nc_close:=Tnc_close(GetProcedureAddress(netcdf, 'nc_close'));
+
    nc_open(pansichar(fname), NC_NOWRITE, ncid);
      start:=GetMemory(SizeOf(TArraySize_t)*2);
 
@@ -60,6 +68,7 @@ begin
      start^[1]:=abs(trunc((lon0-lon)/step)); // lon index
 
      SetLength(sp, 1); // setting an empty array
+
       nc_get_var1_short(ncid, 2, start^, sp);  // sending request to the file
      result:=sp[0]; // getting results
    finally

@@ -5,7 +5,7 @@ unit osabout;
 interface
 
 uses
-  Classes, SysUtils, Process, osmain, declarations_netcdf;
+  Classes, SysUtils, Process, osmain, declarations_netcdf, dynlibs;
 
 function AboutProgram:string;
 function ProgramVersion(v_beg:integer; str:string):string;
@@ -16,6 +16,7 @@ function AboutProgram:string;
 Var
   winver, gsw_path, gsw_info, cdo_path, cdo_info, nco_path, nco_info:string;
   AboutOpts:TProcessOptions;
+  nc_inq_libvers:Tnc_inq_libvers;
 begin
  {$ifdef WINDOWS}
    {$ifdef WIN32}
@@ -40,10 +41,25 @@ begin
    nco_path:='ncra';
  {$endif}
 
-  AboutOpts:=[poUsePipes, poWaitOnExit, poStderrToOutPut, poNoConsole];
+  {$ifdef DARWIN}
+   {$ifdef CPU32}
+     winver:='i386-darwin';
+   {$endif}
+   {$ifdef CPU64}
+     winver:='x86_64-darwin';
+   {$endif}
+   cdo_path:='cdo';
+   nco_path:='ncra';
+ {$endif}
+
+ nc_inq_libvers:=Tnc_inq_libvers(GetProcedureAddress(netcdf, 'nc_inq_libvers'));
+
+ AboutOpts:=[poUsePipes, poWaitOnExit, poStderrToOutPut, poNoConsole];
+
+ //showmessage(pchar(nc_inq_libvers));
 
     Result:='OceanShell ('+winver+')'+LineEnding+LineEnding+
-            'netCDF: '+ProgramVersion(0, pchar(nc_inq_libvers))+LineEnding+
+            'netCDF: '+{ProgramVersion(0, }pchar(nc_inq_libvers)+LineEnding+
             'GSW Oceanographic Toolbox: 3.0.5'+LineEnding;
 
    if RunCommand(cdo_path, ['-V'], cdo_info, AboutOpts) then
@@ -52,7 +68,7 @@ begin
    if RunCommand(nco_path, ['-r'], nco_info, AboutOpts) then
       Result:= Result+'NCO netCDF Operators: '+ProgramVersion(29, nco_info)+LineEnding;
 
-   Result:=Result+LineEnding+'© 2004-2019 by Alexander Smirnov & Alexander Korablev';
+   Result:=Result+LineEnding+'© 2004-2020 by Alexander Smirnov & Alexander Korablev';
 end;
 
 

@@ -528,8 +528,8 @@ var
   CRUISEInfoObtained: boolean = false; //getting CRUISE info on app start
   NavigationOrder:boolean=true; //Stop navigation until all modules responded
 
-  libgswteos:TLibHandle;
-  libgswteos_exists:boolean;
+  libgswteos, netcdf:TLibHandle;
+  libgswteos_exists, netcdf_exists:boolean;
 
 
   SLatP_arr:array[0..20000] of real;
@@ -654,12 +654,15 @@ begin
   (* Loading TEOS-2010 dynamic library *)
   {$IFDEF WINDOWS}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dll'));
+    netcdf:=LoadLibrary(PChar(GlobalPath+'netcdf.dll'));
   {$ENDIF}
   {$IFDEF LINUX}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.so'));
+    netcdf:=LoadLibrary(PChar('netcdf.so'));
   {$ENDIF}
   {$IFDEF DARWIN}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dylib'));
+    netcdf:=LoadLibrary(PChar('/opt/local/lib/libnetcdf.18.dylib'));
   {$ENDIF}
 
   //GibbsSeaWater loaded?
@@ -668,6 +671,13 @@ begin
 
   if not libgswteos_exists then
    if Messagedlg('TEOS-10 is not installed', mtWarning, [mbOk], 0)=mrOk then exit;
+
+  //netCDF loaded?
+  if netcdf=dynlibs.NilHandle then
+     netcdf_exists:=false else netcdf_exists:=true;
+
+  if not netcdf_exists then
+   if Messagedlg('netCDF is not installed', mtWarning, [mbOk], 0)=mrOk then exit;
 
 
   (* Define global delimiter *)
@@ -3289,6 +3299,11 @@ Var
 
   TRt:TSQLTransaction;
   Qt, Qt1:TSQLQuery;
+
+  nc_open:Tnc_open;
+  nc_get_var1_short:Tnc_get_var1_short;
+  nc_close:Tnc_close;
+
 begin
    fname:=GlobalSupportPath+PathDelim+'bathymetry'+PathDelim+'GEBCO_2020.nc';
 
@@ -3325,6 +3340,10 @@ begin
      SQL.Add(' WHERE ID=:ID ');
     Prepare;
    end;
+
+   nc_open:=Tnc_open(GetProcedureAddress(netcdf, 'nc_open'));
+   nc_get_var1_short:=Tnc_get_var1_short(GetProcedureAddress(netcdf, 'nc_get_var1_short'));
+   nc_close:=Tnc_close(GetProcedureAddress(netcdf, 'nc_close'));
 
     // opening GEBCO_2020.nc
      nc_open(pansichar(fname), NC_NOWRITE, ncid);

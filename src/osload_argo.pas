@@ -120,6 +120,11 @@ Var
 
   dat1, dat2, dat3:text;
   DateStart:TDateTime;
+
+  nc_open:Tnc_open;
+  nc_get_var_text:Tnc_get_var_text;
+  nc_inq_varid:Tnc_inq_varid;
+  nc_close:Tnc_close;
 begin
 if not FileExists(epath.text+'ar_index_global_meta.txt') then
   if MessageDlg('ar_index_global_meta.txt cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
@@ -211,6 +216,13 @@ try
 
  //  showmessage(AnsiString(epath.text+fname));
    try
+
+   nc_open:=Tnc_open(GetProcedureAddress(netcdf, 'nc_open'));
+   nc_inq_varid:=Tnc_inq_varid(GetProcedureAddress(netcdf, 'nc_inq_varid'));
+   nc_get_var_text:=Tnc_get_var_text(GetProcedureAddress(netcdf, 'nc_get_var_text'));
+   nc_close:=Tnc_close(GetProcedureAddress(netcdf, 'nc_close'));
+
+
     nc_open(pansichar(AnsiString(epath.text+fname)), NC_NOWRITE, ncid); // only for reading
 
      nc_inq_varid (ncid, pAnsiChar('PROJECT_NAME'), varidp);
@@ -802,6 +814,16 @@ Var
  Qt:TSQLQuery;
 
  Func:Tgsw_z_from_p;
+
+  nc_open:Tnc_open;
+  nc_get_var_text:Tnc_get_var_text;
+  nc_inq_varid:Tnc_inq_varid;
+  nc_inq_dimid:Tnc_inq_dimid;
+  nc_inq_dimlen:Tnc_inq_dimlen;
+  nc_get_var1_double:Tnc_get_var1_double;
+  nc_get_var1_text:Tnc_get_var1_text;
+  nc_get_var1_float:Tnc_get_var1_float;
+  nc_close:Tnc_close;
 begin
  try
    TRt:=TSQLTransaction.Create(nil);
@@ -810,6 +832,16 @@ begin
    Qt:=TSQLQuery.Create(nil);
    Qt.Database:=frmdm.IBDB;
    Qt.Transaction:=TRt;
+
+   nc_open:=Tnc_open(GetProcedureAddress(netcdf, 'nc_open'));
+   nc_inq_dimid:=Tnc_inq_dimid(GetProcedureAddress(netcdf, 'nc_inq_dimid'));
+   nc_inq_dimlen:=Tnc_inq_dimlen(GetProcedureAddress(netcdf, 'nc_inq_dimlen'));
+   nc_get_var_text:=Tnc_get_var_text(GetProcedureAddress(netcdf, 'nc_get_var_text'));
+   nc_get_var1_double:=Tnc_get_var1_double(GetProcedureAddress(netcdf, 'nc_get_var1_double'));
+   nc_get_var1_text:=Tnc_get_var1_text(GetProcedureAddress(netcdf, 'nc_get_var1_text'));
+   nc_get_var1_float:=Tnc_get_var1_float(GetProcedureAddress(netcdf, 'nc_get_var1_float'));
+   nc_close:=Tnc_close(GetProcedureAddress(netcdf, 'nc_close'));
+
 
   // opening NC file
   nc_open(pansichar(AnsiString(fname)), NC_NOWRITE, ncid); // only for reading
