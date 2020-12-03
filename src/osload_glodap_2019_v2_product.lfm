@@ -1,106 +1,116 @@
 object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
-  Left = 707
-  Height = 473
-  Top = 260
-  Width = 941
+  Left = 368
+  Height = 710
+  Top = 101
+  Width = 1412
   Caption = 'frmloadGLODAP_2019_v2_product'
-  ClientHeight = 473
-  ClientWidth = 941
-  LCLVersion = '2.0.4.0'
+  ClientHeight = 0
+  ClientWidth = 0
+  DesignTimePPI = 144
+  LCLVersion = '2.0.6.0'
   object btnDataSource: TButton
-    Left = 8
-    Height = 25
-    Top = 384
-    Width = 320
+    Left = 12
+    Height = 38
+    Top = 576
+    Width = 480
     Caption = 'Preprocessing (required before MD or Data download)'
     OnClick = btnDataSourceClick
+    ParentFont = False
     TabOrder = 0
   end
   object Memo1: TMemo
     Left = 0
-    Height = 368
+    Height = 552
     Top = 0
-    Width = 941
+    Width = 1412
     Align = alTop
     Lines.Strings = (
       'Memo1'
     )
+    ParentFont = False
     ScrollBars = ssBoth
     TabOrder = 1
   end
   object GroupBox1: TGroupBox
-    Left = 8
-    Height = 49
-    Top = 416
-    Width = 321
+    Left = 12
+    Height = 74
+    Top = 624
+    Width = 482
     Caption = 'Download into DB'
-    ClientHeight = 29
-    ClientWidth = 317
+    ClientHeight = 44
+    ClientWidth = 478
+    ParentFont = False
     TabOrder = 2
     Visible = False
     object btnDownloadMD: TButton
-      Left = 8
-      Height = 25
+      Left = 12
+      Height = 38
       Top = 0
-      Width = 91
+      Width = 136
       Caption = 'Download MD'
       OnClick = btnDownloadMDClick
+      ParentFont = False
       TabOrder = 0
     end
     object btnDownloadData: TButton
-      Left = 168
-      Height = 25
+      Left = 252
+      Height = 38
       Top = 0
-      Width = 91
+      Width = 136
       Caption = 'DownloadData'
       OnClick = btnDownloadDataClick
+      ParentFont = False
       TabOrder = 1
     end
     object CheckBox1: TCheckBox
-      Left = 104
-      Height = 19
-      Top = 6
-      Width = 48
+      Left = 156
+      Height = 29
+      Top = 9
+      Width = 72
       Caption = 'Write'
+      ParentFont = False
       TabOrder = 2
     end
     object CheckBox2: TCheckBox
-      Left = 264
-      Height = 19
-      Top = 6
-      Width = 48
+      Left = 396
+      Height = 29
+      Top = 9
+      Width = 72
       Caption = 'Write'
+      ParentFont = False
       TabOrder = 3
     end
   end
   object GroupBox2: TGroupBox
-    Left = 352
-    Height = 80
-    Top = 376
-    Width = 568
+    Left = 528
+    Height = 120
+    Top = 564
+    Width = 852
     Caption = 'Auxiliary procedures'
-    ClientHeight = 60
-    ClientWidth = 564
+    ClientHeight = 90
+    ClientWidth = 848
+    ParentFont = False
     TabOrder = 3
     object btnSplitOnMDandProfiles: TButton
-      Left = 416
-      Height = 25
+      Left = 624
+      Height = 38
       Top = 0
-      Width = 144
+      Width = 216
       Caption = 'Split On MD and Profiles'
       OnClick = btnSplitOnMDandProfilesClick
+      ParentFont = False
       TabOrder = 0
     end
     object btnCreateTables: TButton
-      Left = 8
-      Height = 25
+      Left = 12
+      Height = 38
       Top = 0
-      Width = 123
+      Width = 184
       Caption = 'Add Variable Tables'
       Color = clRed
       Font.CharSet = RUSSIAN_CHARSET
       Font.Color = clRed
-      Font.Height = -12
+      Font.Height = -18
       Font.Name = 'Segoe UI'
       Font.Pitch = fpVariable
       Font.Quality = fqDraft
@@ -109,23 +119,24 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
       TabOrder = 1
     end
     object btnSaveStationMDonDisk: TButton
-      Left = 416
-      Height = 25
-      Top = 27
-      Width = 144
+      Left = 624
+      Height = 38
+      Top = 40
+      Width = 216
       Caption = 'Save GLODAP Station MD'
       OnClick = btnSaveStationMDonDiskClick
+      ParentFont = False
       TabOrder = 2
     end
     object btnGetDBStatistics: TBitBtn
-      Left = 8
-      Height = 26
-      Top = 27
-      Width = 123
+      Left = 12
+      Height = 39
+      Top = 40
+      Width = 184
       Caption = 'Get DB Statistics'
       Font.CharSet = RUSSIAN_CHARSET
       Font.Color = clRed
-      Font.Height = -12
+      Font.Height = -18
       Font.Name = 'Segoe UI'
       Font.Pitch = fpVariable
       Font.Quality = fqDraft
@@ -134,14 +145,14 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
       TabOrder = 3
     end
     object btnUpdateKDB: TBitBtn
-      Left = 152
-      Height = 24
-      Top = 1
-      Width = 123
+      Left = 228
+      Height = 36
+      Top = 2
+      Width = 184
       Caption = 'Update KDB'
       Font.CharSet = RUSSIAN_CHARSET
       Font.Color = clBlue
-      Font.Height = -12
+      Font.Height = -18
       Font.Name = 'Segoe UI'
       Font.Pitch = fpVariable
       Font.Quality = fqDraft
@@ -153,10 +164,8 @@ object frmloadGLODAP_2019_v2_product: TfrmloadGLODAP_2019_v2_product
   object Q: TSQLQuery
     MaxIndexesCount = 100
     FieldDefs = <>
-    Database = frmdm.SupportDB
-    Transaction = frmdm.SupportTR
     Params = <>
-    left = 170
-    top = 204
+    left = 255
+    top = 306
   end
 end

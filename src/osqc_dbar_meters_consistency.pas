@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Spin,
-  DB, SQLDB, LCLintf;
+  DB, SQLDB, LCLintf, dynlibs;
 
 type
 
@@ -47,6 +47,9 @@ Var
  tbl, fpath:string;
  TRt:TSQLTransaction;
  Qt:TSQLQuery;
+
+ gsw_p_from_z:Tgsw_p_from_z;
+ gsw_z_from_p:Tgsw_z_from_p;
 begin
 
  if MessageDlg('This procedure will check the entire database and take time. Proceed?',
@@ -90,8 +93,11 @@ Qt.Transaction:=TRt;
       LEV_M0:=Qt.FieldByName('LEV_M').AsFloat;
       LEV_D0:=Qt.FieldByName('LEV_DBAR').AsFloat;
 
-      LEV_D1:=gibbsseawater.gsw_p_from_z(-LEV_M0, lat, 0, 0);
-      LEV_M1:=-gibbsseawater.gsw_z_from_p(LEV_D0, lat, 0, 0);
+      gsw_p_from_z:=Tgsw_p_from_z(GetProcedureAddress(libgswteos, 'gsw_p_from_z'));
+      LEV_D1:=gsw_p_from_z(-LEV_M0, lat, 0, 0);
+
+      gsw_z_from_p:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+      LEV_M1:=-gsw_z_from_p(LEV_D0, lat, 0, 0);
 
      { showmessage());  }
 

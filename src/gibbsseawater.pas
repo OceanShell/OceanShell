@@ -4,11 +4,10 @@ unit GibbsSeaWater;
 Gibbs SeaWater (GSW) Oceanographic Toolbox of TEOS–10 (gsw_c_v3.05)
 http://www.teos-10.org/pubs/gsw/html/gsw_contents.html
 
-These declarations facilitate the use of TEOS-10
-functions with FreePascal/Lazarus.
+These declarations facilitate the use of TEOS-10 functions with FreePascal/Lazarus.
 
 Alexander Smirnov (axline@mail.ru)
-2015-2019
+2015-2020
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License 3 as published by the Free Software
@@ -23,17 +22,8 @@ FITNESS FOR A PARTICULAR PURPOSE.
 
 interface
 
-{$IFDEF WINDOWS}
-const
-  libgswteos='libgswteos-10.dll';
-{$ENDIF}
 
-{$IFDEF LINUX}
-const
-  libgswteos='libgswteos-10.so';
-{$ENDIF}
-
-
+type
 (*
 Adds a barrier through Central America (Panama) and then averages
 over the appropriate side of the barrier
@@ -71,7 +61,7 @@ p      : sea pressure                                      [dbar]
 gsw_adiabatic_lapse_rate_from_ct : adiabatic lapse rate    [K/Pa]
 *)
 //double gsw_adiabatic_lapse_rate_from_ct(double sa, double ct, double p);
-function gsw_adiabatic_lapse_rate_from_ct(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_adiabatic_lapse_rate_from_ct = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -85,7 +75,7 @@ Note.  The output is in unit of degress Celsius per Pa,
 (or equivilently K/Pa) not in units of K/dbar.
 *)
 //double gsw_adiabatic_lapse_rate_ice(double t, double p);
-function gsw_adiabatic_lapse_rate_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_adiabatic_lapse_rate_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -100,7 +90,7 @@ p      : sea pressure                                    [dbar]
 gsw_alpha : thermal expansion coefficient of seawater (48 term equation)
 *)
 // double gsw_alpha(double sa, double ct, double p);
-function  gsw_alpha(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_alpha = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -120,7 +110,7 @@ Conservative Temperature divided by the saline
 contraction coefficient at constant Conservative Temperature
 *)
 // double gsw_alpha_on_beta(double sa, double ct, double p);
-function  gsw_alpha_on_beta(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_alpha_on_beta = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -135,7 +125,7 @@ gsw_alpha_wrt_t_exact : thermal expansion coefficient    [1/K]
 wrt (in-situ) temperature
 *)
 // double gsw_alpha_wrt_t_exact(double sa, double t, double p);
-function  gsw_alpha_wrt_t_exact(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_alpha_wrt_t_exact = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -150,7 +140,7 @@ alpha_wrt_t_ice  =  thermal expansion coefficient of ice with respect
                     to in-situ temperature               [1/K]
 *)
 // double gsw_alpha_wrt_t_ice(double t, double p);
-function  gsw_alpha_wrt_t_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_alpha_wrt_t_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -164,7 +154,7 @@ p      : sea pressure                                    [dbar]
 beta_const_t_exact : haline contraction coefficient      [kg/g]
 *)
 // double gsw_beta_const_t_exact(double sa, double t, double p);
-function  gsw_beta_const_t_exact(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_beta_const_t_exact = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -182,7 +172,7 @@ beta   : saline contraction coefficient of seawater      [kg/g]
 at constant Conservative Temperature
 *)
 // double gsw_beta(double sa, double ct, double p);
-function  gsw_beta(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_beta = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -199,7 +189,7 @@ cabbeling  : cabbeling coefficient with respect to       [1/K^2]
 Conservative Temperature.
 *)
 // double gsw_cabbeling(double sa, double ct, double p);
-function  gsw_cabbeling(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_cabbeling = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -230,7 +220,7 @@ p      : sea pressure                                     [dbar]
 c      : conductivity                                     [ mS/cm ]
 *)
 // double gsw_c_from_sp(double sp, double t, double p);
-function  gsw_c_from_sp(sp, t, p:double):double; cdecl; external libgswteos;
+Tgsw_c_from_sp = function(sp, t, p:double):double; cdecl;
 
 
 (*
@@ -244,7 +234,7 @@ p  =  sea pressure                                              [dbar]
 chem_potential_water_ice  =  chemical potential of ice          [J/kg]
 *)
 // double gsw_chem_potential_water_ice(double t, double p);
-function  gsw_chem_potential_water_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_chem_potential_water_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -259,7 +249,7 @@ chem_potential_water_t_exact  =  chemical potential of water
                                  in seawater                    [J/g]
 *)
 // double gsw_chem_potential_water_t_exact(double sa, double t, double p);
-function  gsw_chem_potential_water_t_exact(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_chem_potential_water_t_exact = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -272,7 +262,7 @@ p   =  sea pressure                                            [dbar]
 gsw_cp_ice  =  heat capacity of ice                            [J kg^-1 K^-1]
 *)
 // double gsw_cp_ice(double t, double p);
-function  gsw_cp_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_cp_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -285,7 +275,7 @@ p      : sea pressure                                    [dbar]
 gsw_cp_t_exact : heat capacity                           [J/(kg K)]
 *)
 // double gsw_cp_t_exact(double sa, double t, double p);
-function  gsw_cp_t_exact(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_cp_t_exact = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -310,7 +300,7 @@ CT_pt  =  The derivative of Conservative Temperature with respect to
           at constant SA. CT_pt is dimensionless.           [ unitless ]
 *)
 // void   gsw_ct_first_derivatives (double sa, double pt, double *ct_sa, double *ct_pt);
-Procedure gsw_ct_first_derivatives (sa, pt: double; Var ct_sa, ct_pt: double); cdecl; external libgswteos;
+//Procedure gsw_ct_first_derivatives (sa, pt: double; Var ct_sa, ct_pt: double); cdecl;
 
 
 (*
@@ -328,7 +318,7 @@ constant SA and t.
 This function uses the full Gibbs function. Note that this function
 avoids the NaN that would exist in CT_SA_wrt_t at SA = 0 if it were
 evaluated in the straightforward way from the derivatives of the Gibbs
-function function.
+T = function
 
 SA  =  Absolute Salinity                                        [ g/kg ]
 t   =  in-situ temperature (ITS-90)                            [ deg C ]
@@ -368,7 +358,7 @@ saturation_fraction = the saturation fraction of dissolved air in
 CT_freezing = Conservative Temperature at freezing of seawater [ deg C ]
 *)
 // double gsw_ct_freezing(double sa, double p, double saturation_fraction);
-function  gsw_ct_freezing(sa, p, saturation_fraction:double):double; cdecl; external libgswteos;
+Tgsw_ct_freezing = function(sa, p, saturation_fraction:double):double; cdecl;
 
 
 (*
@@ -391,7 +381,7 @@ CTfreezing_P  = the derivative of the Conservative Temperature at
                 fixed Absolute Salinity                         [ K/Pa ]
 *)
 // void   gsw_ct_freezing_first_derivatives(double sa, double p, double saturation_fraction, double *ctfreezing_sa, double *ctfreezing_p);
-Procedure gsw_ct_freezing_first_derivatives(sa, p, saturation_fraction:double; Var ctfreezing_sa, ctfreezing_p:double); cdecl; external libgswteos;
+//Procedure gsw_ct_freezing_first_derivatives(sa, p, saturation_fraction:double; Var ctfreezing_sa, ctfreezing_p:double); cdecl; external libgswteos;
 
 
 (*
@@ -415,7 +405,7 @@ CTfreezing_P  = the derivative of the Conservative Temperature at
                 fixed Absolute Salinity                         [ K/Pa]
 *)
 // void   gsw_ct_freezing_first_derivatives_poly(double sa, double p, double saturation_fraction, double *ctfreezing_sa, double *ctfreezing_p);
-Procedure gsw_ct_freezing_first_derivatives_poly(sa, p, saturation_fraction: double; Var ctfreezing_sa, ctfreezing_p: double); cdecl; external libgswteos;
+//Procedure gsw_ct_freezing_first_derivatives_poly(sa, p, saturation_fraction: double; Var ctfreezing_sa, ctfreezing_p: double); cdecl; external libgswteos;
 
 
 (*
@@ -438,7 +428,7 @@ That is, the freezing temperature expressed in
 terms of Conservative Temperature (ITS-90).
 *)
 // double gsw_ct_freezing_poly(double sa, double p, double saturation_fraction);
-function  gsw_ct_freezing_poly(sa, p, saturation_fraction:double):double; cdecl; external libgswteos;
+Tgsw_ct_freezing_poly = function(sa, p, saturation_fraction:double):double; cdecl;
 
 
 (*
@@ -453,7 +443,7 @@ p   =  sea pressure                                             [ dbar ]
 CT  =  Conservative Temperature ( ITS-90)                      [ deg C ]
 *)
 // double gsw_ct_from_enthalpy(double sa, double h, double p);
-function  gsw_ct_from_enthalpy(sa, h, p:double):double; cdecl; external libgswteos;
+Tgsw_ct_from_enthalpy = function(sa, h, p:double):double; cdecl;
 
 
 (*
@@ -468,7 +458,7 @@ p   =  sea pressure                                             [ dbar ]
 CT  =  Conservative Temperature ( ITS-90)                      [ deg C ]
 *)
 // double gsw_ct_from_enthalpy_exact(double sa, double h, double p);
-function  gsw_ct_from_enthalpy_exact(sa, h, p:double):double; cdecl; external libgswteos;
+Tgsw_ct_from_enthalpy_exact = function(sa, h, p:double):double; cdecl;
 
 
 (*
@@ -480,7 +470,7 @@ entropy  =  specific entropy                                   [ deg C ]
 CT  =  Conservative Temperature (ITS-90)                       [ deg C ]
 *)
 // double gsw_ct_from_entropy(double sa, double entropy);
-function  gsw_ct_from_entropy(sa, entropy:double):double; cdecl; external libgswteos;
+Tgsw_ct_from_entropy = function(sa, entropy:double):double; cdecl;
 
 
 (*
@@ -493,7 +483,7 @@ reference pressure of 0 dbar
 gsw_ct_from_pt : Conservative Temperature                [deg C]
 *)
 // double gsw_ct_from_pt(double sa, double pt);
-function  gsw_ct_from_pt(sa, pt:double):double; cdecl; external libgswteos;
+Tgsw_ct_from_pt = function(sa, pt:double):double; cdecl;
 
 
 (*
@@ -518,7 +508,7 @@ there is only one possible solution and the programme has been
 called with two outputs the second variable will be set to NaN.
 *)
 // void   gsw_ct_from_rho(double rho, double sa, double p, double *ct, double *ct_multiple);
-Procedure gsw_ct_from_rho(rho, sa, p:double; Var ct, ct_multiple:double); cdecl; external libgswteos;
+//Procedure gsw_ct_from_rho(rho, sa, p:double; Var ct, ct_multiple:double); cdecl; external libgswteos;
 
 
 (*
@@ -531,7 +521,7 @@ p      : sea pressure                                    [dbar]
 gsw_ct_from_t : Conservative Temperature                 [deg C]
 *)
 // double gsw_ct_from_t(double sa, double t, double p);
-function  gsw_ct_from_t(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_ct_from_t = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -549,7 +539,7 @@ the density of seawater is a maximum for
 given Absolute Salinity and pressure.
 *)
 // double gsw_ct_maxdensity(double sa, double p);
-function  gsw_ct_maxdensity(sa, p:double):double; cdecl; external libgswteos;
+Tgsw_ct_maxdensity = function(sa, p:double):double; cdecl;
 
 //void   gsw_ct_second_derivatives(double sa, double pt, double *ct_sa_sa, double *ct_sa_pt, double *ct_pt_pt);
 
@@ -564,7 +554,7 @@ Calculates the Absolute Salinity Anomaly atlas value, delta_SA_atlas.
  deltasa_atlas : Absolute Salinity Anomaly atlas value    [g/kg]
 *)
 // double gsw_deltasa_atlas(double p, double lon, double lat);
-function  gsw_deltasa_atlas(p, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_deltasa_atlas = function(p, lon, lat:double):double; cdecl;
 
 
 (*
@@ -578,7 +568,7 @@ lat    : latitude                                        [deg N]
 gsw_deltasa_from_sp : Absolute Salinty Anomaly           [g/kg]
 *)
 // double gsw_deltasa_from_sp(double sp, double p, double lon, double lat);
-function  gsw_deltasa_from_sp(sp, p, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_deltasa_from_sp = function(sp, p, lon, lat:double):double; cdecl;
 
 
 (*
@@ -595,7 +585,7 @@ p  =  sea pressure                                              [ dbar ]
 dilution_coefficient_t_exact  =  dilution coefficient   [ (J/kg)(kg/g) ]
 *)
 // double gsw_dilution_coefficient_t_exact(double sa, double t, double p);
-function  gsw_dilution_coefficient_t_exact(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_dilution_coefficient_t_exact = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -612,7 +602,7 @@ p      : sea pressure                                    [dbar]
 dynamic_enthalpy  :  dynamic enthalpy                    [J/kg]
 *)
 // double gsw_dynamic_enthalpy(double sa, double ct, double p);
-function  gsw_dynamic_enthalpy(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_dynamic_enthalpy = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -629,14 +619,14 @@ p   =  sea pressure                                             [dbar]
 enthalpy_CT_exact  =  specific enthalpy                         [J/kg]
 *)
 // double gsw_enthalpy_ct_exact(double sa, double ct, double p);
-function  gsw_enthalpy_ct_exact(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_enthalpy_ct_exact = function(sa, ct, p:double):double; cdecl;
 
 
 (*
 Calculates the difference of the specific enthalpy of seawater between
 two different pressures, p_deep (the deeper pressure) and p_shallow
 (the shallower pressure), at the same values of SA and CT.  This
-function uses the computationally-efficient expression for specific
+T = function
 volume in terms of SA, CT and p (Roquet et al., 2014).  The output
 (enthalpy_diff_CT) is the specific enthalpy evaluated at (SA,CT,p_deep)
 minus the specific enthalpy at (SA,CT,p_shallow).
@@ -652,7 +642,7 @@ enthalpy_diff_CT  =  difference of specific enthalpy            [ J/kg ]
 (deep minus shallow)
 *)
 // double gsw_enthalpy_diff(double sa, double ct, double p_shallow, double p_deep);
-function  gsw_enthalpy_diff(sa, ct, p_shallow, p_deep:double):double; cdecl; external libgswteos;
+Tgsw_enthalpy_diff = function(sa, ct, p_shallow, p_deep:double):double; cdecl;
 
 
 (*
@@ -668,7 +658,7 @@ p      : sea pressure                                    [dbar]
 enthalpy  :  specific enthalpy of seawater               [J/kg]
 *)
 // double gsw_enthalpy(double sa, double ct, double p);
-function  gsw_enthalpy(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_enthalpy = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -728,7 +718,7 @@ p  =  sea pressure                                              [ dbar ]
 gsw_enthalpy_ice  :  specific enthalpy of ice                   [ J/kg ]
 *)
 // double gsw_enthalpy_ice(double t, double p);
-function  gsw_enthalpy_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_enthalpy_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -789,7 +779,7 @@ p      : sea pressure                                    [dbar]
 enthalpy_sso_0 : enthalpy(sso,0,p)
 *)
 // double gsw_enthalpy_sso_0(double p);
-function  gsw_enthalpy_sso_0(p:double):double; cdecl; external libgswteos;
+Tgsw_enthalpy_sso_0 = function(p:double):double; cdecl;
 
 
 (*
@@ -802,7 +792,7 @@ p      : sea pressure                                    [dbar]
 gsw_enthalpy_t_exact : specific enthalpy                 [J/kg]
 *)
 // double gsw_enthalpy_t_exact(double sa, double t, double p);
-function  gsw_enthalpy_t_exact(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_enthalpy_t_exact = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -837,7 +827,7 @@ CT  =  Conservative Temperature (ITS-90)                       [ deg C ]
 entropy  =  specific entropy                                   [ deg C ]
 *)
 // double gsw_entropy_from_ct(sa, ct)
-function  gsw_entropy_from_ct(sa, ct:double):double; cdecl; external libgswteos;
+Tgsw_entropy_from_ct = function(sa, ct:double):double; cdecl;
 
 
 (*
@@ -849,7 +839,7 @@ pt  =  potential temperature (ITS-90)                          [ deg C ]
 entropy  =  specific entropy                                [ J/(kg*K) ]
 *)
 // double gsw_entropy_from_pt(double sa, double pt);
-function  gsw_entropy_from_pt(sa, pt:double):double; cdecl; external libgswteos;
+Tgsw_entropy_from_pt = function(sa, pt:double):double; cdecl;
 
 
 (*
@@ -862,7 +852,7 @@ p      : sea pressure                                    [dbar]
 gsw_entropy_from_t : specific entropy                    [J/(kg K)]
 *)
 // double gsw_entropy_from_t(double sa, double t, double p);
-function  gsw_entropy_from_t(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_entropy_from_t = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -875,7 +865,7 @@ p  =  sea pressure                                              [ dbar ]
 ice_entropy  =  specific entropy of ice                 [ J kg^-1 K^-1 ]
 *)
 // double gsw_entropy_ice(double t, double p);
-function  gsw_entropy_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_entropy_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -888,7 +878,7 @@ p      : sea pressure                                    [dbar]
 entropy_part : entropy part
 *)
 // double gsw_entropy_part(double sa, double t, double p);
-function  gsw_entropy_part(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_entropy_part = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -900,7 +890,7 @@ pt0    : insitu temperature                              [deg C]
 entropy_part_zerop : entropy part at the sea surface
 *)
 // double gsw_entropy_part_zerop(double sa, double pt0);
-function  gsw_entropy_part_zerop(sa, pt0:double):double; cdecl; external libgswteos;
+Tgsw_entropy_part_zerop = function(sa, pt0:double):double; cdecl;
 
 
 (*
@@ -942,7 +932,7 @@ gsw_fdelta : Absolute Salinty Anomaly                    [unitless]
 
 *)
 // double gsw_fdelta(double p, double lon, double lat);
-function  gsw_fdelta(p, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_fdelta = function(p, lon, lat:double):double; cdecl;
 
 
 (*
@@ -1233,7 +1223,7 @@ Note. The derivatives are taken with respect to pressure in Pa, not
 withstanding that the pressure input into this routine is in dbar.
 *)
 // double gsw_gibbs_ice (int nt, int np, double t, double p);
-function  gsw_gibbs_ice(nt, np: integer; t, p:double):double; cdecl; external libgswteos;
+Tgsw_gibbs_ice = function(nt, np: integer; t, p:double):double; cdecl;
 
 
 (*
@@ -1246,7 +1236,7 @@ p   =  sea pressure                                             [ dbar ]
 gibbs_ice_part_t = part of temperature derivative       [ J kg^-1 K^-1 ]
 *)
 // double gsw_gibbs_ice_part_t(double t, double p);
-function  gsw_gibbs_ice_part_t(t, p:double):double; cdecl; external libgswteos;
+Tgsw_gibbs_ice_part_t = function(t, p:double):double; cdecl;
 
 
 (*
@@ -1258,7 +1248,7 @@ pt0  =  potential temperature with reference sea pressure of zero dbar
 gsw_gibbs_ice_pt0 = part of temperature derivative     [ J kg^-1 K^-1 ]
 *)
 // double gsw_gibbs_ice_pt0(double pt0);
-function  gsw_gibbs_ice_pt0(pt0:double):double; cdecl; external libgswteos;
+Tgsw_gibbs_ice_pt0 = function(pt0:double):double; cdecl;
 
 
 (*
@@ -1271,7 +1261,7 @@ pt0  =  potential temperature with reference sea pressure of zero dbar
 gsw_gibbs_ice_pt0_pt0 = temperature second derivative at pt0
 *)
 // double gsw_gibbs_ice_pt0_pt0(double pt0);
-function  gsw_gibbs_ice_pt0_pt0(pt0:double):double; cdecl; external libgswteos;
+Tgsw_gibbs_ice_pt0_pt0 = function(pt0:double):double; cdecl;
 
 
 (*
@@ -1287,7 +1277,7 @@ p      : sea pressure                                    [dbar]
 gsw_gibbs  : specific Gibbs energy or its derivative     [J kg  ]
 *)
 // double gsw_gibbs(int ns, int nt, int np, double sa, double t, double p);
-function  gsw_gibbs(ns, nt, np: integer; sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_gibbs = function(ns, nt, np: integer; sa, t, p:double):double; cdecl;
 
 
 (*
@@ -1299,7 +1289,7 @@ pt0    : potential temperature                        [deg C]
 gibbs_pt0_pt0 : gibbs_tt at (sa,pt,0)
 *)
 // double gsw_gibbs_pt0_pt0(double sa, double pt0);
-function  gsw_gibbs_pt0_pt0(sa, pt0:double):double; cdecl; external libgswteos;
+Tgsw_gibbs_pt0_pt0 = function(sa, pt0:double):double; cdecl;
 
 
 (*
@@ -1312,7 +1302,7 @@ p    =  sea pressure                                     [ dbar ]
 grav : grav  =  gravitational acceleration               [ m s^-2 ]
 *)
 // double gsw_grav(double lat, double p);
-function  gsw_grav(lat, p:double):double; cdecl; external libgswteos;
+Tgsw_grav = function(lat, p:double):double; cdecl;
 
 
 (*
@@ -1325,7 +1315,7 @@ p  =  sea pressure                                              [ dbar ]
 Helmholtz_energy_ice  =  Helmholtz energy of ice                [ J/kg ]
 *)
 // double gsw_helmholtz_energy_ice(double t, double p);
-function  gsw_helmholtz_energy_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_helmholtz_energy_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -1340,7 +1330,7 @@ t                 : in-situ temperature (ITS-90)              [deg C]
 hill_ratio_at_sp2 : Hill ratio                                [dimensionless]
 *)
 // double gsw_hill_ratio_at_sp2(double t);
-function  gsw_hill_ratio_at_sp2(t:double):double; cdecl; external libgswteos;
+Tgsw_hill_ratio_at_sp2 = function(t:double):double; cdecl;
 
 
 (*
@@ -1385,7 +1375,7 @@ p      : sea pressure                                    [dbar]
 internal_energy  :  internal_energy of seawater          [J/kg]
 *)
 // double gsw_internal_energy(double sa, double ct, double p);
-function  gsw_internal_energy(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_internal_energy = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -1398,7 +1388,7 @@ p  =  sea pressure                                        [dbar]
 internal_energy_ice  =  specific internal energy (u)      [J/kg]
 *)
 // double gsw_internal_energy_ice(double t, double p);
-function  gsw_internal_energy_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_internal_energy_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -1443,13 +1433,13 @@ kappa_const_t_ice  =  isothermal compressibility                [ 1/Pa ]
 Note. The output units are 1/Pa not 1/dbar.
 *)
 // double gsw_kappa_const_t_ice(double t, double p);
-function  gsw_kappa_const_t_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_kappa_const_t_ice = function(t, p:double):double; cdecl;
 
 
 (*
 Calculates isentropic compressibility of seawater.  This function
 has inputs of Absolute Salinity and Conservative Temperature.  This
-function uses the computationally-efficient expression for
+T = function
 specific volume in terms of SA, CT and p (Roquet et al., 2014).
 
 sa     : Absolute Salinity                               [g/kg]
@@ -1459,7 +1449,7 @@ p      : sea pressure                                    [dbar]
 kappa  :  isentropic compressibility                     [1.0/Pa]
 *)
 // double gsw_kappa(double sa, double ct, double p);
-function  gsw_kappa(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_kappa = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -1473,7 +1463,7 @@ kappa_ice  =  isentropic compressibility                        [ 1/Pa ]
 Note. The output units are 1/Pa not 1/dbar.
 *)
 // double gsw_kappa_ice(double t, double p);
-function  gsw_kappa_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_kappa_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -1486,7 +1476,7 @@ p      : sea pressure                                    [dbar]
 gsw_kappa_t_exact : isentropic compressibility           [1/Pa]
 *)
 // double gsw_kappa_t_exact(double sa, double t, double p);
-function  gsw_kappa_t_exact(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_kappa_t_exact = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -1498,7 +1488,7 @@ ct     : Conservative Temperature                        [deg C]
 latentheat_evaporation : latent heat of evaporation      [J/kg]
 *)
 // double gsw_latentheat_evap_ct(double sa, double ct);
-function  gsw_latentheat_evap_ct(sa, ct:double):double; cdecl; external libgswteos;
+Tgsw_latentheat_evap_ct = function(sa, ct:double):double; cdecl;
 
 
 (*
@@ -1510,7 +1500,7 @@ t      : in-situ temperature                             [deg C]
 gsw_latentheat_evap_t : latent heat of evaporation       [J/kg]
 *)
 // double gsw_latentheat_evap_t(double sa, double t);
-function  gsw_latentheat_evap_t(sa, t:double):double; cdecl; external libgswteos;
+Tgsw_latentheat_evap_t = function(sa, t:double):double; cdecl;
 
 
 (*
@@ -1522,7 +1512,7 @@ p      : sea pressure                                    [dbar]
 latentheat_melting : latent heat of melting              [kg/m^3]
 *)
 // double gsw_latentheat_melting(double sa, double p);
-function  gsw_latentheat_melting(sa, p:double):double; cdecl; external libgswteos;
+Tgsw_latentheat_melting = function(sa, p:double):double; cdecl;
 
 
 
@@ -1563,7 +1553,7 @@ the seawater and seaice being close to the
 freezing temperature.         [ g/(kg K) ]
 *)
 // double gsw_melting_ice_equilibrium_sa_ct_ratio(double sa, double p);
-function  gsw_melting_ice_equilibrium_sa_ct_ratio(sa, p:double):double; cdecl; external libgswteos;
+Tgsw_melting_ice_equilibrium_sa_ct_ratio = function(sa, p:double):double; cdecl;
 
 
 (*
@@ -1591,7 +1581,7 @@ the seawater and seaice being close to the
 freezing temperature.         [ g/(kg K) ]
 *)
 // double gsw_melting_ice_equilibrium_sa_ct_ratio_poly(double sa, double p);
-function  gsw_melting_ice_equilibrium_sa_ct_ratio_poly(sa, p:double):double; cdecl; external libgswteos;
+Tgsw_melting_ice_equilibrium_sa_ct_ratio_poly = function(sa, p:double):double; cdecl;
 
 
 (*
@@ -1656,7 +1646,7 @@ into a large mass of seawater
 [ g kg^-1 K^-1 ]
 *)
 // double gsw_melting_ice_sa_ct_ratio(double sa, double ct, double p, double t_ih);
-function  gsw_melting_ice_sa_ct_ratio(sa, ct, p, t_ih:double):double; cdecl; external libgswteos;
+Tgsw_melting_ice_sa_ct_ratio = function(sa, ct, p, t_ih:double):double; cdecl;
 
 
 (*
@@ -1680,7 +1670,7 @@ into a large mass of seawater
 [ g kg^-1 K^-1 ]
 *)
 // double gsw_melting_ice_sa_ct_ratio_poly(double sa, double ct, double p, double t_ih);
-function  gsw_melting_ice_sa_ct_ratio_poly(sa, ct, p, t_ih:double):double; cdecl; external libgswteos;
+Tgsw_melting_ice_sa_ct_ratio_poly = function(sa, ct, p, t_ih:double):double; cdecl;
 
 
 (*
@@ -1714,7 +1704,7 @@ the seawater and sea ice being close to the
 freezing temperature.             [ g/(kg K) ]
 *)
 // double gsw_melting_seaice_equilibrium_sa_ct_ratio(double sa, double p);
-function  gsw_melting_seaice_equilibrium_sa_ct_ratio(sa, p:double):double; cdecl; external libgswteos;
+Tgsw_melting_seaice_equilibrium_sa_ct_ratio = function(sa, p:double):double; cdecl;
 
 
 (*
@@ -1748,7 +1738,7 @@ the seawater and sea ice being close to the
 freezing temperature.             [ g/(kg K) ]
 *)
 // double gsw_melting_seaice_equilibrium_sa_ct_ratio_poly(double sa, double p);
-function  gsw_melting_seaice_equilibrium_sa_ct_ratio_poly(sa, p:double):double; cdecl; external libgswteos;
+Tgsw_melting_seaice_equilibrium_sa_ct_ratio_poly = function(sa, p:double):double; cdecl;
 
 
 (*
@@ -1837,7 +1827,7 @@ melting_seaice_SA_CT_ratio = the ratio dSA/dCT of SA to CT changes when
 sea ice melts into a large mass of seawater   [ g/(kg K) ]
 *)
 // double gsw_melting_seaice_sa_ct_ratio(double sa, double ct, double p, double sa_seaice, double t_seaice);
-function  gsw_melting_seaice_sa_ct_ratio(sa, ct, p, sa_seaice, t_seaice:double):double; cdecl; external libgswteos;
+Tgsw_melting_seaice_sa_ct_ratio = function(sa, ct, p, sa_seaice, t_seaice:double):double; cdecl;
 
 
 (*
@@ -1878,7 +1868,7 @@ melting_seaice_SA_CT_ratio = the ratio dSA/dCT of SA to CT changes when
 sea ice melts into a large mass of seawater   [ g/(kg K) ]
 *)
 // double gsw_melting_seaice_sa_ct_ratio_poly(double sa, double ct, double p, double sa_seaice, double t_seaice);
-function  gsw_melting_seaice_sa_ct_ratio_poly(sa, ct, p, sa_seaice, t_seaice:double):double; cdecl; external libgswteos;
+Tgsw_melting_seaice_sa_ct_ratio_poly = function(sa, ct, p, sa_seaice, t_seaice:double):double; cdecl;
 
 
 (*
@@ -1926,7 +1916,7 @@ lon : longitude                                                [deg]
 gsw_o2sol : olubility of oxygen in micro-moles per kg          [umol/kg]
 *)
 // gsw_o2sol(sa,ct,p,lon,lat)
-function  gsw_o2sol(sa, ct, p, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_o2sol = function(sa, ct, p, lon, lat:double):double; cdecl;
 
 
 (*
@@ -1947,7 +1937,7 @@ to one standard atmosphere (0 dbar).
 gsw_o2sol_sp_pt : olubility of oxygen in micro-moles per kg     [umol/kg]
 *)
 //     gsw_o2sol_sp_pt(sp,pt)
-function  gsw_o2sol_sp_pt(sp, pt:double):double; cdecl; external libgswteos;
+Tgsw_o2sol_sp_pt = function(sp, pt:double):double; cdecl;
 
 
 (*
@@ -1959,7 +1949,7 @@ pt0_ice  =  potential temperature of ice (ITS-90)              [ deg C ]
 gsw_pot_enthalpy_ice  =  potential enthalpy of ice              [ J/kg ]
 *)
 // double gsw_pot_enthalpy_from_pt_ice(double pt0_ice);
-function  gsw_pot_enthalpy_from_pt_ice(pt0_ice:double):double; cdecl; external libgswteos;
+Tgsw_pot_enthalpy_from_pt_ice = function(pt0_ice:double):double; cdecl;
 
 
 
@@ -1974,7 +1964,7 @@ pt0_ice  =  potential temperature of ice (ITS-90)              [ deg C ]
 pot_enthalpy_ice  =  potential enthalpy of ice                  [ J/kg ]
 *)
 // double gsw_pot_enthalpy_from_pt_ice_poly(double pt0_ice);
-function  gsw_pot_enthalpy_from_pt_ice_poly(pt0_ice:double):double; cdecl; external libgswteos;
+Tgsw_pot_enthalpy_from_pt_ice_poly = function(pt0_ice:double):double; cdecl;
 
 
 (*
@@ -1988,7 +1978,7 @@ pot_enthalpy_ice_freezing = potential enthalpy of ice at freezing
 of seawater                        [ deg C ]
 *)
 // double gsw_pot_enthalpy_ice_freezing(double sa, double p);
-function  gsw_pot_enthalpy_ice_freezing(sa, p:double):double; cdecl; external libgswteos;
+Tgsw_pot_enthalpy_ice_freezing = function(sa, p:double):double; cdecl;
 
 
 (*
@@ -2051,7 +2041,7 @@ pot_enthalpy_ice_freezing = potential enthalpy of ice at freezing
 of seawater                         [ J/kg ]
 *)
 // double gsw_pot_enthalpy_ice_freezing_poly(double sa, double p);
-function  gsw_pot_enthalpy_ice_freezing_poly(sa, p:double):double; cdecl; external libgswteos;
+Tgsw_pot_enthalpy_ice_freezing_poly = function(sa, p:double):double; cdecl;
 
 
 (*
@@ -2065,7 +2055,7 @@ p_ref  : reference sea pressure                          [dbar]
 gsw_pot_rho_t_exact : potential density                  [kg/m^3]
 *)
 // double gsw_pot_rho_t_exact(double sa, double t, double p, double p_ref);
-function  gsw_pot_rho_t_exact(sa, t, p, p_ref:double):double; cdecl; external libgswteos;
+Tgsw_pot_rho_t_exact = function(sa, t, p, p_ref:double):double; cdecl;
 
 
 (*
@@ -2079,7 +2069,7 @@ pressure_coefficient_ice  =  pressure coefficient of ice     [Pa/K]
 Note. The output units are Pa/K NOT dbar/K.
 *)
 // double gsw_pressure_coefficient_ice(double t, double p);
-function  gsw_pressure_coefficient_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_pressure_coefficient_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -2100,7 +2090,7 @@ pressure_freezing = sea pressure at which the seawater freezes  [ dbar ]
 ( i.e. absolute pressure - 10.1325 dbar )
 *)
 // double gsw_pressure_freezing_ct(double sa, double ct, double saturation_fraction);
-function  gsw_pressure_freezing_ct(sa, ct, saturation_fraction:double):double; cdecl; external libgswteos;
+Tgsw_pressure_freezing_ct = function(sa, ct, saturation_fraction:double):double; cdecl;
 
 
 (*
@@ -2113,7 +2103,7 @@ pt0_cold_ice_poly  =  initial estimate of potential temperatur
 of very cold ice in dgress C (not K)     [ deg C ]
 *)
 // double gsw_pt0_cold_ice_poly(double pot_enthalpy_ice);
-function  gsw_pt0_cold_ice_poly(pot_enthalpy_ice:double):double; cdecl; external libgswteos;
+Tgsw_pt0_cold_ice_poly = function(pot_enthalpy_ice:double):double; cdecl;
 
 
 (*
@@ -2126,7 +2116,7 @@ p      : sea pressure                                    [dbar]
 gsw_pt0_from_t : potential temperature, p_ref = 0        [deg C]
 *)
 // double gsw_pt0_from_t(double sa, double t, double p);
-function  gsw_pt0_from_t(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_pt0_from_t = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -2141,7 +2131,7 @@ pt0_ice  =  potential temperature of ice Ih with reference pressure of
            zero dbar (ITS-90)                                 [ deg C ]
 *)
 // double gsw_pt0_from_t_ice(double t, double p);
-function  gsw_pt0_from_t_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_pt0_from_t_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -2176,7 +2166,7 @@ gsw_pt_from_ct : potential temperature with              [deg C]
 reference pressure of  0 dbar
 *)
 // double gsw_pt_from_ct(double sa, double ct);
-function  gsw_pt_from_ct(sa, ct:double):double; cdecl; external libgswteos;
+Tgsw_pt_from_ct = function(sa, ct:double):double; cdecl;
 
 
 (*
@@ -2191,7 +2181,7 @@ pt   =  potential temperature                                  [ deg C ]
 Note. The reference sea pressure of the output, pt, is zero dbar.
 *)
 // double gsw_pt_from_entropy(double sa, double entropy);
-function  gsw_pt_from_entropy(sa, entropy:double):double; cdecl; external libgswteos;
+Tgsw_pt_from_entropy = function(sa, entropy:double):double; cdecl;
 
 
 (*
@@ -2204,7 +2194,7 @@ pot_enthalpy_ice  =  potential enthalpy of ice                  [ J/kg ]
 pt0_ice  =  potential temperature of ice (ITS-90)              [ deg C ]
 *)
 // double gsw_pt_from_pot_enthalpy_ice(double pot_enthalpy_ice);
-function  gsw_pt_from_pot_enthalpy_ice(pot_enthalpy_ice:double):double; cdecl; external libgswteos;
+Tgsw_pt_from_pot_enthalpy_ice = function(pot_enthalpy_ice:double):double; cdecl;
 
 
 (*
@@ -2218,7 +2208,7 @@ dpt0_ice_dh  =  derivative of potential temperature of ice
 with respect to potential enthalpy             [ deg C ]
 *)
 // double gsw_pt_from_pot_enthalpy_ice_poly_dh(double pot_enthalpy_ice);
-function  gsw_pt_from_pot_enthalpy_ice_poly_dh(pot_enthalpy_ice:double):double; cdecl; external libgswteos;
+Tgsw_pt_from_pot_enthalpy_ice_poly_dh = function(pot_enthalpy_ice:double):double; cdecl;
 
 
 (*
@@ -2232,7 +2222,7 @@ pot_enthalpy_ice  =  potential enthalpy of ice                  [ J/kg ]
 pt0_ice  =  potential temperature of ice (ITS-90)              [ deg C ]
 *)
 // double gsw_pt_from_pot_enthalpy_ice_poly(double pot_enthalpy_ice);
-function  gsw_pt_from_pot_enthalpy_ice_poly(pot_enthalpy_ice:double):double; cdecl; external libgswteos;
+Tgsw_pt_from_pot_enthalpy_ice_poly = function(pot_enthalpy_ice:double):double; cdecl;
 
 
 (*
@@ -2246,7 +2236,7 @@ p_ref  : reference sea pressure                          [dbar]
 gsw_pt_from_t : potential temperature                    [deg C]
 *)
 // double gsw_pt_from_t(double sa, double t, double p, double p_ref);
-function  gsw_pt_from_t(sa, t, p, p_ref:double):double; cdecl; external libgswteos;
+Tgsw_pt_from_t = function(sa, t, p, p_ref:double):double; cdecl;
 
 
 (*
@@ -2262,7 +2252,7 @@ p  =  sea pressure                                              [ dbar ]
 p_ref  =  reference pressure                                    [ dbar ]
 *)
 // double gsw_pt_from_t_ice(double t, double p, double p_ref);
-function  gsw_pt_from_t_ice(t, p, p_ref:double):double; cdecl; external libgswteos;
+Tgsw_pt_from_t_ice = function(t, p, p_ref:double):double; cdecl;
 
 
 (*
@@ -2333,7 +2323,7 @@ p      : sea pressure                                    [dbar]
 rho    : in-situ density                                 [kg/m]
 *)
 // double gsw_rho(double sa, double ct, double p);
-function  gsw_rho(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_rho = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -2386,7 +2376,7 @@ p   =  sea pressure                                             [ dbar ]
 rho_ice  =  in-situ density of ice (not density anomaly)      [ kg/m^3 ]
 *)
 // double gsw_rho_ice(double t, double p);
-function  gsw_rho_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_rho_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -2444,7 +2434,7 @@ p      : sea pressure                                    [dbar]
 gsw_rho_t_exact : in-situ density                        [kg/m^3]
 *)
 // double gsw_rho_t_exact(double sa, double t, double p);
-function  gsw_rho_t_exact(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_rho_t_exact = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -2470,7 +2460,7 @@ CT_i = interpolated CT values at pressures p_i.
 Absolute Salinity Anomaly Ratio
 *)
 // double gsw_saar(double p, double lon, double lat);
-function  gsw_saar(p, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_saar = function(p, lon, lat:double):double; cdecl;
 
 
 (*
@@ -2500,7 +2490,7 @@ for given input values of its Conservative Temperature,
 pressure and air saturation fraction.            [ g/kg ]
 *)
 // double gsw_sa_freezing_from_ct(double ct, double p, double saturation_fraction);
-function gsw_sa_freezing_from_ct(ct, p, saturation_fraction:double):double; cdecl; external libgswteos;
+Tgsw_sa_freezing_from_ct = function(ct, p, saturation_fraction:double):double; cdecl;
 
 
 (*
@@ -2522,7 +2512,7 @@ sa_freezing_from_ct  =  Absolute Salinity of seawater when it freezes,
                         pressure and air saturation fraction.    [g/kg]
 *)
 // double gsw_sa_freezing_from_ct_poly(double ct, double p, double saturation_fraction);
-function  gsw_sa_freezing_from_ct_poly(ct, p, saturation_fraction:double):double; cdecl; external libgswteos;
+Tgsw_sa_freezing_from_ct_poly = function(ct, p, saturation_fraction:double):double; cdecl;
 
 
 (*
@@ -2546,7 +2536,7 @@ sa_freezing_from_t  =  Absolute Salinity of seawater when it freezes, for
                        air saturation fraction.                  [g/kg]
 *)
 // double gsw_sa_freezing_from_t(double t, double p, double saturation_fraction);
-function  gsw_sa_freezing_from_t(t, p, saturation_fraction:double):double; cdecl; external libgswteos;
+Tgsw_sa_freezing_from_t = function(t, p, saturation_fraction:double):double; cdecl;
 
 
 (*
@@ -2568,7 +2558,7 @@ sa_freezing_from_t_poly  =  Absolute Salinity of seawater when it freezes,
                             pressure and air saturation fraction. [g/kg]
 *)
 // double gsw_sa_freezing_from_t_poly(double t, double p, double saturation_fraction);
-function  gsw_sa_freezing_from_t_poly(t, p, saturation_fraction:double):double; cdecl; external libgswteos;
+Tgsw_sa_freezing_from_t_poly = function(t, p, saturation_fraction:double):double; cdecl;
 
 
 (*
@@ -2585,7 +2575,7 @@ p   =  sea pressure                                           [dbar]
 sa  =  Absolute Salinity                                      [g/kg]
 *)
 // double gsw_sa_from_rho(double rho, double ct, double p);
-function  gsw_sa_from_rho(rho, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_sa_from_rho = function(rho, ct, p:double):double; cdecl;
 
 
 (*
@@ -2599,7 +2589,7 @@ lat    : latitude                                        [deg N]
 sa_from_sp_baltic : Absolute Salinity                    [g/kg]
 *)
 // double gsw_sa_from_sp_baltic(double sp, double lon, double lat);
-function  gsw_sa_from_sp_baltic(sp, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_sa_from_sp_baltic = function(sp, lon, lat:double):double; cdecl;
 
 
 (*
@@ -2613,7 +2603,7 @@ lat    : latitude                                        [DEG N]
 gsw_sa_from_sp   : Absolute Salinity                     [g/kg]
 *)
 // double gsw_sa_from_sp(double sp, double p, double lon, double lat);
-function  gsw_sa_from_sp(sp, p, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_sa_from_sp = function(sp, p, lon, lat:double):double; cdecl;
 
 
 (*
@@ -2627,7 +2617,7 @@ lat    : latitude                                        [deg N]
 gsw_sa_from_sstar   : Absolute Salinity                  [g/kg]
 *)
 // double gsw_sa_from_sstar(double sstar, double p,double lon,double lat);
-function  gsw_sa_from_sstar(sstar, p, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_sa_from_sstar = function(sstar, p, lon, lat:double):double; cdecl;
 
 
 (*
@@ -2638,7 +2628,7 @@ p   =  sea pressure                                             [ dbar ]
 ( i.e. absolute pressure - 10.1325 dbar )
 *)
 // int    gsw_sa_p_inrange(double sa, double p);
-function  gsw_sa_p_inrange(sa, p:double):integer; cdecl; external libgswteos;
+Tgsw_sa_p_inrange = function(sa, p:double):integer; cdecl;
 
 
 (*
@@ -2679,7 +2669,7 @@ This output is between 0 and 1.                 [unitless]
 (*
 Calculates potential density anomaly with reference pressure of 0 dbar,
 this being this particular potential density minus 1000 kg/m^3.  This
-function has inputs of Absolute Salinity and Conservative Temperature.
+T = function
 This function uses the computationally-efficient 48-term expression for
 density in terms of SA, CT and p (IOC et al., 2010).
 
@@ -2690,13 +2680,13 @@ gsw_sigma0  : potential density anomaly with reference pressure of 0
 (48 term equation)
 *)
 // double gsw_sigma0(double sa, double ct);
-function  gsw_sigma0(sa, ct:double):double; cdecl; external libgswteos;
+Tgsw_sigma0 = function(sa, ct:double):double; cdecl;
 
 
 (*
 Calculates potential density anomaly with reference pressure of 1000 dbar,
 this being this particular potential density minus 1000 kg/m^3.  This
-function has inputs of Absolute Salinity and Conservative Temperature.
+T = function
 
 sa     : Absolute Salinity                               [g/kg]
 ct     : Conservative Temperature                        [deg C]
@@ -2704,13 +2694,13 @@ ct     : Conservative Temperature                        [deg C]
 sigma1 : potential density anomaly with reference pressure of 1000
 *)
 // double gsw_sigma1(double sa, double ct);
-function  gsw_sigma1(sa, ct:double):double; cdecl; external libgswteos;
+Tgsw_sigma1 = function(sa, ct:double):double; cdecl;
 
 
 (*
 Calculates potential density anomaly with reference pressure of 2000 dbar,
 this being this particular potential density minus 1000 kg/m^3.  This
-function has inputs of Absolute Salinity and Conservative Temperature.
+T = function
 
 sa     : Absolute Salinity                               [g/kg]
 ct     : Conservative Temperature                        [deg C]
@@ -2718,13 +2708,13 @@ ct     : Conservative Temperature                        [deg C]
 sigma2 : potential density anomaly with reference pressure of 2000
 *)
 // double gsw_sigma2(double sa, double ct);
-function  gsw_sigma2(sa, ct:double):double; cdecl; external libgswteos;
+Tgsw_sigma2 = function(sa, ct:double):double; cdecl;
 
 
 (*
 Calculates potential density anomaly with reference pressure of 3000 dbar,
 this being this particular potential density minus 1000 kg/m^3.  This
-function has inputs of Absolute Salinity and Conservative Temperature.
+T = function
 
 sa     : Absolute Salinity                               [g/kg]
 ct     : Conservative Temperature                        [deg C]
@@ -2732,13 +2722,13 @@ ct     : Conservative Temperature                        [deg C]
 sigma3 : potential density anomaly with reference pressure of 3000
 *)
 // double gsw_sigma3(double sa, double ct);
-function  gsw_sigma3(sa, ct:double):double; cdecl; external libgswteos;
+Tgsw_sigma3 = function(sa, ct:double):double; cdecl;
 
 
 (*
 Calculates potential density anomaly with reference pressure of 4000 dbar,
 this being this particular potential density minus 1000 kg/m^3.  This
-function has inputs of Absolute Salinity and Conservative Temperature.
+T = function
 
 sa     : Absolute Salinity                               [g/kg]
 ct     : Conservative Temperature                        [deg C]
@@ -2746,7 +2736,7 @@ ct     : Conservative Temperature                        [deg C]
 sigma4  : potential density anomaly with reference pressure of 4000
 *)
 // double gsw_sigma4(double sa, double ct);
-function  gsw_sigma4(sa, ct:double):double; cdecl; external libgswteos;
+Tgsw_sigma4 = function(sa, ct:double):double; cdecl;
 
 
 (*
@@ -2762,7 +2752,7 @@ p      : sea pressure                                    [dbar]
 sound_speed  : speed of sound in seawater                [m/s]
 *)
 // double gsw_sound_speed(double sa, double ct, double p);
-function  gsw_sound_speed(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_sound_speed = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -2775,7 +2765,7 @@ p   =  sea pressure                                             [ dbar ]
 sound_speed_ice  =  compression speed of sound in ice            [ m/s ]
 *)
 // double gsw_sound_speed_ice(double t, double p);
-function  gsw_sound_speed_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_sound_speed_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -2788,7 +2778,7 @@ p      : sea pressure                                    [dbar]
 gsw_sound_speed_t_exact : sound speed                    [m/s]
 *)
 // double gsw_sound_speed_t_exact(double sa, double t, double p);
-function  gsw_sound_speed_t_exact(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_sound_speed_t_exact = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -2822,7 +2812,7 @@ p      : sea pressure                                    [dbar]
 specvol_anom  :  specific volume anomaly of seawater
 *)
 // double gsw_specvol_anom_standard(double sa, double ct, double p);
-function  gsw_specvol_anom_standard(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_specvol_anom_standard = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -2838,7 +2828,7 @@ p      : sea pressure                                    [dbar]
 specvol: specific volume                                 [m^3/kg]
 *)
 // double gsw_specvol(double sa, double ct, double p);
-function  gsw_specvol(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_specvol = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -2889,7 +2879,7 @@ p  =  sea pressure                                              [ dbar ]
 specvol_ice  =  specific volume                               [ m^3/kg ]
 *)
 // double gsw_specvol_ice(double t, double p);
-function  gsw_specvol_ice(t, p:double):double; cdecl; external libgswteos;
+Tgsw_specvol_ice = function(t, p:double):double; cdecl;
 
 
 (*
@@ -2950,7 +2940,7 @@ p      : sea pressure                                    [dbar]
 specvol_sso_0 : specvol(sso,0,p)                         [m  kg  ]
 *)
 // double gsw_specvol_sso_0(double p);
-function  gsw_specvol_sso_0(p:double):double; cdecl; external libgswteos;
+Tgsw_specvol_sso_0 = function(p:double):double; cdecl;
 
 
 (*
@@ -2964,7 +2954,7 @@ specvol_t_exact : specific volume                        [kg/m^3]
 
 *)
 // double gsw_specvol_t_exact(double sa, double t, double p);
-function  gsw_specvol_t_exact(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_specvol_t_exact = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -2985,7 +2975,7 @@ p      : sea pressure                                     [dbar]
 sp     : Practical Salinity                               [unitless]
 *)
 // double gsw_sp_from_c(double c, double t, double p);
-function gsw_sp_from_c(c, t, p:double):double; cdecl; external libgswteos;
+Tgsw_sp_from_c = function(c, t, p:double):double; cdecl;
 
 
 (*
@@ -2999,7 +2989,7 @@ lat    : latitude                                        [deg N]
 gsw_sp_from_sa_baltic  : Practical Salinity              [unitless]
 *)
 // double gsw_sp_from_sa_baltic(double sa, double lon, double lat);
-function gsw_sp_from_sa_baltic(sa, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_sp_from_sa_baltic = function(sa, lon, lat:double):double; cdecl;
 
 
 (*
@@ -3013,7 +3003,7 @@ lat    : latitude                                        [DEG N]
 gsw_sp_from_sa      : Practical Salinity                 [unitless]
 *)
 // double gsw_sp_from_sa(double sa, double p, double lon, double lat);
-function gsw_sp_from_sa(sa, p, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_sp_from_sa = function(sa, p, lon, lat:double):double; cdecl;
 
 
 (*
@@ -3024,7 +3014,7 @@ SK    : Knudsen Salinity                        [parts per thousand, ppt]
 gsw_sp_from_sk  : Practical Salinity            [unitless]
 *)
 // double gsw_sp_from_sk(double sk);
-function gsw_sp_from_sk(sk:double):double; cdecl; external libgswteos;
+Tgsw_sp_from_sk = function(sk:double):double; cdecl;
 
 
 (*
@@ -3035,7 +3025,7 @@ sr     : Reference Salinity                              [g/kg]
 gsw_sp_from_sr  : Practical Salinity                     [unitless]
 *)
 // double gsw_sp_from_sr(double sr);
-function gsw_sp_from_sr(sr:double):double; cdecl; external libgswteos;
+Tgsw_sp_from_sr = function(sr:double):double; cdecl;
 
 
 (*
@@ -3049,7 +3039,7 @@ lat    : latitude                                        [deg N]
 gsw_sp_from_Sstar : Preformed Salinity                   [g/kg]
 *)
 // double gsw_sp_from_sstar(double sstar, double p,double lon,double lat);
-function gsw_sp_from_sstar(sstar, p, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_sp_from_sstar = function(sstar, p, lon, lat:double):double; cdecl;
 
 
 (*
@@ -3072,7 +3062,7 @@ t   = temperature of the bath of the salinometer,
 gsw_sp_salinometer = Practical Salinity on the PSS-78 scale [ unitless ]
 *)
 // double gsw_sp_salinometer(double rt, double t);
-function gsw_sp_salinometer(rt, t:double):double; cdecl; external libgswteos;
+Tgsw_sp_salinometer = function(rt, t:double):double; cdecl;
 
 
 (*
@@ -3089,7 +3079,7 @@ spiciness0  =  spiciness referenced to a pressure of 0 dbar,
                i.e. the surface                                 [ kg/m^3 ]
 *)
 // double gsw_spiciness0(double sa, double ct);
-function gsw_spiciness0(sa, ct:double):double; cdecl; external libgswteos;
+Tgsw_spiciness0 = function(sa, ct:double):double; cdecl;
 
 
 (*
@@ -3105,7 +3095,7 @@ CT  =  Conservative Temperature (ITS-90)                       [ deg C ]
 spiciness1  =  spiciness referenced to a pressure of 1000 dbar [ kg/m^3 ]
 *)
 // double gsw_spiciness1(double sa, double ct);
-function gsw_spiciness1(sa, ct:double):double; cdecl; external libgswteos;
+Tgsw_spiciness1 = function(sa, ct:double):double; cdecl;
 
 
 (*
@@ -3121,7 +3111,7 @@ CT  =  Conservative Temperature (ITS-90)                       [ deg C ]
 spiciness2  =  spiciness referenced to a pressure of 2000 dbar [ kg/m^3 ]
 *)
 // double gsw_spiciness2(double sa, double ct);
-function gsw_spiciness2(sa, ct:double):double; cdecl; external libgswteos;
+Tgsw_spiciness2 = function(sa, ct:double):double; cdecl;
 
 
 (*
@@ -3132,7 +3122,7 @@ sp     : Practical Salinity                              [unitless]
 gsw_sr_from_sp : Reference Salinity                      [g/kg]
 *)
 // double gsw_sr_from_sp(double sp);
-function gsw_sr_from_sp(sp:double):double; cdecl; external libgswteos;
+Tgsw_sr_from_sp = function(sp:double):double; cdecl;
 
 
 (*
@@ -3146,7 +3136,7 @@ lat    : latitude                                        [deg N]
 gsw_sstar_from_sa : Preformed Salinity                   [g/kg]
 *)
 // double gsw_sstar_from_sa(double sa, double p, double lon, double lat);
-function gsw_sstar_from_sa(sa, p, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_sstar_from_sa = function(sa, p, lon, lat:double):double; cdecl;
 
 
 (*
@@ -3160,7 +3150,7 @@ lat    : latitude                                        [deg N]
 gsw_sstar_from_sp  : Preformed Salinity                  [g/kg]
 *)
 // double gsw_sstar_from_sp(double sp, double p, double lon, double lat);
-function gsw_sstar_from_sp(sp, p, lon, lat:double):double; cdecl; external libgswteos;
+Tgsw_sstar_from_sp = function(sp, p, lon, lat:double):double; cdecl;
 
 
 (*
@@ -3175,7 +3165,7 @@ p   =  sea pressure                                     [ dbar ]
 chem_potential_water_dt  =  temperature derivative of the chemical
                             potential of water in seawater  [ J g^-1 K^-1 ]
 *)
-function gsw_t_deriv_chem_potential_water_t_exact(sa, t, p:double):double; cdecl; external libgswteos;
+Tgsw_t_deriv_chem_potential_water_t_exact = function(sa, t, p:double):double; cdecl;
 
 
 (*
@@ -3190,7 +3180,7 @@ saturation_fraction : the saturation fraction of dissolved air
 t_freezing : in-situ temperature at which seawater freezes. [deg C]
 *)
 // double gsw_t_freezing(double sa, double p, double saturation_fraction);
-function  gsw_t_freezing(sa, p, saturation_fraction:double):double; cdecl; external libgswteos;
+Tgsw_t_freezing = function(sa, p, saturation_fraction:double):double; cdecl;
 
 
 (*
@@ -3256,7 +3246,7 @@ t_freezing = in-situ temperature at which seawater freezes.    [ deg C ]
 (ITS-90)
 *)
 // double gsw_t_freezing_poly(double sa, double p,double saturation_fraction);
-function  gsw_t_freezing_poly(sa, p, saturation_fraction:double):double; cdecl; external libgswteos;
+Tgsw_t_freezing_poly = function(sa, p, saturation_fraction:double):double; cdecl;
 
 
 (*
@@ -3267,7 +3257,7 @@ ct      : Conservative Temperature                       [deg C]
 gsw_t_from_ct : in-situ temperature                      [deg C]
 *)
 // double gsw_t_from_ct(double sa, double ct, double p);
-function  gsw_t_from_ct(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_t_from_ct = function(sa, ct, p:double):double; cdecl;
 
 
 (* 
@@ -3281,7 +3271,7 @@ p        =  sea pressure                                 [ dbar ]
            ( i.e. absolute pressure - 10.1325 dbar )
 *)
 // double gsw_t_from_pt0_ice(double pt0_ice, double p);
-function  gsw_t_from_pt0_ice(pt0_ice, p:double):double; cdecl; external libgswteos;
+Tgsw_t_from_pt0_ice = function(pt0_ice, p:double):double; cdecl;
 
 
 (* 
@@ -3297,7 +3287,7 @@ thermobaric  : thermobaric coefficient with              [1/(K Pa)]
 respect to Conservative Temperature (48 term equation)
 *)
 // double gsw_thermobaric(double sa, double ct, double p);
-function  gsw_thermobaric(sa, ct, p:double):double; cdecl; external libgswteos;
+Tgsw_thermobaric = function(sa, ct, p:double):double; cdecl;
 
 
 (*
@@ -3395,7 +3385,7 @@ sea_surface_geopotential : geopotential at zero sea pressure  [m^2/s^2]
 gsw_z_from_p : height                                    [m]                                      [m]
 *)
 // double gsw_z_from_p(double p, double lat, double geo_strf_dyn_height, double sea_surface_geopotential)
-function  gsw_z_from_p(p, lat, geo_strf_dyn_height, sea_surface_geopotential:double):double; cdecl; external libgswteos;
+Tgsw_z_from_p = function(p, lat, geo_strf_dyn_height, sea_surface_geopotential:double):double; cdecl;
 
 
 (* 
@@ -3413,9 +3403,9 @@ sea_surface_geopotential : geopotential at zero sea pressure  [m^2/s^2]
 gsw_p_from_z : pressure                                  [dbar]                                    [dbar]
 *)
 
-function  gsw_p_from_z(z, lat, geo_strf_dyn_height, sea_surface_geopotential:double):double; cdecl; external libgswteos;
-
+Tgsw_p_from_z = function(z, lat, geo_strf_dyn_height, sea_surface_geopotential:double):double; cdecl;
 
 implementation
+
 
 end.

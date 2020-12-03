@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 303
+  Left = 250
   Height = 870
-  Top = 32
+  Top = 49
   Width = 1380
   Caption = 'OceanShell'
   ClientHeight = 840
@@ -105,12 +105,13 @@ object frmosmain: Tfrmosmain
         Left = 1152
         Height = 29
         Top = 96
-        Width = 152
+        Width = 169
         Caption = 'Ignore duplicates'
         Checked = True
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
         ParentFont = False
         State = cbChecked
         TabOrder = 2
@@ -1049,6 +1050,18 @@ object frmosmain: Tfrmosmain
           TabOrder = 12
         end
       end
+      object chkShowQuery: TCheckBox
+        Left = 1152
+        Height = 29
+        Top = 128
+        Width = 113
+        Caption = 'Show query'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 5
+      end
     end
     object tsMainCruises: TTabSheet
       Caption = 'Cruise search'
@@ -1076,12 +1089,13 @@ object frmosmain: Tfrmosmain
         Left = 1152
         Height = 29
         Top = 96
-        Width = 152
+        Width = 169
         Caption = 'Ignore duplicates'
         Checked = True
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
         ParentFont = False
         State = cbChecked
         TabOrder = 1
@@ -2036,7 +2050,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton3: TToolButton
             Left = 101
-            Height = 34
+            Height = 5
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider

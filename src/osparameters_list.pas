@@ -245,9 +245,9 @@ try
       with Qt do begin
        Close;
            SQL.Clear;
-           SQL.Add(' select ID from ');
-           SQL.Add( tblPar );
-           SQL.Add(' where ID=:ID ');
+           SQL.Add(' SELECT ID FROM '+tblPar);
+           SQL.Add(' WHERE ID=:ID ');
+           SQL.Add(' ROWS 1 ');
            ParamByName('ID').AsInteger:=frmdm.Q.FieldByName('ID').AsInteger;
          Open;
           if not Qt.IsEmpty then prfCount:=prfCount+1;

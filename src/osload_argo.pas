@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, SQLDB, DB,
-  DateUtils, Variants, BufDataset, LCLIntf, Buttons, ExtCtrls, math,
+  DateUtils, Variants, BufDataset, LCLIntf, Buttons, ExtCtrls, math, dynlibs,
   IniFiles;
 
 type
@@ -800,6 +800,8 @@ Var
  isCore, isBest: boolean;
  TRt:TSQLTransaction;
  Qt:TSQLQuery;
+
+ Func:Tgsw_z_from_p;
 begin
  try
    TRt:=TSQLTransaction.Create(nil);
@@ -999,7 +1001,8 @@ begin
            (trim(val_QF)='') then val1:=-9999;
 
        if (pres<>-9999) and (val1<>-9999) then begin
-         lev_m:=-gibbsseawater.gsw_z_from_p(pres, stlat, 0, 0);
+         Func:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+         lev_m:=-Func(pres, stlat, 0, 0);
 
         // ARGO QF to Ocean.fdb QF
          QFMapping(StrToInt(val_QF), QF);

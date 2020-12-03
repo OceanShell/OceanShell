@@ -7,7 +7,7 @@ interface
 uses
   SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, LCLType,
   Menus, Dialogs, ActnList, StdCtrls, IniFiles, ExtCtrls, DateUtils, sqldb, DB,
-  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math, Grids,
+  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math, Grids, dynlibs,
   LCLIntf, ComboEx, DBExtCtrls;
 
 type
@@ -64,6 +64,7 @@ type
     cbSource: TCheckComboBox;
     cgQCFlag: TCheckGroup;
     cgCruiseQCFlag: TCheckGroup;
+    chkShowQuery: TCheckBox;
     chkCruiseIDRange: TCheckBox;
     chkCRUISENumStations: TCheckBox;
     chkCRUISEDateandtime: TCheckBox;
@@ -527,6 +528,10 @@ var
   CRUISEInfoObtained: boolean = false; //getting CRUISE info on app start
   NavigationOrder:boolean=true; //Stop navigation until all modules responded
 
+  libgswteos:TLibHandle;
+  libgswteos_exists:boolean;
+
+
   SLatP_arr:array[0..20000] of real;
   SLonP_arr:array[0..20000] of real;
   Length_arr:integer;
@@ -631,8 +636,12 @@ begin
  frmmap_open:=false; frmparameters_list_open:=false; frmmeteo_open:=false;
  frmprofile_plot_all_open:=false;
 
- (* Define Global Path *)
+ (* Defining Global Path - application root lolder *)
   GlobalPath:=ExtractFilePath(Application.ExeName);
+
+  {$IFDEF DARWIN}
+    GlobalPath:=LeftStr(GlobalPath, Pos('OceanShell.app', GlobalPath)-1);
+  {$ENDIF}
 
   (* Define settings file, unique for every user*)
   IniFileName:=GetUserDir+'.climateshell';
@@ -641,6 +650,25 @@ begin
     Ini.WriteInteger('main', 'Language', 0);
     Ini.Free;
   end;
+
+  (* Loading TEOS-2010 dynamic library *)
+  {$IFDEF WINDOWS}
+    libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dll'));
+  {$ENDIF}
+  {$IFDEF LINUX}
+    libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.so'));
+  {$ENDIF}
+  {$IFDEF DARWIN}
+    libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dylib'));
+  {$ENDIF}
+
+  //GibbsSeaWater loaded?
+  if libgswteos=dynlibs.NilHandle then
+     libgswteos_exists:=false else libgswteos_exists:=true;
+
+  if not libgswteos_exists then
+   if Messagedlg('TEOS-10 is not installed', mtWarning, [mbOk], 0)=mrOk then exit;
+
 
   (* Define global delimiter *)
   DefaultFormatSettings.DecimalSeparator := '.';
@@ -1019,7 +1047,7 @@ try
     if pcDateandTime.ActivePageIndex=0 then begin
     // From date to date
       if chkPeriod.Checked=false then begin
-       SQL_str:=SQL_str+'  AND (DATEANDTIME BETWEEN '+
+       SQL_str:=SQL_str+' AND (DATEANDTIME BETWEEN '+
                         QuotedStr(DateTimeToStr(dtpDateMin.DateTime))+' AND '+
                         QuotedStr(DateTimeToStr(dtpDateMax.DateTime))+') ';
       end;
@@ -1053,14 +1081,14 @@ try
 
     (* DATE_ADDED *)
     if pcDateandTime.ActivePageIndex=1 then begin
-      SQL_str:=SQL_str+'  AND (STATION.DATE_ADDED BETWEEN '+
+      SQL_str:=SQL_str+' AND (STATION.DATE_ADDED BETWEEN '+
                        QuotedStr(DateTimeToStr(dtpDateAddedMin.DateTime))+' AND '+
                        QuotedStr(DateTimeToStr(dtpDateAddedMax.DateTime))+' ) ';
     end;
 
     (* DATE_UPDATED *)
     if pcDateandTime.ActivePageIndex=2 then begin
-     SQL_str:=SQL_str+'  AND (STATION.DATE_UPDATED between '+
+     SQL_str:=SQL_str+' AND (STATION.DATE_UPDATED between '+
                       QuotedStr(DateTimeToStr(dtpDateUpdatedMin.DateTime))+' AND '+
                       QuotedStr(DateTimeToStr(dtpDateUpdatedMax.DateTime))+' ) ';
     end;
@@ -1148,7 +1176,11 @@ try
 
     if copy(SQL_str, 1, 4)=' AND' then SQL_str:=Copy(SQL_str, 5, length(SQL_str));
 
-   // showmessage(StationSQL+sql_str);
+    (* Show the query before executing *)
+    if chkShowQuery.Checked then
+     if MessageDlg(StationSQL+#13+
+                   sql_str+#13+#13+'Execute the query?',
+                   mtInformation, [mbYes, mbNo],0)=mrNo then exit;
 
    if frmdm.TR.Active=true then frmdm.TR.Commit;
    with frmdm.Q do begin
@@ -1791,6 +1823,8 @@ begin
   chkQCFlag.Checked:=false;
   chkParameter.Checked:=false;
 
+  pcRegion.ActivePageIndex:=0;
+  pcDateandtime.ActivePageIndex:=0;
 
   seAroundPointLat.Value:=0;
   seAroundPointLon.Value:=0;
@@ -4253,6 +4287,8 @@ begin
   PQF1_list.Free;
   PQF2_list.Free;
   SQF_list.Free;
+
+  FreeLibrary(libgswteos);
 
   if frmmap_open then frmmap.Close;
   if frmprofile_station_all_open then frmprofile_station_all.Close;

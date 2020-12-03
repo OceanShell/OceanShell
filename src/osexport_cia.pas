@@ -5,7 +5,8 @@ unit osExport_CIA;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Buttons, DateUtils;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Buttons,
+  DateUtils, dynlibs;
 
 type
 
@@ -209,6 +210,14 @@ sp,sa,t_insitu,ct :real;
 val_conv,val_rep :real;
 isconverted :boolean;
 
+gsw_sa_from_sp:Tgsw_z_from_p;
+gsw_pt0_from_t:Tgsw_pt0_from_t;
+gsw_ct_from_t:Tgsw_ct_from_t;
+gsw_sigma0:Tgsw_sigma0;
+gsw_sigma1:Tgsw_sigma1;
+gsw_sigma2:Tgsw_sigma2;
+gsw_sigma3:Tgsw_sigma3;
+gsw_sigma4:Tgsw_sigma4;
 begin
 
     DT1:=NOW;
@@ -1964,11 +1973,16 @@ column[102]:='chlaf';
 
     if (sp<>-9999) and (t_insitu<>-9999) then begin
      {absolute salinity (sa) from practical salinity (sp)}
-      sa:= GibbsSeaWater.gsw_sa_from_sp(sp, lev_dbar, lon, lat);
+      gsw_sa_from_sp:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_sa_from_sp'));
+      sa  := gsw_sa_from_sp(sp, lev_dbar, lon, lat); // absolute salinity
+
      {potential temperature}
-      theta:=GibbsSeaWater.gsw_pt0_from_t(sa,t_insitu,lev_dbar);
-     {conservative temperature}
-      ct:=GibbsSeaWater.gsw_ct_from_t(sa, t_insitu, lev_dbar);
+      gsw_pt0_from_t:=Tgsw_pt0_from_t(GetProcedureAddress(libgswteos, 'gsw_pt0_from_t'));
+      theta:=gsw_pt0_from_t(sa,t_insitu,lev_dbar);
+
+      {conservative temperature}
+      gsw_ct_from_t:=Tgsw_ct_from_t(GetProcedureAddress(libgswteos, 'gsw_ct_from_t'));
+      ct:=gsw_ct_from_t(sa, t_insitu, lev_dbar);
 
       {... in-sity density}
       //gdv:=-9;
@@ -1996,15 +2010,20 @@ column[102]:='chlaf';
       sigma4:=gsw_pot_rho_t_exact(sa,theta,lev_dbar,4000)-1000;}
 
      {potential density anomaly with reference to surface}
-      sigma0:=GibbsSeaWater.gsw_sigma0(sa,ct);
+      gsw_sigma0:=Tgsw_sigma0(GetProcedureAddress(libgswteos, 'gsw_sigma0'));
+      sigma0:=gsw_sigma0(sa,ct);
      {potential density anomaly with reference pressure of 1000 dbar}
-      sigma1:=GibbsSeaWater.gsw_sigma1(sa,ct);
+      gsw_sigma1:=Tgsw_sigma1(GetProcedureAddress(libgswteos, 'gsw_sigma1'));
+      sigma1:=gsw_sigma1(sa,ct);
      {potential density anomaly with reference pressure of 2000 dbar}
-      sigma2:=GibbsSeaWater.gsw_sigma2(sa,ct);
+      gsw_sigma2:=Tgsw_sigma2(GetProcedureAddress(libgswteos, 'gsw_sigma2'));
+      sigma2:=gsw_sigma2(sa,ct);
      {potential density anomaly with reference pressure of 3000 dbar}
-      sigma3:=GibbsSeaWater.gsw_sigma3(sa,ct);
+      gsw_sigma3:=Tgsw_sigma3(GetProcedureAddress(libgswteos, 'gsw_sigma3'));
+      sigma3:=gsw_sigma3(sa,ct);
      {potential density anomaly with reference pressure of 4000 dbar}
-      sigma4:=GibbsSeaWater.gsw_sigma4(sa,ct);
+      gsw_sigma4:=Tgsw_sigma4(GetProcedureAddress(libgswteos, 'gsw_sigma4'));
+      sigma4:=gsw_sigma4(sa,ct);
     end;
 
 

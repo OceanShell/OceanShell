@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Buttons,
-  FileCtrl, Variants, IBConnection, DB, sqldb, SQLScript;
+  FileCtrl, Variants, IBConnection, DB, sqldb, SQLScript, dynlibs;
 
 
 type
@@ -329,6 +329,7 @@ PQF1,PQF2,SQF,BNum,UID:integer; //primary QF1,QF2, secondary QF, Niskin bottle, 
 OrCastNum:integer;
 m_exist:integer;
 
+Func: Tgsw_p_from_z;
 begin
 
     line:=0;
@@ -781,7 +782,8 @@ begin
 
       //TEOS: meters to dbar
       Lev_m:=-stLev;
-      Lev_dbar:=GibbsSeaWater.gsw_p_from_z(Lev_m,stlat,0,0);
+      Func:=Tgsw_p_from_z(GetProcedureAddress(libgswteos, 'gsw_p_from_z'));
+      Lev_dbar:=Func(Lev_m,stlat,0,0);
       Lev_m:=stLev;
       {m=0- depth to pressure, 1- pressure to depth}
       //Lev_m:=stLev;
@@ -1158,7 +1160,8 @@ end;{case}
 
      //TEOS: meters to dbar
      LastLev_m:=-StLev;
-     LastLev_dbar:=GibbsSeaWater.gsw_p_from_z(LastLev_m,stlat,0,0);
+     Func:=Tgsw_p_from_z(GetProcedureAddress(libgswteos, 'gsw_p_from_z'));
+     LastLev_dbar:=Func(LastLev_m,stlat,0,0);
      LastLev_m:=StLev;
 
 {PD}end;

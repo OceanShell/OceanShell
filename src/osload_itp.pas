@@ -6,7 +6,7 @@ interface
 
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, DateUtils, DB, SQLDB, Math, Zipper;
+  Dialogs, StdCtrls, ComCtrls, DateUtils, DB, SQLDB, Math, Zipper, dynlibs;
 
 type
 
@@ -156,6 +156,7 @@ QCFlag, PQF1, PQF2, SQF: integer;
 tmp1, tmp2:real;
 
 cruise_id, ID_MIN, ID_MAX, cnt_added:integer;
+Func:Tgsw_z_from_p;
 begin
  ID_MIN:=10000000+strtoint(ITP_cruise)*10000;
  ID_MAX:=10000000+strtoint(ITP_cruise)*10000+9999;
@@ -488,8 +489,9 @@ begin
 
           if (val<>-9999) then begin
             if (ITP_isfinal=true) or (ID>MaxID) then begin
+            Func:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+            lev_m:=-Func(pres, lat, 0, 0);
 
-          lev_m:=-gibbsseawater.gsw_z_from_p(pres, lat, 0, 0);
            with frmdm.q1 do begin
             Close;
              SQL.Clear;

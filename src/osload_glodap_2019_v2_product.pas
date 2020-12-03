@@ -28,7 +28,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons, DateUtils, SQLDB, DB, BufDataSet;
+  Buttons, DateUtils, SQLDB, DB, BufDataSet, dynlibs;
 
 type
 
@@ -318,6 +318,7 @@ symbol:char;
 st,buf_str,str_MD,path_MD:string;
 StDT:TDateTime;
 DayChange,DateChange:boolean;
+Func:Tgsw_z_from_p;
 begin
 
  path_MD:='c:\Users\ako071\AK\datasets\GLODAP\download\STATION.dat';
@@ -428,7 +429,8 @@ begin
 
         StDT:= procedures.DateEncode(Year,Month,Day,Hour,Min,DayChange,DateChange);
         //TEOS: dbar to meters
-        stMDS:=GibbsSeaWater.gsw_z_from_p(stPDS, stlat, 0, 0);
+        Func:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+        stMDS:=Func(stPDS, stlat, 0, 0);
         stMDS:=-stMDS;
 
         //memo1.Lines.Add('ID='+inttostr(PRF_count)
@@ -565,6 +567,7 @@ cast_count:Integer;
 //download
 CountDup,StVersion:integer;
 
+Func:Tgsw_z_from_p;
 
 begin
    path_out:='c:\Users\ako071\AK\datasets\GLODAP\download\GLODAP_STATIONS.dat';
@@ -772,7 +775,8 @@ begin
 
 
     (* Last level from dbar to meters TEOS10 *)
-    stMDS:=GibbsSeaWater.gsw_z_from_p(stPDS, stlat, 0, 0);
+    Func:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+    stMDS:=Func(stPDS, stlat, 0, 0);
 
 
       writeln(out,inttostr(st_count),       //stations count
@@ -919,6 +923,8 @@ var
   str_PRF1,str_PRF2:string;
   TNames1_arr:array[1..29] of string;   //GLODAP tables names Type 1
   TNames2_arr:array[1..5] of string;   //GLODAP tables names Type 1
+
+  Func: Tgsw_z_from_p;
 begin
       TNames1_arr[1]:='P_AOF_BOTTLE';
       TNames1_arr[2]:='P_C13_BOTTLE';
@@ -1701,9 +1707,8 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     PRF_count:=PRF_count+1;
 
     //convert pressure to depth
-    //m=1 pressure to depth
-    //Depth_to_Pressure(stPDS,stlat,1,stLastLevel_m);
-    stMDS:=GibbsSeaWater.gsw_z_from_p(stPDS,stlat, 0, 0);
+    Func:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+    stMDS:=Func(stPDS,stlat, 0, 0);
 
     //prepare to write into STATION
     writeln(outMD,inttostr(PRF_count),  //ID
@@ -2049,9 +2054,8 @@ showmessage('kst='+inttostr(kst)+'  cast_maxN='+inttostr(cast_maxN));
     PRF_count:=PRF_count+1;
 
     //convert pressure to depth
-    //m=1 pressure to depth
-    //Depth_to_Pressure(stPDS,stlat,1,stLastLevel_m);
-    stMDS:=GibbsSeaWater.gsw_z_from_p(stPDS,stlat, 0, 0);
+    Func:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+    stMDS:=Func(stPDS,stlat, 0, 0);
 
     //prepare to write into STATION
     writeln(outMD,inttostr(PRF_count),  //ID
@@ -2324,6 +2328,7 @@ var
 
   Lev_dbar, Lev_m:real;
 
+  Func:Tgsw_z_from_p;
 begin
 
 TblName[1]:='P_AOU_BOTTLE';
@@ -2917,7 +2922,8 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
 
        Lev_dbar:=CDS_DSC.FieldByName('Pres').AsFloat;
        //TEOS: dbar to meters
-       Lev_m:=GibbsSeaWater.gsw_z_from_p(Lev_dbar,stlat, 0, 0);
+       Func:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+       Lev_m:=Func(Lev_dbar,stlat, 0, 0);
        Lev_m:=-Lev_m;
 
 //write if value exists
