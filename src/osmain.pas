@@ -157,7 +157,6 @@ type
     Label13: TLabel;
     Label14: TLabel;
     Label15: TLabel;
-    Label16: TLabel;
     Label17: TLabel;
     Label18: TLabel;
     Label19: TLabel;
@@ -627,7 +626,6 @@ uses
 procedure Tfrmosmain.FormShow(Sender: TObject);
 Var
   Ini:TIniFile;
-  k:integer;
 begin
  IBName:='';
 
@@ -638,10 +636,6 @@ begin
 
  (* Defining Global Path - application root lolder *)
   GlobalPath:=ExtractFilePath(Application.ExeName);
-
-  {$IFDEF DARWIN}
-    GlobalPath:=LeftStr(GlobalPath, Pos('OceanShell.app', GlobalPath)-1);
-  {$ENDIF}
 
   (* Define settings file, unique for every user*)
   IniFileName:=GetUserDir+'.climateshell';
@@ -666,18 +660,13 @@ begin
   {$ENDIF}
 
   //GibbsSeaWater loaded?
-  if libgswteos=dynlibs.NilHandle then
-     libgswteos_exists:=false else libgswteos_exists:=true;
-
-  if not libgswteos_exists then
-   if Messagedlg('TEOS-10 is not installed', mtWarning, [mbOk], 0)=mrOk then exit;
+  if libgswteos=0 then libgswteos_exists:=false else libgswteos_exists:=true;
+    if not libgswteos_exists then showmessage('TEOS-10 is not installed');
 
   //netCDF loaded?
-  if netcdf=dynlibs.NilHandle then
-     netcdf_exists:=false else netcdf_exists:=true;
+  if netcdf=0 then netcdf_exists:=false else netcdf_exists:=true;
 
-  if not netcdf_exists then
-   if Messagedlg('netCDF is not installed', mtWarning, [mbOk], 0)=mrOk then exit;
+  if not netcdf_exists then showmessage('netCDF is not installed');
 
 
   (* Define global delimiter *)
@@ -4320,6 +4309,7 @@ begin
   SQF_list.Free;
 
   FreeLibrary(libgswteos);
+  FreeLibrary(netcdf);
 
   if frmmap_open then frmmap.Close;
   if frmprofile_station_all_open then frmprofile_station_all.Close;
