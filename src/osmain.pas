@@ -199,11 +199,13 @@ type
     MenuItem19: TMenuItem;
     iSelectEntry: TMenuItem;
     iInsertLastLevel: TMenuItem;
+    MenuItem2: TMenuItem;
     MenuItem20: TMenuItem;
     iVisualizationGrapferHistorgam: TMenuItem;
     MenuItem21: TMenuItem;
     iExportCOMFORT: TMenuItem;
     iExportCOMFORT_table: TMenuItem;
+    ioutliers: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     iSelectCruise: TMenuItem;
@@ -391,6 +393,7 @@ type
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
     procedure iMeteoClick(Sender: TObject);
+    procedure ioutliersClick(Sender: TObject);
     procedure iPlotBathymetryClick(Sender: TObject);
     procedure iQCflagfromfileClick(Sender: TObject);
     procedure iQC_dbar_meterClick(Sender: TObject);
@@ -600,6 +603,7 @@ uses
   osqc_wideranges,
   osqc_meanprofile,
   osqc_setflags,
+  osqc_outliers,
 
 (* tools *)
   osmap,
@@ -3729,6 +3733,17 @@ begin
      end;
  //  frmmeteo.btnShowSelectedClick(self);
    frmmeteo_open:=true;
+end;
+
+procedure Tfrmosmain.ioutliersClick(Sender: TObject);
+begin
+  frmoutliers := Tfrmoutliers.Create(Self);
+   try
+    if not frmoutliers.ShowModal = mrOk then exit;
+   finally
+     frmoutliers.Free;
+     frmoutliers:= nil;
+   end;
 end;
 
 procedure Tfrmosmain.iPlotBathymetryClick(Sender: TObject);
