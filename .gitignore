@@ -1,7 +1,5 @@
 # Lazarus compiler-generated binaries (safe to delete)
 *.exe
-*.so
-*.dylib
 *.lrs
 *.compiled
 *.dbg
@@ -38,3 +36,4 @@ help/
 support/
 unload/
 OceanShell
+.DS_Store

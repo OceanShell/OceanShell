@@ -148,8 +148,6 @@ type
     iLoad_Pangaea_CTD_tab: TMenuItem;
     iLoad_WOD18: TMenuItem;
     iMap: TMenuItem;
-    iImport: TMenuItem;
-    iInitialDatabase: TMenuItem;
     Label1: TLabel;
     Label10: TLabel;
     Label11: TLabel;
@@ -199,13 +197,14 @@ type
     MenuItem19: TMenuItem;
     iSelectEntry: TMenuItem;
     iInsertLastLevel: TMenuItem;
+    iExportFirebirdDB: TMenuItem;
+    ioutliers: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem20: TMenuItem;
     iVisualizationGrapferHistorgam: TMenuItem;
     MenuItem21: TMenuItem;
     iExportCOMFORT: TMenuItem;
     iExportCOMFORT_table: TMenuItem;
-    ioutliers: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     iSelectCruise: TMenuItem;
@@ -385,7 +384,6 @@ type
     procedure iExportCIAClick(Sender: TObject);
     procedure iExportCOMFORTClick(Sender: TObject);
     procedure iExportCOMFORT_tableClick(Sender: TObject);
-    procedure iInitialDatabaseClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
@@ -414,6 +412,7 @@ type
     procedure iExportASCIIClick(Sender: TObject);
     procedure MenuItem19Click(Sender: TObject);
     procedure iInsertLastLevelClick(Sender: TObject);
+    procedure iExportFirebirdDBClick(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
 
   private
@@ -568,7 +567,6 @@ uses
   ossettings,
   osselection_advanced,
   osselection_customsql,
-  osabout,
   sortbufds,
   procedures,
   ArbytraryRegion,
@@ -587,15 +585,13 @@ uses
   ossupporttables,
   osservicestatistics,
 
-(* data import *)
-  osimport_fdb,
-
 (* data export *)
   osexport_divand,
   osexport_ascii,
   osexport_CIA,
   osexport_comfort,
   osexport_comfort_table,
+  osexport_firebird,
 
 (* QC *)
   osqc_dbar_meters_consistency,
@@ -652,11 +648,11 @@ begin
   (* Loading TEOS-2010 dynamic library *)
   {$IFDEF WINDOWS}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dll'));
-    netcdf:=LoadLibrary(PChar(GlobalPath+'netcdf.dll'));
+    netcdf:=LoadLibrary(PChar('netcdf.dll'));
   {$ENDIF}
   {$IFDEF LINUX}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.so'));
-    netcdf:=LoadLibrary(PChar('netcdf.so'));
+    netcdf:=LoadLibrary(PChar('libnetcdf.so'));
   {$ENDIF}
   {$IFDEF DARWIN}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dylib'));
@@ -1972,29 +1968,15 @@ begin
    end;
 end;
 
-procedure Tfrmosmain.iInitialDatabaseClick(Sender: TObject);
-Var
-  Ini:TIniFile;
-  DBName:string;
+procedure Tfrmosmain.iExportFirebirdDBClick(Sender: TObject);
 begin
-  Ini := TIniFile.Create(IniFileName);
-  try
-   DBName:=Ini.ReadString( 'main', 'OceanFDBPath',  '');
-  finally
-    Ini.free;
-  end;
-
-  if FileExists(DBName) then begin
-   frmimport_fdb := Tfrmimport_fdb.Create(Self);
-     try
-      if not frmimport_fdb.ShowModal = mrOk then exit;
-     finally
-       frmimport_fdb.Free;
-       frmimport_fdb := nil;
-     end;
-  end else
-   if MessageDlg('Please, specify path to Ocean.fdb', mtWarning, [mbOk], 0)=mrOk then
-    aSettings.Execute();
+  frmexport_firebird := Tfrmexport_firebird.Create(Self);
+   try
+    if not frmexport_firebird.ShowModal = mrOk then exit;
+   finally
+     frmexport_firebird.Free;
+     frmexport_firebird := nil;
+   end;
 end;
 
 procedure Tfrmosmain.iExportASCIIClick(Sender: TObject);
@@ -3944,7 +3926,41 @@ end;
 end;
 
 procedure Tfrmosmain.iAboutClick(Sender: TObject);
+Var
+  winver, AboutProgram:string;
 begin
+ {$ifdef WINDOWS}
+   {$ifdef WIN32}
+     winver:='i386-win32';
+   {$endif}
+
+   {$ifdef WIN64}
+     winver:='x86_64-win64';
+   {$endif}
+ {$endif}
+
+ {$ifdef Linux}
+   {$ifdef CPU32}
+     winver:='i386-linux';
+   {$endif}
+   {$ifdef CPU64}
+     winver:='x86_64-linux';
+   {$endif}
+ {$endif}
+
+  {$ifdef DARWIN}
+   {$ifdef CPU32}
+     winver:='i386-darwin';
+   {$endif}
+   {$ifdef CPU64}
+     winver:='x86_64-darwin';
+   {$endif}
+ {$endif}
+
+  AboutProgram:='OceanShell ('+winver+')'+LineEnding+LineEnding+
+                'Alexander Smirnov & Alexander Korablev'+LineEnding+
+                '© 2004-2020';
+
   if messagedlg(AboutProgram, mtInformation, [mbOk], 0)=mrOk then exit;
 end;
 
