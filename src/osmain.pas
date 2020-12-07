@@ -652,7 +652,7 @@ begin
   {$ENDIF}
   {$IFDEF LINUX}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.so'));
-    netcdf:=LoadLibrary(PChar('netcdf.so'));
+    netcdf:=LoadLibrary(PChar('libnetcdf.so'));
   {$ENDIF}
   {$IFDEF DARWIN}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dylib'));
