@@ -28,6 +28,7 @@ type
     Edit2: TEdit;
     Edit3: TEdit;
     Edit4: TEdit;
+    Edit5: TEdit;
     Edit6: TEdit;
     Edit7: TEdit;
     Edit8: TEdit;
@@ -36,9 +37,14 @@ type
     GroupBox2: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
+    GroupBox5: TGroupBox;
+    GroupBox6: TGroupBox;
     Label1: TLabel;
     Label10: TLabel;
     Label11: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -50,6 +56,8 @@ type
     ListBox1: TListBox;
     Memo1: TMemo;
     SpinEdit1: TSpinEdit;
+    SpinEdit2: TSpinEdit;
+    SpinEdit3: TSpinEdit;
     procedure btnExportAllPlotsClick(Sender: TObject);
     procedure btnSelectAllClick(Sender: TObject);
     procedure btnSelectAllSourcesClick(Sender: TObject);
@@ -171,7 +179,7 @@ SSID: array of integer; {selected stations id}
 i,kt,ks,klt,kln,kL :integer;
 s_count,step,sqn,s_min,s_max,prf_in_sq,samples_in_sq,sq_count,n :integer;
 station_id,pqf2,units_id,units_def,instrument_id,profile_number :integer;
-uid_count,samples_count,samples_total,outliers_count,outliers_total,sd_factor,msl :integer;
+uid_count,samples_count,samples_total,outliers_count,outliers_total,msl :integer;
 ltn,lts,lnw,lne,ld1,ld2,L1,L2,LM :real;
 lev_m,val,val_conv: real;
 sd1L,sd1R,sd2L,sd2R,sd3L,sd3R,sd4L,sd4R,sd5L,sd5R :real;
@@ -567,9 +575,6 @@ end;
 
 {STEP2   determine outliers and write into file: update and select }
 {IF}if samples_in_sq>0 then begin
-   msl:=strtoint(Edit4.Text); //minimum samples in layer
-   //sd_factor:=strtoint(Edit5.Text);
-   sd_factor:=SpinEdit1.Value;
 
    {input file}
    fn:=user_path+tbl+'_'+sqn_str+'_'+lt_str+'_'+ln_str+'_samples.txt';
@@ -598,11 +603,25 @@ end;
    md:=MP[kl].md;
    sd:=MP[kl].sd;
 
-   sdL:=md - sd_factor*sd;
-   sdR:=md + sd_factor*sd;
+{.....sd in the layers}
+   if (lev_m>=0) and (lev_m<50) then begin
+    sdL:=md - sd*SpinEdit1.Value;
+    sdR:=md + sd*SpinEdit1.Value;
+   end;
+   if (lev_m>=50) and (lev_m<500) then begin
+    sdL:=md - sd*SpinEdit2.Value;
+    sdR:=md + sd*SpinEdit2.Value;
+   end;
+   if (lev_m>=500) then begin
+    sdL:=md - sd*SpinEdit3.Value;
+    sdR:=md + sd*SpinEdit3.Value;
+   end;
 
    val_outside_sd:=false;
    if (val<=sdL) or (val>=sdR) then val_outside_sd:=true;
+
+   if lev_m<2000 then msl:=strtoint(Edit4.Text); //minimum samples in upper layer
+   if lev_m>=2000 then msl:=strtoint(Edit5.Text); //minimum samples in lower layer
 
 {SD}if (lev_m>=L1) and (lev_m<L2) and (val_outside_sd=true)
     and (n>=msl) then begin
@@ -846,9 +865,9 @@ end;
 procedure Tfrmoutliers.GrapherPlotOutliers(fn_MP,fn_samples,fn_outliers:string;
   units_def_id:integer; units_def_name:string; single_plot:boolean);
 var
-ks,sd_factor,plot_count,s_count: integer;
+ks,plot_count,s_count: integer;
 fsize :real;
-str,sdL,sdR,pc: string;
+str,pc: string;
 qchar: char;
 file_too_big :boolean;
 begin
@@ -934,24 +953,25 @@ Writeln(script, ' txt.Font.Size=10 ');
 Writeln(script, ' txt.Font.Face="Courier New" ');
 Writeln(script, ' txt.Font.Bold=true ');
 Writeln(script, '');
-str:='outliers - minimum number of samples in a layer for sd computing: ';
-str:=str+Edit4.Text;
+str:='outliers - minimum number of samples in the layers for sd computing: ';
+str:=str+' '+label9.caption+' '+Edit4.Text+';'
+        +' '+label12.caption+' '+Edit5.Text+';';
 str:=AnsiQuotedStr(str,qchar);
 Writeln(script, ' Set Txt=Plot.Shapes.AddText(3,17.8, ' +str +')' );
 Writeln(script, ' txt.Font.Size=10 ');
 Writeln(script, ' txt.Font.Face="Courier New" ');
 Writeln(script, ' txt.Font.Bold=true ');
 Writeln(script, '');
-str:='outliers - standard deviation factor for outlies definition: ';
-str:=str+inttostr(SpinEdit1.Value);
+str:='outliers - standard deviation factors for outlies definition: ';
+str:=str+' '+label10.caption+' '+inttostr(SpinEdit1.Value)+';'
+        +' '+label13.caption+' '+inttostr(SpinEdit2.Value)+';'
+        +' '+label14.caption+' '+inttostr(SpinEdit3.Value)+';';
 str:=AnsiQuotedStr(str,qchar);
 Writeln(script, ' Set Txt=Plot.Shapes.AddText(3,17.4, ' +str +')' );
 Writeln(script, ' txt.Font.Size=10 ');
 Writeln(script, ' txt.Font.Face="Courier New" ');
 Writeln(script, ' txt.Font.Bold=true ');
 Writeln(script, '');
-
-
 
 {...Graph title}
 str:='Outliers (mean profile in: ' +extractfilename(fn_MP)+ ')';
@@ -1020,42 +1040,48 @@ Writeln(script, ' XAxis1.PositionAxis(grfPositionRightTop, "Y Axis 1") ');
 Writeln(script, '');
 
 {...sd factor}
-   sd_factor:=SpinEdit1.Value;
-   sdL:='sd'+inttostr(sd_factor)+'L';
-   sdL:=AnsiQuotedStr(sdL,qchar);
-   sdR:='sd'+inttostr(sd_factor)+'R';
-   sdR:=AnsiQuotedStr(sdR,qchar);
+   //sdL:='sd_L';
+   //sdL:=AnsiQuotedStr(sdL,qchar);
+   //sdR:='sd_R';
+   //sdR:=AnsiQuotedStr(sdR,qchar);
 
-{......item 2: sdXL }
-case sd_factor of
-1: Writeln(script, ' Graph.AddLinePlot(path_MP,9,1) ');
-2: Writeln(script, ' Graph.AddLinePlot(path_MP,11,1) ');
-3: Writeln(script, ' Graph.AddLinePlot(path_MP,13,1) ');
-4: Writeln(script, ' Graph.AddLinePlot(path_MP,15,1) ');
-5: Writeln(script, ' Graph.AddLinePlot(path_MP,17,1) ');
-end;
+{......item 2: sd5L }
+Writeln(script, ' Graph.AddLinePlot(path_MP,17,1) ');
 plot_count:=plot_count+1;
 pc:=inttostr(plot_count);
-Writeln(script, ' Set sdL=Graph.Plots.Item('+pc+') ');
-Writeln(script, ' sdL.Name='+sdL);
-Writeln(script, ' sdL.Line.forecolor=grfColorMagenta ');
-Writeln(script, ' sdL.line.width="0.1" ');
+Writeln(script, ' Set sd5L=Graph.Plots.Item('+pc+') ');
+Writeln(script, ' sd5L.Name="sd5L" ');
+Writeln(script, ' sd5L.Line.forecolor=grfColorRed ');
+Writeln(script, ' sd5L.line.width="0.05" ');
 Writeln(script, '');
 
-{......item 3: sdXR }
-case sd_factor of
-1: Writeln(script, ' Graph.AddLinePlot(path_MP,10,1) ');
-2: Writeln(script, ' Graph.AddLinePlot(path_MP,12,1) ');
-3: Writeln(script, ' Graph.AddLinePlot(path_MP,14,1) ');
-4: Writeln(script, ' Graph.AddLinePlot(path_MP,16,1) ');
-5: Writeln(script, ' Graph.AddLinePlot(path_MP,18,1) ');
-end;
+{......item 3: sd3L }
+Writeln(script, ' Graph.AddLinePlot(path_MP,13,1) ');
 plot_count:=plot_count+1;
 pc:=inttostr(plot_count);
-Writeln(script, ' Set sdR=Graph.Plots.Item('+pc+') ');
-Writeln(script, ' sdR.Name='+sdR);
-Writeln(script, ' sdR.Line.forecolor=grfColorMagenta ');
-Writeln(script, ' sdR.line.width="0.1" ');
+Writeln(script, ' Set sd3L=Graph.Plots.Item('+pc+') ');
+Writeln(script, ' sd3L.Name="sd3L" ');
+Writeln(script, ' sd3L.Line.forecolor=grfColorGreen ');
+Writeln(script, ' sd3L.line.width="0.05" ');
+Writeln(script, '');
+
+{......item 4: sd5R }
+Writeln(script, ' Graph.AddLinePlot(path_MP,18,1) ');
+plot_count:=plot_count+1;
+pc:=inttostr(plot_count);
+Writeln(script, ' Set sd5R=Graph.Plots.Item('+pc+') ');
+Writeln(script, ' sd5R.Name="sd5R" ');
+Writeln(script, ' sd5R.Line.forecolor=grfColorRed ');
+Writeln(script, ' sd5R.line.width="0.05" ');
+Writeln(script, '');
+{......item 5: sd3R }
+Writeln(script, ' Graph.AddLinePlot(path_MP,14,1) ');
+plot_count:=plot_count+1;
+pc:=inttostr(plot_count);
+Writeln(script, ' Set sd3R=Graph.Plots.Item('+pc+') ');
+Writeln(script, ' sd3R.Name="sd3R" ');
+Writeln(script, ' sd3R.Line.forecolor=grfColorGreen ');
+Writeln(script, ' sd3R.line.width="0.05" ');
 Writeln(script, '');
 
 {...add x2 axis to the Graph }
@@ -1073,7 +1099,7 @@ Writeln(script, '  XAxis2.Tickmarks.MajorLength=0.2 ');
 Writeln(script, '  XAxis2.Tickmarks.MinorLength=0 ');
 Writeln(script, '');
 
-{......item 4:number of samples profile}
+{......item 6:number of samples profile}
 Writeln(script, '  Graph.AddLinePlot(path_MP,6,1,"X Axis 2","Y Axis 1") ');
 plot_count:=plot_count+1;
 pc:=inttostr(plot_count);
@@ -1083,7 +1109,7 @@ Writeln(script, '  sd5R.Line.forecolor=grfColorDeepNavyBlue ');
 Writeln(script, '  sd5R.line.width="0.1" ');
 Writeln(script, '');
 
-{...item 5: samples if selected and less than 30 000 000 byte }
+{...item 7: samples if selected and less than 30 000 000 byte }
 if CheckBox4.Checked then begin
    file_too_big:=false;
    assignfile(fi_samples,fn_samples);
@@ -1119,7 +1145,7 @@ Writeln(script, '');
 end;
 end;
 
-{...item 6: MP }
+{...item 8: MP }
 Writeln(script, '  Graph.AddLinePlot(path_MP,2,1,"X Axis 1","Y Axis 1") ');
 plot_count:=plot_count+1;
 pc:=inttostr(plot_count);
