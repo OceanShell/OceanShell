@@ -21,11 +21,10 @@ type
     procedure chlbVariablesItemClick(Sender: TObject; Index: integer);
 
   private
-    function  GetDDL:boolean;
-    procedure CreateNewDB(dbname:string);
     procedure PopulateSupportTables(dbname:string);
   public
-
+    function  GetDDL:boolean;
+    procedure CreateNewDB(dbname:string);
   end;
 
 var
@@ -192,6 +191,7 @@ begin
 
     repeat
      readln(dat, st);
+
      if (copy(st, 1, 15)='CREATE TABLE P_') or
         (copy(st, 1, 14)='ALTER TABLE P_') then begin
 
@@ -210,11 +210,13 @@ begin
        until trim(st)='';
      end;
 
-     if trim(st)<>'' then SC.Script.Add(st);
+     if trim(st)<>'' then begin
+      SC.Script.Add(st);
+     end;
     until eof(dat);
     CloseFile(dat);
 
-   // showmessage(SC.Script.Text);
+    showmessage(SC.Script.Text);
 
     SC.UseCommit:=true;
     SC.UseSetTerm:=true; // for Firebird ONLY

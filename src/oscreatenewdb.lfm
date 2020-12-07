@@ -35,8 +35,9 @@ object frmcreatenewdb: Tfrmcreatenewdb
     ChildSizing.EnlargeVertical = crsHomogenousChildResize
     ChildSizing.ShrinkHorizontal = crsScaleChilds
     ChildSizing.ShrinkVertical = crsScaleChilds
-    ChildSizing.Layout = cclLeftToRightThenTopToBottom
-    ChildSizing.ControlsPerLine = 3
+    ChildSizing.Layout = cclTopToBottomThenLeftToRight
+    ChildSizing.ControlsPerLine = 1
+    ColumnLayout = clVerticalThenHorizontal
     Columns = 3
     OnItemClick = chlbVariablesItemClick
     TabOrder = 1

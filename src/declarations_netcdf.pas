@@ -288,7 +288,7 @@ Tnc_rename_att = function(ncid : integer; varid : integer; name : pAnsiChar; new
 
 
 (* ============================ Library Version ============================= *)
-Tnc_inq_libvers = function() : pAnsiChar; cdecl;
+Tnc_inq_libvers = function : pAnsiChar; cdecl;
 
 (* ========================= NetCDF Error Handling ========================== *)
 Tnc_strerror = function(ncerr : integer) : pAnsiChar; cdecl;
