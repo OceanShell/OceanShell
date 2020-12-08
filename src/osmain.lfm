@@ -4,8 +4,8 @@ object frmosmain: Tfrmosmain
   Top = 60
   Width = 1380
   Caption = 'OceanShell'
-  ClientHeight = 840
-  ClientWidth = 1380
+  ClientHeight = 0
+  ClientWidth = 0
   Color = clBtnFace
   Constraints.MinHeight = 700
   Constraints.MinWidth = 1380
@@ -90,7 +90,7 @@ object frmosmain: Tfrmosmain
       object btnCustomSQLQuery: TButton
         Left = 1152
         Height = 38
-        Top = 520
+        Top = 472
         Width = 200
         Caption = 'Custom SQL Query'
         Font.Color = clWindowText
@@ -118,7 +118,7 @@ object frmosmain: Tfrmosmain
       object btnSelectID: TButton
         Left = 1152
         Height = 38
-        Top = 472
+        Top = 424
         Width = 200
         Caption = 'Select from ID list'
         Font.Color = clWindowText
