@@ -2068,7 +2068,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton3: TToolButton
             Left = 101
-            Height = 34
+            Height = 5
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider

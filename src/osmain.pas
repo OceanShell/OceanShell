@@ -650,7 +650,7 @@ begin
   (* Loading TEOS-2010 dynamic library *)
   {$IFDEF WINDOWS}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dll'));
-    netcdf:=LoadLibrary(PChar('netcdf.dll'));
+    netcdf    :=LoadLibrary(PChar(GlobalPath+'netcdf.dll'));
   {$ENDIF}
   {$IFDEF LINUX}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.so'));
