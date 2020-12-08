@@ -186,7 +186,6 @@ type
     btnEntryAddStations: TMenuItem;
     MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
-    MenuItem14: TMenuItem;
     iInsertBottomDepthGEBCO: TMenuItem;
     MenuItem15: TMenuItem;
     iStandarddeviationslayers: TMenuItem;
@@ -2728,6 +2727,7 @@ begin
   iDBStatistics.Enabled:=items_enabled;
   aMapAllStations.Enabled:=items_enabled;
   aMapKML.Enabled:=items_enabled;
+  aProfilesStationSingle.Enabled:=items_enabled;
   aProfilesStationAll.Enabled:=items_enabled;
   aProfilesSelectedAllPlot.Enabled:=items_enabled;
   iStandarddeviationslayers.Enabled:=items_enabled;

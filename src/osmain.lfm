@@ -3097,15 +3097,16 @@ object frmosmain: Tfrmosmain
     Font.Name = 'MS Sans Serif'
     Images = frmicons.IL1
     ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 4
-    Visible = False
     object ToolButton4: TToolButton
       Left = 1
       Top = 0
       Action = aMapAllStations
     end
     object ToolButton5: TToolButton
-      Left = 36
+      Left = 106
       Top = 0
       Action = aProfilesSelectedAllPlot
     end
@@ -3115,7 +3116,7 @@ object frmosmain: Tfrmosmain
       Action = aProfilesStationAll
     end
     object ToolButton7: TToolButton
-      Left = 106
+      Left = 36
       Top = 0
       Action = aProfilesStationSingle
     end
@@ -3373,21 +3374,25 @@ object frmosmain: Tfrmosmain
     end
     object aProfilesStationAll: TAction
       Category = 'Tools'
-      Caption = 'All profiles for selected station'
+      Caption = 'Plot all profiles for selected station'
       Enabled = False
+      Hint = 'Plot all profiles for selected station'
       ImageIndex = 32
       OnExecute = aProfilesStationAllExecute
     end
     object aProfilesStationSingle: TAction
       Category = 'Tools'
-      Caption = 'Single profile for selected station'
+      Caption = 'Plot one profile for selected station'
+      Enabled = False
+      Hint = 'Plot one profile for selected station'
       ImageIndex = 1006
       OnExecute = aProfilesStationSingleExecute
     end
     object aProfilesSelectedAllPlot: TAction
       Category = 'Tools'
-      Caption = 'Plot profiles for all selected stations'
+      Caption = 'Plot all profiles for all stations'
       Enabled = False
+      Hint = 'Plot all profiles for all stations'
       ImageIndex = 1002
       OnExecute = aProfilesSelectedAllPlotExecute
     end
@@ -3434,14 +3439,11 @@ object frmosmain: Tfrmosmain
     Images = frmicons.IL1
     left = 425
     top = 329
-    object iProfilesAll: TMenuItem
-      Action = aProfilesStationAll
-    end
     object MenuItem4: TMenuItem
       Action = aProfilesStationSingle
     end
-    object MenuItem14: TMenuItem
-      Caption = '-'
+    object iProfilesAll: TMenuItem
+      Action = aProfilesStationAll
     end
     object MenuItem10: TMenuItem
       Action = aProfilesSelectedAllPlot
