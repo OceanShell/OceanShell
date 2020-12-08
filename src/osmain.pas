@@ -64,16 +64,18 @@ type
     cbSource: TCheckComboBox;
     cgQCFlag: TCheckGroup;
     cgCruiseQCFlag: TCheckGroup;
+    chkDateandTime: TCheckBox;
+    chkDepth: TCheckBox;
+    chkIDRange: TCheckBox;
+    chkParameter: TCheckBox;
+    chkQCFlag: TCheckBox;
+    chkRegion: TCheckBox;
     chkShowQuery: TCheckBox;
     chkCruiseIDRange: TCheckBox;
     chkCRUISENumStations: TCheckBox;
     chkCRUISEDateandtime: TCheckBox;
     chkCRUISERegion: TCheckBox;
-    chkDateandTime: TCheckBox;
-    chkDepth: TCheckBox;
-    chkIDRange: TCheckBox;
     chkPeriod: TCheckBox;
-    chkQCFlag: TCheckBox;
     chkCruiseNOTSourceNum: TCheckBox;
     chkNOTCountry: TCheckBox;
     chkNOTInstitute: TCheckBox;
@@ -81,7 +83,6 @@ type
     chkNOTProject: TCheckBox;
     chkNOTSource: TCheckBox;
     cgParameter: TCheckGroup;
-    chkParameter: TCheckBox;
     chkIgnoreDup: TCheckBox;
     chkCruiseNOTCountry: TCheckBox;
     chkCruiseNOTInstitute: TCheckBox;
@@ -92,7 +93,6 @@ type
     cbEntryType: TComboBox;
     cbPredefinedRegion: TComboBox;
     chkCruiseQCFlag: TCheckBox;
-    chkRegion: TCheckBox;
     DBCruiseCountry: TDBComboBox;
     DBCruiseInstitute: TDBComboBox;
     DBCruiseLatMax: TDBEdit;
@@ -140,6 +140,7 @@ type
     gbIDRange: TGroupBox;
     gbDateandTime: TGroupBox;
     gbRegion: TGroupBox;
+    GroupBox2: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
     GroupBox7: TGroupBox;
@@ -350,6 +351,7 @@ type
     procedure cbProjectDropDown(Sender: TObject);
     procedure cbSourceDropDown(Sender: TObject);
     procedure chkDateandTimeChange(Sender: TObject);
+    procedure chkDepthChange(Sender: TObject);
     procedure chkIDRangeChange(Sender: TObject);
     procedure chkParameterChange(Sender: TObject);
     procedure chkQCFlagChange(Sender: TObject);
@@ -2903,6 +2905,11 @@ end;
 procedure Tfrmosmain.chkDateandTimeChange(Sender: TObject);
 begin
   gbDateandTime.Enabled:=chkDateandTime.Checked;
+end;
+
+procedure Tfrmosmain.chkDepthChange(Sender: TObject);
+begin
+ gbDepth.Enabled:=chkDepth.Checked;
 end;
 
 procedure Tfrmosmain.chkIDRangeChange(Sender: TObject);
