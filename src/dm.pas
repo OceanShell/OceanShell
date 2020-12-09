@@ -5,7 +5,8 @@ unit dm;
 interface
 
 uses
-  Classes, SysUtils, Dialogs, Controls, IBConnection, sqldb, BufDataset, db;
+  Classes, SysUtils, Dialogs, Controls, IBConnection, sqldb, sqldblib,
+  BufDataset, db;
 
 type
 
@@ -24,6 +25,7 @@ type
     QCruiseDetails: TSQLQuery;
     QCruise: TSQLQuery;
     QEntry: TSQLQuery;
+    DBLoader: TSQLDBLibraryLoader;
     TR: TSQLTransaction;
 
     procedure DataModuleDestroy(Sender: TObject);

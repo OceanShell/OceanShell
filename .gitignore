@@ -24,16 +24,17 @@ src/lib/
 
 # Application bundle for Mac OS
 *.app/
+.DS_Store
 
 # Log files
 *.log
 
 # OceanShell specific files and folders
+OceanShell
 data/
 databases/
 documents/
 help/
 support/
 unload/
-OceanShell
-.DS_Store
+firebird/

@@ -161,4 +161,11 @@ object frmdm: Tfrmdm
     left = 496
     top = 104
   end
+  object DBLoader: TSQLDBLibraryLoader
+    Enabled = False
+    ConnectionType = 'Firebird'
+    LibraryName = 'fbclient.dll'
+    left = 368
+    top = 33
+  end
 end

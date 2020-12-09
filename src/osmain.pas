@@ -60,10 +60,16 @@ type
     cbCruiseCruiseNum: TCheckComboBox;
     cbInstitute: TCheckComboBox;
     cbPlatform: TCheckComboBox;
+    cbCruisePredefinedRegion: TComboBox;
     cbProject: TCheckComboBox;
     cbSource: TCheckComboBox;
     cgQCFlag: TCheckGroup;
     cgCruiseQCFlag: TCheckGroup;
+    chkCRUISEDateandtime: TCheckBox;
+    chkCruiseIDRange: TCheckBox;
+    chkCruiseNumStations: TCheckBox;
+    chkCruiseQCFlag: TCheckBox;
+    chkCRUISERegion: TCheckBox;
     chkDateandTime: TCheckBox;
     chkDepth: TCheckBox;
     chkIDRange: TCheckBox;
@@ -71,10 +77,6 @@ type
     chkQCFlag: TCheckBox;
     chkRegion: TCheckBox;
     chkShowQuery: TCheckBox;
-    chkCruiseIDRange: TCheckBox;
-    chkCRUISENumStations: TCheckBox;
-    chkCRUISEDateandtime: TCheckBox;
-    chkCRUISERegion: TCheckBox;
     chkPeriod: TCheckBox;
     chkCruiseNOTSourceNum: TCheckBox;
     chkNOTCountry: TCheckBox;
@@ -92,7 +94,7 @@ type
     chkCruiseIgnoreDup: TCheckBox;
     cbEntryType: TComboBox;
     cbPredefinedRegion: TComboBox;
-    chkCruiseQCFlag: TCheckBox;
+    chkCruiseShowQuery: TCheckBox;
     DBCruiseCountry: TDBComboBox;
     DBCruiseInstitute: TDBComboBox;
     DBCruiseLatMax: TDBEdit;
@@ -134,8 +136,8 @@ type
     gbAuxiliaryParameters1: TGroupBox;
     gbDepth: TGroupBox;
     GroupBox1: TGroupBox;
-    GroupBox11: TGroupBox;
-    GroupBox12: TGroupBox;
+    gbCRUISENumStations: TGroupBox;
+    gbCruiseRegion: TGroupBox;
     gbCruiseDateandTime: TGroupBox;
     gbIDRange: TGroupBox;
     gbDateandTime: TGroupBox;
@@ -143,7 +145,8 @@ type
     GroupBox2: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
-    GroupBox7: TGroupBox;
+    GroupBox5: TGroupBox;
+    gbCruiseIDRange: TGroupBox;
     iProfilesAll: TMenuItem;
     ishowselectedstation: TMenuItem;
     iLoad_Pangaea_CTD_tab: TMenuItem;
@@ -156,6 +159,7 @@ type
     Label13: TLabel;
     Label14: TLabel;
     Label15: TLabel;
+    Label16: TLabel;
     Label17: TLabel;
     Label18: TLabel;
     Label19: TLabel;
@@ -166,6 +170,8 @@ type
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
     lbResetSearchCruises: TLabel;
     lbResetSearchStations: TLabel;
     MenuItem10: TMenuItem;
@@ -219,6 +225,7 @@ type
     MenuItem9: TMenuItem;
     Panel3: TPanel;
     pcDepth: TPageControl;
+    pcRegion1: TPageControl;
     pDataCruise: TPanel;
     pcCruiseDateandTime: TPageControl;
     pcCruiseNumStations: TPageControl;
@@ -237,8 +244,11 @@ type
     sbStationSearch: TScrollBox;
     sbSelectedCruise: TScrollBox;
     seAroundPointLat: TFloatSpinEdit;
+    seCruiseAroundPointLat: TFloatSpinEdit;
     seAroundPointLon: TFloatSpinEdit;
+    seCruiseAroundPointLon: TFloatSpinEdit;
     seAroundPointRaduis: TSpinEdit;
+    seCruiseAroundPointRaduis: TSpinEdit;
     seCruiseStationsDatabaseMax: TSpinEdit;
     seCruiseStationsDatabaseMin: TSpinEdit;
     seCruiseStationsDuplicateMax: TSpinEdit;
@@ -249,9 +259,6 @@ type
     seIDMin: TSpinEdit;
     seCruiseIDMax: TSpinEdit;
     seCruiseIDMin: TSpinEdit;
-    seCruiseLatMax: TFloatSpinEdit;
-    seCruiseLatMin: TFloatSpinEdit;
-    seCruiseLonMax: TFloatSpinEdit;
     iSettings: TMenuItem;
     iLoad: TMenuItem;
     iTools: TMenuItem;
@@ -276,17 +283,20 @@ type
     N3: TMenuItem;
     iExit: TMenuItem;
     ListBox1: TListBox;
-    seCruiseLonMin: TFloatSpinEdit;
     seDepthMin: TSpinEdit;
     seDepthMax: TSpinEdit;
     seGEBCOMin: TSpinEdit;
     seGEBCOMax: TSpinEdit;
     seLatMax: TFloatSpinEdit;
+    seCruiseLatMax: TFloatSpinEdit;
     seLatMin: TFloatSpinEdit;
+    seCruiseLatMin: TFloatSpinEdit;
     seLonMax: TFloatSpinEdit;
     seLastLevelMin: TFloatSpinEdit;
     seLastLevelMax: TFloatSpinEdit;
+    seCruiseLonMax: TFloatSpinEdit;
     seLonMin: TFloatSpinEdit;
+    seCruiseLonMin: TFloatSpinEdit;
     Splitter1: TSplitter;
     Splitter2: TSplitter;
     Splitter3: TSplitter;
@@ -298,6 +308,9 @@ type
     TabSheet14: TTabSheet;
     TabSheet15: TTabSheet;
     TabSheet16: TTabSheet;
+    TabSheet17: TTabSheet;
+    TabSheet18: TTabSheet;
+    TabSheet19: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
@@ -349,6 +362,11 @@ type
     procedure cbPredefinedRegionDropDown(Sender: TObject);
     procedure cbProjectDropDown(Sender: TObject);
     procedure cbSourceDropDown(Sender: TObject);
+    procedure chkCRUISEDateandtimeChange(Sender: TObject);
+    procedure chkCruiseIDRangeChange(Sender: TObject);
+    procedure chkCruiseNumStationsChange(Sender: TObject);
+    procedure chkCruiseQCFlagChange(Sender: TObject);
+    procedure chkCRUISERegionChange(Sender: TObject);
     procedure chkDateandTimeChange(Sender: TObject);
     procedure chkDepthChange(Sender: TObject);
     procedure chkIDRangeChange(Sender: TObject);
@@ -532,6 +550,7 @@ var
 
   libgswteos, netcdf:TLibHandle;
   libgswteos_exists, netcdf_exists:boolean;
+  fbclient: string;
 
 
   SLatP_arr:array[0..20000] of real;
@@ -650,6 +669,8 @@ begin
   {$IFDEF WINDOWS}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dll'));
     netcdf    :=LoadLibrary(PChar(GlobalPath+'netcdf.dll'));
+   // fbclient  :=GlobalPath+'firebird'+pathdelim+'fbclient.dll';
+    fbclient  :='fbclient.dll';
   {$ENDIF}
   {$IFDEF LINUX}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.so'));
@@ -659,6 +680,13 @@ begin
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dylib'));
     netcdf:=LoadLibrary(PChar('/opt/local/lib/libnetcdf.18.dylib'));
   {$ENDIF}
+
+   with frmdm.DBLoader do begin
+     LibraryName:=fbclient;
+     Enabled:=true;
+     LoadLibrary;
+   end;
+
 
   //GibbsSeaWater loaded?
   if libgswteos=0 then libgswteos_exists:=false else libgswteos_exists:=true;
@@ -1441,7 +1469,7 @@ begin
       end;
      end;
 
-    if chkCRUISENumStations.Checked=true then begin
+    if chkCruiseNumStations.Checked=true then begin
       case pcCruiseNumStations.ActivePageIndex of
         0: begin
            SQL.Add('  AND (STATIONS_DATABASE >='+seCruiseStationsDatabaseMin.Text+') ');
@@ -1532,7 +1560,7 @@ begin
     SQL.Add( SQL_str);
     SQL.Add(' ORDER BY PLATFORM.NAME, CRUISE.DATE_START_TOTAL ' );
 
-  // showmessage(frmdm.QCruise.SQL.Text);
+    if chkCruiseShowQuery.Checked=true then showmessage(frmdm.QCruise.SQL.Text);
    Open;
    Last;
    First;
@@ -1864,7 +1892,7 @@ Var
   k: integer;
 begin
 
-  chkCRUISENumStations.Checked:=false;
+  chkCruiseNumStations.Checked:=false;
   chkCRUISEIDRange.Checked:=false;
   chkCruiseRegion.Checked:=false;
   chkCruiseDateandtime.Checked:=false;
@@ -2534,6 +2562,12 @@ begin
 
     cgCruiseQCFlag.Items:=cgQCFlag.Items;
 
+    chkCruiseRegion.OnChange(self);
+    chkCruiseDateandTime.OnChange(self);
+    chkCruiseIDRange.OnChange(self);
+    chkCruiseQCFlag.OnChange(self);
+    chkCruiseNumStations.OnChange(self);
+
     TRt:=TSQLTransaction.Create(self);
     TRt.DataBase:=frmdm.IBDB;
 
@@ -2865,12 +2899,6 @@ begin
   cbCruiseCruiseNum.Clear;
 end;
 
-
-procedure Tfrmosmain.chkRegionChange(Sender: TObject);
-begin
-  gbRegion.Enabled:=chkRegion.Checked;
-end;
-
 procedure Tfrmosmain.DBCruiseCountryDropDown(Sender: TObject);
 begin
 
@@ -2884,6 +2912,22 @@ end;
 procedure Tfrmosmain.DBCruiseProjectDropDown(Sender: TObject);
 begin
 
+end;
+
+
+procedure Tfrmosmain.chkRegionChange(Sender: TObject);
+begin
+  gbRegion.Enabled:=chkRegion.Checked;
+end;
+
+procedure Tfrmosmain.chkCRUISERegionChange(Sender: TObject);
+begin
+  gbCruiseRegion.Enabled:=chkCruiseRegion.Checked;
+end;
+
+procedure Tfrmosmain.chkCRUISEDateandtimeChange(Sender: TObject);
+begin
+  gbCruiseDateandTime.Enabled:=chkCruiseDateandTime.Checked;
 end;
 
 procedure Tfrmosmain.chkDateandTimeChange(Sender: TObject);
@@ -2901,6 +2945,11 @@ begin
   gbIDRange.Enabled:=chkIDRange.Checked;
 end;
 
+procedure Tfrmosmain.chkCruiseIDRangeChange(Sender: TObject);
+begin
+  gbCruiseIDRange.Enabled:=chkCruiseIDRange.Checked;
+end;
+
 procedure Tfrmosmain.chkParameterChange(Sender: TObject);
 begin
   cgParameter.Enabled:=chkParameter.Checked;
@@ -2909,6 +2958,16 @@ end;
 procedure Tfrmosmain.chkQCFlagChange(Sender: TObject);
 begin
   cgQCFlag.Enabled:=chkQCFlag.Checked;
+end;
+
+procedure Tfrmosmain.chkCruiseQCFlagChange(Sender: TObject);
+begin
+  cgCruiseQCFlag.Enabled:=chkCruiseQCFlag.Checked;
+end;
+
+procedure Tfrmosmain.chkCruiseNumStationsChange(Sender: TObject);
+begin
+  gbCRUISENumStations.Enabled:=chkCruiseNumStations.Checked;
 end;
 
 procedure Tfrmosmain.DBGridCruiseCellClick(Column: TColumn);
@@ -4205,7 +4264,7 @@ begin
      dtpCruiseDateUpdatedMin.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateupdatedmin', now);
      dtpCruiseDateUpdatedMax.DateTime:=Ini.ReadDateTime('osmain', 'cruise_dateupdatedmax', now);
      chkCruiseIgnoreDup.Checked   :=Ini.ReadBool('osmain', 'cruise_chkCruiseIgnoreDuplicates', false);
-     chkCRUISENumStations.Checked :=Ini.ReadBool('osmain', 'cruise_chkCruiseNumStations',      false);
+     chkCruiseNumStations.Checked :=Ini.ReadBool('osmain', 'cruise_chkCruiseNumStations',      false);
      chkCRUISEIDRange.Checked     :=Ini.ReadBool('osmain', 'cruise_chkCruiseIDRange',          false);
      chkCRUISEDateandtime.Checked :=Ini.ReadBool('osmain', 'cruise_chkCruiseDateandtime',      false);
      chkCRUISERegion.Checked      :=Ini.ReadBool('osmain', 'cruise_chkCruiseRegion',           false);
@@ -4243,7 +4302,7 @@ begin
     Ini.WriteDateTime( 'osmain', 'cruise_dateupdatedmin', dtpCruiseDateUpdatedMin.DateTime);
     Ini.WriteDateTime( 'osmain', 'cruise_dateupdatedmax', dtpCruiseDateUpdatedMax.DateTime);
     Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseIgnoreDuplicates', chkCruiseIgnoreDup.Checked);
-    Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseNumStations',      chkCRUISENumStations.Checked);
+    Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseNumStations',      chkCruiseNumStations.Checked);
     Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseIDRange',          chkCRUISEIDRange.Checked);
     Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseDateandtime',      chkCRUISEDateandtime.Checked);
     Ini.WriteBool    ( 'osmain', 'cruise_chkCruiseRegion',           chkCRUISERegion.Checked);
@@ -4322,6 +4381,7 @@ begin
    cbInstitute.Clear;
    cbProject.Clear;
 end;
+
 
 procedure Tfrmosmain.FormDestroy(Sender: TObject);
 begin
