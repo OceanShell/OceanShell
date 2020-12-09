@@ -1,11 +1,11 @@
 object frmdm: Tfrmdm
   OnDestroy = DataModuleDestroy
   OldCreateOrder = False
-  Height = 285
-  HorizontalOffset = 742
-  VerticalOffset = 361
-  Width = 590
-  PPI = 144
+  Height = 190
+  HorizontalOffset = 495
+  VerticalOffset = 241
+  Width = 393
+  PPI = 96
   object IBDB: TIBConnection
     Connected = False
     LoginPrompt = False
@@ -15,15 +15,15 @@ object frmdm: Tfrmdm
     UserName = 'SYSDBA'
     LogEvents = []
     CheckTransactionParams = False
-    left = 36
-    top = 24
+    left = 24
+    top = 16
   end
   object TR: TSQLTransaction
     Active = False
     Action = caNone
     Database = IBDB
-    left = 104
-    top = 24
+    left = 69
+    top = 16
   end
   object Q: TSQLQuery
     MaxIndexesCount = 100
@@ -31,8 +31,8 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 180
-    top = 24
+    left = 120
+    top = 16
   end
   object QCruise: TSQLQuery
     MaxIndexesCount = 100
@@ -66,8 +66,8 @@ object frmdm: Tfrmdm
       ''
     )
     Params = <>
-    left = 176
-    top = 104
+    left = 117
+    top = 69
   end
   object QEntry: TSQLQuery
     MaxIndexesCount = 100
@@ -102,23 +102,23 @@ object frmdm: Tfrmdm
       'DELETE FROM ENTRY WHERE ID=:ID'
     )
     Params = <>
-    left = 180
-    top = 200
+    left = 120
+    top = 133
   end
   object DSCruise: TDataSource
     DataSet = QCruise
-    left = 264
-    top = 104
+    left = 176
+    top = 69
   end
   object DSEntry: TDataSource
     DataSet = QEntry
-    left = 264
-    top = 200
+    left = 176
+    top = 133
   end
   object DS: TDataSource
     DataSet = Q
-    left = 264
-    top = 24
+    left = 176
+    top = 16
   end
   object q1: TSQLQuery
     MaxIndexesCount = 100
@@ -126,8 +126,8 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 36
-    top = 144
+    left = 24
+    top = 96
   end
   object q2: TSQLQuery
     MaxIndexesCount = 100
@@ -135,8 +135,8 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 96
-    top = 144
+    left = 64
+    top = 96
   end
   object q3: TSQLQuery
     MaxIndexesCount = 100
@@ -144,8 +144,8 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 36
-    top = 224
+    left = 24
+    top = 149
   end
   object QCruiseDetails: TSQLQuery
     MaxIndexesCount = 100
@@ -153,19 +153,12 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 368
-    top = 104
+    left = 245
+    top = 69
   end
   object DSCruiseDetails: TDataSource
     DataSet = QCruiseDetails
-    left = 496
-    top = 104
-  end
-  object DBLoader: TSQLDBLibraryLoader
-    Enabled = False
-    ConnectionType = 'Firebird'
-    LibraryName = 'fbclient.dll'
-    left = 368
-    top = 33
+    left = 331
+    top = 69
   end
 end

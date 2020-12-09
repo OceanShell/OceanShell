@@ -550,8 +550,6 @@ var
 
   libgswteos, netcdf:TLibHandle;
   libgswteos_exists, netcdf_exists:boolean;
-  fbclient: string;
-
 
   SLatP_arr:array[0..20000] of real;
   SLonP_arr:array[0..20000] of real;
@@ -669,8 +667,6 @@ begin
   {$IFDEF WINDOWS}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dll'));
     netcdf    :=LoadLibrary(PChar(GlobalPath+'netcdf.dll'));
-   // fbclient  :=GlobalPath+'firebird'+pathdelim+'fbclient.dll';
-    fbclient  :='fbclient.dll';
   {$ENDIF}
   {$IFDEF LINUX}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.so'));
@@ -678,14 +674,8 @@ begin
   {$ENDIF}
   {$IFDEF DARWIN}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dylib'));
-    netcdf:=LoadLibrary(PChar('/opt/local/lib/libnetcdf.18.dylib'));
+    netcdf    :=LoadLibrary(PChar(GlobalPath+'libnetcdf.dylib'));
   {$ENDIF}
-
-   with frmdm.DBLoader do begin
-     LibraryName:=fbclient;
-     Enabled:=true;
-     LoadLibrary;
-   end;
 
 
   //GibbsSeaWater loaded?
