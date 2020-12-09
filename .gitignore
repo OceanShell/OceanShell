@@ -34,7 +34,6 @@ src/lib/
 
 # OceanShell specific files and folders
 OceanShell
-
 data/
 distrib/
 databases/
