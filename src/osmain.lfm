@@ -4,7 +4,7 @@ object frmosmain: Tfrmosmain
   Top = 214
   Width = 920
   Caption = 'OceanShell'
-  ClientHeight = 505
+  ClientHeight = 481
   ClientWidth = 920
   Color = clBtnFace
   Constraints.MinHeight = 467
@@ -44,13 +44,15 @@ object frmosmain: Tfrmosmain
     Font.Name = 'MS Sans Serif'
     ItemHeight = 0
     ParentFont = False
+    ScrollWidth = 119
     TabOrder = 1
+    TopIndex = -1
     Visible = False
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 466
-    Top = 39
+    Height = 444
+    Top = 37
     Width = 920
     ActivePage = tsMainSelect
     Align = alClient
@@ -65,8 +67,8 @@ object frmosmain: Tfrmosmain
     OnChange = PageControl1Change
     object tsMainSelect: TTabSheet
       Caption = 'Station search'
-      ClientHeight = 436
-      ClientWidth = 914
+      ClientHeight = 416
+      ClientWidth = 910
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
@@ -101,9 +103,9 @@ object frmosmain: Tfrmosmain
       end
       object chkIgnoreDup: TCheckBox
         Left = 768
-        Height = 18
+        Height = 23
         Top = 224
-        Width = 120
+        Width = 135
         Caption = 'Ignore duplicates'
         Checked = True
         Font.Color = clWindowText
@@ -129,15 +131,15 @@ object frmosmain: Tfrmosmain
       end
       object sbStationSearch: TScrollBox
         Left = 0
-        Height = 436
+        Height = 416
         Top = 0
         Width = 752
-        HorzScrollBar.Page = 719
-        VertScrollBar.Page = 436
+        HorzScrollBar.Page = 722
+        VertScrollBar.Page = 416
         Align = alLeft
         BorderStyle = bsNone
-        ClientHeight = 436
-        ClientWidth = 737
+        ClientHeight = 416
+        ClientWidth = 739
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'MS Sans Serif'
@@ -150,8 +152,8 @@ object frmosmain: Tfrmosmain
           Top = 11
           Width = 225
           Caption = 'Date and time'
-          ClientHeight = 125
-          ClientWidth = 215
+          ClientHeight = 129
+          ClientWidth = 223
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -172,17 +174,17 @@ object frmosmain: Tfrmosmain
             TabOrder = 0
             object TabSheet4: TTabSheet
               Caption = 'Observ.'
-              ClientHeight = 80
-              ClientWidth = 184
+              ClientHeight = 82
+              ClientWidth = 180
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
               ParentFont = False
               object dtpDateMin: TDateTimePicker
                 Left = 16
-                Height = 19
+                Height = 20
                 Top = 11
-                Width = 149
+                Width = 151
                 CenturyFrom = 1941
                 MaxDate = 2958465
                 MinDate = -53780
@@ -206,9 +208,9 @@ object frmosmain: Tfrmosmain
               end
               object dtpDateMax: TDateTimePicker
                 Left = 16
-                Height = 19
+                Height = 20
                 Top = 37
-                Width = 149
+                Width = 151
                 CenturyFrom = 1941
                 MaxDate = 2958465
                 MinDate = -53780
@@ -232,9 +234,9 @@ object frmosmain: Tfrmosmain
               end
               object chkPeriod: TCheckBox
                 Left = 16
-                Height = 18
+                Height = 23
                 Top = 60
-                Width = 56
+                Width = 61
                 Caption = 'Period'
                 Font.Color = clWindowText
                 Font.Height = -11
@@ -245,8 +247,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet5: TTabSheet
               Caption = 'Added'
-              ClientHeight = 132
-              ClientWidth = 277
+              ClientHeight = 82
+              ClientWidth = 180
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -306,8 +308,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet6: TTabSheet
               Caption = 'Upd.'
-              ClientHeight = 132
-              ClientWidth = 277
+              ClientHeight = 82
+              ClientWidth = 180
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -373,8 +375,8 @@ object frmosmain: Tfrmosmain
           Top = 165
           Width = 523
           Caption = 'Auxiliary parameters'
-          ClientHeight = 157
-          ClientWidth = 513
+          ClientHeight = 161
+          ClientWidth = 521
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -383,9 +385,9 @@ object frmosmain: Tfrmosmain
           TabOrder = 1
           object chkNOTPlatform: TCheckBox
             Left = 16
-            Height = 18
+            Height = 23
             Top = 11
-            Width = 94
+            Width = 100
             Caption = 'NOT Platform'
             Font.Color = clWindowText
             Font.Height = -11
@@ -395,9 +397,9 @@ object frmosmain: Tfrmosmain
           end
           object chkNOTCountry: TCheckBox
             Left = 16
-            Height = 18
+            Height = 23
             Top = 37
-            Width = 91
+            Width = 98
             Caption = 'NOT Country'
             Font.Color = clWindowText
             Font.Height = -11
@@ -407,9 +409,9 @@ object frmosmain: Tfrmosmain
           end
           object chkNOTSource: TCheckBox
             Left = 16
-            Height = 18
+            Height = 23
             Top = 65
-            Width = 86
+            Width = 91
             Caption = 'NOT Source'
             Font.Color = clWindowText
             Font.Height = -11
@@ -419,9 +421,9 @@ object frmosmain: Tfrmosmain
           end
           object chkNOTInstitute: TCheckBox
             Left = 16
-            Height = 18
+            Height = 23
             Top = 95
-            Width = 92
+            Width = 98
             Caption = 'NOT Institute'
             Font.Color = clWindowText
             Font.Height = -11
@@ -431,9 +433,9 @@ object frmosmain: Tfrmosmain
           end
           object chkNOTProject: TCheckBox
             Left = 16
-            Height = 18
+            Height = 23
             Top = 121
-            Width = 86
+            Width = 90
             Caption = 'NOT Project'
             Font.Color = clWindowText
             Font.Height = -11
@@ -443,7 +445,7 @@ object frmosmain: Tfrmosmain
           end
           object cbSource: TCheckComboBox
             Left = 123
-            Height = 20
+            Height = 27
             Top = 67
             Width = 381
             DropDownCount = 12
@@ -455,11 +457,10 @@ object frmosmain: Tfrmosmain
             OnDropDown = cbSourceDropDown
             ParentFont = False
             TabOrder = 5
-            Text = '0'
           end
           object cbPlatform: TCheckComboBox
             Left = 123
-            Height = 20
+            Height = 27
             Top = 13
             Width = 381
             DropDownCount = 12
@@ -471,11 +472,10 @@ object frmosmain: Tfrmosmain
             OnDropDown = cbPlatformDropDown
             ParentFont = False
             TabOrder = 6
-            Text = '0'
           end
           object cbCountry: TCheckComboBox
             Left = 123
-            Height = 20
+            Height = 27
             Top = 39
             Width = 381
             DropDownCount = 12
@@ -487,11 +487,10 @@ object frmosmain: Tfrmosmain
             OnDropDown = cbCountryDropDown
             ParentFont = False
             TabOrder = 7
-            Text = '0'
           end
           object cbInstitute: TCheckComboBox
             Left = 123
-            Height = 20
+            Height = 27
             Top = 96
             Width = 381
             DropDownCount = 12
@@ -503,11 +502,10 @@ object frmosmain: Tfrmosmain
             OnDropDown = cbInstituteDropDown
             ParentFont = False
             TabOrder = 8
-            Text = '0'
           end
           object cbProject: TCheckComboBox
             Left = 123
-            Height = 20
+            Height = 27
             Top = 124
             Width = 381
             DropDownCount = 12
@@ -519,7 +517,6 @@ object frmosmain: Tfrmosmain
             OnDropDown = cbProjectDropDown
             ParentFont = False
             TabOrder = 9
-            Text = '0'
           end
         end
         object cgQCFlag: TCheckGroup
@@ -549,8 +546,8 @@ object frmosmain: Tfrmosmain
           Top = 11
           Width = 127
           Caption = 'ID range'
-          ClientHeight = 72
-          ClientWidth = 117
+          ClientHeight = 76
+          ClientWidth = 125
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -559,7 +556,7 @@ object frmosmain: Tfrmosmain
           TabOrder = 3
           object seIDMin: TSpinEdit
             Left = 16
-            Height = 19
+            Height = 25
             Top = 11
             Width = 96
             Font.Color = clWindowText
@@ -573,7 +570,7 @@ object frmosmain: Tfrmosmain
           end
           object seIDMax: TSpinEdit
             Left = 16
-            Height = 19
+            Height = 25
             Top = 37
             Width = 96
             Font.Color = clWindowText
@@ -612,9 +609,9 @@ object frmosmain: Tfrmosmain
         object lbResetSearchStations: TLabel
           Cursor = crHandPoint
           Left = 651
-          Height = 13
+          Height = 12
           Top = 107
-          Width = 68
+          Width = 71
           Caption = 'Reset search'
           Font.Color = clBlue
           Font.Height = -11
@@ -630,8 +627,8 @@ object frmosmain: Tfrmosmain
           Top = 11
           Width = 315
           Caption = 'Region'
-          ClientHeight = 125
-          ClientWidth = 305
+          ClientHeight = 129
+          ClientWidth = 313
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -652,15 +649,15 @@ object frmosmain: Tfrmosmain
             TabOrder = 0
             object TabSheet1: TTabSheet
               Caption = 'Rectangular'
-              ClientHeight = 80
-              ClientWidth = 277
+              ClientHeight = 82
+              ClientWidth = 273
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
               ParentFont = False
               object seLatMax: TFloatSpinEdit
                 Left = 96
-                Height = 19
+                Height = 25
                 Top = 11
                 Width = 81
                 Alignment = taCenter
@@ -676,7 +673,7 @@ object frmosmain: Tfrmosmain
               end
               object seLonMin: TFloatSpinEdit
                 Left = 15
-                Height = 19
+                Height = 25
                 Top = 32
                 Width = 81
                 Alignment = taCenter
@@ -692,7 +689,7 @@ object frmosmain: Tfrmosmain
               end
               object seLonMax: TFloatSpinEdit
                 Left = 177
-                Height = 19
+                Height = 25
                 Top = 32
                 Width = 81
                 Alignment = taCenter
@@ -708,7 +705,7 @@ object frmosmain: Tfrmosmain
               end
               object seLatMin: TFloatSpinEdit
                 Left = 96
-                Height = 19
+                Height = 25
                 Top = 53
                 Width = 81
                 Alignment = taCenter
@@ -725,8 +722,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet2: TTabSheet
               Caption = 'Around point'
-              ClientHeight = 127
-              ClientWidth = 416
+              ClientHeight = 82
+              ClientWidth = 273
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -813,8 +810,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet3: TTabSheet
               Caption = 'Predefined'
-              ClientHeight = 127
-              ClientWidth = 416
+              ClientHeight = 82
+              ClientWidth = 273
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -827,12 +824,11 @@ object frmosmain: Tfrmosmain
                 Font.Color = clWindowText
                 Font.Height = -11
                 Font.Name = 'MS Sans Serif'
-                ItemHeight = 26
+                ItemHeight = 0
                 OnDropDown = cbPredefinedRegionDropDown
                 ParentFont = False
                 Style = csDropDownList
                 TabOrder = 0
-                Text = '0'
               end
             end
           end
@@ -843,8 +839,8 @@ object frmosmain: Tfrmosmain
           Top = 555
           Width = 240
           Caption = 'Depth'
-          ClientHeight = 82
-          ClientWidth = 230
+          ClientHeight = 86
+          ClientWidth = 238
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -865,15 +861,15 @@ object frmosmain: Tfrmosmain
             TabOrder = 0
             object TabSheet14: TTabSheet
               Caption = 'Observed'
-              ClientHeight = 34
-              ClientWidth = 202
+              ClientHeight = 36
+              ClientWidth = 198
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
               ParentFont = False
               object seDepthMin: TSpinEdit
                 Left = 11
-                Height = 19
+                Height = 25
                 Top = 11
                 Width = 80
                 Font.Color = clWindowText
@@ -886,7 +882,7 @@ object frmosmain: Tfrmosmain
               end
               object seDepthMax: TSpinEdit
                 Left = 107
-                Height = 19
+                Height = 25
                 Top = 11
                 Width = 80
                 Font.Color = clWindowText
@@ -901,8 +897,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet15: TTabSheet
               Caption = 'GEBCO'
-              ClientHeight = 63
-              ClientWidth = 304
+              ClientHeight = 36
+              ClientWidth = 198
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -937,8 +933,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet16: TTabSheet
               Caption = 'Last level'
-              ClientHeight = 63
-              ClientWidth = 304
+              ClientHeight = 36
+              ClientWidth = 198
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -981,9 +977,9 @@ object frmosmain: Tfrmosmain
       end
       object chkShowQuery: TCheckBox
         Left = 768
-        Height = 18
+        Height = 23
         Top = 245
-        Width = 84
+        Width = 92
         Caption = 'Show query'
         Font.Color = clWindowText
         Font.Height = -11
@@ -997,8 +993,8 @@ object frmosmain: Tfrmosmain
         Top = 64
         Width = 132
         Caption = 'Include in query'
-        ClientHeight = 134
-        ClientWidth = 122
+        ClientHeight = 138
+        ClientWidth = 130
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'MS Sans Serif'
@@ -1007,9 +1003,9 @@ object frmosmain: Tfrmosmain
         TabOrder = 6
         object chkRegion: TCheckBox
           Left = 11
-          Height = 18
+          Height = 23
           Top = 8
-          Width = 61
+          Width = 69
           Caption = 'Region'
           Font.Color = clWindowText
           Font.Height = -11
@@ -1021,9 +1017,9 @@ object frmosmain: Tfrmosmain
         end
         object chkDateandTime: TCheckBox
           Left = 11
-          Height = 18
+          Height = 23
           Top = 27
-          Width = 100
+          Width = 112
           Caption = 'Date and time'
           Font.Color = clWindowText
           Font.Height = -11
@@ -1035,9 +1031,9 @@ object frmosmain: Tfrmosmain
         end
         object chkIDRange: TCheckBox
           Left = 11
-          Height = 18
+          Height = 23
           Top = 48
-          Width = 69
+          Width = 78
           Caption = 'ID range'
           Font.Color = clWindowText
           Font.Height = -11
@@ -1049,9 +1045,9 @@ object frmosmain: Tfrmosmain
         end
         object chkQCFlag: TCheckBox
           Left = 11
-          Height = 18
+          Height = 23
           Top = 69
-          Width = 66
+          Width = 74
           Caption = 'QC Flag'
           Font.Color = clWindowText
           Font.Height = -11
@@ -1063,9 +1059,9 @@ object frmosmain: Tfrmosmain
         end
         object chkParameter: TCheckBox
           Left = 11
-          Height = 18
+          Height = 23
           Top = 91
-          Width = 87
+          Width = 95
           Caption = 'Parameters'
           Font.Color = clWindowText
           Font.Height = -11
@@ -1077,9 +1073,9 @@ object frmosmain: Tfrmosmain
         end
         object chkDepth: TCheckBox
           Left = 11
-          Height = 18
+          Height = 23
           Top = 112
-          Width = 56
+          Width = 63
           Caption = 'Depth'
           Font.Color = clWindowText
           Font.Height = -11
@@ -1093,8 +1089,8 @@ object frmosmain: Tfrmosmain
     end
     object tsMainCruises: TTabSheet
       Caption = 'Cruise search'
-      ClientHeight = 616
-      ClientWidth = 1372
+      ClientHeight = 416
+      ClientWidth = 910
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
@@ -1150,8 +1146,8 @@ object frmosmain: Tfrmosmain
           Top = 11
           Width = 315
           Caption = 'Region'
-          ClientHeight = 125
-          ClientWidth = 305
+          ClientHeight = 127
+          ClientWidth = 313
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -1172,8 +1168,8 @@ object frmosmain: Tfrmosmain
             TabOrder = 0
             object TabSheet17: TTabSheet
               Caption = 'Rectangular'
-              ClientHeight = 80
-              ClientWidth = 277
+              ClientHeight = 106
+              ClientWidth = 279
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -1245,8 +1241,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet18: TTabSheet
               Caption = 'Around point'
-              ClientHeight = 132
-              ClientWidth = 416
+              ClientHeight = 106
+              ClientWidth = 279
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -1334,8 +1330,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet19: TTabSheet
               Caption = 'Predefined'
-              ClientHeight = 132
-              ClientWidth = 416
+              ClientHeight = 106
+              ClientWidth = 279
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -1349,12 +1345,11 @@ object frmosmain: Tfrmosmain
                 Font.Color = clWindowText
                 Font.Height = -11
                 Font.Name = 'MS Sans Serif'
-                ItemHeight = 26
+                ItemHeight = 0
                 OnDropDown = cbPredefinedRegionDropDown
                 ParentFont = False
                 Style = csDropDownList
                 TabOrder = 0
-                Text = '0'
               end
             end
           end
@@ -1365,8 +1360,8 @@ object frmosmain: Tfrmosmain
           Top = 165
           Width = 523
           Caption = 'Auxiliary parameters'
-          ClientHeight = 168
-          ClientWidth = 513
+          ClientHeight = 170
+          ClientWidth = 521
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -1447,7 +1442,6 @@ object frmosmain: Tfrmosmain
             OnDropDown = cbPlatformDropDown
             ParentFont = False
             TabOrder = 5
-            Text = '0'
           end
           object cbCruiseCountry: TCheckComboBox
             Left = 117
@@ -1463,7 +1457,6 @@ object frmosmain: Tfrmosmain
             OnDropDown = cbCountryDropDown
             ParentFont = False
             TabOrder = 6
-            Text = '0'
           end
           object cbCruiseSource: TCheckComboBox
             Left = 117
@@ -1479,7 +1472,6 @@ object frmosmain: Tfrmosmain
             OnDropDown = cbSourceDropDown
             ParentFont = False
             TabOrder = 7
-            Text = '0'
           end
           object cbCruiseInstitute: TCheckComboBox
             Left = 117
@@ -1495,7 +1487,6 @@ object frmosmain: Tfrmosmain
             OnDropDown = cbInstituteDropDown
             ParentFont = False
             TabOrder = 8
-            Text = '0'
           end
           object cbCruiseProject: TCheckComboBox
             Left = 117
@@ -1511,7 +1502,6 @@ object frmosmain: Tfrmosmain
             OnDropDown = cbProjectDropDown
             ParentFont = False
             TabOrder = 9
-            Text = '0'
           end
           object cbCruiseCruiseNum: TCheckComboBox
             Left = 117
@@ -1527,7 +1517,6 @@ object frmosmain: Tfrmosmain
             OnDropDown = cbCruiseCruiseNumDropDown
             ParentFont = False
             TabOrder = 10
-            Text = '0'
           end
           object chkCruiseNOTSourceNum: TCheckBox
             Left = 15
@@ -1548,8 +1537,8 @@ object frmosmain: Tfrmosmain
           Top = 363
           Width = 229
           Caption = 'Number of stations'
-          ClientHeight = 98
-          ClientWidth = 219
+          ClientHeight = 100
+          ClientWidth = 227
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -1570,8 +1559,8 @@ object frmosmain: Tfrmosmain
             TabOrder = 0
             object TabSheet11: TTabSheet
               Caption = 'DB'
-              ClientHeight = 45
-              ClientWidth = 191
+              ClientHeight = 71
+              ClientWidth = 193
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -1604,8 +1593,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet12: TTabSheet
               Caption = 'Total'
-              ClientHeight = 111
-              ClientWidth = 288
+              ClientHeight = 71
+              ClientWidth = 193
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -1638,8 +1627,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet13: TTabSheet
               Caption = 'Dup.'
-              ClientHeight = 79
-              ClientWidth = 288
+              ClientHeight = 71
+              ClientWidth = 193
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -1678,8 +1667,8 @@ object frmosmain: Tfrmosmain
           Top = 11
           Width = 133
           Caption = 'Cruise ID range'
-          ClientHeight = 72
-          ClientWidth = 123
+          ClientHeight = 74
+          ClientWidth = 131
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -1736,8 +1725,8 @@ object frmosmain: Tfrmosmain
           Top = 11
           Width = 225
           Caption = 'Date and time'
-          ClientHeight = 125
-          ClientWidth = 215
+          ClientHeight = 127
+          ClientWidth = 223
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -1758,8 +1747,8 @@ object frmosmain: Tfrmosmain
             TabOrder = 0
             object TabSheet7: TTabSheet
               Caption = 'DB'
-              ClientHeight = 80
-              ClientWidth = 184
+              ClientHeight = 106
+              ClientWidth = 186
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -1819,8 +1808,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet8: TTabSheet
               Caption = 'Total'
-              ClientHeight = 132
-              ClientWidth = 258
+              ClientHeight = 106
+              ClientWidth = 186
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -1880,8 +1869,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet9: TTabSheet
               Caption = 'Added'
-              ClientHeight = 132
-              ClientWidth = 258
+              ClientHeight = 106
+              ClientWidth = 186
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -1941,8 +1930,8 @@ object frmosmain: Tfrmosmain
             end
             object TabSheet10: TTabSheet
               Caption = 'Updated'
-              ClientHeight = 132
-              ClientWidth = 277
+              ClientHeight = 106
+              ClientWidth = 186
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'MS Sans Serif'
@@ -2030,8 +2019,8 @@ object frmosmain: Tfrmosmain
         Top = 64
         Width = 133
         Caption = 'Include in query'
-        ClientHeight = 118
-        ClientWidth = 123
+        ClientHeight = 120
+        ClientWidth = 131
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'MS Sans Serif'
@@ -2121,8 +2110,8 @@ object frmosmain: Tfrmosmain
     end
     object tsMainEntries: TTabSheet
       Caption = 'Entry search'
-      ClientHeight = 733
-      ClientWidth = 1336
+      ClientHeight = 416
+      ClientWidth = 910
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
@@ -2302,19 +2291,18 @@ object frmosmain: Tfrmosmain
           AutoSize = False
           Font.Color = clWindowText
           Font.Height = -11
-          ItemHeight = 26
+          ItemHeight = 0
           OnSelect = cbEntryTypeSelect
           ParentFont = False
           Style = csDropDownList
           TabOrder = 1
-          Text = '0'
         end
       end
     end
     object tsSelectedStations: TTabSheet
       Caption = 'Selected data'
-      ClientHeight = 616
-      ClientWidth = 1372
+      ClientHeight = 416
+      ClientWidth = 910
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
@@ -2561,12 +2549,12 @@ object frmosmain: Tfrmosmain
         Width = 292
         HorzScrollBar.Page = 1
         HorzScrollBar.Visible = False
-        VertScrollBar.Increment = 46
-        VertScrollBar.Page = 469
+        VertScrollBar.Increment = 45
+        VertScrollBar.Page = 453
         VertScrollBar.Smooth = True
         Align = alRight
-        ClientHeight = 614
-        ClientWidth = 290
+        ClientHeight = 612
+        ClientWidth = 288
         Constraints.MinWidth = 292
         Font.Color = clWindowText
         Font.Height = -11
@@ -2631,8 +2619,8 @@ object frmosmain: Tfrmosmain
           Width = 434
           Align = alBottom
           BevelOuter = bvNone
-          ClientHeight = 59
-          ClientWidth = 434
+          ClientHeight = 55
+          ClientWidth = 430
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -2784,8 +2772,8 @@ object frmosmain: Tfrmosmain
           Width = 434
           Align = alTop
           Caption = 'Cruise region'
-          ClientHeight = 61
-          ClientWidth = 424
+          ClientHeight = 63
+          ClientWidth = 432
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -2868,8 +2856,8 @@ object frmosmain: Tfrmosmain
           Width = 434
           Align = alTop
           Caption = 'Cruise details'
-          ClientHeight = 113
-          ClientWidth = 424
+          ClientHeight = 115
+          ClientWidth = 432
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -2914,7 +2902,7 @@ object frmosmain: Tfrmosmain
             Font.Height = -11
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
-            ItemHeight = 16
+            ItemHeight = 0
             MaxLength = 0
             OnDropDown = cbCountryDropDown
             ParentFont = False
@@ -2932,7 +2920,7 @@ object frmosmain: Tfrmosmain
             Font.Height = -11
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
-            ItemHeight = 16
+            ItemHeight = 0
             MaxLength = 0
             OnDropDown = cbInstituteDropDown
             ParentFont = False
@@ -2950,7 +2938,7 @@ object frmosmain: Tfrmosmain
             Font.Height = -11
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
-            ItemHeight = 16
+            ItemHeight = 0
             MaxLength = 0
             OnDropDown = cbProjectDropDown
             ParentFont = False
@@ -3007,8 +2995,8 @@ object frmosmain: Tfrmosmain
           Width = 434
           Align = alBottom
           Caption = 'Service info'
-          ClientHeight = 66
-          ClientWidth = 424
+          ClientHeight = 68
+          ClientWidth = 432
           Font.Color = clWindowText
           Font.Height = -9
           Font.Name = 'MS Sans Serif'
@@ -3186,14 +3174,14 @@ object frmosmain: Tfrmosmain
   end
   object Panel1: TPanel
     Left = 0
-    Height = 39
+    Height = 37
     Top = 0
     Width = 920
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 37
+    ClientHeight = 35
     ClientWidth = 918
     Font.Color = clWindowText
     Font.Height = -11
@@ -3202,9 +3190,9 @@ object frmosmain: Tfrmosmain
     TabOrder = 3
     object btnOpenOceanFDB: TBitBtn
       Left = 0
-      Height = 37
+      Height = 35
       Top = 0
-      Width = 36
+      Width = 30
       Align = alLeft
       AutoSize = True
       Font.Color = clWindowText
@@ -3217,14 +3205,14 @@ object frmosmain: Tfrmosmain
       TabOrder = 0
     end
     object Panel2: TPanel
-      Left = 36
-      Height = 37
+      Left = 30
+      Height = 35
       Top = 0
-      Width = 882
+      Width = 888
       Align = alClient
       BevelOuter = bvNone
-      ClientHeight = 37
-      ClientWidth = 882
+      ClientHeight = 35
+      ClientWidth = 888
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
@@ -3232,9 +3220,9 @@ object frmosmain: Tfrmosmain
       TabOrder = 1
       object sbDatabase: TStatusBar
         Left = 0
-        Height = 18
+        Height = 17
         Top = 0
-        Width = 882
+        Width = 888
         Align = alTop
         Font.Color = clWindowText
         Font.Height = -11
@@ -3270,9 +3258,9 @@ object frmosmain: Tfrmosmain
       end
       object sbSelection: TStatusBar
         Left = 0
-        Height = 18
-        Top = 18
-        Width = 882
+        Height = 17
+        Top = 17
+        Width = 888
         Align = alTop
         BorderSpacing.Bottom = 1
         Font.Color = clWindowText
@@ -3565,6 +3553,10 @@ object frmosmain: Tfrmosmain
         Caption = 'About...'
         ImageIndex = 486
         OnClick = iAboutClick
+      end
+      object MenuItem14: TMenuItem
+        Caption = 'test'
+        OnClick = MenuItem14Click
       end
     end
   end

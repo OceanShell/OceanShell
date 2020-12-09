@@ -193,6 +193,7 @@ type
     MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
     iInsertBottomDepthGEBCO: TMenuItem;
+    MenuItem14: TMenuItem;
     MenuItem15: TMenuItem;
     iStandarddeviationslayers: TMenuItem;
     iVisualizationSurfer: TMenuItem;
@@ -429,6 +430,7 @@ type
     procedure lbResetSearchCruisesClick(Sender: TObject);
     procedure lbResetSearchStationsClick(Sender: TObject);
     procedure iExportASCIIClick(Sender: TObject);
+    procedure MenuItem14Click(Sender: TObject);
     procedure MenuItem19Click(Sender: TObject);
     procedure iInsertLastLevelClick(Sender: TObject);
     procedure iExportFirebirdDBClick(Sender: TObject);
@@ -670,7 +672,7 @@ begin
   {$ENDIF}
   {$IFDEF LINUX}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.so'));
-    netcdf:=LoadLibrary(PChar('libnetcdf.so'));
+    netcdf    :=LoadLibrary(PChar(GlobalPath+'libnetcdf.so'));
   {$ENDIF}
   {$IFDEF DARWIN}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dylib'));
@@ -1985,6 +1987,11 @@ end;
 procedure Tfrmosmain.iExportASCIIClick(Sender: TObject);
 begin
  ExportASCII;
+end;
+
+procedure Tfrmosmain.MenuItem14Click(Sender: TObject);
+begin
+  showmessage(inttostr(osbathymetry.getgebcodepth(66, 2)));
 end;
 
 
