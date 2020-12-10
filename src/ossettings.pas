@@ -14,21 +14,25 @@ type
 
   Tfrmsettings = class(TForm)
     btnGrapherPath: TButton;
+    btnInstallPackages: TButton;
     btnOk: TButton;
+    btnPython: TButton;
     btnSupportPath: TButton;
     btnOceanFDBPath: TButton;
     btnSurferPath: TButton;
     btnUnloadPath: TButton;
     btnGEBCOPath: TButton;
     eGrapherPath: TEdit;
+    ePythonPath: TEdit;
     eSupportPath: TEdit;
     eOceanFDBPath: TEdit;
     eSurferPath: TEdit;
     eUnloadPath: TEdit;
     eGEBCOPath: TEdit;
-    GroupBox1: TGroupBox;
-    GroupBox2: TGroupBox;
+    gbSurferPath: TGroupBox;
+    gbGrapherPath: TGroupBox;
     GroupBox3: TGroupBox;
+    GroupBox5: TGroupBox;
     GroupBox6: TGroupBox;
     GroupBox7: TGroupBox;
     GroupBox8: TGroupBox;
@@ -36,15 +40,20 @@ type
     Label1: TLabel;
     lbKML: TLabel;
     mAdvancedSettings: TMemo;
+    Memo1: TMemo;
     PageControl1: TPageControl;
+    rgPlotSoft: TRadioGroup;
     rgDepth: TRadioGroup;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
+    TabSheet5: TTabSheet;
 
     procedure btnGEBCOPathClick(Sender: TObject);
+    procedure btnInstallPackagesClick(Sender: TObject);
     procedure btnOceanFDBPathClick(Sender: TObject);
+    procedure btnPythonClick(Sender: TObject);
     procedure btnSupportPathClick(Sender: TObject);
     procedure btnUnloadPathClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -67,7 +76,7 @@ implementation
 
 {$R *.lfm}
 
-uses osmain, procedures, osbathymetry;
+uses osmain, procedures;
 
 { Tfrmsettings }
 
@@ -90,6 +99,8 @@ begin
    eGEBCOPath.Text        :=Ini.ReadString  ( 'main', 'GEBCOPath',        GEBCODefault);
    //rgLanguage.ItemIndex   :=Ini.ReadInteger ( 'main', 'Language',         0);
    rgDepth.ItemIndex      :=Ini.ReadInteger ( 'main', 'Depth_units',      0);
+   ePythonPath.Text       :=Ini.ReadString  ( 'main', 'PythonPath',       '');
+   rgPlotSoft.ItemIndex   :=Ini.ReadInteger ( 'main', 'Plotting_soft',    0);
   finally
     ini.Free;
   end;
@@ -104,6 +115,20 @@ begin
    end;
 
    CheckExistence;
+
+  {$IFDEF LINUX}
+     gbSurferPath.Visible:=false;
+     gbGrapherPath.Visible:=false;
+     rgPlotSoft.ItemIndex:=1;
+     TRadioButton(rgPlotSoft.Controls[0]).Enabled := False;
+  {$ENDIF}
+  {$IFDEF DARWIN}
+    gbSurferPath.Visible:=false;
+    gbGrapherPath.Visible:=false;
+    rgPlotSoft.ItemIndex:=1;
+    TRadioButton(rgPlotSoft.Controls[0]).Enabled := False;
+  {$ENDIF}
+
 end;
 
 procedure Tfrmsettings.CheckExistence;
@@ -114,6 +139,9 @@ begin
   if FileExists(eGEBCOPath.Text)        then eGEBCOPath.Font.Color    :=clGreen else eGEBCOPath.Font.Color   :=clRed;
   if FileExists(eSurferPath.Text)       then eSurferPath.Font.Color   :=clGreen else eSurferPath.Font.Color  :=clRed;
   if FileExists(eGrapherPath.Text)      then eGrapherPath.Font.Color  :=clGreen else eGrapherPath.Font.Color :=clRed;
+  if FileExists(ePythonPath.Text)       then ePythonPath.Font.Color   :=clGreen else ePythonPath.Font.Color  :=clRed;
+
+  TRadioButton(rgPlotSoft.Controls[1]).Enabled:=FileExists(ePythonPath.Text);
 end;
 
 procedure Tfrmsettings.PageControl1Change(Sender: TObject);
@@ -126,6 +154,13 @@ begin
  frmosmain.OD.Filter:='Ocean.fdb|OCEAN.FDB';
   if frmosmain.OD.Execute then eOceanFDBPath.Text:= frmosmain.OD.FileName;
  CheckExistence;
+end;
+
+procedure Tfrmsettings.btnPythonClick(Sender: TObject);
+begin
+  frmosmain.OD.Filter:='Python.exe|Python.exe';
+  if frmosmain.OD.Execute then ePythonPath.Text:= frmosmain.OD.FileName;
+   CheckExistence;
 end;
 
 procedure Tfrmsettings.btnSupportPathClick(Sender: TObject);
@@ -147,6 +182,21 @@ begin
  frmosmain.OD.Filter:='GEBCO 2020|GEBCO_2020.nc';
    if frmosmain.OD.Execute then eGEBCOPath.Text:= frmosmain.OD.FileName;
  CheckExistence;
+end;
+
+procedure Tfrmsettings.btnInstallPackagesClick(Sender: TObject);
+Var
+ Ini:TIniFile;
+begin
+memo1.Clear;
+ Ini := TIniFile.Create(IniFileName);
+  try
+   Ini.WriteString ( 'main', 'PythonPath', ePythonPath.Text);
+  finally
+   Ini.Free;
+  end;
+
+  frmosmain.RunScript(1, '-m pip install matplotlib', memo1);
 end;
 
 procedure Tfrmsettings.btnSurferPathClick(Sender: TObject);
@@ -178,6 +228,8 @@ begin
    Ini.WriteString ( 'main', 'GrapherPath',      eGrapherPath.Text);
    Ini.WriteString ( 'main', 'GEBCOPath',        eGEBCOPath.Text);
    Ini.WriteInteger( 'main', 'Depth_units',      rgDepth.ItemIndex);
+   Ini.WriteString ( 'main', 'PythonPath',       ePythonPath.Text);
+   Ini.WriteInteger( 'main', 'Plotting_soft',    rgPlotSoft.ItemIndex);
   finally
     ini.Free;
   end;
