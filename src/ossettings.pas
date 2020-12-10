@@ -29,10 +29,10 @@ type
     eSurferPath: TEdit;
     eUnloadPath: TEdit;
     eGEBCOPath: TEdit;
-    gbSurferPath: TGroupBox;
     gbGrapherPath: TGroupBox;
+    gbSurferPath: TGroupBox;
     GroupBox3: TGroupBox;
-    GroupBox5: TGroupBox;
+    gbPythonPath: TGroupBox;
     GroupBox6: TGroupBox;
     GroupBox7: TGroupBox;
     GroupBox8: TGroupBox;
@@ -42,10 +42,9 @@ type
     mAdvancedSettings: TMemo;
     Memo1: TMemo;
     PageControl1: TPageControl;
-    rgPlotSoft: TRadioGroup;
     rgDepth: TRadioGroup;
+    rgPlotSoft: TRadioGroup;
     TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
@@ -117,6 +116,7 @@ begin
    CheckExistence;
 
   {$IFDEF LINUX}
+     gbPythonPath.Enabled:=false;
      gbSurferPath.Visible:=false;
      gbGrapherPath.Visible:=false;
      rgPlotSoft.ItemIndex:=1;
@@ -141,7 +141,9 @@ begin
   if FileExists(eGrapherPath.Text)      then eGrapherPath.Font.Color  :=clGreen else eGrapherPath.Font.Color :=clRed;
   if FileExists(ePythonPath.Text)       then ePythonPath.Font.Color   :=clGreen else ePythonPath.Font.Color  :=clRed;
 
-  TRadioButton(rgPlotSoft.Controls[1]).Enabled:=FileExists(ePythonPath.Text);
+  {$IFDEF WINDOWS}
+    TRadioButton(rgPlotSoft.Controls[1]).Enabled:=FileExists(ePythonPath.Text);
+  {$ENDIF}
 end;
 
 procedure Tfrmsettings.PageControl1Change(Sender: TObject);
@@ -158,7 +160,7 @@ end;
 
 procedure Tfrmsettings.btnPythonClick(Sender: TObject);
 begin
-  frmosmain.OD.Filter:='Python.exe|Python.exe';
+  frmosmain.OD.Filter:='Python|Python.exe';
   if frmosmain.OD.Execute then ePythonPath.Text:= frmosmain.OD.FileName;
    CheckExistence;
 end;
@@ -195,7 +197,7 @@ memo1.Clear;
   finally
    Ini.Free;
   end;
-
+  frmosmain.RunScript(1, GlobalPath+'get-pip.py', memo1);
   frmosmain.RunScript(1, '-m pip install matplotlib', memo1);
 end;
 

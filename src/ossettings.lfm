@@ -1,23 +1,22 @@
 object frmsettings: Tfrmsettings
-  Left = 588
-  Height = 568
-  Top = 211
-  Width = 763
+  Left = 672
+  Height = 379
+  Top = 209
+  Width = 509
   ActiveControl = btnOk
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 568
-  ClientWidth = 763
-  DesignTimePPI = 144
+  ClientHeight = 379
+  ClientWidth = 509
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.8.0'
   object btnOk: TButton
-    Left = 632
-    Height = 38
-    Top = 512
-    Width = 112
+    Left = 421
+    Height = 25
+    Top = 341
+    Width = 75
     Caption = 'Ok'
     OnClick = btnOkClick
     ParentFont = False
@@ -25,9 +24,9 @@ object frmsettings: Tfrmsettings
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 492
+    Height = 328
     Top = 0
-    Width = 763
+    Width = 509
     ActivePage = TabSheet1
     Align = alTop
     ParentFont = False
@@ -36,34 +35,34 @@ object frmsettings: Tfrmsettings
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = 'Paths'
-      ClientHeight = 454
-      ClientWidth = 755
+      ClientHeight = 298
+      ClientWidth = 499
       ParentFont = False
       object GroupBox6: TGroupBox
-        Left = 18
-        Height = 96
-        Top = 120
-        Width = 716
+        Left = 12
+        Height = 64
+        Top = 80
+        Width = 477
         Caption = 'Support files'
-        ClientHeight = 66
-        ClientWidth = 712
+        ClientHeight = 47
+        ClientWidth = 475
         ParentFont = False
         TabOrder = 0
         object eSupportPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 12
-          Width = 632
+          Left = 12
+          Height = 27
+          Top = 8
+          Width = 421
           Font.Color = clGreen
           ParentFont = False
           ReadOnly = True
           TabOrder = 0
         end
         object btnSupportPath: TButton
-          Left = 657
-          Height = 33
-          Top = 12
-          Width = 39
+          Left = 438
+          Height = 22
+          Top = 8
+          Width = 26
           Caption = '...'
           OnClick = btnSupportPathClick
           ParentFont = False
@@ -71,30 +70,30 @@ object frmsettings: Tfrmsettings
         end
       end
       object GroupBox7: TGroupBox
-        Left = 18
-        Height = 96
-        Top = 224
-        Width = 716
+        Left = 12
+        Height = 64
+        Top = 149
+        Width = 477
         Caption = 'Output directory'
-        ClientHeight = 66
-        ClientWidth = 712
+        ClientHeight = 47
+        ClientWidth = 475
         ParentFont = False
         TabOrder = 1
         object eUnloadPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 12
-          Width = 632
+          Left = 12
+          Height = 27
+          Top = 8
+          Width = 421
           Font.Color = clGreen
           ParentFont = False
           ReadOnly = True
           TabOrder = 0
         end
         object btnUnloadPath: TButton
-          Left = 657
-          Height = 33
-          Top = 12
-          Width = 39
+          Left = 438
+          Height = 22
+          Top = 8
+          Width = 26
           Caption = '...'
           OnClick = btnUnloadPathClick
           ParentFont = False
@@ -102,30 +101,30 @@ object frmsettings: Tfrmsettings
         end
       end
       object GroupBox8: TGroupBox
-        Left = 18
-        Height = 96
-        Top = 16
-        Width = 716
+        Left = 12
+        Height = 64
+        Top = 11
+        Width = 477
         Caption = 'Ocean.fdb'
-        ClientHeight = 66
-        ClientWidth = 712
+        ClientHeight = 47
+        ClientWidth = 475
         ParentFont = False
         TabOrder = 2
         object eOceanFDBPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 12
-          Width = 632
+          Left = 12
+          Height = 27
+          Top = 8
+          Width = 421
           Font.Color = clGreen
           ParentFont = False
           ReadOnly = True
           TabOrder = 0
         end
         object btnOceanFDBPath: TButton
-          Left = 657
-          Height = 33
-          Top = 12
-          Width = 39
+          Left = 438
+          Height = 22
+          Top = 8
+          Width = 26
           Caption = '...'
           OnClick = btnOceanFDBPathClick
           ParentFont = False
@@ -133,29 +132,30 @@ object frmsettings: Tfrmsettings
         end
       end
       object GroupBox9: TGroupBox
-        Left = 18
-        Height = 94
-        Top = 336
-        Width = 716
+        Left = 12
+        Height = 63
+        Top = 224
+        Width = 477
         Caption = 'Bathymetry (GEBCO 2020)'
-        ClientHeight = 64
-        ClientWidth = 712
+        ClientHeight = 46
+        ClientWidth = 475
+        ParentFont = False
         TabOrder = 3
         object eGEBCOPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 12
-          Width = 632
+          Left = 12
+          Height = 27
+          Top = 8
+          Width = 421
           Font.Color = clGreen
           ParentFont = False
           ReadOnly = True
           TabOrder = 0
         end
         object btnGEBCOPath: TButton
-          Left = 657
-          Height = 33
-          Top = 12
-          Width = 39
+          Left = 438
+          Height = 22
+          Top = 8
+          Width = 26
           Caption = '...'
           OnClick = btnGEBCOPathClick
           ParentFont = False
@@ -165,31 +165,32 @@ object frmsettings: Tfrmsettings
     end
     object TabSheet5: TTabSheet
       Caption = 'Python'
-      ClientHeight = 454
-      ClientWidth = 755
-      object GroupBox5: TGroupBox
-        Left = 18
-        Height = 96
-        Top = 16
-        Width = 716
-        Caption = 'Path to Python executable'
-        ClientHeight = 66
-        ClientWidth = 712
+      ClientHeight = 298
+      ClientWidth = 499
+      ParentFont = False
+      object gbPythonPath: TGroupBox
+        Left = 12
+        Height = 64
+        Top = 11
+        Width = 477
+        Caption = 'Path to Python.exe'
+        ClientHeight = 47
+        ClientWidth = 475
         ParentFont = False
         TabOrder = 0
         object ePythonPath: TEdit
-          Left = 16
-          Height = 33
-          Top = 12
-          Width = 632
+          Left = 11
+          Height = 27
+          Top = 8
+          Width = 421
           ParentFont = False
           TabOrder = 0
         end
         object btnPython: TButton
-          Left = 657
-          Height = 34
-          Top = 12
-          Width = 39
+          Left = 438
+          Height = 23
+          Top = 8
+          Width = 26
           Caption = '...'
           OnClick = btnPythonClick
           ParentFont = False
@@ -197,137 +198,54 @@ object frmsettings: Tfrmsettings
         end
       end
       object Memo1: TMemo
-        Left = 18
-        Height = 247
-        Top = 184
-        Width = 716
+        Left = 12
+        Height = 165
+        Top = 123
+        Width = 477
+        ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 1
       end
       object btnInstallPackages: TButton
-        Left = 216
-        Height = 34
-        Top = 128
-        Width = 328
+        Left = 144
+        Height = 23
+        Top = 85
+        Width = 219
         Caption = 'Install/update required modules'
         OnClick = btnInstallPackagesClick
-        TabOrder = 2
-      end
-    end
-    object TabSheet2: TTabSheet
-      Caption = 'Plotting software'
-      ClientHeight = 454
-      ClientWidth = 755
-      ParentFont = False
-      object gbSurferPath: TGroupBox
-        Left = 18
-        Height = 96
-        Top = 136
-        Width = 716
-        Caption = 'Surfer (scripter.exe)'
-        ClientHeight = 66
-        ClientWidth = 712
         ParentFont = False
-        TabOrder = 0
-        object eSurferPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 12
-          Width = 632
-          ParentFont = False
-          TabOrder = 0
-        end
-        object btnSurferPath: TButton
-          Left = 658
-          Height = 34
-          Top = 12
-          Width = 39
-          Caption = '...'
-          OnClick = btnSurferPathClick
-          ParentFont = False
-          TabOrder = 1
-        end
-      end
-      object gbGrapherPath: TGroupBox
-        Left = 18
-        Height = 96
-        Top = 240
-        Width = 716
-        Caption = 'Grapher (scripter.exe)'
-        ClientHeight = 66
-        ClientWidth = 712
-        ParentFont = False
-        TabOrder = 1
-        object eGrapherPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 16
-          Width = 632
-          ParentFont = False
-          TabOrder = 0
-        end
-        object btnGrapherPath: TButton
-          Left = 658
-          Height = 34
-          Top = 15
-          Width = 39
-          Caption = '...'
-          OnClick = btnGrapherPathClick
-          ParentFont = False
-          TabOrder = 1
-        end
-      end
-      object rgPlotSoft: TRadioGroup
-        Left = 18
-        Height = 104
-        Top = 16
-        Width = 182
-        AutoFill = True
-        Caption = 'Use for plotting'
-        ChildSizing.LeftRightSpacing = 6
-        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
-        ChildSizing.EnlargeVertical = crsHomogenousChildResize
-        ChildSizing.ShrinkHorizontal = crsScaleChilds
-        ChildSizing.ShrinkVertical = crsScaleChilds
-        ChildSizing.Layout = cclLeftToRightThenTopToBottom
-        ChildSizing.ControlsPerLine = 1
-        ClientHeight = 74
-        ClientWidth = 178
-        ItemIndex = 0
-        Items.Strings = (
-          'Surfer/Grapher'
-          'matplotlib'
-        )
         TabOrder = 2
       end
     end
     object TabSheet4: TTabSheet
       Caption = 'Visualisation'
-      ClientHeight = 454
-      ClientWidth = 758
+      ClientHeight = 298
+      ClientWidth = 499
+      ParentFont = False
       object GroupBox3: TGroupBox
-        Left = 24
-        Height = 94
-        Top = 24
-        Width = 246
+        Left = 192
+        Height = 69
+        Top = 11
+        Width = 168
         Caption = 'KML'
-        ClientHeight = 64
-        ClientWidth = 242
+        ClientHeight = 52
+        ClientWidth = 166
+        ParentFont = False
         TabOrder = 0
         object Label1: TLabel
-          Left = 16
-          Height = 25
-          Top = 16
-          Width = 106
+          Left = 11
+          Height = 14
+          Top = 11
+          Width = 81
           Caption = 'KML support:'
           ParentColor = False
           ParentFont = False
         end
         object lbKML: TLabel
-          Left = 144
-          Height = 25
-          Top = 16
-          Width = 54
+          Left = 96
+          Height = 14
+          Top = 11
+          Width = 41
           Caption = 'lbKML'
           Font.Style = [fsBold]
           ParentColor = False
@@ -335,10 +253,10 @@ object frmsettings: Tfrmsettings
         end
       end
       object rgDepth: TRadioGroup
-        Left = 24
-        Height = 126
-        Top = 136
-        Width = 246
+        Left = 376
+        Height = 69
+        Top = 11
+        Width = 113
         AutoFill = True
         Caption = 'Depth units'
         ChildSizing.LeftRightSpacing = 6
@@ -348,26 +266,109 @@ object frmsettings: Tfrmsettings
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 96
-        ClientWidth = 242
+        ClientHeight = 52
+        ClientWidth = 111
         ItemIndex = 0
         Items.Strings = (
           'Meters'
           'dBar'
         )
+        ParentFont = False
         TabOrder = 1
+      end
+      object rgPlotSoft: TRadioGroup
+        Left = 12
+        Height = 69
+        Top = 11
+        Width = 164
+        AutoFill = True
+        Caption = 'Use for plotting'
+        ChildSizing.LeftRightSpacing = 6
+        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+        ChildSizing.EnlargeVertical = crsHomogenousChildResize
+        ChildSizing.ShrinkHorizontal = crsScaleChilds
+        ChildSizing.ShrinkVertical = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 1
+        ClientHeight = 52
+        ClientWidth = 162
+        ItemIndex = 0
+        Items.Strings = (
+          'Surfer/Grapher'
+          'matplotlib'
+        )
+        ParentFont = False
+        TabOrder = 2
+      end
+      object gbSurferPath: TGroupBox
+        Left = 12
+        Height = 64
+        Top = 91
+        Width = 477
+        Caption = 'Surfer (scripter.exe)'
+        ClientHeight = 47
+        ClientWidth = 475
+        ParentFont = False
+        TabOrder = 3
+        object eSurferPath: TEdit
+          Left = 12
+          Height = 27
+          Top = 8
+          Width = 421
+          ParentFont = False
+          TabOrder = 0
+        end
+        object btnSurferPath: TButton
+          Left = 439
+          Height = 23
+          Top = 8
+          Width = 26
+          Caption = '...'
+          OnClick = btnSurferPathClick
+          ParentFont = False
+          TabOrder = 1
+        end
+      end
+      object gbGrapherPath: TGroupBox
+        Left = 12
+        Height = 64
+        Top = 160
+        Width = 477
+        Caption = 'Grapher (scripter.exe)'
+        ClientHeight = 47
+        ClientWidth = 475
+        ParentFont = False
+        TabOrder = 4
+        object eGrapherPath: TEdit
+          Left = 12
+          Height = 27
+          Top = 11
+          Width = 421
+          ParentFont = False
+          TabOrder = 0
+        end
+        object btnGrapherPath: TButton
+          Left = 439
+          Height = 23
+          Top = 10
+          Width = 26
+          Caption = '...'
+          OnClick = btnGrapherPathClick
+          ParentFont = False
+          TabOrder = 1
+        end
       end
     end
     object TabSheet3: TTabSheet
       Caption = 'Advanced'
-      ClientHeight = 454
-      ClientWidth = 758
+      ClientHeight = 298
+      ClientWidth = 499
       ParentFont = False
       object mAdvancedSettings: TMemo
-        Left = 18
-        Height = 408
-        Top = 24
-        Width = 714
+        Left = 12
+        Height = 272
+        Top = 16
+        Width = 476
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0

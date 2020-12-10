@@ -3936,7 +3936,7 @@ begin
  try
   P:=TProcess.Create(Nil);
   P.Commandline:=trim(ExeName+' '+cmd);
-//  showmessage(P.CommandLine);
+  showmessage(P.CommandLine);
   P.Options:=[poUsePipes, poNoConsole];
   if WaitOnExit=true then P.Options:=P.Options+[poWaitOnExit];
   P.Execute;
