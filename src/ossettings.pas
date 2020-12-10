@@ -103,6 +103,7 @@ begin
   finally
     ini.Free;
   end;
+
    (* Check if there is KML support *)
    if checkKML=true then begin
      lbKML.Caption:=SYes;
@@ -115,20 +116,13 @@ begin
 
    CheckExistence;
 
-  {$IFDEF LINUX}
+  {$IFDEF UNIX}
      gbPythonPath.Enabled:=false;
      gbSurferPath.Visible:=false;
      gbGrapherPath.Visible:=false;
      rgPlotSoft.ItemIndex:=1;
      TRadioButton(rgPlotSoft.Controls[0]).Enabled := False;
   {$ENDIF}
-  {$IFDEF DARWIN}
-    gbSurferPath.Visible:=false;
-    gbGrapherPath.Visible:=false;
-    rgPlotSoft.ItemIndex:=1;
-    TRadioButton(rgPlotSoft.Controls[0]).Enabled := False;
-  {$ENDIF}
-
 end;
 
 procedure Tfrmsettings.CheckExistence;
