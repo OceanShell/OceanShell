@@ -23,7 +23,7 @@ Interface
 Uses
   Classes, SysUtils, Forms, Controls, Graphics, LCLType, Math, IniFiles,
   osmain, dm, osmap_datastreams, osmap_geometry, osmap_wkt, Dialogs,
-  Variants;
+  Variants, LResources;
 
 Type
   TPointArray = Array Of TPoint;
