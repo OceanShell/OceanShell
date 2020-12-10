@@ -23,7 +23,7 @@ Interface
 Uses
   Classes, SysUtils, Forms, Controls, Graphics, LCLType, Math, IniFiles,
   osmain, dm, osmap_datastreams, osmap_geometry, osmap_wkt, Dialogs,
-  Variants;
+  Variants, ZStream;
 
 Type
   TPointArray = Array Of TPoint;
@@ -105,20 +105,36 @@ Type
 
 Implementation
 
+{TODO: Remove the need for Mac define when OSX resource compiler working. }
+{$IFDEF Darwin}
+  {$R Countries.res}
+{$ELSE}
+  {$R Countries.rc}
+{$ENDIF}
+
 Var
   CountryData: TCountryGeometryArray;
 
 
 Constructor TGlobeControl.Create(AOwner: TComponent);
 Var
+ResourceStream: TStream;
+DecompressionStream: TDecompressionStream;
 DataStream: TDataStream;
 Index, LastIndex: Integer;
 Begin
   Inherited Create(AOwner);
 
+ { DataStream := TDataStream.Create;
+  DataStream.FieldTerminator := #9;
+  DataStream.LoadFromFile('00000.csv'); }
+
+  { Load the Area Geometry dataset from its resource object. }
+  ResourceStream := TResourceStream.Create(hInstance, 'COUNTRIES', 'DATA');
+  DecompressionStream := TDecompressionStream.Create(ResourceStream);
   DataStream := TDataStream.Create;
   DataStream.FieldTerminator := #9;
-  DataStream.LoadFromFile('00000.csv');
+  DataStream.LoadFromStream(DecompressionStream);
 
   SetLength(CountryData, DataStream.RecordCount);
   LastIndex := DataStream.RecordCount-1;
@@ -127,7 +143,10 @@ Begin
       WKTToMultiPolygon(DataStream.Fields[0], CountryData[Index]);
       DataStream.Next;
     End;
+ // FreeAndNil(DataStream);
   FreeAndNil(DataStream);
+  FreeAndNil(DecompressionStream);
+  FreeAndNil(ResourceStream);
 
   CreateBackBuffer;
 

@@ -827,10 +827,6 @@ begin
  PQF2_list:=TStringList.Create;
  SQF_list:=TStringList.Create;
 
- (* Disabling some menu items if there is no GEBCO *)
- iPlotBathymetry.Enabled:=GEBCOExists;
- iInsertBottomDepthGEBCO.Enabled:=GEBCOExists;
-
  OnResize(Self);
  SetFocus;
  Application.ProcessMessages;

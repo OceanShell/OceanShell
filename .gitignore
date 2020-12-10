@@ -33,6 +33,7 @@ src/lib/
 *.log
 
 # OceanShell specific files and folders
+*.nc
 OceanShell
 data/
 distrib/

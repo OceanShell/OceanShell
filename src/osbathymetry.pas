@@ -7,24 +7,9 @@ interface
 uses
   Classes, SysUtils, osmain, declarations_netcdf, IniFiles, dynlibs;
 
-function GEBCOExists:boolean;
 function GetGEBCODepth(Lon, Lat:real):integer;
 
 implementation
-
-
-(* Checking if GEBCO 2020 is in place *)
-function GEBCOExists:boolean;
-Var
- Ini:TIniFile;
-begin
- Ini := TIniFile.Create(IniFileName);
- try
-  Result:=FileExists(Ini.ReadString( 'main', 'GEBCOPath', ''));
- finally
-  Ini.Free;
- end;
-end;
 
 
 (* Choosing bathymtry source according to the INI settings *)
@@ -50,6 +35,18 @@ begin
   Ini.Free;
  end;
 
+ (* if full GEBCO_2020.nc is found *)
+ if FileExists(fname)=true then begin
+   lat0:=-(89+(59/60)+(525E-1/3600));  // first latitude
+   lon0:=-(179+(59/60)+(525E-1/3600)); // first longitude
+   step  := 1/240;  // 15"
+ end else begin
+   fname:=GlobalPath+'GEBCO_2020_6min.nc';
+   lat0:=-(89+(59/60)+(525E-1/3600));  // first latitude
+   lon0:=-(179+(59/60)+(525E-1/3600)); // first longitude
+   step  := 1/10;  // 6'
+ end;
+
  try
   // opening GEBCO_2020.nc
    nc_open:=Tnc_open(GetProcedureAddress(netcdf, 'nc_open'));
@@ -58,10 +55,6 @@ begin
 
    nc_open(pansichar(fname), NC_NOWRITE, ncid);
      start:=GetMemory(SizeOf(TArraySize_t)*2);
-
-     lat0:=-(89+(59/60)+(525E-1/3600));  // first latitude
-     lon0:=-(179+(59/60)+(525E-1/3600)); // first longitude
-     step  := 1/240;  // 15"
 
      // search by indexes
      start^[0]:=abs(trunc((lat0-lat)/step)); // lat index
