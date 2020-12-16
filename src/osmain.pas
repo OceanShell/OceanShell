@@ -193,6 +193,7 @@ type
     MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
     iInsertBottomDepthGEBCO: TMenuItem;
+    itest: TMenuItem;
     MenuItem14: TMenuItem;
     MenuItem15: TMenuItem;
     iStandarddeviationslayers: TMenuItem;
@@ -212,6 +213,8 @@ type
     MenuItem21: TMenuItem;
     iExportCOMFORT: TMenuItem;
     iExportCOMFORT_table: TMenuItem;
+    MenuItem22: TMenuItem;
+    MenuItem23: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     iSelectCruise: TMenuItem;
@@ -220,7 +223,7 @@ type
     iDuplicates: TMenuItem;
     MenuItem6: TMenuItem;
     MenuItem7: TMenuItem;
-    iDIVAnd: TMenuItem;
+    iExportDIVAnd: TMenuItem;
     iQC: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
@@ -398,7 +401,7 @@ type
     procedure iAboutClick(Sender: TObject);
     procedure iDBStatisticsClick(Sender: TObject);
     procedure iDBStatistics_AKClick(Sender: TObject);
-    procedure iDIVAndClick(Sender: TObject);
+    procedure iExportDIVAndClick(Sender: TObject);
     procedure iDuplicatesClick(Sender: TObject);
     procedure iInsertBottomDepthGEBCOClick(Sender: TObject);
     procedure iExportCIAClick(Sender: TObject);
@@ -430,7 +433,7 @@ type
     procedure lbResetSearchCruisesClick(Sender: TObject);
     procedure lbResetSearchStationsClick(Sender: TObject);
     procedure iExportASCIIClick(Sender: TObject);
-    procedure MenuItem14Click(Sender: TObject);
+    procedure itestClick(Sender: TObject);
     procedure MenuItem19Click(Sender: TObject);
     procedure iInsertLastLevelClick(Sender: TObject);
     procedure iExportFirebirdDBClick(Sender: TObject);
@@ -454,6 +457,7 @@ type
     procedure DatabaseInfo;
     procedure SelectionInfo;
     procedure CDSNavigation;
+    procedure ExpertModeOff;
 
     Procedure UpdateCruiseInfo(ID: int64; TotalEqualDB:boolean);
     Procedure InsertLastLevel;
@@ -646,6 +650,7 @@ uses
 procedure Tfrmosmain.FormShow(Sender: TObject);
 Var
   Ini:TIniFile;
+  k:integer;
 begin
  IBName:='';
 
@@ -705,6 +710,8 @@ begin
     depth_units:=Ini.ReadInteger('main', 'depth_units', 0);
 
     btnOpenOceanFDB.Enabled:=FileExists(Ini.ReadString( 'main', 'OceanFDBPath',  ''));
+
+    if Ini.ReadBool( 'main', 'Experimental',false)=false then ExpertModeOff;
 
     (* STATION search settings *)
     pcRegion.ActivePageIndex:=Ini.ReadInteger( 'osmain', 'station_region_pcRegion', 0);
@@ -818,7 +825,7 @@ begin
   end;
 
  (* disabling menu items *)
- // for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
+  for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
 
  (* list of unique sources - only those selected *)
  Source_unq_list:=TStringList.Create;
@@ -1958,7 +1965,7 @@ begin
 end;
 
 
-procedure Tfrmosmain.iDIVAndClick(Sender: TObject);
+procedure Tfrmosmain.iExportDIVAndClick(Sender: TObject);
 begin
   frmosexport_divand := Tfrmosexport_divand.Create(Self);
    try
@@ -1985,7 +1992,7 @@ begin
  ExportASCII;
 end;
 
-procedure Tfrmosmain.MenuItem14Click(Sender: TObject);
+procedure Tfrmosmain.itestClick(Sender: TObject);
 begin
   showmessage(inttostr(osbathymetry.getgebcodepth(66, 2)));
 end;
@@ -2080,6 +2087,15 @@ begin
    IBName:=OD.FileName;
    OpenDatabase;
   end;
+end;
+
+(* turning off some experimantal features *)
+procedure Tfrmosmain.ExpertModeOff;
+begin
+  iExportFirebirdDB.Visible:=false;
+  iExportDIVAnd.Visible:=false;
+  iExportASCII.Visible:=false;
+  itest.Visible:=false;
 end;
 
 procedure Tfrmosmain.aProfilesStationAllExecute(Sender: TObject);
@@ -2758,6 +2774,8 @@ begin
   aProfilesStationAll.Enabled:=items_enabled;
   aProfilesSelectedAllPlot.Enabled:=items_enabled;
   iStandarddeviationslayers.Enabled:=items_enabled;
+  iTDdiagrams.Enabled:=items_enabled;
+
 
   tsSelectedStations.TabVisible:=items_enabled;
   PageControl1.ActivePageIndex:=3;

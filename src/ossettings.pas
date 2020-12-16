@@ -22,6 +22,7 @@ type
     btnSurferPath: TButton;
     btnUnloadPath: TButton;
     btnGEBCOPath: TButton;
+    chkExpFeat: TCheckBox;
     eGrapherPath: TEdit;
     ePythonPath: TEdit;
     eSupportPath: TEdit;
@@ -45,7 +46,7 @@ type
     rgDepth: TRadioGroup;
     rgPlotSoft: TRadioGroup;
     TabSheet1: TTabSheet;
-    TabSheet3: TTabSheet;
+    tsAdvanced: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
 
@@ -55,6 +56,7 @@ type
     procedure btnPythonClick(Sender: TObject);
     procedure btnSupportPathClick(Sender: TObject);
     procedure btnUnloadPathClick(Sender: TObject);
+    procedure chkExpFeatChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnGrapherPathClick(Sender: TObject);
     procedure btnOkClick(Sender: TObject);
@@ -96,10 +98,10 @@ begin
    eSurferPath.Text       :=Ini.ReadString  ( 'main', 'SurferPath',       SurferDefault);
    eGrapherPath.Text      :=Ini.ReadString  ( 'main', 'GrapherPath',      GrapherDefault);
    eGEBCOPath.Text        :=Ini.ReadString  ( 'main', 'GEBCOPath',        GEBCODefault);
-   //rgLanguage.ItemIndex   :=Ini.ReadInteger ( 'main', 'Language',         0);
    rgDepth.ItemIndex      :=Ini.ReadInteger ( 'main', 'Depth_units',      0);
    ePythonPath.Text       :=Ini.ReadString  ( 'main', 'PythonPath',       '');
    rgPlotSoft.ItemIndex   :=Ini.ReadInteger ( 'main', 'Plotting_soft',    0);
+   chkExpFeat.Checked     :=Ini.ReadBool    ( 'main', 'Experimental',     false);
   finally
     ini.Free;
   end;
@@ -115,6 +117,8 @@ begin
    end;
 
    CheckExistence;
+
+   tsAdvanced.TabVisible:=chkExpFeat.Checked;
 
   {$IFDEF UNIX}
      gbPythonPath.Enabled:=false;
@@ -173,6 +177,12 @@ begin
  CheckExistence;
 end;
 
+procedure Tfrmsettings.chkExpFeatChange(Sender: TObject);
+begin
+  tsAdvanced.TabVisible:=chkExpFeat.Checked;
+  Application.ProcessMessages;
+end;
+
 procedure Tfrmsettings.btnGEBCOPathClick(Sender: TObject);
 begin
  frmosmain.OD.Filter:='GEBCO 2020|GEBCO_2020.nc';
@@ -226,6 +236,7 @@ begin
    Ini.WriteInteger( 'main', 'Depth_units',      rgDepth.ItemIndex);
    Ini.WriteString ( 'main', 'PythonPath',       ePythonPath.Text);
    Ini.WriteInteger( 'main', 'Plotting_soft',    rgPlotSoft.ItemIndex);
+   Ini.WriteBool   ( 'main', 'Experimental',     chkExpFeat.Checked);
   finally
     ini.Free;
   end;

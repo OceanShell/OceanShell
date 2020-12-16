@@ -360,10 +360,10 @@ object frmsettings: Tfrmsettings
         end
       end
     end
-    object TabSheet3: TTabSheet
+    object tsAdvanced: TTabSheet
       Caption = 'Advanced'
-      ClientHeight = 298
-      ClientWidth = 499
+      ClientHeight = 454
+      ClientWidth = 756
       ParentFont = False
       object mAdvancedSettings: TMemo
         Left = 18
@@ -375,5 +375,14 @@ object frmsettings: Tfrmsettings
         TabOrder = 0
       end
     end
+  end
+  object chkExpFeat: TCheckBox
+    Left = 24
+    Height = 29
+    Top = 521
+    Width = 392
+    Caption = 'Enable experimental features (undocumented)'
+    OnChange = chkExpFeatChange
+    TabOrder = 2
   end
 end
