@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ComCtrls, ExtCtrls, IniFiles;
+  ComCtrls, ExtCtrls, Spin, IniFiles;
 
 type
 
@@ -23,6 +23,7 @@ type
     btnUnloadPath: TButton;
     btnGEBCOPath: TButton;
     chkExpFeat: TCheckBox;
+    eServerName: TEdit;
     eGrapherPath: TEdit;
     ePythonPath: TEdit;
     eSupportPath: TEdit;
@@ -39,12 +40,19 @@ type
     GroupBox8: TGroupBox;
     GroupBox9: TGroupBox;
     Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
     lbKML: TLabel;
     mAdvancedSettings: TMemo;
     Memo1: TMemo;
     PageControl1: TPageControl;
+    pRemoteServer: TPanel;
+    rbRemote: TRadioButton;
+    rbLocal: TRadioButton;
     rgDepth: TRadioGroup;
     rgPlotSoft: TRadioGroup;
+    seServerPort: TSpinEdit;
     TabSheet1: TTabSheet;
     tsAdvanced: TTabSheet;
     TabSheet4: TTabSheet;
@@ -62,6 +70,8 @@ type
     procedure btnOkClick(Sender: TObject);
     procedure btnSurferPathClick(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
+    procedure rbLocalChange(Sender: TObject);
+    procedure rbRemoteChange(Sender: TObject);
 
   private
     { private declarations }
@@ -93,6 +103,11 @@ begin
   Ini := TIniFile.Create(IniFileName);
   try
    eOceanFDBPath.Text     :=Ini.ReadString  ( 'main', 'OceanFDBPath',     GlobalPath+'databases'+PathDelim+'OCEAN.FDB');
+   rbLocal.Checked        :=Ini.ReadBool    ( 'main', 'Server_local',     true);
+   rbRemote.Checked       :=Ini.ReadBool    ( 'main', 'Server_remote',    false);
+   eServerName.Text       :=Ini.ReadString  ( 'main', 'Server_name',      '');
+   seServerPort.Value     :=Ini.ReadInteger ( 'main', 'Server_port',      3050);
+
    eSupportPath.Text      :=Ini.ReadString  ( 'main', 'SupportPath',      GlobalPath+'support'+PathDelim);
    eUnloadPath.Text       :=Ini.ReadString  ( 'main', 'UnloadPath',       GlobalPath+'unload'+PathDelim);
    eSurferPath.Text       :=Ini.ReadString  ( 'main', 'SurferPath',       SurferDefault);
@@ -102,6 +117,8 @@ begin
    ePythonPath.Text       :=Ini.ReadString  ( 'main', 'PythonPath',       '');
    rgPlotSoft.ItemIndex   :=Ini.ReadInteger ( 'main', 'Plotting_soft',    0);
    chkExpFeat.Checked     :=Ini.ReadBool    ( 'main', 'Experimental',     false);
+
+
   finally
     ini.Free;
   end;
@@ -119,6 +136,8 @@ begin
    CheckExistence;
 
    tsAdvanced.TabVisible:=chkExpFeat.Checked;
+   pRemoteServer.Visible:=rbRemote.Checked;
+   eOceanFDBPath.ReadOnly:=rblocal.Checked;
 
   {$IFDEF UNIX}
      gbPythonPath.Enabled:=false;
@@ -147,6 +166,18 @@ end;
 procedure Tfrmsettings.PageControl1Change(Sender: TObject);
 begin
   mAdvancedSettings.Lines.LoadFromFile(IniFileName);
+end;
+
+procedure Tfrmsettings.rbLocalChange(Sender: TObject);
+begin
+  pRemoteServer.Visible :=false;
+  eOceanFDBPath.ReadOnly:=false;
+end;
+
+procedure Tfrmsettings.rbRemoteChange(Sender: TObject);
+begin
+ pRemoteServer.Visible :=true;
+ eOceanFDBPath.ReadOnly:=true;
 end;
 
 procedure Tfrmsettings.btnOceanFDBPathClick(Sender: TObject);
@@ -228,6 +259,11 @@ begin
  Ini := TIniFile.Create(IniFileName);
   try
    Ini.WriteString ( 'main', 'OceanFDBPath',     eOceanFDBPath.Text);
+   Ini.WriteBool   ( 'main', 'Server_local',     rbLocal.Checked);
+   Ini.WriteBool   ( 'main', 'Server_remote',    rbRemote.Checked);
+   Ini.WriteString ( 'main', 'Server_name',      eServerName.Text);
+   Ini.WriteInteger( 'main', 'Server_port',      seServerPort.Value);
+
    Ini.WriteString ( 'main', 'SupportPath',      eSupportPath.Text);
    Ini.WriteString ( 'main', 'UnloadPath',       eUnloadPath.Text);
    Ini.WriteString ( 'main', 'SurferPath',       eSurferPath.Text);

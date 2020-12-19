@@ -1,13 +1,13 @@
 object frmsettings: Tfrmsettings
   Left = 672
-  Height = 568
+  Height = 590
   Top = 209
   Width = 764
   ActiveControl = btnOk
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 568
+  ClientHeight = 590
   ClientWidth = 764
   DesignTimePPI = 144
   OnShow = FormShow
@@ -16,7 +16,7 @@ object frmsettings: Tfrmsettings
   object btnOk: TButton
     Left = 632
     Height = 38
-    Top = 512
+    Top = 536
     Width = 112
     Caption = 'Ok'
     OnClick = btnOkClick
@@ -25,7 +25,7 @@ object frmsettings: Tfrmsettings
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 492
+    Height = 528
     Top = 0
     Width = 764
     ActivePage = TabSheet1
@@ -36,13 +36,13 @@ object frmsettings: Tfrmsettings
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = 'Paths'
-      ClientHeight = 454
+      ClientHeight = 490
       ClientWidth = 756
       ParentFont = False
       object GroupBox6: TGroupBox
         Left = 18
         Height = 96
-        Top = 120
+        Top = 168
         Width = 716
         Caption = 'Support files'
         ClientHeight = 66
@@ -73,7 +73,7 @@ object frmsettings: Tfrmsettings
       object GroupBox7: TGroupBox
         Left = 18
         Height = 96
-        Top = 224
+        Top = 272
         Width = 716
         Caption = 'Output directory'
         ClientHeight = 66
@@ -103,18 +103,18 @@ object frmsettings: Tfrmsettings
       end
       object GroupBox8: TGroupBox
         Left = 18
-        Height = 96
+        Height = 144
         Top = 16
         Width = 716
         Caption = 'Ocean.fdb'
-        ClientHeight = 66
+        ClientHeight = 114
         ClientWidth = 712
         ParentFont = False
         TabOrder = 2
         object eOceanFDBPath: TEdit
-          Left = 18
+          Left = 24
           Height = 33
-          Top = 12
+          Top = 56
           Width = 632
           Font.Color = clGreen
           ParentFont = False
@@ -124,18 +124,89 @@ object frmsettings: Tfrmsettings
         object btnOceanFDBPath: TButton
           Left = 657
           Height = 33
-          Top = 12
+          Top = 56
           Width = 39
           Caption = '...'
           OnClick = btnOceanFDBPathClick
           ParentFont = False
           TabOrder = 1
         end
+        object rbLocal: TRadioButton
+          Left = 88
+          Height = 29
+          Top = 8
+          Width = 70
+          Caption = 'Local'
+          Checked = True
+          OnChange = rbLocalChange
+          TabOrder = 4
+          TabStop = True
+        end
+        object Label2: TLabel
+          Left = 24
+          Height = 25
+          Top = 12
+          Width = 53
+          Caption = 'Server:'
+          ParentColor = False
+        end
+        object rbRemote: TRadioButton
+          Left = 176
+          Height = 29
+          Top = 8
+          Width = 92
+          Caption = 'Remote'
+          OnChange = rbRemoteChange
+          TabOrder = 2
+        end
+        object pRemoteServer: TPanel
+          Left = 296
+          Height = 40
+          Top = 2
+          Width = 408
+          BevelOuter = bvNone
+          ClientHeight = 40
+          ClientWidth = 408
+          TabOrder = 3
+          object eServerName: TEdit
+            Left = 88
+            Height = 33
+            Top = 0
+            Width = 152
+            TabOrder = 0
+            Text = '193.227.233.106'
+          end
+          object seServerPort: TSpinEdit
+            Left = 324
+            Height = 33
+            Top = 0
+            Width = 75
+            MaxValue = 99999
+            TabOrder = 1
+            Value = 3050
+          end
+          object Label3: TLabel
+            Left = 272
+            Height = 25
+            Top = 8
+            Width = 36
+            Caption = 'Port:'
+            ParentColor = False
+          end
+          object Label4: TLabel
+            Left = 8
+            Height = 25
+            Top = 8
+            Width = 69
+            Caption = 'Address:'
+            ParentColor = False
+          end
+        end
       end
       object GroupBox9: TGroupBox
         Left = 18
         Height = 94
-        Top = 336
+        Top = 376
         Width = 716
         Caption = 'Bathymetry (GEBCO 2020, full version)'
         ClientHeight = 64
@@ -379,7 +450,7 @@ object frmsettings: Tfrmsettings
   object chkExpFeat: TCheckBox
     Left = 24
     Height = 29
-    Top = 521
+    Top = 545
     Width = 392
     Caption = 'Enable experimental features (undocumented)'
     OnChange = chkExpFeatChange

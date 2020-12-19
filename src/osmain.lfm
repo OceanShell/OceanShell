@@ -1089,8 +1089,8 @@ object frmosmain: Tfrmosmain
     end
     object tsMainCruises: TTabSheet
       Caption = 'Cruise search'
-      ClientHeight = 416
-      ClientWidth = 910
+      ClientHeight = 617
+      ClientWidth = 1372
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -1126,14 +1126,14 @@ object frmosmain: Tfrmosmain
       end
       object sbCruiseSearch: TScrollBox
         Left = 0
-        Height = 616
+        Height = 617
         Top = 0
         Width = 1128
         HorzScrollBar.Page = 1082
-        VertScrollBar.Page = 616
+        VertScrollBar.Page = 617
         Align = alLeft
         BorderStyle = bsNone
-        ClientHeight = 616
+        ClientHeight = 617
         ClientWidth = 1102
         Font.Color = clWindowText
         Font.Height = -17
@@ -1168,8 +1168,8 @@ object frmosmain: Tfrmosmain
             TabOrder = 0
             object TabSheet17: TTabSheet
               Caption = 'Rectangular'
-              ClientHeight = 106
-              ClientWidth = 279
+              ClientHeight = 132
+              ClientWidth = 416
               Font.Color = clWindowText
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
@@ -1559,8 +1559,8 @@ object frmosmain: Tfrmosmain
             TabOrder = 0
             object TabSheet11: TTabSheet
               Caption = 'DB'
-              ClientHeight = 71
-              ClientWidth = 193
+              ClientHeight = 79
+              ClientWidth = 288
               Font.Color = clWindowText
               Font.Height = -17
               Font.Name = 'MS Sans Serif'
@@ -1747,8 +1747,8 @@ object frmosmain: Tfrmosmain
             TabOrder = 0
             object TabSheet7: TTabSheet
               Caption = 'DB'
-              ClientHeight = 106
-              ClientWidth = 186
+              ClientHeight = 132
+              ClientWidth = 277
               Font.Color = clWindowText
               Font.Height = -17
               Font.Name = 'MS Sans Serif'

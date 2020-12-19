@@ -847,12 +847,20 @@ Var
 begin
   Ini := TIniFile.Create(IniFileName);
   try
-   DBName:=Ini.ReadString( 'main', 'OceanFDBPath',  '');
+   DBName:=Ini.ReadString('main', 'OceanFDBPath',  '');
+    if Ini.ReadBool('main', 'Server_remote', false)=true then begin
+     IBName:=Ini.ReadString('main', 'Server_name', '')+'/'+
+             Ini.ReadString('main', 'Server_port', '3050')+':'+
+             DBName;
+    end else begin
+     IBName:='localhost/gds_db:'+DBName;
+    end;
+
   finally
     Ini.Free;
   end;
 
-   IBName:='localhost:'+DBName;
+
    OpenDatabase;
 end;
 
