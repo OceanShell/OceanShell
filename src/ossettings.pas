@@ -171,13 +171,13 @@ end;
 procedure Tfrmsettings.rbLocalChange(Sender: TObject);
 begin
   pRemoteServer.Visible :=false;
-  eOceanFDBPath.ReadOnly:=false;
+  eOceanFDBPath.ReadOnly:=true;
 end;
 
 procedure Tfrmsettings.rbRemoteChange(Sender: TObject);
 begin
  pRemoteServer.Visible :=true;
- eOceanFDBPath.ReadOnly:=true;
+ eOceanFDBPath.ReadOnly:=false;
 end;
 
 procedure Tfrmsettings.btnOceanFDBPathClick(Sender: TObject);

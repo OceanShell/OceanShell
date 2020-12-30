@@ -707,9 +707,11 @@ begin
     Width :=Ini.ReadInteger( 'osmain', 'width',  900);
     Height:=Ini.ReadInteger( 'osmain', 'weight', 500);
 
-    depth_units:=Ini.ReadInteger('main', 'depth_units', 0);
+    if Ini.ReadBool('main', 'Server_local', true) then
+      btnOpenOceanFDB.Enabled:=FileExists(Ini.ReadString( 'main', 'OceanFDBPath',  ''));
 
-    btnOpenOceanFDB.Enabled:=FileExists(Ini.ReadString( 'main', 'OceanFDBPath',  ''));
+
+    depth_units:=Ini.ReadInteger('main', 'depth_units', 0);
 
     if Ini.ReadBool( 'main', 'Experimental',false)=false then ExpertModeOff;
 
