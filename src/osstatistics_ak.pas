@@ -57,8 +57,12 @@ var
 k,mik:integer;
 source_id,count_cruise,source_id_min,source_id_max:integer;
 stations_count,duplicate_count:integer;
-source_name,str:string;
+source_name,str, IBName:string;
 begin
+
+IBName:=copy(frmosmain.Caption,
+             Pos('[', frmosmain.Caption)+1,
+             length(frmosmain.Caption)-1);
 
 memo1.Clear;
 memo1.Lines.Add(IBName);

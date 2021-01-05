@@ -15,19 +15,21 @@ type
   Tfrmsettings = class(TForm)
     btnGrapherPath: TButton;
     btnInstallPackages: TButton;
+    btnOceanFDBPath: TButton;
     btnOk: TButton;
     btnPython: TButton;
     btnSupportPath: TButton;
-    btnOceanFDBPath: TButton;
     btnSurferPath: TButton;
     btnUnloadPath: TButton;
     btnGEBCOPath: TButton;
     chkExpFeat: TCheckBox;
-    eServerName: TEdit;
+    eUser: TEdit;
+    ePass: TEdit;
     eGrapherPath: TEdit;
+    eDBPath: TEdit;
     ePythonPath: TEdit;
+    eHost: TEdit;
     eSupportPath: TEdit;
-    eOceanFDBPath: TEdit;
     eSurferPath: TEdit;
     eUnloadPath: TEdit;
     eGEBCOPath: TEdit;
@@ -43,17 +45,18 @@ type
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
     lbKML: TLabel;
     mAdvancedSettings: TMemo;
     Memo1: TMemo;
     PageControl1: TPageControl;
-    pRemoteServer: TPanel;
-    rbRemote: TRadioButton;
-    rbLocal: TRadioButton;
     rgDepth: TRadioGroup;
     rgPlotSoft: TRadioGroup;
-    seServerPort: TSpinEdit;
+    ePort: TSpinEdit;
     TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
     tsAdvanced: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
@@ -70,8 +73,6 @@ type
     procedure btnOkClick(Sender: TObject);
     procedure btnSurferPathClick(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
-    procedure rbLocalChange(Sender: TObject);
-    procedure rbRemoteChange(Sender: TObject);
 
   private
     { private declarations }
@@ -94,19 +95,23 @@ uses osmain, procedures;
 procedure Tfrmsettings.FormShow(Sender: TObject);
 Var
  Ini:TIniFile;
- SurferDefault, GrapherDefault, GEBCODefault:string;
+ server:string;
+ SurferDefault, GrapherDefault, GEBCODefault, OceanFDBDefault:string;
 begin
- SurferDefault :='c:\Program Files\Golden Software\Surfer 13\Scripter\Scripter.exe';
- GrapherDefault:='c:\Program Files\Golden Software\Grapher 11\Scripter\Scripter.exe';
- GEBCODefault :=GlobalPath+'support'+PathDelim+'bathymetry'+PathDelim+'GEBCO_2020.nc';
+ SurferDefault   :='c:\Program Files\Golden Software\Surfer 13\Scripter\Scripter.exe';
+ GrapherDefault  :='c:\Program Files\Golden Software\Grapher 11\Scripter\Scripter.exe';
+ GEBCODefault    :=GlobalPath+'support'+PathDelim+'bathymetry'+PathDelim+'GEBCO_2020.nc';
+ OceanFDBDefault :=GlobalPath+'databases'+PathDelim+'OCEAN.FDB';
+
+ server:='firebird';
 
   Ini := TIniFile.Create(IniFileName);
   try
-   eOceanFDBPath.Text     :=Ini.ReadString  ( 'main', 'OceanFDBPath',     GlobalPath+'databases'+PathDelim+'OCEAN.FDB');
-   rbLocal.Checked        :=Ini.ReadBool    ( 'main', 'Server_local',     true);
-   rbRemote.Checked       :=Ini.ReadBool    ( 'main', 'Server_remote',    false);
-   eServerName.Text       :=Ini.ReadString  ( 'main', 'Server_name',      '');
-   seServerPort.Value     :=Ini.ReadInteger ( 'main', 'Server_port',      3050);
+   eDBPath.Text := Ini.ReadString (server, 'dbpath',   OceanFDBDefault);
+   eHost.Text   := Ini.ReadString (server, 'host',     'localhost');
+   ePort.Text   := Ini.ReadString (server, 'port',     '3050');
+   eUser.Text   := Ini.ReadString (server, 'user',     'SYSDBA');
+   epass.Text   := Ini.ReadString (server, 'pass',     'masterkey');
 
    eSupportPath.Text      :=Ini.ReadString  ( 'main', 'SupportPath',      GlobalPath+'support'+PathDelim);
    eUnloadPath.Text       :=Ini.ReadString  ( 'main', 'UnloadPath',       GlobalPath+'unload'+PathDelim);
@@ -136,8 +141,6 @@ begin
    CheckExistence;
 
    tsAdvanced.TabVisible:=chkExpFeat.Checked;
-   pRemoteServer.Visible:=rbRemote.Checked;
-   eOceanFDBPath.ReadOnly:=rblocal.Checked;
 
   {$IFDEF UNIX}
      gbPythonPath.Enabled:=false;
@@ -150,7 +153,6 @@ end;
 
 procedure Tfrmsettings.CheckExistence;
 begin
-  if FileExists(eOceanFDBPath.Text)     then eOceanFDBPath.Font.Color :=clGreen else eOceanFDBPath.Font.Color:=clRed;
   if DirectoryExists(eSupportPath.Text) then eSupportPath.Font.Color  :=clGreen else eSupportPath.Font.Color :=clRed;
   if DirectoryExists(eUnloadPath.Text)  then eUnloadPath.Font.Color   :=clGreen else eUnloadPath.Font.Color  :=clRed;
   if FileExists(eGEBCOPath.Text)        then eGEBCOPath.Font.Color    :=clGreen else eGEBCOPath.Font.Color   :=clRed;
@@ -168,23 +170,10 @@ begin
   mAdvancedSettings.Lines.LoadFromFile(IniFileName);
 end;
 
-procedure Tfrmsettings.rbLocalChange(Sender: TObject);
-begin
-  pRemoteServer.Visible :=false;
-  eOceanFDBPath.ReadOnly:=true;
-end;
-
-procedure Tfrmsettings.rbRemoteChange(Sender: TObject);
-begin
- pRemoteServer.Visible :=true;
- eOceanFDBPath.ReadOnly:=false;
-end;
-
 procedure Tfrmsettings.btnOceanFDBPathClick(Sender: TObject);
 begin
- frmosmain.OD.Filter:='Ocean.fdb|OCEAN.FDB';
-  if frmosmain.OD.Execute then eOceanFDBPath.Text:= frmosmain.OD.FileName;
- CheckExistence;
+ frmosmain.OD.Filter:='*.FDB|*.FDB';
+  if frmosmain.OD.Execute then eDBPath.Text:= frmosmain.OD.FileName;
 end;
 
 procedure Tfrmsettings.btnPythonClick(Sender: TObject);
@@ -253,16 +242,19 @@ end;
 procedure Tfrmsettings.btnOkClick(Sender: TObject);
 Var
  Ini:TIniFile;
+ server:string;
 begin
  (* Saving settings *)
  if PageControl1.PageIndex<3 then begin
  Ini := TIniFile.Create(IniFileName);
+
+ server:='firebird';
   try
-   Ini.WriteString ( 'main', 'OceanFDBPath',     eOceanFDBPath.Text);
-   Ini.WriteBool   ( 'main', 'Server_local',     rbLocal.Checked);
-   Ini.WriteBool   ( 'main', 'Server_remote',    rbRemote.Checked);
-   Ini.WriteString ( 'main', 'Server_name',      eServerName.Text);
-   Ini.WriteInteger( 'main', 'Server_port',      seServerPort.Value);
+   Ini.WriteString (server, 'dbpath',   eDBPath.Text);
+   Ini.WriteString (server, 'host',     eHost.Text);
+   Ini.WriteString (server, 'port',     ePort.Text);
+   Ini.WriteString (server, 'user',     eUser.Text);
+   Ini.WriteString (server, 'pass',     epass.Text);
 
    Ini.WriteString ( 'main', 'SupportPath',      eSupportPath.Text);
    Ini.WriteString ( 'main', 'UnloadPath',       eUnloadPath.Text);
@@ -288,7 +280,7 @@ begin
   GlobalSupportPath:=eSupportPath.Text;
   GlobalUnloadPath:=eUnloadPath.Text;
 
-  frmosmain.btnOpenOceanFDB.Enabled:=FileExists(eOceanFDBPath.Text);
+  frmosmain.btnOpenOceanFDB.Enabled:=FileExists(eDBPath.Text);
 
  Close;
 end;

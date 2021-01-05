@@ -1648,6 +1648,8 @@ DB:TIBConnection;
 TR:TSQLTransaction;
 ST:TSQLScript;
 
+IBName: string;
+
 (* Script for main tables *)
 const ScriptText=
    (* STATION *)
@@ -2141,7 +2143,7 @@ begin
   TR.Free;
   DB.Free;
  end;
-   frmosmain.OpenDatabase;
+   frmosmain.DatabaseInfo;
    showmessage('WOD database has been created ');
 end;
 

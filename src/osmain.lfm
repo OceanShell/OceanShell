@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 426
+  Left = 358
   Height = 758
-  Top = 177
+  Top = 117
   Width = 1380
   Caption = 'OceanShell'
   ClientHeight = 728
@@ -2288,8 +2288,8 @@ object frmosmain: Tfrmosmain
     end
     object tsSelectedStations: TTabSheet
       Caption = 'Selected data'
-      ClientHeight = 416
-      ClientWidth = 910
+      ClientHeight = 617
+      ClientWidth = 1372
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -2298,12 +2298,12 @@ object frmosmain: Tfrmosmain
       TabVisible = False
       object pDataCruise: TPanel
         Left = 0
-        Height = 616
+        Height = 617
         Top = 0
         Width = 926
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 616
+        ClientHeight = 617
         ClientWidth = 926
         Font.Color = clWindowText
         Font.Height = -17
@@ -2403,7 +2403,7 @@ object frmosmain: Tfrmosmain
         end
         object DBGridStation: TDBGrid
           Left = 0
-          Height = 328
+          Height = 329
           Top = 288
           Width = 926
           Align = alClient
@@ -2507,7 +2507,7 @@ object frmosmain: Tfrmosmain
       end
       object sbSelectedCruise: TScrollBox
         Left = 934
-        Height = 616
+        Height = 617
         Top = 0
         Width = 438
         HorzScrollBar.Page = 1
@@ -2516,7 +2516,7 @@ object frmosmain: Tfrmosmain
         VertScrollBar.Page = 608
         VertScrollBar.Smooth = True
         Align = alRight
-        ClientHeight = 612
+        ClientHeight = 613
         ClientWidth = 434
         Constraints.MinWidth = 438
         Font.Color = clWindowText
@@ -2546,7 +2546,7 @@ object frmosmain: Tfrmosmain
           TabOrder = 0
           Wrapable = False
           object btnSaveCruise: TToolButton
-            Left = 2
+            Left = 1
             Hint = 'Save changes'
             Top = 0
             AutoSize = True
@@ -2560,7 +2560,7 @@ object frmosmain: Tfrmosmain
         end
         object DBCruiseNotes: TDBMemo
           Left = 0
-          Height = 44
+          Height = 45
           Top = 352
           Width = 434
           Align = alClient
@@ -2578,7 +2578,7 @@ object frmosmain: Tfrmosmain
         object Panel3: TPanel
           Left = 0
           Height = 88
-          Top = 524
+          Top = 525
           Width = 434
           Align = alBottom
           BevelOuter = bvNone
@@ -2954,7 +2954,7 @@ object frmosmain: Tfrmosmain
         object GroupBox4: TGroupBox
           Left = 0
           Height = 128
-          Top = 396
+          Top = 397
           Width = 434
           Align = alBottom
           Caption = 'Service info'
@@ -3127,7 +3127,7 @@ object frmosmain: Tfrmosmain
       end
       object Splitter1: TSplitter
         Left = 926
-        Height = 616
+        Height = 617
         Top = 0
         Width = 8
         Align = alRight
@@ -3358,6 +3358,10 @@ object frmosmain: Tfrmosmain
         object iLoad_GLODAP_2019_v2: TMenuItem
           Caption = '2019.v2'
         end
+      end
+      object iload_ices: TMenuItem
+        Caption = 'ICES'
+        OnClick = iload_icesClick
       end
       object iLoad_ITP: TMenuItem
         Caption = 'ITP'

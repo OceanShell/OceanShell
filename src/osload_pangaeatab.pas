@@ -771,7 +771,7 @@ begin
 {st}end;
          if CheckBox1.Checked then begin
             frmdm.TR.Commit;
-            frmosmain.OpenDatabase;
+            frmosmain.DatabaseInfo;
          end;
 
      closefile(fi);
@@ -963,6 +963,8 @@ Var
 DB:TIBConnection;
 TR:TSQLTransaction;
 ST:TSQLScript;
+
+IBName:string;
 
     (* Script for main tables *)
     const ScriptText=
@@ -1433,7 +1435,7 @@ ST:TSQLScript;
       TR.Free;
       DB.Free;
      end;
-       frmosmain.OpenDatabase;
+       frmosmain.DatabaseInfo;
        showmessage('PANGAEA database has been created ');
 end;
 

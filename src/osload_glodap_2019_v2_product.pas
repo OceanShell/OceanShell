@@ -522,10 +522,10 @@ begin
      CDS_DSC.Free;
   closefile(outMD);
 
-  frmosmain.OpenDatabase;
+ // frmosmain.OpenLocalDatabase(IBName);
 
   memo1.Lines.Add('Profiles in file: '+inttostr(PRF_count));
-  memo1.Lines.Add('Database        : '+IBName);
+//  memo1.Lines.Add('Database        : '+IBName);
   btnDownloadData.Visible:=true;
 end;
 
@@ -2285,7 +2285,8 @@ begin
 {CR}end;
       Q.Close;
       closefile(out);
-      frmosmain.OpenDatabase;
+
+      frmosmain.DatabaseInfo;
       memo1.Lines.Add('Stations total='+inttostr(StationsTotal));
 end;
 
@@ -3028,7 +3029,7 @@ memo1.Lines.Add('Start:'+datetimetostr(NOW));
       memo1.Lines.Add('Loading completed');
       memo1.Lines.Add('End:'+datetimetostr(NOW));
 
-      frmosmain.OpenDatabase;
+      frmosmain.DatabaseInfo;
 
 
 end;
@@ -3804,9 +3805,9 @@ begin
   ST.Free;
   TR.Free;
  end;
-     Showmessage('DB name: '+IBName);
+    // Showmessage('DB name: '+IBName);
 
-     frmosmain.OpenDatabase;
+     frmosmain.DatabaseInfo;
 
 end;
 

@@ -215,6 +215,7 @@ type
     iExportCOMFORT_table: TMenuItem;
     MenuItem22: TMenuItem;
     MenuItem23: TMenuItem;
+    iload_ices: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     iSelectCruise: TMenuItem;
@@ -410,6 +411,7 @@ type
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
+    procedure iload_icesClick(Sender: TObject);
     procedure iLoad_ITPClick(Sender: TObject);
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
@@ -453,7 +455,7 @@ type
     procedure SaveSettingsCruiseSearch;
 
   public
-    procedure OpenDatabase;
+    procedure OpenLocalDatabase(DBName:string);
     procedure DatabaseInfo;
     procedure SelectionInfo;
     procedure CDSNavigation;
@@ -485,22 +487,21 @@ type
 
 const
   StationSQL =
-    ' SELECT '+
-    ' ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, LASTLEVEL_M, '+
-    ' LASTLEVEL_DBAR, CRUISE_ID, CAST_NUMBER, ST_NUMBER_ORIGIN, '+
-    ' ST_ID_ORIGIN, QCFLAG, STVERSION, DUPLICATE, BOTTOMDEPTH_GEBCO,  '+
-    ' ACCESSION_NUMBER, DATE_ADDED, DATE_UPDATED, SELECTED '+
-    ' FROM STATION WHERE ';
+    'SELECT '+
+    'ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, LASTLEVEL_M, '+
+    'LASTLEVEL_DBAR, CRUISE_ID, CAST_NUMBER, ST_NUMBER_ORIGIN, '+
+    'ST_ID_ORIGIN, QCFLAG, STVERSION, DUPLICATE, BOTTOMDEPTH_GEBCO,  '+
+    'ACCESSION_NUMBER, DATE_ADDED, DATE_UPDATED, SELECTED '+
+    'FROM STATION ';
 
   CruiseSQL =
-    ' SELECT '+
-    ' CRUISE.ID, PLATFORM_ID, SOURCE_ID, PLATFORM.NAME AS PLATFORM, '+
-    ' SOURCE.NAME AS SOURCE,  CRUISE.CRUISE_NUMBER, '+
-    ' CRUISE.DATE_START_DATABASE, CRUISE.DATE_END_DATABASE, '+
-    ' CRUISE.STATIONS_DATABASE, CRUISE.STATIONS_DUPLICATES, '+
-    ' CRUISE.SELECTED, CRUISE.DUPLICATE '+
-    ' FROM CRUISE, PLATFORM, SOURCE '+
-    ' WHERE ';
+    'SELECT '+
+    'CRUISE.ID, PLATFORM_ID, SOURCE_ID, PLATFORM.NAME AS PLATFORM, '+
+    'SOURCE.NAME AS SOURCE,  CRUISE.CRUISE_NUMBER, '+
+    'CRUISE.DATE_START_DATABASE, CRUISE.DATE_END_DATABASE, '+
+    'CRUISE.STATIONS_DATABASE, CRUISE.STATIONS_DUPLICATES, '+
+    'CRUISE.SELECTED, CRUISE.DUPLICATE '+
+    'FROM CRUISE, PLATFORM, SOURCE ';
 
   CruiseDetailSQL =
     ' SELECT '+
@@ -526,7 +527,7 @@ const
 var
   frmosmain: Tfrmosmain;
 
-  IBName, IniFileName:string;
+  IniFileName:string;
   GlobalPath, GlobalUnloadPath, GlobalSupportPath:string; //global paths for the app
   CurrentParTable: string;
 
@@ -604,6 +605,7 @@ uses
   osload_GLODAP_2019_v2_product,
   osload_WOD18,
   osload_PangaeaTab,
+  osload_ices,
 
 (* database service procedures *)
   ossupporttables,
@@ -652,7 +654,6 @@ Var
   Ini:TIniFile;
   k:integer;
 begin
- IBName:='';
 
 (* flags on open forms *)
  frmprofile_station_all_open:=false; frmprofile_station_single_open:=false;
@@ -706,10 +707,6 @@ begin
     Left  :=Ini.ReadInteger( 'osmain', 'left',   50);
     Width :=Ini.ReadInteger( 'osmain', 'width',  900);
     Height:=Ini.ReadInteger( 'osmain', 'weight', 500);
-
-    if Ini.ReadBool('main', 'Server_local', true) then
-      btnOpenOceanFDB.Enabled:=FileExists(Ini.ReadString( 'main', 'OceanFDBPath',  ''));
-
 
     depth_units:=Ini.ReadInteger('main', 'depth_units', 0);
 
@@ -819,12 +816,12 @@ begin
   chkDepth.OnChange(self);
 
  (* Works on double click *)
-  If ParamCount<>0 then begin
+ { If ParamCount<>0 then begin
    if uppercase(ExtractFileExt(ParamStr(1)))='.FDB' then begin
       IBName:=ParamStr(1);
       OpenDatabase;
    end;
-  end;
+  end;  }
 
  (* disabling menu items *)
   for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
@@ -839,31 +836,6 @@ begin
  OnResize(Self);
  SetFocus;
  Application.ProcessMessages;
-end;
-
-
-procedure Tfrmosmain.btnOpenOceanFDBClick(Sender: TObject);
-Var
-  Ini: TIniFile;
-  DBName:string;
-begin
-  Ini := TIniFile.Create(IniFileName);
-  try
-   DBName:=Ini.ReadString('main', 'OceanFDBPath',  '');
-    if Ini.ReadBool('main', 'Server_remote', false)=true then begin
-     IBName:=Ini.ReadString('main', 'Server_name', '')+'/'+
-             Ini.ReadString('main', 'Server_port', '3050')+':'+
-             DBName;
-    end else begin
-     IBName:='localhost/gds_db:'+DBName;
-    end;
-
-  finally
-    Ini.Free;
-  end;
-
-
-   OpenDatabase;
 end;
 
 procedure Tfrmosmain.btnRemoveEntryClick(Sender: TObject);
@@ -902,7 +874,7 @@ try
   if chkNOTInstitute.Checked =true then NotCondInstitute :='NOT' else NotCondInstitute :='';
   if chkNOTProject.Checked   =true then NotCondProject   :='NOT' else NotCondProject   :='';
 
-    SQL_str:='';
+  SQL_str:='';
 
     (* ID range *)
     if chkIDRange.Checked=true then begin
@@ -1207,24 +1179,27 @@ try
     if chkIgnoreDup.Checked=true then
       SQL_str:=SQL_str+' AND (STATION.DUPLICATE=FALSE) ';
 
-    if copy(SQL_str, 1, 4)=' AND' then SQL_str:=Copy(SQL_str, 5, length(SQL_str));
-
-    (* Show the query before executing *)
-    if chkShowQuery.Checked then
-     if MessageDlg(StationSQL+#13+
-                   sql_str+#13+#13+'Execute the query?',
-                   mtInformation, [mbYes, mbNo],0)=mrNo then exit;
+    if copy(SQL_str, 1, 4)=' AND'   then SQL_str:=Copy(SQL_str, 5, length(SQL_str));
 
    if frmdm.TR.Active=true then frmdm.TR.Commit;
    with frmdm.Q do begin
     Close;
      SQL.Clear;
      SQL.Add(StationSQL);
-     SQL.Add(SQL_str);
-     SQL.Add(' ORDER BY DATEANDTIME ');
+     if trim(SQL_str)<>'' then begin
+      SQL.Add(' WHERE ');
+      SQL.Add(SQL_str);
+     end;
+     SQL.Add('ORDER BY DATEANDTIME ');
+
+     (* Show the query before executing *)
+     if chkShowQuery.Checked then
+      if MessageDlg(SQL.Text+#13+#13+'Execute the query?',
+                    mtInformation, [mbYes, mbNo],0)=mrNo then exit;
     Open;
    end;
 
+  // showmessage('selected');
 
    // getting cruises for selected stations
    if not frmdm.Q.IsEmpty then begin
@@ -1250,8 +1225,9 @@ begin
      SQL.Add(' SOURCE, STATION, CRUISE ');
      SQL.Add(' WHERE ');
      SQL.Add(' SOURCE.ID=CRUISE.SOURCE_ID AND ');
-     SQL.Add(' CRUISE.ID=STATION.CRUISE_ID AND ');
-     SQL.Add(  SQL_str  );
+     SQL.Add(' CRUISE.ID=STATION.CRUISE_ID ');
+     if trim(SQL_str)<>'' then
+       SQL.Add(' AND '+SQL_str  );
      SQL.Add(' ORDER BY SOURCE.NAME ');
    Open;
   end;
@@ -1268,8 +1244,10 @@ begin
      SQL.Clear;
      SQL.Add(' SELECT DISTINCT(CRUISE_ID) FROM ');
      SQL.Add(' STATION ');
-     SQL.Add(' WHERE ');
-     SQL.Add(  SQL_str  );
+     if trim(SQL_str)<>'' then begin
+       SQL.Add(' WHERE ');
+       SQL.Add(  SQL_str  );
+     end;
    Open;
    Last;
    First;
@@ -1309,6 +1287,7 @@ begin
     Close;
       SQL.Clear;
       SQL.Add(CruiseSQL);
+      SQL.Add(' WHERE ');
       SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
       SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
       SQL.Add(' CRUISE.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ');
@@ -1407,10 +1386,6 @@ begin
   try
    with frmdm.QCruise do begin
     Close;
-      SQL.Clear;
-      SQL.Add(CruiseSQL);
-      SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
-      SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID ');
 
       (* IDs *)
       if chkCruiseIDRange.Checked then begin
@@ -1562,8 +1537,17 @@ begin
     if chkCruiseIgnoreDup.Checked=true then
       SQL_str:=SQL_str+' AND CRUISE.DUPLICATE=FALSE ';
 
-    SQL.Add( SQL_str);
-    SQL.Add(' ORDER BY PLATFORM.NAME, CRUISE.DATE_START_TOTAL ' );
+
+      SQL.Clear;
+      SQL.Add(CruiseSQL);
+      SQL.Add(' WHERE ');
+      SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
+      SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID ');
+
+      if trim(SQL_str)<>'' then
+        SQL.Add(SQL_str);
+
+     SQL.Add(' ORDER BY PLATFORM.NAME, CRUISE.DATE_START_TOTAL ' );
 
     if chkCruiseShowQuery.Checked=true then showmessage(frmdm.QCruise.SQL.Text);
    Open;
@@ -2089,14 +2073,92 @@ begin
 end;
 
 
-(**)
+(* Opening a local database*)
 procedure Tfrmosmain.aOpenDatabaseExecute(Sender: TObject);
+Var
+  k:integer;
 begin
   OD.Filter:='Firebird Database|*.FDB;*.fdb';
   if OD.Execute then begin
-   IBName:=OD.FileName;
-   OpenDatabase;
+   OpenLocalDatabase(OD.FileName);
   end;
+end;
+
+procedure Tfrmosmain.OpenLocalDatabase(DBName:string);
+Var
+  k:integer;
+begin
+  try
+    frmdm.IBDB.Close(false);
+    frmdm.IBDB.DatabaseName:=DBName;
+    frmdm.IBDB.Open;
+  except
+    on E: Exception do
+      if MessageDlg(E.Message, mtWarning, [mbOk], 0)=mrOk then exit;
+  end;
+
+  Caption:='OceanShell ['+DBName+']';
+  Application.ProcessMessages;
+
+  (*******************TEMPORARY *********************)
+     //CheckDBStructure;
+  (*******************TEMPORARY *********************)
+
+  DatabaseInfo;
+
+  for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=true;
+  PageControl1.Enabled:=true;
+end;
+
+procedure Tfrmosmain.btnOpenOceanFDBClick(Sender: TObject);
+Var
+  Ini: TIniFile;
+  server, DBPath, DBPort, DBHost, DBUser, DBPass:string;
+  k:integer;
+begin
+  server:='firebird';
+
+  Ini := TIniFile.Create(IniFileName);
+  try
+    DBUser :=Ini.ReadString(server, 'user',     'SYSDBA');
+    DBPass :=Ini.ReadString(server, 'pass',     'masterkey');
+    DBHost :=Ini.ReadString(server, 'host',     'localhost');
+    DBPort :=Ini.ReadString(server, 'port',     '3050');
+    DBPath :=Ini.ReadString(server, 'dbpath',   '');
+  finally
+    Ini.Free;
+  end;
+
+  // if database isn't specified
+  if (trim(DBPath)='') then begin
+   if MessageDlg('Specify the database, please', mtwarning, [mbOk], 0)=mrOk then
+    iSettings.OnClick(self);
+   exit;
+  end;
+
+  try
+    with frmdm.IBDB do begin
+      UserName:=DBUser;
+      Password:=DBPass;
+      HostName:=DBHost;
+      DatabaseName:=DBPath;
+      //Port:=StrToInt(DBPort);
+      Connected:=true;
+    end;
+
+    DatabaseInfo;
+
+    for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=true;
+    PageControl1.Enabled:=true;
+
+    Caption := 'OceanShell ['+DBHost+'/'+DBPort+':'+DBPath+']';
+    Application.ProcessMessages;
+
+  except
+    on e: Exception do
+      if MessageDlg(e.message, mtError, [mbOk], 0)=mrOk then close;
+  end;
+
 end;
 
 (* turning off some experimantal features *)
@@ -2302,31 +2364,6 @@ begin
 end;
 
 
-(* Open local database *)
-procedure Tfrmosmain.OpenDatabase;
-Var
-  k:integer;
-begin
-   try
-    frmdm.IBDB.Close(false);
-    frmdm.IBDB.DatabaseName:=IBName;
-    frmdm.IBDB.Open;
-   except
-     on E: Exception do
-       if MessageDlg(E.Message, mtWarning, [mbOk], 0)=mrOk then exit;
-   end;
-
- (*******************TEMPORARY *********************)
-  //CheckDBStructure;
- (*******************TEMPORARY *********************)
-
-  DatabaseInfo;
-
-  for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=true;
-  PageControl1.Enabled:=true;
-end;
-
-
 (* gathering info about the database *)
 procedure Tfrmosmain.DatabaseInfo;
 var
@@ -2338,10 +2375,6 @@ var
 
   k:integer;
 begin
-
-Caption:='OceanShell: '+IBName;
-Application.ProcessMessages;
-
 
 (* temporary transaction for main database *)
 TRt_DB1:=TSQLTransaction.Create(self);
@@ -3741,6 +3774,17 @@ begin
  finally
    frmloadGLODAP_2019_v2_product.Free;
    frmloadGLODAP_2019_v2_product := nil;
+ end;
+end;
+
+procedure Tfrmosmain.iload_icesClick(Sender: TObject);
+begin
+ frmload_ices := Tfrmload_ices.Create(Self);
+ try
+  if not frmload_ices.ShowModal = mrOk then exit;
+ finally
+   frmload_ices.Free;
+   frmload_ices := nil;
  end;
 end;
 

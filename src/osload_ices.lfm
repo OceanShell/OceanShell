@@ -1,0 +1,210 @@
+object frmload_ices: Tfrmload_ices
+  Left = 471
+  Height = 554
+  Top = 221
+  Width = 936
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
+  Caption = 'Load ICES'
+  ClientHeight = 554
+  ClientWidth = 936
+  Color = clBtnFace
+  DesignTimePPI = 144
+  Font.Color = clWindowText
+  Font.Height = -17
+  Font.Name = 'MS Sans Serif'
+  Position = poScreenCenter
+  LCLVersion = '2.0.6.0'
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 554
+    Top = 0
+    Width = 936
+    ActivePage = TabSheet1
+    Align = alClient
+    Font.Color = clWindowText
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    ParentFont = False
+    TabIndex = 0
+    TabOrder = 0
+    object TabSheet1: TTabSheet
+      Caption = 'Load'
+      ClientHeight = 521
+      ClientWidth = 928
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ParentFont = False
+      object Label1: TLabel
+        Left = 225
+        Height = 20
+        Top = 430
+        Width = 48
+        Caption = 'Label1'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentColor = False
+        ParentFont = False
+      end
+      object btnOpen: TButton
+        Left = 20
+        Height = 38
+        Top = 18
+        Width = 254
+        Caption = 'Open Folder'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnClick = btnOpenClick
+        ParentFont = False
+        TabOrder = 0
+      end
+      object btnStart: TButton
+        Left = 20
+        Height = 38
+        Top = 459
+        Width = 254
+        Caption = 'Start'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnClick = btnStartClick
+        ParentFont = False
+        TabOrder = 1
+      end
+      object Memo1: TMemo
+        Left = 294
+        Height = 472
+        Top = 21
+        Width = 614
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        ScrollBars = ssVertical
+        TabOrder = 2
+      end
+      object chkWrite: TCheckBox
+        Left = 20
+        Height = 29
+        Top = 424
+        Width = 67
+        Caption = 'Write'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 3
+      end
+      object lbC: TListBox
+        Left = 20
+        Height = 345
+        Top = 64
+        Width = 254
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ItemHeight = 0
+        ParentFont = False
+        TabOrder = 4
+      end
+    end
+    object Merge: TTabSheet
+      Caption = 'Merge'
+      ClientHeight = 521
+      ClientWidth = 928
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      ImageIndex = 1
+      ParentFont = False
+      object Label2: TLabel
+        Left = 12
+        Height = 20
+        Top = 24
+        Width = 58
+        Caption = 'Bottles: '
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentColor = False
+        ParentFont = False
+      end
+      object Label3: TLabel
+        Left = 78
+        Height = 20
+        Top = 24
+        Width = 48
+        Caption = 'Label3'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentColor = False
+        ParentFont = False
+      end
+      object Label4: TLabel
+        Left = 12
+        Height = 20
+        Top = 66
+        Width = 32
+        Caption = 'CTD'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentColor = False
+        ParentFont = False
+      end
+      object eCTD: TEdit
+        Left = 78
+        Height = 28
+        Top = 62
+        Width = 788
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        TabOrder = 0
+      end
+      object Button1: TButton
+        Left = 874
+        Height = 32
+        Top = 62
+        Width = 39
+        Caption = '...'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnClick = Button1Click
+        ParentFont = False
+        TabOrder = 1
+      end
+      object btnMerge: TButton
+        Left = 801
+        Height = 38
+        Top = 120
+        Width = 112
+        Caption = 'Merge'
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        OnClick = btnMergeClick
+        ParentFont = False
+        TabOrder = 2
+      end
+      object Memo2: TMemo
+        Left = 12
+        Height = 320
+        Top = 180
+        Width = 902
+        Font.Color = clWindowText
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        ParentFont = False
+        ScrollBars = ssBoth
+        TabOrder = 3
+      end
+    end
+  end
+end

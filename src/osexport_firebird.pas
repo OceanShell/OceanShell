@@ -54,8 +54,7 @@ begin
 
       frmdm.IBDB.Close;
       frmdm.IBDB.DatabaseName:=frmosmain.SD.FileName;
-      IBName:=frmdm.IBDB.DatabaseName;
-    frmosmain.OpenDatabase;
+      frmosmain.OpenLocalDatabase(frmdm.IBDB.DatabaseName);
 
     btnExportFirebird.Enabled:=true;
     Application.ProcessMessages;
