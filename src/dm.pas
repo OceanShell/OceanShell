@@ -25,6 +25,7 @@ type
     QCruiseDetails: TSQLQuery;
     QCruise: TSQLQuery;
     QEntry: TSQLQuery;
+    DBLoader: TSQLDBLibraryLoader;
     TR: TSQLTransaction;
 
     procedure DataModuleDestroy(Sender: TObject);

@@ -2113,7 +2113,7 @@ end;
 procedure Tfrmosmain.btnOpenOceanFDBClick(Sender: TObject);
 Var
   Ini: TIniFile;
-  server, DBPath, DBPort, DBHost, DBUser, DBPass:string;
+  server, DBPath, DBHost, DBUser, DBPass:string;
   k:integer;
 begin
   server:='firebird';
@@ -2123,7 +2123,6 @@ begin
     DBUser :=Ini.ReadString(server, 'user',     'SYSDBA');
     DBPass :=Ini.ReadString(server, 'pass',     'masterkey');
     DBHost :=Ini.ReadString(server, 'host',     'localhost');
-    DBPort :=Ini.ReadString(server, 'port',     '3050');
     DBPath :=Ini.ReadString(server, 'dbpath',   '');
   finally
     Ini.Free;
@@ -2136,13 +2135,25 @@ begin
    exit;
   end;
 
+  with frmdm.DBLoader do begin
+    {$IFDEF WINDOWS}
+      LibraryName:=GlobalPath+'fbclient.dll';
+    {$ENDIF}
+    {$IFDEF LINUX}
+      LibraryName:=GlobalPath+'libfbclient.so.3.0.5';
+    {$ENDIF}
+    {$IFDEF DARWIN}
+      LibraryName:=GlobalPath+'libfbclient.dylib';
+    {$ENDIF}
+    Enabled:=true;
+  end;
+
   try
     with frmdm.IBDB do begin
       UserName:=DBUser;
       Password:=DBPass;
       HostName:=DBHost;
       DatabaseName:=DBPath;
-      //Port:=StrToInt(DBPort);
       Connected:=true;
     end;
 
@@ -2151,7 +2162,7 @@ begin
     for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=true;
     PageControl1.Enabled:=true;
 
-    Caption := 'OceanShell ['+DBHost+'/'+DBPort+':'+DBPath+']';
+    Caption := 'OceanShell ['+DBHost+':'+DBPath+']';
     Application.ProcessMessages;
 
   except
@@ -4455,6 +4466,8 @@ begin
   PQF1_list.Free;
   PQF2_list.Free;
   SQF_list.Free;
+
+  if frmdm.DBLoader.Enabled=true then frmdm.DBLoader.Enabled:=false;
 
   FreeLibrary(libgswteos);
   FreeLibrary(netcdf);

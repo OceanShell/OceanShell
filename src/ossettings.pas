@@ -15,7 +15,6 @@ type
   Tfrmsettings = class(TForm)
     btnGrapherPath: TButton;
     btnInstallPackages: TButton;
-    btnOceanFDBPath: TButton;
     btnOk: TButton;
     btnPython: TButton;
     btnSupportPath: TButton;
@@ -43,7 +42,6 @@ type
     GroupBox9: TGroupBox;
     Label1: TLabel;
     Label2: TLabel;
-    Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
@@ -54,7 +52,6 @@ type
     PageControl1: TPageControl;
     rgDepth: TRadioGroup;
     rgPlotSoft: TRadioGroup;
-    ePort: TSpinEdit;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     tsAdvanced: TTabSheet;
@@ -109,7 +106,7 @@ begin
   try
    eDBPath.Text := Ini.ReadString (server, 'dbpath',   OceanFDBDefault);
    eHost.Text   := Ini.ReadString (server, 'host',     'localhost');
-   ePort.Text   := Ini.ReadString (server, 'port',     '3050');
+   //ePort.Text   := Ini.ReadString (server, 'port',     '3050');
    eUser.Text   := Ini.ReadString (server, 'user',     'SYSDBA');
    epass.Text   := Ini.ReadString (server, 'pass',     'masterkey');
 
@@ -252,7 +249,7 @@ begin
   try
    Ini.WriteString (server, 'dbpath',   eDBPath.Text);
    Ini.WriteString (server, 'host',     eHost.Text);
-   Ini.WriteString (server, 'port',     ePort.Text);
+  // Ini.WriteString (server, 'port',     ePort.Text);
    Ini.WriteString (server, 'user',     eUser.Text);
    Ini.WriteString (server, 'pass',     epass.Text);
 
@@ -279,8 +276,6 @@ begin
 
   GlobalSupportPath:=eSupportPath.Text;
   GlobalUnloadPath:=eUnloadPath.Text;
-
-  frmosmain.btnOpenOceanFDB.Enabled:=FileExists(eDBPath.Text);
 
  Close;
 end;

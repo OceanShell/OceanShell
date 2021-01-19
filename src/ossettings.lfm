@@ -40,58 +40,28 @@ object frmsettings: Tfrmsettings
       ClientWidth = 756
       object GroupBox8: TGroupBox
         Left = 18
-        Height = 192
+        Height = 240
         Top = 16
         Width = 716
         Caption = 'Connection'
-        ClientHeight = 162
+        ClientHeight = 210
         ClientWidth = 712
         ParentFont = False
         TabOrder = 0
         object eDBPath: TEdit
-          Left = 80
+          Left = 120
           Height = 33
           Top = 56
-          Width = 568
-          Font.Color = clGreen
-          ParentFont = False
-          ReadOnly = True
+          Width = 575
           TabOrder = 0
         end
-        object btnOceanFDBPath: TButton
-          Left = 656
-          Height = 33
-          Top = 56
-          Width = 39
-          Caption = '...'
-          OnClick = btnOceanFDBPathClick
-          ParentFont = False
-          TabOrder = 1
-        end
-        object ePort: TSpinEdit
-          Left = 368
-          Height = 33
-          Top = 8
-          Width = 96
-          MaxValue = 99999
-          TabOrder = 2
-          Value = 3050
-        end
         object eHost: TEdit
-          Left = 80
+          Left = 120
           Height = 33
           Top = 8
-          Width = 168
-          TabOrder = 3
+          Width = 575
+          TabOrder = 1
           Text = '193.227.233.106'
-        end
-        object Label3: TLabel
-          Left = 272
-          Height = 25
-          Top = 16
-          Width = 32
-          Caption = 'Port'
-          ParentColor = False
         end
         object Label4: TLabel
           Left = -272
@@ -110,28 +80,28 @@ object frmsettings: Tfrmsettings
           ParentColor = False
         end
         object eUser: TEdit
-          Left = 80
+          Left = 120
           Height = 33
           Top = 104
-          Width = 168
-          TabOrder = 4
+          Width = 575
+          TabOrder = 2
         end
         object Label5: TLabel
-          Left = 272
+          Left = 24
           Height = 25
-          Top = 112
+          Top = 160
           Width = 75
           Caption = 'Password'
           ParentColor = False
         end
         object ePass: TEdit
-          Left = 368
+          Left = 120
           Height = 33
-          Top = 104
-          Width = 280
+          Top = 152
+          Width = 575
           EchoMode = emPassword
           PasswordChar = '*'
-          TabOrder = 5
+          TabOrder = 3
         end
         object Label6: TLabel
           Left = 24
@@ -145,8 +115,8 @@ object frmsettings: Tfrmsettings
           Left = 24
           Height = 25
           Top = 64
-          Width = 34
-          Caption = 'Path'
+          Width = 74
+          Caption = 'Database'
           ParentColor = False
         end
       end
