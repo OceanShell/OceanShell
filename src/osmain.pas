@@ -184,7 +184,7 @@ type
     iUpdateUnits: TMenuItem;
     iVisualization: TMenuItem;
     iPlotBathymetry: TMenuItem;
-    iQCflagfromfile: TMenuItem;
+    iRestoreQC: TMenuItem;
     iExportCIA: TMenuItem;
     iQC_WideRanges: TMenuItem;
     iMeteo: TMenuItem;
@@ -216,6 +216,8 @@ type
     MenuItem22: TMenuItem;
     MenuItem23: TMenuItem;
     iload_ices: TMenuItem;
+    MenuItem24: TMenuItem;
+    iBackupQC: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     iSelectCruise: TMenuItem;
@@ -400,6 +402,7 @@ type
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure iAboutClick(Sender: TObject);
+    procedure iBackupQCClick(Sender: TObject);
     procedure iDBStatisticsClick(Sender: TObject);
     procedure iDBStatistics_AKClick(Sender: TObject);
     procedure iExportDIVAndClick(Sender: TObject);
@@ -418,7 +421,7 @@ type
     procedure iMeteoClick(Sender: TObject);
     procedure ioutliersClick(Sender: TObject);
     procedure iPlotBathymetryClick(Sender: TObject);
-    procedure iQCflagfromfileClick(Sender: TObject);
+    procedure iRestoreQCClick(Sender: TObject);
     procedure iQC_dbar_meterClick(Sender: TObject);
     procedure iQC_WideRangesClick(Sender: TObject);
     procedure iSelectCruiseClick(Sender: TObject);
@@ -1988,7 +1991,14 @@ end;
 
 procedure Tfrmosmain.itestClick(Sender: TObject);
 begin
-  showmessage(inttostr(osbathymetry.getgebcodepth(66, 2)));
+  //showmessage(inttostr(osbathymetry.getgebcodepth(66, 2)));
+  frmdm.q1.Close;
+ frmdm.q1.SQL.text:='select RDB$GET_CONTEXT('+
+ QuotedStr('SYSTEM')+', '+QuotedStr('WIRE_COMPRESSED')+
+ ') as st from rdb$database';
+ showmessage(frmdm.q1.SQL.text);
+ frmdm.q1.Open;
+ showmessage(frmdm.q1.Fields[0].Value);
 end;
 
 
@@ -3865,15 +3875,23 @@ begin
    end;
 end;
 
-procedure Tfrmosmain.iQCflagfromfileClick(Sender: TObject);
+procedure Tfrmosmain.iBackupQCClick(Sender: TObject);
 begin
-  OD.Filter:='Text files|*.TXT;*.txt';
-    if OD.Execute then begin
-     osqc_setflags.SetFlags(OD.FileName);
-      If MessageDlg('QC flags have been set', mtInformation, [mbOk], 0)=mrOk then exit;
+  SD.Filter:='Text files|*.TXT;*.txt';
+    if SD.Execute then begin
+     osqc_setflags.BackupQCFlags(SD.FileName);
+      If MessageDlg('QC flags have been backed up', mtInformation, [mbOk], 0)=mrOk then exit;
     end;
 end;
 
+procedure Tfrmosmain.iRestoreQCClick(Sender: TObject);
+begin
+  OD.Filter:='Text files|*.TXT;*.txt';
+    if OD.Execute then begin
+     osqc_setflags.RestoreQCFlags(OD.FileName);
+      If MessageDlg('QC flags have been restored', mtInformation, [mbOk], 0)=mrOk then exit;
+    end;
+end;
 
 procedure Tfrmosmain.iQC_dbar_meterClick(Sender: TObject);
 begin

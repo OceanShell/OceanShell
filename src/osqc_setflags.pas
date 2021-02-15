@@ -7,12 +7,31 @@ interface
 uses
   Classes, SysUtils, osmain, dm, dialogs;
 
+procedure BackupQCFlags(QCFfilename:string);
+procedure RestoreQCFlags(QCFfilename:string);
 
-procedure SetFlags(QCFfilename:string);
 
 implementation
 
-procedure SetFlags(QCFfilename:string);
+
+procedure BackupQCFlags(QCFfilename:string);
+Var
+  dat: text;
+  fname, tbl:string;
+  id, lev_m, val1, PQF2, instr_id, prof_num: real;
+begin
+  (* file name without path *)
+  fname:=ExtractFileName(QCFfilename);
+
+  (* parameter name *)
+  tbl:='P_'+UpperCase(copy(fname, 1, pos('_', fname)-1));
+
+  (* opening file *)
+  AssignFile(dat, QCFfilename); reset(dat);
+end;
+
+
+procedure RestoreQCFlags(QCFfilename:string);
 Var
   dat: text;
   fname, tbl:string;

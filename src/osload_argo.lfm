@@ -1,11 +1,11 @@
 object frmload_argo: Tfrmload_argo
-  Left = 655
+  Left = 283
   Height = 522
-  Top = 199
+  Top = 173
   Width = 837
   Caption = 'Load ARGO'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 522
+  ClientWidth = 837
   DesignTimePPI = 144
   OnClose = FormClose
   OnShow = FormShow
@@ -29,6 +29,7 @@ object frmload_argo: Tfrmload_argo
     ClientHeight = 266
     ClientWidth = 229
     Items.Strings = (
+      'Statistics on update'
       'Update CRUISE'
       'Update SYNTHETIC'
       'Update CORE'
@@ -39,7 +40,7 @@ object frmload_argo: Tfrmload_argo
     )
     TabOrder = 0
     Data = {
-      0700000002020202020202
+      080000000202020202020202
     }
   end
   object btnRun: TButton

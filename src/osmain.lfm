@@ -91,7 +91,7 @@ object frmosmain: Tfrmosmain
       object btnCustomSQLQuery: TButton
         Left = 1152
         Height = 38
-        Top = 472
+        Top = 488
         Width = 200
         Caption = 'Custom SQL Query'
         Font.Color = clWindowText
@@ -104,7 +104,7 @@ object frmosmain: Tfrmosmain
       object chkIgnoreDup: TCheckBox
         Left = 1152
         Height = 29
-        Top = 336
+        Top = 360
         Width = 169
         Caption = 'Ignore duplicates'
         Checked = True
@@ -119,7 +119,7 @@ object frmosmain: Tfrmosmain
       object btnSelectID: TButton
         Left = 1152
         Height = 38
-        Top = 424
+        Top = 440
         Width = 200
         Caption = 'Select from ID list'
         Font.Color = clWindowText
@@ -606,21 +606,6 @@ object frmosmain: Tfrmosmain
           ParentFont = False
           TabOrder = 4
         end
-        object lbResetSearchStations: TLabel
-          Cursor = crHandPoint
-          Left = 976
-          Height = 20
-          Top = 160
-          Width = 95
-          Caption = 'Reset search'
-          Font.Color = clBlue
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsUnderline]
-          ParentColor = False
-          ParentFont = False
-          OnClick = lbResetSearchStationsClick
-        end
         object gbRegion: TGroupBox
           Left = 24
           Height = 216
@@ -978,7 +963,7 @@ object frmosmain: Tfrmosmain
       object chkShowQuery: TCheckBox
         Left = 1152
         Height = 29
-        Top = 368
+        Top = 392
         Width = 113
         Caption = 'Show query'
         Font.Color = clWindowText
@@ -990,11 +975,11 @@ object frmosmain: Tfrmosmain
       object GroupBox2: TGroupBox
         Left = 1152
         Height = 230
-        Top = 96
-        Width = 198
+        Top = 120
+        Width = 200
         Caption = 'Include in query'
         ClientHeight = 205
-        ClientWidth = 194
+        ClientWidth = 196
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -1086,6 +1071,21 @@ object frmosmain: Tfrmosmain
           TabOrder = 5
         end
       end
+      object lbResetSearchStations: TLabel
+        Cursor = crHandPoint
+        Left = 1152
+        Height = 20
+        Top = 88
+        Width = 95
+        Caption = 'Reset search'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = lbResetSearchStationsClick
+      end
     end
     object tsMainCruises: TTabSheet
       Caption = 'Cruise search'
@@ -1112,7 +1112,7 @@ object frmosmain: Tfrmosmain
       object chkCruiseIgnoreDup: TCheckBox
         Left = 1152
         Height = 29
-        Top = 312
+        Top = 336
         Width = 169
         Caption = 'Ignore duplicates'
         Checked = True
@@ -1704,21 +1704,6 @@ object frmosmain: Tfrmosmain
             Value = 1
           end
         end
-        object lbResetSearchCruises: TLabel
-          Cursor = crHandPoint
-          Left = 970
-          Height = 20
-          Top = 160
-          Width = 95
-          Caption = 'Reset search'
-          Font.Color = clBlue
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsUnderline]
-          ParentColor = False
-          ParentFont = False
-          OnClick = lbResetSearchCruisesClick
-        end
         object gbCruiseDateandTime: TGroupBox
           Left = 518
           Height = 216
@@ -2016,7 +2001,7 @@ object frmosmain: Tfrmosmain
       object GroupBox5: TGroupBox
         Left = 1152
         Height = 206
-        Top = 96
+        Top = 120
         Width = 200
         Caption = 'Include in query'
         ClientHeight = 181
@@ -2024,6 +2009,7 @@ object frmosmain: Tfrmosmain
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 3
         object chkCRUISERegion: TCheckBox
@@ -2098,7 +2084,7 @@ object frmosmain: Tfrmosmain
       object chkCruiseShowQuery: TCheckBox
         Left = 1152
         Height = 29
-        Top = 344
+        Top = 368
         Width = 113
         Caption = 'Show query'
         Font.Color = clWindowText
@@ -2107,20 +2093,35 @@ object frmosmain: Tfrmosmain
         ParentFont = False
         TabOrder = 4
       end
+      object lbResetSearchCruises: TLabel
+        Cursor = crHandPoint
+        Left = 1152
+        Height = 20
+        Top = 88
+        Width = 95
+        Caption = 'Reset search'
+        Font.Color = clBlue
+        Font.Height = -17
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        OnClick = lbResetSearchCruisesClick
+      end
     end
     object tsMainEntries: TTabSheet
       Caption = 'Entry search'
-      ClientHeight = 416
-      ClientWidth = 910
+      ClientHeight = 617
+      ClientWidth = 1372
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
       ParentFont = False
       object DBGridEntry: TDBGrid
         Left = 0
-        Height = 701
+        Height = 585
         Top = 32
-        Width = 1022
+        Width = 1058
         Align = alClient
         AlternateColor = 13631478
         AutoAdvance = aaNone
@@ -2181,8 +2182,8 @@ object frmosmain: Tfrmosmain
         OnTitleClick = DBGridEntryTitleClick
       end
       object DBMemoEntriy: TDBMemo
-        Left = 1030
-        Height = 701
+        Left = 1066
+        Height = 585
         Top = 32
         Width = 306
         Align = alRight
@@ -2196,8 +2197,8 @@ object frmosmain: Tfrmosmain
         TabOrder = 1
       end
       object Splitter2: TSplitter
-        Left = 1022
-        Height = 701
+        Left = 1058
+        Height = 585
         Top = 32
         Width = 8
         Align = alRight
@@ -2208,11 +2209,11 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 32
         Top = 0
-        Width = 1336
+        Width = 1372
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 32
-        ClientWidth = 1336
+        ClientWidth = 1372
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -2221,7 +2222,7 @@ object frmosmain: Tfrmosmain
         object ToolBar2: TToolBar
           Left = 256
           Top = 0
-          Width = 1080
+          Width = 1116
           Align = alClient
           ButtonHeight = 34
           ButtonWidth = 50
@@ -2236,7 +2237,7 @@ object frmosmain: Tfrmosmain
           ShowCaptions = True
           TabOrder = 0
           object btnAddEntry: TToolButton
-            Left = 2
+            Left = 1
             Top = 0
             AutoSize = True
             Caption = 'Add entry'
@@ -2245,7 +2246,7 @@ object frmosmain: Tfrmosmain
             ShowCaption = False
           end
           object ToolButton3: TToolButton
-            Left = 100
+            Left = 101
             Height = 5
             Top = 0
             Caption = 'ToolButton2'
@@ -2272,7 +2273,7 @@ object frmosmain: Tfrmosmain
         object cbEntryType: TComboBox
           Left = 0
           Height = 31
-          Top = -9
+          Top = 0
           Width = 256
           Align = alLeft
           AutoSize = False
@@ -3261,9 +3262,9 @@ object frmosmain: Tfrmosmain
     end
   end
   object tbFastAccess: TToolBar
-    Left = 0
+    Left = 1200
     Height = 33
-    Top = 64
+    Top = 75
     Width = 141
     Align = alNone
     AutoSize = True
@@ -3397,16 +3398,23 @@ object frmosmain: Tfrmosmain
         Caption = 'Station duplicates'
         OnClick = iDuplicatesClick
       end
-      object iQCflagfromfile: TMenuItem
-        Caption = 'Set QC flags from file'
-        OnClick = iQCflagfromfileClick
-      end
-      object MenuItem2: TMenuItem
+      object MenuItem24: TMenuItem
         Caption = '-'
       end
       object ioutliers: TMenuItem
         Caption = 'Secondary QC'
         OnClick = ioutliersClick
+      end
+      object MenuItem2: TMenuItem
+        Caption = '-'
+      end
+      object iBackupQC: TMenuItem
+        Caption = 'Backup PQF2'
+        OnClick = iBackupQCClick
+      end
+      object iRestoreQC: TMenuItem
+        Caption = 'Restore PQF2'
+        OnClick = iRestoreQCClick
       end
       object MenuItem6: TMenuItem
         Caption = '-'

@@ -28,6 +28,7 @@ type
     procedure btnSelectDataFolderClick(Sender: TObject);
 
   private
+    procedure Statistics;
     procedure GetCodes(argo_code:string; Var country_id, institute_id,
       project_id:integer);
     procedure GetTableName(var_name:string; Var tbl_name: string);
@@ -84,15 +85,465 @@ end;
 procedure Tfrmload_argo.btnRunClick(Sender: TObject);
 begin
  memo1.Clear;
-  if cgTasks.Checked[0] then UpdateCRUISE;
-  if cgTasks.Checked[1] then UpdateSTATION('argo_synthetic-profile_index.txt');
-  if cgTasks.Checked[2] then UpdateSTATION('ar_index_global_prof.txt');
-  if cgTasks.Checked[3] then UpdateCruiseInfo;
-  if cgTasks.Checked[4] then GreyList;
-  if cgTasks.Checked[5] then InsertLastLevel;
-  if cgTasks.Checked[6] then InsertGEBCODepth;
+  if cgTasks.Checked[0] then Statistics;
+  if cgTasks.Checked[1] then UpdateCRUISE;
+  if cgTasks.Checked[2] then UpdateSTATION('argo_synthetic-profile_index.txt');
+  if cgTasks.Checked[3] then UpdateSTATION('ar_index_global_prof.txt');
+  if cgTasks.Checked[4] then UpdateCruiseInfo;
+  if cgTasks.Checked[5] then GreyList;
+  if cgTasks.Checked[6] then InsertLastLevel;
+  if cgTasks.Checked[7] then InsertGEBCODepth;
 end;
 
+
+procedure Tfrmload_argo.Statistics;
+Var
+  dat:text;
+  c, k, cnt_added, cnt_updated, cnt_removed, ID:integer;
+  st, fname, date_upd, platf, buf_str:string;
+  stdate_upd:TDateTime;
+
+  Qt1:TSQLQuery;
+  TRt:TSQLTransaction;
+
+  ID_buf:TBufDataset;
+  DateStart:TDateTime;
+begin
+if not FileExists(epath.text+'ar_index_global_meta.txt') then
+  if MessageDlg('ar_index_global_meta.txt cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
+
+  DateStart:=now;
+
+  memo1.lines.add('');
+  memo1.lines.add('Getting statistics on update');
+  memo1.lines.add('Start: '+timetostr(DateStart));
+  memo1.lines.add('');
+
+try
+    TRt:=TSQLTransaction.Create(self);
+    TRt.DataBase:=frmdm.IBDB;
+
+    Qt1:=TSQLQuery.Create(self);
+    Qt1.Database:=frmdm.IBDB;
+    Qt1.Transaction:=TRt;
+
+
+    ID_buf:=TBufDataSet.Create(nil);
+      with ID_buf.FieldDefs do begin
+       Add('id', ftinteger, 0, false);
+      end;
+    ID_buf.CreateDataSet;
+
+  AssignFile(dat, epath.text+'ar_index_global_meta.txt');
+  reset(dat);
+
+  repeat
+   readln(dat, st);
+  until copy(st,1, 4)='file';
+
+  cnt_added:=0;
+  cnt_updated:=0;
+  repeat
+   readln(dat, st);
+
+
+   c:=0;
+   for k:=1 to 4 do begin
+    buf_str:='';
+    repeat
+      inc(c);
+      if st[c]<>',' then buf_str:=buf_str+st[c];
+    until (st[c]=',') or (c=length(st));
+
+    case k of
+     1: fname:=buf_str;
+     4: date_upd:=buf_str;
+    end;
+   end;
+
+   stdate_upd:=EncodeDateTime(StrToInt(copy(date_upd, 1, 4)),
+                          StrToInt(copy(date_upd, 5, 2)),
+                          StrToInt(copy(date_upd, 7, 2)),
+                          StrToInt(copy(date_upd, 9, 2)),
+                          StrToInt(copy(date_upd, 11, 2)),
+                          StrToInt(copy(date_upd, 13, 2)),
+                          0);
+
+
+   k:=Pos('/', fname);
+   buf_str:='';
+   repeat
+    inc(k);
+    if fname[k]<>'/' then buf_str:=buf_str+fname[k];
+   until fname[k]='/';
+
+   platf:=buf_str;
+
+   ID:=20000000+strtoint(platf);
+
+   with ID_buf do begin
+    Append;
+     FieldByName('ID').asInteger:=ID;
+    Post;
+   end;
+
+    with Qt1 do begin
+     Close;
+       SQL.Clear;
+       SQL.Add(' SELECT ID, DATE_UPDATED FROM CRUISE WHERE ID=:ID ');
+     ParamByName('ID').AsInteger:=ID;
+    Open;
+   end;
+
+   if Qt1.IsEmpty=false then
+    if stdate_upd>Qt1.FieldByName('DATE_UPDATED').AsDateTime then
+       inc(cnt_updated);
+
+   if Qt1.IsEmpty=true then inc(cnt_added);
+
+
+  Qt1.Close;
+  until eof(dat);
+  Closefile(dat);
+
+
+  (* removing any cruises which are not in the list any more *)
+   with Qt1 do begin
+     Close;
+       SQL.Clear;
+       SQL.Add(' SELECT ID FROM CRUISE ');
+       SQL.Add(' WHERE ID BETWEEN 20000001 AND 30000000 ');
+       SQL.Add(' ORDER BY ID ');
+     Open;
+   end;
+
+   cnt_removed:=0;
+   while not Qt1.EOF do begin
+    if VarIsNull(ID_buf.Lookup('ID', Qt1.FieldByName('ID').asInteger,'ID')) then
+       inc(cnt_removed);
+
+    Qt1.Next;
+   end;
+   Qt1.Close;
+
+
+   With memo1.lines do begin
+     add('CRUISE table');
+     add('To be added: '+inttostr(cnt_added));
+     add('To be updated '+inttostr(cnt_updated));
+     add('To be removed: '+inttostr(cnt_removed));
+     add('');
+     add('Done! '+datetimetostr(Now));
+   end;
+
+ {
+
+    if not FileExists(epath.text+fname) then
+      if MessageDlg(fname+' cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
+
+     DateStart:=now;
+
+     memo1.lines.add('');
+     memo1.lines.add('Updating STATION from '+fname);
+     memo1.lines.add('Start: '+datetimetostr(DateStart));
+     memo1.lines.add('');
+
+     try
+        TRt:=TSQLTransaction.Create(self);
+        TRt.DataBase:=frmdm.IBDB;
+
+        Qt1:=TSQLQuery.Create(self);
+        Qt1.Database:=frmdm.IBDB;
+        Qt1.Transaction:=TRt;
+
+        Qt2:=TSQLQuery.Create(self);
+        Qt2.Database:=frmdm.IBDB;
+        Qt2.Transaction:=TRt;
+
+         with Qt1 do begin
+          Close;
+           Sql.Clear;
+           SQL.Add(' select max(id) from station where ID BETWEEN 20000001 AND 30000000  ');
+          Open;
+           max_id  :=Qt1.Fields[0].AsInteger;
+          Close;
+         end;
+         if max_id=0 then max_id:=20000000;
+
+         with Qt1 do begin
+          Close;
+           Sql.Clear;
+           SQL.Add(' select id, cruise_id, st_number_origin, date_added, ');
+           SQL.Add(' date_updated from station ');
+           SQL.Add(' where cruise_id between 20000001 and 30000000 ');
+           SQL.Add(' order by cruise_id ');
+          Open;
+          Last;
+          First;
+         end;
+
+         SetLength(MDDB_arr, Qt1.RecordCount);
+
+         k_db:=-1;
+         while not Qt1.EOF do begin
+          inc(k_db);
+            MDDB_arr[k_db].ID:=Qt1.FieldByName('ID').asInteger;
+            MDDB_arr[k_db].Cruise_ID:=Qt1.FieldByName('CRUISE_ID').asInteger;
+            MDDB_arr[k_db].StNum:=Qt1.FieldByName('st_number_origin').asString;
+            MDDB_arr[k_db].Date_ins:=Qt1.FieldByName('date_added').asDateTime;
+            MDDB_arr[k_db].Date_upd:=Qt1.FieldByName('date_updated').asDateTime;
+          Qt1.Next;
+         end;
+         Qt1.Close;
+
+    // showmessage(inttostr(k_db));
+
+
+     // path to log directory
+     log_path:=epath.text+PathDelim+'_logs'+PathDelim;
+       if not DirectoryExists(log_path) then CreateDir(log_path);
+
+     // assigning log files
+     AssignFile(dat1, log_path+'STATION_added.txt');   rewrite(dat1); // new sations
+     AssignFile(dat2, log_path+'STATION_updated.txt'); rewrite(dat2); // updated
+     AssignFile(dat3, log_path+'STATION_skipped_metadata.txt'); rewrite(dat3); // missing metadata - skipping
+     AssignFile(dat4, log_path+'STATION_missing_file.txt'); rewrite(dat4); // missing initial files
+     AssignFile(dat5, log_path+'STATION_insert_error.txt'); rewrite(dat5);
+
+     // opening input file
+     AssignFile(dat, epath.text+fname); reset(dat);
+
+     // skipping the header
+     repeat
+      readln(dat, st);
+     until copy(st,1, 4)='file';
+
+      for k:=1 to 74600 do readln(dat, st);
+
+     // setting all counters to 0
+     cnt_str:=0;
+     cnt_kept:=0;
+     cnt_updated:=0;
+     cnt_new:=0;
+     cnt_skipped:=0;
+     cnt_error:=0;
+
+     // reading input file string by string, filling up arrays
+     repeat
+      readln(dat, st);
+
+    //  showmessage(st);
+
+      inc(cnt_str);
+
+      if cnt_str>1000 then exit;
+
+      c:=0; pp:=0;
+      //reading first 4 columns
+      for k:=1 to 4 do begin
+       buf_str:='';
+       repeat
+         inc(c);
+         inc(pp);
+         if st[c]<>',' then buf_str:=buf_str+st[c];
+       until (st[c]=',') or (c=length(st));
+
+       case k of
+        1: fname:=buf_str;
+        2: date_str:=buf_str;
+        3: lat:=buf_str;
+        4: lon:=buf_str;
+       end;
+      end;
+
+      (* if data file is not found - skip it *)
+      if FileExists(ePath.text+fname) then begin
+
+      date_upd:=copy(st, length(st)-13, 14);
+
+      // flags from the file name
+      if copy(ExtractFileName(fname), 1, 1)='S' then
+          QF_str:=copy(ExtractFileName(fname), 2, 1) else
+          QF_str:=copy(ExtractFileName(fname), 1, 1);
+
+      if QF_str='D' then QF:=4 else QF:=0;
+
+      k:=Pos('/', fname);
+      buf_str:='';
+      repeat
+       inc(k);
+       if fname[k]<>'/' then buf_str:=buf_str+fname[k];
+      until fname[k]='/';
+      platf:=buf_str;
+
+      cruise_ID:=20000000+strtoint(platf);
+
+
+      stnum:=copy(fname, pos('_', fname)+1, length(fname));
+      stnum:=copy(stnum, 1, length(stnum)-3);
+
+      if copy(stnum, length(stnum), 1)='D' then begin
+        stnum:=copy(stnum,1, length(stnum)-1);
+        stnum:=IntToStr(StrToInt(stnum))+'D';
+      end else
+        stnum:=IntToStr(StrToInt(stnum));
+
+      if copy(stnum, length(stnum), 1)='D' then cast:=2 else cast:=1;
+
+    //  showmessage(stnum+'   '+copy(stnum, length(stnum), 1));
+
+      if (trim(lat)<>'') and
+         (trim(lon)<>'') and
+         (length(date_str)=14) and
+         (cruise_id>0) then begin
+
+          stlat:=StrToFloat(lat);
+          stlon:=StrToFloat(lon);
+
+          if (stlat>=-90) and (stlat<=90) and (stlon>=-180) and (stlon<=180) then begin
+
+          stdate:=EncodeDateTime(StrToInt(copy(date_str, 1, 4)),
+                             StrToInt(copy(date_str, 5, 2)),
+                             StrToInt(copy(date_str, 7, 2)),
+                             StrToInt(copy(date_str, 9, 2)),
+                             StrToInt(copy(date_str, 11, 2)),
+                             StrToInt(copy(date_str, 13, 2)),
+                             0);
+
+          stdate_upd_f:=EncodeDateTime(StrToInt(copy(date_upd, 1, 4)),
+                             StrToInt(copy(date_upd, 5, 2)),
+                             StrToInt(copy(date_upd, 7, 2)),
+                             StrToInt(copy(date_upd, 9, 2)),
+                             StrToInt(copy(date_upd, 11, 2)),
+                             StrToInt(copy(date_upd, 13, 2)),
+                             0);
+
+        //  showmessage(datetimetostr(stdate));
+
+          ID:=0;
+          if k_db>0 then begin
+           For cc:=0 to k_db do begin
+            if (MDDB_arr[cc].Cruise_ID=cruise_id) and
+               (MDDB_arr[cc].StNum=stnum) then begin
+
+              ID:=MDDB_arr[cc].ID;
+              stdate_upd_db:=MDDB_arr[cc].Date_upd;
+              stdate_add_db:=MDDB_arr[cc].Date_ins;
+
+
+              ALength := Length(MDDB_arr);
+              if (ALength > 1) then begin
+               for k:=cc+1 to ALength-1 do MDDB_arr[k-1]:=MDDB_arr[k];
+                SetLength(MDDB_arr, ALength-1);
+              end;
+            break;
+           end;
+          end;
+        end;
+       // showmessage(inttostr(id));
+
+
+         (* station is in the database *)
+         if ID>0 then begin
+
+           if stdate_upd_db>=stdate_upd_f then begin
+            inc(cnt_kept);
+           end;
+
+           if stdate_upd_db<stdate_upd_f then begin
+            inc(cnt_updated);
+            // removing old station
+             with Qt2 do begin
+              Close;
+               SQL.Clear;
+               SQL.Add(' DELETE FROM STATION ');
+               SQL.Add(' where ID=:ID ');
+               ParamByName('ID').Value:=ID;
+              ExecSQL;
+             end;
+            TRt.Commit;
+
+            (* writing metadata into STATION *)
+            WriteMetadata(id, cruise_id, StLat, StLon, StDate,
+                          stdate_add_db, stdate_upd_f, stnum,
+                          cast, QF);
+
+            (* writing updated profiles *)
+             WriteProfile(ePath.text+fname, id);
+
+
+            writeln(dat2, inttostr(id)+#9+fname);
+            flush(dat2);
+           end;
+          end;
+
+         (* new station *)
+         if ID=0 then begin
+          inc(cnt_new);
+          inc(max_id);
+
+          try
+           WriteMetadata(max_id, cruise_id, StLat, StLon, StDate,
+                         stdate_upd_f, stdate_upd_f, stnum,
+                         cast, QF);
+
+           WriteProfile(ePath.text+fname, max_id);
+
+           writeln(dat1, inttostr(max_id)+#9+fname);
+           flush(dat1);
+          except
+           inc(cnt_error);
+           writeln(dat5, st);
+           flush(dat5);
+          end;
+         end; //ID=0 -> writing a new station
+
+        end; //coordinates -90 - 90; -180 - 180
+       end else begin // if some inportant metadata is missing -> skipping
+       inc(cnt_skipped);
+       writeln(dat3, st);
+       flush(dat3);
+       end;
+
+     end else begin
+      writeln(dat4, fname); // file doesn't exist
+      flush(dat4);
+     end;
+
+     until eof(dat);
+
+     finally
+        Trt.Commit;
+        Qt1.Free;
+        Qt2.Free;
+        Trt.Free;
+
+        CloseFile(dat1);
+        CloseFile(dat2);
+        CloseFile(dat3);
+        CloseFile(dat4);
+        CloseFile(dat5);
+
+        with memo1.Lines do begin
+          add('Unchanged: '+inttostr(cnt_kept));
+          add('Updated: '  +inttostr(cnt_updated));
+          add('Added: '    +inttostr(cnt_new));
+          add('Skipped: '  +inttostr(cnt_skipped));
+          add('Insert error: '+inttostr(cnt_error));
+          add('');
+          add('Done: '+DateTimeToStr(Now));
+        end;
+
+      OpenDocument(PChar(log_path));
+     end;    }
+
+finally
+   Trt.Commit;
+   Qt1.Free;
+   Trt.Free;
+   ID_buf.Free;
+ end;
+end;
 
 procedure Tfrmload_argo.btnSelectDataFolderClick(Sender: TObject);
 begin
@@ -1488,8 +1939,9 @@ begin
      2: QF:=2;
      3: QF:=1;
      4: QF:=1;
-     5: QF:=3;
+     5: QF:=4;
      8: QF:=3;
+     9: QF:=1;
    end;
 end;
 
