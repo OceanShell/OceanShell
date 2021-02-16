@@ -72,7 +72,7 @@ var
 implementation
 
 uses osmain, dm, surfer_settings, surfer_tdd, osunitsconversion,
-     osverticalinterpolation;
+     osverticalinterpolation, osparameters_list;
 
 {$R *.lfm}
 
@@ -303,7 +303,6 @@ begin
 (* Читаем настройки из файла *)
  try
    Ini := TIniFile.Create(IniFileName);
-    depth_units:=Ini.ReadInteger('main', 'depth_units', 0);
 
     Ini.ReadSection('standard_levels', memo1.Lines);
 
@@ -344,43 +343,52 @@ begin
 
       Ini.ReadSection('standard_levels', memo1.Lines);
     end;
-
-   PQF1_st:='';
-   for k:=0 to 8 do
-    if Ini.ReadBool('osparameters_list', 'PQF1_'+inttostr(k), true) then
-      PQF1_st:=PQF1_st+','+inttostr(k);
-   PQF1_st:=copy(PQF1_st, 2, length(PQF1_st));
-
-   PQF2_st:='';
-   for k:=0 to 8 do
-    if Ini.ReadBool('osparameters_list', 'PQF2_'+inttostr(k), true) then
-      PQF2_st:=PQF2_st+','+inttostr(k);
-   PQF2_st:=copy(PQF2_st, 2, length(PQF2_st));
-
-   SQF_st:='';
-   for k:=0 to 1 do
-    if Ini.ReadBool('osparameters_list', 'SQF_'+inttostr(k), true) then
-      SQF_st:=SQF_st+','+inttostr(k);
-   SQF_st:=copy(SQF_st, 2, length(SQF_st));
-
-   instr_st:='';
-   for k:=0 to 17 do
-    if Ini.ReadBool('osparameters_list', 'Instrument'+inttostr(k), true) then
-      instr_st:=instr_st+','+inttostr(k);
-
   finally
    Ini.Free;
   end;
 
+  PQF1_st:='';
+   for k:=0 to frmparameters_list.chkPQF1.Items.Count-1 do
+    if frmparameters_list.chkPQF1.Checked[k] then
+      PQF1_st:=PQF1_st+','+
+               Copy(frmparameters_list.chkPQF1.Items.Strings[k], 2,
+               Pos(']', frmparameters_list.chkPQF1.Items.Strings[k])-2);
+   PQF1_st:=copy(PQF1_st, 2, length(PQF1_st));
+
+   PQF2_st:='';
+   for k:=0 to frmparameters_list.chkPQF2.Items.Count-1 do
+    if frmparameters_list.chkPQF2.Checked[k] then
+      PQF2_st:=PQF2_st+','+
+               Copy(frmparameters_list.chkPQF2.Items.Strings[k], 2,
+               Pos(']', frmparameters_list.chkPQF2.Items.Strings[k])-2);
+   PQF2_st:=copy(PQF2_st, 2, length(PQF2_st));
+
+   SQF_st:='';
+   for k:=0 to frmparameters_list.chkSQF.Items.Count-1 do
+    if frmparameters_list.chkSQF.Checked[k] then
+      SQF_st:=SQF_st+','+
+               Copy(frmparameters_list.chkSQF.Items.Strings[k], 2,
+               Pos(']', frmparameters_list.chkSQF.Items.Strings[k])-2);
+   SQF_st:=copy(SQF_st, 2, length(SQF_st));
+
+   instr_st:='';
+   for k:=0 to frmparameters_list.chklInstrument.Items.Count-1 do
+    if frmparameters_list.chklInstrument.Checked[k] then
+      instr_st:=instr_st+','+
+               Copy(frmparameters_list.chklInstrument.Items.Strings[k], 2,
+               Pos(']', frmparameters_list.chklInstrument.Items.Strings[k])-2);
+   instr_st:=copy(instr_st, 2, length(instr_st));
+
+ //  showmessage(pqf1_st+#13+pqf2_st+#13+sqf_st+#13+instr_st);
+
   if (trim(PQF1_st)='') or (trim(PQF2_st)='') or (trim(SQF_st)='') then
-   if MessageDlg('Please, set QC flags', mtWarning, [mbOk], 0)=mrOk then exit;
+    if MessageDlg('Please, set QC flags', mtWarning, [mbOk], 0)=mrOk then exit;
 
-
-  instr_st:=copy(instr_st, 2, length(instr_st));
-   if trim(instr_st)='' then
+  if trim(instr_st)='' then
     if MessageDlg('Select at least one instrument', mtWarning, [mbOk], 0)=mrOk then exit;
 
-  frmdm.Q.IndexFieldNames:='dateandtime'; //force sorting
+  //forced sorting
+  frmdm.Q.IndexFieldNames:='dateandtime';
 
   try
   // Assigning output files
@@ -412,7 +420,7 @@ begin
    with Qt do begin
      Close;
       SQL.Clear;
-      SQL.Add(' SELECT LEV_DBAR, LEV_M, VAL, UNITS_ID ');
+      SQL.Add(' SELECT LEV_M, VAL, UNITS_ID ');
       SQL.Add(' FROM '+ CurrentParTable );
       SQL.Add(' WHERE ID=:ID AND ');
       SQL.Add(' PQF1 IN ('+PQF1_st+') AND ');
@@ -422,23 +430,22 @@ begin
       SQL.Add(' PROFILE_BEST=TRUE ');
       SQL.Add(' ORDER BY LEV_DBAR, LEV_M ');
       ParamByName('ID').AsInteger:=ID;
+      //showmessage(sql.text);
      Open;
      Last;
      First;
     end;
+
+  // showmessage(inttostr(Qt.RecordCount));
 
     SetLength(P, Qt.RecordCount);
     SetLength(D, Qt.RecordCount);
 
     k:=0;
     while not Qt.eof do begin
-     lev_m :=Qt.FieldByName('LEV_M').AsFloat;
-     lev_d :=Qt.FieldByName('LEV_DBAR').AsFloat;
+     lev   :=Qt.FieldByName('LEV_M').AsFloat;
      val1  :=Qt.FieldByName('VAL').AsFloat;
      units :=Qt.FieldByName('UNITS_ID').AsInteger;
-
-     (* units for the vertical axis *)
-     if depth_units=0 then lev:=lev_m else lev:=lev_d;
 
      (* units conversion *)
      if units<>units_default then begin

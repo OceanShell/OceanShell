@@ -97,10 +97,17 @@ end;
 
 
 procedure Tfrmload_argo.Statistics;
+Type
+  MDFromDatabase=record
+    ID:integer;
+    Date_upd:TDateTime;
+end;
+MDDB=array of MDFromDatabase;
+
 Var
   dat:text;
-  c, k, cnt_added, cnt_updated, cnt_removed, ID:integer;
-  st, fname, date_upd, platf, buf_str:string;
+  c, k, cnt_added, cnt_updated, cnt_removed, ID, k_db:integer;
+  st, fname, fname1, date_upd, platf, buf_str:string;
   stdate_upd:TDateTime;
 
   Qt1:TSQLQuery;
@@ -108,8 +115,12 @@ Var
 
   ID_buf:TBufDataset;
   DateStart:TDateTime;
+
+  MDDB_arr: MDDB;
+  ALength: Int64;
+
 begin
-if not FileExists(epath.text+'ar_index_global_meta.txt') then
+{if not FileExists(epath.text+'ar_index_global_meta.txt') then
   if MessageDlg('ar_index_global_meta.txt cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
 
   DateStart:=now;
@@ -228,53 +239,25 @@ try
 
 
    With memo1.lines do begin
-     add('CRUISE table');
+     add('CRUISE: ');
      add('To be added: '+inttostr(cnt_added));
      add('To be updated '+inttostr(cnt_updated));
      add('To be removed: '+inttostr(cnt_removed));
      add('');
-     add('Done! '+datetimetostr(Now));
    end;
 
- {
 
-    if not FileExists(epath.text+fname) then
-      if MessageDlg(fname+' cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
+   For k:=1 to 2 do begin
+    if k=1 then fname1:='argo_synthetic-profile_index.txt';
+    if k=2 then fname1:='ar_index_global_prof.txt';
 
-     DateStart:=now;
+    if not FileExists(epath.text+fname1) then
+      if MessageDlg(fname1+' cannot be found', mtWarning, [mbOk], 0)=mrOk then exit;
 
-     memo1.lines.add('');
-     memo1.lines.add('Updating STATION from '+fname);
-     memo1.lines.add('Start: '+datetimetostr(DateStart));
-     memo1.lines.add('');
-
-     try
-        TRt:=TSQLTransaction.Create(self);
-        TRt.DataBase:=frmdm.IBDB;
-
-        Qt1:=TSQLQuery.Create(self);
-        Qt1.Database:=frmdm.IBDB;
-        Qt1.Transaction:=TRt;
-
-        Qt2:=TSQLQuery.Create(self);
-        Qt2.Database:=frmdm.IBDB;
-        Qt2.Transaction:=TRt;
-
-         with Qt1 do begin
+        with Qt1 do begin
           Close;
            Sql.Clear;
-           SQL.Add(' select max(id) from station where ID BETWEEN 20000001 AND 30000000  ');
-          Open;
-           max_id  :=Qt1.Fields[0].AsInteger;
-          Close;
-         end;
-         if max_id=0 then max_id:=20000000;
-
-         with Qt1 do begin
-          Close;
-           Sql.Clear;
-           SQL.Add(' select id, cruise_id, st_number_origin, date_added, ');
-           SQL.Add(' date_updated from station ');
+           SQL.Add(' select id, date_updated from station ');
            SQL.Add(' where cruise_id between 20000001 and 30000000 ');
            SQL.Add(' order by cruise_id ');
           Open;
@@ -288,55 +271,27 @@ try
          while not Qt1.EOF do begin
           inc(k_db);
             MDDB_arr[k_db].ID:=Qt1.FieldByName('ID').asInteger;
-            MDDB_arr[k_db].Cruise_ID:=Qt1.FieldByName('CRUISE_ID').asInteger;
-            MDDB_arr[k_db].StNum:=Qt1.FieldByName('st_number_origin').asString;
-            MDDB_arr[k_db].Date_ins:=Qt1.FieldByName('date_added').asDateTime;
             MDDB_arr[k_db].Date_upd:=Qt1.FieldByName('date_updated').asDateTime;
           Qt1.Next;
          end;
          Qt1.Close;
 
-    // showmessage(inttostr(k_db));
-
-
-     // path to log directory
-     log_path:=epath.text+PathDelim+'_logs'+PathDelim;
-       if not DirectoryExists(log_path) then CreateDir(log_path);
-
-     // assigning log files
-     AssignFile(dat1, log_path+'STATION_added.txt');   rewrite(dat1); // new sations
-     AssignFile(dat2, log_path+'STATION_updated.txt'); rewrite(dat2); // updated
-     AssignFile(dat3, log_path+'STATION_skipped_metadata.txt'); rewrite(dat3); // missing metadata - skipping
-     AssignFile(dat4, log_path+'STATION_missing_file.txt'); rewrite(dat4); // missing initial files
-     AssignFile(dat5, log_path+'STATION_insert_error.txt'); rewrite(dat5);
-
      // opening input file
-     AssignFile(dat, epath.text+fname); reset(dat);
+     AssignFile(dat, epath.text+fname1); reset(dat);
 
      // skipping the header
      repeat
       readln(dat, st);
      until copy(st,1, 4)='file';
 
-      for k:=1 to 74600 do readln(dat, st);
-
      // setting all counters to 0
-     cnt_str:=0;
-     cnt_kept:=0;
+     cnt_added:=0;
      cnt_updated:=0;
-     cnt_new:=0;
      cnt_skipped:=0;
-     cnt_error:=0;
 
      // reading input file string by string, filling up arrays
      repeat
       readln(dat, st);
-
-    //  showmessage(st);
-
-      inc(cnt_str);
-
-      if cnt_str>1000 then exit;
 
       c:=0; pp:=0;
       //reading first 4 columns
@@ -361,41 +316,9 @@ try
 
       date_upd:=copy(st, length(st)-13, 14);
 
-      // flags from the file name
-      if copy(ExtractFileName(fname), 1, 1)='S' then
-          QF_str:=copy(ExtractFileName(fname), 2, 1) else
-          QF_str:=copy(ExtractFileName(fname), 1, 1);
-
-      if QF_str='D' then QF:=4 else QF:=0;
-
-      k:=Pos('/', fname);
-      buf_str:='';
-      repeat
-       inc(k);
-       if fname[k]<>'/' then buf_str:=buf_str+fname[k];
-      until fname[k]='/';
-      platf:=buf_str;
-
-      cruise_ID:=20000000+strtoint(platf);
-
-
-      stnum:=copy(fname, pos('_', fname)+1, length(fname));
-      stnum:=copy(stnum, 1, length(stnum)-3);
-
-      if copy(stnum, length(stnum), 1)='D' then begin
-        stnum:=copy(stnum,1, length(stnum)-1);
-        stnum:=IntToStr(StrToInt(stnum))+'D';
-      end else
-        stnum:=IntToStr(StrToInt(stnum));
-
-      if copy(stnum, length(stnum), 1)='D' then cast:=2 else cast:=1;
-
-    //  showmessage(stnum+'   '+copy(stnum, length(stnum), 1));
-
       if (trim(lat)<>'') and
          (trim(lon)<>'') and
-         (length(date_str)=14) and
-         (cruise_id>0) then begin
+         (length(date_str)=14) then begin
 
           stlat:=StrToFloat(lat);
           stlon:=StrToFloat(lon);
@@ -452,97 +375,40 @@ try
 
            if stdate_upd_db<stdate_upd_f then begin
             inc(cnt_updated);
-            // removing old station
-             with Qt2 do begin
-              Close;
-               SQL.Clear;
-               SQL.Add(' DELETE FROM STATION ');
-               SQL.Add(' where ID=:ID ');
-               ParamByName('ID').Value:=ID;
-              ExecSQL;
-             end;
-            TRt.Commit;
-
-            (* writing metadata into STATION *)
-            WriteMetadata(id, cruise_id, StLat, StLon, StDate,
-                          stdate_add_db, stdate_upd_f, stnum,
-                          cast, QF);
-
-            (* writing updated profiles *)
-             WriteProfile(ePath.text+fname, id);
-
-
-            writeln(dat2, inttostr(id)+#9+fname);
-            flush(dat2);
-           end;
           end;
 
          (* new station *)
          if ID=0 then begin
           inc(cnt_new);
-          inc(max_id);
-
-          try
-           WriteMetadata(max_id, cruise_id, StLat, StLon, StDate,
-                         stdate_upd_f, stdate_upd_f, stnum,
-                         cast, QF);
-
-           WriteProfile(ePath.text+fname, max_id);
-
-           writeln(dat1, inttostr(max_id)+#9+fname);
-           flush(dat1);
-          except
-           inc(cnt_error);
-           writeln(dat5, st);
-           flush(dat5);
-          end;
          end; //ID=0 -> writing a new station
 
         end; //coordinates -90 - 90; -180 - 180
        end else begin // if some inportant metadata is missing -> skipping
        inc(cnt_skipped);
-       writeln(dat3, st);
-       flush(dat3);
        end;
-
-     end else begin
-      writeln(dat4, fname); // file doesn't exist
-      flush(dat4);
      end;
 
      until eof(dat);
 
-     finally
-        Trt.Commit;
-        Qt1.Free;
-        Qt2.Free;
-        Trt.Free;
-
-        CloseFile(dat1);
-        CloseFile(dat2);
-        CloseFile(dat3);
-        CloseFile(dat4);
-        CloseFile(dat5);
-
         with memo1.Lines do begin
-          add('Unchanged: '+inttostr(cnt_kept));
-          add('Updated: '  +inttostr(cnt_updated));
-          add('Added: '    +inttostr(cnt_new));
+          if k=1 then
+          add('STATION: CORE parameters') else
+          add('STATION: BIO parameters');
+          add('To be added: '    +inttostr(cnt_new));
+          add('To be updated: '  +inttostr(cnt_updated));
           add('Skipped: '  +inttostr(cnt_skipped));
-          add('Insert error: '+inttostr(cnt_error));
-          add('');
           add('Done: '+DateTimeToStr(Now));
         end;
 
-      OpenDocument(PChar(log_path));
-     end;    }
+   end;
+
 
 finally
    Trt.Commit;
    Qt1.Free;
    Trt.Free;
    ID_buf.Free;
- end;
+ end;   }
 end;
 
 procedure Tfrmload_argo.btnSelectDataFolderClick(Sender: TObject);

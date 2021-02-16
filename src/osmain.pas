@@ -75,6 +75,7 @@ type
     chkIDRange: TCheckBox;
     chkParameter: TCheckBox;
     chkQCFlag: TCheckBox;
+    chkAuxMetadata: TCheckBox;
     chkRegion: TCheckBox;
     chkShowQuery: TCheckBox;
     chkPeriod: TCheckBox;
@@ -132,7 +133,7 @@ type
     dtpDateMin: TDateTimePicker;
     dtpDateUpdatedMax: TDateTimePicker;
     dtpDateUpdatedMin: TDateTimePicker;
-    gbAuxiliaryParameters: TGroupBox;
+    gbAuxiliaryMetadata: TGroupBox;
     gbAuxiliaryParameters1: TGroupBox;
     gbDepth: TGroupBox;
     GroupBox1: TGroupBox;
@@ -218,6 +219,7 @@ type
     iload_ices: TMenuItem;
     MenuItem24: TMenuItem;
     iBackupQC: TMenuItem;
+    iInterpolatedProfile: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     iSelectCruise: TMenuItem;
@@ -369,6 +371,7 @@ type
     procedure cbPredefinedRegionDropDown(Sender: TObject);
     procedure cbProjectDropDown(Sender: TObject);
     procedure cbSourceDropDown(Sender: TObject);
+    procedure chkAuxMetadataChange(Sender: TObject);
     procedure chkCRUISEDateandtimeChange(Sender: TObject);
     procedure chkCruiseIDRangeChange(Sender: TObject);
     procedure chkCruiseNumStationsChange(Sender: TObject);
@@ -411,6 +414,7 @@ type
     procedure iExportCIAClick(Sender: TObject);
     procedure iExportCOMFORTClick(Sender: TObject);
     procedure iExportCOMFORT_tableClick(Sender: TObject);
+    procedure iInterpolatedProfileClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
@@ -569,7 +573,7 @@ var
 
   frmprofile_station_all_open, frmprofile_station_single_open :boolean;
   frmmap_open, frmprofile_plot_all_open, frmparameters_list_open: boolean;
-  frmmeteo_open: boolean;
+  frmmeteo_open, frmprofile_interpolation_open: boolean;
 
 const
    NC_NOWRITE   = 0;    // file for reading
@@ -637,6 +641,7 @@ uses
   osprofile_station_all,
   osprofile_station_single,
   osprofile_plot_all,
+  osprofile_interpolation,
   osbathymetry_plot,
   osmeteo,
 
@@ -661,7 +666,7 @@ begin
 (* flags on open forms *)
  frmprofile_station_all_open:=false; frmprofile_station_single_open:=false;
  frmmap_open:=false; frmparameters_list_open:=false; frmmeteo_open:=false;
- frmprofile_plot_all_open:=false;
+ frmprofile_plot_all_open:=false; frmprofile_interpolation_open:=false;
 
  (* Defining Global Path - application root lolder *)
   GlobalPath:=ExtractFilePath(Application.ExeName);
@@ -747,6 +752,7 @@ begin
     chkIgnoreDup.Checked   := Ini.ReadBool( 'osmain', 'station_chkIgnoreDup',   true);
     chkRegion.Checked      := Ini.ReadBool( 'osmain', 'station_chkRegion',      true);
     chkDateandTime.Checked := Ini.ReadBool( 'osmain', 'station_chkDateandTime', true);
+    chkAuxMetadata.Checked := Ini.ReadBool( 'osmain', 'station_chkAuxMetadata', false);
     chkIDRange.Checked     := Ini.ReadBool( 'osmain', 'station_chkIDRange',     false);
     chkParameter.Checked   := Ini.ReadBool( 'osmain', 'station_chkVariables',   false);
     chkQCFlag.Checked      := Ini.ReadBool( 'osmain', 'station_chkQCFlag',      false);
@@ -814,6 +820,7 @@ begin
   chkRegion.OnChange(self);
   chkDateandTime.OnChange(self);
   chkIDRange.OnChange(self);
+  chkAuxMetadata.OnChange(self);
   chkParameter.OnChange(self);
   chkQCFlag.OnChange(self);
   chkDepth.OnChange(self);
@@ -899,8 +906,8 @@ try
       SQL_str:=SQL_str+' AND (STATION.QCFLAG IN ('+QCFlag_str+')) ';
     end;
 
-    (* Coordinates *)
-    if chkRegion.Checked=true then begin
+  (* Coordinates *)
+  if chkRegion.Checked=true then begin
     if pcRegion.ActivePageIndex=0 then begin
     SQL_str:=SQL_str+' AND (LATITUDE BETWEEN '+seLatMin.Text+
                      ' AND '+seLatMax.Text+') ';
@@ -914,139 +921,7 @@ try
                        ' AND LONGITUDE<=180) OR '+
                        '(LONGITUDE>=-180 and LONGITUDE<='+seLonMax.Text+')) ';
     end;
-
-
-    // around point
-    if pcRegion.ActivePageIndex=1 then begin
-      PositionByDistance(seAroundPointLat.Value,
-                         seAroundPointLon.Value,
-                         seAroundPointRaduis.Value,
-                         dlat, dlon);
-
-      with frmdm.q1 do begin
-       Close;
-         SQL.Clear;
-         SQL.Add(' DELETE FROM TEMPORARY_ID_LIST ');
-       ExecSQL;
-      end;
-      frmdm.TR.CommitRetaining;
-
-      with frmdm.q1 do begin
-       Close;
-         SQL.Clear;
-         SQL.Add(' SELECT ID, LATITUDE, LONGITUDE FROM STATION ');
-         SQL.Add(' WHERE ');
-         SQL.Add(' (LATITUDE BETWEEN ' );
-         SQL.Add(floattostr(seAroundPointLat.Value-dlat)+' AND ');
-         SQL.Add(floattostr(seAroundPointLat.Value+dlat)+') AND ');
-         if seAroundPointLon.Value+dlon<=180 then begin
-           SQL.Add(' (LONGITUDE BETWEEN ');
-           SQL.Add(floattostr(seAroundPointLon.Value-dlon)+' AND ');
-           SQL.Add(floattostr(seAroundPointLon.Value+dlon)+') ');
-         end;
-         if seAroundPointLon.Value+dlon>180 then begin
-           SQL.Add(' ((LONGITUDE>= ');
-           SQL.Add(floattostr(seAroundPointLon.Value-dlon));
-           SQL.Add(' AND LONGITUDE<=180) OR ');
-           SQL.Add('(LONGITUDE>=-180 and LONGITUDE<= ');
-           SQL.Add(floattostr(seAroundPointLon.Value+dlon)+')) ');
-         end;
-        //   showmessage(frmdm.q1.SQL.Text);
-       Open;
-      end;
-
-      while not frmdm.q1.EOF do begin
-         Lat:=frmdm.q1.FieldByName('LATITUDE').AsFloat;
-         Lon:=frmdm.q1.FieldByName('LONGITUDE').AsFloat;
-
-         Distance(seAroundPointLon.Value, Lon, seAroundPointLat.Value, Lat, Dist);
-
-         if (dist<=seAroundPointRaduis.Value) then begin
-          with frmdm.q2 do begin
-           Close;
-            SQL.Clear;
-            SQL.Add(' INSERT INTO TEMPORARY_ID_LIST ');
-            SQL.Add(' (ID) VALUES (:ID) ');
-            ParamByName('ID').Value:=frmdm.q1.FieldByName('ID').AsInteger;
-           ExecSQL;
-          end;
-         end;
-       frmdm.q1.Next;
-      end;
-      frmdm.TR.CommitRetaining;
-
-      SQL_str:=SQL_str+' AND STATION.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ';
-    end;
-
-    // predefined region
-    if pcRegion.ActivePageIndex=2 then begin
-
-    if cbPredefinedRegion.ItemIndex<0 then
-     if MessageDlg('Choose a region first', mtWarning, [mbOk], 0)=mrOk then exit;
-
-    ArbytraryRegion.GetArbirtaryRegion(
-      GlobalSupportPath+'sea_borders'+PathDelim+cbPredefinedRegion.Text+'.bln',
-      LatMin, LatMax, LonMin, LonMax);
-
- {   showmessage(floattostr(LatMIn)+'   '+
-                floattostr(latmax)+'   '+
-                floattostr(lonmin)+'   '+
-                floattostr(lonmax));  }
-
-      with frmdm.q1 do begin
-       Close;
-         SQL.Clear;
-         SQL.Add(' DELETE FROM TEMPORARY_ID_LIST ');
-       ExecSQL;
-      end;
-      frmdm.TR.CommitRetaining;
-
-      with frmdm.q1 do begin
-       Close;
-         SQL.Clear;
-         SQL.Add(' SELECT ID, LATITUDE, LONGITUDE FROM STATION ');
-         SQL.Add(' WHERE ');
-         SQL.Add(' (LATITUDE BETWEEN ' );
-         SQL.Add(floattostr(LatMin)+' AND ');
-         SQL.Add(floattostr(LatMax)+') AND ');
-         if LonMin<=LonMax then begin
-           SQL.Add(' (LONGITUDE BETWEEN ');
-           SQL.Add(floattostr(LonMin)+' AND ');
-           SQL.Add(floattostr(LonMax)+') ');
-         end;
-         if LonMin>LonMax then begin
-           SQL.Add(' ((LONGITUDE>= ');
-           SQL.Add(floattostr(LonMIn));
-           SQL.Add(' AND LONGITUDE<=180) OR ');
-           SQL.Add('(LONGITUDE>=-180 and LONGITUDE<= ');
-           SQL.Add(floattostr(LonMax)+')) ');
-         end;
-        //   showmessage(frmdm.q1.SQL.Text);
-       Open;
-      end;
-
-      while not frmdm.q1.EOF do begin
-         Lat:=frmdm.q1.FieldByName('LATITUDE').AsFloat;
-         Lon:=frmdm.q1.FieldByName('LONGITUDE').AsFloat;
-
-         if Odd(Point_Status(Lon,Lat)) then begin
-          with frmdm.q2 do begin
-           Close;
-            SQL.Clear;
-            SQL.Add(' INSERT INTO TEMPORARY_ID_LIST ');
-            SQL.Add(' (ID) VALUES (:ID) ');
-            ParamByName('ID').Value:=frmdm.q1.FieldByName('ID').AsInteger;
-           ExecSQL;
-          end;
-         end;
-       frmdm.q1.Next;
-      end;
-      frmdm.TR.CommitRetaining;
-
-      SQL_str:=SQL_str+' AND STATION.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ';
-    end;
-
-    end; //region
+   end; //region
 
 
     (* Date and Time *)
@@ -1103,6 +978,7 @@ try
     end; // dates
 
 
+   if chkAuxMetadata.Checked then begin
     if cbPlatform.Text<>'' then begin
       SQL_str:=SQL_str+' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
       ' CRUISE, PLATFORM WHERE CRUISE.PLATFORM_ID=PLATFORM.ID AND '+
@@ -1153,6 +1029,7 @@ try
           SQL_str:=SQL_str+QuotedStr(cbProject.Items.Strings[k])+',';
      SQL_str:=copy(SQL_str, 1, length(SQL_str)-1)+'))) ';
     end;
+  end;
 
 
     (* Parameters *)
@@ -1184,6 +1061,89 @@ try
 
     if copy(SQL_str, 1, 4)=' AND'   then SQL_str:=Copy(SQL_str, 5, length(SQL_str));
 
+
+    if pcRegion.ActivePageIndex>0 then begin
+     // around point
+     if pcRegion.ActivePageIndex=1 then begin
+      PositionByDistance(seAroundPointLat.Value,
+                         seAroundPointLon.Value,
+                         seAroundPointRaduis.Value,
+                         LatMin, LatMax, LonMin, LonMax);
+     end;
+
+     // arbitrary region
+     if pcRegion.ActivePageIndex=2 then begin
+      if cbPredefinedRegion.ItemIndex<0 then
+        if MessageDlg('Choose a region first', mtWarning, [mbOk], 0)=mrOk then exit;
+
+      ArbytraryRegion.GetArbirtaryRegion(
+      GlobalSupportPath+'sea_borders'+PathDelim+
+      cbPredefinedRegion.Text+'.bln',
+      LatMin, LatMax, LonMin, LonMax);
+     end;
+
+      with frmdm.q1 do begin
+       Close;
+         SQL.Clear;
+         SQL.Add(' DELETE FROM TEMPORARY_ID_LIST ');
+       ExecSQL;
+      end;
+      frmdm.TR.CommitRetaining;
+
+      with frmdm.q1 do begin
+       Close;
+         SQL.Clear;
+         SQL.Add(' SELECT ID, LATITUDE, LONGITUDE FROM STATION ');
+         SQL.Add(' WHERE ');
+         SQL.Add(' (LATITUDE BETWEEN ' );
+         SQL.Add(floattostr(LatMin)+' AND ');
+         SQL.Add(floattostr(LatMax)+') AND ');
+         if LonMax<=180 then begin
+           SQL.Add(' (LONGITUDE BETWEEN ');
+           SQL.Add(floattostr(LonMin)+' AND ');
+           SQL.Add(floattostr(LonMax)+') ');
+         end;
+         if LonMax>180 then begin
+           SQL.Add(' ((LONGITUDE>= ');
+           SQL.Add(floattostr(LonMin));
+           SQL.Add(' AND LONGITUDE<=180) OR ');
+           SQL.Add('(LONGITUDE>=-180 and LONGITUDE<= ');
+           SQL.Add(floattostr(LonMax)+')) ');
+         end;
+         SQL.Add(' AND '+SQL_str);
+      // showmessage(frmdm.q1.SQL.Text);
+       Open;
+      end;
+
+    //  showmessage(inttostr(frmdm.q1.RecordCount));
+
+      while not frmdm.q1.EOF do begin
+         Lat:=frmdm.q1.FieldByName('LATITUDE').Value;
+         Lon:=frmdm.q1.FieldByName('LONGITUDE').Value;
+
+         if pcRegion.ActivePageIndex=1 then
+            Distance(seAroundPointLon.Value, Lon,
+                     seAroundPointLat.Value, Lat,
+                     Dist);
+
+         if ((pcRegion.ActivePageIndex=1) and (dist<=seAroundPointRaduis.Value)) or
+            ((pcRegion.ActivePageIndex=2) and (Odd(Point_Status(Lon,Lat)))) then begin
+         // memo2.lines.add(floattostr(lat)+'   '+floattostr(lon));
+          with frmdm.q2 do begin
+           Close;
+            SQL.Clear;
+            SQL.Add(' INSERT INTO TEMPORARY_ID_LIST ');
+            SQL.Add(' (ID) VALUES (:ID) ');
+            ParamByName('ID').Value:=frmdm.q1.FieldByName('ID').Value;
+           ExecSQL;
+          end;
+         end;
+       frmdm.q1.Next;
+      end;
+      frmdm.TR.CommitRetaining;
+      SQL_str:=' STATION.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ';
+    end;
+
    if frmdm.TR.Active=true then frmdm.TR.Commit;
    with frmdm.Q do begin
     Close;
@@ -1200,9 +1160,11 @@ try
       if MessageDlg(SQL.Text+#13+#13+'Execute the query?',
                     mtInformation, [mbYes, mbNo],0)=mrNo then exit;
     Open;
+    Last;
+    First;
    end;
 
-  // showmessage('selected');
+ //  showmessage(inttostr(frmdm.Q.RecordCount));
 
    // getting cruises for selected stations
    if not frmdm.Q.IsEmpty then begin
@@ -1276,7 +1238,7 @@ begin
       SQL.Clear;
       SQL.Add(' INSERT INTO TEMPORARY_ID_LIST ');
       SQL.Add(' (ID) VALUES (:ID) ');
-      ParamByName('ID').Value:=frmdm.q1.FieldByName('CRUISE_ID').AsInteger;
+      ParamByName('ID').Value:=frmdm.q1.FieldByName('CRUISE_ID').Value;
     ExecSQL;
    end;
    frmdm.q1.Next;
@@ -1802,8 +1764,10 @@ begin
        Close;
         SQL.Clear;
         SQL.Add(StationSQL);
+        SQL.Add(' WHERE ');
         SQL.Add(SQL_str);
         SQL.Add(' ORDER BY DATEANDTIME ');
+     //  showmessage(SQL.text);
        Open;
        Last;
        First;
@@ -1821,11 +1785,13 @@ Var
   k:integer;
 begin
 
-  chkRegion.Checked:=false;
-  chkDateandTime.Checked:=false;
+  chkRegion.Checked:=true;
+  chkDateandTime.Checked:=true;
   chkIDRange.Checked:=false;
+  chkAuxMetadata.Checked:=false;
   chkQCFlag.Checked:=false;
   chkParameter.Checked:=false;
+  chkDepth.Checked:=false;
 
   pcRegion.ActivePageIndex:=0;
   pcDateandtime.ActivePageIndex:=0;
@@ -2061,11 +2027,18 @@ frmdm.QEntry.Insert;
        type_ID:=Qt.Fields[0].AsInteger;
      Qt.Close;
 
-      frmdm.QEntry.Append;
-      frmdm.QEntry.FieldByName('ID').Value:=max_id+1;
-      frmdm.QEntry.FieldByName('ENTRY_TYPE_ID').Value:=type_id;
-      frmdm.QEntry.FieldByName('DATE_ADDED').Value:=Now;
-      frmdm.QEntry.FieldByName('DATE_UPDATED').Value:=Now;
+     with frmdm.QEntry do begin
+       Append;
+        FieldByName('ID').Value:=max_id+1;
+        FieldByName('ENTRY_TYPE_ID').Value:=type_id;
+        FieldByName('ENTRY_TYPE_ID').Value:=type_id;
+        FieldByName('STATIONS_AMOUNT').Value:=0;
+        FieldByName('DATE_START').Value:=Now;
+        FieldByName('DATE_END').Value:=Now;
+        FieldByName('DATE_ADDED').Value:=Now;
+        FieldByName('DATE_UPDATED').Value:=Now;
+        FieldByName('SELECTED').Value:=false;
+     end;
 
    finally
      frmdm.TR.CommitRetaining;
@@ -2211,6 +2184,17 @@ begin
   frmprofile_station_single_open:=true;
 end;
 
+
+procedure Tfrmosmain.iInterpolatedProfileClick(Sender: TObject);
+begin
+  if frmprofile_interpolation_open=true then frmprofile_interpolation.SetFocus else
+     begin
+       frmprofile_interpolation := Tfrmprofile_interpolation.Create(Self);
+       frmprofile_interpolation.Show;
+     end;
+  frmprofile_interpolation_open:=true;
+end;
+
 procedure Tfrmosmain.aMeteoExecute(Sender: TObject);
 begin
   if frmmeteo_open=true then frmmeteo.SetFocus else
@@ -2323,7 +2307,7 @@ Qt.Transaction:=TRt;
    frmdm.Q.Next;
   end;
   TRt.Commit;
-  showmessage('here');
+//  showmessage('here');
 
   with Qt do begin
    Close;
@@ -3008,6 +2992,11 @@ end;
 procedure Tfrmosmain.chkDateandTimeChange(Sender: TObject);
 begin
   gbDateandTime.Enabled:=chkDateandTime.Checked;
+end;
+
+procedure Tfrmosmain.chkAuxMetadataChange(Sender: TObject);
+begin
+ gbAuxiliaryMetadata.Enabled:=chkAuxMetadata.Checked;
 end;
 
 procedure Tfrmosmain.chkDepthChange(Sender: TObject);
@@ -4320,6 +4309,7 @@ begin
     Ini.WriteBool    ( 'osmain', 'station_chkIgnoreDuplicates', chkIgnoreDup.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkRegion',           chkRegion.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkIDRange',          chkIDRange.Checked);
+    Ini.WriteBool    ( 'osmain', 'station_chkAuxMetadata',      chkAuxMetadata.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkVariables',        chkParameter.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkQCFlag',           chkQCFlag.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkDateandTime',      chkDateandTime.Checked);

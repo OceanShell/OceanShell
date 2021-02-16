@@ -1,0 +1,206 @@
+object frmprofile_interpolation: Tfrmprofile_interpolation
+  Left = 610
+  Height = 634
+  Top = 240
+  Width = 837
+  Caption = 'frmprofile_interpolation'
+  ClientHeight = 634
+  ClientWidth = 837
+  DesignTimePPI = 144
+  OnClose = FormClose
+  OnShow = FormShow
+  Position = poOwnerFormCenter
+  LCLVersion = '2.0.6.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 634
+    Top = 0
+    Width = 327
+    Align = alLeft
+    BevelOuter = bvNone
+    Caption = 'Panel1'
+    ClientHeight = 634
+    ClientWidth = 327
+    TabOrder = 0
+    object cbParameters: TComboBox
+      Left = 0
+      Height = 33
+      Top = 0
+      Width = 327
+      Align = alTop
+      DropDownCount = 20
+      ItemHeight = 25
+      OnChange = cbParametersChange
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object Chart1: TChart
+      Left = 0
+      Height = 601
+      Top = 33
+      Width = 327
+      AxisList = <      
+        item
+          Arrow.Inverted = True
+          Inverted = True
+          Marks.LabelBrush.Style = bsClear
+          Minors = <>
+          Title.LabelFont.Orientation = 900
+          Title.Visible = True
+          Title.LabelBrush.Style = bsClear
+        end      
+        item
+          Alignment = calTop
+          Marks.LabelBrush.Style = bsClear
+          Minors = <>
+          Title.LabelBrush.Style = bsClear
+        end>
+      BackColor = clWhite
+      Foot.Brush.Color = clBtnFace
+      Foot.Font.Color = clBlue
+      Title.Brush.Color = clBtnFace
+      Title.Font.Color = clBlue
+      Title.Text.Strings = (
+        'TAChart'
+      )
+      Toolset = ChartToolset1
+      Align = alClient
+    end
+  end
+  object Splitter1: TSplitter
+    Left = 327
+    Height = 634
+    Top = 0
+    Width = 8
+    Beveled = True
+  end
+  object Panel2: TPanel
+    Left = 335
+    Height = 634
+    Top = 0
+    Width = 502
+    Align = alClient
+    BevelOuter = bvNone
+    Caption = 'Panel2'
+    ClientHeight = 634
+    ClientWidth = 502
+    TabOrder = 2
+    object TabControl1: TTabControl
+      Left = 0
+      Height = 34
+      Top = 0
+      Width = 502
+      OnChange = TabControl1Change
+      Align = alTop
+      TabOrder = 0
+    end
+    object DBGridOriginal: TDBGrid
+      Left = 0
+      Height = 600
+      Top = 34
+      Width = 231
+      Align = alLeft
+      AlternateColor = 13631478
+      Color = 13627366
+      Columns = <      
+        item
+          Title.Caption = 'Level [m]'
+          FieldName = 'LEV_M'
+        end      
+        item
+          Title.Caption = 'Value original'
+          FieldName = 'VAL'
+        end>
+      DataSource = DS1
+      FixedCols = 0
+      Flat = True
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'Tahoma'
+      Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+      ParentFont = False
+      Scrollbars = ssAutoBoth
+      TabOrder = 1
+      TitleFont.Color = clWindowText
+      TitleFont.Height = -11
+      TitleFont.Name = 'MS Sans Serif'
+      OnPrepareCanvas = DBGridInterpolatedPrepareCanvas
+    end
+    object DBGridInterpolated: TDBGrid
+      Left = 239
+      Height = 600
+      Top = 34
+      Width = 263
+      Align = alClient
+      AlternateColor = 13631478
+      Color = 13627366
+      Columns = <      
+        item
+          Title.Caption = 'Level [m]'
+          FieldName = 'LEV_M'
+        end      
+        item
+          Title.Caption = 'Value interpolated'
+          FieldName = 'VAL'
+        end>
+      DataSource = DS2
+      FixedCols = 0
+      Flat = True
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'Tahoma'
+      Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+      ParentFont = False
+      Scrollbars = ssAutoBoth
+      TabOrder = 2
+      TitleFont.Color = clWindowText
+      TitleFont.Height = -11
+      TitleFont.Name = 'MS Sans Serif'
+      OnPrepareCanvas = DBGridInterpolatedPrepareCanvas
+    end
+    object Splitter3: TSplitter
+      Left = 231
+      Height = 600
+      Top = 34
+      Width = 8
+    end
+  end
+  object Qt: TSQLQuery
+    FieldDefs = <>
+    Database = frmdm.IBDB
+    Transaction = frmdm.TR
+    Params = <>
+    left = 457
+    top = 179
+  end
+  object DS1: TDataSource
+    DataSet = Qt
+    left = 520
+    top = 179
+  end
+  object ChartToolset1: TChartToolset
+    left = 140
+    top = 139
+    object DPCT: TDataPointClickTool
+      Shift = [ssLeft]
+      ActiveCursor = crHandPoint
+      OnPointClick = DPCTPointClick
+    end
+    object DPHT: TDataPointHintTool
+      OnAfterMouseMove = DPHTAfterMouseMove
+      ActiveCursor = crHandPoint
+    end
+    object ZDT: TZoomDragTool
+      Shift = [ssLeft]
+      Brush.Style = bsClear
+      RestoreExtentOn = [zreDragTopLeft, zreDragTopRight, zreDragBottomLeft]
+    end
+    object ZMWT: TZoomMouseWheelTool
+    end
+  end
+  object DS2: TDataSource
+    DataSet = Qt
+    left = 584
+    top = 179
+  end
+end

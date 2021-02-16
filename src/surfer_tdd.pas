@@ -229,10 +229,8 @@ begin
     WriteLn(dat, 'Set ContourMapFrame=Doc.Shapes.AddContourMap(PathGRD)');
     WriteLn(dat, 'Set Axes = ContourMapFrame.Axes');
     WriteLn(dat, 'Set Axis = Axes("left axis")');
-    if Ini.ReadInteger('main', 'depth_units', 0)=0 then
-      WriteLn(dat, '    Axis.Title = "Depth, m"') else
-      WriteLn(dat, '    Axis.Title = "Depth, dBar"');
-    WriteLn(dat, 'Axis.Reverse = True ');
+    WriteLn(dat, '    Axis.Title = "Depth, m"');
+    WriteLn(dat, '    Axis.Reverse = True ');
     WriteLn(dat, 'Set Axis = Axes("top axis")');
     WriteLn(dat, 'Axis.MajorTickType = srfTickNone');
     WriteLn(dat, 'Set Axis = Axes("right axis")');

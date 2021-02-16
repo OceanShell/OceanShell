@@ -19,7 +19,8 @@ function ClearDir(Dir:string ): boolean;
 procedure ProgressTaskbar(k, max_k : integer);
 {$ENDIF}
 procedure Distance(ln0,ln1,lt0,lt1:real; var Dist:real);
-procedure PositionByDistance(Lat0, Lon0, Dist: real; var dlat, dlon:real);
+procedure PositionByDistance(Lat0, Lon0, Dist: real;
+ var LatMin, LatMax, LonMin, LonMax:real);
 
 (* Date encoding function *)
 function DateEncode(Year,Month,Day,Hour,Minutes:word;
@@ -118,11 +119,16 @@ Dist:=sqrt(lnkm*lnkm+ltkm*ltkm);
 end;
 
 
-procedure PositionByDistance(Lat0, Lon0, Dist: real; var dlat, dlon:real);
+procedure PositionByDistance(Lat0, Lon0, Dist: real;
+ var LatMin, LatMax, LonMin, LonMax:real);
 Var
   theta, a, b, c, d: double;
-  lat, lon :double;
+  lat, lon, dlat, dlon, lat_d, lon_d :double;
 begin
+  // in degrees
+  lat_d:=Lat0;
+  lon_d:=Lon0;
+
   // convert to radians
   lat0 := lat0*Pi/180;
   lon0 := lon0*Pi/180;
@@ -141,8 +147,12 @@ begin
   dlat:=(lat-lat0)*180/pi;
   dlon:=(lon-lon0)*180/pi;
 
-//  showmessage(floattostr(dlat)+'   '+floattostr(dlon));
+  LatMin:=lat_d-dlat;
+  LatMax:=lat_d+dlat;
+  LonMin:=lon_d-dlon;
+  LonMax:=lon_d+dlon;
 
+//  showmessage(floattostr(latmin)+'   '+floattostr(latmax));
 end;
 
 {updated 9.10.2004}
