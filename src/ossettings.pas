@@ -22,12 +22,8 @@ type
     btnUnloadPath: TButton;
     btnGEBCOPath: TButton;
     chkExpFeat: TCheckBox;
-    eUser: TEdit;
-    ePass: TEdit;
     eGrapherPath: TEdit;
-    eDBPath: TEdit;
     ePythonPath: TEdit;
-    eHost: TEdit;
     eSupportPath: TEdit;
     eSurferPath: TEdit;
     eUnloadPath: TEdit;
@@ -38,14 +34,8 @@ type
     gbPythonPath: TGroupBox;
     GroupBox6: TGroupBox;
     GroupBox7: TGroupBox;
-    GroupBox8: TGroupBox;
     GroupBox9: TGroupBox;
     Label1: TLabel;
-    Label2: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
-    Label7: TLabel;
     lbKML: TLabel;
     mAdvancedSettings: TMemo;
     Memo1: TMemo;
@@ -53,17 +43,17 @@ type
     rgDepth: TRadioGroup;
     rgPlotSoft: TRadioGroup;
     TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
     tsAdvanced: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
 
     procedure btnGEBCOPathClick(Sender: TObject);
     procedure btnInstallPackagesClick(Sender: TObject);
-    procedure btnOceanFDBPathClick(Sender: TObject);
     procedure btnPythonClick(Sender: TObject);
+    procedure btnSaveConnectionClick(Sender: TObject);
     procedure btnSupportPathClick(Sender: TObject);
     procedure btnUnloadPathClick(Sender: TObject);
+    procedure cbAliasSelect(Sender: TObject);
     procedure chkExpFeatChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnGrapherPathClick(Sender: TObject);
@@ -80,6 +70,7 @@ type
 
 var
   frmsettings: Tfrmsettings;
+ // server:string;
 
 implementation
 
@@ -91,25 +82,16 @@ uses osmain, procedures;
 
 procedure Tfrmsettings.FormShow(Sender: TObject);
 Var
- Ini:TIniFile;
- server:string;
- SurferDefault, GrapherDefault, GEBCODefault, OceanFDBDefault:string;
+ Ini, DBIni:TIniFile;
+ SurferDefault, GrapherDefault, GEBCODefault, OceanFDBDefault, Alias_db:string;
 begin
  SurferDefault   :='c:\Program Files\Golden Software\Surfer 13\Scripter\Scripter.exe';
  GrapherDefault  :='c:\Program Files\Golden Software\Grapher 11\Scripter\Scripter.exe';
  GEBCODefault    :=GlobalPath+'support'+PathDelim+'bathymetry'+PathDelim+'GEBCO_2020.nc';
- OceanFDBDefault :=GlobalPath+'databases'+PathDelim+'OCEAN.FDB';
-
- server:='firebird';
 
   Ini := TIniFile.Create(IniFileName);
   try
-   eDBPath.Text := Ini.ReadString (server, 'dbpath',   OceanFDBDefault);
-   eHost.Text   := Ini.ReadString (server, 'host',     'localhost');
-   //ePort.Text   := Ini.ReadString (server, 'port',     '3050');
-   eUser.Text   := Ini.ReadString (server, 'user',     'SYSDBA');
-   epass.Text   := Ini.ReadString (server, 'pass',     'masterkey');
-
+   Alias_db               :=Ini.ReadString  ( 'main', 'alias',           'Ocean.FDB');
    eSupportPath.Text      :=Ini.ReadString  ( 'main', 'SupportPath',      GlobalPath+'support'+PathDelim);
    eUnloadPath.Text       :=Ini.ReadString  ( 'main', 'UnloadPath',       GlobalPath+'unload'+PathDelim);
    eSurferPath.Text       :=Ini.ReadString  ( 'main', 'SurferPath',       SurferDefault);
@@ -119,8 +101,6 @@ begin
    ePythonPath.Text       :=Ini.ReadString  ( 'main', 'PythonPath',       '');
    rgPlotSoft.ItemIndex   :=Ini.ReadInteger ( 'main', 'Plotting_soft',    0);
    chkExpFeat.Checked     :=Ini.ReadBool    ( 'main', 'Experimental',     false);
-
-
   finally
     ini.Free;
   end;
@@ -167,11 +147,6 @@ begin
   mAdvancedSettings.Lines.LoadFromFile(IniFileName);
 end;
 
-procedure Tfrmsettings.btnOceanFDBPathClick(Sender: TObject);
-begin
- frmosmain.OD.Filter:='*.FDB|*.FDB';
-  if frmosmain.OD.Execute then eDBPath.Text:= frmosmain.OD.FileName;
-end;
 
 procedure Tfrmsettings.btnPythonClick(Sender: TObject);
 begin
@@ -192,6 +167,22 @@ begin
  frmosmain.ODir.InitialDir:=GlobalUnloadPath;
   if frmosmain.ODir.Execute then eUnloadPath.Text:=frmosmain.ODir.FileName+PathDelim;
  CheckExistence;
+end;
+
+
+procedure Tfrmsettings.cbAliasSelect(Sender: TObject);
+Var
+ DBIni:TIniFile;
+begin
+{ DBIni := TIniFile.Create(IniFileName+'_db');
+  try
+   eDBPath.Text := DBIni.ReadString (cbAlias.Text, 'dbpath',   GlobalPath+'databases'+PathDelim+'OCEAN.FDB');
+   eHost.Text   := DBIni.ReadString (cbAlias.Text, 'host',     'localhost');
+   eUser.Text   := DBIni.ReadString (cbAlias.Text, 'user',     'SYSDBA');
+   epass.Text   := DBIni.ReadString (cbAlias.Text, 'pass',     'masterkey');
+  finally
+   DBIni.Free;
+  end; }
 end;
 
 procedure Tfrmsettings.chkExpFeatChange(Sender: TObject);
@@ -236,23 +227,40 @@ begin
   CheckExistence;
 end;
 
+
+procedure Tfrmsettings.btnSaveConnectionClick(Sender: TObject);
+Var
+ Ini, DBIni:TIniFile;
+begin
+ Ini := TIniFile.Create(IniFileName);
+  try
+   Ini.WriteString ('server', 'dbpath',   '');
+  finally
+   Ini.Free;
+  end;
+
+ DBIni := TIniFile.Create(IniFileName+'_db');
+  try
+ {  DBIni.EraseSection(cbAlias.Text);
+   DBIni.WriteString (cbAlias.Text, 'dbpath',   eDBPath.Text);
+   DBIni.WriteString (cbAlias.Text, 'host',     eHost.Text);
+   DBIni.WriteString (cbAlias.Text, 'user',     eUser.Text);
+   DBIni.WriteString (cbAlias.Text, 'pass',     epass.Text); }
+  finally
+    DBini.Free;
+  end;
+end;
+
+
 procedure Tfrmsettings.btnOkClick(Sender: TObject);
 Var
  Ini:TIniFile;
- server:string;
 begin
  (* Saving settings *)
  if PageControl1.PageIndex<3 then begin
  Ini := TIniFile.Create(IniFileName);
 
- server:='firebird';
   try
-   Ini.WriteString (server, 'dbpath',   eDBPath.Text);
-   Ini.WriteString (server, 'host',     eHost.Text);
-  // Ini.WriteString (server, 'port',     ePort.Text);
-   Ini.WriteString (server, 'user',     eUser.Text);
-   Ini.WriteString (server, 'pass',     epass.Text);
-
    Ini.WriteString ( 'main', 'SupportPath',      eSupportPath.Text);
    Ini.WriteString ( 'main', 'UnloadPath',       eUnloadPath.Text);
    Ini.WriteString ( 'main', 'SurferPath',       eSurferPath.Text);

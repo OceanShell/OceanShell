@@ -9,7 +9,7 @@ object frmdm: Tfrmdm
   object IBDB: TIBConnection
     Connected = False
     LoginPrompt = False
-    KeepConnection = False
+    KeepConnection = True
     Password = 'masterkey'
     Transaction = TR
     UserName = 'SYSDBA'
@@ -164,6 +164,7 @@ object frmdm: Tfrmdm
   object DBLoader: TSQLDBLibraryLoader
     Enabled = False
     ConnectionType = 'Firebird'
+    LibraryName = 'fbclient.dll'
     left = 36
     top = 104
   end

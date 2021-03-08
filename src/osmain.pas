@@ -43,7 +43,7 @@ type
     aOpenDatabase: TAction;
     aMapAllStations: TAction;
     AL: TActionList;
-    btnOpenOceanFDB: TBitBtn;
+    btnOpenDB: TBitBtn;
     btnAddEntry: TToolButton;
     btnSaveCruise: TToolButton;
     btnSaveEntry: TToolButton;
@@ -220,6 +220,8 @@ type
     MenuItem24: TMenuItem;
     iBackupQC: TMenuItem;
     iInterpolatedProfile: TMenuItem;
+    MenuItem25: TMenuItem;
+    iMetadataUpdate: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     iSelectCruise: TMenuItem;
@@ -356,7 +358,7 @@ type
     procedure btnAdvancedSelectionClick(Sender: TObject);
     procedure btnCustomSQLQueryClick(Sender: TObject);
     procedure btnEntryAddStationsClick(Sender: TObject);
-    procedure btnOpenOceanFDBClick(Sender: TObject);
+    procedure btnOpenDBClick(Sender: TObject);
     procedure btnRemoveEntryClick(Sender: TObject);
     procedure btnSaveCruiseClick(Sender: TObject);
     procedure btnSaveEntryClick(Sender: TObject);
@@ -422,6 +424,7 @@ type
     procedure iLoad_ITPClick(Sender: TObject);
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
+    procedure iMetadataUpdateClick(Sender: TObject);
     procedure iMeteoClick(Sender: TObject);
     procedure ioutliersClick(Sender: TObject);
     procedure iPlotBathymetryClick(Sender: TObject);
@@ -463,6 +466,7 @@ type
 
   public
     procedure OpenLocalDatabase(DBName:string);
+    procedure OpenRegisteredDatabase(alias_str: string);
     procedure DatabaseInfo;
     procedure SelectionInfo;
     procedure CDSNavigation;
@@ -573,7 +577,8 @@ var
 
   frmprofile_station_all_open, frmprofile_station_single_open :boolean;
   frmmap_open, frmprofile_plot_all_open, frmparameters_list_open: boolean;
-  frmmeteo_open, frmprofile_interpolation_open: boolean;
+  frmmeteo_open, frmprofile_interpolation_open, frmopendb_open: boolean;
+  frmopendbreg_open:boolean;
 
 const
    NC_NOWRITE   = 0;    // file for reading
@@ -594,6 +599,8 @@ implementation
 uses
 (* core modules *)
   dm,
+  osopendb,
+  osopendb_reg,
   oscreatenewdb,
   osdbstructure_updater, //temporary module to be removed later
   ossettings,
@@ -633,6 +640,7 @@ uses
   osqc_meanprofile,
   osqc_setflags,
   osqc_outliers,
+  osqc_metadata_update,
 
 (* tools *)
   osmap,
@@ -667,6 +675,7 @@ begin
  frmprofile_station_all_open:=false; frmprofile_station_single_open:=false;
  frmmap_open:=false; frmparameters_list_open:=false; frmmeteo_open:=false;
  frmprofile_plot_all_open:=false; frmprofile_interpolation_open:=false;
+ frmopendb_open:=false; frmopendbreg_open:=false;
 
  (* Defining Global Path - application root lolder *)
   GlobalPath:=ExtractFilePath(Application.ExeName);
@@ -1303,11 +1312,15 @@ begin
   frmdm.TR.CommitRetaining;
 
   SQL_str:=' STATION.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ';
+
+  if frmdm.TR.Active=true then frmdm.TR.Commit;
+
   try
    with frmdm.Q do begin
    Close;
     SQL.Clear;
     SQL.Add(StationSQL);
+    SQL.Add(' WHERE ');
     SQL.Add(SQL_str);
    Open;
    Last;
@@ -2093,30 +2106,38 @@ begin
   PageControl1.Enabled:=true;
 end;
 
-procedure Tfrmosmain.btnOpenOceanFDBClick(Sender: TObject);
-Var
-  Ini: TIniFile;
-  server, DBPath, DBHost, DBUser, DBPass:string;
-  k:integer;
+procedure Tfrmosmain.btnOpenDBClick(Sender: TObject);
 begin
-  server:='firebird';
 
-  Ini := TIniFile.Create(IniFileName);
+if frmopendb_open=false then
+   frmopendb:= Tfrmopendb.Create(Self) else
+   frmopendb.SetFocus;
+
+frmopendb_open:=true;
+end;
+
+procedure Tfrmosmain.OpenRegisteredDatabase(alias_str: string);
+Var
+ DBIni:TIniFile;
+ DBUser, DBPass, DBHost, DBPath: string;
+ k:integer;
+begin
+
+  DBIni := TIniFile.Create(IniFileName+'_db');
   try
-    DBUser :=Ini.ReadString(server, 'user',     'SYSDBA');
-    DBPass :=Ini.ReadString(server, 'pass',     'masterkey');
-    DBHost :=Ini.ReadString(server, 'host',     'localhost');
-    DBPath :=Ini.ReadString(server, 'dbpath',   '');
+    DBUser :=DBIni.ReadString(alias_str, 'user',     'SYSDBA');
+    DBPass :=DBIni.ReadString(alias_str, 'pass',     'masterkey');
+    DBHost :=DBIni.ReadString(alias_str, 'host',     'localhost');
+    DBPath :=DBIni.ReadString(alias_str, 'dbpath',   '');
   finally
-    Ini.Free;
+    DBIni.Free;
   end;
 
   // if database isn't specified
-  if (trim(DBPath)='') then begin
-   if MessageDlg('Specify the database, please', mtwarning, [mbOk], 0)=mrOk then
-    iSettings.OnClick(self);
-   exit;
-  end;
+  if (trim(DBUser)='') or (trim(DBPass)='') or
+     (trim(DBHost)='') or (trim(DBPath)='') then
+      if MessageDlg('Please, provide all information connection',
+                    mtwarning, [mbOk], 0)=mrOk then exit;
 
   with frmdm.DBLoader do begin
     {$IFDEF WINDOWS}
@@ -2133,6 +2154,7 @@ begin
 
   try
     with frmdm.IBDB do begin
+      Connected:=false;
       UserName:=DBUser;
       Password:=DBPass;
       HostName:=DBHost;
@@ -2147,6 +2169,9 @@ begin
 
     Caption := 'OceanShell ['+DBHost+':'+DBPath+']';
     Application.ProcessMessages;
+
+    if frmopendbreg_open=true then frmopendb_reg.Close;
+    if frmopendb_open=true then frmopendb.Close;
 
   except
     on e: Exception do
@@ -2389,6 +2414,7 @@ TRt_DB1.DataBase:=frmdm.IBDB;
 Qt_DB1 :=TSQLQuery.Create(self);
 Qt_DB1.Database:=frmdm.IBDB;
 Qt_DB1.Transaction:=TRt_DB1;
+
  try
    with Qt_DB1 do begin
     Close;
@@ -2406,9 +2432,10 @@ Qt_DB1.Transaction:=TRt_DB1;
         SQL.Add(' from STATION');
     Open;
       StationCount:=FieldByName('StCount').AsInteger;
+     // showmessage(inttostr(stationCount));
        if StationCount>0 then begin
-         StationIDMin     :=FieldByName('IDMin').AsInteger;
-         StationIDMax     :=FieldByName('IDMax').AsInteger;
+         StationIDMin   :=FieldByName('IDMin').AsInteger;
+         StationIDMax   :=FieldByName('IDMax').AsInteger;
          StationLatMin  :=FieldByName('StLatMin').AsFloat;
          StationLatMax  :=FieldByName('StLatMax').AsFloat;
          StationLonMin  :=FieldByName('StLonMin').AsFloat;
@@ -2823,12 +2850,15 @@ begin
   aProfilesSelectedAllPlot.Enabled:=items_enabled;
   iStandarddeviationslayers.Enabled:=items_enabled;
   iTDdiagrams.Enabled:=items_enabled;
+  iMetadataUpdate.Enabled:=items_enabled;
 
 
   tsSelectedStations.TabVisible:=items_enabled;
-  PageControl1.ActivePageIndex:=3;
-  tsSelectedStations.Caption:='Cruises: '+inttostr(frmdm.QCruise.RecordCount)+'; '+
-                              'Stations: '+inttostr(frmdm.Q.RecordCount);
+  if tsSelectedStations.TabVisible=true then begin
+    PageControl1.ActivePageIndex:=3;
+    tsSelectedStations.Caption:='Cruises: '+inttostr(frmdm.QCruise.RecordCount)+'; '+
+                                'Stations: '+inttostr(frmdm.Q.RecordCount);
+  end;
 
   if frmprofile_plot_all_open then begin
     frmprofile_plot_all.Close;
@@ -3829,6 +3859,17 @@ finally
   frmloadWOD18.Free;
   frmloadWOD18 := nil;
 end;
+end;
+
+procedure Tfrmosmain.iMetadataUpdateClick(Sender: TObject);
+begin
+  frmqc_metadata_update := Tfrmqc_metadata_update.Create(Self);
+    try
+     if not frmqc_metadata_update.ShowModal = mrOk then exit;
+    finally
+      frmqc_metadata_update.Free;
+      frmqc_metadata_update:= nil;
+    end;
 end;
 
 procedure Tfrmosmain.iMeteoClick(Sender: TObject);

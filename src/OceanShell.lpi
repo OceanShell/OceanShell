@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="56">
+    <Units Count="59">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -397,6 +397,26 @@
         <Filename Value="surfer_tdd.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit55>
+      <Unit56>
+        <Filename Value="osqc_metadata_update.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmqc_metadata_update"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit56>
+      <Unit57>
+        <Filename Value="osopendb.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmopendb"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit57>
+      <Unit58>
+        <Filename Value="osopendb_reg.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmopendb_reg"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit58>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

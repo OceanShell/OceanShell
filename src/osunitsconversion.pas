@@ -7,8 +7,8 @@ interface
 uses
   Classes, SysUtils, SQLDB, osmain, dm, gibbsseawater, dynlibs;
 
-procedure GetDefaultUnits(par:string; units, units_default: integer; val_in: real;
-  Var val_out:real; Var isconverted:boolean);
+procedure GetDefaultUnits(par:string; units, units_default: integer;
+  val_in: real; Var val_out:real; Var isconverted:boolean);
 
 procedure GetDefaultUnitsExact(par:string; units, units_default, ID,
   instr_id, prof_num: integer; val_in, Lat, Lon, LEV_M: real;
@@ -163,7 +163,7 @@ begin
     Close;
      SQL.Clear;
      SQL.Add(' SELECT P_TEMPERATURE.VAL AS TVAL, ');
-     SQL.Add(' SELECT P_TEMPERATURE.LEV_DBAR AS TLEV, ');
+     SQL.Add(' P_TEMPERATURE.LEV_DBAR AS TLEV, ');
      SQL.Add(' P_SALINITY.VAL AS SVAL ');
      SQL.Add(' FROM P_TEMPERATURE, P_SALINITY ');
      SQL.Add(' WHERE ');

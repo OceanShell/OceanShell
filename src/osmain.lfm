@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 272
+  Left = 371
   Height = 758
-  Top = 219
+  Top = 236
   Width = 1380
   Caption = 'OceanShell'
   ClientHeight = 728
@@ -54,7 +54,7 @@ object frmosmain: Tfrmosmain
     Height = 650
     Top = 78
     Width = 1380
-    ActivePage = tsMainSelect
+    ActivePage = tsMainCruises
     Align = alClient
     Enabled = False
     Font.Color = clWindowText
@@ -62,7 +62,7 @@ object frmosmain: Tfrmosmain
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
     ParentFont = False
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 2
     OnChange = PageControl1Change
     object tsMainSelect: TTabSheet
@@ -2261,7 +2261,7 @@ object frmosmain: Tfrmosmain
           end
           object ToolButton3: TToolButton
             Left = 101
-            Height = 34
+            Height = 5
             Top = 0
             Caption = 'ToolButton2'
             Style = tbsDivider
@@ -3166,7 +3166,7 @@ object frmosmain: Tfrmosmain
     Font.Name = 'MS Sans Serif'
     ParentFont = False
     TabOrder = 3
-    object btnOpenOceanFDB: TBitBtn
+    object btnOpenDB: TBitBtn
       Left = 0
       Height = 74
       Top = 0
@@ -3178,7 +3178,7 @@ object frmosmain: Tfrmosmain
       Font.Name = 'MS Sans Serif'
       Images = frmicons.IL1
       ImageIndex = 312
-      OnClick = btnOpenOceanFDBClick
+      OnClick = btnOpenDBClick
       ParentFont = False
       TabOrder = 0
     end
@@ -3440,6 +3440,14 @@ object frmosmain: Tfrmosmain
       object iInsertLastLevel: TMenuItem
         Caption = 'Insert Last Level'
         OnClick = iInsertLastLevelClick
+      end
+      object MenuItem25: TMenuItem
+        Caption = '-'
+      end
+      object iMetadataUpdate: TMenuItem
+        Caption = 'Metadata update'
+        Enabled = False
+        OnClick = iMetadataUpdateClick
       end
     end
     object MenuItem7: TMenuItem
