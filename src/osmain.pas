@@ -222,6 +222,7 @@ type
     iInterpolatedProfile: TMenuItem;
     MenuItem25: TMenuItem;
     iMetadataUpdate: TMenuItem;
+    iDensity: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     iSelectCruise: TMenuItem;
@@ -410,6 +411,7 @@ type
     procedure iBackupQCClick(Sender: TObject);
     procedure iDBStatisticsClick(Sender: TObject);
     procedure iDBStatistics_AKClick(Sender: TObject);
+    procedure iDensityClick(Sender: TObject);
     procedure iExportDIVAndClick(Sender: TObject);
     procedure iDuplicatesClick(Sender: TObject);
     procedure iInsertBottomDepthGEBCOClick(Sender: TObject);
@@ -652,6 +654,7 @@ uses
   osprofile_interpolation,
   osbathymetry_plot,
   osmeteo,
+  ostools_density,
 
 (* statistics *)
   osstatistics,
@@ -1938,6 +1941,17 @@ begin
    frmosstatistics_AK.Free;
    frmosstatistics_AK := nil;
  end;
+end;
+
+procedure Tfrmosmain.iDensityClick(Sender: TObject);
+begin
+  frmcompute_density := Tfrmcompute_density.Create(Self);
+   try
+    if not frmcompute_density.ShowModal = mrOk then exit;
+   finally
+     frmcompute_density.Free;
+     frmcompute_density := nil;
+   end;
 end;
 
 
