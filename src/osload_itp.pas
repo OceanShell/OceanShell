@@ -343,12 +343,12 @@ begin
         SQL.Clear;
         SQL.Add(' INSERT INTO STATION ' );
         SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, CRUISE_ID, ' );
-        SQL.Add('  ST_NUMBER_ORIGIN, CAST_NUMBER, QCFLAG, ' );
-        SQL.Add('  STVERSION, DUPLICATE, MERGED, DATE_ADDED, DATE_UPDATED)' );
+        SQL.Add('  ST_NUMBER_ORIGIN, CAST_NUMBER, QCFLAG, SELECTED, ' );
+        SQL.Add('  STVERSION, DUPLICATE, DATE_ADDED, DATE_UPDATED)' );
         SQL.Add(' VALUES ' );
         SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :CRUISE_ID, ' );
-        SQL.Add('  :ST_NUMBER_ORIGIN, :CAST_NUMBER, :QCFLAG, ' );
-        SQL.Add('   :STVERSION, :DUPLICATE, :MERGED, :DATE_ADDED, :DATE_UPDATED) ' );
+        SQL.Add('  :ST_NUMBER_ORIGIN, :CAST_NUMBER, :QCFLAG, :SELECTED, ' );
+        SQL.Add('   :STVERSION, :DUPLICATE, :DATE_ADDED, :DATE_UPDATED) ' );
         ParamByName('ID'               ).Value:=ID;
         ParamByName('LATITUDE'         ).Value:=lat;
         ParamByName('LONGITUDE'        ).Value:=lon;
@@ -358,8 +358,8 @@ begin
         ParamByName('CAST_NUMBER'      ).Value:=cast;
         ParamByName('QCFLAG'           ).Value:=QCFlag;
         ParamByName('STVERSION'        ).Value:=0;
+        ParamByName('SELECTED'         ).Value:=false;
         ParamByName('DUPLICATE'        ).Value:=false;
-        ParamByName('MERGED'           ).Value:=0;
         ParamByName('DATE_ADDED'       ).Value:=filedatetodatetime(FileAge(CurFile));
         ParamByName('DATE_UPDATED'     ).Value:=filedatetodatetime(FileAge(CurFile));
         ExecSQL;

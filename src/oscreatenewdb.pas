@@ -15,7 +15,12 @@ type
   Tfrmcreatenewdb = class(TForm)
     btnCreateDB: TButton;
     chlbVariables: TCheckGroup;
+    cbDatabases: TComboBox;
+    eNewDB: TEdit;
+    GroupBox1: TGroupBox;
+    GroupBox2: TGroupBox;
 
+    procedure cbDatabasesSelect(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnCreateDBClick(Sender: TObject);
     procedure chlbVariablesItemClick(Sender: TObject; Index: integer);
@@ -24,6 +29,8 @@ type
     procedure PopulateSupportTables(dbname:string);
   public
     function  GetDDL:boolean;
+    procedure ProcessDDL;
+    procedure AddTbl(tbl:string);
     procedure CreateNewDB(dbname:string);
   end;
 
@@ -42,11 +49,25 @@ uses osmain, dm;
 
 procedure Tfrmcreatenewdb.FormShow(Sender: TObject);
 Var
-  Ini: TIniFile;
+Ini:TIniFile;
+begin
+Ini := TIniFile.Create(IniFileName);
+cbDatabases.Clear;
+ try
+   if Ini.SectionExists('DB') then Ini.ReadSection('DB', cbDatabases.Items);
+  finally
+   Ini.Free;
+ end;
+end;
+
+
+procedure Tfrmcreatenewdb.cbDatabasesSelect(Sender: TObject);
+Var
+  DBIni: TIniFile;
   DB:TIBConnection;
   TR:TSQLTransaction;
   Q:TSQLQuery;
-  DBName: string;
+  DBUser, DBPass, DBHost, DBPath: string;
 begin
 try
    DB:=TIBConnection.Create(nil);
@@ -59,18 +80,24 @@ try
    Q.Database:=DB;
    Q.Transaction:=TR;
 
-   Ini := TIniFile.Create(IniFileName);
+   DBIni := TIniFile.Create(IniFileName+'_db');
    try
-     DBOcean:=Ini.ReadString( 'main', 'OceanFDBPath',  '');
+     DBUser :=DBIni.ReadString(cbDatabases.text, 'user',     'SYSDBA');
+     DBPass :=DBIni.ReadString(cbDatabases.text, 'pass',     'masterkey');
+     DBHost :=DBIni.ReadString(cbDatabases.text, 'host',     'localhost');
+     DBPath :=DBIni.ReadString(cbDatabases.text, 'dbpath',   '');
    finally
-    Ini.free;
+     DBIni.Free;
    end;
 
-    DB.DatabaseName:=DBOcean;
-    DB.UserName:='SYSDBA';
-    DB.Password:='masterkey';
-    DB.LoginPrompt:=False;
-    DB.Connected:=True;
+   with DB do begin
+     Connected:=false;
+     UserName:=DBUser;
+     Password:=DBPass;
+     HostName:=DBHost;
+     DatabaseName:=DBPath;
+     Connected:=true;
+   end;
 
     With Q do begin
       Close;
@@ -93,6 +120,17 @@ try
   DB.Connected:=false;
   DB.Free;
  end;
+end;
+
+procedure Tfrmcreatenewdb.chlbVariablesItemClick(Sender: TObject; Index: integer);
+Var
+ k:integer;
+ fl:boolean;
+begin
+ fl:=false;
+  for k:=0 to chlbVariables.Items.Count-1 do
+    if chlbVariables.Checked[k] then fl:=true;
+ btnCreateDB.Enabled:=fl;
 end;
 
 
@@ -127,10 +165,10 @@ begin
   end;
 
   (* Getting DDL from OCEAN.FDB *)
-  ScriptFile:=GlobalUnloadPath+'OCEAN.SQL';
+  ScriptFile:=GlobalUnloadPath+'TMP.SQL';
   DeleteFile(ScriptFile);
 
-  cmd:=FBPath+'isql.exe -ex -o '+
+  cmd:=FBPath+'isql -ex -o '+
        ScriptFile+' '+
        OceanPath+' -user sysdba -pass masterkey';
 
@@ -139,6 +177,93 @@ begin
   Result:=FileExists(ScriptFile);
 end;
 
+procedure Tfrmcreatenewdb.ProcessDDL;
+Var
+  dat, out1:text;
+  st, buf_str:string;
+  k, c:integer;
+begin
+  try
+   AssignFile(dat,  GlobalUnloadPath+'TMP.SQL'); reset(dat);
+   AssignFile(out1, GlobalUnloadPath+'OCEAN.SQL'); rewrite(out1);
+
+   //skipping DB creation part
+   for k:=1 to 9 do readln(dat, st);
+
+   repeat
+    readln(dat, st);
+    if (copy(st, 1, 15)<>'CREATE TABLE P_') and
+       (copy(st, 1, 15)<>'CREATE INDEX P_') and
+       (copy(st, 1, 26)<>'CREATE DESCENDING INDEX P_') and
+       (copy(st, 1, 14)<>'ALTER TABLE P_') and
+       (copy(st, 1, 12)<>'COMMIT WORK;') then
+          if trim(st)<>'' then writeln(out1, st);
+
+    if (copy(st, 1, 15)='CREATE TABLE P_') then begin
+     repeat
+       readln(dat, st);
+     until trim(st)='';
+    end;
+
+   until eof(dat);
+  finally
+    CloseFile(dat);
+    CloseFile(out1);
+  end;
+
+  (* tables from the list *)
+  for k:=0 to chlbVariables.Items.Count-1 do
+    if chlbVariables.Checked[k]=true then
+      AddTbl(chlbVariables.Items.Strings[k]);
+
+  (* new tables *)
+  if trim(eNewDB.Text)<>'' then begin
+    c:=0;
+   repeat
+    buf_str:='';
+    repeat
+      inc(c);
+       if eNewDB.Text[c]<>';' then buf_str:=buf_str+eNewDB.Text[c];
+    until (eNewDB.Text[c]=';') or (c=length(eNewDB.Text));
+
+    AddTbl(trim(buf_str));
+   until (c>=length(eNewDB.Text));
+  end;
+
+
+  AssignFile(dat, GlobalUnloadPath+'OCEAN.SQL'); append(dat);
+    writeln(dat,'COMMIT WORK;');
+  CloseFile(dat);
+end;
+
+procedure Tfrmcreatenewdb.AddTbl(tbl:string);
+Var
+  dat:text;
+begin
+   (* adding tables *)
+  AssignFile(dat, GlobalUnloadPath+'OCEAN.SQL'); append(dat);
+
+     writeln(dat,'CREATE TABLE '+tbl+' (ID BIGINT NOT NULL, ');
+     writeln(dat,'   LEV_DBAR DECIMAL(9, 4) NOT NULL, ');
+     writeln(dat,'   LEV_M DECIMAL(9, 4) NOT NULL, ');
+     writeln(dat,'   VAL DOUBLE PRECISION NOT NULL, ');
+     writeln(dat,'   PQF1 SMALLINT NOT NULL, ');
+     writeln(dat,'   PQF2 SMALLINT NOT NULL, ');
+     writeln(dat,'   SQF SMALLINT NOT NULL, ');
+     writeln(dat,'   BOTTLE_NUMBER SMALLINT, ');
+     writeln(dat,'   PROFILE_NUMBER INTEGER NOT NULL, ');
+     writeln(dat,'   PROFILE_BEST BOOLEAN DEFAULT TRUE NOT NULL, ');
+     writeln(dat,'   UNITS_ID SMALLINT NOT NULL, ');
+     writeln(dat,'   INSTRUMENT_ID SMALLINT NOT NULL); ');
+     writeln(dat,'   ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_1 FOREIGN KEY (ID) REFERENCES STATION (ID) ON UPDATE CASCADE ON DELETE CASCADE;');
+     writeln(dat,'   ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_2 FOREIGN KEY (INSTRUMENT_ID) REFERENCES INSTRUMENT (ID) ON UPDATE CASCADE;');
+     writeln(dat,'   ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_3 FOREIGN KEY (UNITS_ID) REFERENCES UNITS (ID) ON UPDATE CASCADE;');
+     writeln(dat,'   ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_4 FOREIGN KEY (PQF1) REFERENCES FLAG_PQF1 (ID) ON UPDATE CASCADE;');
+     writeln(dat,'   ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_5 FOREIGN KEY (PQF2) REFERENCES FLAG_PQF2 (ID) ON UPDATE CASCADE;');
+     writeln(dat,'   ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_6 FOREIGN KEY (SQF) REFERENCES FLAG_SQF (ID) ON UPDATE CASCADE;');
+     writeln(dat,'');
+  CloseFile(dat);
+end;
 
 
 (* Creating new DB *)
@@ -147,16 +272,13 @@ Var
 DB:TIBConnection;
 TR:TSQLTransaction;
 SC:TSQLScript;
-
-k:integer;
-ScriptFile, st, tbl_name:string;
-dat: text;
-ToWrite: boolean;
 begin
 
-(* extracting structure from OCAEN.FDB *)
- if GetDDL=true then ScriptFile:=GlobalUnloadPath+'OCEAN.SQL' else
+(* extracting structure from OCEAN.FDB *)
+ if not(GetDDL) then
   if MessageDlg('Unable to extract DDL', mtWarning, [mbOk], 0)=mrOk then exit;
+
+ ProcessDDL;
 
  try
  (* Creating database *)
@@ -185,38 +307,8 @@ begin
     DB.LoginPrompt:=False;
     DB.Open;
 
-    (* Loading script and skipping DB creation part *)
-    AssignFile(dat, ScriptFile); reset(dat);
-    for k:=1 to 9 do readln(dat, st);
-
-    repeat
-     readln(dat, st);
-
-     if (copy(st, 1, 15)='CREATE TABLE P_') or
-        (copy(st, 1, 14)='ALTER TABLE P_') then begin
-
-      if copy(st, 1, 15)='CREATE TABLE P_' then
-         tbl_name:=trim(copy(st, 13, pos('(', st)-14)) else
-         tbl_name:=trim(copy(st, 12, pos('ADD', st)-13));
-
-       toWrite:=false;
-       for k:=0 to chlbVariables.Items.Count-1 do
-         if (chlbVariables.Items.Strings[k]=tbl_name) and
-            (chlbVariables.Checked[k]=true) then toWrite:=true;
-
-       repeat
-        if ToWrite=true then SC.Script.Add(st);
-        readln(dat, st);
-       until trim(st)='';
-     end;
-
-     if trim(st)<>'' then begin
-      SC.Script.Add(st);
-     end;
-    until eof(dat);
-    CloseFile(dat);
-
-    showmessage(SC.Script.Text);
+    SC.Script.LoadFromFile(GlobalUnloadPath+'OCEAN.SQL');
+   // showmessage(SC.Script.Text);
 
     SC.UseCommit:=true;
     SC.UseSetTerm:=true; // for Firebird ONLY
@@ -242,10 +334,12 @@ end;
 (* Copying support data from OCEAN.FDB into the NEW database *)
 procedure Tfrmcreatenewdb.PopulateSupportTables(dbname:string);
 Var
+DBIni:TIniFIle;
 DB_NEW, DB_OCEAN:TIBConnection;
 TR_NEW, TR_OCEAN:TSQLTransaction;
 Q_NEW, Q_OCEAN:TSQLQuery;
 k:integer;
+DBUser, DBPass, DBHost, DBPath: string;
 begin
  try
 
@@ -275,11 +369,24 @@ begin
    Q_OCEAN.Transaction:=TR_OCEAN;
    Q_OCEAN.Database:=DB_OCEAN;
 
-   DB_OCEAN.DatabaseName:=DBOcean;
-   DB_OCEAN.UserName:='SYSDBA';
-   DB_OCEAN.Password:='masterkey';
-   DB_OCEAN.LoginPrompt:=False;
-   DB_OCEAN.Connected:=True;
+   DBIni := TIniFile.Create(IniFileName+'_db');
+     try
+       DBUser :=DBIni.ReadString(cbDatabases.text, 'user',     'SYSDBA');
+       DBPass :=DBIni.ReadString(cbDatabases.text, 'pass',     'masterkey');
+       DBHost :=DBIni.ReadString(cbDatabases.text, 'host',     'localhost');
+       DBPath :=DBIni.ReadString(cbDatabases.text, 'dbpath',   '');
+     finally
+       DBIni.Free;
+     end;
+
+     with DB_OCEAN do begin
+       Connected:=false;
+       UserName:=DBUser;
+       Password:=DBPass;
+       HostName:=DBHost;
+       DatabaseName:=DBPath;
+       Connected:=true;
+     end;
 
 
    for k:=1 to 9 do begin
@@ -323,16 +430,16 @@ begin
             Close;
              SQL.Clear;
              SQL.Add(' INSERT INTO INSTITUTE ');
-             SQL.Add(' (ID, NODC_CODE, WOD_ID, NAME, NAME_FULL, DATE_ADDED, ');
+             SQL.Add(' (ID, NODC_CODE, WOD_ID, NAME, DATE_ADDED, ');
              SQL.Add(' DATE_UPDATED, NOTES) ');
              SQL.Add(' VALUES ');
-             SQL.Add(' (:ID, :NODC_CODE, :WOD_ID, :NAME, :NAME_FULL, :DATE_ADDED, ');
+             SQL.Add(' (:ID, :NODC_CODE, :WOD_ID, :NAME, :DATE_ADDED, ');
              SQL.Add(' :DATE_UPDATED, :NOTES) ');
              ParamByName('ID').Value:=Q_OCEAN.FieldByName('ID').Value;
              ParamByName('NODC_CODE').Value:=Q_OCEAN.FieldByName('NODC_CODE').Value;
              ParamByName('WOD_ID').Value:=Q_OCEAN.FieldByName('WOD_ID').Value;
              ParamByName('NAME').Value:=Q_OCEAN.FieldByName('NAME').Value;
-             ParamByName('NAME_FULL').Value:=Q_OCEAN.FieldByName('NAME_FULL').Value;
+            // ParamByName('NAME_FULL').Value:=Q_OCEAN.FieldByName('NAME_FULL').Value;
              ParamByName('NOTES').Value:=Q_OCEAN.FieldByName('NOTES').Value;
              ParamByName('DATE_ADDED').Value:=Q_OCEAN.FieldByName('DATE_ADDED').Value;
              ParamByName('DATE_UPDATED').Value:=Q_OCEAN.FieldByName('DATE_UPDATED').Value;
@@ -380,15 +487,15 @@ begin
             Close;
              SQL.Clear;
              SQL.Add(' INSERT INTO PROJECT ');
-             SQL.Add(' (ID, WOD_ID, NAME, NAME_FULL, DATE_ADDED, ');
+             SQL.Add(' (ID, WOD_ID, NAME, DATE_ADDED, ');
              SQL.Add(' DATE_UPDATED, NOTES) ');
              SQL.Add(' VALUES ');
-             SQL.Add(' (:ID, :WOD_ID, :NAME, :NAME_FULL, :DATE_ADDED, ');
+             SQL.Add(' (:ID, :WOD_ID, :NAME, :DATE_ADDED, ');
              SQL.Add(' :DATE_UPDATED, :NOTES) ');
              ParamByName('ID').Value:=Q_OCEAN.FieldByName('ID').Value;
              ParamByName('WOD_ID').Value:=Q_OCEAN.FieldByName('WOD_ID').Value;
              ParamByName('NAME').Value:=Q_OCEAN.FieldByName('NAME').Value;
-             ParamByName('NAME_FULL').Value:=Q_OCEAN.FieldByName('NAME_FULL').Value;
+            // ParamByName('NAME_FULL').Value:=Q_OCEAN.FieldByName('NAME_FULL').Value;
              ParamByName('NOTES').Value:=Q_OCEAN.FieldByName('NOTES').Value;
              ParamByName('DATE_ADDED').Value:=Q_OCEAN.FieldByName('DATE_ADDED').Value;
              ParamByName('DATE_UPDATED').Value:=Q_OCEAN.FieldByName('DATE_UPDATED').Value;
@@ -580,22 +687,10 @@ frmosmain.SD.DefaultExt:='FDB';
     frmdm.IBDB.Close;
     frmdm.IBDB.DatabaseName:=frmosmain.SD.FileName;
     frmosmain.OpenLocalDatabase(frmdm.IBDB.DatabaseName);
+  frmcreatenewdb.Enabled:=true;
   Close;
  end;
 end;
-
-procedure Tfrmcreatenewdb.chlbVariablesItemClick(Sender: TObject; Index: integer);
-Var
- k:integer;
- fl:boolean;
-begin
-  fl:=false;
-  for k:=0 to chlbVariables.Items.Count-1 do
-    if chlbVariables.Checked[k] then fl:=true;
-
- btnCreateDB.Enabled:=fl;
-end;
-
 
 
 end.

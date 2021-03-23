@@ -3358,28 +3358,14 @@ if NavigationOrder=false then exit;
 end;
 
 procedure Tfrmosmain.iNewDatabaseClick(Sender: TObject);
-Var
-  Ini:TIniFile;
-  DBName:string;
 begin
-  Ini := TIniFile.Create(IniFileName);
+  frmcreatenewdb := Tfrmcreatenewdb.Create(Self);
   try
-   DBName:=Ini.ReadString( 'main', 'OceanFDBPath',  '');
+    if not frmcreatenewdb.ShowModal = mrOk then exit;
   finally
-    Ini.free;
+    frmcreatenewdb.Free;
+    frmcreatenewdb := nil;
   end;
-
-  if FileExists(DBName) then begin
-   frmcreatenewdb := Tfrmcreatenewdb.Create(Self);
-    try
-     if not frmcreatenewdb.ShowModal = mrOk then exit;
-    finally
-      frmcreatenewdb.Free;
-      frmcreatenewdb := nil;
-    end;
-  end else
-   if MessageDlg('Please, specify path to Ocean.fdb', mtWarning, [mbOk], 0)=mrOk then
-    aSettings.Execute();
 end;
 
 procedure Tfrmosmain.iSupportTablesClick(Sender: TObject);

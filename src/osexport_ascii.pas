@@ -15,7 +15,8 @@ implementation
 
 procedure ExportASCII;
 Var
-ff, ID: integer;
+ff, QF: integer;
+ID, CrID: int64;
 tbl, source, plat, tbl_suf: string;
 Lat, lon, lev_d, lev_m: real;
 depth, gebco:integer;
@@ -34,10 +35,10 @@ Qt1:=TSQLQuery.Create(nil);
 Qt1.Database:=frmdm.IBDB;
 Qt1.Transaction:=TRt;
 
-//Source:='ITP';
-//tbl_suf:='ITP';
-Source:='WOD2018';
-tbl_suf:='OSD';
+Source:='ITP';
+tbl_suf:='ITP';
+//Source:='WOD2018';
+//tbl_suf:='OSD';
 
 AssignFile(out1, GlobalUnloadPath+Source+'_MD_Full.txt'); rewrite(out1);
 AssignFile(out2, GlobalUnloadPath+Source+'_MD.txt'); rewrite(out2);
@@ -51,28 +52,43 @@ try
  while not frmdm.Q.EOF do begin
   inc(cnt);
 
-  ID  := frmdm.Q.FieldByName('ID').AsInteger;
+  ID  := frmdm.Q.FieldByName('ID').Value;
+  CrID:= frmdm.Q.FieldByName('CRUISE_ID').Value;
   lat := frmdm.Q.FieldByName('LATITUDE').AsFloat;
   lon := frmdm.Q.FieldByName('LONGITUDE').AsFloat;
   dat1:= frmdm.Q.FieldByName('DATEANDTIME').AsDateTime;
+  gebco:=frmdm.Q.FieldByName('BOTTOMDEPTH_GEBCO').Value;
+  QF   :=frmdm.Q.FieldByName('QCFLAG').Value;
 
   decodedate(dat1, yy, mn, dd);
-
-  Plat:= frmdm.Q.FieldByName('PLATF').AsString;
-
-  gebco := -GetGEBCODepth(lon, lat);
 
   with Qt1 do begin
    Close;
     SQL.Clear;
-    SQL.Add(' SELECT P_TEMPERATURE_'+tbl_suf+'.LEV_DBAR, ');
-    SQL.Add(' P_TEMPERATURE_'+tbl_suf+'.VAL, P_SALINITY_'+tbl_suf+'.VAL ');
-    SQL.Add(' FROM P_TEMPERATURE_'+tbl_suf+', P_SALINITY_'+tbl_suf+' ');
-    SQL.Add(' WHERE P_TEMPERATURE_'+tbl_suf+'.ID=P_SALINITY_'+tbl_suf+'.ID ');
-    SQL.Add(' AND P_TEMPERATURE_'+tbl_suf+'.LEV_DBAR=P_SALINITY_'+tbl_suf+'.LEV_DBAR ');
-    SQL.Add(' AND P_TEMPERATURE_'+tbl_suf+'.ID=:ID ');
-    SQL.Add(' AND P_TEMPERATURE_'+tbl_suf+'.PQF2=4 AND P_SALINITY_'+tbl_suf+'.PQF2=4 ');
-    SQL.Add(' ORDER BY P_TEMPERATURE_'+tbl_suf+'.ID, P_TEMPERATURE_'+tbl_suf+'.LEV_DBAR ');
+    SQL.Add(' SELECT NAME FROM CRUISE, PLATFORM WHERE ');
+    SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
+    SQL.Add(' CRUISE.ID=:CrID ');
+    ParamByName('CrID').Value:=CrID;
+   Open;
+     Plat:=Qt1.FieldByName('NAME').AsString;
+   Close;
+  end;
+
+
+
+//  gebco := -GetGEBCODepth(lon, lat);
+
+  with Qt1 do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' SELECT P_TEMPERATURE.LEV_DBAR, ');
+    SQL.Add(' P_TEMPERATURE.VAL, P_SALINITY.VAL ');
+    SQL.Add(' FROM P_TEMPERATURE, P_SALINITY ');
+    SQL.Add(' WHERE P_TEMPERATURE.ID=P_SALINITY.ID ');
+    SQL.Add(' AND P_TEMPERATURE.LEV_DBAR=P_SALINITY.LEV_DBAR ');
+    SQL.Add(' AND P_TEMPERATURE.ID=:ID ');
+    //SQL.Add(' AND P_TEMPERATURE.PQF2=4 AND P_SALINITY.PQF2=4 ');
+    SQL.Add(' ORDER BY P_TEMPERATURE.ID, P_TEMPERATURE.LEV_DBAR ');
     ParamByName('ID').AsInteger:=ID;
    Open;
    Last;
@@ -88,8 +104,9 @@ try
                 inttostr(mn)+' '+
                 inttostr(dd)+' '+
                 inttostr(gebco)+' '+
-                '"'+Source+'" '+
-                '"'+Plat+'"');
+               // '"'+Source+'" '+
+                '"'+Plat+'"'+' '+
+                inttostr(qf));
 
   Writeln(out2, inttostr(cnt)+' '+
                 floattostr(lat)+' '+
