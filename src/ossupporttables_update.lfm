@@ -1,7 +1,7 @@
 object frmsupporttables_update: Tfrmsupporttables_update
-  Left = 60
+  Left = 121
   Height = 825
-  Top = 163
+  Top = 173
   Width = 1537
   Caption = 'Support tables update and QC'
   ClientHeight = 825
@@ -14,15 +14,15 @@ object frmsupporttables_update: Tfrmsupporttables_update
     Height = 592
     Top = 0
     Width = 1537
-    ActivePage = TabSheet3
+    ActivePage = TabSheet1
     Align = alTop
     ParentFont = False
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Update'
       ClientHeight = 554
-      ClientWidth = 1528
+      ClientWidth = 1529
       ParentFont = False
       object GroupBox1: TGroupBox
         Left = 12
@@ -297,7 +297,7 @@ object frmsupporttables_update: Tfrmsupporttables_update
     object TabSheet2: TTabSheet
       Caption = 'QC'
       ClientHeight = 554
-      ClientWidth = 1528
+      ClientWidth = 1529
       ParentFont = False
       object rgDuplicates: TRadioGroup
         Left = 24
@@ -372,17 +372,6 @@ object frmsupporttables_update: Tfrmsupporttables_update
         ParentFont = False
         TabOrder = 3
       end
-      object Button1: TButton
-        Left = 24
-        Height = 38
-        Top = 516
-        Width = 314
-        Caption = 'USS from name to class'
-        OnClick = Button1Click
-        ParentFont = False
-        TabOrder = 4
-        Visible = False
-      end
     end
     object TabSheet3: TTabSheet
       Caption = 'Auxiliary procedures'
@@ -423,6 +412,16 @@ object frmsupporttables_update: Tfrmsupporttables_update
         Caption = 'Projects-acronyms'
         OnClick = Button5Click
         TabOrder = 3
+      end
+      object Button1: TButton
+        Left = 40
+        Height = 38
+        Top = 272
+        Width = 314
+        Caption = 'Ship type from name to class'
+        OnClick = Button1Click
+        ParentFont = False
+        TabOrder = 4
       end
     end
   end

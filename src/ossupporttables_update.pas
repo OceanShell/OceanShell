@@ -25,9 +25,9 @@ type
     btnCountryWOD: TButton;
     btnPlatformDuplicates: TButton;
     btnPlatformWOD2013: TButton;
-    Button1: TButton;
     btnCountryISO: TButton;
     btnCruiseGLODAP: TButton;
+    Button1: TButton;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
@@ -122,12 +122,13 @@ end;
 
 procedure Tfrmsupporttables_update.btnPlatformICESClick(Sender: TObject);
 Var
-k, absnum:integer;
+k, absnum, Country_ID, cnt_ins:integer;
 XL: oleVariant;
 XLTemplate:Variant;
 RString, src, shipname:String;
 TRt:TSQLTransaction;
 Qt1, Qt2, Qt3:TSQLQuery;
+dat: text;
 begin
 {$IFDEF WINDOWS}
  mLog.Clear;
@@ -168,6 +169,8 @@ if frmosmain.OD.Execute then begin
 
   src:='ICES_'+Vartostr(Xl.Cells[2, 5].Value);
 
+  AssignFile(dat, GlobalUnloadPath+'ICES_update_name_mismatch.txt'); rewrite(dat);
+  cnt_ins:=0;
  try
 //  Enabled:=false; // отключаем форму
 //  Q.DisableControls;
@@ -196,10 +199,12 @@ if frmosmain.OD.Execute then begin
    with Qt1 do begin
     Close;
      SQL.Clear;
-     SQL.Add(' select ID, name from PLATFORM ');
-     SQL.Add(' where nodc_ID=:code_nodc ');
+     SQL.Add(' select ID, NAME from PLATFORM ');
+     SQL.Add(' where NODC_CODE=:code_nodc and ID<10000000 ');
      ParamByName('code_nodc').AsWideString:=VarToStr(Xl.Cells[k,  1].Value);
     Open;
+    Last;
+    First;
    end;
 
     (*Вставляем новое судно *)
@@ -208,48 +213,84 @@ if frmosmain.OD.Execute then begin
       Close;
        SQL.Clear;
        SQL.ADD(' Select max(ID) as AbsnumMax from PLATFORM ');
+       SQL.ADD(' where ID<10000000 ');
       Open;
         Absnum:=Qt2.FieldByName('AbsnumMax').AsInteger+1;
       Close;
      end;
+
+     Country_ID:=0;
+     with Qt2 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' SELECT ID FROM COUNTRY WHERE ' );
+       SQL.Add(' NODC_CODE=:NODC_CODE ');
+       ParamByName('NODC_CODE').asString:=Copy(UpperCase(VarToStr(Xl.Cells[k, 1].Value)), 1, 2);
+      Open;
+       Country_ID:=Qt2.Fields[0].AsInteger;
+      Close;
+     end;
+
+     if Country_ID=0 then begin
+      with Qt2 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' SELECT ID FROM COUNTRY WHERE ' );
+        SQL.Add(' ISO3166_CODE=:ISO3166_CODE ');
+        ParamByName('ISO3166_CODE').asString:=Copy(UpperCase(VarToStr(Xl.Cells[k, 1].Value)), 1, 2);
+       Open;
+        Country_ID:=Qt2.Fields[0].AsInteger;
+       Close;
+      end;
+     end;
+
 
     try
      with Qt2 do begin
       Close;
        SQL.Clear;
        SQL.Add(' INSERT INTO PLATFORM ' );
-       SQL.Add(' (ID, NODC_ID, NAME, IMO_ID, CALLSIGN,  NOTES_ICES, SOURCE) ');
+       SQL.Add(' (ID, NODC_CODE, NAME, IMO_ID, COUNTRY_ID, CALLSIGN, NOTES_ICES) ');
        SQL.Add(' VALUES ' );
-       SQL.Add(' (:ID, :NODC_ID, :NAME, :IMO_ID, :CALLSIGN, :NOTES_ICES, :SOURCE ');
+       SQL.Add(' (:ID, :NODC_CODE, :NAME, :IMO_ID, :COUNTRY_ID, :CALLSIGN, :NOTES_ICES)');
        ParamByName('ID').AsInteger:=absnum;
        ParamByName('NODC_CODE').asString:=UpperCase(VarToStr(Xl.Cells[k, 1].Value));
+       ParamByName('COUNTRY_ID').asInteger:=Country_ID;
        ParamByName('NAME').AsString:=UpperCase(VarToStr(Xl.Cells[k, 2].Value));
        if trim(Xl.Cells[k, 4].Value)<>'' then
-       ParamByName('IMO_CODE').AsInteger:=Xl.Cells[k, 4].Value else
-       ParamByName('IMO_CODE').AsInteger:=-9;
+       ParamByName('IMO_ID').AsInteger:=Xl.Cells[k, 4].Value else ParamByName('IMO_ID').AsInteger:=-9;
        ParamByName('CALLSIGN').AsString:=VarToStr(Xl.Cells[k, 8].Value);
-       ParamByName('Source').AsString:=src;
        ParamByName('NOTES_ICES').AsWideString:=RString; //Wide??
+       //showmessage(SQL.Text);
       ExecSQL;
       Close;
      end;
+
+      mLog.lines.add('Inserted: '+uppercase(Xl.Cells[k,  2].Value));
       Trt.CommitRetaining;
+      inc(cnt_ins);
      except
-      mLog.Lines.Add('Insert error: '+RString);
-      TRt.RollbackRetaining;
+       on e: Exception do begin
+        mLog.Lines.Add('Insert error: '+RString);
+        TRt.RollbackRetaining;
+        Showmessage(e.message);
+       end;
+
      end;
     end;
 
 
    (* Обновляем существующую запись *)
-   if Qt1.IsEmpty=false then begin
+   if (Qt1.IsEmpty=false) and (Qt1.RecordCount=1) then begin
 
     Absnum  :=Qt1.FieldByName('ID').AsInteger;
-    ShipName:=Qt1.FieldByName('Name').AsString;
+    ShipName:=Qt1.FieldByName('NAME').AsString;
 
     if ShipName<>trim(UpperCase(VarToStr(Xl.Cells[k,  2].Value))) then begin
      RString:='ICES name: '+VarToStr(Xl.Cells[k,  2].Value)+#13+RString;
-     mLog.lines.add(uppercase(Xl.Cells[k,  2].Value));
+     writeln(dat, 'NODC: '+VarToStr(Xl.Cells[k,  1].Value)+'; '+
+                  'DB: '+ShipName+' --> ICES: '+
+                  uppercase(Xl.Cells[k,  2].Value));
     end;
 
    try
@@ -257,10 +298,9 @@ if frmosmain.OD.Execute then begin
       Close;
        SQL.Clear;
        SQL.Add(' Update PLATFORM set ');
-       SQL.Add(' SOURCE=:Source, NOTES_ICES=:Notes ');
+       SQL.Add(' NOTES_ICES=:Notes ');
        SQL.Add(' where ID=:ID ' );
        ParamByName('ID').AsInteger:=absnum;
-       ParamByName('Source').AsString:=src;
        ParamByName('NOTES').AsWideString:=RString;
       ExecSQL;
       Close;
@@ -277,7 +317,7 @@ if frmosmain.OD.Execute then begin
       with Qt3 do begin
        Close;
         SQL.Clear;
-        SQL.Add(' Select IMO_CODE from PLATFORM ');
+        SQL.Add(' Select IMO_ID from PLATFORM ');
         SQL.Add(' where ID=:ID ' );
         ParamByName('ID').AsInteger:=absnum;
        Open;
@@ -285,7 +325,7 @@ if frmosmain.OD.Execute then begin
          with Qt2 do begin
           Close;
            SQL.Clear;
-           SQL.Add(' Update PLATFORM ');
+           SQL.Add(' Update PLATFORM set ');
            SQL.Add(' IMO_ID=:IMO ');
            SQL.Add(' where ID=:ID ' );
            ParamByName('ID').AsInteger:=absnum;
@@ -334,10 +374,12 @@ if frmosmain.OD.Execute then begin
    end;
    end;
    (* END of CALLSIGN *)
-
-
-     Qt1.Close;
   end;
+
+  if Qt1.RecordCount>1 then
+    mLog.lines.add('NODC '+trim(Xl.Cells[k, 1].Value)+' has multiple entries');
+
+  Qt1.Close;
   until trim(Xl.Cells[k, 1].Value)='';
 
   TRt.Commit;
@@ -352,8 +394,10 @@ if frmosmain.OD.Execute then begin
   Qt2.Free;
   Qt3.free;
   TrT.Free;
+  Closefile(dat);
  end;
-  Showmessage('Update finished. Stations processed: '+inttostr(k-5));
+  Showmessage('Update finished. Platforms processed: '+inttostr(k-5)+'. '+
+              'Platforms inserted: '+inttostr(cnt_ins));
 end; // if file is open   }
 {$ENDIF}
 end;
@@ -838,16 +882,28 @@ Qt2.Transaction:=TRt;
 with Qt1 do begin
  Close;
   SQL.Clear;
-  SQL.Add(' select ID, name from PLATFORM ');
+  SQL.Add(' select ID, name from PLATFORM where ID<10000000 ');
  Open;
 end;
 
 qt1.first;
 while not qt1.eof do begin
- name0:=Qt1.fieldbyname('name').asstring;
-  if copy(name0, 1, 4)='USS ' then begin
-   name1:=trim(copy(name0, 4, length(name0)));
+ name0:=trim(Qt1.fieldbyname('name').asstring);
 
+ name1:='';
+ if pos(' F/S', name0)>0 then name1:=trim(copy(name0, 1, pos(' F/S', name0)));
+
+ if copy(name0, 1, 4)='USS '   then name1:=trim(copy(name0, 4, length(name0)));
+ if copy(name0, 1, 6)='USCGC ' then name1:=trim(copy(name0, 6, length(name0)));
+ if copy(name0, 1, 5)='USNS '  then name1:=trim(copy(name0, 5, length(name0)));
+ if copy(name0, 1, 5)='USCG '  then name1:=trim(copy(name0, 5, length(name0)));
+ if copy(name0, 1, 3)='SS '    then name1:=trim(copy(name0, 3, length(name0)));
+ if copy(name0, 1, 5)='CCGC '  then name1:=trim(copy(name0, 5, length(name0)));
+ if copy(name0, 1, 6)='USCGR ' then name1:=trim(copy(name0, 6, length(name0)));
+ if copy(name0, 1, 4)='CSX '   then name1:=trim(copy(name0, 4, length(name0)));
+ if copy(name0, 1, 5)='HMTS '  then name1:=trim(copy(name0, 5, length(name0)));
+
+ if trim(name1)<>'' then begin
    with qt2 do begin
     close;
      sql.clear;
