@@ -55,6 +55,7 @@ type
     eSource_NAME: TEdit;
     imgFlagPlatform: TImage;
     ImgFlagInstitute: TImage;
+    lbCruisesInDB: TLabel;
     lbCountryPlatform: TLabel;
     lbCountryInstitute: TLabel;
     mNotesTables: TMemo;
@@ -623,6 +624,17 @@ begin
 
    cc:=Copy(Q.FieldByName('NODC_CODE').AsString, 1, 2);
    if trim(cc)='' then exit;
+
+    with Qt do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' select COUNT(PLATFORM_ID) FROM CRUISE ');
+      SQL.Add(' where PLATFORM_ID=:ID');
+      ParamByName('ID').Value:=Q.FieldByName('ID').AsInteger;
+     Open;
+      lbCruisesInDB.Caption:='Cruises in DB: '+VarToStr(Qt.Fields[0].Value);
+     Close;
+    end;
 
     with Qt do begin
      Close;

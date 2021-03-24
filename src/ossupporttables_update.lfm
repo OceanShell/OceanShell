@@ -79,7 +79,7 @@ object frmsupporttables_update: Tfrmsupporttables_update
           Height = 38
           Top = 42
           Width = 180
-          Caption = 's_3_platform.txt'
+          Caption = 's_3_platform.csv'
           OnClick = btnPlatformWOD2013Click
           ParentFont = False
           TabOrder = 1
