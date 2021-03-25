@@ -32,6 +32,8 @@ type
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
+    Button6: TButton;
+    Button7: TButton;
     chkShowLog: TCheckBox;
     GroupBox1: TGroupBox;
     GroupBox3: TGroupBox;
@@ -73,6 +75,7 @@ type
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
     procedure Label12Click(Sender: TObject);
     procedure Label1Click(Sender: TObject);
     procedure Label7Click(Sender: TObject);
@@ -2176,6 +2179,95 @@ finally
  Trt.Free;
 end;
 
+end;
+
+procedure Tfrmsupporttables_update.Button7Click(Sender: TObject);
+var
+dat, dat1, dat2: text;
+PathToCodesSource, ShipName, buf_str:string;
+c, k, code_ocl, imo, absnum, str_pos, cnt_ins, Country_id, fl:integer;
+notes, shipname0, ReportString, st,code_nodc, code_nodc0:widestring;
+TRt:TSQLTransaction;
+Qt1, Qt2, Qt3:TSQLQuery;
+WOD_ID_arr: array [1..20000] of integer;
+WOD_ID_cnt:integer;
+begin
+
+ try
+  mLog.Clear;
+
+ //Q.DisableControls;
+ btnPlatformWOD2013.Enabled:=false;
+
+ frmosmain.OD.Filter:='*.csv|*.csv';
+ if frmosmain.OD.Execute then PathToCodesSource:=frmosmain.OD.FileName else exit;
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.IBDB;
+  Qt2.Transaction:=TRt;
+
+  AssignFile(dat, PathToCodesSource); reset(dat);
+  readln(dat,st);
+
+   repeat
+    readln(dat, st);
+
+    k:=0;
+    for c:=1 to 3 do begin
+     buf_str:='';
+     repeat
+      inc(k);
+       if (st[k]<>',') and (st[k]<>'(') then buf_str:=buf_str+st[k];
+     until (st[k]=',') or (st[k]='(') or (k=length(st));
+     if c=1 then code_ocl:=StrToInt(trim(buf_str));
+     if c=2 then code_nodc:=trim(buf_str);
+     if c=3 then ShipName:=trim(buf_str);
+    end;
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID, name_wod from PLATFORM ');
+     SQL.Add(' where wod_id=:code_ocl ');
+     ParamByName('code_ocl').AsInteger:=code_ocl;
+    Open;
+   end;
+
+
+   Absnum:=Qt1.Fields[0].AsInteger;
+   shipname0:=Qt1.FieldByName('NAME_WOD').AsString;
+
+   if ShipName<>shipname0 then begin
+    with Qt2 do begin
+      Close;
+       SQL.Clear;
+       SQL.Add(' Update PLATFORM set' );
+       SQL.Add(' NAME_WOD=:Name_wod');
+       SQL.Add(' where ID=:absnum ' );
+       ParamByName('absnum').AsInteger:=absnum;
+       ParamByName('NAME_WOD').AsString:=shipname;
+      ExecSQL;
+     Close;
+     end;
+     TrT.CommitRetaining;
+   end;
+  until eof(dat);
+  closefile(dat);
+
+ finally
+  btnPlatformWOD2013.Enabled:=true;
+  Qt1.Free;
+  Qt2.Free;
+  Qt3.free;
+  TrT.Free;
+ end;
 end;
 
 

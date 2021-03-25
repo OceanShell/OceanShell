@@ -14,10 +14,10 @@ object frmsupporttables_update: Tfrmsupporttables_update
     Height = 592
     Top = 0
     Width = 1537
-    ActivePage = TabSheet1
+    ActivePage = TabSheet3
     Align = alTop
     ParentFont = False
-    TabIndex = 0
+    TabIndex = 2
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Update'
@@ -422,6 +422,23 @@ object frmsupporttables_update: Tfrmsupporttables_update
         OnClick = Button1Click
         ParentFont = False
         TabOrder = 4
+      end
+      object Button6: TButton
+        Left = 40
+        Height = 38
+        Top = 328
+        Width = 313
+        Caption = 'ICES vessel names'
+        TabOrder = 5
+      end
+      object Button7: TButton
+        Left = 40
+        Height = 38
+        Top = 376
+        Width = 313
+        Caption = 'Wod vessel names'
+        OnClick = Button7Click
+        TabOrder = 6
       end
     end
   end

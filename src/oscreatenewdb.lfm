@@ -18,7 +18,6 @@ object frmcreatenewdb: Tfrmcreatenewdb
     Top = 744
     Width = 209
     Caption = 'Create new DB'
-    Enabled = False
     OnClick = btnCreateDBClick
     TabOrder = 0
   end

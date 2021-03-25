@@ -137,13 +137,11 @@ end;
 (* Creating NEW EMPTY database EXACTLY like OCEAN.FDB *)
 function Tfrmcreatenewdb.GetDDL:boolean;
 var
-  Ini: TIniFile;
+  DBIni: TIniFile;
   lReg : TRegistry;
-  FBPath, OceanPath, cmd, ScriptFile: String;
+  FBPath, cmd, ScriptFile: String;
+  DBUser, DBPass, DBHost, DBPath: string;
 begin
-
-//showmessage('here');
-
   (* Looking for installed Firebird *)
   lReg := TRegistry.Create;
   try
@@ -157,12 +155,15 @@ begin
   end;
 
   (* Path to Ocean.FDB *)
-  Ini := TIniFile.Create(IniFileName);
-  try
-   OceanPath:=Ini.ReadString( 'main', 'OceanFDBPath',  '');
-  finally
-    Ini.free;
-  end;
+    DBIni := TIniFile.Create(IniFileName+'_db');
+    try
+      DBUser :=DBIni.ReadString(cbDatabases.text, 'user',     'SYSDBA');
+      DBPass :=DBIni.ReadString(cbDatabases.text, 'pass',     'masterkey');
+      DBHost :=DBIni.ReadString(cbDatabases.text, 'host',     'localhost');
+      DBPath :=DBIni.ReadString(cbDatabases.text, 'dbpath',   '');
+    finally
+      DBIni.Free;
+    end;
 
   (* Getting DDL from OCEAN.FDB *)
   ScriptFile:=GlobalUnloadPath+'TMP.SQL';
@@ -170,7 +171,9 @@ begin
 
   cmd:=FBPath+'isql -ex -o '+
        ScriptFile+' '+
-       OceanPath+' -user sysdba -pass masterkey';
+       DBHost+':'+DBPath+
+       ' -user '+DBUser+
+       ' -pass '+DBPass;
 
   frmosmain.RunScript(0, cmd, nil);
 
@@ -338,8 +341,11 @@ DBIni:TIniFIle;
 DB_NEW, DB_OCEAN:TIBConnection;
 TR_NEW, TR_OCEAN:TSQLTransaction;
 Q_NEW, Q_OCEAN:TSQLQuery;
-k:integer;
-DBUser, DBPass, DBHost, DBPath: string;
+k, i, c:integer;
+DBUser, DBPass, DBHost, DBPath, tbl, st, str1, str2: string;
+
+dat:text;
+dbtbl_lst:TStringList;
 begin
  try
 
@@ -388,272 +394,54 @@ begin
        Connected:=true;
      end;
 
-
+   (* loop over tables we'd like to populate *)
    for k:=1 to 9 do begin
      case k of
-      1: begin
+      1: tbl:='COUNTRY';
+      2: tbl:='INSTITUTE';
+      3: tbl:='INSTRUMENT';
+      4: tbl:='PROJECT';
+      5: tbl:='SOURCE';
+      6: tbl:='UNITS';
+      7: tbl:='PLATFORM';
+      8: tbl:='DATABASE_TABLES';
+      9: tbl:='ENTRY_TYPE';
+     end;
+
+      dbtbl_lst:=TStringList.Create;
+      DB_OCEAN.GetFieldNames(tbl, dbtbl_lst);
+
+       str1:=' (';
+       str2:=' (';
+       for c:=0 to dbtbl_lst.Count-1 do begin
+         str1:=str1+dbtbl_lst.Strings[c]+', ';
+         str2:=str2+' :'+dbtbl_lst.Strings[c]+', ';
+       end;
+       str1:=copy(str1,1,length(str1)-2)+')';
+       str2:=copy(str2,1,length(str2)-2)+')';
+
         Q_OCEAN.Close;
-        Q_OCEAN.SQL.Text:='SELECT * FROM COUNTRY ORDER BY ID';
+        Q_OCEAN.SQL.Text:='SELECT * FROM '+tbl+' ORDER BY ID';
         Q_OCEAN.Open;
 
         while not Q_OCEAN.EOF do begin
           With Q_NEW do begin
             Close;
              SQL.Clear;
-             SQL.Add(' INSERT INTO COUNTRY ');
-             SQL.Add(' (ID, NODC_CODE, ISO3166_CODE, NAME, DATE_ADDED, ');
-             SQL.Add(' DATE_UPDATED, NOTES) ');
+             SQL.Add(' INSERT INTO '+tbl);
+             SQL.Add( str1 );
              SQL.Add(' VALUES ');
-             SQL.Add(' (:ID, :NODC_CODE, :ISO3166_CODE, :NAME, :DATE_ADDED, ');
-             SQL.Add(' :DATE_UPDATED, :NOTES) ');
-             ParamByName('ID').Value:=Q_OCEAN.FieldByName('ID').Value;
-             ParamByName('NODC_CODE').Value:=Q_OCEAN.FieldByName('NODC_CODE').Value;
-             ParamByName('ISO3166_CODE').Value:=Q_OCEAN.FieldByName('ISO3166_CODE').Value;
-             ParamByName('NAME').Value:=Q_OCEAN.FieldByName('NAME').Value;
-             ParamByName('NOTES').Value:=Q_OCEAN.FieldByName('NOTES').Value;
-             ParamByName('DATE_ADDED').Value:=Q_OCEAN.FieldByName('DATE_ADDED').Value;
-             ParamByName('DATE_UPDATED').Value:=Q_OCEAN.FieldByName('DATE_UPDATED').Value;
+             SQL.Add( str2 );
+              for c:=0 to dbtbl_lst.Count-1 do
+               ParamByName(dbtbl_lst.Strings[c]).Value:=Q_OCEAN.FieldByName(dbtbl_lst.Strings[c]).Value;
            ExecSQL;
           end;
           Q_OCEAN.Next;
         end;
         TR_OCEAN.CommitRetaining;
-      end;
 
-      2: begin
-        Q_OCEAN.Close;
-        Q_OCEAN.SQL.Text:='SELECT * FROM INSTITUTE ORDER BY ID';
-        Q_OCEAN.Open;
-
-        while not Q_OCEAN.EOF do begin
-          With Q_NEW do begin
-            Close;
-             SQL.Clear;
-             SQL.Add(' INSERT INTO INSTITUTE ');
-             SQL.Add(' (ID, NODC_CODE, WOD_ID, NAME, DATE_ADDED, ');
-             SQL.Add(' DATE_UPDATED, NOTES) ');
-             SQL.Add(' VALUES ');
-             SQL.Add(' (:ID, :NODC_CODE, :WOD_ID, :NAME, :DATE_ADDED, ');
-             SQL.Add(' :DATE_UPDATED, :NOTES) ');
-             ParamByName('ID').Value:=Q_OCEAN.FieldByName('ID').Value;
-             ParamByName('NODC_CODE').Value:=Q_OCEAN.FieldByName('NODC_CODE').Value;
-             ParamByName('WOD_ID').Value:=Q_OCEAN.FieldByName('WOD_ID').Value;
-             ParamByName('NAME').Value:=Q_OCEAN.FieldByName('NAME').Value;
-            // ParamByName('NAME_FULL').Value:=Q_OCEAN.FieldByName('NAME_FULL').Value;
-             ParamByName('NOTES').Value:=Q_OCEAN.FieldByName('NOTES').Value;
-             ParamByName('DATE_ADDED').Value:=Q_OCEAN.FieldByName('DATE_ADDED').Value;
-             ParamByName('DATE_UPDATED').Value:=Q_OCEAN.FieldByName('DATE_UPDATED').Value;
-           ExecSQL;
-          end;
-          Q_OCEAN.Next;
-        end;
-        TR_OCEAN.CommitRetaining;
-      end;
-      3:begin
-        Q_OCEAN.Close;
-        Q_OCEAN.SQL.Text:='SELECT * FROM INSTRUMENT ORDER BY ID';
-        Q_OCEAN.Open;
-
-        while not Q_OCEAN.EOF do begin
-          With Q_NEW do begin
-            Close;
-             SQL.Clear;
-             SQL.Add(' INSERT INTO INSTRUMENT ');
-             SQL.Add(' (ID, WOD_ID, NAME, DATE_ADDED, ');
-             SQL.Add(' DATE_UPDATED, NOTES) ');
-             SQL.Add(' VALUES ');
-             SQL.Add(' (:ID, :WOD_ID, :NAME, :DATE_ADDED, ');
-             SQL.Add(' :DATE_UPDATED, :NOTES) ');
-             ParamByName('ID').Value:=Q_OCEAN.FieldByName('ID').Value;
-             ParamByName('WOD_ID').Value:=Q_OCEAN.FieldByName('WOD_ID').Value;
-             ParamByName('NAME').Value:=Q_OCEAN.FieldByName('NAME').Value;
-             ParamByName('NOTES').Value:=Q_OCEAN.FieldByName('NOTES').Value;
-             ParamByName('DATE_ADDED').Value:=Q_OCEAN.FieldByName('DATE_ADDED').Value;
-             ParamByName('DATE_UPDATED').Value:=Q_OCEAN.FieldByName('DATE_UPDATED').Value;
-           ExecSQL;
-          end;
-          Q_OCEAN.Next;
-        end;
-        TR_OCEAN.CommitRetaining;
-      end;
-
-      4: begin
-        Q_OCEAN.Close;
-        Q_OCEAN.SQL.Text:='SELECT * FROM PROJECT ORDER BY ID';
-        Q_OCEAN.Open;
-
-        while not Q_OCEAN.EOF do begin
-          With Q_NEW do begin
-            Close;
-             SQL.Clear;
-             SQL.Add(' INSERT INTO PROJECT ');
-             SQL.Add(' (ID, WOD_ID, NAME, DATE_ADDED, ');
-             SQL.Add(' DATE_UPDATED, NOTES) ');
-             SQL.Add(' VALUES ');
-             SQL.Add(' (:ID, :WOD_ID, :NAME, :DATE_ADDED, ');
-             SQL.Add(' :DATE_UPDATED, :NOTES) ');
-             ParamByName('ID').Value:=Q_OCEAN.FieldByName('ID').Value;
-             ParamByName('WOD_ID').Value:=Q_OCEAN.FieldByName('WOD_ID').Value;
-             ParamByName('NAME').Value:=Q_OCEAN.FieldByName('NAME').Value;
-            // ParamByName('NAME_FULL').Value:=Q_OCEAN.FieldByName('NAME_FULL').Value;
-             ParamByName('NOTES').Value:=Q_OCEAN.FieldByName('NOTES').Value;
-             ParamByName('DATE_ADDED').Value:=Q_OCEAN.FieldByName('DATE_ADDED').Value;
-             ParamByName('DATE_UPDATED').Value:=Q_OCEAN.FieldByName('DATE_UPDATED').Value;
-           ExecSQL;
-          end;
-          Q_OCEAN.Next;
-        end;
-        TR_OCEAN.CommitRetaining;
-      end;
-
-      5: begin
-        Q_OCEAN.Close;
-        Q_OCEAN.SQL.Text:='SELECT * FROM SOURCE ORDER BY ID';
-        Q_OCEAN.Open;
-
-        while not Q_OCEAN.EOF do begin
-          With Q_NEW do begin
-            Close;
-             SQL.Clear;
-             SQL.Add(' INSERT INTO SOURCE ');
-             SQL.Add(' (ID, NAME, STATION_ID_MIN, STATION_ID_MAX, DATE_ADDED, ');
-             SQL.Add(' DATE_UPDATED, NOTES) ');
-             SQL.Add(' VALUES ');
-             SQL.Add(' (:ID, :NAME, :STATION_ID_MIN, :STATION_ID_MAX, :DATE_ADDED, ');
-             SQL.Add(' :DATE_UPDATED, :NOTES) ');
-             ParamByName('ID').Value:=Q_OCEAN.FieldByName('ID').Value;
-             ParamByName('NAME').Value:=Q_OCEAN.FieldByName('NAME').Value;
-             ParamByName('STATION_ID_MIN').Value:=Q_OCEAN.FieldByName('STATION_ID_MIN').Value;
-             ParamByName('STATION_ID_MAX').Value:=Q_OCEAN.FieldByName('STATION_ID_MAX').Value;
-             ParamByName('NOTES').Value:=Q_OCEAN.FieldByName('NOTES').Value;
-             ParamByName('DATE_ADDED').Value:=Q_OCEAN.FieldByName('DATE_ADDED').Value;
-             ParamByName('DATE_UPDATED').Value:=Q_OCEAN.FieldByName('DATE_UPDATED').Value;
-           ExecSQL;
-          end;
-          Q_OCEAN.Next;
-        end;
-        TR_OCEAN.CommitRetaining;
-      end;
-
-      6: begin
-        Q_OCEAN.Close;
-        Q_OCEAN.SQL.Text:='SELECT * FROM UNITS ORDER BY ID';
-        Q_OCEAN.Open;
-
-        while not Q_OCEAN.EOF do begin
-          With Q_NEW do begin
-            Close;
-             SQL.Clear;
-             SQL.Add(' INSERT INTO UNITS ');
-             SQL.Add(' (ID, NAME_SHORT, NAME, LENGTH, SCALE, DATE_ADDED, ');
-             SQL.Add(' DATE_UPDATED, NOTES) ');
-             SQL.Add(' VALUES ');
-             SQL.Add(' (:ID, :NAME_SHORT, :NAME, :LENGTH, :SCALE, :DATE_ADDED, ');
-             SQL.Add(' :DATE_UPDATED, :NOTES) ');
-             ParamByName('ID').Value:=Q_OCEAN.FieldByName('ID').Value;
-             ParamByName('NAME_SHORT').Value:=Q_OCEAN.FieldByName('NAME_SHORT').Value;
-             ParamByName('NAME').Value:=Q_OCEAN.FieldByName('NAME').Value;
-             ParamByName('LENGTH').Value:=Q_OCEAN.FieldByName('LENGTH').Value;
-             ParamByName('SCALE').Value:=Q_OCEAN.FieldByName('SCALE').Value;
-             ParamByName('NOTES').Value:=Q_OCEAN.FieldByName('NOTES').Value;
-             ParamByName('DATE_ADDED').Value:=Q_OCEAN.FieldByName('DATE_ADDED').Value;
-             ParamByName('DATE_UPDATED').Value:=Q_OCEAN.FieldByName('DATE_UPDATED').Value;
-           ExecSQL;
-          end;
-          Q_OCEAN.Next;
-        end;
-        TR_OCEAN.CommitRetaining;
-      end;
-
-      7: begin
-        Q_OCEAN.Close;
-        Q_OCEAN.SQL.Text:='SELECT * FROM PLATFORM ORDER BY ID';
-        Q_OCEAN.Open;
-
-        while not Q_OCEAN.EOF do begin
-          With Q_NEW do begin
-            Close;
-             SQL.Clear;
-             SQL.Add(' INSERT INTO PLATFORM ');
-             SQL.Add(' (ID, NODC_CODE, WOD_ID, IMO_ID, CALLSIGN, NAME, ');
-             SQL.Add(' NAME_NATIVE, COUNTRY_ID, DATE_ADDED, DATE_UPDATED, ');
-             SQL.Add(' NOTES, NOTES_ICES, NOTES_WOD) ');
-             SQL.Add(' VALUES ');
-             SQL.Add(' (:ID, :NODC_CODE, :WOD_ID, :IMO_ID, :CALLSIGN, :NAME, ');
-             SQL.Add(' :NAME_NATIVE, :COUNTRY_ID, :DATE_ADDED, :DATE_UPDATED, ');
-             SQL.Add(' :NOTES, :NOTES_ICES, :NOTES_WOD) ');
-             ParamByName('ID').Value:=Q_OCEAN.FieldByName('ID').Value;
-             ParamByName('NODC_CODE').Value:=Q_OCEAN.FieldByName('NODC_CODE').Value;
-             ParamByName('WOD_ID').Value:=Q_OCEAN.FieldByName('WOD_ID').Value;
-             ParamByName('IMO_ID').Value:=Q_OCEAN.FieldByName('IMO_ID').Value;
-             ParamByName('CALLSIGN').Value:=Q_OCEAN.FieldByName('CALLSIGN').Value;
-             ParamByName('NAME').Value:=Q_OCEAN.FieldByName('NAME').Value;
-             ParamByName('NAME_NATIVE').Value:=Q_OCEAN.FieldByName('NAME_NATIVE').Value;
-             ParamByName('COUNTRY_ID').Value:=Q_OCEAN.FieldByName('COUNTRY_ID').Value;
-             ParamByName('NOTES').Value:=Q_OCEAN.FieldByName('NOTES').Value;
-             ParamByName('NOTES_ICES').Value:=Q_OCEAN.FieldByName('NOTES_ICES').Value;
-             ParamByName('NOTES_WOD').Value:=Q_OCEAN.FieldByName('NOTES_WOD').Value;
-             ParamByName('DATE_ADDED').Value:=Q_OCEAN.FieldByName('DATE_ADDED').Value;
-             ParamByName('DATE_UPDATED').Value:=Q_OCEAN.FieldByName('DATE_UPDATED').Value;
-           ExecSQL;
-          end;
-          Q_OCEAN.Next;
-        end;
-        TR_OCEAN.CommitRetaining;
-      end;
-
-      8: begin
-        Q_OCEAN.Close;
-        Q_OCEAN.SQL.Text:='SELECT * FROM DATABASE_TABLES ORDER BY ID';
-        Q_OCEAN.Open;
-
-        while not Q_OCEAN.EOF do begin
-          With Q_NEW do begin
-            Close;
-             SQL.Clear;
-             SQL.Add(' INSERT INTO DATABASE_TABLES ');
-             SQL.Add(' (ID, NAME_TABLE, NAME, UNITS_ID_DEFAULT, NOTES, ');
-             SQL.Add(' DATE_ADDED, DATE_UPDATED) ');
-             SQL.Add(' VALUES ');
-             SQL.Add(' (:ID, :NAME_TABLE, :NAME, :UNITS_ID_DEFAULT, :NOTES, ');
-             SQL.Add(' :DATE_ADDED, :DATE_UPDATED) ');
-             ParamByName('ID').Value:=Q_OCEAN.FieldByName('ID').Value;
-             ParamByName('NAME_TABLE').Value:=Q_OCEAN.FieldByName('NAME_TABLE').Value;
-             ParamByName('NAME').Value:=Q_OCEAN.FieldByName('NAME').Value;
-             ParamByName('UNITS_ID_DEFAULT').Value:=Q_OCEAN.FieldByName('UNITS_ID_DEFAULT').Value;
-             ParamByName('NOTES').Value:=Q_OCEAN.FieldByName('NOTES').Value;
-             ParamByName('DATE_ADDED').Value:=Q_OCEAN.FieldByName('DATE_ADDED').Value;
-             ParamByName('DATE_UPDATED').Value:=Q_OCEAN.FieldByName('DATE_UPDATED').Value;
-           ExecSQL;
-          end;
-          Q_OCEAN.Next;
-         end;
-         TR_OCEAN.CommitRetaining;
-        end;
-
-        9: begin
-        Q_OCEAN.Close;
-        Q_OCEAN.SQL.Text:='SELECT * FROM ENTRY_TYPE ORDER BY ID';
-        Q_OCEAN.Open;
-
-        while not Q_OCEAN.EOF do begin
-          With Q_NEW do begin
-            Close;
-             SQL.Clear;
-             SQL.Add(' INSERT INTO ENTRY_TYPE ');
-             SQL.Add(' (ID, NAME, DESCRIPTION) ');
-             SQL.Add(' VALUES ');
-             SQL.Add(' (:ID, :NAME, :DESCRIPTION) ');
-             ParamByName('ID').Value:=Q_OCEAN.FieldByName('ID').Value;
-             ParamByName('NAME').Value:=Q_OCEAN.FieldByName('NAME').Value;
-             ParamByName('DESCRIPTION').Value:=Q_OCEAN.FieldByName('DESCRIPTION').Value;
-           ExecSQL;
-          end;
-          Q_OCEAN.Next;
-      end;
-      TR_OCEAN.CommitRetaining;
-     end; //9
-    end; //end of case
+       dbtbl_lst.Free;
+   //   showmessage(tbl);
    end; // 1-9
 
  finally

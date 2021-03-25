@@ -1,11 +1,11 @@
 object frmsupporttables: Tfrmsupporttables
-  Left = 159
+  Left = 202
   Height = 825
-  Top = 95
+  Top = 131
   Width = 1501
   Caption = 'Support tables'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 825
+  ClientWidth = 1501
   Color = clBtnFace
   Constraints.MinHeight = 825
   Constraints.MinWidth = 1500
@@ -23,13 +23,13 @@ object frmsupporttables: Tfrmsupporttables
     Height = 792
     Top = 33
     Width = 1501
-    ActivePage = tbPlatform
+    ActivePage = tsTables
     Align = alClient
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
     ParentFont = False
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 0
     OnChange = PageControl1Change
     object tsTables: TTabSheet
@@ -262,10 +262,6 @@ object frmsupporttables: Tfrmsupporttables
               DropDownRows = 25
               Title.Caption = 'Country'
               FieldName = 'CTRY'
-            end          
-            item
-              Title.Caption = 'NUMCR'
-              FieldName = 'NUMCR'
             end>
           DataSource = DS
           FixedCols = 0
@@ -550,6 +546,7 @@ object frmsupporttables: Tfrmsupporttables
           Top = 739
           Width = 510
           Align = alBottom
+          Alignment = taCenter
           Caption = 'Cruises in DB:'
           Font.Color = clWindowText
           Font.Height = -17
