@@ -346,6 +346,7 @@ DBUser, DBPass, DBHost, DBPath, tbl, st, str1, str2: string;
 
 dat:text;
 dbtbl_lst:TStringList;
+tbl_arr:array of string;
 begin
  try
 
@@ -394,22 +395,27 @@ begin
        Connected:=true;
      end;
 
-   (* loop over tables we'd like to populate *)
-   for k:=1 to 9 do begin
-     case k of
-      1: tbl:='COUNTRY';
-      2: tbl:='INSTITUTE';
-      3: tbl:='INSTRUMENT';
-      4: tbl:='PROJECT';
-      5: tbl:='SOURCE';
-      6: tbl:='UNITS';
-      7: tbl:='PLATFORM';
-      8: tbl:='DATABASE_TABLES';
-      9: tbl:='ENTRY_TYPE';
-     end;
+   SetLength(tbl_arr, 13);
+   tbl_arr[0] :='COUNTRY';
+   tbl_arr[1] :='INSTITUTE';
+   tbl_arr[2] :='INSTRUMENT';
+   tbl_arr[3] :='PROJECT';
+   tbl_arr[4] :='SOURCE';
+   tbl_arr[5] :='UNITS';
+   tbl_arr[6] :='PLATFORM';
+   tbl_arr[7] :='DATABASE_TABLES';
+   tbl_arr[8] :='ENTRY_TYPE';
+   tbl_arr[9] :='FLAG_STATION';
+   tbl_arr[10]:='FLAG_PQF1';
+   tbl_arr[11]:='FLAG_PQF2';
+   tbl_arr[12]:='FLAG_SQF';
 
+   (* loop over tables we'd like to populate *)
+   for k:=0 to high(tbl_arr) do begin
+
+     //getting fields for every table
       dbtbl_lst:=TStringList.Create;
-      DB_OCEAN.GetFieldNames(tbl, dbtbl_lst);
+      DB_OCEAN.GetFieldNames(tbl_arr[k], dbtbl_lst);
 
        str1:=' (';
        str2:=' (';
@@ -421,14 +427,14 @@ begin
        str2:=copy(str2,1,length(str2)-2)+')';
 
         Q_OCEAN.Close;
-        Q_OCEAN.SQL.Text:='SELECT * FROM '+tbl+' ORDER BY ID';
+        Q_OCEAN.SQL.Text:='SELECT * FROM '+tbl_arr[k]+' ORDER BY ID';
         Q_OCEAN.Open;
 
         while not Q_OCEAN.EOF do begin
           With Q_NEW do begin
             Close;
              SQL.Clear;
-             SQL.Add(' INSERT INTO '+tbl);
+             SQL.Add(' INSERT INTO '+tbl_arr[k]);
              SQL.Add( str1 );
              SQL.Add(' VALUES ');
              SQL.Add( str2 );
@@ -455,6 +461,7 @@ begin
   DB_NEW.Free;
   DB_OCEAN.Connected:=false;
   DB_OCEAN.Free;
+  Tbl_arr:=nil;
  end;
 
 end;

@@ -50,7 +50,6 @@ try
  frmdm.Q.DisableControls;
  frmdm.Q.First;
  while not frmdm.Q.EOF do begin
-  inc(cnt);
 
   ID  := frmdm.Q.FieldByName('ID').Value;
   CrID:= frmdm.Q.FieldByName('CRUISE_ID').Value;
@@ -74,10 +73,6 @@ try
    Close;
   end;
 
-
-
-//  gebco := -GetGEBCODepth(lon, lat);
-
   with Qt1 do begin
    Close;
     SQL.Clear;
@@ -96,6 +91,7 @@ try
   end;
 
   if (Qt1.RecordCount>3) and (gebco>10) then begin
+  inc(cnt);
 
   Writeln(out1, inttostr(cnt)+' '+
                 floattostr(lat)+' '+

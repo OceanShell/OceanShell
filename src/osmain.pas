@@ -3495,9 +3495,8 @@ begin
 
    inc(k);
 
-   {$IFDEF WINDOWS}
-     Procedures.ProgressTaskbar(k, Qt.RecordCount);
-   {$ENDIF}
+   Procedures.ProgressTaskbar(k, Qt.RecordCount);
+   Application.ProcessMessages;
 
    if (k mod 1000)=1 then TRt.CommitRetaining;
 
@@ -3509,9 +3508,8 @@ finally
  FreeMemory(start);
  nc_close(ncid);  // Close nc file
 
- {$IFDEF WINDOWS}
-   Procedures.ProgressTaskbar(0, 0);
- {$ENDIF}
+ Procedures.ProgressTaskbar(0, 0);
+
 
  Trt.Commit;
  Qt.Free;
@@ -3549,7 +3547,9 @@ begin
    Close;
     SQL.Clear;
     SQL.Add(' SELECT ID FROM STATION ');
-    SQL.Add(' WHERE LASTLEVEL_M IS NULL ');
+    SQL.Add(' WHERE ');
+    SQL.Add(' LASTLEVEL_M IS NULL OR ');
+    SQL.Add(' LASTLEVEL_DBAR IS NULL ');
     SQL.Add(' ORDER BY ID ');
    Open;
    Last;
