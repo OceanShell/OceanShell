@@ -223,6 +223,7 @@ type
     MenuItem25: TMenuItem;
     iMetadataUpdate: TMenuItem;
     iDensity: TMenuItem;
+    iLoad_ICES_AK: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     iSelectCruise: TMenuItem;
@@ -423,6 +424,7 @@ type
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
     procedure iload_icesClick(Sender: TObject);
+    procedure iLoad_ICES_AKClick(Sender: TObject);
     procedure iLoad_ITPClick(Sender: TObject);
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
@@ -622,6 +624,7 @@ uses
   osload_WOD18,
   osload_PangaeaTab,
   osload_ices,
+  osload_ices1,
 
 (* database service procedures *)
   ossupporttables,
@@ -3826,6 +3829,17 @@ begin
    frmload_ices.Free;
    frmload_ices := nil;
  end;
+end;
+
+procedure Tfrmosmain.iLoad_ICES_AKClick(Sender: TObject);
+begin
+  frmload_ices1 := Tfrmload_ices1.Create(Self);
+  try
+   if not frmload_ices1.ShowModal = mrOk then exit;
+  finally
+    frmload_ices1.Free;
+    frmload_ices1 := nil;
+  end;
 end;
 
 procedure Tfrmosmain.iLoad_ITPClick(Sender: TObject);
