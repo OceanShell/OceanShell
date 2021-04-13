@@ -59,15 +59,25 @@ uses osmain, dm, GibbsSeaWater;
 { Tfrmload_ices1 }
 
 procedure Tfrmload_ices1.FormShow(Sender: TObject);
+Var
+  RootDir: string;
 begin
   memo1.Clear;
   FileListBox1.Clear;
-  pathData:='c:\Users\ako071\AK\datasets\ICES\download\';
-  pathCSR:='c:\Users\ako071\AK\datasets\ICES\downloadCSR\';
-  pathCR:='c:\Users\ako071\AK\datasets\ICES\download\cruises\';
-  pathPreview:='c:\Users\ako071\AK\datasets\ICES\download\preview\';
 
-  if directoryexists(pathPreview)=false then mkdir(pathPreview);
+  RootDir:=GlobalDataPath+'ICES'+PathDelim;
+  if not DirectoryExists(RootDir) then CreateDir(RootDir);
+
+  pathData:=RootDir+'download'+PathDelim;
+  if not DirectoryExists(pathData) then CreateDir(pathData);
+
+  if not DirectoryExists(pathData+'downloadCSR') then CreateDir(pathData+'downloadCSR');
+  if not DirectoryExists(pathData+'cruises')     then CreateDir(pathData+'cruises');
+  if not DirectoryExists(pathData+'preview')     then CreateDir(pathData+'preview');
+
+  pathCSR:=pathData+'downloadCSR'+PathDelim;
+  pathCR :=pathData+'cruises'+PathDelim;
+  pathPreview:=pathData+'preview'+PathDelim;
 
   FileListBox1.Directory:=pathData;
   FileListBox2.Directory:=pathCSR;

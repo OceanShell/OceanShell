@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="60">
+    <Units Count="61">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -423,6 +423,13 @@
         <IsPartOfProject Value="True"/>
         <HasResources Value="True"/>
       </Unit59>
+      <Unit60>
+        <Filename Value="osload_ices1.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmload_ices1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit60>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

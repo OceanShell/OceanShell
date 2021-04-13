@@ -323,11 +323,9 @@ type
     procedure btnRemoveEntryClick(Sender: TObject);
     procedure btnSaveCruiseClick(Sender: TObject);
     procedure btnSaveEntryClick(Sender: TObject);
-  //  procedure btnSelectCruisesClick(Sender: TObject);
     procedure btnSelectIDClick(Sender: TObject);
     procedure btnSelectClick(Sender: TObject);
     procedure cbCountryDropDown(Sender: TObject);
-  //  procedure cbCruiseCruiseNumDropDown(Sender: TObject);
     procedure cbCruiseDropDown(Sender: TObject);
     procedure cbEntryTypeSelect(Sender: TObject);
     procedure cbInstituteDropDown(Sender: TObject);
@@ -337,20 +335,12 @@ type
     procedure cbSourceDropDown(Sender: TObject);
     procedure chkAuxMetadataChange(Sender: TObject);
     procedure chkCrNumStatChange(Sender: TObject);
- //   procedure chkCRUISEDateandtimeChange(Sender: TObject);
- //   procedure chkCruiseIDRangeChange(Sender: TObject);
- //   procedure chkCruiseNumStationsChange(Sender: TObject);
- //   procedure chkCruiseQCFlagChange(Sender: TObject);
- //   procedure chkCRUISERegionChange(Sender: TObject);
     procedure chkDateandTimeChange(Sender: TObject);
     procedure chkDepthChange(Sender: TObject);
     procedure chkIDRangeChange(Sender: TObject);
     procedure chkParameterChange(Sender: TObject);
     procedure chkQCFlagChange(Sender: TObject);
     procedure chkRegionChange(Sender: TObject);
-    procedure DBCruiseCountryDropDown(Sender: TObject);
-    procedure DBCruiseInstituteDropDown(Sender: TObject);
-    procedure DBCruiseProjectDropDown(Sender: TObject);
     procedure DBGridCruiseCellClick(Column: TColumn);
     procedure DBGridCruiseEditingDone(Sender: TObject);
     procedure DBGridCruiseKeyUp(Sender: TObject; var Key: Word;
@@ -369,7 +359,6 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure gbAuxiliaryMetadataClick(Sender: TObject);
     procedure iAboutClick(Sender: TObject);
     procedure iBackupQCClick(Sender: TObject);
     procedure iDBStatisticsClick(Sender: TObject);
@@ -577,7 +566,7 @@ uses
   osload_GLODAP_2019_v2_product,
   osload_WOD18,
   osload_PangaeaTab,
-  osload_ices,
+  osload_ices1,
 
 (* database service procedures *)
   ossupporttables,
@@ -847,11 +836,6 @@ begin
  OnResize(Self);
  SetFocus;
  Application.ProcessMessages;
-end;
-
-procedure Tfrmosmain.gbAuxiliaryMetadataClick(Sender: TObject);
-begin
-
 end;
 
 procedure Tfrmosmain.btnRemoveEntryClick(Sender: TObject);
@@ -3387,22 +3371,6 @@ end;
 
 
 
-procedure Tfrmosmain.DBCruiseCountryDropDown(Sender: TObject);
-begin
-
-end;
-
-procedure Tfrmosmain.DBCruiseInstituteDropDown(Sender: TObject);
-begin
-
-end;
-
-procedure Tfrmosmain.DBCruiseProjectDropDown(Sender: TObject);
-begin
-
-end;
-
-
 procedure Tfrmosmain.chkRegionChange(Sender: TObject);
 begin
  // gbRegion.Enabled:=chkRegion.Checked;
@@ -4104,12 +4072,12 @@ end;
 
 procedure Tfrmosmain.iload_icesClick(Sender: TObject);
 begin
- frmload_ices := Tfrmload_ices.Create(Self);
+ frmload_ices1 := Tfrmload_ices1.Create(Self);
  try
-  if not frmload_ices.ShowModal = mrOk then exit;
+  if not frmload_ices1.ShowModal = mrOk then exit;
  finally
-   frmload_ices.Free;
-   frmload_ices := nil;
+   frmload_ices1.Free;
+   frmload_ices1 := nil;
  end;
 end;
 
