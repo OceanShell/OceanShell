@@ -3101,6 +3101,18 @@ begin
    end;
 
    if (cbSource.Text<>'') and (cbPlatform.Text<>'') then begin
+    source_str:='';
+    for k:=0 to cbSource.Count-1 do
+    if cbSource.Checked[k] then
+      source_str:=','+QuotedStr(cbSource.Items.Strings[k]);
+    source_str:=copy(source_str, 2, length(source_str));
+
+    platform_str:='';
+     for k:=0 to cbPlatform.Count-1 do
+     if cbPlatform.Checked[k] then
+       platform_str:=','+QuotedStr(cbPlatform.Items.Strings[k]);
+     platform_str:=copy(platform_str, 2, length(platform_str));
+
     With Qt do begin
      Close;
        SQL.Clear;
@@ -3120,6 +3132,7 @@ begin
        SQL.Add(' AND (CRUISE.STATIONS_DATABASE>0) ');
 
        SQL.Add(' ORDER BY COUNTRY.NAME ');
+       showmessage(sql.Text);
      Open;
     end;
    end;
