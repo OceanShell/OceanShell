@@ -3132,7 +3132,7 @@ begin
        SQL.Add(' AND (CRUISE.STATIONS_DATABASE>0) ');
 
        SQL.Add(' ORDER BY COUNTRY.NAME ');
-       showmessage(sql.Text);
+      // showmessage(sql.Text);
      Open;
     end;
    end;
