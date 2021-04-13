@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ComCtrls, ExtCtrls, Spin, IniFiles;
+  ComCtrls, ExtCtrls, IniFiles;
 
 type
 
@@ -21,6 +21,7 @@ type
     btnSurferPath: TButton;
     btnUnloadPath: TButton;
     btnGEBCOPath: TButton;
+    btnDataPath: TButton;
     chkExpFeat: TCheckBox;
     eGrapherPath: TEdit;
     ePythonPath: TEdit;
@@ -28,12 +29,14 @@ type
     eSurferPath: TEdit;
     eUnloadPath: TEdit;
     eGEBCOPath: TEdit;
+    eDataPath: TEdit;
     gbGrapherPath: TGroupBox;
     gbSurferPath: TGroupBox;
     GroupBox3: TGroupBox;
     gbPythonPath: TGroupBox;
     GroupBox6: TGroupBox;
     GroupBox7: TGroupBox;
+    GroupBox8: TGroupBox;
     GroupBox9: TGroupBox;
     Label1: TLabel;
     lbKML: TLabel;
@@ -47,13 +50,13 @@ type
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
 
+    procedure btnDataPathClick(Sender: TObject);
     procedure btnGEBCOPathClick(Sender: TObject);
     procedure btnInstallPackagesClick(Sender: TObject);
     procedure btnPythonClick(Sender: TObject);
     procedure btnSaveConnectionClick(Sender: TObject);
     procedure btnSupportPathClick(Sender: TObject);
     procedure btnUnloadPathClick(Sender: TObject);
-    procedure cbAliasSelect(Sender: TObject);
     procedure chkExpFeatChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnGrapherPathClick(Sender: TObject);
@@ -70,7 +73,6 @@ type
 
 var
   frmsettings: Tfrmsettings;
- // server:string;
 
 implementation
 
@@ -82,8 +84,8 @@ uses osmain, procedures;
 
 procedure Tfrmsettings.FormShow(Sender: TObject);
 Var
- Ini, DBIni:TIniFile;
- SurferDefault, GrapherDefault, GEBCODefault, OceanFDBDefault, Alias_db:string;
+ Ini:TIniFile;
+ SurferDefault, GrapherDefault, GEBCODefault:string;
 begin
  SurferDefault   :='c:\Program Files\Golden Software\Surfer 13\Scripter\Scripter.exe';
  GrapherDefault  :='c:\Program Files\Golden Software\Grapher 11\Scripter\Scripter.exe';
@@ -91,7 +93,7 @@ begin
 
   Ini := TIniFile.Create(IniFileName);
   try
-   Alias_db               :=Ini.ReadString  ( 'main', 'alias',           'Ocean.FDB');
+   eDataPath.Text         :=Ini.ReadString  ( 'main', 'DataPath',         GlobalPath+'data'+PathDelim);
    eSupportPath.Text      :=Ini.ReadString  ( 'main', 'SupportPath',      GlobalPath+'support'+PathDelim);
    eUnloadPath.Text       :=Ini.ReadString  ( 'main', 'UnloadPath',       GlobalPath+'unload'+PathDelim);
    eSurferPath.Text       :=Ini.ReadString  ( 'main', 'SurferPath',       SurferDefault);
@@ -130,6 +132,7 @@ end;
 
 procedure Tfrmsettings.CheckExistence;
 begin
+  if DirectoryExists(eDataPath.Text)    then eDataPath.Font.Color     :=clGreen else eDataPath.Font.Color    :=clRed;
   if DirectoryExists(eSupportPath.Text) then eSupportPath.Font.Color  :=clGreen else eSupportPath.Font.Color :=clRed;
   if DirectoryExists(eUnloadPath.Text)  then eUnloadPath.Font.Color   :=clGreen else eUnloadPath.Font.Color  :=clRed;
   if FileExists(eGEBCOPath.Text)        then eGEBCOPath.Font.Color    :=clGreen else eGEBCOPath.Font.Color   :=clRed;
@@ -170,31 +173,24 @@ begin
 end;
 
 
-procedure Tfrmsettings.cbAliasSelect(Sender: TObject);
-Var
- DBIni:TIniFile;
-begin
-{ DBIni := TIniFile.Create(IniFileName+'_db');
-  try
-   eDBPath.Text := DBIni.ReadString (cbAlias.Text, 'dbpath',   GlobalPath+'databases'+PathDelim+'OCEAN.FDB');
-   eHost.Text   := DBIni.ReadString (cbAlias.Text, 'host',     'localhost');
-   eUser.Text   := DBIni.ReadString (cbAlias.Text, 'user',     'SYSDBA');
-   epass.Text   := DBIni.ReadString (cbAlias.Text, 'pass',     'masterkey');
-  finally
-   DBIni.Free;
-  end; }
-end;
-
 procedure Tfrmsettings.chkExpFeatChange(Sender: TObject);
 begin
   tsAdvanced.TabVisible:=chkExpFeat.Checked;
   Application.ProcessMessages;
 end;
 
+
 procedure Tfrmsettings.btnGEBCOPathClick(Sender: TObject);
 begin
  frmosmain.OD.Filter:='GEBCO 2020|GEBCO_2020.nc';
    if frmosmain.OD.Execute then eGEBCOPath.Text:= frmosmain.OD.FileName;
+ CheckExistence;
+end;
+
+procedure Tfrmsettings.btnDataPathClick(Sender: TObject);
+begin
+ frmosmain.ODir.InitialDir:=GlobalDataPath;
+  if frmosmain.ODir.Execute then eDataPath.Text:=frmosmain.ODir.FileName+PathDelim;
  CheckExistence;
 end;
 
@@ -209,7 +205,7 @@ memo1.Clear;
   finally
    Ini.Free;
   end;
-  frmosmain.RunScript(1, GlobalPath+'get-pip.py', memo1);
+ // frmosmain.RunScript(1, GlobalPath+'get-pip.py', memo1);
   frmosmain.RunScript(1, '-m pip install matplotlib', memo1);
 end;
 
@@ -230,24 +226,13 @@ end;
 
 procedure Tfrmsettings.btnSaveConnectionClick(Sender: TObject);
 Var
- Ini, DBIni:TIniFile;
+ Ini:TIniFile;
 begin
  Ini := TIniFile.Create(IniFileName);
   try
    Ini.WriteString ('server', 'dbpath',   '');
   finally
    Ini.Free;
-  end;
-
- DBIni := TIniFile.Create(IniFileName+'_db');
-  try
- {  DBIni.EraseSection(cbAlias.Text);
-   DBIni.WriteString (cbAlias.Text, 'dbpath',   eDBPath.Text);
-   DBIni.WriteString (cbAlias.Text, 'host',     eHost.Text);
-   DBIni.WriteString (cbAlias.Text, 'user',     eUser.Text);
-   DBIni.WriteString (cbAlias.Text, 'pass',     epass.Text); }
-  finally
-    DBini.Free;
   end;
 end;
 
@@ -261,6 +246,7 @@ begin
  Ini := TIniFile.Create(IniFileName);
 
   try
+   Ini.WriteString ( 'main', 'DataPath',         eDataPath.Text);
    Ini.WriteString ( 'main', 'SupportPath',      eSupportPath.Text);
    Ini.WriteString ( 'main', 'UnloadPath',       eUnloadPath.Text);
    Ini.WriteString ( 'main', 'SurferPath',       eSurferPath.Text);

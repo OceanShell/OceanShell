@@ -1,7 +1,7 @@
 object frmsupporttables_update: Tfrmsupporttables_update
   Left = 121
   Height = 825
-  Top = 173
+  Top = 163
   Width = 1537
   Caption = 'Support tables update and QC'
   ClientHeight = 825

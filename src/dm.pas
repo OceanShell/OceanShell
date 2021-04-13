@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Dialogs, Controls, IBConnection, sqldb, sqldblib,
-  BufDataset, db;
+  BufDataset, DB, Variants;
 
 type
 
@@ -60,12 +60,15 @@ procedure Tfrmdm.QCruiseAfterScroll(DataSet: TDataSet);
 Var
   ID: int64;
 begin
- ID:=QCruise.FieldByName('ID').Value;
- with QCruiseDetails do begin
-  Close;
-   SQL.Clear;
-   SQL.Add(CruiseDetailSQL+Inttostr(ID));
-  Open;
+ if (not QCruise.IsEmpty=true) and
+    (not VarIsNull(QCruise.FieldByName('ID').Value)) then begin
+    ID:=QCruise.FieldByName('ID').Value;
+    with QCruiseDetails do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(CruiseDetailSQL+Inttostr(ID));
+     Open;
+    end;
  end;
 end;
 

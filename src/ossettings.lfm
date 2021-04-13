@@ -40,9 +40,9 @@ object frmsettings: Tfrmsettings
       ClientWidth = 756
       ParentFont = False
       object GroupBox6: TGroupBox
-        Left = 18
+        Left = 16
         Height = 96
-        Top = 16
+        Top = 232
         Width = 716
         Caption = 'Support files'
         ClientHeight = 66
@@ -71,7 +71,7 @@ object frmsettings: Tfrmsettings
         end
       end
       object GroupBox7: TGroupBox
-        Left = 18
+        Left = 16
         Height = 96
         Top = 128
         Width = 716
@@ -102,9 +102,9 @@ object frmsettings: Tfrmsettings
         end
       end
       object GroupBox9: TGroupBox
-        Left = 18
+        Left = 16
         Height = 94
-        Top = 240
+        Top = 336
         Width = 716
         Caption = 'Bathymetry (GEBCO 2020, full version)'
         ClientHeight = 64
@@ -128,6 +128,37 @@ object frmsettings: Tfrmsettings
           Width = 39
           Caption = '...'
           OnClick = btnGEBCOPathClick
+          ParentFont = False
+          TabOrder = 1
+        end
+      end
+      object GroupBox8: TGroupBox
+        Left = 16
+        Height = 96
+        Top = 24
+        Width = 716
+        Caption = 'Data directory'
+        ClientHeight = 66
+        ClientWidth = 712
+        ParentFont = False
+        TabOrder = 3
+        object eDataPath: TEdit
+          Left = 18
+          Height = 33
+          Top = 12
+          Width = 632
+          Font.Color = clGreen
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+        end
+        object btnDataPath: TButton
+          Left = 657
+          Height = 33
+          Top = 12
+          Width = 39
+          Caption = '...'
+          OnClick = btnDataPathClick
           ParentFont = False
           TabOrder = 1
         end

@@ -2,10 +2,10 @@ object frmload_argo: Tfrmload_argo
   Left = 283
   Height = 522
   Top = 173
-  Width = 837
+  Width = 838
   Caption = 'Load ARGO'
   ClientHeight = 522
-  ClientWidth = 837
+  ClientWidth = 838
   DesignTimePPI = 144
   OnClose = FormClose
   OnShow = FormShow

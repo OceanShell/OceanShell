@@ -91,7 +91,7 @@ begin
    end;
  end;
 
- frmosmain.SelectionInfo;
+ frmosmain.SelectionInfo(true);
  frmosmain.CDSNavigation;
 
  SaveSettings;

@@ -2,12 +2,12 @@ object frmopendb: Tfrmopendb
   Left = 613
   Height = 297
   Top = 298
-  Width = 264
+  Width = 265
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = 'Open DB'
   ClientHeight = 297
-  ClientWidth = 264
+  ClientWidth = 265
   Color = clBtnFace
   DesignTimePPI = 144
   Font.Color = clWindowText
@@ -21,7 +21,7 @@ object frmopendb: Tfrmopendb
     Left = 0
     Height = 297
     Top = 0
-    Width = 264
+    Width = 265
     Align = alClient
     Font.Color = clWindowText
     Font.Height = -17
