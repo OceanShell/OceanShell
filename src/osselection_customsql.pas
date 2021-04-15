@@ -15,9 +15,17 @@ type
     btnDefaultQuery: TToolButton;
     btnSelect: TToolButton;
     Memo1: TMemo;
+    rbCruises: TRadioButton;
+    rbStations: TRadioButton;
     ToolBar2: TToolBar;
+    ToolButton1: TToolButton;
+    btnSaveAs: TToolButton;
+    btnLoadFromFile: TToolButton;
+    ToolButton4: TToolButton;
     ToolButton5: TToolButton;
 
+    procedure btnLoadFromFileClick(Sender: TObject);
+    procedure btnSaveAsClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormShow(Sender: TObject);
     procedure btnDefaultQueryClick(Sender: TObject);
@@ -59,40 +67,72 @@ end;
 procedure Tfrmselection_customsql.btnDefaultQueryClick(Sender: TObject);
 begin
  Memo1.Clear;
-  with memo1.Lines do begin
-    Add('SELECT ');
-    Add('STATION.ID, STATION.LATITUDE, STATION.LONGITUDE, ');
-    Add('STATION.DATEANDTIME, STATION.BOTTOMDEPTH, STATION.LASTLEVEL_M, ');
-    Add('STATION.LASTLEVEL_DBAR, STATION.CRUISE_ID, ');
-    Add('STATION.ST_NUMBER_ORIGIN, STATION.ST_ID_ORIGIN, STATION.CAST_NUMBER, ');
-    Add('STATION.QCFLAG, STATION.STVERSION, STATION.DUPLICATE, ');
-    Add('STATION.MERGED, STATION.ACCESSION_NUMBER, STATION.DATE_ADDED, ');
-    Add('STATION.DATE_UPDATED, PLATFORM.NAME as PLATF, ');
-    Add('COUNTRY.NAME as CNTR, SOURCE.NAME as SRC, CRUISE.CRUISE_NUMBER ');
-    Add('FROM STATION, CRUISE, PLATFORM, COUNTRY, SOURCE ');
-    Add('WHERE ');
-    Add('STATION.CRUISE_ID=CRUISE.ID AND ');
-    Add('CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
-    Add('CRUISE.COUNTRY_ID=COUNTRY.ID AND ');
-    Add('CRUISE.SOURCE_ID=SOURCE.ID ');
+
+ frmosmain.GetSQLQueryText;
+
+ if rbCruises.Checked=true then begin
+  with Memo1.Lines do begin
+    Add(CruiseSQL);
+    Add(' WHERE ');
+    Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
+    Add(' CRUISE.PLATFORM_ID=PLATFORM.ID ');
+    if trim(CRUISE_SQL_str)<>'' then
+      Add(CRUISE_SQL_str);
+   Add(' ORDER BY PLATFORM.NAME, CRUISE.DATE_START_TOTAL ' );
   end;
+ end;
+
+ if rbStations.Checked=true then begin
+   with Memo1.Lines do begin
+     Add(StationSQL);
+     if trim(Station_SQL_str)<>'' then begin
+      Add(' WHERE ');
+      Add(Station_SQL_str);
+     end;
+    Add('ORDER BY DATEANDTIME ');
+   end;
+ end;
 end;
 
 
 procedure Tfrmselection_customsql.btnSelectClick(Sender: TObject);
 begin
  try
-  frmdm.Q.Close;
-  frmdm.Q.Sql.Text:=Memo1.Lines.Text;
-  frmdm.Q.Open;
+
+  if rbCruises.Checked=true then begin
+    with frmdm.QCruise do begin
+      Close;
+        SQL.Text:=Memo1.Lines.Text;
+      Open;
+      Last;
+      First;
+    end;
+
+   if not frmdm.QCruise.IsEmpty then begin
+    frmosmain.tsSelectedStations.Caption:=
+       'Cruises: '+inttostr(frmdm.QCruise.RecordCount);
+    frmosmain.PageControl1.ActivePageIndex:=2;
+   end;
+  end;
+
+   if rbStations.Checked=true then begin
+    with frmdm.Q do begin
+      Close;
+        SQL.Text:=Memo1.Lines.Text;
+      Open;
+      Last;
+      First;
+    end;
+   frmosmain.SelectionInfo(true);
+   frmosmain.CDSNavigation;
+  end;
+
+
  except
    On e : EDatabaseError do begin
     if MessageDlg(e.message, mtError, [mbOK],0) = mrOk then exit;
    end;
  end;
-
- frmosmain.SelectionInfo(true);
- frmosmain.CDSNavigation;
 
  SaveSettings;
 
@@ -114,6 +154,23 @@ procedure Tfrmselection_customsql.FormClose(Sender: TObject;
   var CloseAction: TCloseAction);
 begin
   SaveSettings;
+end;
+
+procedure Tfrmselection_customsql.btnLoadFromFileClick(Sender: TObject);
+begin
+  frmosmain.OD.DefaultExt:='*.sql';
+  frmosmain.SD.Filter:='SQL Query|*.SQL; *.sql; *.Sql';
+  if frmosmain.OD.Execute then begin
+   memo1.Lines.LoadFromFile(frmosmain.OD.FileName);
+  end;
+end;
+
+procedure Tfrmselection_customsql.btnSaveAsClick(Sender: TObject);
+begin
+ frmosmain.SD.Filter:='SQL Query|*.SQL; *.sql; *.Sql';
+ if frmosmain.SD.Execute then begin
+  memo1.Lines.SaveToFile(frmosmain.SD.FileName);
+ end;
 end;
 
 end.

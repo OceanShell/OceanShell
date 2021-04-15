@@ -417,6 +417,7 @@ type
     procedure SelectionInfo(UpdateCruises:boolean);
     procedure CDSNavigation;
     procedure ExpertModeOff;
+    procedure GetSQLQueryText;
 
     Procedure UpdateCruiseInfo(ID: int64; TotalEqualDB:boolean);
     Procedure InsertLastLevel;
@@ -488,6 +489,7 @@ var
   IniFileName:string;
   GlobalPath, GlobalDataPath, GlobalUnloadPath, GlobalSupportPath:string; //global paths for the app
   CurrentParTable: string;
+  Cruise_SQL_str, Station_SQL_str: string;
 
   Source_unq_list:TStringList; //list of unique sources from selection
   Instrument_list: TStringList; // list of instruments
@@ -844,32 +846,18 @@ begin
 end;
 
 
-procedure Tfrmosmain.btnSelectClick(Sender: TObject);
-var
-i, k, fl:integer;
-SSYearMin,SSYearMax,SSMonthMin,SSMonthMax,SSDayMin,SSDayMax :Word;
-NotCondCountry, NotCondPlatform, NotCondSource, NotCondCruise:string;
-NotCondInstitute, NotCondProject, NotCondOrigin, SBordersFile:string;
 
-dlat, dlon, lat, lon, dist:real;
-time0, time1:TDateTime;
-buf_str, cr: string;
-LatMin, LatMax, LonMin, LonMax:real;
+procedure Tfrmosmain.GetSQLQueryText;
+Var
+  k: integer;
 
-QCFlag_str, source_str, country_str, platform_str, cruise_str:string;
-institute_str, project_str: string;
-Cruise_SQL_str, Station_SQL_str: string;
+  SSYearMin,SSYearMax,SSMonthMin,SSMonthMax,SSDayMin,SSDayMax :Word;
+  NotCondCountry, NotCondPlatform, NotCondSource, NotCondCruise:string;
+  NotCondInstitute, NotCondProject, NotCondOrigin, SBordersFile:string;
+
+  QCFlag_str, source_str, country_str, platform_str, cruise_str:string;
+  institute_str, project_str, cr: string;
 begin
-
-(* saving current search settings *)
-SaveSettingsSearch;
-
-frmosmain.Enabled:=false;
-Application.ProcessMessages;
-try
-
-
-  if frmdm.TR.Active=true then frmdm.TR.Commit;
 
   if chkNOTCountry.Checked   =true then NotCondCountry   :='NOT' else NotCondCountry   :='';
   if chkNOTPlatform.Checked  =true then NotCondPlatform  :='NOT' else NotCondPlatform  :='';
@@ -882,89 +870,76 @@ try
    DecodeDate(dtpDateMin.Date, SSYearMin, SSMonthMin, SSDayMin);
    DecodeDate(dtpDateMax.Date, SSYearMax, SSMonthMax, SSDayMax);
 
-
    (* QC Flag *)
-   QCFlag_str:='';
-    if chkQCFlag.Checked=true then begin
-     for k:=0 to cgQCFlag.Items.Count-1 do
-      if cgQCFlag.Checked[k]=true then
-       QCFlag_str:=QCFlag_str+
-                  copy(cgQCFlag.Items.Strings[k], 2, Pos(']',
-                       cgQCFlag.Items.Strings[k])-2)+',';
-     QCFlag_str:=copy(QCFlag_str, 1, length(QCFlag_str)-1);
-    end;
+    QCFlag_str:='';
+     if chkQCFlag.Checked=true then begin
+      for k:=0 to cgQCFlag.Items.Count-1 do
+       if cgQCFlag.Checked[k]=true then
+        QCFlag_str:=QCFlag_str+
+                   copy(cgQCFlag.Items.Strings[k], 2, Pos(']',
+                        cgQCFlag.Items.Strings[k])-2)+',';
+      QCFlag_str:=copy(QCFlag_str, 1, length(QCFlag_str)-1);
+     end;
 
-   (* Source *)
-    source_str:='';
-    if cbSource.Text<>'' then begin
-     for k:=0 to cbSource.Count-1 do
-       if cbSource.Checked[k]=true then
-          source_str:=source_str+QuotedStr(cbSource.Items.Strings[k])+',';
-     source_str:=copy(source_str, 1, length(source_str)-1);
-    end;
+    (* Source *)
+     source_str:='';
+     if cbSource.Text<>'' then begin
+      for k:=0 to cbSource.Count-1 do
+        if cbSource.Checked[k]=true then
+           source_str:=source_str+QuotedStr(cbSource.Items.Strings[k])+',';
+      source_str:=copy(source_str, 1, length(source_str)-1);
+     end;
 
-    (* Country *)
-    country_str:='';
-    if cbCountry.Text<>'' then begin
-     for k:=0 to cbCountry.Count-1 do
-       if cbCountry.Checked[k]=true then
-         country_str:=country_str+QuotedStr(cbCountry.Items.Strings[k])+',';
-     country_str:=copy(country_str, 1, length(country_str)-1);
-    end;
+     (* Country *)
+     country_str:='';
+     if cbCountry.Text<>'' then begin
+      for k:=0 to cbCountry.Count-1 do
+        if cbCountry.Checked[k]=true then
+          country_str:=country_str+QuotedStr(cbCountry.Items.Strings[k])+',';
+      country_str:=copy(country_str, 1, length(country_str)-1);
+     end;
 
-    (* Platform *)
-    platform_str:='';
-    if cbPlatform.Text<>'' then begin
-     for k:=0 to cbPlatform.Count-1 do
-       if cbPlatform.Checked[k]=true then
-        platform_str:=platform_str+QuotedStr(cbPlatform.Items.Strings[k])+',';
-      platform_str:=copy(platform_str, 1, length(platform_str)-1);
-    end;
+     (* Platform *)
+     platform_str:='';
+     if cbPlatform.Text<>'' then begin
+      for k:=0 to cbPlatform.Count-1 do
+        if cbPlatform.Checked[k]=true then
+         platform_str:=platform_str+QuotedStr(cbPlatform.Items.Strings[k])+',';
+       platform_str:=copy(platform_str, 1, length(platform_str)-1);
+     end;
 
-    (* Cruise number *)
-    cruise_str:='';
-    if cbCruise.Text<>'' then begin
-      for k:=0 to cbCruise.Count-1 do
-       if cbCruise.Checked[k]=true then
-         if Pos('_', cbCruise.Text)>0 then
-           cr:=copy(cbCruise.Text, 1, Pos('_', cbCruise.Text)-1) else
-           cr:=cbCruise.Text;
-        cruise_str:=cruise_str+cr+',';
-        cruise_str:=copy(cruise_str, 1, length(cruise_str)-1);
-    end;
+     (* Cruise number *)
+     cruise_str:='';
+     if cbCruise.Text<>'' then begin
+       for k:=0 to cbCruise.Count-1 do
+        if cbCruise.Checked[k]=true then
+          if Pos('_', cbCruise.Text)>0 then
+            cr:=copy(cbCruise.Text, 1, Pos('_', cbCruise.Text)-1) else
+            cr:=cbCruise.Text;
+         cruise_str:=cruise_str+cr+',';
+         cruise_str:=copy(cruise_str, 1, length(cruise_str)-1);
+     end;
 
-    (* Institute *)
-    institute_str:='';
-    if cbInstitute.Text<>'' then begin
-     for k:=0 to cbInstitute.Count-1 do
-       if cbInstitute.Checked[k]=true then
-        institute_str:=institute_str+QuotedStr(cbInstitute.Items.Strings[k])+',';
-      institute_str:=copy(institute_str, 1, length(institute_str)-1);
-    end;
+     (* Institute *)
+     institute_str:='';
+     if cbInstitute.Text<>'' then begin
+      for k:=0 to cbInstitute.Count-1 do
+        if cbInstitute.Checked[k]=true then
+         institute_str:=institute_str+QuotedStr(cbInstitute.Items.Strings[k])+',';
+       institute_str:=copy(institute_str, 1, length(institute_str)-1);
+     end;
 
-    (* Project *)
-    project_str:='';
-    if cbProject.Text<>'' then begin
-     for k:=0 to cbProject.Count-1 do
-       if cbProject.Checked[k]=true then
-        project_str:=project_str+QuotedStr(cbProject.Items.Strings[k])+',';
-     project_str:=copy(project_str, 1, length(project_str)-1);
-    end;
+     (* Project *)
+     project_str:='';
+     if cbProject.Text<>'' then begin
+      for k:=0 to cbProject.Count-1 do
+        if cbProject.Checked[k]=true then
+         project_str:=project_str+QuotedStr(cbProject.Items.Strings[k])+',';
+      project_str:=copy(project_str, 1, length(project_str)-1);
+     end;
 
 
-(*************************** Selecting CRUISES ********************************)
-  if rbCruises.Checked=true then begin
-   try
-   frmdm.QCruise.DisableControls;
-   with frmdm.QCruise do begin
-    Close;
-      SQL.Clear;
-      SQL.Add(CruiseSQL);
-      SQL.Add(' WHERE ');
-      SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
-      SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID ');
-
-      //extra parameters
+(***********************************CRUISE_SQL_str*****************************)
       Cruise_SQL_str:='';
 
       (* IDs *)
@@ -1109,11 +1084,222 @@ try
 
     if chkIgnoreDup.Checked=true then
        Cruise_SQL_str:=Cruise_SQL_str+' AND CRUISE.DUPLICATE=FALSE ';
+(*===========================END OF CRUISE_SQL_str============================*)
 
 
+
+(******************************STATION_SQL_str*********************************)
+Station_SQL_str:='';
+
+   (* ID range *)
+   if chkIDRange.Checked=true then begin
+       Station_SQL_str:=Station_SQL_str+
+                        ' AND (STATION.ID BETWEEN '+seIDMin.Text+
+                        ' AND '+seIDMax.Text+') ';
+   end;
+
+   (* QC Flag *)
+   if trim(QCFlag_str)<>'' then
+     Station_SQL_str:=Station_SQL_str+' AND (STATION.QCFLAG IN ('+QCFlag_str+')) ';
+
+ (* Coordinates *)
+ if chkRegion.Checked=true then begin
+   if pcRegion.ActivePageIndex=0 then begin
+   Station_SQL_str:=Station_SQL_str+
+                    ' AND (LATITUDE BETWEEN '+seLatMin.Text+
+                    ' AND '+seLatMax.Text+') ';
+
+    if seLonMax.Value>=seLonMin.Value then
+      Station_SQL_str:=Station_SQL_str+
+                    ' AND (LONGITUDE BETWEEN '+seLonMin.Text+
+                    ' AND '+seLonMax.Text+') ';
+
+    if seLonMax.Value<seLonMin.Value then
+     Station_SQL_str:=Station_SQL_str+' AND ((LONGITUDE>='+seLonMin.Text+
+                      ' AND LONGITUDE<=180) OR '+
+                      '(LONGITUDE>=-180 and LONGITUDE<='+seLonMax.Text+')) ';
+   end;
+  end; //region
+
+
+   (* Date and Time *)
+   if chkDateandTime.Checked=true then begin
+
+   if pcDateandTime.ActivePageIndex=0 then begin
+   // From date to date
+     if chkPeriod.Checked=false then begin
+      Station_SQL_str:=Station_SQL_str+' AND (DATEANDTIME BETWEEN '+
+                       QuotedStr(DateTimeToStr(dtpDateMin.DateTime))+' AND '+
+                       QuotedStr(DateTimeToStr(dtpDateMax.DateTime))+') ';
+     end;
+
+    //Date in Period
+    if chkPeriod.Checked=true then begin
+     Station_SQL_str:=Station_SQL_str+' AND (Extract(Year from DATEANDTIME) BETWEEN '+
+                      IntToStr(SSYearMin)+' AND '+
+                      IntToStr(SSYearMax)+') ';
+
+     if SSMonthMin<=SSMonthMax then
+        Station_SQL_str:=Station_SQL_str+' AND (Extract(Month from DATEANDTIME) BETWEEN '+
+                         IntToStr(SSMonthMin)+' AND '+
+                         IntToStr(SSMonthMax)+') ';
+     if SSMonthMin>SSMonthMax then
+        Station_SQL_str:=Station_SQL_str+' AND ((Extract(Month from DATEANDTIME)>= '+
+                         IntToStr(SSMonthMin)+') OR'+
+                         ' (Extract(Month from DATEANDTIME)<= '+
+                         IntToStr(SSMonthMax)+')) ';
+     if SSDayMin<=SSDayMax then
+        Station_SQL_str:=Station_SQL_str+' AND (Extract(Day from DATEANDTIME) BETWEEN '+
+                         IntToStr(SSDayMin)+' AND '+
+                         IntToStr(SSDayMax)+') ';
+     if SSDayMin>SSDayMax then
+        Station_SQL_str:=Station_SQL_str+' AND ((Extract(Day from DATEANDTIME)>= '+
+                         IntToStr(SSDayMin)+') OR '+
+                         ' (Extract(Day from DATEANDTIME)<= '+
+                         IntToStr(SSDayMax)+')) ';
+    end;
+   end;
+
+   (* DATE_ADDED *)
+   if pcDateandTime.ActivePageIndex=1 then begin
+     Station_SQL_str:=Station_SQL_str+' AND (STATION.DATE_ADDED BETWEEN '+
+                      QuotedStr(DateTimeToStr(dtpDateAddedMin.DateTime))+' AND '+
+                      QuotedStr(DateTimeToStr(dtpDateAddedMax.DateTime))+' ) ';
+   end;
+
+   (* DATE_UPDATED *)
+   if pcDateandTime.ActivePageIndex=2 then begin
+    Station_SQL_str:=Station_SQL_str+' AND (STATION.DATE_UPDATED between '+
+                     QuotedStr(DateTimeToStr(dtpDateUpdatedMin.DateTime))+' AND '+
+                     QuotedStr(DateTimeToStr(dtpDateUpdatedMax.DateTime))+' ) ';
+   end;
+   end; // dates
+
+
+  if chkAuxMetadata.Checked=true then begin
+
+  // showmessage('here');
+   // if there is a cruise
+   if cruise_str<>'' then
+    Station_SQL_str:=Station_SQL_str+
+    ' AND '+NotCondCruise+
+    ' (STATION.CRUISE_ID IN ('+cruise_str+')) ';
+
+   //if there's a platform but no cruise
+   if (platform_str<>'') and (cruise_str='') then
+     Station_SQL_str:=Station_SQL_str+
+     ' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
+     ' CRUISE, PLATFORM WHERE CRUISE.PLATFORM_ID=PLATFORM.ID AND '+
+     NotCondSource+' PLATFORM.NAME IN ('+platform_str+'))) ';
+
+   //if there's a country, but no cruise/platform
+   if (country_str<>'') and  (cruise_str='') and (platform_str='') then
+     Station_SQL_str:=Station_SQL_str+
+     ' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
+     ' CRUISE, PLATFORM, COUNTRY WHERE CRUISE.PLATFORM_ID=PLATFORM.ID AND '+
+     ' PLATFORM.COUNTRY_ID=COUNTRY.ID AND '+NotCondSource+
+     ' COUNTRY.NAME IN ('+platform_str+'))) ';
+
+   //if there's a source but no cruise
+   if (source_str<>'') and (cruise_str='') then
+    Station_SQL_str:=Station_SQL_str+
+    ' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
+    ' CRUISE, SOURCE WHERE CRUISE.SOURCE_ID=SOURCE.ID AND '+
+    NotCondSource+' SOURCE.NAME IN ('+source_str+'))) ';
+
+  // showmessage(station_sql_str);
+
+
+   if institute_str<>'' then
+    Station_SQL_str:=Station_SQL_str+
+    ' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
+    ' CRUISE, INSTITUTE WHERE CRUISE.INSTITUTE_ID=INSTITUTE.ID AND '+
+    NotCondSource+' INSTITUTE.NAME IN ('+institute_str+'))) ';
+
+
+   if project_str<>'' then
+    Station_SQL_str:=Station_SQL_str+
+    ' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
+    ' CRUISE, PROJECT WHERE CRUISE.PROJECT_ID=PROJECT.ID AND '+
+    NotCondSource+' PROJECT.NAME IN ('+project_str+'))) ';
+ end;
+
+
+   (* Parameters *)
+   if chkParameter.Checked=true then begin
+    for k:=0 to cgParameters.Items.Count-1 do
+      if cgParameters.Checked[k] then
+       Station_SQL_str:=Station_SQL_str+
+       ' AND (STATION.ID IN (SELECT DISTINCT(ID) FROM '+
+       cgParameters.Items.Strings[k]+')) ';
+   end;
+
+   (* Depth *)
+   if chkDepth.Checked=true then begin
+     if pcDepth.ActivePageIndex=0 then begin
+      Station_SQL_str:=Station_SQL_str+
+      ' AND (STATION.BOTTOMDEPTH BETWEEN '+
+      seDepthMin.Text+' AND '+seDepthMax.Text+') ';
+     end;
+     if pcDepth.ActivePageIndex=1 then begin
+      Station_SQL_str:=Station_SQL_str+
+      ' AND (STATION.BOTTOMDEPTH_GEBCO BETWEEN '+
+      seGebcoMin.Text+' AND '+seGebcoMax.Text+') ';
+     end;
+     if pcDepth.ActivePageIndex=2 then begin
+      Station_SQL_str:=Station_SQL_str+
+      ' AND (STATION.LASTLEVEL_M BETWEEN '+
+      seLastLevelMin.Text+' AND '+seLastLevelMax.Text+') ';
+     end;
+   end;
+
+   if chkIgnoreDup.Checked=true then
+     Station_SQL_str:=Station_SQL_str+' AND (STATION.DUPLICATE=FALSE) ';
+
+   if copy(Station_SQL_str, 1, 4)=' AND' then
+     Station_SQL_str:=Copy(Station_SQL_str, 5, length(Station_SQL_str));
+
+
+end;
+
+
+
+procedure Tfrmosmain.btnSelectClick(Sender: TObject);
+var
+i, k, fl:integer;
+
+
+dlat, dlon, lat, lon, dist:real;
+time0, time1:TDateTime;
+buf_str, cr: string;
+LatMin, LatMax, LonMin, LonMax:real;
+begin
+
+(* saving current search settings *)
+SaveSettingsSearch;
+
+frmosmain.Enabled:=false;
+Application.ProcessMessages;
+try
+
+
+  if frmdm.TR.Active=true then frmdm.TR.Commit;
+
+  GetSQLQueryText;
+
+(*************************** Selecting CRUISES ********************************)
+  if rbCruises.Checked=true then begin
+   try
+   frmdm.QCruise.DisableControls;
+   with frmdm.QCruise do begin
+    Close;
+      SQL.Clear;
+      SQL.Add(CruiseSQL);
+      SQL.Add(' WHERE ');
+      SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
+      SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID ');
       if trim(CRUISE_SQL_str)<>'' then
         SQL.Add(CRUISE_SQL_str);
-
      SQL.Add(' ORDER BY PLATFORM.NAME, CRUISE.DATE_START_TOTAL ' );
 
      if chkShowQuery.Checked then
@@ -1124,13 +1310,10 @@ try
    First;
   end;
 
- //  showmessage('here4');
    if not frmdm.QCruise.IsEmpty then begin
     tsSelectedStations.Caption:='Cruises: '+inttostr(frmdm.QCruise.RecordCount);
     PageControl1.ActivePageIndex:=2;
    end;
-
- //  showmessage('here5');
 
    finally
     frmdm.QCruise.EnableControls;
@@ -1143,176 +1326,6 @@ try
 
 (**********************SELECTING STATIONS**************************************)
  if rbStations.Checked=true then begin
-    Station_SQL_str:='';
-
-    (* ID range *)
-    if chkIDRange.Checked=true then begin
-        Station_SQL_str:=Station_SQL_str+
-                         ' AND (STATION.ID BETWEEN '+seIDMin.Text+
-                         ' AND '+seIDMax.Text+') ';
-    end;
-
-    (* QC Flag *)
-    if trim(QCFlag_str)<>'' then
-      Station_SQL_str:=Station_SQL_str+' AND (STATION.QCFLAG IN ('+QCFlag_str+')) ';
-
-  (* Coordinates *)
-  if chkRegion.Checked=true then begin
-    if pcRegion.ActivePageIndex=0 then begin
-    Station_SQL_str:=Station_SQL_str+
-                     ' AND (LATITUDE BETWEEN '+seLatMin.Text+
-                     ' AND '+seLatMax.Text+') ';
-
-     if seLonMax.Value>=seLonMin.Value then
-       Station_SQL_str:=Station_SQL_str+
-                     ' AND (LONGITUDE BETWEEN '+seLonMin.Text+
-                     ' AND '+seLonMax.Text+') ';
-
-     if seLonMax.Value<seLonMin.Value then
-      Station_SQL_str:=Station_SQL_str+' AND ((LONGITUDE>='+seLonMin.Text+
-                       ' AND LONGITUDE<=180) OR '+
-                       '(LONGITUDE>=-180 and LONGITUDE<='+seLonMax.Text+')) ';
-    end;
-   end; //region
-
-
-    (* Date and Time *)
-    if chkDateandTime.Checked=true then begin
-
-    if pcDateandTime.ActivePageIndex=0 then begin
-    // From date to date
-      if chkPeriod.Checked=false then begin
-       Station_SQL_str:=Station_SQL_str+' AND (DATEANDTIME BETWEEN '+
-                        QuotedStr(DateTimeToStr(dtpDateMin.DateTime))+' AND '+
-                        QuotedStr(DateTimeToStr(dtpDateMax.DateTime))+') ';
-      end;
-
-     //Date in Period
-     if chkPeriod.Checked=true then begin
-      Station_SQL_str:=Station_SQL_str+' AND (Extract(Year from DATEANDTIME) BETWEEN '+
-                       IntToStr(SSYearMin)+' AND '+
-                       IntToStr(SSYearMax)+') ';
-
-      if SSMonthMin<=SSMonthMax then
-         Station_SQL_str:=Station_SQL_str+' AND (Extract(Month from DATEANDTIME) BETWEEN '+
-                          IntToStr(SSMonthMin)+' AND '+
-                          IntToStr(SSMonthMax)+') ';
-      if SSMonthMin>SSMonthMax then
-         Station_SQL_str:=Station_SQL_str+' AND ((Extract(Month from DATEANDTIME)>= '+
-                          IntToStr(SSMonthMin)+') OR'+
-                          ' (Extract(Month from DATEANDTIME)<= '+
-                          IntToStr(SSMonthMax)+')) ';
-      if SSDayMin<=SSDayMax then
-         Station_SQL_str:=Station_SQL_str+' AND (Extract(Day from DATEANDTIME) BETWEEN '+
-                          IntToStr(SSDayMin)+' AND '+
-                          IntToStr(SSDayMax)+') ';
-      if SSDayMin>SSDayMax then
-         Station_SQL_str:=Station_SQL_str+' AND ((Extract(Day from DATEANDTIME)>= '+
-                          IntToStr(SSDayMin)+') OR '+
-                          ' (Extract(Day from DATEANDTIME)<= '+
-                          IntToStr(SSDayMax)+')) ';
-     end;
-    end;
-
-    (* DATE_ADDED *)
-    if pcDateandTime.ActivePageIndex=1 then begin
-      Station_SQL_str:=Station_SQL_str+' AND (STATION.DATE_ADDED BETWEEN '+
-                       QuotedStr(DateTimeToStr(dtpDateAddedMin.DateTime))+' AND '+
-                       QuotedStr(DateTimeToStr(dtpDateAddedMax.DateTime))+' ) ';
-    end;
-
-    (* DATE_UPDATED *)
-    if pcDateandTime.ActivePageIndex=2 then begin
-     Station_SQL_str:=Station_SQL_str+' AND (STATION.DATE_UPDATED between '+
-                      QuotedStr(DateTimeToStr(dtpDateUpdatedMin.DateTime))+' AND '+
-                      QuotedStr(DateTimeToStr(dtpDateUpdatedMax.DateTime))+' ) ';
-    end;
-    end; // dates
-
-
-   if chkAuxMetadata.Checked=true then begin
-
-   // showmessage('here');
-    // if there is a cruise
-    if cruise_str<>'' then
-     Station_SQL_str:=Station_SQL_str+
-     ' AND '+NotCondCruise+
-     ' (STATION.CRUISE_ID IN ('+cruise_str+')) ';
-
-    //if there's a platform but no cruise
-    if (platform_str<>'') and (cruise_str='') then
-      Station_SQL_str:=Station_SQL_str+
-      ' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
-      ' CRUISE, PLATFORM WHERE CRUISE.PLATFORM_ID=PLATFORM.ID AND '+
-      NotCondSource+' PLATFORM.NAME IN ('+platform_str+'))) ';
-
-    //if there's a country, but no cruise/platform
-    if (country_str<>'') and  (cruise_str='') and (platform_str='') then
-      Station_SQL_str:=Station_SQL_str+
-      ' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
-      ' CRUISE, PLATFORM, COUNTRY WHERE CRUISE.PLATFORM_ID=PLATFORM.ID AND '+
-      ' PLATFORM.COUNTRY_ID=COUNTRY.ID AND '+NotCondSource+
-      ' COUNTRY.NAME IN ('+platform_str+'))) ';
-
-    //if there's a source but no cruise
-    if (source_str<>'') and (cruise_str='') then
-     Station_SQL_str:=Station_SQL_str+
-     ' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
-     ' CRUISE, SOURCE WHERE CRUISE.SOURCE_ID=SOURCE.ID AND '+
-     NotCondSource+' SOURCE.NAME IN ('+source_str+'))) ';
-
-   // showmessage(station_sql_str);
-
-
-    if institute_str<>'' then
-     Station_SQL_str:=Station_SQL_str+
-     ' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
-     ' CRUISE, INSTITUTE WHERE CRUISE.INSTITUTE_ID=INSTITUTE.ID AND '+
-     NotCondSource+' INSTITUTE.NAME IN ('+institute_str+'))) ';
-
-
-    if project_str<>'' then
-     Station_SQL_str:=Station_SQL_str+
-     ' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
-     ' CRUISE, PROJECT WHERE CRUISE.PROJECT_ID=PROJECT.ID AND '+
-     NotCondSource+' PROJECT.NAME IN ('+project_str+'))) ';
-  end;
-
-
-    (* Parameters *)
-    if chkParameter.Checked=true then begin
-     for k:=0 to cgParameters.Items.Count-1 do
-       if cgParameters.Checked[k] then
-        Station_SQL_str:=Station_SQL_str+
-        ' AND (STATION.ID IN (SELECT DISTINCT(ID) FROM '+
-        cgParameters.Items.Strings[k]+')) ';
-    end;
-
-    (* Depth *)
-    if chkDepth.Checked=true then begin
-      if pcDepth.ActivePageIndex=0 then begin
-       Station_SQL_str:=Station_SQL_str+
-       ' AND (STATION.BOTTOMDEPTH BETWEEN '+
-       seDepthMin.Text+' AND '+seDepthMax.Text+') ';
-      end;
-      if pcDepth.ActivePageIndex=1 then begin
-       Station_SQL_str:=Station_SQL_str+
-       ' AND (STATION.BOTTOMDEPTH_GEBCO BETWEEN '+
-       seGebcoMin.Text+' AND '+seGebcoMax.Text+') ';
-      end;
-      if pcDepth.ActivePageIndex=2 then begin
-       Station_SQL_str:=Station_SQL_str+
-       ' AND (STATION.LASTLEVEL_M BETWEEN '+
-       seLastLevelMin.Text+' AND '+seLastLevelMax.Text+') ';
-      end;
-    end;
-
-    if chkIgnoreDup.Checked=true then
-      Station_SQL_str:=Station_SQL_str+' AND (STATION.DUPLICATE=FALSE) ';
-
-    if copy(Station_SQL_str, 1, 4)=' AND' then
-      Station_SQL_str:=Copy(Station_SQL_str, 5, length(Station_SQL_str));
-
 
     if pcRegion.ActivePageIndex>0 then begin
      // around point

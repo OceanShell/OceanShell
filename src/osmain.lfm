@@ -1,10 +1,10 @@
 object frmosmain: Tfrmosmain
   Left = 383
-  Height = 821
+  Height = 883
   Top = 21
   Width = 1381
   Caption = 'OceanShell'
-  ClientHeight = 791
+  ClientHeight = 853
   ClientWidth = 1381
   Color = clBtnFace
   Constraints.MinHeight = 700
@@ -51,7 +51,7 @@ object frmosmain: Tfrmosmain
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 713
+    Height = 775
     Top = 78
     Width = 1381
     ActivePage = tsMainSelect
@@ -67,7 +67,7 @@ object frmosmain: Tfrmosmain
     OnChange = PageControl1Change
     object tsMainSelect: TTabSheet
       Caption = 'Search'
-      ClientHeight = 680
+      ClientHeight = 742
       ClientWidth = 1373
       Font.Color = clWindowText
       Font.Height = -17
@@ -131,14 +131,14 @@ object frmosmain: Tfrmosmain
       end
       object sbStationSearch: TScrollBox
         Left = 0
-        Height = 680
+        Height = 742
         Top = 0
         Width = 1128
         HorzScrollBar.Page = 1
-        VertScrollBar.Page = 680
+        VertScrollBar.Page = 742
         Align = alLeft
         BorderStyle = bsNone
-        ClientHeight = 680
+        ClientHeight = 742
         ClientWidth = 1102
         Font.Color = clWindowText
         Font.Height = -17

@@ -1,7 +1,7 @@
 object frmselection_customsql: Tfrmselection_customsql
-  Left = 603
+  Left = 676
   Height = 450
-  Top = 315
+  Top = 319
   Width = 751
   BorderIcons = [biSystemMenu]
   Caption = 'Custom SQL query'
@@ -55,15 +55,15 @@ object frmselection_customsql: Tfrmselection_customsql
     ShowHint = True
     TabOrder = 1
     object btnDefaultQuery: TToolButton
-      Left = 1
+      Left = 180
       Hint = 'Default query text'
       Top = 2
       AutoSize = True
-      Caption = 'Default query'
+      Caption = 'Get default query'
       OnClick = btnDefaultQueryClick
     end
     object btnSelect: TToolButton
-      Left = 114
+      Left = 551
       Hint = 'Commit changes'
       Top = 2
       AutoSize = True
@@ -71,10 +71,56 @@ object frmselection_customsql: Tfrmselection_customsql
       OnClick = btnSelectClick
     end
     object ToolButton5: TToolButton
-      Left = 109
+      Left = 546
       Height = 33
       Top = 2
       Caption = 'ToolButton3'
+      Style = tbsDivider
+    end
+    object rbCruises: TRadioButton
+      Left = 1
+      Height = 29
+      Top = 2
+      Width = 84
+      Caption = 'Cruises'
+      Checked = True
+      TabOrder = 1
+      TabStop = True
+    end
+    object rbStations: TRadioButton
+      Left = 85
+      Height = 29
+      Top = 2
+      Width = 90
+      Caption = 'Stations'
+      TabOrder = 0
+    end
+    object ToolButton1: TToolButton
+      Left = 175
+      Height = 33
+      Top = 2
+      Caption = 'ToolButton1'
+      Style = tbsDivider
+    end
+    object btnSaveAs: TToolButton
+      Left = 448
+      Top = 2
+      Caption = 'Save as...'
+      ImageIndex = 336
+      OnClick = btnSaveAsClick
+    end
+    object btnLoadFromFile: TToolButton
+      Left = 321
+      Top = 2
+      Caption = 'Load from file'
+      ImageIndex = 422
+      OnClick = btnLoadFromFileClick
+    end
+    object ToolButton4: TToolButton
+      Left = 316
+      Height = 33
+      Top = 2
+      Caption = 'ToolButton4'
       Style = tbsDivider
     end
   end
