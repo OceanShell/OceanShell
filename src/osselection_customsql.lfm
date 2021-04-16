@@ -55,7 +55,7 @@ object frmselection_customsql: Tfrmselection_customsql
     ShowHint = True
     TabOrder = 1
     object btnDefaultQuery: TToolButton
-      Left = 180
+      Left = 1
       Hint = 'Default query text'
       Top = 2
       AutoSize = True
@@ -63,7 +63,7 @@ object frmselection_customsql: Tfrmselection_customsql
       OnClick = btnDefaultQueryClick
     end
     object btnSelect: TToolButton
-      Left = 551
+      Left = 372
       Hint = 'Commit changes'
       Top = 2
       AutoSize = True
@@ -71,53 +71,28 @@ object frmselection_customsql: Tfrmselection_customsql
       OnClick = btnSelectClick
     end
     object ToolButton5: TToolButton
-      Left = 546
+      Left = 367
       Height = 33
       Top = 2
       Caption = 'ToolButton3'
       Style = tbsDivider
     end
-    object rbCruises: TRadioButton
-      Left = 1
-      Height = 29
-      Top = 2
-      Width = 84
-      Caption = 'Cruises'
-      Checked = True
-      TabOrder = 1
-      TabStop = True
-    end
-    object rbStations: TRadioButton
-      Left = 85
-      Height = 29
-      Top = 2
-      Width = 90
-      Caption = 'Stations'
-      TabOrder = 0
-    end
-    object ToolButton1: TToolButton
-      Left = 175
-      Height = 33
-      Top = 2
-      Caption = 'ToolButton1'
-      Style = tbsDivider
-    end
     object btnSaveAs: TToolButton
-      Left = 448
+      Left = 269
       Top = 2
       Caption = 'Save as...'
       ImageIndex = 336
       OnClick = btnSaveAsClick
     end
     object btnLoadFromFile: TToolButton
-      Left = 321
+      Left = 142
       Top = 2
       Caption = 'Load from file'
       ImageIndex = 422
       OnClick = btnLoadFromFileClick
     end
     object ToolButton4: TToolButton
-      Left = 316
+      Left = 137
       Height = 33
       Top = 2
       Caption = 'ToolButton4'

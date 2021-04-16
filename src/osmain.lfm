@@ -1,7 +1,7 @@
 object frmosmain: Tfrmosmain
-  Left = 383
+  Left = 207
   Height = 883
-  Top = 21
+  Top = 115
   Width = 1381
   Caption = 'OceanShell'
   ClientHeight = 853
@@ -74,83 +74,28 @@ object frmosmain: Tfrmosmain
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
       ParentFont = False
-      object btnSelect: TButton
-        Left = 1152
-        Height = 58
-        Top = 24
-        Width = 200
-        Caption = 'Select'
-        Font.Color = clWindowText
-        Font.Height = -17
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        OnClick = btnSelectClick
-        ParentFont = False
-        TabOrder = 0
-      end
-      object btnCustomSQLQuery: TButton
-        Left = 1152
-        Height = 38
-        Top = 696
-        Width = 200
-        Caption = 'Custom SQL Query'
-        Font.Color = clWindowText
-        Font.Height = -17
-        Font.Name = 'MS Sans Serif'
-        OnClick = btnCustomSQLQueryClick
-        ParentFont = False
-        TabOrder = 1
-      end
-      object chkIgnoreDup: TCheckBox
-        Left = 1152
-        Height = 29
-        Top = 544
-        Width = 169
-        Caption = 'Ignore duplicates'
-        Checked = True
-        Font.Color = clWindowText
-        Font.Height = -17
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
-        State = cbChecked
-        TabOrder = 2
-      end
-      object btnSelectID: TButton
-        Left = 1152
-        Height = 38
-        Top = 648
-        Width = 200
-        Caption = 'Select from ID list'
-        Font.Color = clWindowText
-        Font.Height = -17
-        Font.Name = 'MS Sans Serif'
-        OnClick = btnSelectIDClick
-        ParentFont = False
-        TabOrder = 3
-      end
       object sbStationSearch: TScrollBox
         Left = 0
         Height = 742
         Top = 0
-        Width = 1128
+        Width = 1141
         HorzScrollBar.Page = 1
         VertScrollBar.Page = 742
-        Align = alLeft
+        Align = alClient
         BorderStyle = bsNone
         ClientHeight = 742
-        ClientWidth = 1102
+        ClientWidth = 1115
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
         Font.Style = [fsBold]
         ParentFont = False
-        TabOrder = 4
+        TabOrder = 0
         object FlowPanel1: TFlowPanel
           Left = 0
           Height = 1026
           Top = 0
-          Width = 1102
+          Width = 1115
           Align = alClient
           BevelOuter = bvNone
           ControlList = <          
@@ -976,7 +921,7 @@ object frmosmain: Tfrmosmain
             object gbDepth: TGroupBox
               Left = 16
               Height = 152
-              Top = 16
+              Top = 8
               Width = 360
               Caption = 'Depth'
               ClientHeight = 127
@@ -1258,181 +1203,247 @@ object frmosmain: Tfrmosmain
           end
         end
       end
-      object chkShowQuery: TCheckBox
-        Left = 1152
-        Height = 29
-        Top = 576
-        Width = 113
-        Caption = 'Show query'
-        Font.Color = clWindowText
-        Font.Height = -17
-        Font.Name = 'MS Sans Serif'
-        ParentFont = False
-        TabOrder = 5
-      end
-      object GroupBox2: TGroupBox
-        Left = 1152
-        Height = 296
-        Top = 240
-        Width = 200
-        Caption = 'Include in query'
-        ClientHeight = 271
-        ClientWidth = 196
-        Font.Color = clWindowText
-        Font.Height = -17
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
-        TabOrder = 6
-        object chkRegion: TCheckBox
+      object Panel4: TPanel
+        Left = 1141
+        Height = 742
+        Top = 0
+        Width = 232
+        Align = alRight
+        BevelOuter = bvNone
+        ClientHeight = 742
+        ClientWidth = 232
+        TabOrder = 1
+        object btnSelect: TButton
           Left = 16
-          Height = 29
-          Top = 12
-          Width = 87
-          Caption = 'Region'
+          Height = 58
+          Top = 24
+          Width = 200
+          Caption = 'Select'
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
           Font.Style = [fsBold]
-          OnChange = chkRegionChange
+          OnClick = btnSelectClick
           ParentFont = False
           TabOrder = 0
         end
-        object chkDateandTime: TCheckBox
+        object lbResetSearchStations: TLabel
+          Cursor = crHandPoint
           Left = 16
-          Height = 29
-          Top = 40
-          Width = 143
-          Caption = 'Date and time'
-          Font.Color = clWindowText
+          Height = 20
+          Top = 88
+          Width = 95
+          Caption = 'Reset search'
+          Font.Color = clBlue
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          OnChange = chkDateandTimeChange
+          Font.Style = [fsUnderline]
+          ParentColor = False
           ParentFont = False
-          TabOrder = 1
+          OnClick = lbResetSearchStationsClick
         end
-        object chkIDRange: TCheckBox
+        object GroupBox5: TGroupBox
           Left = 16
-          Height = 29
-          Top = 72
-          Width = 100
-          Caption = 'ID range'
+          Height = 104
+          Top = 120
+          Width = 200
+          Caption = 'Mode'
+          ClientHeight = 79
+          ClientWidth = 196
+          TabOrder = 1
+          object rbCruises: TRadioButton
+            Left = 16
+            Height = 29
+            Top = 8
+            Width = 90
+            Caption = 'Cruises'
+            OnChange = rbCruisesChange
+            TabOrder = 0
+          end
+          object rbStations: TRadioButton
+            Left = 16
+            Height = 29
+            Top = 40
+            Width = 97
+            Caption = 'Stations'
+            OnChange = rbStationsChange
+            TabOrder = 1
+          end
+        end
+        object GroupBox2: TGroupBox
+          Left = 16
+          Height = 296
+          Top = 232
+          Width = 200
+          Caption = 'Include in query'
+          ClientHeight = 271
+          ClientWidth = 196
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
           Font.Style = [fsBold]
-          OnChange = chkIDRangeChange
           ParentFont = False
           TabOrder = 2
+          object chkRegion: TCheckBox
+            Left = 16
+            Height = 29
+            Top = 12
+            Width = 87
+            Caption = 'Region'
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            OnChange = chkRegionChange
+            ParentFont = False
+            TabOrder = 0
+          end
+          object chkDateandTime: TCheckBox
+            Left = 16
+            Height = 29
+            Top = 40
+            Width = 143
+            Caption = 'Date and time'
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            OnChange = chkDateandTimeChange
+            ParentFont = False
+            TabOrder = 1
+          end
+          object chkIDRange: TCheckBox
+            Left = 16
+            Height = 29
+            Top = 72
+            Width = 100
+            Caption = 'ID range'
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            OnChange = chkIDRangeChange
+            ParentFont = False
+            TabOrder = 2
+          end
+          object chkQCFlag: TCheckBox
+            Left = 16
+            Height = 29
+            Top = 136
+            Width = 95
+            Caption = 'QC Flag'
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            OnChange = chkQCFlagChange
+            ParentFont = False
+            TabOrder = 3
+          end
+          object chkParameter: TCheckBox
+            Left = 16
+            Height = 29
+            Top = 168
+            Width = 122
+            Caption = 'Parameters'
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            OnChange = chkParameterChange
+            ParentFont = False
+            TabOrder = 4
+          end
+          object chkDepth: TCheckBox
+            Left = 16
+            Height = 29
+            Top = 200
+            Width = 79
+            Caption = 'Depth'
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            OnChange = chkDepthChange
+            ParentFont = False
+            TabOrder = 5
+          end
+          object chkAuxMetadata: TCheckBox
+            Left = 16
+            Height = 29
+            Top = 104
+            Width = 136
+            Caption = 'Aux. metdata'
+            Font.Color = clWindowText
+            Font.Height = -17
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            OnChange = chkAuxMetadataChange
+            ParentFont = False
+            TabOrder = 6
+          end
+          object chkCrNumStat: TCheckBox
+            Left = 16
+            Height = 29
+            Top = 232
+            Width = 130
+            Caption = '# of stations'
+            OnChange = chkCrNumStatChange
+            TabOrder = 7
+          end
         end
-        object chkQCFlag: TCheckBox
+        object chkIgnoreDup: TCheckBox
           Left = 16
           Height = 29
-          Top = 136
-          Width = 95
-          Caption = 'QC Flag'
+          Top = 536
+          Width = 169
+          Caption = 'Ignore duplicates'
+          Checked = True
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
           Font.Style = [fsBold]
-          OnChange = chkQCFlagChange
           ParentFont = False
+          State = cbChecked
           TabOrder = 3
         end
-        object chkParameter: TCheckBox
+        object chkShowQuery: TCheckBox
           Left = 16
           Height = 29
-          Top = 168
-          Width = 122
-          Caption = 'Parameters'
+          Top = 568
+          Width = 113
+          Caption = 'Show query'
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          OnChange = chkParameterChange
           ParentFont = False
           TabOrder = 4
         end
-        object chkDepth: TCheckBox
+        object btnSelectID: TButton
           Left = 16
-          Height = 29
-          Top = 200
-          Width = 79
-          Caption = 'Depth'
+          Height = 38
+          Top = 616
+          Width = 200
+          Caption = 'Select from ID list'
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          OnChange = chkDepthChange
+          OnClick = btnSelectIDClick
           ParentFont = False
           TabOrder = 5
         end
-        object chkAuxMetadata: TCheckBox
+        object btnCustomSQLQuery: TButton
           Left = 16
-          Height = 29
-          Top = 104
-          Width = 136
-          Caption = 'Aux. metdata'
+          Height = 38
+          Top = 664
+          Width = 200
+          Caption = 'Custom SQL Query'
           Font.Color = clWindowText
           Font.Height = -17
           Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          OnChange = chkAuxMetadataChange
+          OnClick = btnCustomSQLQueryClick
           ParentFont = False
           TabOrder = 6
-        end
-        object chkCrNumStat: TCheckBox
-          Left = 16
-          Height = 29
-          Top = 232
-          Width = 130
-          Caption = '# of stations'
-          OnChange = chkCrNumStatChange
-          TabOrder = 7
-        end
-      end
-      object lbResetSearchStations: TLabel
-        Cursor = crHandPoint
-        Left = 1152
-        Height = 20
-        Top = 88
-        Width = 95
-        Caption = 'Reset search'
-        Font.Color = clBlue
-        Font.Height = -17
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsUnderline]
-        ParentColor = False
-        ParentFont = False
-        OnClick = lbResetSearchStationsClick
-      end
-      object GroupBox5: TGroupBox
-        Left = 1152
-        Height = 112
-        Top = 120
-        Width = 200
-        Caption = 'Mode'
-        ClientHeight = 87
-        ClientWidth = 196
-        TabOrder = 7
-        object rbCruises: TRadioButton
-          Left = 16
-          Height = 29
-          Top = 8
-          Width = 90
-          Caption = 'Cruises'
-          OnChange = rbCruisesChange
-          TabOrder = 0
-        end
-        object rbStations: TRadioButton
-          Left = 16
-          Height = 29
-          Top = 40
-          Width = 97
-          Caption = 'Stations'
-          OnChange = rbStationsChange
-          TabOrder = 1
         end
       end
     end

@@ -43,12 +43,12 @@ type
     aOpenDatabase: TAction;
     aMapAllStations: TAction;
     AL: TActionList;
+    btnCustomSQLQuery: TButton;
     btnOpenDB: TBitBtn;
     btnAddEntry: TToolButton;
     btnSaveCruise: TToolButton;
     btnSaveEntry: TToolButton;
     btnSelect: TButton;
-    btnCustomSQLQuery: TButton;
     btnSelectID: TButton;
     cbCountry: TCheckComboBox;
     cbInstitute: TCheckComboBox;
@@ -59,24 +59,24 @@ type
     cbSource: TCheckComboBox;
     cgParameters: TCheckGroup;
     cgQCFlag: TCheckGroup;
+    chkAuxMetadata: TCheckBox;
     chkCrNumStat: TCheckBox;
+    chkDateandTime: TCheckBox;
+    chkDepth: TCheckBox;
+    chkIDRange: TCheckBox;
+    chkIgnoreDup: TCheckBox;
     chkNOTCountry: TCheckBox;
     chkNOTCruise: TCheckBox;
     chkNOTInstitute: TCheckBox;
     chkNOTPlatform: TCheckBox;
     chkNOTProject: TCheckBox;
     chkNOTSource: TCheckBox;
-    chkPeriod: TCheckBox;
-    chkDateandTime: TCheckBox;
-    chkDepth: TCheckBox;
-    chkIDRange: TCheckBox;
     chkParameter: TCheckBox;
+    chkPeriod: TCheckBox;
     chkQCFlag: TCheckBox;
-    chkAuxMetadata: TCheckBox;
     chkRegion: TCheckBox;
-    chkShowQuery: TCheckBox;
-    chkIgnoreDup: TCheckBox;
     cbEntryType: TComboBox;
+    chkShowQuery: TCheckBox;
     DBCruiseCountry: TDBComboBox;
     DBCruiseInstitute: TDBComboBox;
     DBCruiseLatMax: TDBEdit;
@@ -203,6 +203,7 @@ type
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     Panel3: TPanel;
+    Panel4: TPanel;
     pcCruiseNumStations: TPageControl;
     pDepth: TPanel;
     pCruiseNumStations: TPanel;
@@ -490,6 +491,8 @@ var
   GlobalPath, GlobalDataPath, GlobalUnloadPath, GlobalSupportPath:string; //global paths for the app
   CurrentParTable: string;
   Cruise_SQL_str, Station_SQL_str: string;
+
+  source_list_open, country_list_open, platform_list_open: boolean;
 
   Source_unq_list:TStringList; //list of unique sources from selection
   Instrument_list: TStringList; // list of instruments
@@ -967,24 +970,6 @@ begin
         Cruise_SQL_str:=Cruise_SQL_str+
         ' AND ((LONGITUDE_MIN>='+seLonMin.Text+' AND LONGITUDE_MAX<=180) OR'+
         ' (LONGITUDE_MIN>=-180 AND LONGITUDE_MAX<='+seLonMax.Text+')) ';
-
-    {  if chNoEmptyCruises.Checked=true then begin
-        Cruise_SQL_str:=Cruise_SQL_str+
-        ' AND (CRUISE.ID IN (SELECT DISTINCT CRUISE_ID '+
-        ' FROM STATION WHERE (LATITUDE BETWEEN '+seLatMin.Text+
-        ' AND '+seLatMax.Text+') ';
-
-      if seLonMax.Value>=seLonMin.Value then
-        Cruise_SQL_str:=Cruise_SQL_str+
-        ' AND (LONGITUDE BETWEEN '+seLonMin.Text+
-        ' AND '+seLonMax.Text+'))) ';
-
-      if seLonMax.Value<seLonMin.Value then
-        Cruise_SQL_str:=Cruise_SQL_str+
-        ' AND ((LONGITUDE>='+seLonMin.Text+
-        ' AND LONGITUDE<=180) OR '+
-        '(LONGITUDE>=-180 and LONGITUDE<='+seLonMax.Text+')))) ';
-     end;     }
     end;
 
      if chkDateandTime.Checked then begin
@@ -1515,7 +1500,6 @@ procedure Tfrmosmain.btnSelectIDClick(Sender: TObject);
 Var
  dat: text;
  ID:integer;
- SQL_str:string;
 begin
  frmosmain.OD.Filter:='*.txt|*.txt';
   if frmosmain.OD.Execute then begin
@@ -1530,7 +1514,6 @@ begin
     ExecSQL;
   end;
   frmdm.TR.CommitRetaining;
-
 
 
   readln(dat); //skipping the header
@@ -1549,26 +1532,45 @@ begin
   CloseFile(Dat);
   frmdm.TR.CommitRetaining;
 
-  SQL_str:=' STATION.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ';
-
   if frmdm.TR.Active=true then frmdm.TR.Commit;
 
   try
-   with frmdm.Q do begin
-   Close;
-    SQL.Clear;
-    SQL.Add(StationSQL);
-    SQL.Add(' WHERE ');
-    SQL.Add(SQL_str);
-   Open;
-   Last;
-   First;
- end;
+   if frmosmain.rbCruises.Checked then begin
+     with frmdm.QCruise do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(CruiseSQL);
+        SQL.Add(' WHERE ');
+        SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
+        SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
+        SQL.Add(' CRUISE.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ');
+        SQL.Add(' ORDER BY PLATFORM.NAME, CRUISE.DATE_START_TOTAL ' );
+       Open;
+       Last;
+       First;
+     end;
 
-// SelectGetCruisesFromStation(SQL_str);
+     if not frmdm.QCruise.IsEmpty then begin
+       tsSelectedStations.Caption:='Cruises: '+inttostr(frmdm.QCruise.RecordCount);
+       PageControl1.ActivePageIndex:=2;
+     end;
+     tsSelectedStations.TabVisible:= not frmdm.QCruise.IsEmpty;
+  end;
 
- SelectionInfo(true);
- CDSNavigation;
+  if frmosmain.rbStations.Checked then begin
+     with frmdm.Q do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(StationSQL);
+        SQL.Add(' WHERE ');
+        SQL.Add(' STATION.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ');
+       Open;
+       Last;
+       First;
+     end;
+    SelectionInfo(true);
+    CDSNavigation;
+  end;
 
  finally
    frmosmain.Enabled:=true;
@@ -1861,7 +1863,14 @@ begin
   seLonMin.Value:=StationLonMin;
   seLonMax.Value:=StationLonMax;
 
-  for k:=0 to cbPlatform.Count-1  do cbPlatform.Checked[k]:=false;
+  cbSource.Clear;
+  cbCountry.Clear;
+  cbPlatform.Clear;
+  cbCruise.Clear;
+  cbInstitute.Clear;
+  cbProject.Clear;
+
+{  for k:=0 to cbPlatform.Count-1  do cbPlatform.Checked[k]:=false;
   for k:=0 to cbCountry.Count-1   do cbCountry.Checked[k]:=false;
   for k:=0 to cbSource.Count-1    do cbSource.Checked[k]:=false;
   for k:=0 to cbInstitute.Count-1 do cbInstitute.Checked[k]:=false;
@@ -1873,7 +1882,7 @@ begin
   cbSource.ItemIndex:=-1;
   cbInstitute.ItemIndex:=-1;
   cbProject.ItemIndex:=-1;
-  cbCruise.ItemIndex:=-1;
+  cbCruise.ItemIndex:=-1; }
 
   chkNOTPlatform.Checked:=false;
   chkNOTCountry.Checked:=false;
@@ -2898,8 +2907,11 @@ Var
   k: integer;
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
-  country_str, platform_str: string;
+  country_str, platform_str, NotCondCountry, NotCondPlatform: string;
 begin
+
+  if cbSource.Count>0 then exit;
+
 try
   TRt:=TSQLTransaction.Create(self);
   TRt.DataBase:=frmdm.IBDB;
@@ -2908,7 +2920,24 @@ try
   Qt.Database:=frmdm.IBDB;
   Qt.Transaction:=TRt;
 
-  cbSource.Clear;
+  if chkNOTCountry.Checked =true then NotCondCountry :='NOT' else NotCondCountry :='';
+  if chkNOTPlatform.Checked=true then NotCondPlatform:='NOT' else NotCondPlatform:='';
+
+  country_str:='';
+  if cbCountry.Text<>'' then begin
+    for k:=0 to cbCountry.Count-1 do
+      if cbCountry.Checked[k] then
+        country_str:=','+QuotedStr(cbCountry.Items.Strings[k]);
+    country_str:=copy(country_str, 2, length(country_str));
+  end;
+
+  platform_str:='';
+  if cbPlatform.Text<>''  then begin
+    for k:=0 to cbPlatform.Count-1 do
+      if cbPlatform.Checked[k] then
+        platform_str:=','+QuotedStr(cbPlatform.Items.Strings[k]);
+    platform_str:=copy(platform_str, 2, length(platform_str));
+  end;
 
   if (cbCountry.Text='') and (cbPlatform.Text='') then begin
     With Qt do begin
@@ -2924,12 +2953,6 @@ try
 
 
   if (cbCountry.Text<>'') and (cbPlatform.Text='') then begin
-   country_str:='';
-   for k:=0 to cbCountry.Count-1 do
-    if cbCountry.Checked[k] then
-      country_str:=','+QuotedStr(cbCountry.Items.Strings[k]);
-   country_str:=copy(country_str, 2, length(country_str));
-
    With Qt do begin
       Close;
          SQL.Clear;
@@ -2938,19 +2961,13 @@ try
          SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
          SQL.Add(' COUNTRY.ID=PLATFORM.COUNTRY_ID AND ');
          SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
-         SQL.Add(' COUNTRY.NAME IN ('+country_str+')');
+         SQL.Add(' COUNTRY.NAME '+NotCondCountry+' IN ('+country_str+')');
          SQL.Add(' ORDER BY SOURCE.NAME ');
       Open;
     end;
   end;
 
   if (cbCountry.Text='') and (cbPlatform.Text<>'') then begin
-    platform_str:='';
-    for k:=0 to cbPlatform.Count-1 do
-      if cbPlatform.Checked[k] then
-        platform_str:=','+QuotedStr(cbPlatform.Items.Strings[k]);
-    platform_str:=copy(platform_str, 2, length(platform_str));
-
     With Qt do begin
       Close;
          SQL.Clear;
@@ -2958,25 +2975,13 @@ try
          SQL.Add(' PLATFORM, CRUISE, SOURCE WHERE ');
          SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
          SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
-         SQL.Add(' PLATFORM.NAME IN ('+platform_str+')');
+         SQL.Add(' PLATFORM.NAME '+NotCondPlatform+' IN ('+platform_str+')');
          SQL.Add(' ORDER BY SOURCE.NAME ');
        Open;
     end;
   end;
 
   if (cbCountry.Text<>'') and (cbPlatform.Text<>'') then begin
-    country_str:='';
-    for k:=0 to cbCountry.Count-1 do
-      if cbCountry.Checked[k] then
-        country_str:=','+QuotedStr(cbCountry.Items.Strings[k]);
-    country_str:=copy(country_str, 2, length(country_str));
-
-    platform_str:='';
-    for k:=0 to cbPlatform.Count-1 do
-      if cbPlatform.Checked[k] then
-        platform_str:=','+QuotedStr(cbPlatform.Items.Strings[k]);
-    platform_str:=copy(platform_str, 2, length(platform_str));
-
     With Qt do begin
       Close;
          SQL.Clear;
@@ -2985,15 +2990,14 @@ try
          SQL.Add(' CRUISE.PLATFORM_ID=PLATFORM.ID AND ');
          SQL.Add(' COUNTRY.ID=PLATFORM.COUNTRY_ID AND ');
          SQL.Add(' CRUISE.SOURCE_ID=SOURCE.ID AND ');
-         SQL.Add(' COUNTRY.NAME IN ('+country_str+') AND ');
-         SQL.Add(' PLATFORM.NAME IN ('+platform_str+')');
+         SQL.Add(' COUNTRY.NAME '+NotCondCountry+' IN ('+country_str+') AND ');
+         SQL.Add(' PLATFORM.NAME '+NotCondPlatform+' IN ('+platform_str+')');
          SQL.Add(' ORDER BY SOURCE.NAME ');
       Open;
     end;
   end;
 
   while not Qt.Eof do begin
-         // cbSource.Items.Add(Qt.Fields[0].AsString);
     cbSource.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
    Qt.Next;
   end;
@@ -3014,8 +3018,10 @@ Var
   k:integer;
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
-  source_str, platform_str, QC_str: string;
+  source_str, platform_str, QC_str, NotCondPlatform, NotCondSource: string;
 begin
+
+  if cbCountry.Count>0 then exit;
 
   try
    TRt:=TSQLTransaction.Create(self);
@@ -3029,12 +3035,29 @@ begin
     qc_str:='';
      for k:=0 to cgQCFlag.Items.Count-1 do
       if cgQCFlag.Checked[k] then
-       qc_str:=','+cgQCFlag.Items.Strings[k];
-    qc_str:=copy(qc_str, 2, length(qc_str));
+       qc_str:=qc_str+','+cgQCFlag.Items.Strings[k];
+    qc_str:=copy(qc_str, 1, length(qc_str)-1);
    end;
 
+   source_str:='';
+   if cbSource.Text<>'' then begin
+    for k:=0 to cbSource.Count-1 do
+    if cbSource.Checked[k] then
+      source_str:=source_str+','+QuotedStr(cbSource.Items.Strings[k]);
+    source_str:=copy(source_str, 2, length(source_str));
+   end;
 
-   cbCountry.Clear;
+   if cbPlatform.Text<>'' then begin
+    platform_str:='';
+     for k:=0 to cbPlatform.Count-1 do
+     if cbPlatform.Checked[k] then
+       platform_str:=platform_str+','+QuotedStr(cbPlatform.Items.Strings[k]);
+     platform_str:=copy(platform_str, 2, length(platform_str));
+   end;
+
+   if chkNOTSource.Checked=true then NotCondSource:='NOT' else NotCondSource:='';
+   if chkNOTPlatform.Checked=true then NotCondPlatform:='NOT' else NotCondPlatform:='';
+
    if (cbSource.Text='') and (cbPlatform.Text='') then begin
     With Qt do begin
      Close;
@@ -3056,12 +3079,6 @@ begin
    end;
 
    if (cbSource.Text<>'') and (cbPlatform.Text='') then begin
-    source_str:='';
-    for k:=0 to cbSource.Count-1 do
-    if cbSource.Checked[k] then
-      source_str:=','+QuotedStr(cbSource.Items.Strings[k]);
-    source_str:=copy(source_str, 2, length(source_str));
-
     With Qt do begin
      Close;
        SQL.Clear;
@@ -3071,7 +3088,7 @@ begin
        SQL.Add(' (COUNTRY.ID=PLATFORM.COUNTRY_ID) AND ');
        SQL.Add(' (CRUISE.SOURCE_ID=SOURCE.ID) AND ');
        SQL.Add(' (STATION.CRUISE_ID=CRUISE.ID) AND ');
-       SQL.Add(' (SOURCE.NAME IN ('+source_str+')) ');
+       SQL.Add(' (SOURCE.NAME '+NotCondSource+' IN ('+source_str+')) ');
 
        if chkQCFlag.Checked=true then
          SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
@@ -3085,12 +3102,6 @@ begin
    end;
 
    if (cbSource.Text='') and (cbPlatform.Text<>'') then begin
-     platform_str:='';
-     for k:=0 to cbPlatform.Count-1 do
-     if cbPlatform.Checked[k] then
-       platform_str:=','+QuotedStr(cbPlatform.Items.Strings[k]);
-     platform_str:=copy(platform_str, 2, length(platform_str));
-
      With Qt do begin
       Close;
        SQL.Clear;
@@ -3100,7 +3111,7 @@ begin
        SQL.Add(' (COUNTRY.ID=PLATFORM.COUNTRY_ID) AND ');
        SQL.Add(' (CRUISE.SOURCE_ID=SOURCE.ID) AND ');
        SQL.Add(' (STATION.CRUISE_ID=CRUISE.ID) AND ');
-       SQL.Add(' (PLATFORM.NAME IN ('+platform_str+')) ');
+       SQL.Add(' (PLATFORM.NAME '+NotCondPlatform+' IN ('+platform_str+')) ');
 
        if chkQCFlag.Checked=true then
          SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
@@ -3114,18 +3125,6 @@ begin
    end;
 
    if (cbSource.Text<>'') and (cbPlatform.Text<>'') then begin
-    source_str:='';
-    for k:=0 to cbSource.Count-1 do
-    if cbSource.Checked[k] then
-      source_str:=','+QuotedStr(cbSource.Items.Strings[k]);
-    source_str:=copy(source_str, 2, length(source_str));
-
-    platform_str:='';
-     for k:=0 to cbPlatform.Count-1 do
-     if cbPlatform.Checked[k] then
-       platform_str:=','+QuotedStr(cbPlatform.Items.Strings[k]);
-     platform_str:=copy(platform_str, 2, length(platform_str));
-
     With Qt do begin
      Close;
        SQL.Clear;
@@ -3135,8 +3134,8 @@ begin
        SQL.Add(' (COUNTRY.ID=PLATFORM.COUNTRY_ID) AND ');
        SQL.Add(' (CRUISE.SOURCE_ID=SOURCE.ID) AND ');
        SQL.Add(' (STATION.CRUISE_ID=CRUISE.ID) AND ');
-       SQL.Add(' (SOURCE.NAME IN ('+source_str+')) AND ');
-       SQL.Add(' (PLATFORM.NAME IN ('+platform_str+')) ');
+       SQL.Add(' (SOURCE.NAME '+NotCondSource+' IN ('+source_str+')) AND ');
+       SQL.Add(' (PLATFORM.NAME '+NotCondPlatform+' IN ('+platform_str+')) ');
 
        if chkQCFlag.Checked=true then
          SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
@@ -3151,7 +3150,6 @@ begin
    end;
 
    while not Qt.Eof do begin
-    // cbCountry.Items.Add(Qt.Fields[0].AsString);
      cbCountry.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
     Qt.Next;
    end;
@@ -3171,8 +3169,11 @@ Var
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
   pp, k: integer;
-  country_str, source_str, qc_str:string;
+  country_str, source_str, qc_str, NotCondSource, NotCondCountry:string;
 begin
+
+ if cbPlatform.Count>0 then exit;
+
   try
    TRt:=TSQLTransaction.Create(self);
    TRt.DataBase:=frmdm.IBDB;
@@ -3181,15 +3182,33 @@ begin
    Qt.Database:=frmdm.IBDB;
    Qt.Transaction:=TRt;
 
+   if chkNOTSource.Checked=true then NotCondSource:='NOT' else NotCondSource:='';
+   if chkNOTCountry.Checked=true then NotCondCountry:='NOT' else NotCondCountry:='';
+
+   qc_str:='';
    if chkQCFlag.checked=true then begin
-    qc_str:='';
      for k:=0 to cgQCFlag.Items.Count-1 do
       if cgQCFlag.Checked[k] then
        qc_str:=','+cgQCFlag.Items.Strings[k];
     qc_str:=copy(qc_str, 2, length(qc_str));
    end;
 
-   cbPlatform.Clear;
+   source_str:='';
+   if cbSource.Text<>'' then begin
+     for k:=0 to cbSource.Count-1 do
+       if cbSource.Checked[k] then
+         source_str:=source_str+','+QuotedStr(cbSource.Items.Strings[k]);
+     source_str:=copy(source_str, 2, length(source_str));
+   end;
+
+   country_str:='';
+   if cbCountry.Text<>'' then begin
+     for k:=0 to cbCountry.Count-1 do
+      if cbCountry.Checked[k] then
+       country_str:=country_str+','+QuotedStr(cbCountry.Items.Strings[k]);
+     country_str:=copy(country_str, 2, length(country_str));
+   end;
+
    if (cbSource.Text='') and (cbCountry.Text='') then begin
     With Qt do begin
      Close;
@@ -3211,12 +3230,6 @@ begin
    end;
 
    if (cbSource.Text<>'') and (cbCountry.Text='') then begin
-    source_str:='';
-     for k:=0 to cbSource.Count-1 do
-      if cbSource.Checked[k] then
-        source_str:=','+QuotedStr(cbSource.Items.Strings[k]);
-    source_str:=copy(source_str, 2, length(source_str));
-
     With Qt do begin
      Close;
        SQL.Clear;
@@ -3225,7 +3238,7 @@ begin
        SQL.Add(' (CRUISE.PLATFORM_ID=PLATFORM.ID) AND ');
        SQL.Add(' (CRUISE.SOURCE_ID=SOURCE.ID) AND ');
        SQL.Add(' (STATION.CRUISE_ID=CRUISE.ID) AND ');
-       SQL.Add(' (SOURCE.NAME IN ('+QuotedStr(cbSource.Text)+')) ');
+       SQL.Add(' (SOURCE.NAME '+NotCondSource+' IN ('+source_str+')) ');
 
        if chkQCFlag.Checked=true then
          SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
@@ -3234,17 +3247,12 @@ begin
        SQL.Add(' AND (CRUISE.STATIONS_DATABASE>0) ');
 
        SQL.Add(' ORDER BY PLATFORM.NAME ');
+      // showmessage(sql.text);
      Open;
     end;
    end;
 
    if (cbSource.Text='') and (cbCountry.Text<>'') then begin
-     country_str:='';
-     for k:=0 to cbCountry.Count-1 do
-      if cbCountry.Checked[k] then
-       country_str:=','+QuotedStr(cbCountry.Items.Strings[k]);
-     country_str:=copy(country_str, 2, length(country_str));
-
     With Qt do begin
      Close;
        SQL.Clear;
@@ -3254,7 +3262,7 @@ begin
        SQL.Add(' (CRUISE.SOURCE_ID=SOURCE.ID) AND ');
        SQL.Add(' (PLATFORM.COUNTRY_ID=COUNTRY.ID) AND ');
        SQL.Add(' (STATION.CRUISE_ID=CRUISE.ID) AND ');
-       SQL.Add(' (COUNTRY.NAME IN ('+country_str+')) ');
+       SQL.Add(' (COUNTRY.NAME '+NotCondCountry+' IN ('+country_str+')) ');
 
        if chkQCFlag.Checked=true then
          SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
@@ -3268,18 +3276,6 @@ begin
    end;
 
    if (cbSource.Text<>'') and (cbCountry.Text<>'') then begin
-     source_str:='';
-      for k:=0 to cbSource.Count-1 do
-       if cbSource.Checked[k] then
-         source_str:=','+QuotedStr(cbSource.Items.Strings[k]);
-     source_str:=copy(source_str, 2, length(source_str));
-
-     country_str:='';
-     for k:=0 to cbCountry.Count-1 do
-      if cbCountry.Checked[k] then
-       country_str:=','+QuotedStr(cbCountry.Items.Strings[k]);
-     country_str:=copy(country_str, 2, length(country_str));
-
     With Qt do begin
      Close;
        SQL.Clear;
@@ -3289,8 +3285,8 @@ begin
        SQL.Add(' (CRUISE.SOURCE_ID=SOURCE.ID) AND ');
        SQL.Add(' (PLATFORM.COUNTRY_ID=COUNTRY.ID) AND ');
        SQL.Add(' (STATION.CRUISE_ID=CRUISE.ID) AND ');
-       SQL.Add(' (COUNTRY.NAME IN ('+country_str+')) AND ');
-       SQL.Add(' (SOURCE.NAME IN ('+source_str+')) ');
+       SQL.Add(' (COUNTRY.NAME '+NotCondCountry+' IN ('+country_str+')) AND ');
+       SQL.Add(' (SOURCE.NAME '+NotCondSource+' IN ('+source_str+')) ');
 
        if chkQCFlag.Checked=true then
          SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
@@ -3304,7 +3300,6 @@ begin
    end;
 
    while not Qt.Eof do begin
-    // cbPlatform.Items.Add(Qt.Fields[0].AsString);
      cbPlatform.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
     Qt.Next;
    end;
@@ -3329,8 +3324,7 @@ Var
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
   pp, k, cr_id: integer;
-  SQL_str, cr, cr_num, platform_str, qc_str:string;
-
+  SQL_str, cr, cr_num, platform_str, qc_str, NotCondPlatform:string;
 begin
   try
    TRt:=TSQLTransaction.Create(self);
@@ -3348,11 +3342,16 @@ begin
     qc_str:=copy(qc_str, 2, length(qc_str));
    end;
 
-     platform_str:='';
+
+   platform_str:='';
+   if cbPlatform.text<>'' then begin
      for k:=0 to cbPlatform.Count-1 do
      if cbPlatform.Checked[k] then
-       platform_str:=','+QuotedStr(cbPlatform.Items.Strings[k]);
+       platform_str:=platform_str+','+QuotedStr(cbPlatform.Items.Strings[k]);
      platform_str:=copy(platform_str, 2, length(platform_str));
+   end;
+
+   if chkNOTPlatform.Checked=true then NotCondPlatform:='NOT' else NotCondPlatform:='';
 
     With Qt do begin
      Close;
@@ -3362,7 +3361,7 @@ begin
        SQL.Add(' WHERE ');
        SQL.ADD(' (STATION.CRUISE_ID=CRUISE.ID) AND ');
        SQL.Add(' (CRUISE.PLATFORM_ID=PLATFORM.ID) AND ');
-       SQL.Add(' (PLATFORM.NAME IN ('+platform_str+')) ');
+       SQL.Add(' (PLATFORM.NAME '+NotCondPlatform+' IN ('+platform_str+')) ');
 
        if chkQCFlag.Checked=true then
          SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
@@ -3485,6 +3484,9 @@ Var
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
 begin
+
+  if cbInstitute.Count>0 then exit;
+
   try
    TRt:=TSQLTransaction.Create(self);
    TRt.DataBase:=frmdm.IBDB;
@@ -3494,7 +3496,7 @@ begin
    Qt.Transaction:=TRt;
 
    //DBCruiseInstitute.Items.Clear;
-   cbInstitute.Clear;
+ //  cbInstitute.Clear;
 
      With Qt do begin
        Close;
@@ -3529,6 +3531,8 @@ Var
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
 begin
+  if cbProject.Count>0 then exit;
+
 
  try
    TRt:=TSQLTransaction.Create(self);
@@ -3539,14 +3543,13 @@ begin
    Qt.Transaction:=TRt;
 
    //DBCruiseProject.Items.Clear;
-   cbProject.Clear;
+   //cbProject.Clear;
 
    With Qt do begin
      Close;
        SQL.Clear;
-       SQL.Add(' SELECT DISTINCT NAME FROM PROJECT ');
-       SQL.Add(' RIGHT JOIN CRUISE ON ');
-       SQL.Add(' CRUISE.PROJECT_ID=PROJECT.ID ');
+       SQL.Add(' SELECT DISTINCT NAME FROM PROJECT, CRUISE ');
+       SQL.Add(' WHERE CRUISE.PROJECT_ID=PROJECT.ID ');
        SQL.Add(' ORDER BY NAME ');
      Open;
     end;

@@ -15,10 +15,7 @@ type
     btnDefaultQuery: TToolButton;
     btnSelect: TToolButton;
     Memo1: TMemo;
-    rbCruises: TRadioButton;
-    rbStations: TRadioButton;
     ToolBar2: TToolBar;
-    ToolButton1: TToolButton;
     btnSaveAs: TToolButton;
     btnLoadFromFile: TToolButton;
     ToolButton4: TToolButton;
@@ -70,7 +67,7 @@ begin
 
  frmosmain.GetSQLQueryText;
 
- if rbCruises.Checked=true then begin
+ if frmosmain.rbCruises.Checked=true then begin
   with Memo1.Lines do begin
     Add(CruiseSQL);
     Add(' WHERE ');
@@ -82,7 +79,7 @@ begin
   end;
  end;
 
- if rbStations.Checked=true then begin
+ if frmosmain.rbStations.Checked=true then begin
    with Memo1.Lines do begin
      Add(StationSQL);
      if trim(Station_SQL_str)<>'' then begin
@@ -99,7 +96,7 @@ procedure Tfrmselection_customsql.btnSelectClick(Sender: TObject);
 begin
  try
 
-  if rbCruises.Checked=true then begin
+  if frmosmain.rbCruises.Checked=true then begin
     with frmdm.QCruise do begin
       Close;
         SQL.Text:=Memo1.Lines.Text;
@@ -115,7 +112,7 @@ begin
    end;
   end;
 
-   if rbStations.Checked=true then begin
+   if frmosmain.rbStations.Checked=true then begin
     with frmdm.Q do begin
       Close;
         SQL.Text:=Memo1.Lines.Text;
