@@ -723,7 +723,6 @@ begin
 
     seStationIDMin.Value    :=Ini.ReadInteger( 'osmain', 'station_idmin',      0);
     seStationIDMax.Value    :=Ini.ReadInteger( 'osmain', 'station_idmax',      0);
-
     seCruiseIDMin.Value     :=Ini.ReadInteger( 'osmain', 'cruise_idmin',      0);
     seCruiseIDMax.Value     :=Ini.ReadInteger( 'osmain', 'cruise_idmax',      0);
 
@@ -1284,7 +1283,7 @@ LatMin, LatMax, LonMin, LonMax:real;
 begin
 
 (* saving current search settings *)
-SaveSettingsSearch;
+//SaveSettingsSearch;
 
 frmosmain.Enabled:=false;
 Application.ProcessMessages;
@@ -2772,8 +2771,6 @@ end;
 procedure Tfrmosmain.rbStationsChange(Sender: TObject);
 begin
   chkStationIDRange.Enabled:=true;
-  chkStationIDRange.Checked:=true;
-
   chkParameter.Enabled:=true;
   chkDepth.Enabled:=true;
 
