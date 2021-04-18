@@ -63,7 +63,8 @@ type
     chkCrNumStat: TCheckBox;
     chkDateandTime: TCheckBox;
     chkDepth: TCheckBox;
-    chkIDRange: TCheckBox;
+    chkStationIDRange: TCheckBox;
+    chkCruiseIDRange: TCheckBox;
     chkIgnoreDup: TCheckBox;
     chkNOTCountry: TCheckBox;
     chkNOTCruise: TCheckBox;
@@ -112,6 +113,7 @@ type
     gbDateandTime: TGroupBox;
     gbDepth: TGroupBox;
     gbIDRange: TGroupBox;
+    gbIDRange1: TGroupBox;
     gbRegion: TGroupBox;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
@@ -208,10 +210,11 @@ type
     pDepth: TPanel;
     pCruiseNumStations: TPanel;
     pcDepth: TPageControl;
+    pCruiseIDRange: TPanel;
     pParameters: TPanel;
     pAuxiliaryMetadata: TPanel;
     pQCFlag: TPanel;
-    pIDRange: TPanel;
+    pStationIDRange: TPanel;
     pcDateandTime: TPageControl;
     pDateAndTime: TPanel;
     pcRegion: TPageControl;
@@ -267,8 +270,10 @@ type
     seDepthMin: TSpinEdit;
     seGEBCOMax: TSpinEdit;
     seGEBCOMin: TSpinEdit;
-    seIDMax: TSpinEdit;
-    seIDMin: TSpinEdit;
+    seStationIDMax: TSpinEdit;
+    seCruiseIDMax: TSpinEdit;
+    seStationIDMin: TSpinEdit;
+    seCruiseIDMin: TSpinEdit;
     seLastLevelMax: TFloatSpinEdit;
     seLastLevelMin: TFloatSpinEdit;
     seLatMax: TFloatSpinEdit;
@@ -336,9 +341,10 @@ type
     procedure cbSourceDropDown(Sender: TObject);
     procedure chkAuxMetadataChange(Sender: TObject);
     procedure chkCrNumStatChange(Sender: TObject);
+    procedure chkCruiseIDRangeChange(Sender: TObject);
     procedure chkDateandTimeChange(Sender: TObject);
     procedure chkDepthChange(Sender: TObject);
-    procedure chkIDRangeChange(Sender: TObject);
+    procedure chkStationIDRangeChange(Sender: TObject);
     procedure chkParameterChange(Sender: TObject);
     procedure chkQCFlagChange(Sender: TObject);
     procedure chkRegionChange(Sender: TObject);
@@ -693,7 +699,9 @@ begin
     chkRegion.Checked      := Ini.ReadBool( 'osmain', 'station_chkRegion',      true);
     chkDateandTime.Checked := Ini.ReadBool( 'osmain', 'station_chkDateandTime', true);
     chkAuxMetadata.Checked := Ini.ReadBool( 'osmain', 'station_chkAuxMetadata', false);
-    chkIDRange.Checked     := Ini.ReadBool( 'osmain', 'station_chkIDRange',     false);
+    chkStationIDRange.Checked := Ini.ReadBool( 'osmain', 'station_chkIDRange',  false);
+    chkCruiseIDRange.Checked  := Ini.ReadBool( 'osmain', 'cruise_chkIDRange',   false);
+
     chkParameter.Checked   := Ini.ReadBool( 'osmain', 'station_chkVariables',   false);
     chkQCFlag.Checked      := Ini.ReadBool( 'osmain', 'station_chkQCFlag',      false);
     chkDepth.Checked       := Ini.ReadBool( 'osmain', 'station_chkDepth',       false);
@@ -713,8 +721,12 @@ begin
     seAroundPointLon.Value    := Ini.ReadFloat( 'osmain', 'station_around_point_lon',    0);
     seAroundPointRaduis.Value := Ini.ReadInteger( 'osmain', 'station_around_point_radius', 0);
 
-    seIDMin.Value    :=Ini.ReadInteger( 'osmain', 'station_idmin',      0);
-    seIDMax.Value    :=Ini.ReadInteger( 'osmain', 'station_idmax',      0);
+    seStationIDMin.Value    :=Ini.ReadInteger( 'osmain', 'station_idmin',      0);
+    seStationIDMax.Value    :=Ini.ReadInteger( 'osmain', 'station_idmax',      0);
+
+    seCruiseIDMin.Value     :=Ini.ReadInteger( 'osmain', 'cruise_idmin',      0);
+    seCruiseIDMax.Value     :=Ini.ReadInteger( 'osmain', 'cruise_idmax',      0);
+
 
     cbSource.Text    :=Ini.ReadString ( 'osmain', 'station_source',    '');
     cbPlatform.Text  :=Ini.ReadString ( 'osmain', 'station_platform',  '');
@@ -813,7 +825,8 @@ begin
 
   chkRegion.OnChange(self);
   chkDateandTime.OnChange(self);
-  chkIDRange.OnChange(self);
+  chkStationIDRange.OnChange(self);
+  chkCruiseIDRange.OnChange(self);
   chkAuxMetadata.OnChange(self);
   chkParameter.OnChange(self);
   chkQCFlag.OnChange(self);
@@ -946,8 +959,10 @@ begin
       Cruise_SQL_str:='';
 
       (* IDs *)
-      if chkIDRange.Checked then
-        Cruise_SQL_str:=Cruise_SQL_str+' AND (CRUISE.ID BETWEEN '+seIDMin.Text+' AND '+seIDMax.Text+')';
+      if chkCruiseIDRange.Checked then
+        Cruise_SQL_str:=Cruise_SQL_str+
+        ' AND (CRUISE.ID BETWEEN '+seCruiseIDMin.Text+
+        ' AND '+seCruiseIDMax.Text+')';
 
      (* Coordinates *)
      if chkRegion.Checked then begin
@@ -1076,11 +1091,19 @@ begin
 (******************************STATION_SQL_str*********************************)
 Station_SQL_str:='';
 
-   (* ID range *)
-   if chkIDRange.Checked=true then begin
+   (* STATION ID range *)
+   if chkStationIDRange.Checked=true then begin
        Station_SQL_str:=Station_SQL_str+
-                        ' AND (STATION.ID BETWEEN '+seIDMin.Text+
-                        ' AND '+seIDMax.Text+') ';
+                        ' AND (STATION.ID BETWEEN '+seStationIDMin.Text+
+                        ' AND '+seStationIDMax.Text+') ';
+   end;
+
+
+   (* CRUISE ID range *)
+   if chkCruiseIDRange.Checked=true then begin
+       Station_SQL_str:=Station_SQL_str+
+                        ' AND (STATION.CRUISE_ID BETWEEN '+seCruiseIDMin.Text+
+                        ' AND '+seCruiseIDMax.Text+') ';
    end;
 
    (* QC Flag *)
@@ -1843,7 +1866,7 @@ begin
 
 {  chkRegion.Checked:=true;
   chkDateandTime.Checked:=true;
-  chkIDRange.Checked:=false;
+  chkStationIDRange.Checked:=false;
   chkAuxMetadata.Checked:=false;
   chkQCFlag.Checked:=false;
   chkParameter.Checked:=false;
@@ -1870,20 +1893,6 @@ begin
   cbInstitute.Clear;
   cbProject.Clear;
 
-{  for k:=0 to cbPlatform.Count-1  do cbPlatform.Checked[k]:=false;
-  for k:=0 to cbCountry.Count-1   do cbCountry.Checked[k]:=false;
-  for k:=0 to cbSource.Count-1    do cbSource.Checked[k]:=false;
-  for k:=0 to cbInstitute.Count-1 do cbInstitute.Checked[k]:=false;
-  for k:=0 to cbPlatform.Count-1  do cbPlatform.Checked[k]:=false;
-  for k:=0 to cbCruise.Count-1    do cbCruise.Checked[k]:=false;
-
-  cbPlatform.ItemIndex:=-1;
-  cbCountry.ItemIndex:=-1;
-  cbSource.ItemIndex:=-1;
-  cbInstitute.ItemIndex:=-1;
-  cbProject.ItemIndex:=-1;
-  cbCruise.ItemIndex:=-1; }
-
   chkNOTPlatform.Checked:=false;
   chkNOTCountry.Checked:=false;
   chkNOTSource.Checked:=false;
@@ -1891,8 +1900,10 @@ begin
   chkNOTProject.Checked:=false;
   chkNOTCruise.Checked:=false;
 
-  seIDMin.Value:=StationIDMin;
-  seIDMax.Value:=StationIDMax;
+  seStationIDMin.Value:=StationIDMin;
+  seStationIDMax.Value:=StationIDMax;
+  seCruiseIDMin.Value:=CruiseIDMin;
+  seCruiseIDMax.Value:=CruiseIDMax;
 
   dtpDateMin.DateTime:=StationDateMin;
   dtpDateMax.DateTime:=StationDateMax;
@@ -2440,6 +2451,7 @@ Qt_DB1.Transaction:=TRt_DB1;
         SQL.Clear;
         SQL.Add(' select count(ID) as StCount, ');
         SQL.Add(' min(ID) as IDMin, max(ID) as IDMax, ');
+        SQL.Add(' min(CRUISE_ID) as CrIDMin, max(CRUISE_ID) as CrIDMax, ');
         SQL.Add(' min(LATITUDE) as StLatMin, max(LATITUDE) as StLatMax, ');
         SQL.Add(' min(LONGITUDE) as StLonMin, max(LONGITUDE) as StLonMax, ');
         SQL.Add(' min(DATEANDTIME) as StDateMin, ');
@@ -2455,6 +2467,8 @@ Qt_DB1.Transaction:=TRt_DB1;
        if StationCount>0 then begin
          StationIDMin   :=FieldByName('IDMin').AsInteger;
          StationIDMax   :=FieldByName('IDMax').AsInteger;
+         CruiseIDMin    :=FieldByName('CrIDMin').AsInteger;
+         CruiseIDMax    :=FieldByName('CrIDMax').AsInteger;
          StationLatMin  :=FieldByName('StLatMin').AsFloat;
          StationLatMax  :=FieldByName('StLatMax').AsFloat;
          StationLonMin  :=FieldByName('StLonMin').AsFloat;
@@ -2477,18 +2491,21 @@ Qt_DB1.Transaction:=TRt_DB1;
          end;
 
          // if there are no saved settings
-         if (seIDMin.Value=0) and (seIDMax.Value=0) then begin
-           seIDMin.Value:=StationIDMin;
-           seIdMax.Value:=StationIDMax;
+         if (seStationIDMin.Value=0) and (seStationIDMax.Value=0) then begin
+           seStationIDMin.Value:=StationIDMin;
+           seStationIDMax.Value:=StationIDMax;
+           seCruiseIDMin.Value:=CruiseIDMin;
+           seCruiseIDMax.Value:=CruiseIDMax;
+
            seLatMin.Value:=StationLatMin;
            seLatMax.Value:=StationLatMax;
            seLonMin.Value:=StationLonMin;
            seLonMax.Value:=StationLonMax;
 
          //if new database
-         if (StationIDMin<seIDMin.Value) or (StationIDMax>seIdMax.Value) then begin
-           seIDMin.Value:=StationIDMin;
-           seIdMax.Value:=StationIDMax;
+         if (StationIDMin<seStationIDMin.Value) or (StationIDMax>seStationIDMax.Value) then begin
+           seStationIDMin.Value:=StationIDMin;
+           seStationIDMax.Value:=StationIDMax;
          end;
 
            dtpDateMin.DateTime:=StationDateMin;
@@ -2729,6 +2746,10 @@ end;
 
 procedure Tfrmosmain.rbCruisesChange(Sender: TObject);
 begin
+
+  chkStationIDRange.Enabled:=false;
+  chkStationIDRange.Checked:=false;
+
   chkParameter.Enabled:=false;
   chkParameter.Checked:=false;
 
@@ -2750,6 +2771,9 @@ end;
 
 procedure Tfrmosmain.rbStationsChange(Sender: TObject);
 begin
+  chkStationIDRange.Enabled:=true;
+  chkStationIDRange.Checked:=true;
+
   chkParameter.Enabled:=true;
   chkDepth.Enabled:=true;
 
@@ -3408,10 +3432,15 @@ begin
   pDateandTime.Visible:=chkDateandTime.Checked;
 end;
 
-procedure Tfrmosmain.chkIDRangeChange(Sender: TObject);
+procedure Tfrmosmain.chkStationIDRangeChange(Sender: TObject);
 begin
- // gbIDRange.Enabled:=chkIDRange.Checked;
-  pIDRange.Visible:=chkIDRange.Checked;
+ // gbIDRange.Enabled:=chkStationIDRange.Checked;
+  pStationIDRange.Visible:=chkStationIDRange.Checked;
+end;
+
+procedure Tfrmosmain.chkCruiseIDRangeChange(Sender: TObject);
+begin
+  pCruiseIDRange.Visible:=chkCruiseIDRange.Checked;
 end;
 
 
@@ -4616,7 +4645,8 @@ begin
 
     (* Main checkboxes *)
     Ini.WriteBool    ( 'osmain', 'station_chkRegion',           chkRegion.Checked);
-    Ini.WriteBool    ( 'osmain', 'station_chkIDRange',          chkIDRange.Checked);
+    Ini.WriteBool    ( 'osmain', 'station_chkIDRange',          chkStationIDRange.Checked);
+    Ini.WriteBool    ( 'osmain', 'cruise_chkIDRange',           chkCruiseIDRange.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkAuxMetadata',      chkAuxMetadata.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkVariables',        chkParameter.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkQCFlag',           chkQCFlag.Checked);
@@ -4649,8 +4679,10 @@ begin
     Ini.WriteDateTime( 'osmain', 'station_dateupdatedmax', dtpDateUpdatedMax.DateTime);
 
     // IDs
-    Ini.WriteInteger ( 'osmain', 'station_idmin',    seIDMin.Value);
-    Ini.WriteInteger ( 'osmain', 'station_idmax',    seIDMax.Value);
+    Ini.WriteInteger ( 'osmain', 'station_idmin',    seStationIDMin.Value);
+    Ini.WriteInteger ( 'osmain', 'station_idmax',    seStationIDMax.Value);
+    Ini.WriteInteger ( 'osmain', 'cruise_idmin',     seCruiseIDMin.Value);
+    Ini.WriteInteger ( 'osmain', 'cruise_idmax',     seCruiseIDMax.Value);
 
     // Auxiliary metadata
     Ini.WriteString  ( 'osmain', 'station_source',   cbSource.Text);
