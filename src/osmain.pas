@@ -4719,6 +4719,10 @@ Var
   Ini:TIniFile;
   k: integer;
 begin
+
+  (* saving current search settings *)
+  SaveSettingsSearch;
+
   Ini := TIniFile.Create(IniFileName);
    try
     Ini.WriteInteger( 'osmain', 'top',    Top);

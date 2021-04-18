@@ -59,11 +59,11 @@ object frmselection_customsql: Tfrmselection_customsql
       Hint = 'Default query text'
       Top = 2
       AutoSize = True
-      Caption = 'Get default query'
+      Caption = 'Current query'
       OnClick = btnDefaultQueryClick
     end
     object btnSelect: TToolButton
-      Left = 372
+      Left = 345
       Hint = 'Commit changes'
       Top = 2
       AutoSize = True
@@ -71,28 +71,28 @@ object frmselection_customsql: Tfrmselection_customsql
       OnClick = btnSelectClick
     end
     object ToolButton5: TToolButton
-      Left = 367
+      Left = 340
       Height = 33
       Top = 2
       Caption = 'ToolButton3'
       Style = tbsDivider
     end
     object btnSaveAs: TToolButton
-      Left = 269
+      Left = 242
       Top = 2
       Caption = 'Save as...'
       ImageIndex = 336
       OnClick = btnSaveAsClick
     end
     object btnLoadFromFile: TToolButton
-      Left = 142
+      Left = 115
       Top = 2
       Caption = 'Load from file'
       ImageIndex = 422
       OnClick = btnLoadFromFileClick
     end
     object ToolButton4: TToolButton
-      Left = 137
+      Left = 110
       Height = 33
       Top = 2
       Caption = 'ToolButton4'
