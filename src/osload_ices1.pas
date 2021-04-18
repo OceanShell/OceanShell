@@ -6,13 +6,14 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, FileCtrl, StdCtrls,
-  Buttons, DateUtils, FileUtil, StrUtils, dynlibs;
+  Buttons, ExtCtrls, DateUtils, FileUtil, StrUtils, dynlibs;
 
 type
 
   { Tfrmload_ices1 }
 
   Tfrmload_ices1 = class(TForm)
+    btnMarkThinnedCTD: TBitBtn;
     btnSplitFile: TBitBtn;
     btnDownloadData: TBitBtn;
     btnCleanDate: TBitBtn;
@@ -28,6 +29,8 @@ type
     GroupBox2: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
+    GroupBox5: TGroupBox;
+    GroupBox6: TGroupBox;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
@@ -35,6 +38,7 @@ type
     procedure btnCleanCruiseNameClick(Sender: TObject);
     procedure btnCleanDateClick(Sender: TObject);
     procedure btnDownloadDataClick(Sender: TObject);
+    procedure btnMarkThinnedCTDClick(Sender: TObject);
     procedure btnPopuateCruiseTableClick(Sender: TObject);
     procedure btnSplitFileClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -59,23 +63,18 @@ uses osmain, dm, GibbsSeaWater;
 { Tfrmload_ices1 }
 
 procedure Tfrmload_ices1.FormShow(Sender: TObject);
-Var
-  RootDir: string;
 begin
   memo1.Clear;
   FileListBox1.Clear;
 
-  RootDir:=GlobalDataPath+'ICES'+PathDelim;
-  if not DirectoryExists(RootDir) then CreateDir(RootDir);
-
-  pathData:=RootDir+'download'+PathDelim;
+  pathData:=GlobalDataPath+'ICES'+PathDelim;
   if not DirectoryExists(pathData) then CreateDir(pathData);
 
-  if not DirectoryExists(pathData+'downloadCSR') then CreateDir(pathData+'downloadCSR');
+  if not DirectoryExists(pathData+'CSR') then CreateDir(pathData+'CSR');
   if not DirectoryExists(pathData+'cruises')     then CreateDir(pathData+'cruises');
   if not DirectoryExists(pathData+'preview')     then CreateDir(pathData+'preview');
 
-  pathCSR:=pathData+'downloadCSR'+PathDelim;
+  pathCSR:=pathData+'CSR'+PathDelim;
   pathCR :=pathData+'cruises'+PathDelim;
   pathPreview:=pathData+'preview'+PathDelim;
 
@@ -83,6 +82,8 @@ begin
   FileListBox2.Directory:=pathCSR;
   FileListBox3.Directory:=pathCR;
 end;
+
+
 
 
 
@@ -123,6 +124,7 @@ stDT,stDT1,stDT2 :TDateTime;
 begin
 DT1:=NOW;
 memo1.Lines.Add('...start: '+datetimetostr(DT1));
+
 
 if directoryexists(pathCR)=true then deletedirectory(pathCR,true);
 if directoryexists(pathCR)=false then mkdir(pathCR);
@@ -408,7 +410,7 @@ for i:=0 to High(StVar) do
        if crn>=100 then crns:='0'+inttostr(crn);
        if crn>=1000 then crns:=inttostr(crn);
 
-       fn:=pathCR+crns+instrument+'_'+name_PLATFORM+'.csv';
+       fn:=pathCR+crns+'_'+instrument+'_'+name_PLATFORM+'.csv';
        memo1.Lines.Add(fn);
        AssignFile(fo1,concat(fn));
        Rewrite(fo1);
@@ -477,7 +479,6 @@ begin
 
 DT1:=NOW;
 memo1.Lines.Add('...start: '+datetimetostr(DT1));
-
 
     source_id:=4; //ICES
     cruise_id:=15000000;
@@ -730,7 +731,7 @@ end;
      ParamByName('source_id').Value:=source_id;
      ParamByName('institute_id').Value:=1; //UNKNOWN
      ParamByName('project_id').Value:=0;  //UNKNOWN
-     //ParamByName('expocode'       ).Value:=expocode;
+     ParamByName('expocode'       ).Value:=FileListBox3.Items.Strings[kf];
      ParamByName('date_added').Value:=now;
      ParamByName('date_updated').Value:=now;
      ParamByName('date_start_total').Value:=now;
@@ -765,6 +766,11 @@ end;
     L2:=StLine[ks+1]-1;
 
     SetLength(Station,L2-L1+1,High(StVar)+2);
+    for i:=0 to High(Station) do begin
+    for j:=0 to High(StVar)+2 do begin
+     Station[i,j]:=-9999;
+    end;
+    end;
 
     Reset(fi);
     readln(fi,str);
@@ -1361,6 +1367,118 @@ DT2:=NOW;
 memo1.Lines.Add('...stop: '+datetimetostr(DT2));
 memo1.Lines.Add('...time spent: '+timetostr(DT2-DT1));
 end;
+
+
+procedure Tfrmload_ices1.btnMarkThinnedCTDClick(Sender: TObject);
+var
+mik,cdup: integer;
+station_id,cruise_id,platform_id :integer;
+platform_name,expocode,st_number_origin :string;
+st_DT :TDateTime;
+begin
+
+DT1:=NOW;
+memo1.Lines.Add('...start: '+datetimetostr(DT1));
+
+with frmdm.q1 do begin
+  Close;
+  SQL.Clear;
+  SQL.Add(' select dateandtime from STATION ');
+  SQL.Add(' where stversion>0 ');
+  SQL.Add(' order by dateandtime ');
+  Open;
+end;
+
+memo1.Lines.Add('datatime');
+memo1.Lines.Add('cruise_id'+#9+'station_id'+#9+'platform_id'
++#9+'st_number_origin'+#9+'platform_name'+#9+'expocode');
+
+       mik:=0;
+       cdup:=0; //count ctd duplicates
+{stv}while not frmdm.q1.EOF do begin
+      inc(mik);
+      st_DT:=frmdm.q1.FieldByName('dateandtime').AsDateTime;
+      memo1.Lines.Add('');
+      memo1.Lines.Add(inttostr(mik)+#9+datetimetostr(st_DT));
+
+      with frmdm.q2 do begin
+        Close;
+        SQL.Clear;
+        SQL.Add(' select id,st_number_origin,cruise_id ');
+        SQL.Add(' from STATION ');
+        SQL.Add(' where dateandtime=:st_DT ');
+        ParamByName('st_DT').AsDateTime:=st_DT;
+        Open;
+      end;
+
+
+{cr}while not frmdm.q2.EOF do begin
+     station_id:=frmdm.q2.FieldByName('id').AsInteger;
+     st_number_origin:=frmdm.q2.FieldByName('st_number_origin').AsString;
+     cruise_id:=frmdm.q2.FieldByName('cruise_id').AsInteger;
+
+
+     with frmdm.q3 do begin
+       Close;
+       SQL.Clear;
+       SQL.Add(' select expocode,platform_id,name ');
+       SQL.Add(' from CRUISE,PLATFORM ');
+       SQL.Add(' where cruise.id=:cruise_id ');
+       SQL.Add(' and platform.id=cruise.platform_id ');
+       ParamByName('cruise_id').AsDateTime:=cruise_id;
+       Open;
+       expocode:=frmdm.q3.FieldByName('expocode').AsString;
+       platform_id:=frmdm.q3.FieldByName('platform_id').AsInteger;
+       platform_name:=frmdm.q3.FieldByName('name').AsString;
+       Close;
+     end;
+
+{dup}if AnsiContainsStr(expocode, '_Bottle_') then begin
+      inc(cdup);
+
+      if CheckBox2.Checked then begin
+      with frmdm.q3 do begin
+        Close;
+        SQL.Clear;
+        SQL.Add(' update STATION set duplicate=true ');
+        SQL.Add(' where id=:station_id ');
+        ParamByName('station_id').AsInteger:=station_id;
+        ExecSQL;
+      end;
+        frmdm.TR.CommitRetaining;
+      end;
+
+{dup}end;
+
+     if CheckBox1.Checked then
+     memo1.Lines.Add(inttostr(cruise_id)
+     +#9+inttostr(station_id)
+     +#9+inttostr(platform_id)
+     +#9+st_number_origin
+     +#9+platform_name
+     +#9+expocode
+     );
+
+
+     frmdm.q2.Next;
+{cr}end;
+     frmdm.q2.Close;
+
+
+      frmdm.q1.Next;
+{stv}end;
+      frmdm.q1.Close;
+
+memo1.Lines.Add('');
+memo1.Lines.Add('stations# marked as duplicate='+inttostr(cdup));
+
+DT2:=NOW;
+memo1.Lines.Add('...stop: '+datetimetostr(DT2));
+memo1.Lines.Add('...time spent: '+timetostr(DT2-DT1));
+
+end;
+
+
 
 
 

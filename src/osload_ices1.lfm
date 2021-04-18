@@ -1,20 +1,22 @@
 object frmload_ices1: Tfrmload_ices1
-  Left = 381
-  Height = 625
-  Top = 258
-  Width = 1416
+  Left = 584
+  Height = 521
+  Top = 271
+  Width = 1180
   Caption = 'frmload_ices1'
-  ClientHeight = 0
-  ClientWidth = 0
-  DesignTimePPI = 144
+  ClientHeight = 521
+  ClientWidth = 1180
+  DesignTimePPI = 120
+  Font.Height = 16
   OnShow = FormShow
   LCLVersion = '2.0.6.0'
   object Memo1: TMemo
     Left = 0
-    Height = 347
-    Top = 278
-    Width = 1416
+    Height = 225
+    Top = 296
+    Width = 1180
     Align = alBottom
+    Font.Height = 14
     Lines.Strings = (
       'Memo1'
     )
@@ -22,32 +24,35 @@ object frmload_ices1: Tfrmload_ices1
     TabOrder = 0
   end
   object GroupBox1: TGroupBox
-    Left = 240
-    Height = 221
-    Top = 19
-    Width = 278
+    Left = 192
+    Height = 120
+    Top = 8
+    Width = 232
     Caption = '1. Split files into cruises'
-    ClientHeight = 191
-    ClientWidth = 274
+    ClientHeight = 100
+    ClientWidth = 228
+    Font.Height = 16
     ParentFont = False
     TabOrder = 1
     object FileListBox1: TFileListBox
-      Left = 19
-      Height = 120
+      Left = 16
+      Height = 60
       Top = 0
-      Width = 240
+      Width = 200
       Directory = 'C:\Users\ako071\AK\_soft\lazarus_2.0.6'
-      ItemHeight = 0
+      Font.Height = 14
+      ItemHeight = 13
       ParentFont = False
       TabOrder = 0
     end
     object btnSplitFile: TBitBtn
-      Left = 19
-      Height = 30
-      Top = 134
-      Width = 240
+      Left = 16
+      Height = 25
+      Top = 64
+      Width = 200
       Caption = 'Split'
       Font.Color = clGreen
+      Font.Height = 18
       Font.Style = [fsBold]
       OnClick = btnSplitFileClick
       ParentFont = False
@@ -55,158 +60,206 @@ object frmload_ices1: Tfrmload_ices1
     end
   end
   object GroupBox2: TGroupBox
-    Left = 1133
-    Height = 163
-    Top = 77
-    Width = 269
+    Left = 920
+    Height = 120
+    Top = 144
+    Width = 224
     Caption = 'B. Populate CRUISE_CSR'
-    ClientHeight = 133
-    ClientWidth = 265
+    ClientHeight = 100
+    ClientWidth = 220
+    Font.Height = 16
     ParentFont = False
     TabOrder = 2
     object btnPopuateCruiseTable: TBitBtn
-      Left = 38
-      Height = 30
-      Top = 86
-      Width = 192
+      Left = 16
+      Height = 25
+      Top = 64
+      Width = 200
       Caption = 'Start'
       Font.Color = clFuchsia
+      Font.Height = 18
       OnClick = btnPopuateCruiseTableClick
       ParentFont = False
       TabOrder = 0
     end
     object FileListBox2: TFileListBox
-      Left = 19
-      Height = 67
-      Top = 10
-      Width = 240
+      Left = 16
+      Height = 56
+      Top = 0
+      Width = 200
       Directory = 'C:\Users\ako071\AK\_soft\lazarus_2.0.6'
-      ItemHeight = 0
+      Font.Height = 16
+      ItemHeight = 15
       ParentFont = False
       TabOrder = 1
     end
   end
   object GroupBox3: TGroupBox
-    Left = 950
-    Height = 163
-    Top = 77
-    Width = 163
+    Left = 920
+    Height = 96
+    Top = 40
+    Width = 224
     Caption = 'A. Clean CSR file'
-    ClientHeight = 133
-    ClientWidth = 159
+    ClientHeight = 78
+    ClientWidth = 220
+    Font.Height = 14
     ParentFont = False
     TabOrder = 3
     object btnCleanCruiseName: TBitBtn
-      Left = 19
-      Height = 30
-      Top = 19
-      Width = 125
+      Left = 56
+      Height = 25
+      Top = 8
+      Width = 104
       Caption = 'Names'
       Font.Color = clGreen
+      Font.Height = 18
       OnClick = btnCleanCruiseNameClick
       ParentFont = False
       TabOrder = 0
     end
     object btnCleanDate: TBitBtn
-      Left = 19
-      Height = 30
-      Top = 77
-      Width = 125
+      Left = 56
+      Height = 25
+      Top = 40
+      Width = 104
       Caption = 'Dates'
       Font.Color = clGreen
+      Font.Height = 18
       OnClick = btnCleanDateClick
       ParentFont = False
       TabOrder = 1
     end
   end
-  object CheckBox1: TCheckBox
-    Left = 38
-    Height = 29
-    Top = 19
-    Width = 147
-    Caption = 'Show output?'
-    Font.Style = [fsBold]
+  object GroupBox4: TGroupBox
+    Left = 192
+    Height = 112
+    Top = 136
+    Width = 224
+    Caption = '2. Download cruises'
+    ClientHeight = 92
+    ClientWidth = 220
+    Font.Height = 16
     ParentFont = False
     TabOrder = 4
-  end
-  object CheckBox2: TCheckBox
-    Left = 38
-    Height = 29
-    Top = 58
-    Width = 154
-    Caption = 'Write into DB?'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 5
-  end
-  object Edit1: TEdit
-    Left = 77
-    Height = 33
-    Top = 125
-    Width = 58
-    ParentFont = False
-    TabOrder = 6
-    Text = '14'
-  end
-  object Label3: TLabel
-    Left = 29
-    Height = 25
-    Top = 96
-    Width = 180
-    Caption = 'Cruise threshold (days)'
-    ParentColor = False
-    ParentFont = False
-  end
-  object GroupBox4: TGroupBox
-    Left = 538
-    Height = 221
-    Top = 19
-    Width = 269
-    Caption = '2. Download cruises'
-    ClientHeight = 191
-    ClientWidth = 265
-    ParentFont = False
-    TabOrder = 7
     object FileListBox3: TFileListBox
-      Left = 10
-      Height = 120
+      Left = 8
+      Height = 60
       Top = 0
-      Width = 240
+      Width = 200
       Directory = 'C:\Users\ako071\AK\_soft\lazarus_2.0.6'
-      ItemHeight = 0
+      Font.Height = 14
+      ItemHeight = 13
       ParentFont = False
       TabOrder = 0
     end
     object btnDownloadData: TBitBtn
-      Left = 10
-      Height = 30
-      Top = 134
-      Width = 240
+      Left = 8
+      Height = 25
+      Top = 64
+      Width = 200
       Caption = 'Download'
       Font.Color = clRed
+      Font.Height = 18
       Font.Style = [fsBold]
       OnClick = btnDownloadDataClick
       ParentFont = False
       TabOrder = 1
     end
   end
-  object Label1: TLabel
-    Left = 29
-    Height = 25
-    Top = 173
-    Width = 81
-    Caption = 'Progress...'
-    ParentColor = False
-    ParentFont = False
-    Visible = False
-  end
   object Label2: TLabel
-    Left = 1046
-    Height = 25
-    Top = 19
-    Width = 228
+    Left = 928
+    Height = 17
+    Top = 16
+    Width = 169
     Caption = 'Cruise summary report (CSR)'
+    Font.Height = 18
     ParentColor = False
     ParentFont = False
+  end
+  object GroupBox5: TGroupBox
+    Left = 32
+    Height = 240
+    Top = 8
+    Width = 144
+    Caption = 'Settings'
+    ClientHeight = 220
+    ClientWidth = 140
+    TabOrder = 5
+    object CheckBox1: TCheckBox
+      Left = 24
+      Height = 23
+      Top = 16
+      Width = 101
+      Caption = 'Show output?'
+      Font.Height = 16
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+    end
+    object CheckBox2: TCheckBox
+      Left = 24
+      Height = 23
+      Top = 56
+      Width = 106
+      Caption = 'Write into DB?'
+      Font.Height = 16
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+    end
+    object Label3: TLabel
+      Left = 16
+      Height = 13
+      Top = 104
+      Width = 117
+      Caption = 'Cruise threshold (days)'
+      Font.Height = 14
+      ParentColor = False
+      ParentFont = False
+    end
+    object Edit1: TEdit
+      Left = 48
+      Height = 23
+      Top = 120
+      Width = 24
+      Font.Height = 16
+      ParentFont = False
+      TabOrder = 2
+      Text = '14'
+    end
+    object Label1: TLabel
+      Left = 32
+      Height = 13
+      Top = 168
+      Width = 53
+      Caption = 'Progress...'
+      Font.Height = 14
+      ParentColor = False
+      ParentFont = False
+      Visible = False
+    end
+  end
+  object GroupBox6: TGroupBox
+    Left = 464
+    Height = 232
+    Top = 16
+    Width = 320
+    Caption = '3. Post-processing'
+    ClientHeight = 212
+    ClientWidth = 316
+    TabOrder = 6
+    object btnMarkThinnedCTD: TBitBtn
+      Left = 24
+      Height = 38
+      Top = 8
+      Width = 272
+      Caption = 'Mark thinned CTDs as duplicates'
+      Font.Color = clBlue
+      Font.Height = 18
+      Font.Style = [fsBold]
+      OnClick = btnMarkThinnedCTDClick
+      ParentFont = False
+      TabOrder = 0
+    end
   end
 end
