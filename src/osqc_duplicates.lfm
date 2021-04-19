@@ -17,7 +17,7 @@ object frmqc_duplicates: Tfrmqc_duplicates
     Height = 96
     Top = 16
     Width = 422
-    Caption = 'Find duplicated in'
+    Caption = 'Find duplicated stations in'
     ClientHeight = 66
     ClientWidth = 418
     TabOrder = 0

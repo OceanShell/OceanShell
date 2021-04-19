@@ -47,7 +47,18 @@ uses osmain, dm, procedures;
 
 procedure Tfrmqc_duplicates.FormShow(Sender: TObject);
 begin
- cbSource.Items:=frmosmain.cbSource.Items;
+ with frmdm.q1 do begin
+   Close;
+     SQL.Clear;
+     SQL.Add('SELECT NAME FROM SOURCE ORDER BY NAME ');
+   Open;
+ end;
+
+ cbSource.Clear;
+ while not frmdm.q1.EOF do begin
+    cbSource.Items.Add(frmdm.q1.Fields[0].AsString);
+   frmdm.q1.Next;
+ end;
 end;
 
 procedure Tfrmqc_duplicates.cbSourceChange(Sender: TObject);
