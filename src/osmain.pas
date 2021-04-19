@@ -1110,6 +1110,7 @@ begin
 
     if chkIgnoreDup.Checked=true then
        Cruise_SQL_str:=Cruise_SQL_str+' AND CRUISE.DUPLICATE=FALSE ';
+
 (*===========================END OF CRUISE_SQL_str============================*)
 
 
@@ -2850,6 +2851,7 @@ var
   items_enabled:boolean;
   yy, mn, dd:word;
   temp_list: TStringList;
+  tblpar:string;
 begin
 
   SCount:=0;
@@ -2918,7 +2920,7 @@ begin
        if UpdateCruises=true then
           SelectGetCruisesFromStation(temp_list);
 
-       items_enabled:=true
+       items_enabled:=true;
      end;
 
   finally

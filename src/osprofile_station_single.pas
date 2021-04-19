@@ -138,12 +138,8 @@ begin
   finally
      Ini.Free;
   end;
-cbParameters.Items:=frmosmain.ListBox1.Items;
-current_index:=-1;
 
-if CurrentParTable<>'' then
-  cbParameters.ItemIndex:=cbParameters.Items.IndexOf(CurrentParTable) else
-  cbParameters.ItemIndex:=0;
+current_index:=-1;
 
   // QF pick lists
   DBGridSingleProfile.Columns[3].PickList.Clear;
@@ -220,13 +216,31 @@ var
   k, tt, prof_num, instr_id:integer;
   TRt:TSQLTransaction;
   Qt1, Qt2:TSQLQuery;
-  Instr_name, TabName, SName, isbest:string;
+  Instr_name, TabName, SName, isbest, tblPar:string;
   prof_best: boolean;
   lev, lev_m, lev_d, val1: real;
   LeftAxisTitle: string;
 begin
+ //getting list of not empty tables
+  cbParameters.Clear;
+ for k:=0 to frmosmain.ListBox1.Count-1 do begin
+  tblPar:=frmosmain.ListBox1.Items.Strings[k];
+
+  with frmdm.q1 do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' SELECT ID FROM '+tblPar);
+    SQL.Add(' WHERE ID=:ID ');
+    SQL.Add(' ROWS 1 ');
+    ParamByName('ID').Value:=ID;
+   Open;
+    if not frmdm.q1.IsEmpty then cbParameters.Items.Add(tblPar);
+   Close
+  end;
+ end;
 
 if (CurrentParTable='') then CurrentParTable:=cbParameters.Items.Strings[0];
+cbParameters.Text:=CurrentParTable;
 
 Caption:='Single parameter: '+inttostr(ID);
 Application.ProcessMessages;
