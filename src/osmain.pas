@@ -61,6 +61,7 @@ type
     cgQCFlag: TCheckGroup;
     chkAuxMetadata: TCheckBox;
     chkCrNumStat: TCheckBox;
+    chkCruiseIDList: TCheckBox;
     chkDateandTime: TCheckBox;
     chkDepth: TCheckBox;
     chkStationIDRange: TCheckBox;
@@ -78,6 +79,7 @@ type
     chkRegion: TCheckBox;
     cbEntryType: TComboBox;
     chkShowQuery: TCheckBox;
+    chkStationIDList: TCheckBox;
     DBCruiseCountry: TDBComboBox;
     DBCruiseInstitute: TDBComboBox;
     DBCruiseLatMax: TDBEdit;
@@ -113,7 +115,6 @@ type
     gbDateandTime: TGroupBox;
     gbDepth: TGroupBox;
     gbIDRange: TGroupBox;
-    gbIDRange1: TGroupBox;
     gbRegion: TGroupBox;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
@@ -121,6 +122,8 @@ type
     GroupBox4: TGroupBox;
     gbSelectionMode: TGroupBox;
     GroupBox5: TGroupBox;
+    GroupBox6: TGroupBox;
+    GroupBox7: TGroupBox;
     iProfilesAll: TMenuItem;
     iSelectStationsForCruise: TMenuItem;
     ishowselectedstation: TMenuItem;
@@ -144,7 +147,11 @@ type
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
     lbResetSearchStations: TLabel;
+    mCruiseIDList: TMemo;
+    mStationIDList: TMemo;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
     iKnowledgeDB: TMenuItem;
@@ -207,14 +214,15 @@ type
     Panel3: TPanel;
     Panel4: TPanel;
     pcCruiseNumStations: TPageControl;
+    pStationIDList: TPanel;
     pDepth: TPanel;
     pCruiseNumStations: TPanel;
     pcDepth: TPageControl;
-    pCruiseIDRange: TPanel;
+    pCruiseIDList: TPanel;
     pParameters: TPanel;
     pAuxiliaryMetadata: TPanel;
     pQCFlag: TPanel;
-    pStationIDRange: TPanel;
+    pIDRange: TPanel;
     pcDateandTime: TPageControl;
     pDateAndTime: TPanel;
     pcRegion: TPageControl;
@@ -260,6 +268,8 @@ type
     N3: TMenuItem;
     iExit: TMenuItem;
     ListBox1: TListBox;
+    seCruiseIDMax: TSpinEdit;
+    seCruiseIDMin: TSpinEdit;
     seCruiseStationsDatabaseMax: TSpinEdit;
     seCruiseStationsDatabaseMin: TSpinEdit;
     seCruiseStationsDuplicateMax: TSpinEdit;
@@ -271,9 +281,7 @@ type
     seGEBCOMax: TSpinEdit;
     seGEBCOMin: TSpinEdit;
     seStationIDMax: TSpinEdit;
-    seCruiseIDMax: TSpinEdit;
     seStationIDMin: TSpinEdit;
-    seCruiseIDMin: TSpinEdit;
     seLastLevelMax: TFloatSpinEdit;
     seLastLevelMin: TFloatSpinEdit;
     seLatMax: TFloatSpinEdit;
@@ -341,9 +349,11 @@ type
     procedure cbSourceDropDown(Sender: TObject);
     procedure chkAuxMetadataChange(Sender: TObject);
     procedure chkCrNumStatChange(Sender: TObject);
+    procedure chkCruiseIDListChange(Sender: TObject);
     procedure chkCruiseIDRangeChange(Sender: TObject);
     procedure chkDateandTimeChange(Sender: TObject);
     procedure chkDepthChange(Sender: TObject);
+    procedure chkStationIDListChange(Sender: TObject);
     procedure chkStationIDRangeChange(Sender: TObject);
     procedure chkParameterChange(Sender: TObject);
     procedure chkQCFlagChange(Sender: TObject);
@@ -701,6 +711,8 @@ begin
     chkAuxMetadata.Checked := Ini.ReadBool( 'osmain', 'station_chkAuxMetadata', false);
     chkStationIDRange.Checked := Ini.ReadBool( 'osmain', 'station_chkIDRange',  false);
     chkCruiseIDRange.Checked  := Ini.ReadBool( 'osmain', 'cruise_chkIDRange',   false);
+    chkStationIDList.Checked  := Ini.ReadBool( 'osmain', 'station_chkIDList',   false);
+    chkCruiseIDList.Checked   := Ini.ReadBool( 'osmain', 'cruise_chkIDList',    false);
 
     chkParameter.Checked   := Ini.ReadBool( 'osmain', 'station_chkVariables',   false);
     chkQCFlag.Checked      := Ini.ReadBool( 'osmain', 'station_chkQCFlag',      false);
@@ -726,6 +738,11 @@ begin
     seCruiseIDMin.Value     :=Ini.ReadInteger( 'osmain', 'cruise_idmin',      0);
     seCruiseIDMax.Value     :=Ini.ReadInteger( 'osmain', 'cruise_idmax',      0);
 
+    mCruiseIDList.Clear;
+    mCruiseIDList.Lines.Add(Ini.ReadString( 'osmain', 'cruise_list',      ''));
+
+    mStationIDList.Clear;
+    mStationIDList.Lines.Add(Ini.ReadString( 'osmain', 'station_list',      ''));
 
     cbSource.Text    :=Ini.ReadString ( 'osmain', 'station_source',    '');
     cbPlatform.Text  :=Ini.ReadString ( 'osmain', 'station_platform',  '');
@@ -824,8 +841,10 @@ begin
 
   chkRegion.OnChange(self);
   chkDateandTime.OnChange(self);
-  chkStationIDRange.OnChange(self);
   chkCruiseIDRange.OnChange(self);
+  chkStationIDRange.OnChange(self);
+  chkCruiseIDList.OnChange(self);
+  chkStationIDList.OnChange(self);
   chkAuxMetadata.OnChange(self);
   chkParameter.OnChange(self);
   chkQCFlag.OnChange(self);
@@ -963,6 +982,14 @@ begin
         ' AND (CRUISE.ID BETWEEN '+seCruiseIDMin.Text+
         ' AND '+seCruiseIDMax.Text+')';
 
+      (* List of Cruise IDs *)
+      if (chkCruiseIDList.Checked) and (mCruiseIDList.Lines.Count>0) then begin
+        Cruise_SQL_str:=Cruise_SQL_str+' AND (CRUISE.ID IN (';
+         for k:=0 to mCruiseIDList.Lines.Count-1 do
+          Cruise_SQL_Str:=Cruise_SQL_str+mCruiseIDList.Lines.Strings[k];
+        Cruise_SQL_Str:=Cruise_SQL_str+')) ';
+      end;
+
      (* Coordinates *)
      if chkRegion.Checked then begin
      // if chNoEmptyCruises.Checked=false then begin
@@ -1090,13 +1117,6 @@ begin
 (******************************STATION_SQL_str*********************************)
 Station_SQL_str:='';
 
-   (* STATION ID range *)
-   if chkStationIDRange.Checked=true then begin
-       Station_SQL_str:=Station_SQL_str+
-                        ' AND (STATION.ID BETWEEN '+seStationIDMin.Text+
-                        ' AND '+seStationIDMax.Text+') ';
-   end;
-
 
    (* CRUISE ID range *)
    if chkCruiseIDRange.Checked=true then begin
@@ -1104,6 +1124,30 @@ Station_SQL_str:='';
                         ' AND (STATION.CRUISE_ID BETWEEN '+seCruiseIDMin.Text+
                         ' AND '+seCruiseIDMax.Text+') ';
    end;
+
+   (* STATION ID range *)
+   if chkStationIDRange.Checked=true then begin
+       Station_SQL_str:=Station_SQL_str+
+                        ' AND (STATION.ID BETWEEN '+seStationIDMin.Text+
+                        ' AND '+seStationIDMax.Text+') ';
+   end;
+
+   (* List of Cruise IDs *)
+   if (chkCruiseIDList.Checked) and (mCruiseIDList.Lines.Count>0) then begin
+     Station_SQL_str:=Station_SQL_str+' AND (STATION.CRUISE_ID IN (';
+       for k:=0 to mCruiseIDList.Lines.Count-1 do
+         Station_SQL_Str:=Station_SQL_str+mCruiseIDList.Lines.Strings[k];
+     Station_SQL_Str:=Station_SQL_str+')) ';
+   end;
+
+   (* List of Station IDs *)
+   if (chkStationIDList.Checked) and (mStationIDList.Lines.Count>0) then begin
+     Station_SQL_str:=Station_SQL_str+' AND (STATION.ID IN (';
+       for k:=0 to mStationIDList.Lines.Count-1 do
+         Station_SQL_Str:=Station_SQL_str+mStationIDList.Lines.Strings[k];
+     Station_SQL_Str:=Station_SQL_str+')) ';
+   end;
+
 
    (* QC Flag *)
    if trim(QCFlag_str)<>'' then
@@ -1282,9 +1326,6 @@ buf_str, cr: string;
 LatMin, LatMax, LonMin, LonMax:real;
 begin
 
-(* saving current search settings *)
-//SaveSettingsSearch;
-
 frmosmain.Enabled:=false;
 Application.ProcessMessages;
 try
@@ -1296,6 +1337,9 @@ try
 
 (*************************** Selecting CRUISES ********************************)
   if rbCruises.Checked=true then begin
+   SelectionInfo(false);
+   CDSNavigation;
+
    try
    frmdm.QCruise.DisableControls;
    with frmdm.QCruise do begin
@@ -1400,7 +1444,7 @@ try
 
          if ((pcRegion.ActivePageIndex=1) and (dist<=seAroundPointRaduis.Value)) or
             ((pcRegion.ActivePageIndex=2) and (Odd(Point_Status(Lon,Lat)))) then begin
-         // memo2.lines.add(floattostr(lat)+'   '+floattostr(lon));
+         // mCruiseIDList.lines.add(floattostr(lat)+'   '+floattostr(lon));
           with frmdm.q2 do begin
            Close;
             SQL.Clear;
@@ -1903,6 +1947,9 @@ begin
   seStationIDMax.Value:=StationIDMax;
   seCruiseIDMin.Value:=CruiseIDMin;
   seCruiseIDMax.Value:=CruiseIDMax;
+
+  mCruiseIDList.Clear;
+  mStationIDList.Clear;
 
   dtpDateMin.DateTime:=StationDateMin;
   dtpDateMax.DateTime:=StationDateMax;
@@ -2749,6 +2796,9 @@ begin
   chkStationIDRange.Enabled:=false;
   chkStationIDRange.Checked:=false;
 
+  chkStationIDList.Enabled:=false;
+  chkStationIDList.Checked:=false;
+
   chkParameter.Enabled:=false;
   chkParameter.Checked:=false;
 
@@ -2771,6 +2821,7 @@ end;
 procedure Tfrmosmain.rbStationsChange(Sender: TObject);
 begin
   chkStationIDRange.Enabled:=true;
+  chkStationIDList.Enabled:=true;
   chkParameter.Enabled:=true;
   chkDepth.Enabled:=true;
 
@@ -2781,11 +2832,8 @@ begin
   chkDepth.OnChange(self);
   chkCrNumStat.OnChange(self);
 
-
-
   pcRegion.Pages[1].TabVisible:=true;
   pcRegion.Pages[2].TabVisible:=true;
-
 
   chkPeriod.Visible:=true;
   //chNoEmptyCruises.Enabled:=false;
@@ -2804,6 +2852,10 @@ var
   temp_list: TStringList;
 begin
 
+  SCount:=0;
+  items_enabled:=false;
+
+ if frmdm.Q.Active then begin
  try
   frmdm.Q.DisableControls;
 
@@ -2866,15 +2918,17 @@ begin
        if UpdateCruises=true then
           SelectGetCruisesFromStation(temp_list);
 
-     end else for k:=1 to 7 do sbSelection.Panels[k].Text:='---';
-
-  (* if there are selected station enabling some menu items *)
-  if SCount>0 then items_enabled:=true else items_enabled:=false;
+       items_enabled:=true
+     end;
 
   finally
     temp_list.Free;
     frmdm.Q.EnableControls;
   end;
+ end;
+
+ if SCount=0 then
+   for k:=1 to 7 do sbSelection.Panels[k].Text:='---';
 
   iDBStatistics.Enabled:=items_enabled;
   aMapAllStations.Enabled:=items_enabled;
@@ -3432,12 +3486,32 @@ end;
 procedure Tfrmosmain.chkStationIDRangeChange(Sender: TObject);
 begin
  // gbIDRange.Enabled:=chkStationIDRange.Checked;
-  pStationIDRange.Visible:=chkStationIDRange.Checked;
+  seStationIDMin.Enabled:=chkStationIDRange.Checked;
+  seStationIDMax.Enabled:=chkStationIDRange.Checked;
+
+  if (chkStationIDRange.Checked) or
+     (chkCruiseIDRange.Checked) then
+     pIDRange.Visible:=true else pIDRange.Visible:=false;
 end;
 
 procedure Tfrmosmain.chkCruiseIDRangeChange(Sender: TObject);
 begin
-  pCruiseIDRange.Visible:=chkCruiseIDRange.Checked;
+  seCruiseIDMin.Enabled:=chkCruiseIDRange.Checked;
+  seCruiseIDMax.Enabled:=chkCruiseIDRange.Checked;
+
+  if (chkStationIDRange.Checked) or
+     (chkCruiseIDRange.Checked) then
+     pIDRange.Visible:=true else pIDRange.Visible:=false;
+end;
+
+procedure Tfrmosmain.chkCruiseIDListChange(Sender: TObject);
+begin
+  pCruiseIDList.Visible:=chkCruiseIDList.Checked;
+end;
+
+procedure Tfrmosmain.chkStationIDListChange(Sender: TObject);
+begin
+  pStationIDList.Visible:=chkStationIDList.Checked;
 end;
 
 
@@ -3492,15 +3566,12 @@ procedure Tfrmosmain.DBGridCruiseKeyUp(Sender: TObject; var Key: Word;
 begin
   if ((key=VK_UP) or (key=VK_DOWN)) then begin
     if (not frmdm.QCruise.IsEmpty) and (not VarIsNull(frmdm.QCruise.FieldByName('ID').Value)) then begin
-   //  showmessage('here1');
       if (not frmdm.Q.IsEmpty) and (not VarIsNull(frmdm.Q.FieldByName('ID').Value)) then begin
-     //  showmessage('here2');
         if frmmap_open=true then frmmap.ChangeID(frmdm.Q.FieldByName('ID').Value); //Map
-      if frmprofile_plot_all_open then frmprofile_plot_all.chkCruiseHighlight.OnChange(self);
-     end;
+        if frmprofile_plot_all_open then frmprofile_plot_all.chkCruiseHighlight.OnChange(self);
+      end;
     end;
   end;
- // showmessage('here');
 end;
 
 
@@ -3634,6 +3705,7 @@ procedure Tfrmosmain.CDSNavigation;
 Var
 ID:integer;
 begin
+if frmdm.Q.Active then begin
 ID:=frmdm.Q.FieldByName('ID').AsInteger;
 if NavigationOrder=false then exit;
 
@@ -3648,21 +3720,23 @@ if NavigationOrder=false then exit;
      if frmprofile_station_single_open =true then frmprofile_station_single.ChangeID(ID);
      if frmprofile_plot_all_open=true then frmprofile_plot_all.ChangeID(ID);
      if frmmeteo_open=true then frmmeteo.ChangeID(ID);
- //  if InfoOpen      =true then Info.ChangeID;
- //  if QProfilesOpen =true then QProfiles.ChangeStation(ID);
- //  if DensOpen      =true then QDensity.ChangeDensStation(ID);
- //  if TSOPen        =true then frmToolTSDiagram.ChangeID;
-
-
- //  if MeteoOpen     =true then Meteo.ChangeAbsnum;
- //  if MLDOpen       =true then MLD.ChangeID;
- //  if TrackOpen     =true then frmVesselSpeed.ChangeID;
- //  if RossbyOpen    =true then Rossby.ChangeID;
- //  if QCTDOpen      =true then QCTD.ChangeID;
- //  if VertIntOpen   =true then VertInt.TblChange(ID)
-
+     if frmparameters_list_open then begin
+      if (Pos('[',frmparameters_list.lbParameters.Items.Strings[0])>0) then
+           frmparameters_list.btnAmountOfProfiles.OnClick(self);
+     end;
   NavigationOrder:=true; //Завершили, открываем доступ к навигации
  end;
+end;
+
+if not frmdm.Q.Active then begin
+ if frmmap_open=true then frmmap.Close;
+ if frmprofile_station_all_open=true then frmprofile_station_all.Close; //
+ if frmprofile_station_single_open =true then frmprofile_station_single.Close;
+ if frmprofile_plot_all_open=true then frmprofile_plot_all.Close;
+ if frmmeteo_open=true then frmmeteo.Close;
+ if frmparameters_list_open then frmparameters_list.Close;
+end;
+
 end;
 
 procedure Tfrmosmain.iNewDatabaseClick(Sender: TObject);
@@ -4631,6 +4705,8 @@ end;
 procedure Tfrmosmain.SaveSettingsSearch;
 Var
   Ini:TIniFile;
+  k:integer;
+  str: string;
 begin
   Ini := TIniFile.Create(IniFileName);
   try
@@ -4644,6 +4720,8 @@ begin
     Ini.WriteBool    ( 'osmain', 'station_chkRegion',           chkRegion.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkIDRange',          chkStationIDRange.Checked);
     Ini.WriteBool    ( 'osmain', 'cruise_chkIDRange',           chkCruiseIDRange.Checked);
+    Ini.WriteBool    ( 'osmain', 'station_chkIDList',           chkStationIDList.Checked);
+    Ini.WriteBool    ( 'osmain', 'cruise_chkIDList',            chkCruiseIDList.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkAuxMetadata',      chkAuxMetadata.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkVariables',        chkParameter.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkQCFlag',           chkQCFlag.Checked);
@@ -4680,6 +4758,16 @@ begin
     Ini.WriteInteger ( 'osmain', 'station_idmax',    seStationIDMax.Value);
     Ini.WriteInteger ( 'osmain', 'cruise_idmin',     seCruiseIDMin.Value);
     Ini.WriteInteger ( 'osmain', 'cruise_idmax',     seCruiseIDMax.Value);
+
+    str:='';
+    for k:=0 to mCruiseIDList.Lines.Count-1 do
+      str:=str+mCruiseIDList.Lines.Strings[k];
+    Ini.WriteString  ( 'osmain', 'cruise_list', str);
+
+    str:='';
+    for k:=0 to mStationIDList.Lines.Count-1 do
+      str:=str+mStationIDList.Lines.Strings[k];
+    Ini.WriteString  ( 'osmain', 'station_list', str);
 
     // Auxiliary metadata
     Ini.WriteString  ( 'osmain', 'station_source',   cbSource.Text);
