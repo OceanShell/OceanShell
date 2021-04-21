@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Spin,
-  SQLDB, DB, DateUtils;
+  SQLDB, DB, DateUtils, LCLIntf;
 
 type
 
@@ -15,17 +15,22 @@ type
   Tfrmqc_duplicates = class(TForm)
     btnFindDuplicates: TButton;
     btnUpdateCruise: TButton;
+    Button1: TButton;
     cbSource: TComboBox;
+    GroupBox3: TGroupBox;
+    Label5: TLabel;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    seRatio: TFloatSpinEdit;
     seThreshold: TFloatSpinEdit;
     seDateThreshold: TSpinEdit;
     procedure btnFindDuplicatesClick(Sender: TObject);
     procedure btnUpdateCruiseClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
     procedure cbSourceChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
@@ -211,7 +216,7 @@ begin
          Close;
           SQL.Clear;
           SQL.Add(' UPDATE CRUISE SET ');
-          SQL.Add(' STATIONS_DUPLICATED=:cnt ');
+          SQL.Add(' STATIONS_DUPLICATES=:cnt ');
           SQL.Add(' where ID=:CR_ID ');
           ParamByName('CR_ID').AsInteger:=frmdm.q1.Fields[0].AsInteger;
           ParamByName('cnt').AsInteger:=cnt_dup;
@@ -222,6 +227,72 @@ begin
 end;
     frmdm.TR.CommitRetaining;
     showmessage('Update completed');
+end;
+
+procedure Tfrmqc_duplicates.Button1Click(Sender: TObject);
+Var
+ TRt:TSQLTransaction;
+ Qt1, Qt2:TSQLQuery;
+
+ id: int64;
+ dat:text;
+ st_db, st_dup, cnt_dup: integer;
+begin
+
+TRt:=TSQLTransaction.Create(self);
+TRt.DataBase:=frmdm.IBDB;
+
+Qt1 :=TSQLQuery.Create(self);
+Qt1.Database:=frmdm.IBDB;
+Qt1.Transaction:=TRt;
+
+Qt2 :=TSQLQuery.Create(self);
+Qt2.Database:=frmdm.IBDB;
+Qt2.Transaction:=TRt;
+
+AssignFile(dat, GlobalUnloadPath+'dup_cruises.txt'); rewrite(dat);
+writeln(dat, 'Duplicated cruises');
+
+    with Qt1 do begin
+      Close;
+        SQL.Clear;
+        SQL.Add(' SELECT ID, STATIONS_DATABASE, STATIONS_DUPLICATES ');
+        SQL.Add(' FROM CRUISE ');
+        SQL.Add(' WHERE STATIONS_DATABASE>0 ');
+        SQL.Add(' ORDER BY CRUISE.ID ');
+      Open;
+     end;
+
+    cnt_dup:=0;
+    while not Qt1.EOF do begin
+      id:=Qt1.Fields[0].AsInteger;
+      st_db:=Qt1.Fields[1].AsInteger;
+      st_dup:=Qt1.Fields[2].AsInteger;
+
+      if st_dup/st_db>=seRatio.Value then begin
+      // memo1.Lines.Add(inttostr(id));
+       with Qt2 do begin
+         Close;
+          SQL.Clear;
+          SQL.Add(' UPDATE CRUISE SET ');
+          SQL.Add(' DUPLICATE=true ');
+          SQL.Add(' where ID=:CR_ID ');
+          ParamByName('CR_ID').Value:=id;
+         ExecSQL;
+       end;
+       Trt.CommitRetaining;
+       inc(cnt_dup);
+       writeln(dat, inttostr(id));
+      end;
+     Qt1.Next;
+    end;
+  Trt.Commit;
+  Qt1.Free;
+  Qt2.Free;
+  Trt.Free;
+  closeFile(dat);
+  showmessage('Duplicated cruises: '+inttostr(cnt_dup));
+  OpenDocument(GlobalUnloadPath+'dup_cruises.txt');
 end;
 
 end.
