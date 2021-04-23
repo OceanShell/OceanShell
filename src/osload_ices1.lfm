@@ -8,6 +8,7 @@ object frmload_ices1: Tfrmload_ices1
   ClientWidth = 1180
   DesignTimePPI = 120
   Font.Height = 16
+  OnClose = FormClose
   OnShow = FormShow
   LCLVersion = '2.0.6.0'
   object Memo1: TMemo
@@ -133,7 +134,7 @@ object frmload_ices1: Tfrmload_ices1
   object GroupBox4: TGroupBox
     Left = 192
     Height = 112
-    Top = 136
+    Top = 152
     Width = 224
     Caption = '2. Download cruises'
     ClientHeight = 92
@@ -178,11 +179,11 @@ object frmload_ices1: Tfrmload_ices1
   end
   object GroupBox5: TGroupBox
     Left = 32
-    Height = 240
+    Height = 256
     Top = 8
     Width = 144
     Caption = 'Settings'
-    ClientHeight = 220
+    ClientHeight = 236
     ClientWidth = 140
     TabOrder = 5
     object CheckBox1: TCheckBox
@@ -220,7 +221,7 @@ object frmload_ices1: Tfrmload_ices1
     object Edit1: TEdit
       Left = 48
       Height = 23
-      Top = 120
+      Top = 128
       Width = 24
       Font.Height = 16
       ParentFont = False
@@ -228,9 +229,9 @@ object frmload_ices1: Tfrmload_ices1
       Text = '14'
     end
     object Label1: TLabel
-      Left = 32
+      Left = 40
       Height = 13
-      Top = 168
+      Top = 192
       Width = 53
       Caption = 'Progress...'
       Font.Height = 14
@@ -240,26 +241,115 @@ object frmload_ices1: Tfrmload_ices1
     end
   end
   object GroupBox6: TGroupBox
-    Left = 464
-    Height = 232
+    Left = 440
+    Height = 248
     Top = 16
-    Width = 320
+    Width = 424
     Caption = '3. Post-processing'
-    ClientHeight = 212
-    ClientWidth = 316
+    ClientHeight = 228
+    ClientWidth = 420
     TabOrder = 6
     object btnMarkThinnedCTD: TBitBtn
-      Left = 24
-      Height = 38
-      Top = 8
-      Width = 272
-      Caption = 'Mark thinned CTDs as duplicates'
-      Font.Color = clBlue
+      Left = 8
+      Height = 30
+      Top = 0
+      Width = 400
+      Caption = 'A.  Set STATION.duplicate=true on CTD variant of stations'
+      Font.Color = clHighlight
       Font.Height = 18
       Font.Style = [fsBold]
       OnClick = btnMarkThinnedCTDClick
       ParentFont = False
       TabOrder = 0
     end
+    object btnFindStationsInOcean: TBitBtn
+      Left = 8
+      Height = 30
+      Top = 192
+      Width = 400
+      Caption = 'E.  Find stations not in the OCEAN'
+      Font.Color = clHighlight
+      Font.Height = 18
+      Font.Style = [fsBold]
+      OnClick = btnFindStationsInOceanClick
+      ParentFont = False
+      TabOrder = 1
+    end
+    object Memo2: TMemo
+      Left = 8
+      Height = 72
+      Top = 32
+      Width = 400
+      Font.Color = clHighlight
+      Font.Height = 18
+      Font.Style = [fsBold]
+      Lines.Strings = (
+        'B. - go to QC -> Station duplicates'
+        '    - select ICES'
+        '    - update # of duplicates in CRUISE'
+        '    - mark cruises as duplicate (1=100%)'
+      )
+      ParentFont = False
+      TabOrder = 2
+    end
+    object btnCopyCTDProfilesToBottleStations: TBitBtn
+      Left = 8
+      Height = 30
+      Top = 112
+      Width = 400
+      Caption = 'C.  Copy CTD profiles to bottle stations'
+      Font.Color = clHighlight
+      Font.Height = 18
+      Font.Style = [fsBold]
+      OnClick = btnCopyCTDProfilesToBottleStationsClick
+      ParentFont = False
+      TabOrder = 3
+    end
+    object btnDeleteDuplicateCruises: TBitBtn
+      Left = 8
+      Height = 30
+      Top = 152
+      Width = 400
+      Caption = 'D.  Delete duplicate cruises'
+      Font.Color = clHighlight
+      Font.Height = 18
+      Font.Style = [fsBold]
+      OnClick = btnDeleteDuplicateCruisesClick
+      ParentFont = False
+      TabOrder = 4
+    end
+  end
+  object IBDB2: TIBConnection
+    Connected = False
+    LoginPrompt = False
+    KeepConnection = False
+    Password = 'masterkey'
+    Transaction = TR2
+    UserName = 'SYSDBA'
+    CheckTransactionParams = False
+    left = 904
+    top = 328
+  end
+  object TR2: TSQLTransaction
+    Active = False
+    Database = IBDB2
+    left = 960
+    top = 328
+  end
+  object q1: TSQLQuery
+    FieldDefs = <>
+    Database = IBDB2
+    Transaction = TR2
+    Params = <>
+    left = 1008
+    top = 328
+  end
+  object q2: TSQLQuery
+    FieldDefs = <>
+    Database = IBDB2
+    Transaction = TR2
+    Params = <>
+    left = 1056
+    top = 328
   end
 end
