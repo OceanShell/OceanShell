@@ -168,4 +168,13 @@ object frmdm: Tfrmdm
     left = 36
     top = 104
   end
+  object q4: TSQLQuery
+    MaxIndexesCount = 100
+    FieldDefs = <>
+    Database = IBDB
+    Transaction = TR
+    Params = <>
+    left = 512
+    top = 200
+  end
 end

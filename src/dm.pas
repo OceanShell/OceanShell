@@ -22,6 +22,7 @@ type
     q1: TSQLQuery;
     q2: TSQLQuery;
     q3: TSQLQuery;
+    q4: TSQLQuery;
     QCruiseDetails: TSQLQuery;
     QCruise: TSQLQuery;
     QEntry: TSQLQuery;
