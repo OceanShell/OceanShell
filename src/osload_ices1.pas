@@ -1874,12 +1874,13 @@ memo1.Lines.Add('...start: '+datetimetostr(DT1));
     end;
 
     {...change settings for CTD with reduced vertical resolution}
+    {... 18 LCTD Low-resolution CTD}
     if CheckBox2.Checked=true then begin
     with frmdm.q4 do begin
      Close;
      SQL.Clear;
      SQL.Add(' update '+tbl);
-     SQL.Add(' set instrument_id=4, profile_number=2, profile_best=false ');
+     SQL.Add(' set instrument_id=18, profile_number=2, profile_best=false ');
      SQL.Add(' where id=:station_id ');
      ParamByName('station_id').AsInteger:=stationBTL_id;
      ExecSQL;
@@ -1918,7 +1919,7 @@ memo1.Lines.Add('...start: '+datetimetostr(DT1));
        ParamByName('SQF').AsInteger:=frmdm.q3.FieldByName('sqf').AsInteger;
        ParamByName('BOTTLE_NUMBER').AsInteger:=frmdm.q3.FieldByName('bottle_number').AsInteger;
        ParamByName('UNITS_ID').AsInteger:=frmdm.q3.FieldByName('units_id').AsInteger;
-       ParamByName('INSTRUMENT_ID').AsInteger:=18; //LCTD Low Resolution CTD
+       ParamByName('INSTRUMENT_ID').AsInteger:=4; //CTD
        ParamByName('PROFILE_NUMBER').AsInteger:=frmdm.q3.FieldByName('profile_number').AsInteger;;
        ParamByName('PROFILE_BEST').AsBoolean:=frmdm.q3.FieldByName('profile_best').AsBoolean;;
        ExecSQL;
