@@ -507,7 +507,7 @@ nameICES,unitICES,CSR_cruise_number,CSR_expocode,CSR_notes :string;
 st_num,st_type,st_date,st_lat,st_lon,st_bd,st1,st2,st_lev_dbar :string;
 nodc_code :string[4];
 col_arr :array[1..100] of string;
-st_DT,dsdb_DT,dedb_DT :TDateTime;
+st_DT,dsdb_DT,dedb_DT,date_start_total,date_end_total :TDateTime;
 Func:Tgsw_z_from_p;
 
 begin
@@ -735,7 +735,8 @@ end;
    with frmdm.q1 do begin
      Close;
      SQL.Clear;
-     SQL.Add(' select cruise_number, expocode, notes ');
+     SQL.Add(' select cruise_number, expocode, notes,  ');
+     SQL.Add(' date_start_total, date_end_total ');
      SQL.Add(' from CRUISE_CSR ');
      SQL.Add(' where :st_DT between date_start_total and date_end_total ');
      SQL.Add(' and platform_id=:platform_id ');
@@ -745,6 +746,8 @@ end;
      CSR_cruise_number:=FieldByName('cruise_number').AsString;
      CSR_expocode:=FieldByName('expocode').AsString;
      CSR_notes:=FieldByName('notes').AsString;
+     date_start_total:=FieldByName('date_start_total').AsDateTime;
+     date_end_total:=FieldByName('date_end_total').AsDateTime;
      Close;
    end;
 
@@ -791,8 +794,8 @@ end;
      ParamByName('expocode'       ).Value:=FileListBox3.Items.Strings[kf];
      ParamByName('date_added').Value:=now;
      ParamByName('date_updated').Value:=now;
-     ParamByName('date_start_total').Value:=now;
-     ParamByName('date_end_total').Value:=now;
+     ParamByName('date_start_total').Value:=date_start_total;
+     ParamByName('date_end_total').Value:=date_end_total;
      ParamByName('date_start_database').Value:=dsdb_DT;
      ParamByName('date_end_database').Value:=dedb_DT;
      ParamByName('cruise_number').Value:=CSR_cruise_number;  //from CSR if was found
