@@ -216,11 +216,12 @@ end;
 
 procedure Tfrmparameters_list.btnAmountOfProfilesClick(Sender: TObject);
 Var
-prfCount,k_prf, ID_cur:integer;
+prfCount,k_prf:integer;
+ID_cur:int64;
 tblPar:string;
 
 TRt:TSQLTransaction;
-Qt:TSQLQuery;
+Qt, Qt1:TSQLQuery;
 begin
 TRt:=TSQLTransaction.Create(self);
 TRt.DataBase:=frmdm.IBDB;
@@ -229,11 +230,16 @@ Qt:=TSQLQuery.Create(self);
 Qt.Database:=frmdm.IBDB;
 Qt.Transaction:=TRt;
 
+Qt1:=TSQLQuery.Create(self);
+Qt1.Database:=frmdm.IBDB;
+Qt1.Transaction:=TRt;
+
 btnAmountOfProfiles.Enabled:=false;
 lbParameters.Enabled:=false;
 lbParameters.Items.Clear;
 try
- ID_cur:=frmdm.Q.FieldByName('ID').AsInteger;
+ ID_cur:=frmdm.Q.FieldByName('ID').Value;
+
  frmdm.Q.DisableControls;
   for k_prf:=0 to frmosmain.ListBox1.Count-1 do begin
    tblPar:=frmosmain.ListBox1.Items.Strings[k_prf];
@@ -242,17 +248,36 @@ try
     prfCount:=0;
     frmdm.Q.First;
      while not frmdm.Q.Eof do begin
-      with Qt do begin
+
+      with Qt1 do begin
        Close;
-           SQL.Clear;
-           SQL.Add(' SELECT ID FROM '+tblPar);
-           SQL.Add(' WHERE ID=:ID ');
-           SQL.Add(' ROWS 1 ');
-           ParamByName('ID').AsInteger:=frmdm.Q.FieldByName('ID').AsInteger;
-         Open;
-          if not Qt.IsEmpty then prfCount:=prfCount+1;
-       Close;
+        SQL.Clear;
+        SQL.Add(' SELECT DISTINCT(INSTRUMENT_ID) FROM '+tblPar);
+        SQL.Add(' WHERE ID=:ID ');
+        ParamByName('ID').AsInteger:=ID_cur;
+       Open;
       end;
+
+      while not Qt1.EOF do begin
+        with Qt do begin
+         Close;
+           SQL.Clear;
+           SQL.Add(' SELECT DISTINCT(PROFILE_NUMBER) FROM '+tblPar);
+           SQL.Add(' WHERE ID=:ID AND INSTRUMENT_ID=:INSTR_ID ');
+           SQL.Add(' ROWS 1 ');
+           ParamByName('ID').Value:=ID_cur;
+           ParamByName('INSTR_ID').Value:=Qt1.Fields[0].Value;
+         Open;
+        end;
+
+        while not Qt.EOF do begin
+          prfCount:=prfCount+1;
+          Qt.Next;
+        end;
+
+        Qt1.Next;
+      end;
+
       frmdm.Q.Next;
     end;
 
