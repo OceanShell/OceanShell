@@ -41,6 +41,7 @@ type
     Label3: TLabel;
     Memo1: TMemo;
     Memo2: TMemo;
+    OpenDialog1: TOpenDialog;
     q1: TSQLQuery;
     q2: TSQLQuery;
     TR2: TSQLTransaction;
@@ -152,19 +153,34 @@ FileListBox3.Clear;
 
 
 {F}for kf:=0 to FileListBox1.Items.Count-1 do begin
-
     fn:=pathData+FileListBox1.Items.Strings[kf];
+
     if AnsiContainsStr(fn,'b_')=true then instrument:='Bottle';
     if AnsiContainsStr(fn,'c_')=true then instrument:='CTD';
     AssignFile(fi,concat(fn));
     Reset(fi);
-    memo1.Lines.Add(fn);
+
+    cl:=0; //count lines
+{L}while not EOF(fi) do begin
     readln(fi,str);
-    memo1.Lines.Add(str);
+    cl:=cl+1;
+{L}end;
+    closefile(fi);
+    memo1.Lines.Add('');
+    memo1.Lines.Add(fn+' lines in file:'+inttostr(cl));
+    if cl=1 then memo1.Lines.Add('File is empty')
+            else memo1.Lines.Add('cruises found:');
+
+     {...check if file not empty}
+{FNE}if cl>1 then begin
+
+    reset(fi);
+    readln(fi,str);
+    if CheckBox1.Checked then memo1.Lines.Add(str);
 
     fn:=pathPreview+FileListBox1.Items.Strings[kf];
     fn:=copy(fn,1,length(fn)-4)+'_upd.csv';
-    memo1.Lines.Add(fn);
+    if CheckBox1.Checked then memo1.Lines.Add(fn);
     AssignFile(fo,concat(fn));
     Rewrite(fo);
     writeln(fo,'cruise#'+','+'platform_id'+','+str);
@@ -184,9 +200,11 @@ FileListBox3.Clear;
     col:=col+1;
     col_arr[col]:=buf;
 
+{memo}if CheckBox1.Checked then begin
 {i}for i:=1 to col do begin
     memo1.Lines.Add(col_arr[i]);
 {i}end;
+{memo}end;
 {.....first line}
 
 
@@ -240,15 +258,17 @@ FileListBox3.Clear;
     if NameICES='TPHS' then StVar[vc-1].Table:='P_TOTALPHOSPHORUS';
     if UnitICES='[umol/l]' then StVar[vc-1].UnitID:=15; //Micro-mole per liter
 {i}end;
+{memo}if CheckBox1.Checked then begin
     memo1.Lines.Add('');
     memo1.Lines.Add('...variables ');
     memo1.Lines.Add('NameICES'+#9+'UnitICES'+#9+'Database Table'+#9+'Database units_id ');
-for i:=0 to High(StVar) do
+    for i:=0 to High(StVar) do
     memo1.Lines.Add(StVar[i].NameICES
     +#9+StVar[i].UnitICES
     +#9+StVar[i].Table
     +#9+inttostr(StVar[i].UnitID));
     memo1.Lines.Add('variables# in the file:'+inttostr(Length(StVar)));
+{memo}end;
 {.....variables}
 
 
@@ -293,21 +313,7 @@ for i:=0 to High(StVar) do
     {stations dates}
     SetLength(StDate,cl);
     StDate[cl-1]:=stDT;
-    {   cruise_id:=20000000;
-    with frmdm.q1 do begin
-       Close;
-       SQL.Clear;
-       SQL.Add(' select cruise.id from CRUISE,PLATFORM ');
-       SQL.Add(' where platform.id=cruise.platform_id ');
-       SQL.Add(' and nodc_code=:nodc_code ');
-       SQL.Add(' and date_start_total<=:st_dt and date_end_total>=:st_dt ');
-       ParamByName('nodc_code').AsString:=nodc_code;
-       ParamByName('st_dt').AsDateTime:=st_DT;
-       Open;
-       cruise_id:=FieldByName('id').AsInteger;
-       Close;
-     end;
-    writeln(fo,inttostr(cruise_id)+#9+nodc_code+#9+st_num+#9+datetimetostr(st_DT));}
+
     {unique ship codes}
     if cl=1 then ShipCode[scc-1].nodc_code:=nodc_code;
     shc_new:=true;
@@ -333,9 +339,11 @@ for i:=0 to High(StVar) do
 {L}end;
     closefile(fi);
     {...add names from PLATFORM}
+{memo}if CheckBox1.Checked then begin
     memo1.Lines.Add('');
     memo1.Lines.Add('...platforms');
     memo1.Lines.Add('#'+#9+'nodc_code'+#9+'lines#'+#9+'name'+#9+'name_ICES'+#9+'name_WOD'+#9+'name_NATIVE');
+{memo}end;
 {SC}for i:=0 to High(ShipCode) do begin
     nodc_code:= ShipCode[i].nodc_code;
     //if nodc_code='????' then nodc_code:='9099';
@@ -352,6 +360,7 @@ for i:=0 to High(StVar) do
        name_NATIVE:=FieldByName('name_NATIVE').AsString;
        Close;
      end;
+    if CheckBox1.Checked then
      memo1.Lines.Add(inttostr(i)
      +#9+nodc_code
      +#9+inttostr(ShipCode[i].count) //lines# in file
@@ -381,10 +390,12 @@ for i:=0 to High(StVar) do
      cc:=cc+1;
      SetLength(CruiseLine,cc);
      CruiseLine[cc-1]:=i+4;
+{memo}if CheckBox1.Checked then begin
      memo1.Lines.Add('');
      memo1.Lines.Add('cruises# in file='+inttostr(High(CruiseLine)));
      memo1.Lines.Add('cruise#'+#9+'line#');
      for i:=0 to High(CruiseLine) do memo1.Lines.Add(inttostr(i)+#9+inttostr(CruiseLine[i]));
+{memo}end;
 {.....CruiseLine}
 
 
@@ -446,13 +457,18 @@ for i:=0 to High(StVar) do
     closefile(fo);
 {.....output}
 
+{memo}if CheckBox1.Checked then begin
      memo1.Lines.Add('');
      memo1.Lines.Add('lines# with data: '+inttostr(cl));
+{memo}end;
 
+{FNE}end; {file not empty}
 {F}end;
 
      memo1.Lines.Add('');
      DT2:=NOW;
+     memo1.Lines.Add('...split preview in: '+pathPreview);
+     memo1.Lines.Add('');
      memo1.Lines.Add('...stop: '+datetimetostr(DT2));
      memo1.Lines.Add('...time spent: '+timetostr(DT2-DT1));
      FileListBox3.Directory:=pathCR;
@@ -487,11 +503,11 @@ y,m,d,hh,mm :word;
 lat,lon,lat_min,lon_min,lat_max,lon_max,lev_m,lev_dbar: real;
 last_lev_dbar,last_lev_m :real;
 str,buf,name_PLATFORM,tbl :string;
-nameICES,unitICES :string;
+nameICES,unitICES,CSR_cruise_number,CSR_expocode,CSR_notes :string;
 st_num,st_type,st_date,st_lat,st_lon,st_bd,st1,st2,st_lev_dbar :string;
 nodc_code :string[4];
 col_arr :array[1..100] of string;
-st_DT,dsdb_DT,dedb_DT :TDateTime;
+st_DT,dsdb_DT,dedb_DT,date_start_total,date_end_total :TDateTime;
 Func:Tgsw_z_from_p;
 
 begin
@@ -713,6 +729,29 @@ end;
 
 
 {step 4: populate CRUISE}
+
+   {...CRUISE_CSR}
+    CSR_cruise_number:='UNKNOWN';
+   with frmdm.q1 do begin
+     Close;
+     SQL.Clear;
+     SQL.Add(' select cruise_number, expocode, notes,  ');
+     SQL.Add(' date_start_total, date_end_total ');
+     SQL.Add(' from CRUISE_CSR ');
+     SQL.Add(' where :st_DT between date_start_total and date_end_total ');
+     SQL.Add(' and platform_id=:platform_id ');
+     ParambyName('st_DT').AsDateTime:=dsdb_DT;   //date_start_database
+     ParambyName('platform_id').AsInteger:=platform_id;
+     Open;
+     CSR_cruise_number:=FieldByName('cruise_number').AsString;
+     CSR_expocode:=FieldByName('expocode').AsString;
+     CSR_notes:=FieldByName('notes').AsString;
+     date_start_total:=FieldByName('date_start_total').AsDateTime;
+     date_end_total:=FieldByName('date_end_total').AsDateTime;
+     Close;
+   end;
+
+
    if CheckBox1.Checked then begin
     memo1.Lines.Add('...step 4: CRUISE: '
     +#9+inttostr(cruise_id)
@@ -725,6 +764,8 @@ end;
     +#9+floattostr(lat_min)+'->'+floattostr(lat_max)
     +#9+floattostr(lon_min)+'->'+floattostr(lon_max)
     +#9+inttostr(stations_database)
+    +#9+'CSR: '+CSR_cruise_number
+    +#9+CSR_expocode
     );
    end;
 
@@ -734,13 +775,13 @@ end;
      SQL.Clear;
      SQL.Add('insert into CRUISE');
      //SQL.Add('insert into CRUISE');
-     SQL.Add(' (ID, platform_id, source_id, institute_id, project_id, expocode, ');
+     SQL.Add(' (ID, platform_id, source_id, institute_id, project_id, expocode, notes, ');
      SQL.Add(' DATE_ADDED, DATE_UPDATED, DATE_START_TOTAL, DATE_END_TOTAL,  ');
      SQL.Add(' DATE_START_DATABASE, DATE_END_DATABASE, CRUISE_NUMBER,');
      SQL.Add(' LATITUDE_MIN, LATITUDE_MAX, LONGITUDE_MIN, LONGITUDE_MAX,');
      SQL.Add(' STATIONS_TOTAL, STATIONS_DATABASE, STATIONS_DUPLICATES) ');
      SQL.Add(' VALUES ' );
-     SQL.Add(' (:ID, :platform_id, :source_id, :institute_id, :project_id, :expocode, ');
+     SQL.Add(' (:ID, :platform_id, :source_id, :institute_id, :project_id, :expocode, :notes, ');
      SQL.Add(' :DATE_ADDED, :DATE_UPDATED, :DATE_START_TOTAL, :DATE_END_TOTAL, ');
      SQL.Add(' :DATE_START_DATABASE, :DATE_END_DATABASE, :CRUISE_NUMBER, ');
      SQL.Add(' :LATITUDE_MIN, :LATITUDE_MAX, :LONGITUDE_MIN, :LONGITUDE_MAX,');
@@ -753,11 +794,12 @@ end;
      ParamByName('expocode'       ).Value:=FileListBox3.Items.Strings[kf];
      ParamByName('date_added').Value:=now;
      ParamByName('date_updated').Value:=now;
-     ParamByName('date_start_total').Value:=now;
-     ParamByName('date_end_total').Value:=now;
+     ParamByName('date_start_total').Value:=date_start_total;
+     ParamByName('date_end_total').Value:=date_end_total;
      ParamByName('date_start_database').Value:=dsdb_DT;
      ParamByName('date_end_database').Value:=dedb_DT;
-     //ParamByName('cruise_number').Value:=ITP_ID;
+     ParamByName('cruise_number').Value:=CSR_cruise_number;  //from CSR if was found
+     ParamByName('notes'       ).Value:=CSR_notes;  //CSRRef
      ParamByName('latitude_min').Value:=lat_min;
      ParamByName('latitude_max').Value:=lat_max;
      ParamByName('longitude_min').Value:=lon_min;
@@ -773,7 +815,7 @@ end;
 
 
 
-{step 5: split cruise to stations, populate STATION}
+{step 5: split cruise to stations, populate STATION, populate P_tables}
 {58VG,0143,B,1931-07-17T08:00,66.97,2.43,,0,10.37,34.661,,,,,,,,,,,,}
     if CheckBox1.Checked then memo1.Lines.Add('...step 5');
     //SetLength(Station,0,0);
@@ -949,6 +991,7 @@ end;}
 {prf}if mik>0 then begin
       tbl:=StVar[j].Table;
       units_id:=StVar[j].UnitID;
+      if CheckBox1.Checked then
       memo1.Lines.Add(StVar[j].Table+'->'+inttostr(mik));
 {lev}for i:=0 to High(Station) do begin
 
@@ -993,9 +1036,6 @@ end;
 
 {ST}end;
 {.....step 5}
-
-
-    //closefile(fi);
 {F}end;
 
 DT2:=NOW;
@@ -1545,12 +1585,12 @@ type
 
 var
 NewCruise :Cruise;
-i,mik,nstc,ncrc :integer;
+i,mik,nstc,ncrc,ncc50 :integer;
 cruise_id,station_id,platform_id,stations_database :integer;
 cr_total,st_total,new_st_total :integer;
 lat,lon :real;
 platform_name,expocode :string;
-CSR_cruise_number,CSR_expocode :string;
+CSR_cruise_number,CSR_expocode,target_db :string;
 new_st,new_cr :boolean;
 st_DT,dsd,ded :TDateTime;
 begin
@@ -1560,10 +1600,14 @@ memo1.Lines.Add('...start: '+datetimetostr(DT1));
 memo1.Lines.Add('');
 memo1.Lines.Add('source DB: '+frmdm.IBDB.DatabaseName);
 
+   OpenDialog1.Filter := 'Target database|*.fdb' ;
+   if OpenDialog1.Execute then target_db := OpenDialog1.FileName ;
+   showmessage('target db: '+target_db);
+
 {...connect to OCEAN DB}
     try
      IBDB2.Close(false);
-     IBDB2.DatabaseName:='c:\Users\ako071\AK\OceanShell-GIT\OceanShell\databases\OCEAN_AK.FDB';;
+     IBDB2.DatabaseName:=target_db;
      IBDB2.Open;
      memo1.Lines.Add('target DB: '+IBDB2.DatabaseName);
     except
@@ -1646,7 +1690,7 @@ memo1.Lines.Add('source DB: '+frmdm.IBDB.DatabaseName);
        SQL.Add(' from CRUISE, PLATFORM ');
        SQL.Add(' where cruise.platform_id=platform.id ');
        SQL.Add(' and cruise.id=:cruise_id ');
-       ParambyName('cruise_id').AsInteger:=cruise_id;
+       ParamByName('cruise_id').AsInteger:=cruise_id;
        Open;
        platform_id:=FieldByName('platform_id').AsInteger;
        stations_database:=FieldByName('stations_database').AsInteger;
@@ -1720,8 +1764,8 @@ memo1.Lines.Add('source DB: '+frmdm.IBDB.DatabaseName);
       NewCruise[ncrc-1].platform_id:=platform_id;
       NewCruise[ncrc-1].cruise_start:=dsd;            //date_start_database
       NewCruise[ncrc-1].cruise_end:=ded;              //date_end_database
-      NewCruise[ncrc-1].st_new:=1;
-      NewCruise[ncrc-1].st_total:=stations_database;
+      NewCruise[ncrc-1].st_new:=1;                   //source DB
+      NewCruise[ncrc-1].st_total:=stations_database; //source DB
       NewCruise[ncrc-1].file_name:=expocode;         //cruise file name
       NewCruise[ncrc-1].CSR_expocode:=CSR_expocode;  //CSRref and ICESref
       NewCruise[ncrc-1].CSR_cruise:=CSR_cruise_number;
@@ -1729,6 +1773,20 @@ memo1.Lines.Add('source DB: '+frmdm.IBDB.DatabaseName);
 
 {newcr}end;
 {new}end;
+
+      {...mark existing stations as duplicates in source database}
+{not new}if new_st=false then begin
+      with frmdm.q2 do begin
+       Close;
+       SQL.Clear;
+       SQL.Add(' update STATION set duplicate=true ');
+       SQL.Add(' where id=:station_id');
+       ParambyName('station_id').AsInteger:=station_id;
+       ExecSQL;
+     end;
+      frmdm.TR.CommitRetaining;
+{not new}end;
+
      frmdm.q1.Next;
 {st}end;
      frmdm.q1.Close;
@@ -1775,10 +1833,45 @@ memo1.Lines.Add('source DB: '+frmdm.IBDB.DatabaseName);
 
 {cr}end;
 
+    memo1.Lines.Add('');
+    memo1.Lines.Add('cruises where number of new stations > 50%');
+    ncc50:=0;
+{cr}for i:=0 to High(NewCruise) do begin
+     cruise_id:=NewCruise[i].cruise_id;
+     platform_id:=NewCruise[i].platform_id;
+     nstc:=NewCruise[i].st_new;
+     stations_database:=NewCruise[i].st_total;
+     expocode:=NewCruise[i].file_name;
+     dsd:=NewCruise[i].cruise_start;
+     ded:=NewCruise[i].cruise_end;
+     CSR_expocode:=NewCruise[i].CSR_expocode;
+     CSR_cruise_number:=NewCruise[i].CSR_cruise;
+
+     if nstc/stations_database>0.5 then begin
+     ncc50:=ncc50+1;   //new cruise count 50%
+     memo1.Lines.Add(inttostr(ncc50)
+     +#9+inttostr(cruise_id)
+     +#9+inttostr(platform_id)
+     +#9+inttostr(nstc)
+     +#9+inttostr(stations_database)
+     +#9+datetimetostr(dsd)
+     +#9+datetimetostr(ded)
+     +#9+CSR_expocode //CSRref and ICESref
+     +#9+expocode  //file name
+     +#9+CSR_cruise_number  //cruise number from CSR
+     );
+
+     end;
+
+{cr}end;
+
+
+
 DT2:=NOW;
 
 memo1.Lines.Add('');
 memo1.Lines.Add('new cruises#: '+inttostr(Length(NewCruise)));
+memo1.Lines.Add('new cruises# with >50% new st: '+inttostr(ncc50));
 memo1.Lines.Add('new stations#: '+inttostr(new_st_total));
 memo1.Lines.Add('cruises# total: '+inttostr(cr_total));
 memo1.Lines.Add('stations# total: '+inttostr(st_total));
