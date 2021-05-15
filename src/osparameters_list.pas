@@ -41,6 +41,7 @@ type
     procedure SaveSettings;
   public
     { Public declarations }
+    procedure GetFlags(Var PQF1_st, PQF2_st, SQF_st, instr_st:string);
   end;
 
 var
@@ -221,7 +222,9 @@ ID_cur:int64;
 tblPar:string;
 
 TRt:TSQLTransaction;
-Qt, Qt1:TSQLQuery;
+Qt:TSQLQuery;
+
+PQF1_st, PQF2_st, SQF_st, instr_st:string;
 begin
 TRt:=TSQLTransaction.Create(self);
 TRt.DataBase:=frmdm.IBDB;
@@ -230,9 +233,7 @@ Qt:=TSQLQuery.Create(self);
 Qt.Database:=frmdm.IBDB;
 Qt.Transaction:=TRt;
 
-Qt1:=TSQLQuery.Create(self);
-Qt1.Database:=frmdm.IBDB;
-Qt1.Transaction:=TRt;
+GetFlags(PQF1_st, PQF2_st, SQF_st, instr_st);
 
 btnAmountOfProfiles.Enabled:=false;
 lbParameters.Enabled:=false;
@@ -245,47 +246,34 @@ try
    tblPar:=frmosmain.ListBox1.Items.Strings[k_prf];
 
    if cancel_fl=false then begin
-    prfCount:=0;
     frmdm.Q.First;
+    prfCount:=0;
      while not frmdm.Q.Eof do begin
 
-      with Qt1 do begin
+      with Qt do begin
        Close;
         SQL.Clear;
-        SQL.Add(' SELECT DISTINCT(INSTRUMENT_ID) FROM '+tblPar);
-        SQL.Add(' WHERE ID=:ID ');
-        ParamByName('ID').AsInteger:=ID_cur;
+        SQL.Add(' SELECT ');
+        SQL.Add(' count(distinct(instrument_id)), ');
+        SQL.Add(' count(distinct(profile_number)) ');
+        SQL.Add(' FROM '+tblPar);
+        SQL.Add(' WHERE ID=:ID AND ');
+        SQL.Add(' PQF1 IN ('+PQF1_st+') AND ');
+        SQL.Add(' PQF2 IN ('+PQF2_st+') AND ');
+        SQL.Add(' SQF IN ('+SQF_st+') AND ');
+        SQL.Add(' INSTRUMENT_ID IN ('+instr_st+')');
+        ParamByName('ID').AsInteger:=frmdm.Q.FieldByName('ID').Value;
        Open;
+         prfCount:=prfCount+(Fields[0].Value*Fields[1].Value);
+       Close;
       end;
-
-      while not Qt1.EOF do begin
-        with Qt do begin
-         Close;
-           SQL.Clear;
-           SQL.Add(' SELECT DISTINCT(PROFILE_NUMBER) FROM '+tblPar);
-           SQL.Add(' WHERE ID=:ID AND INSTRUMENT_ID=:INSTR_ID ');
-           SQL.Add(' ROWS 1 ');
-           ParamByName('ID').Value:=ID_cur;
-           ParamByName('INSTR_ID').Value:=Qt1.Fields[0].Value;
-         Open;
-        end;
-
-        while not Qt.EOF do begin
-          prfCount:=prfCount+1;
-          Qt.Next;
-        end;
-
-        Qt1.Next;
-      end;
-
       frmdm.Q.Next;
     end;
 
-     if prfCount>0 then begin
-       lbParameters.Items.Add(tblPar+'   ['+inttostr(prfCount)+']');
-       Application.ProcessMessages;
-     end;
-
+    if prfCount>0 then begin
+     lbParameters.Items.Add(tblPar+'   ['+inttostr(prfCount)+']');
+     Application.ProcessMessages;
+    end;
    end;
  end;
  Finally
@@ -350,6 +338,46 @@ begin
   if (Width>450) and (Width<700) then lbParameters.Columns:=2;
   if Width>=700 then lbParameters.Columns:=3;
 end;
+
+
+procedure Tfrmparameters_list.GetFlags(Var PQF1_st, PQF2_st, SQF_st,
+  instr_st:string);
+Var
+  k:integer;
+begin
+PQF1_st:='';
+   for k:=0 to frmparameters_list.chkPQF1.Items.Count-1 do
+    if frmparameters_list.chkPQF1.Checked[k] then
+      PQF1_st:=PQF1_st+','+
+               Copy(frmparameters_list.chkPQF1.Items.Strings[k], 2,
+               Pos(']', frmparameters_list.chkPQF1.Items.Strings[k])-2);
+   PQF1_st:=copy(PQF1_st, 2, length(PQF1_st));
+
+   PQF2_st:='';
+   for k:=0 to frmparameters_list.chkPQF2.Items.Count-1 do
+    if frmparameters_list.chkPQF2.Checked[k] then
+      PQF2_st:=PQF2_st+','+
+               Copy(frmparameters_list.chkPQF2.Items.Strings[k], 2,
+               Pos(']', frmparameters_list.chkPQF2.Items.Strings[k])-2);
+   PQF2_st:=copy(PQF2_st, 2, length(PQF2_st));
+
+   SQF_st:='';
+   for k:=0 to frmparameters_list.chkSQF.Items.Count-1 do
+    if frmparameters_list.chkSQF.Checked[k] then
+      SQF_st:=SQF_st+','+
+               Copy(frmparameters_list.chkSQF.Items.Strings[k], 2,
+               Pos(']', frmparameters_list.chkSQF.Items.Strings[k])-2);
+   SQF_st:=copy(SQF_st, 2, length(SQF_st));
+
+   instr_st:='';
+   for k:=0 to frmparameters_list.chklInstrument.Items.Count-1 do
+    if frmparameters_list.chklInstrument.Checked[k] then
+      instr_st:=instr_st+','+
+               Copy(frmparameters_list.chklInstrument.Items.Strings[k], 2,
+               Pos(']', frmparameters_list.chklInstrument.Items.Strings[k])-2);
+   instr_st:=copy(instr_st, 2, length(instr_st));
+end;
+
 
 { Принудительно закрываем дочерние формы перед закрытием основной }
 procedure Tfrmparameters_list.FormCloseQuery(Sender: TObject;

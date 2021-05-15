@@ -79,7 +79,7 @@ type
 var
   frmprofile_plot_all: Tfrmprofile_plot_all;
   mik, Units_default:integer;
-  PQF1_st, PQF2_st, SQF_st, instr_st, units_default_name:string;
+  units_default_name:string;
   chkSourceList:array of TCheckBox;
 
 
@@ -266,6 +266,8 @@ units_ok: boolean;
 
 Qt1, Qt2:TSQLQuery;
 TRt:TSQLTransaction;
+
+PQF1_st, PQF2_st, SQF_st, instr_st: string;
 begin
 
   case depth_units of
@@ -273,37 +275,7 @@ begin
    1: LeftAxisTitle:='Depth, [dBar]';
   end;
 
-   PQF1_st:='';
-   for k:=0 to frmparameters_list.chkPQF1.Items.Count-1 do
-    if frmparameters_list.chkPQF1.Checked[k] then
-      PQF1_st:=PQF1_st+','+
-               Copy(frmparameters_list.chkPQF1.Items.Strings[k], 2,
-               Pos(']', frmparameters_list.chkPQF1.Items.Strings[k])-2);
-   PQF1_st:=copy(PQF1_st, 2, length(PQF1_st));
-
-   PQF2_st:='';
-   for k:=0 to frmparameters_list.chkPQF2.Items.Count-1 do
-    if frmparameters_list.chkPQF2.Checked[k] then
-      PQF2_st:=PQF2_st+','+
-               Copy(frmparameters_list.chkPQF2.Items.Strings[k], 2,
-               Pos(']', frmparameters_list.chkPQF2.Items.Strings[k])-2);
-   PQF2_st:=copy(PQF2_st, 2, length(PQF2_st));
-
-   SQF_st:='';
-   for k:=0 to frmparameters_list.chkSQF.Items.Count-1 do
-    if frmparameters_list.chkSQF.Checked[k] then
-      SQF_st:=SQF_st+','+
-               Copy(frmparameters_list.chkSQF.Items.Strings[k], 2,
-               Pos(']', frmparameters_list.chkSQF.Items.Strings[k])-2);
-   SQF_st:=copy(SQF_st, 2, length(SQF_st));
-
-   instr_st:='';
-   for k:=0 to frmparameters_list.chklInstrument.Items.Count-1 do
-    if frmparameters_list.chklInstrument.Checked[k] then
-      instr_st:=instr_st+','+
-               Copy(frmparameters_list.chklInstrument.Items.Strings[k], 2,
-               Pos(']', frmparameters_list.chklInstrument.Items.Strings[k])-2);
-   instr_st:=copy(instr_st, 2, length(instr_st));
+  frmparameters_list.GetFlags(PQF1_st, PQF2_st, SQF_st, instr_st);
 
  //  showmessage(pqf1_st+#13+pqf2_st+#13+sqf_st+#13+instr_st);
 
@@ -479,6 +451,8 @@ sColor:TColor;
 
 TRt:TSQLTransaction;
 Qt:TSQLQuery;
+
+PQF1_st, PQF2_st, SQF_st, instr_st:string;
 begin
 
 TRt:=TSQLTransaction.Create(self);
@@ -489,6 +463,8 @@ Qt.Database:=frmdm.IBDB;
 Qt.Transaction:=TRt;
 try
 units_ok:=false;
+
+frmparameters_list.GetFlags(PQF1_st, PQF2_st, SQF_st, instr_st);
 
     with Qt do begin
      Close;
