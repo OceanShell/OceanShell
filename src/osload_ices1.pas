@@ -515,9 +515,30 @@ begin
 DT1:=NOW;
 memo1.Lines.Add('...start: '+datetimetostr(DT1));
 
-    source_id:=4; //ICES
-    cruise_id:=15000000;
-    station_id:=15000000;
+
+   source_id:=4; //ICES
+{.....determine cruise_id and station_id}
+with frmdm.q1 do begin
+   Close;
+   SQL.Clear;
+   SQL.Add(' select max(id) as cruise_id from CRUISE ');
+   Open;
+   cruise_id:=FieldByName('cruise_id').AsInteger;
+   if cruise_id=0 then cruise_id:=15000000;  //ICES rannge
+   Close;
+ end;
+with frmdm.q1 do begin
+   Close;
+   SQL.Clear;
+   SQL.Add(' select max(id) as station_id from STATION ');
+   Open;
+   station_id:=FieldByName('station_id').AsInteger;
+   if station_id=0 then station_id:=15000000;  //ICES rannge
+   Close;
+ end;
+   memo1.Lines.Add('max  cruise.id='+inttostr(cruise_id));
+   memo1.Lines.Add('max station.id='+inttostr(station_id));
+
     label1.Caption:='cruise:'+inttostr(cruise_id);
     Label1.Visible:=true;
     Application.ProcessMessages;
@@ -750,6 +771,7 @@ end;
      date_end_total:=FieldByName('date_end_total').AsDateTime;
      Close;
    end;
+     if CSR_cruise_number='' then CSR_cruise_number:='UNKNOWN';
 
 
    if CheckBox1.Checked then begin
@@ -846,9 +868,14 @@ end;
     col:=0;
     buf:='';
 {s}for i:=1 to length(str) do begin
+    {...check for commas and less-than sign}
     if ord(str[i])<>44 then buf:=buf+str[i]
     else begin
       col:=col+1;
+      if copy(buf,1,1)='<' then begin
+      buf:=copy(buf,2,length(buf));
+      memo1.Lines.Add('<'+buf+ 'converted to '+buf);
+      end;
       col_arr[col]:=buf;
       buf:='';
     end;
@@ -864,6 +891,7 @@ end;
     Station[clev-1,0]:=lev_dbar;
     Station[clev-1,1]:=lev_m;
 
+    {variables}
 {i}for i:=9 to col do begin
      if col_arr[i]<>'' then Station[clev-1,i-7]:=strtofloat(col_arr[i])
                        else Station[clev-1,i-7]:=-9999;
@@ -1602,7 +1630,7 @@ memo1.Lines.Add('source DB: '+frmdm.IBDB.DatabaseName);
 
    OpenDialog1.Filter := 'Target database|*.fdb' ;
    if OpenDialog1.Execute then target_db := OpenDialog1.FileName ;
-   showmessage('target db: '+target_db);
+   //showmessage('target db: '+target_db);
 
 {...connect to OCEAN DB}
     try
