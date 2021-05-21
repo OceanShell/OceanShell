@@ -2,12 +2,12 @@ object frmqc_duplicates: Tfrmqc_duplicates
   Left = 664
   Height = 486
   Top = 225
-  Width = 468
+  Width = 469
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Duplicated stations'
   ClientHeight = 486
-  ClientWidth = 468
+  ClientWidth = 469
   DesignTimePPI = 144
   OnShow = FormShow
   Position = poOwnerFormCenter

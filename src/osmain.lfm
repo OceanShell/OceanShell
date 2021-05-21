@@ -2,10 +2,10 @@ object frmosmain: Tfrmosmain
   Left = 184
   Height = 883
   Top = 18
-  Width = 1380
+  Width = 1381
   Caption = 'OceanShell'
   ClientHeight = 853
-  ClientWidth = 1380
+  ClientWidth = 1381
   Color = clBtnFace
   Constraints.MinHeight = 700
   Constraints.MinWidth = 1380
@@ -53,7 +53,7 @@ object frmosmain: Tfrmosmain
     Left = 0
     Height = 775
     Top = 78
-    Width = 1380
+    Width = 1381
     ActivePage = tsMainSelect
     Align = alClient
     Enabled = False
@@ -68,7 +68,7 @@ object frmosmain: Tfrmosmain
     object tsMainSelect: TTabSheet
       Caption = 'Search'
       ClientHeight = 742
-      ClientWidth = 1372
+      ClientWidth = 1373
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -78,13 +78,13 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 742
         Top = 0
-        Width = 1140
+        Width = 1141
         HorzScrollBar.Page = 1
         VertScrollBar.Page = 742
         Align = alClient
         BorderStyle = bsNone
         ClientHeight = 742
-        ClientWidth = 1114
+        ClientWidth = 1115
         Font.Color = clWindowText
         Font.Height = -17
         Font.Name = 'MS Sans Serif'
@@ -95,7 +95,7 @@ object frmosmain: Tfrmosmain
           Left = 0
           Height = 1263
           Top = 0
-          Width = 1114
+          Width = 1115
           Align = alClient
           BevelOuter = bvNone
           ControlList = <          
@@ -1316,7 +1316,7 @@ object frmosmain: Tfrmosmain
         end
       end
       object Panel4: TPanel
-        Left = 1140
+        Left = 1141
         Height = 742
         Top = 0
         Width = 232
@@ -2636,13 +2636,13 @@ object frmosmain: Tfrmosmain
     Left = 0
     Height = 78
     Top = 0
-    Width = 1380
+    Width = 1381
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
     BorderStyle = bsSingle
     ClientHeight = 74
-    ClientWidth = 1376
+    ClientWidth = 1377
     Font.Color = clWindowText
     Font.Height = -17
     Font.Name = 'MS Sans Serif'
@@ -2668,11 +2668,11 @@ object frmosmain: Tfrmosmain
       Left = 46
       Height = 74
       Top = 0
-      Width = 1330
+      Width = 1331
       Align = alClient
       BevelOuter = bvNone
       ClientHeight = 74
-      ClientWidth = 1330
+      ClientWidth = 1331
       Font.Color = clWindowText
       Font.Height = -17
       Font.Name = 'MS Sans Serif'
@@ -2682,7 +2682,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 36
         Top = 0
-        Width = 1330
+        Width = 1331
         Align = alTop
         Font.Color = clWindowText
         Font.Height = -17
@@ -2720,7 +2720,7 @@ object frmosmain: Tfrmosmain
         Left = 0
         Height = 36
         Top = 36
-        Width = 1330
+        Width = 1331
         Align = alTop
         BorderSpacing.Bottom = 2
         Font.Color = clWindowText

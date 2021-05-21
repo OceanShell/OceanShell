@@ -973,6 +973,9 @@ begin
      end;
 
 
+ //    showmessage(country_str);
+
+
 (***********************************CRUISE_SQL_str*****************************)
       Cruise_SQL_str:='';
 
@@ -1073,7 +1076,7 @@ begin
 
     if chkAuxMetadata.Checked=true then begin
 
-     // if there's a cruis
+     // if there's a cruise
     if cruise_str<>'' then
        Cruise_SQL_str:=Cruise_SQL_str+' AND '+NotCondCruise+
        ' CRUISE.ID IN ('+cruise_str+') ';
@@ -1083,12 +1086,12 @@ begin
        Cruise_SQL_str:=Cruise_SQL_str+' AND '+NotCondPlatform+
        ' PLATFORM.NAME IN ('+platform_str+') ';
 
-    //if there's a country, but no cruise/platform
-    if (country_str<>'') and (platform_str='') and (cruise_str='') then
+    //if there's a country, but no cruise
+    if (country_str<>'') and (cruise_str='') then
        Cruise_SQL_str:=Cruise_SQL_str+' AND '+NotCondCountry+
-       ' CRUISE.ID IN (SELECT CRUISE.ID FROM CRUISE, PLATFORM, COUNTRY '+
-       ' WHERE CRUISE.PLATFORM_ID=PLATFORM.ID AND PLATFORM.COUNTRY_ID='+
-       ' COUNTRY.ID AND COUNTRY.NAME IN ('+country_str+')) ';
+       ' PLATFORM.COUNTRY_ID=COUNTRY.ID AND '+
+       ' COUNTRY.NAME IN ('+country_str+') ';
+
 
     //if there's a source but no cruise
     if (source_str<>'') and (cruise_str='') then
@@ -1114,6 +1117,7 @@ begin
 (*===========================END OF CRUISE_SQL_str============================*)
 
 
+//showmessage(Cruise_SQL_str);
 
 (******************************STATION_SQL_str*********************************)
 Station_SQL_str:='';
@@ -1250,7 +1254,7 @@ Station_SQL_str:='';
      ' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
      ' CRUISE, PLATFORM, COUNTRY WHERE CRUISE.PLATFORM_ID=PLATFORM.ID AND '+
      ' PLATFORM.COUNTRY_ID=COUNTRY.ID AND '+NotCondSource+
-     ' COUNTRY.NAME IN ('+platform_str+'))) ';
+     ' COUNTRY.NAME IN ('+country_str+'))) ';
 
    //if there's a source but no cruise
    if (source_str<>'') and (cruise_str='') then
