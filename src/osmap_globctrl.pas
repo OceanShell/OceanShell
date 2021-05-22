@@ -586,7 +586,8 @@ Begin
 
             { If transformation successful }
             if Transform(Lat, Lon, P) then begin
-             if Cr_ID=frmdm.QCruise.FieldByName('ID').Value then begin
+             if (frmdm.QCruise.RecordCount>1) and
+                (Cr_ID=frmdm.QCruise.FieldByName('ID').Value) then begin
                 brush.Color := Color_Pointer_Inner_cruise;
                 pen.Color   := Color_Pointer_Border_cruise;
 

@@ -1249,7 +1249,7 @@ Station_SQL_str:='';
      NotCondSource+' PLATFORM.NAME IN ('+platform_str+'))) ';
 
    //if there's a country, but no cruise/platform
-   if (country_str<>'') and  (cruise_str='') and (platform_str='') then
+   if (country_str<>'') and  (cruise_str='') then
      Station_SQL_str:=Station_SQL_str+
      ' AND (STATION.CRUISE_ID IN (SELECT CRUISE.ID FROM '+
      ' CRUISE, PLATFORM, COUNTRY WHERE CRUISE.PLATFORM_ID=PLATFORM.ID AND '+
