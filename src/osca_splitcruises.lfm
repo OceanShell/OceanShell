@@ -1,0 +1,279 @@
+object frmSplitCruises: TfrmSplitCruises
+  Left = 817
+  Height = 609
+  Top = 275
+  Width = 934
+  Caption = 'frmSplitCruises'
+  ClientHeight = 609
+  ClientWidth = 934
+  DesignTimePPI = 144
+  OnShow = FormShow
+  LCLVersion = '2.0.12.0'
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 609
+    Top = 0
+    Width = 934
+    ActivePage = TabSheet1
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 0
+    object TabSheet1: TTabSheet
+      Caption = 'data'
+      ClientHeight = 571
+      ClientWidth = 926
+      object GroupBox1: TGroupBox
+        Left = 8
+        Height = 94
+        Top = 16
+        Width = 254
+        Caption = 'Process selected stations'
+        ClientHeight = 68
+        ClientWidth = 250
+        Font.Height = 22
+        ParentFont = False
+        TabOrder = 0
+        object CreateDataFile: TBitBtn
+          Left = 24
+          Height = 30
+          Top = 17
+          Width = 208
+          Caption = 'Create Data file'
+          Font.Height = 22
+          Font.Style = [fsBold]
+          OnClick = CreateDataFileClick
+          ParentFont = False
+          TabOrder = 0
+        end
+      end
+      object GroupBox3: TGroupBox
+        Left = 616
+        Height = 158
+        Top = 16
+        Width = 278
+        Caption = 'Preprocessing'
+        ClientHeight = 132
+        ClientWidth = 274
+        Font.Color = clGreen
+        Font.Height = 22
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+        object btnFindFixedStations: TBitBtn
+          Left = 24
+          Height = 30
+          Top = 16
+          Width = 216
+          Caption = 'Find Fixed Stations'
+          OnClick = btnFindFixedStationsClick
+          TabOrder = 0
+        end
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'graph'
+      ClientHeight = 571
+      ClientWidth = 926
+      object btnFindShortestPath: TBitBtn
+        Left = 32
+        Height = 30
+        Top = 32
+        Width = 264
+        Caption = '1. Find Shortest Path in Data'
+        Font.Color = clGreen
+        Font.Height = 22
+        Font.Style = [fsBold]
+        OnClick = btnFindShortestPathClick
+        ParentFont = False
+        TabOrder = 0
+      end
+      object Label1: TLabel
+        Left = 336
+        Height = 20
+        Top = 48
+        Width = 57
+        Caption = 'progress'
+        Font.Height = 20
+        ParentColor = False
+        ParentFont = False
+        Visible = False
+      end
+      object btnCreateGraph: TBitBtn
+        Left = 32
+        Height = 30
+        Top = 80
+        Width = 264
+        Caption = '2. Create Graph'
+        Font.Color = clGreen
+        Font.Height = 22
+        Font.Style = [fsBold]
+        OnClick = btnCreateGraphClick
+        ParentFont = False
+        TabOrder = 1
+      end
+      object btnEstimateNumberofClusters: TBitBtn
+        Left = 32
+        Height = 30
+        Top = 184
+        Width = 264
+        Caption = '3. Estimate number of clusters'
+        Font.Color = clRed
+        Font.Height = 22
+        Font.Style = [fsBold]
+        OnClick = btnEstimateNumberofClustersClick
+        ParentFont = False
+        TabOrder = 2
+      end
+      object btnSplitGraphToClusters: TBitBtn
+        Left = 24
+        Height = 30
+        Top = 280
+        Width = 272
+        Caption = '4. Split Graph to clusters'
+        Font.Color = clRed
+        Font.Height = 22
+        Font.Style = [fsBold]
+        OnClick = btnSplitGraphToClustersClick
+        ParentFont = False
+        TabOrder = 3
+      end
+      object Label2: TLabel
+        Left = 32
+        Height = 20
+        Top = 232
+        Width = 183
+        Caption = 'Distance threshold length= '
+        Font.Height = 20
+        ParentColor = False
+        ParentFont = False
+      end
+      object Edit1: TEdit
+        Left = 224
+        Height = 29
+        Top = 232
+        Width = 72
+        Font.Height = 22
+        OnDblClick = Edit1DblClick
+        ParentFont = False
+        TabOrder = 4
+        Text = '1'
+      end
+      object Label3: TLabel
+        Left = 336
+        Height = 20
+        Top = 224
+        Width = 125
+        Caption = 'Number of clusters'
+        Font.Height = 20
+        ParentColor = False
+        ParentFont = False
+      end
+      object btnAddClustersToData: TBitBtn
+        Left = 23
+        Height = 30
+        Top = 376
+        Width = 273
+        Caption = '5. Add clusters to Data'
+        Font.Color = clGreen
+        Font.Height = 22
+        Font.Style = [fsBold]
+        OnClick = btnAddClustersToDataClick
+        ParentFont = False
+        TabOrder = 5
+      end
+    end
+    object TabSheet3: TTabSheet
+      Caption = 'memo'
+      ClientHeight = 571
+      ClientWidth = 926
+      object Memo1: TMemo
+        Left = 0
+        Height = 571
+        Top = 0
+        Width = 926
+        Align = alClient
+        Font.Height = 22
+        Lines.Strings = (
+          'Memo1'
+        )
+        ParentFont = False
+        TabOrder = 0
+      end
+    end
+    object TabSheet4: TTabSheet
+      Caption = 'settings'
+      ClientHeight = 571
+      ClientWidth = 926
+      object CheckBox1: TCheckBox
+        Left = 32
+        Height = 29
+        Top = 24
+        Width = 285
+        Caption = 'Show detailed output in Memo?'
+        TabOrder = 0
+      end
+    end
+    object TabSheet5: TTabSheet
+      Caption = 'plot'
+      ClientHeight = 571
+      ClientWidth = 926
+      object GroupBox2: TGroupBox
+        Left = 728
+        Height = 571
+        Top = 0
+        Width = 198
+        Align = alRight
+        Caption = 'GroupBox2'
+        ClientHeight = 541
+        ClientWidth = 194
+        TabOrder = 0
+        object btnPlotMinTree: TBitBtn
+          Left = 24
+          Height = 37
+          Top = 472
+          Width = 152
+          Caption = 'Plot MinTree'
+          Font.Color = clLime
+          Font.Style = [fsBold]
+          OnClick = btnPlotMinTreeClick
+          ParentFont = False
+          TabOrder = 0
+        end
+      end
+      object Chart1: TChart
+        Left = 0
+        Height = 571
+        Top = 0
+        Width = 728
+        AxisList = <        
+          item
+            Marks.LabelBrush.Style = bsClear
+            Minors = <>
+            Title.LabelFont.Orientation = 900
+            Title.LabelBrush.Style = bsClear
+          end        
+          item
+            Alignment = calBottom
+            Marks.LabelBrush.Style = bsClear
+            Minors = <>
+            Title.LabelBrush.Style = bsClear
+          end>
+        Foot.Brush.Color = clBtnFace
+        Foot.Font.Color = clBlue
+        Title.Brush.Color = clBtnFace
+        Title.Font.Color = clBlue
+        Title.Text.Strings = (
+          'TAChart'
+        )
+        Align = alClient
+        object Chart1FieldSeries1: TFieldSeries
+          Arrow.Length = 20
+          Arrow.Visible = True
+          Arrow.Width = 10
+        end
+        object Chart1LineSeries1: TLineSeries
+        end
+      end
+    end
+  end
+end

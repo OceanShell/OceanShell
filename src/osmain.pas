@@ -151,6 +151,9 @@ type
     Label9: TLabel;
     lbResetSearchStations: TLabel;
     mCruiseIDList: TMemo;
+    iDataAnalysis: TMenuItem;
+    iDA_ClusterAnalysis: TMenuItem;
+    iSplitCruises: TMenuItem;
     mStationIDList: TMemo;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
@@ -407,6 +410,7 @@ type
     procedure iSelectEntryClick(Sender: TObject);
     procedure iServiceStatisticsClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
+    procedure iSplitCruisesClick(Sender: TObject);
     procedure iStandarddeviationslayersClick(Sender: TObject);
     procedure iSupportTablesClick(Sender: TObject);
     procedure iTDdiagramsClick(Sender: TObject);
@@ -628,7 +632,11 @@ uses
 
 (* visualization *)
   osviz_surfer_squares,
-  osviz_grapher_histogram
+  osviz_grapher_histogram,
+
+(* data analysis *)
+  osca_splitcruises //cluster analysis -> split cruises
+
 ;
 
 {$R *.lfm}
@@ -2147,6 +2155,17 @@ end;
 procedure Tfrmosmain.iSettingsClick(Sender: TObject);
 begin
   aSettings.Execute;
+end;
+
+procedure Tfrmosmain.iSplitCruisesClick(Sender: TObject);
+begin
+  frmSplitCruises := TfrmSplitCruises.Create(Self);
+   try
+    if not frmSplitCruises.ShowModal = mrOk then exit;
+   finally
+     frmSplitCruises.Free;
+     frmSplitCruises := nil;
+   end;
 end;
 
 
