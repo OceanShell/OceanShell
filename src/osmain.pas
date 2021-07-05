@@ -1714,7 +1714,8 @@ begin
       SQL.Clear;
       SQL.Add(StationSQL);
       SQL.Add(' WHERE STATION.CRUISE_ID IN (SELECT ID FROM TEMPORARY_ID_LIST) '); //('+id_str+') ');
-     Open;
+    //  showmessage(frmdm.Q.SQL.Text);
+      Open;
    end;
 
   //   showmessage('3');
@@ -1796,12 +1797,12 @@ begin
 
   if frmdm.TR.Active=true then frmdm.TR.CommitRetaining;
 
-  SQL_str:=' STATION.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ';
    with frmdm.Q do begin
      Close;
       SQL.Clear;
       SQL.Add(StationSQL);
-      SQL.Add(SQL_str); //('+id_str+') ');
+      SQL.Add(' WHERE STATION.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) '); //('+id_str+') ');
+     // showmessage(frmdm.Q.SQL.Text);
      Open;
    end;
 
@@ -1829,13 +1830,6 @@ begin
   end;
   frmdm.q1.Close;
 
-  //   showmessage('3');
-
-  if not frmdm.Q.IsEmpty then begin
-   // SelectGetCruisesFromStation(SQL_str);
-  end;
-
-  //   showmessage('4');
 
   SelectionInfo(true);
   CDSNavigation;
@@ -2887,7 +2881,7 @@ begin
   SLatMin:=90;  SLatMax:=-90;
   SLonMin:=180; SLonMax:=-180;
   SDateMin:=Now;
-  yy:=1; mn:=1; dd:=1;
+  yy:=1900; mn:=1; dd:=1;
   SDateMax:=EncodeDate(yy, mn, dd);
 
   (* temporal list of unique Cruise IDs *)
