@@ -154,6 +154,8 @@ type
     iDataAnalysis: TMenuItem;
     iDA_ClusterAnalysis: TMenuItem;
     iSplitCruises: TMenuItem;
+    iLoadICESnew: TMenuItem;
+    iFixedStation: TMenuItem;
     mStationIDList: TMemo;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
@@ -386,12 +388,14 @@ type
     procedure iDensityClick(Sender: TObject);
     procedure iExportDIVAndClick(Sender: TObject);
     procedure iDuplicatesClick(Sender: TObject);
+    procedure iFixedStationClick(Sender: TObject);
     procedure iInsertBottomDepthGEBCOClick(Sender: TObject);
     procedure iExportCIAClick(Sender: TObject);
     procedure iExportCOMFORTClick(Sender: TObject);
     procedure iExportCOMFORT_tableClick(Sender: TObject);
     procedure iInterpolatedProfileClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
+    procedure iLoadICESnewClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
     procedure iload_icesClick(Sender: TObject);
@@ -592,6 +596,7 @@ uses
   osload_WOD18,
   osload_PangaeaTab,
   osload_ices1,
+  osload_ices2,
 
 (* database service procedures *)
   ossupporttables,
@@ -635,8 +640,8 @@ uses
   osviz_grapher_histogram,
 
 (* data analysis *)
-  osca_splitcruises //cluster analysis -> split cruises
-
+  osca_splitcruises, //cluster analysis -> split cruises
+  osca_fixedstation  //cluster analysis -> fixed stations
 ;
 
 {$R *.lfm}
@@ -4161,6 +4166,17 @@ begin
    end;
 end;
 
+procedure Tfrmosmain.iLoadICESnewClick(Sender: TObject);
+begin
+  frmload_ices2 := Tfrmload_ices2.Create(Self);
+  try
+   if not frmload_ices2.ShowModal = mrOk then exit;
+  finally
+    frmload_ices2.Free;
+    frmload_ices2 := nil;
+  end;
+end;
+
 
 procedure Tfrmosmain.iLoadITPClick(Sender: TObject);
 begin
@@ -4380,6 +4396,17 @@ begin
       frmqc_duplicates.Free;
       frmqc_duplicates:= nil;
     end;
+end;
+
+procedure Tfrmosmain.iFixedStationClick(Sender: TObject);
+begin
+  frmFixedStation := TfrmFixedStation.Create(Self);
+   try
+    if not frmFixedStation.ShowModal = mrOk then exit;
+   finally
+     frmFixedStation.Free;
+     frmFixedStation := nil;
+   end;
 end;
 
 
