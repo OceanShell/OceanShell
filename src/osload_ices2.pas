@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, FileCtrl,
-  StdCtrls, Buttons, Spin, ExtCtrls, DateUtils, FileUtil, StrUtils,
+  StdCtrls, Buttons, Spin, ExtCtrls, DateUtils, FileUtil, StrUtils, dynlibs,
   IBConnection, SQLDB;
 
 type

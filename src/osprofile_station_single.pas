@@ -339,6 +339,7 @@ mik:=-1;
   toolbar1.Enabled:=true;
    for tt:=0 to TabControl1.Tabs.Count-1 do begin
      TabName:=TabControl1.Tabs.Strings[tt];
+    // showmessage(tabname);
      isbest:='';
      if Pos('[', TabName) <> 0 then begin
         TabName:=copy(TabName, 1, Pos('[', TabName)-2);
@@ -346,6 +347,9 @@ mik:=-1;
      end;
 
      Instr_name:=trim(Copy(TabName, 1, Pos(',', TabName)-1));
+
+    // showmessage(instr_name);
+     instr_id:=0;
       with Qt2 do begin
        Close;
         SQL.Clear;
@@ -353,13 +357,15 @@ mik:=-1;
         SQL.Add(' WHERE NAME=:INSTR_NAME ');
         ParamByName('INSTR_NAME').AsString:=INSTR_NAME;
        Open;
-         instr_id:=Qt1.Fields[0].AsInteger;
+         instr_id:=Qt2.Fields[0].AsInteger;
        Close;
       end;
 
      Prof_num :=StrToInt(trim(Copy(TabName, Pos('Profile', TabName)+7, length(TabName))));
 
      sName:='s'+inttostr(instr_id)+'_'+inttostr(prof_num)+isbest;
+
+    // showmessage(sname);
 
      inc(mik);
     // showmessage(inttostr(mik));
@@ -697,14 +703,17 @@ begin
 
 
     Prof_num:=Copy(series.name, Pos('_', Series.Name)+1, length(series.name));
+  //  showmessage(prof_num);
 
     if Pos('__B', series.name)<>0 then
       Prof_num:=StringReplace(Prof_num, '__B', ' [BEST]', []);
 
-  //  showmessage(prof_num);
+   // showmessage(prof_num);
 
     TabControl1.TabIndex:=TabControl1.IndexOfTabWithCaption(INSTR_NAME+', Profile '+Prof_num);
     TabControl1.OnChange(self);
+
+   //  showmessage('2');
 
     if (tool.PointIndex<>-1) then begin
       if depth_units=0 then
@@ -712,6 +721,7 @@ begin
         Qt.Locate('LEV_DBAR', series.YValue[tool.PointIndex], []);
 
      current_index:=tool.PointIndex;
+   //  showmessage('here');
     end;
   end;
 end;
