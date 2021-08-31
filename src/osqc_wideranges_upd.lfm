@@ -1,0 +1,120 @@
+object frmwideranges_upd: Tfrmwideranges_upd
+  Left = 489
+  Height = 679
+  Top = 194
+  Width = 928
+  Caption = 'QC Wide Ranges'
+  ClientHeight = 679
+  ClientWidth = 928
+  DesignTimePPI = 144
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  LCLVersion = '2.0.6.0'
+  object GroupBox1: TGroupBox
+    Left = 24
+    Height = 592
+    Top = 16
+    Width = 882
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Caption = 'Database tables'
+    ClientHeight = 562
+    ClientWidth = 878
+    TabOrder = 0
+    object DBGridTables: TDBGrid
+      Left = 24
+      Height = 512
+      Top = 16
+      Width = 828
+      AlternateColor = 13631478
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      AutoAdvance = aaNone
+      Color = 13627366
+      Columns = <      
+        item
+          ButtonStyle = cbsCheckboxColumn
+          Title.Caption = ''
+          Width = 40
+        end      
+        item
+          MaxSize = 10
+          Title.Caption = 'Parameter'
+          Width = 300
+          FieldName = 'NAME_TABLE'
+        end      
+        item
+          DropDownRows = 20
+          Title.Caption = 'Units'
+          Width = 150
+          FieldName = 'NAME_SHORT'
+        end      
+        item
+          Title.Caption = 'Range MIN'
+          Width = 150
+          FieldName = 'UNITS_RANGE_MIN'
+        end      
+        item
+          DropDownRows = 20
+          Title.Caption = 'Range MAX'
+          Width = 150
+          FieldName = 'UNITS_RANGE_MAX'
+        end>
+      DataSource = DS
+      FixedCols = 0
+      Flat = True
+      Font.Color = clWindowText
+      Font.Height = -17
+      Font.Name = 'MS Sans Serif'
+      Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
+      ParentFont = False
+      Scrollbars = ssAutoBoth
+      TabOrder = 0
+      TitleFont.Color = clWindowText
+      TitleFont.Height = -17
+      TitleFont.Name = 'MS Sans Serif'
+      TitleImageList = frmicons.IL1
+      TitleStyle = tsStandard
+      OnCellClick = DBGridTablesCellClick
+      OnUserCheckboxState = DBGridTablesUserCheckboxState
+    end
+    object Label1: TLabel
+      Cursor = crHandPoint
+      Left = 24
+      Height = 25
+      Top = 528
+      Width = 139
+      Caption = 'Select/deselect all'
+      Font.Color = clBlue
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      OnClick = Label1Click
+    end
+  end
+  object btnStart: TBitBtn
+    Left = 712
+    Height = 38
+    Top = 624
+    Width = 168
+    Anchors = [akRight, akBottom]
+    Caption = 'Run'
+    Font.Color = clRed
+    Font.Style = [fsBold]
+    OnClick = btnStartClick
+    ParentFont = False
+    TabOrder = 1
+  end
+  object chkWrite: TCheckBox
+    Left = 352
+    Height = 29
+    Top = 633
+    Width = 329
+    Anchors = [akRight, akBottom]
+    Caption = 'Write PQF2=1 outside defined ranges'
+    TabOrder = 2
+  end
+  object DS: TDataSource
+    DataSet = frmdm.q2
+    left = 331
+    top = 246
+  end
+end

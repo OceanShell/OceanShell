@@ -17,12 +17,13 @@ Function GetGEBCODepth(Lon, Lat:real):integer;
 Var
 Ini:TIniFile;
 fname: string;
-ncid:integer;
+ncid, varidp:integer;
 start: PArraySize_t;
 sp:array of smallint;
 lat0, lon0, step: real;
 
 nc_open:Tnc_open;
+nc_inq_varid:Tnc_inq_varid;
 nc_get_var1_short:Tnc_get_var1_short;
 nc_close:Tnc_close;
 begin
@@ -50,10 +51,14 @@ begin
  try
   // opening GEBCO_2020.nc
    nc_open:=Tnc_open(GetProcedureAddress(netcdf, 'nc_open'));
+   nc_inq_varid:= Tnc_inq_varid(GetProcedureAddress(netcdf, 'nc_inq_varid'));
+
    nc_get_var1_short:=Tnc_get_var1_short(GetProcedureAddress(netcdf, 'nc_get_var1_short'));
    nc_close:=Tnc_close(GetProcedureAddress(netcdf, 'nc_close'));
 
    nc_open(pansichar(fname), NC_NOWRITE, ncid);
+   nc_inq_varid (ncid, pChar('elevation'), varidp);
+
      start:=GetMemory(SizeOf(TArraySize_t)*2);
 
      // search by indexes
@@ -62,7 +67,7 @@ begin
 
      SetLength(sp, 1); // setting an empty array
 
-      nc_get_var1_short(ncid, 2, start^, sp);  // sending request to the file
+      nc_get_var1_short(ncid, varidp, start^, sp);  // sending request to the file
      result:=sp[0]; // getting results
    finally
       sp:=nil;

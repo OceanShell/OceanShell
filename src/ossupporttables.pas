@@ -152,6 +152,7 @@ type
     procedure ePlatfo(Sender: TObject);
     procedure ePlatform_(Sender: TObject);
     procedure eCountry_ISOChange(Sender: TObject);
+    procedure QBeforeScroll(DataSet: TDataSet);
     procedure rgFlagClick(Sender: TObject);
 
 
@@ -201,6 +202,8 @@ begin
      Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridTables_Col01',  100);
      Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridTables_Col02',  100);
      Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridTables_Col03',  100);
+     Columns[4].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridTables_Col04',  100);
+     Columns[5].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridTables_Col05',  100);
     end;
 
 
@@ -370,7 +373,9 @@ begin
 
        Q.SQL.text:='Select DATABASE_TABLES.ID, DATABASE_TABLES.NAME_TABLE, '+
                    'DATABASE_TABLES.NAME, DATABASE_TABLES.UNITS_ID_DEFAULT, '+
-                   'UNITS.NAME as DEFAULT_UNITS '+
+                   'UNITS.NAME as DEFAULT_UNITS, '+
+                   'DATABASE_TABLES.UNITS_RANGE_MIN, '+
+                   'DATABASE_TABLES.UNITS_RANGE_MAX '+
                    'FROM DATABASE_TABLES, UNITS WHERE '+
                    'DATABASE_TABLES.UNITS_ID_DEFAULT=UNITS.ID '+
                    'ORDER BY DATABASE_TABLES.NAME_TABLE';
@@ -776,6 +781,11 @@ begin
   btnSave.Enabled:=true;
 end;
 
+procedure Tfrmsupporttables.QBeforeScroll(DataSet: TDataSet);
+begin
+  btnsave.OnClick(self);
+end;
+
 
 (* Save changes *)
 procedure Tfrmsupporttables.btnsaveClick(Sender: TObject);
@@ -794,7 +804,7 @@ begin
 
 
       if Q.Modified then Q.Post;
-         Q.ApplyUpdates(0);
+      Q.ApplyUpdates(0);
       frmdm.TR.CommitRetaining;
 
 
@@ -833,8 +843,8 @@ begin
         end;
       finally
         Qt.Close;
-        Qt.Free;
         TRt.Commit;
+        Qt.Free;
         TRt.Free;
       end;
    end;
@@ -1154,6 +1164,8 @@ begin
      Ini.WriteInteger( 'ossupporttables', 'DBGridTables_Col01', Columns[1].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridTables_Col02', Columns[2].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridTables_Col03', Columns[3].Width);
+     Ini.WriteInteger( 'ossupporttables', 'DBGridTables_Col04', Columns[4].Width);
+     Ini.WriteInteger( 'ossupporttables', 'DBGridTables_Col05', Columns[5].Width);
     end;
 
 

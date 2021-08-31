@@ -101,37 +101,6 @@ object frmsettings: Tfrmsettings
           TabOrder = 1
         end
       end
-      object GroupBox9: TGroupBox
-        Left = 16
-        Height = 94
-        Top = 336
-        Width = 716
-        Caption = 'Bathymetry (GEBCO 2020, full version)'
-        ClientHeight = 64
-        ClientWidth = 712
-        ParentFont = False
-        TabOrder = 2
-        object eGEBCOPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 12
-          Width = 632
-          Font.Color = clGreen
-          ParentFont = False
-          ReadOnly = True
-          TabOrder = 0
-        end
-        object btnGEBCOPath: TButton
-          Left = 657
-          Height = 33
-          Top = 12
-          Width = 39
-          Caption = '...'
-          OnClick = btnGEBCOPathClick
-          ParentFont = False
-          TabOrder = 1
-        end
-      end
       object GroupBox8: TGroupBox
         Left = 16
         Height = 96
@@ -141,7 +110,7 @@ object frmsettings: Tfrmsettings
         ClientHeight = 66
         ClientWidth = 712
         ParentFont = False
-        TabOrder = 3
+        TabOrder = 2
         object eDataPath: TEdit
           Left = 18
           Height = 33
@@ -159,6 +128,37 @@ object frmsettings: Tfrmsettings
           Width = 39
           Caption = '...'
           OnClick = btnDataPathClick
+          ParentFont = False
+          TabOrder = 1
+        end
+      end
+      object GroupBox10: TGroupBox
+        Left = 16
+        Height = 96
+        Top = 344
+        Width = 716
+        Caption = 'OceanTools directory'
+        ClientHeight = 66
+        ClientWidth = 712
+        ParentFont = False
+        TabOrder = 3
+        object eOceanToolsPath: TEdit
+          Left = 18
+          Height = 33
+          Top = 12
+          Width = 632
+          Font.Color = clGreen
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+        end
+        object btnOceanToolsPath: TButton
+          Left = 657
+          Height = 33
+          Top = 12
+          Width = 39
+          Caption = '...'
+          OnClick = btnOceanToolsPathClick
           ParentFont = False
           TabOrder = 1
         end
@@ -355,6 +355,42 @@ object frmsettings: Tfrmsettings
           Width = 39
           Caption = '...'
           OnClick = btnGrapherPathClick
+          ParentFont = False
+          TabOrder = 1
+        end
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Bathymetry'
+      ClientHeight = 458
+      ClientWidth = 756
+      object GroupBox9: TGroupBox
+        Left = 16
+        Height = 94
+        Top = 16
+        Width = 716
+        Caption = 'GEBCO 2020/2021'
+        ClientHeight = 64
+        ClientWidth = 712
+        ParentFont = False
+        TabOrder = 0
+        object eGEBCOPath: TEdit
+          Left = 18
+          Height = 33
+          Top = 12
+          Width = 632
+          Font.Color = clGreen
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+        end
+        object btnGEBCOPath: TButton
+          Left = 657
+          Height = 33
+          Top = 12
+          Width = 39
+          Caption = '...'
+          OnClick = btnGEBCOPathClick
           ParentFont = False
           TabOrder = 1
         end

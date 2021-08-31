@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="61">
+    <Units Count="65">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -245,7 +245,7 @@
         <ResourceBaseClass Value="Form"/>
       </Unit31>
       <Unit32>
-        <Filename Value="osunitsconversion.pas"/>
+        <Filename Value="osunitsconversion_exact.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit32>
       <Unit33>
@@ -430,6 +430,31 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit60>
+      <Unit61>
+        <Filename Value="osqc_update_station_parameters.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmQCUpdateStationParameters"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit61>
+      <Unit62>
+        <Filename Value="osinfo.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frminfo"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit62>
+      <Unit63>
+        <Filename Value="osqc_wideranges_upd.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmwideranges_upd"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit63>
+      <Unit64>
+        <Filename Value="osunitsconversion.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit64>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

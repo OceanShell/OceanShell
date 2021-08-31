@@ -1,19 +1,19 @@
 object frmQC_WideRanges: TfrmQC_WideRanges
-  Left = 331
-  Height = 879
-  Top = 98
-  Width = 1483
+  Left = 49
+  Height = 1050
+  Top = 8
+  Width = 1780
   Caption = 'frmQC_WideRanges'
-  ClientHeight = 879
-  ClientWidth = 1483
-  DesignTimePPI = 120
+  ClientHeight = 0
+  ClientWidth = 0
+  DesignTimePPI = 144
   OnShow = FormShow
   LCLVersion = '2.0.6.0'
   object CheckGroup1: TCheckGroup
-    Left = 24
-    Height = 592
-    Top = 48
-    Width = 360
+    Left = 29
+    Height = 710
+    Top = 58
+    Width = 432
     AutoFill = True
     Caption = 'DB tables'
     ChildSizing.LeftRightSpacing = 6
@@ -29,10 +29,10 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     TabOrder = 0
   end
   object btnSelectAll: TBitBtn
-    Left = 24
-    Height = 32
-    Top = 656
-    Width = 94
+    Left = 29
+    Height = 38
+    Top = 787
+    Width = 113
     Caption = 'Select all'
     Font.Color = clNavy
     OnClick = btnSelectAllClick
@@ -40,10 +40,10 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     TabOrder = 1
   end
   object btnSetFlags: TBitBtn
-    Left = 1144
-    Height = 32
-    Top = 600
-    Width = 270
+    Left = 1373
+    Height = 38
+    Top = 720
+    Width = 324
     Caption = 'Set PQF2=1 outside defined ranges'
     Font.Color = clRed
     Font.Style = [fsBold]
@@ -52,49 +52,49 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     TabOrder = 2
   end
   object StringGrid1: TStringGrid
-    Left = 408
-    Height = 584
-    Top = 56
-    Width = 688
+    Left = 490
+    Height = 701
+    Top = 67
+    Width = 826
     ColCount = 3
-    Font.Height = -12
+    Font.Height = -14
     ParentFont = False
     TabOrder = 3
-    TitleFont.Height = -12
+    TitleFont.Height = -14
   end
   object Label1: TLabel
-    Left = 672
-    Height = 20
-    Top = 8
-    Width = 144
+    Left = 806
+    Height = 25
+    Top = 10
+    Width = 176
     Caption = 'Variables and ranges'
     Font.Style = [fsBold]
     ParentColor = False
     ParentFont = False
   end
   object Label2: TLabel
-    Left = 592
-    Height = 20
-    Top = 32
-    Width = 332
+    Left = 710
+    Height = 25
+    Top = 38
+    Width = 392
     Caption = '(variables will be converted into the default units )'
     ParentColor = False
     ParentFont = False
   end
   object CheckBox1: TCheckBox
-    Left = 1216
-    Height = 24
-    Top = 536
-    Width = 121
+    Left = 1459
+    Height = 29
+    Top = 643
+    Width = 144
     Caption = 'Write into DB?'
     ParentFont = False
     TabOrder = 4
   end
   object Memo1: TMemo
     Left = 0
-    Height = 183
-    Top = 696
-    Width = 1483
+    Height = 220
+    Top = 830
+    Width = 1780
     Align = alBottom
     Lines.Strings = (
       'Memo1'
@@ -103,10 +103,10 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     TabOrder = 5
   end
   object RadioGroup1: TRadioGroup
-    Left = 1208
-    Height = 95
-    Top = 384
-    Width = 143
+    Left = 1450
+    Height = 114
+    Top = 461
+    Width = 172
     AutoFill = True
     Caption = 'Squares'
     ChildSizing.LeftRightSpacing = 6
@@ -116,8 +116,8 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 70
-    ClientWidth = 139
+    ClientHeight = 84
+    ClientWidth = 168
     ItemIndex = 0
     Items.Strings = (
       '10 x 10'
@@ -128,19 +128,20 @@ object frmQC_WideRanges: TfrmQC_WideRanges
     TabOrder = 6
   end
   object GroupBox1: TGroupBox
-    Left = 1120
-    Height = 272
-    Top = 56
-    Width = 328
+    Left = 1344
+    Height = 326
+    Top = 67
+    Width = 394
     Caption = 'Statistics'
-    ClientHeight = 247
-    ClientWidth = 324
+    ClientHeight = 296
+    ClientWidth = 390
+    ParentFont = False
     TabOrder = 7
     object Label7: TLabel
-      Left = 68
-      Height = 20
-      Top = 136
-      Width = 57
+      Left = 82
+      Height = 25
+      Top = 163
+      Width = 69
       Caption = 'outliers:'
       Font.Color = clRed
       Font.Style = [fsBold]
@@ -148,88 +149,96 @@ object frmQC_WideRanges: TfrmQC_WideRanges
       ParentFont = False
     end
     object Edit5: TEdit
-      Left = 136
-      Height = 28
-      Top = 136
-      Width = 116
+      Left = 163
+      Height = 33
+      Top = 163
+      Width = 139
+      ParentFont = False
       TabOrder = 0
     end
     object Label6: TLabel
-      Left = 47
-      Height = 20
-      Top = 104
-      Width = 78
+      Left = 56
+      Height = 25
+      Top = 125
+      Width = 94
       Caption = 'current row:'
       ParentColor = False
+      ParentFont = False
     end
     object Label5: TLabel
-      Left = 28
-      Height = 20
-      Top = 72
-      Width = 97
+      Left = 34
+      Height = 25
+      Top = 86
+      Width = 117
       Caption = 'current square:'
       ParentColor = False
+      ParentFont = False
     end
     object Label4: TLabel
-      Left = 56
-      Height = 20
-      Top = 40
-      Width = 69
+      Left = 67
+      Height = 25
+      Top = 48
+      Width = 83
       Caption = 'total rows:'
       ParentColor = False
+      ParentFont = False
     end
     object Label3: TLabel
-      Left = 88
-      Height = 20
-      Top = 8
-      Width = 37
+      Left = 106
+      Height = 25
+      Top = 10
+      Width = 43
       Caption = 'table:'
       ParentColor = False
+      ParentFont = False
     end
     object Edit4: TEdit
-      Left = 136
-      Height = 28
-      Top = 104
-      Width = 116
+      Left = 163
+      Height = 33
+      Top = 125
+      Width = 139
+      ParentFont = False
       TabOrder = 1
     end
     object Edit3: TEdit
-      Left = 136
-      Height = 28
-      Top = 72
-      Width = 116
+      Left = 163
+      Height = 33
+      Top = 86
+      Width = 139
+      ParentFont = False
       TabOrder = 2
     end
     object Edit2: TEdit
-      Left = 136
-      Height = 28
-      Top = 40
-      Width = 116
+      Left = 163
+      Height = 33
+      Top = 48
+      Width = 139
+      ParentFont = False
       TabOrder = 3
     end
     object Edit1: TEdit
-      Left = 136
-      Height = 28
-      Top = 8
-      Width = 184
+      Left = 163
+      Height = 33
+      Top = 10
+      Width = 221
       ParentFont = False
       TabOrder = 4
     end
     object Label8: TLabel
-      Left = 21
-      Height = 20
-      Top = 176
-      Width = 104
+      Left = 25
+      Height = 25
+      Top = 211
+      Width = 126
       Caption = 'units converted:'
       Font.Color = clBlue
       ParentColor = False
       ParentFont = False
     end
     object Label9: TLabel
-      Left = 23
-      Height = 20
-      Top = 200
-      Width = 102
+      Left = 28
+      Height = 25
+      Top = 240
+      Width = 126
       Caption = 'not converted:'
       Font.Color = clBlue
       Font.Style = [fsBold]
@@ -237,17 +246,19 @@ object frmQC_WideRanges: TfrmQC_WideRanges
       ParentFont = False
     end
     object Edit6: TEdit
-      Left = 136
-      Height = 28
-      Top = 168
-      Width = 100
+      Left = 163
+      Height = 33
+      Top = 202
+      Width = 120
+      ParentFont = False
       TabOrder = 5
     end
     object Edit7: TEdit
-      Left = 136
-      Height = 28
-      Top = 200
-      Width = 100
+      Left = 163
+      Height = 33
+      Top = 240
+      Width = 120
+      ParentFont = False
       TabOrder = 6
     end
   end

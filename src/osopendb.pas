@@ -78,7 +78,8 @@ end;
 
 procedure Tfrmopendb.ListBox1DblClick(Sender: TObject);
 begin
-  frmosmain.OpenRegisteredDatabase(ListBox1.Items.Strings[ListBox1.ItemIndex]);
+  DBAlias:=ListBox1.Items.Strings[ListBox1.ItemIndex];
+  frmosmain.OpenRegisteredDatabase(DBAlias);
 end;
 
 

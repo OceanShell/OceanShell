@@ -1,0 +1,26 @@
+object frminfo: Tfrminfo
+  Left = 625
+  Height = 360
+  Top = 309
+  Width = 480
+  BorderIcons = [biSystemMenu]
+  Caption = 'Info'
+  ClientHeight = 360
+  ClientWidth = 480
+  DesignTimePPI = 144
+  OnClose = FormClose
+  OnShow = FormShow
+  Position = poMainFormCenter
+  LCLVersion = '2.0.6.0'
+  Visible = True
+  object Memo1: TMemo
+    Left = 0
+    Height = 360
+    Top = 0
+    Width = 480
+    Align = alClient
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 0
+  end
+end

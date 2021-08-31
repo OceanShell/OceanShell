@@ -1,7 +1,7 @@
 object frmsupporttables: Tfrmsupporttables
-  Left = 202
+  Left = 287
   Height = 825
-  Top = 131
+  Top = 103
   Width = 1501
   Caption = 'Support tables'
   ClientHeight = 825
@@ -139,6 +139,14 @@ object frmsupporttables: Tfrmsupporttables
               Title.Caption = 'Default units'
               Width = 150
               FieldName = 'DEFAULT_UNITS'
+            end          
+            item
+              Title.Caption = 'Range MIN'
+              FieldName = 'UNITS_RANGE_MIN'
+            end          
+            item
+              Title.Caption = 'Range MAX'
+              FieldName = 'UNITS_RANGE_MAX'
             end>
           DataSource = DS
           FixedCols = 0
@@ -1697,6 +1705,7 @@ object frmsupporttables: Tfrmsupporttables
     FieldDefs = <>
     AfterEdit = QAfterEdit
     AfterScroll = QAfterScroll
+    BeforeScroll = QBeforeScroll
     Database = frmdm.IBDB
     Transaction = frmdm.TR
     SQL.Strings = (

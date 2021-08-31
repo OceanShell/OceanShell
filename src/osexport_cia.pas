@@ -37,7 +37,7 @@ var
 implementation
 
 {$R *.lfm}
-uses osmain,dm,sortbufds,GibbsSeaWater,osunitsconversion;
+uses osmain,dm,sortbufds,GibbsSeaWater,osunitsconversion, osunitsconversion_exact;
 
 { TfrmExport_CIA }
 

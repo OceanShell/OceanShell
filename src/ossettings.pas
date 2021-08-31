@@ -13,6 +13,8 @@ type
   { Tfrmsettings }
 
   Tfrmsettings = class(TForm)
+    btnOceanToolsPath: TButton;
+    btnGEBCOPath: TButton;
     btnGrapherPath: TButton;
     btnInstallPackages: TButton;
     btnOk: TButton;
@@ -20,18 +22,19 @@ type
     btnSupportPath: TButton;
     btnSurferPath: TButton;
     btnUnloadPath: TButton;
-    btnGEBCOPath: TButton;
     btnDataPath: TButton;
     chkExpFeat: TCheckBox;
+    eOceanToolsPath: TEdit;
+    eGEBCOPath: TEdit;
     eGrapherPath: TEdit;
     ePythonPath: TEdit;
     eSupportPath: TEdit;
     eSurferPath: TEdit;
     eUnloadPath: TEdit;
-    eGEBCOPath: TEdit;
     eDataPath: TEdit;
     gbGrapherPath: TGroupBox;
     gbSurferPath: TGroupBox;
+    GroupBox10: TGroupBox;
     GroupBox3: TGroupBox;
     gbPythonPath: TGroupBox;
     GroupBox6: TGroupBox;
@@ -46,6 +49,7 @@ type
     rgDepth: TRadioGroup;
     rgPlotSoft: TRadioGroup;
     TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
     tsAdvanced: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
@@ -53,6 +57,7 @@ type
     procedure btnDataPathClick(Sender: TObject);
     procedure btnGEBCOPathClick(Sender: TObject);
     procedure btnInstallPackagesClick(Sender: TObject);
+    procedure btnOceanToolsPathClick(Sender: TObject);
     procedure btnPythonClick(Sender: TObject);
     procedure btnSaveConnectionClick(Sender: TObject);
     procedure btnSupportPathClick(Sender: TObject);
@@ -89,13 +94,15 @@ Var
 begin
  SurferDefault   :='c:\Program Files\Golden Software\Surfer 13\Scripter\Scripter.exe';
  GrapherDefault  :='c:\Program Files\Golden Software\Grapher 11\Scripter\Scripter.exe';
- GEBCODefault    :=GlobalPath+'support'+PathDelim+'bathymetry'+PathDelim+'GEBCO_2020.nc';
+ GEBCODefault    :=GlobalPath+'support'+PathDelim+'bathymetry'+PathDelim+'GEBCO_2021.nc';
 
   Ini := TIniFile.Create(IniFileName);
   try
    eDataPath.Text         :=Ini.ReadString  ( 'main', 'DataPath',         GlobalPath+'data'+PathDelim);
    eSupportPath.Text      :=Ini.ReadString  ( 'main', 'SupportPath',      GlobalPath+'support'+PathDelim);
    eUnloadPath.Text       :=Ini.ReadString  ( 'main', 'UnloadPath',       GlobalPath+'unload'+PathDelim);
+   eOceanToolsPath.Text   :=Ini.ReadString  ( 'main', 'OceanToolsPath',   GlobalPath);
+
    eSurferPath.Text       :=Ini.ReadString  ( 'main', 'SurferPath',       SurferDefault);
    eGrapherPath.Text      :=Ini.ReadString  ( 'main', 'GrapherPath',      GrapherDefault);
    eGEBCOPath.Text        :=Ini.ReadString  ( 'main', 'GEBCOPath',        GEBCODefault);
@@ -132,14 +139,15 @@ end;
 
 procedure Tfrmsettings.CheckExistence;
 begin
-  if DirectoryExists(eDataPath.Text)    then eDataPath.Font.Color     :=clGreen else eDataPath.Font.Color    :=clRed;
-  if DirectoryExists(eSupportPath.Text) then eSupportPath.Font.Color  :=clGreen else eSupportPath.Font.Color :=clRed;
-  if DirectoryExists(eUnloadPath.Text)  then eUnloadPath.Font.Color   :=clGreen else eUnloadPath.Font.Color  :=clRed;
+  if DirectoryExists(eDataPath.Text)       then eDataPath.Font.Color       :=clGreen else eDataPath.Font.Color       :=clRed;
+  if DirectoryExists(eSupportPath.Text)    then eSupportPath.Font.Color    :=clGreen else eSupportPath.Font.Color    :=clRed;
+  if DirectoryExists(eUnloadPath.Text)     then eUnloadPath.Font.Color     :=clGreen else eUnloadPath.Font.Color     :=clRed;
+  if DirectoryExists(eOceanToolsPath.Text) then eOceanToolsPath.Font.Color :=clGreen else eOceanToolsPath.Font.Color :=clRed;
+
   if FileExists(eGEBCOPath.Text)        then eGEBCOPath.Font.Color    :=clGreen else eGEBCOPath.Font.Color   :=clRed;
   if FileExists(eSurferPath.Text)       then eSurferPath.Font.Color   :=clGreen else eSurferPath.Font.Color  :=clRed;
   if FileExists(eGrapherPath.Text)      then eGrapherPath.Font.Color  :=clGreen else eGrapherPath.Font.Color :=clRed;
   if FileExists(ePythonPath.Text)       then ePythonPath.Font.Color   :=clGreen else ePythonPath.Font.Color  :=clRed;
-
   {$IFDEF WINDOWS}
     TRadioButton(rgPlotSoft.Controls[1]).Enabled:=FileExists(ePythonPath.Text);
   {$ENDIF}
@@ -182,7 +190,7 @@ end;
 
 procedure Tfrmsettings.btnGEBCOPathClick(Sender: TObject);
 begin
- frmosmain.OD.Filter:='GEBCO 2020|GEBCO_2020.nc';
+ frmosmain.OD.Filter:='GEBCO|*.nc';
    if frmosmain.OD.Execute then eGEBCOPath.Text:= frmosmain.OD.FileName;
  CheckExistence;
 end;
@@ -207,6 +215,13 @@ memo1.Clear;
   end;
  // frmosmain.RunScript(1, GlobalPath+'get-pip.py', memo1);
   frmosmain.RunScript(1, '-m pip install matplotlib', memo1);
+end;
+
+procedure Tfrmsettings.btnOceanToolsPathClick(Sender: TObject);
+begin
+ frmosmain.ODir.InitialDir:=GlobalDataPath;
+  if frmosmain.ODir.Execute then eOceanToolsPath.Text:=frmosmain.ODir.FileName+PathDelim;
+ CheckExistence;
 end;
 
 procedure Tfrmsettings.btnSurferPathClick(Sender: TObject);
@@ -249,6 +264,7 @@ begin
    Ini.WriteString ( 'main', 'DataPath',         eDataPath.Text);
    Ini.WriteString ( 'main', 'SupportPath',      eSupportPath.Text);
    Ini.WriteString ( 'main', 'UnloadPath',       eUnloadPath.Text);
+   Ini.WriteString ( 'main', 'OceanToolsPath',   eOceanToolsPath.Text);
    Ini.WriteString ( 'main', 'SurferPath',       eSurferPath.Text);
    Ini.WriteString ( 'main', 'GrapherPath',      eGrapherPath.Text);
    Ini.WriteString ( 'main', 'GEBCOPath',        eGEBCOPath.Text);

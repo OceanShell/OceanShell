@@ -9,7 +9,8 @@ uses
     {$ENDIF}
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, tachartlazaruspkg, osmain, dm, icons;
+  Forms, tachartlazaruspkg, osmain, dm, icons, osqc_update_station_parameters,
+  osinfo, osqc_wideranges_upd;
 
 {$R *.res}
 

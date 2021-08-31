@@ -156,6 +156,7 @@ type
     iSplitCruises: TMenuItem;
     iLoadICESnew: TMenuItem;
     iFixedStation: TMenuItem;
+    iUpdateStationParameters: TMenuItem;
     mStationIDList: TMemo;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
@@ -406,6 +407,7 @@ type
     procedure iMeteoClick(Sender: TObject);
     procedure ioutliersClick(Sender: TObject);
     procedure iPlotBathymetryClick(Sender: TObject);
+    procedure iQCClick(Sender: TObject);
     procedure iRestoreQCClick(Sender: TObject);
     procedure iQC_dbar_meterClick(Sender: TObject);
     procedure iQC_WideRangesClick(Sender: TObject);
@@ -418,6 +420,7 @@ type
     procedure iStandarddeviationslayersClick(Sender: TObject);
     procedure iSupportTablesClick(Sender: TObject);
     procedure iTDdiagramsClick(Sender: TObject);
+    procedure iUpdateStationParametersClick(Sender: TObject);
     procedure iUpdateUnitsClick(Sender: TObject);
     procedure iVisualizationGrapferHistorgamClick(Sender: TObject);
     procedure iVisualizationSurferSquaresClick(Sender: TObject);
@@ -437,7 +440,7 @@ type
 
   public
     procedure OpenLocalDatabase(DBName:string);
-    procedure OpenRegisteredDatabase(alias_str: string);
+    procedure OpenRegisteredDatabase(DBAlias: string);
     procedure DatabaseInfo;
     procedure SelectionInfo(UpdateCruises:boolean);
     procedure CDSNavigation;
@@ -445,8 +448,6 @@ type
     procedure GetSQLQueryText;
 
     Procedure UpdateCruiseInfo(ID: int64; TotalEqualDB:boolean);
-    Procedure InsertLastLevel;
-    Procedure InsertGEBCODepth;
     Procedure PopulateQCFlagLists;
     Procedure PopulateInstrumentList;
     procedure RunScript(ExeFlag:integer; cmd:string; Sender:TMemo);
@@ -513,6 +514,7 @@ var
 
   IniFileName:string;
   GlobalPath, GlobalDataPath, GlobalUnloadPath, GlobalSupportPath:string; //global paths for the app
+  OceanToolsPath, DBAlias:string;
   CurrentParTable: string;
   Cruise_SQL_str, Station_SQL_str: string;
 
@@ -554,7 +556,7 @@ var
   frmprofile_station_all_open, frmprofile_station_single_open :boolean;
   frmmap_open, frmprofile_plot_all_open, frmparameters_list_open: boolean;
   frmmeteo_open, frmprofile_interpolation_open, frmopendb_open: boolean;
-  frmopendbreg_open:boolean;
+  frmopendbreg_open, frminfo_open:boolean;
 
 const
    NC_NOWRITE   = 0;    // file for reading
@@ -580,6 +582,7 @@ uses
   oscreatenewdb,
   osdbstructure_updater, //temporary module to be removed later
   ossettings,
+  osinfo,
   osselection_advanced,
   osselection_customsql,
   sortbufds,
@@ -614,10 +617,12 @@ uses
   osqc_dbar_meters_consistency,
   osqc_duplicates,
   osqc_wideranges,
+  osqc_wideranges_upd,
   osqc_meanprofile,
   osqc_setflags,
   osqc_outliers,
   osqc_metadata_update,
+  osqc_update_station_parameters,
 
 (* tools *)
   osmap,
@@ -659,7 +664,7 @@ begin
  frmprofile_station_all_open:=false; frmprofile_station_single_open:=false;
  frmmap_open:=false; frmparameters_list_open:=false; frmmeteo_open:=false;
  frmprofile_plot_all_open:=false; frmprofile_interpolation_open:=false;
- frmopendb_open:=false; frmopendbreg_open:=false;
+ frmopendb_open:=false; frmopendbreg_open:=false; frminfo_open:=false;
 
  (* Defining Global Path - application root lolder *)
   GlobalPath:=ExtractFilePath(Application.ExeName);
@@ -843,6 +848,8 @@ begin
       if not DirectoryExists(GlobalSupportPath) then CreateDir(GlobalSupportPath);
     GlobalUnloadPath  := Ini.ReadString('main', 'UnloadPath', GlobalPath+'unload'+PathDelim);
       if not DirectoryExists(GlobalUnloadPath) then CreateDir(GlobalUnloadPath);
+    OceanToolsPath    :=Ini.ReadString('main', 'OceanToolsPath', '');
+
   finally
     Ini.Free;
   end;
@@ -2215,7 +2222,7 @@ if frmopendb_open=false then
 frmopendb_open:=true;
 end;
 
-procedure Tfrmosmain.OpenRegisteredDatabase(alias_str: string);
+procedure Tfrmosmain.OpenRegisteredDatabase(DBAlias: string);
 Var
  DBIni:TIniFile;
  DBUser, DBPass, DBHost, DBPath: string;
@@ -2224,10 +2231,10 @@ begin
 
   DBIni := TIniFile.Create(IniFileName+'_db');
   try
-    DBUser :=DBIni.ReadString(alias_str, 'user',     'SYSDBA');
-    DBPass :=DBIni.ReadString(alias_str, 'pass',     'masterkey');
-    DBHost :=DBIni.ReadString(alias_str, 'host',     'localhost');
-    DBPath :=DBIni.ReadString(alias_str, 'dbpath',   '');
+    DBUser :=DBIni.ReadString(DBAlias, 'user',     'SYSDBA');
+    DBPass :=DBIni.ReadString(DBAlias, 'pass',     'masterkey');
+    DBHost :=DBIni.ReadString(DBAlias, 'host',     'localhost');
+    DBPath :=DBIni.ReadString(DBAlias, 'dbpath',   '');
   finally
     DBIni.Free;
   end;
@@ -2351,6 +2358,42 @@ begin
      end;
   frmparameters_list.Caption:='TDDIAGRAMS';
   frmparameters_list_open:=true;
+end;
+
+
+procedure Tfrmosmain.iInsertBottomDepthGEBCOClick(Sender: TObject);
+Var
+  cmd:string;
+begin
+ //form to show log
+ if frminfo_open=false then frmInfo := TfrmInfo.Create(Self) else frminfo.SetFocus;
+ // parameters for executable
+ cmd:=OceanToolsPath+'UpdateGEBCO.exe -d '+DBAlias;
+ //running the executable with specified parameters
+ frmosmain.RunScript(0, cmd, frmInfo.memo1);
+end;
+
+procedure Tfrmosmain.iInsertLastLevelClick(Sender: TObject);
+Var
+  cmd:string;
+begin
+ //form to show log
+ if frminfo_open=false then frmInfo := TfrmInfo.Create(Self) else frminfo.SetFocus;
+ // parameters for executable
+ cmd:=OceanToolsPath+'UpdateLastLevel.exe -d '+DBAlias;
+ //running the executable with specified parameters
+ frmosmain.RunScript(0, cmd, frmInfo.memo1);
+end;
+
+procedure Tfrmosmain.iUpdateStationParametersClick(Sender: TObject);
+begin
+  frmQCUpdateStationParameters := TfrmQCUpdateStationParameters.Create(Self);
+   try
+    if not frmQCUpdateStationParameters.ShowModal = mrOk then exit;
+   finally
+     frmQCUpdateStationParameters.Free;
+     frmQCUpdateStationParameters := nil;
+   end;
 end;
 
 
@@ -3797,229 +3840,6 @@ begin
 end;
 
 
-procedure Tfrmosmain.iInsertBottomDepthGEBCOClick(Sender: TObject);
-begin
- InsertGEBCODepth;
- Showmessage('Bottom depth from GEBCO has been updated');
-end;
-
-procedure Tfrmosmain.iInsertLastLevelClick(Sender: TObject);
-begin
- InsertLastLevel;
- Showmessage('Last levels have been updated');
-end;
-
-
-procedure Tfrmosmain.InsertGEBCODepth;
-Var
-  ID: int64;
-  GEBCO, k: integer;
-  Lon, lat: real;
-
-  fname: string;
-  ncid:integer;
-  start: PArraySize_t;
-  sp:array of smallint;
-  lat0, lon0, step: real;
-
-  TRt:TSQLTransaction;
-  Qt, Qt1:TSQLQuery;
-
-  nc_open:Tnc_open;
-  nc_get_var1_short:Tnc_get_var1_short;
-  nc_close:Tnc_close;
-
-begin
-   fname:=GlobalSupportPath+PathDelim+'bathymetry'+PathDelim+'GEBCO_2020.nc';
-
-   if not FileExists(fname) then
-    if MessageDlg('GEBCO is not found', mtWarning, [mbOk], 0)=mrOk then exit; // if there's no file
-
-  try
-   TRt:=TSQLTransaction.Create(self);
-   TRt.DataBase:=frmdm.IBDB;
-
-   Qt:=TSQLQuery.Create(self);
-   Qt.Database:=frmdm.IBDB;
-   Qt.Transaction:=TRt;
-
-   Qt1:=TSQLQuery.Create(self);
-   Qt1.Database:=frmdm.IBDB;
-   Qt1.Transaction:=TRt;
-
-   with Qt do begin
-    Close;
-     SQL.Clear;
-     SQL.Add(' SELECT ID, LATITUDE, LONGITUDE FROM STATION ');
-     SQL.Add(' WHERE BOTTOMDEPTH_GEBCO IS NULL ORDER BY ID ');
-    Open;
-    Last;
-    First;
-   end;
-
-   with Qt1 do begin
-    Close;
-     SQL.Clear;
-     SQL.Add(' UPDATE STATION SET ');
-     SQL.Add(' BOTTOMDEPTH_GEBCO=:GEBCO ');
-     SQL.Add(' WHERE ID=:ID ');
-    Prepare;
-   end;
-
-   nc_open:=Tnc_open(GetProcedureAddress(netcdf, 'nc_open'));
-   nc_get_var1_short:=Tnc_get_var1_short(GetProcedureAddress(netcdf, 'nc_get_var1_short'));
-   nc_close:=Tnc_close(GetProcedureAddress(netcdf, 'nc_close'));
-
-    // opening GEBCO_2020.nc
-     nc_open(pansichar(fname), NC_NOWRITE, ncid);
-     start:=GetMemory(SizeOf(TArraySize_t)*2);
-
-     lat0:=-(89+(59/60)+(525E-1/3600));  // first latitude
-     lon0:=-(179+(59/60)+(525E-1/3600)); // first longitude
-     step  := 1/240;  // 15"
-
-  k:=0;
-  while not Qt.EOF do begin
-   ID :=Qt.FieldByName('ID').AsInteger;
-   Lat:=Qt.FieldByName('LATITUDE').AsFloat;
-   Lon:=Qt.FieldByName('LONGITUDE').AsFloat;
-
-    // search by indexes
-    start^[0]:=abs(trunc((lat0-lat)/step)); // lat index
-    start^[1]:=abs(trunc((lon0-lon)/step)); // lon index
-
-    SetLength(sp, 1); // setting an empty array
-     nc_get_var1_short(ncid, 2, start^, sp);  // sending request to the file
-    GEBCO:=-sp[0]; // getting results
-
-     with Qt1 do begin
-       Close;
-         ParamByName('ID').AsInteger:=ID;
-         ParamByName('GEBCO').AsInteger:=GEBCO;
-       ExecSQL;
-     end;
-
-   inc(k);
-
-   Procedures.ProgressTaskbar(k, Qt.RecordCount);
-   Application.ProcessMessages;
-
-   if (k mod 1000)=1 then TRt.CommitRetaining;
-
-   Qt.Next;
-  end;
-
-finally
- sp:=nil;
- FreeMemory(start);
- nc_close(ncid);  // Close nc file
-
- Procedures.ProgressTaskbar(0, 0);
-
-
- Trt.Commit;
- Qt.Free;
- Qt1.Free;
- Trt.Free;
-end;
-end;
-
-
-(* Insert LASTLEVEL where it is NULL *)
-Procedure Tfrmosmain.InsertLastLevel;
-var
-  ID: int64;
-  ci1, k, cnt:integer;
-  Max_LLM, Max_LLD:variant;
-
-  TRt:TSQLTransaction;
-  Qt, Qt1:TSQLQuery;
-begin
-
- TRt:=TSQLTransaction.Create(self);
- TRt.DataBase:=frmdm.IBDB;
-
- Qt:=TSQLQuery.Create(self);
- Qt.Database:=frmdm.IBDB;
- Qt.Transaction:=TRt;
-
- Qt1:=TSQLQuery.Create(self);
- Qt1.Database:=frmdm.IBDB;
- Qt1.Transaction:=TRt;
-
- try
-
-  with Qt do begin
-   Close;
-    SQL.Clear;
-    SQL.Add(' SELECT ID FROM STATION ');
-    SQL.Add(' WHERE ');
-    SQL.Add(' LASTLEVEL_M IS NULL OR ');
-    SQL.Add(' LASTLEVEL_DBAR IS NULL ');
-    SQL.Add(' ORDER BY ID ');
-   Open;
-   Last;
-     cnt:=Qt.RecordCount;
-   First;
-  end;
-
-  k:=0;
-  While not Qt.Eof do begin
-   inc(k);
-    ID:=Qt.FieldByName('ID').Value;
-
-    Max_LLM:=-9;
-    Max_LLD:=-9;
-    for ci1:=0 to frmosmain.ListBox1.Count-1 do begin
-      With Qt1 do begin
-       Close;
-        SQL.Clear;
-        SQL.Add(' Select max(LEV_M) as LLM, max(LEV_DBAR) as LLD from ');
-        SQL.Add(frmosmain.ListBox1.Items.Strings[ci1]);
-        SQL.Add(' where ID=:pAbsNum ');
-        Parambyname('pAbsnum').asInteger:=ID;
-       Open;
-          if not VarIsNull(Qt1.Fields[0].AsVariant) then Max_LLM:=Max(Max_LLM,Qt1.Fields[0].AsFloat);
-          if not VarIsNull(Qt1.Fields[1].AsVariant) then Max_LLD:=Max(Max_LLD,Qt1.Fields[1].AsFloat);
-       Close;
-      end;
-    end;
-
-    if Max_LLM=-9 then Max_LLM:=Null;
-    if Max_LLD=-9 then Max_LLD:=Null;
-
-    With Qt1 do begin
-       Close;
-        SQL.Clear;
-        SQL.Add(' Update STATION set ');
-        SQL.Add(' LASTLEVEL_M=:LLM, ');
-        SQL.Add(' LASTLEVEL_DBAR=:LLD ');
-        SQL.Add(' where ID=:pAbsNum ');
-        Parambyname('pAbsnum').Value:=ID;
-        Parambyname('LLM').Value:=Max_LLM;
-        Parambyname('LLD').Value:=Max_LLD;
-       ExecSQL;
-    end;
-
-    {$IFDEF WINDOWS}
-     Procedures.ProgressTaskbar(k, cnt);
-    {$ENDIF}
-
-    if (k mod 1000)=1 then TRt.CommitRetaining;
-
-   Qt.Next;
-  end;
-  finally
-   {$IFDEF WINDOWS}
-     Procedures.ProgressTaskbar(0, 0);
-   {$ENDIF}
-
-   Trt.Commit;
-   Qt.Free;
-   Qt1.Free;
-   Trt.Free;
-  end;
-end;
 
 
 Procedure Tfrmosmain.UpdateCruiseInfo(ID: int64; TotalEqualDB:boolean);
@@ -4322,6 +4142,13 @@ begin
    end;
 end;
 
+procedure Tfrmosmain.iQCClick(Sender: TObject);
+begin
+  iUpdateStationParameters.Enabled:=FileExists(OceanToolsPath+'UpdateStationParameters.exe');
+  iInsertBottomDepthGEBCO.Enabled :=FileExists(OceanToolsPath+'UpdateGEBCO.exe');
+  iInsertLastLevel.Enabled        :=FileExists(OceanToolsPath+'UpdateLastLevel.exe');
+end;
+
 procedure Tfrmosmain.iBackupQCClick(Sender: TObject);
 begin
   SD.Filter:='Text files|*.TXT;*.txt';
@@ -4353,12 +4180,20 @@ end;
 
 procedure Tfrmosmain.iQC_WideRangesClick(Sender: TObject);
 begin
-  frmQC_WideRanges := TfrmQC_WideRanges.Create(Self);
+{  frmQC_WideRanges := TfrmQC_WideRanges.Create(Self);
    try
     if not frmQC_WideRanges.ShowModal = mrOk then exit;
    finally
      frmQC_WideRanges.Free;
      frmQC_WideRanges:= nil;
+   end;}
+
+   frmwideranges_upd := Tfrmwideranges_upd.Create(Self);
+   try
+    if not frmwideranges_upd.ShowModal = mrOk then exit;
+   finally
+     frmwideranges_upd.Free;
+     frmwideranges_upd:= nil;
    end;
 end;
 

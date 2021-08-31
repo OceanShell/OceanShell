@@ -37,10 +37,11 @@ object frmload_argo: Tfrmload_argo
       '"Grey" list QC flags'
       'Insert last level'
       'Insert GEBCO depth'
+      'Delete duplicates'
     )
     TabOrder = 0
     Data = {
-      080000000202020202020202
+      09000000020202020202020202
     }
   end
   object btnRun: TButton

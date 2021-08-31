@@ -37,7 +37,7 @@ var
 
 implementation
 
-uses osmain, dm, osunitsconversion;
+uses osmain, dm, osunitsconversion, osunitsconversion_exact;
 
 {$R *.lfm}
 

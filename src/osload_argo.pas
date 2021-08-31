@@ -44,8 +44,7 @@ type
       tbl_name:string; dd1, dd2:tDateTime);
     procedure UpdateCruiseInfo;
     procedure DeleteEmptyStations;
-    procedure InsertLastLevel;
-    procedure InsertGEBCODepth;
+    procedure DeleteDuplicates;
   public
 
   end;
@@ -76,7 +75,7 @@ begin
    end;
 
   // all tasks checked
-  for k:=0 to cgTasks.Items.Count-1 do cgTasks.Checked[k]:=true;
+  for k:=0 to cgTasks.Items.Count-1 do cgTasks.Checked[k]:=false;
 
 end;
 
@@ -91,8 +90,9 @@ begin
   if cgTasks.Checked[3] then UpdateSTATION('ar_index_global_prof.txt');
   if cgTasks.Checked[4] then UpdateCruiseInfo;
   if cgTasks.Checked[5] then GreyList;
-  if cgTasks.Checked[6] then InsertLastLevel;
-  if cgTasks.Checked[7] then InsertGEBCODepth;
+ // if cgTasks.Checked[6] then InsertLastLevel;
+ // if cgTasks.Checked[7] then InsertGEBCODepth;
+  if cgTasks.Checked[8] then DeleteDuplicates;
 end;
 
 
@@ -1722,42 +1722,99 @@ begin
 end;
 
 
-
-procedure Tfrmload_argo.InsertLastLevel;
+procedure tfrmload_argo.DeleteDuplicates;
 Var
- DateStart: TDateTime;
+TRt:TSQLTransaction;
+Qt1, Qt2:TSQLQuery;
+
+k, cnt_dup:integer;
+st, buf_id:string;
+lst:TStringList;
 begin
- DateStart:=now;
+TRt:=TSQLTransaction.Create(self);
+TRt.DataBase:=frmdm.IBDB;
 
- memo1.lines.add('');
- memo1.lines.add('Instering last level');
- memo1.lines.add('Start: '+DateTimeToStr(DateStart));
- memo1.lines.add('');
+Qt1 :=TSQLQuery.Create(self);
+Qt1.Database:=frmdm.IBDB;
+Qt1.Transaction:=TRt;
 
-   frmosmain.InsertLastLevel;
+Qt2 :=TSQLQuery.Create(self);
+Qt2.Database:=frmdm.IBDB;
+Qt2.Transaction:=TRt;
 
- memo1.Lines.add('');
- memo1.Lines.add('Done: '+DateTimeToStr(Now));
+ try
+   (* Select everyting except the specified source *)
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' SELECT LIST(id) ');
+     SQL.Add(' FROM station ');
+     SQL.Add(' WHERE CRUISE_ID BETWEEN 20000001 and 30000001 ');
+     SQL.Add(' GROUP BY cruise_id, st_number_origin ');
+     SQL.Add(' HAVING ( COUNT(*) > 1 ) ');
+    Open;
+    Last;
+    First;
+   end;
+
+
+   cnt_dup:=0;
+   while not Qt1.EOF do begin
+    st:=VarToStr(Qt1.Fields[0].Value);
+
+    k:=0;
+    buf_id:='';
+    lst:=TStringList.Create();
+    lst.Sorted:=true;
+     repeat
+      inc(k);
+      if st[k]<>',' then buf_id:=buf_id+st[k];
+      if (st[k]=',') or (k=length(st)) then begin
+        lst.Add(buf_id);
+        buf_id:='';
+      end;
+      until (k=length(st));
+
+      for k:=1 to lst.Count-1 do begin
+       inc(cnt_dup);
+
+        with Qt2 do begin
+         Close;
+          SQL.Clear;
+          SQL.Add(' DELETE FROM STATION ');
+          SQL.Add(' WHERE ID='+lst.Strings[k]);
+         ExecSQL;
+        end;
+
+        caption:='Duplicates: '+inttostr(cnt_dup);
+        Application.ProcessMessages;
+      end;
+      lst.Free;
+
+     {$IFDEF WINDOWS}
+        Procedures.ProgressTaskbar(k, qt1.RecordCount);
+     {$ENDIF}
+
+    Qt1.Next;
+   end;
+
+
+ finally
+  Showmessage('Found '+inttostr(cnt_dup)+' duplicates');
+
+  {$IFDEF WINDOWS}
+    Procedures.ProgressTaskbar(0, 0);
+  {$ENDIF}
+
+  frmdm.TR.CommitRetaining;
+  Trt.Commit;
+  Qt1.Close;
+  Qt1.Free;
+  Trt.Free;
+ end;
+
+
 end;
-
-
-procedure Tfrmload_argo.InsertGEBCODepth;
-Var
- DateStart: TDateTime;
-begin
- DateStart:=now;
-
- memo1.lines.add('');
- memo1.lines.add('Instering bottom depth from GEBCO');
- memo1.lines.add('Start: '+DateTimeToStr(DateStart));
- memo1.lines.add('');
-
-   frmosmain.InsertGEBCODepth;
-
- memo1.Lines.add('');
- memo1.Lines.add('Done: '+DateTimeToStr(Now));
-end;
-
 
 procedure Tfrmload_argo.GetTableName(var_name:string; Var tbl_name: string);
 begin
