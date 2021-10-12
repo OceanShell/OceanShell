@@ -18,7 +18,7 @@ object frmosmain: Tfrmosmain
   OnDestroy = FormDestroy
   OnResize = FormResize
   OnShow = FormShow
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.12.0'
   object Memo1: TMemo
     Left = 828
     Height = 74
@@ -79,7 +79,7 @@ object frmosmain: Tfrmosmain
         Height = 742
         Top = 0
         Width = 1141
-        HorzScrollBar.Page = 1
+        HorzScrollBar.Page = 1077
         VertScrollBar.Page = 742
         Align = alClient
         BorderStyle = bsNone
@@ -210,7 +210,6 @@ object frmosmain: Tfrmosmain
                     MinValue = -90
                     ParentFont = False
                     TabOrder = 0
-                    Value = 0
                   end
                   object seLonMin: TFloatSpinEdit
                     Left = 22
@@ -226,7 +225,6 @@ object frmosmain: Tfrmosmain
                     MinValue = -180
                     ParentFont = False
                     TabOrder = 1
-                    Value = 0
                   end
                   object seLonMax: TFloatSpinEdit
                     Left = 266
@@ -242,7 +240,6 @@ object frmosmain: Tfrmosmain
                     MinValue = -180
                     ParentFont = False
                     TabOrder = 2
-                    Value = 0
                   end
                   object seLatMin: TFloatSpinEdit
                     Left = 144
@@ -258,7 +255,6 @@ object frmosmain: Tfrmosmain
                     MinValue = -90
                     ParentFont = False
                     TabOrder = 3
-                    Value = 0
                   end
                 end
                 object TabSheet2: TTabSheet
@@ -295,7 +291,6 @@ object frmosmain: Tfrmosmain
                     MinValue = -180
                     ParentFont = False
                     TabOrder = 0
-                    Value = 0
                   end
                   object Label5: TLabel
                     Left = 168
@@ -323,7 +318,6 @@ object frmosmain: Tfrmosmain
                     MinValue = -180
                     ParentFont = False
                     TabOrder = 1
-                    Value = 0
                   end
                   object Label6: TLabel
                     Left = 304
@@ -1092,7 +1086,6 @@ object frmosmain: Tfrmosmain
                     MinValue = -12000
                     ParentFont = False
                     TabOrder = 0
-                    Value = 0
                   end
                   object seLastLevelMax: TFloatSpinEdit
                     Left = 160
@@ -1108,7 +1101,6 @@ object frmosmain: Tfrmosmain
                     MinValue = -12000
                     ParentFont = False
                     TabOrder = 1
-                    Value = 0
                   end
                 end
               end
@@ -1666,9 +1658,6 @@ object frmosmain: Tfrmosmain
         PopupMenu = PMEntry
         Scrollbars = ssAutoBoth
         TabOrder = 0
-        TitleFont.Color = clWindowText
-        TitleFont.Height = -17
-        TitleFont.Name = 'MS Sans Serif'
         TitleImageList = frmicons.IL1
         OnPrepareCanvas = DBGridCruisePrepareCanvas
         OnTitleClick = DBGridEntryTitleClick
@@ -1873,9 +1862,6 @@ object frmosmain: Tfrmosmain
           PopupMenu = PMCruise
           Scrollbars = ssAutoBoth
           TabOrder = 0
-          TitleFont.Color = clWindowText
-          TitleFont.Height = -17
-          TitleFont.Name = 'MS Sans Serif'
           TitleImageList = frmicons.IL1
           TitleStyle = tsStandard
           OnCellClick = DBGridCruiseCellClick
@@ -1989,9 +1975,6 @@ object frmosmain: Tfrmosmain
           PopupMenu = PMStation
           Scrollbars = ssAutoBoth
           TabOrder = 2
-          TitleFont.Color = clWindowText
-          TitleFont.Height = -17
-          TitleFont.Name = 'MS Sans Serif'
           OnCellClick = DBGridStation2CellClick
           OnKeyUp = DBGridStation2KeyUp
           OnPrepareCanvas = DBGridCruisePrepareCanvas
@@ -2797,15 +2780,15 @@ object frmosmain: Tfrmosmain
   end
   object OD: TOpenDialog
     Options = [ofHideReadOnly, ofEnableSizing, ofDontAddToRecent]
-    left = 480
+    Left = 480
   end
   object SD: TSaveDialog
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    left = 540
+    Left = 540
   end
   object MM: TMainMenu
     Images = frmicons.IL1
-    left = 600
+    Left = 600
     object iFile: TMenuItem
       Caption = 'File'
       object iNewDatabase: TMenuItem
@@ -2854,6 +2837,10 @@ object frmosmain: Tfrmosmain
         end
         object iLoad_GLODAP_2019_v2: TMenuItem
           Caption = '2019.v2'
+        end
+        object iLoad_GLODAP_v2_2021: TMenuItem
+          Caption = 'v2.2021 (product)'
+          OnClick = iLoad_GLODAP_v2_2021Click
         end
       end
       object iload_ices: TMenuItem
@@ -3078,7 +3065,7 @@ object frmosmain: Tfrmosmain
   end
   object AL: TActionList
     Images = frmicons.IL1
-    left = 660
+    Left = 660
     object aOpenDatabase: TAction
       Category = 'File'
       Caption = 'Open database'
@@ -3144,8 +3131,8 @@ object frmosmain: Tfrmosmain
   end
   object PMCruise: TPopupMenu
     Images = frmicons.IL1
-    left = 240
-    top = 329
+    Left = 240
+    Top = 329
     object iSelectStationsForCruise: TMenuItem
       Caption = 'Select stations'
       ImageIndex = 14
@@ -3154,8 +3141,8 @@ object frmosmain: Tfrmosmain
   end
   object PMEntry: TPopupMenu
     Images = frmicons.IL1
-    left = 329
-    top = 329
+    Left = 329
+    Top = 329
     object iSelectEntry: TMenuItem
       Caption = 'Select stations'
       ImageIndex = 14
@@ -3171,8 +3158,8 @@ object frmosmain: Tfrmosmain
   end
   object PMStation: TPopupMenu
     Images = frmicons.IL1
-    left = 425
-    top = 329
+    Left = 425
+    Top = 329
     object MenuItem4: TMenuItem
       Action = aProfilesStationSingle
     end
@@ -3215,6 +3202,6 @@ object frmosmain: Tfrmosmain
     end
   end
   object ODir: TSelectDirectoryDialog
-    left = 425
+    Left = 425
   end
 end

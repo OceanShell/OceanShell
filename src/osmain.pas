@@ -157,6 +157,7 @@ type
     iLoadICESnew: TMenuItem;
     iFixedStation: TMenuItem;
     iUpdateStationParameters: TMenuItem;
+    iLoad_GLODAP_v2_2021: TMenuItem;
     mStationIDList: TMemo;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
@@ -399,6 +400,7 @@ type
     procedure iLoadICESnewClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
     procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
+    procedure iLoad_GLODAP_v2_2021Click(Sender: TObject);
     procedure iload_icesClick(Sender: TObject);
     procedure iLoad_ITPClick(Sender: TObject);
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
@@ -596,6 +598,7 @@ uses
   osload_argo,
   osload_itp,
   osload_GLODAP_2019_v2_product,
+  osload_GLODAP_v2_2021_product,
   osload_WOD18,
   osload_PangaeaTab,
   osload_ices1,
@@ -4051,6 +4054,17 @@ begin
  finally
    frmloadGLODAP_2019_v2_product.Free;
    frmloadGLODAP_2019_v2_product := nil;
+ end;
+end;
+
+procedure Tfrmosmain.iLoad_GLODAP_v2_2021Click(Sender: TObject);
+begin
+  frmloadGLODAP_v2_2021_product := TfrmloadGLODAP_v2_2021_product.Create(Self);
+ try
+  if not frmloadGLODAP_v2_2021_product.ShowModal = mrOk then exit;
+ finally
+   frmloadGLODAP_v2_2021_product.Free;
+   frmloadGLODAP_v2_2021_product := nil;
  end;
 end;
 
