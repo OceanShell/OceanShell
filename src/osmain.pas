@@ -2812,7 +2812,7 @@ var
   Entry_type_str: string;
 begin
   (* Fetch ENTRY_TYPE *)
-  if (PageControl1.PageIndex=2) and (cbEntryType.Items.Count=0) then begin
+  if (PageControl1.PageIndex=1) and (cbEntryType.Items.Count=0) then begin
 
    Ini := TIniFile.Create(IniFileName);
    try

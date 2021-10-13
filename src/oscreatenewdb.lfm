@@ -66,7 +66,7 @@ object frmcreatenewdb: Tfrmcreatenewdb
     Height = 104
     Top = 624
     Width = 638
-    Caption = 'New variables (ex. P_NEWTABLE1;P_NEW_TABLE2...)'
+    Caption = 'New variables with typical fields (ex. P_NEWTABLE1;P_NEW_TABLE2...)'
     ClientHeight = 74
     ClientWidth = 634
     TabOrder = 3

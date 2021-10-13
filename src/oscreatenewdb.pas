@@ -20,6 +20,7 @@ type
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
 
+    procedure Button1Click(Sender: TObject);
     procedure cbDatabasesSelect(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnCreateDBClick(Sender: TObject);
@@ -30,7 +31,8 @@ type
   public
     function  GetDDL:boolean;
     procedure ProcessDDL;
-    procedure AddTbl(tbl:string);
+    procedure AddTblNew(tbl:string);
+    procedure AddTblScript(tbl:string);
     procedure CreateNewDB(dbname:string);
   end;
 
@@ -66,8 +68,9 @@ Var
   DBIni: TIniFile;
   DB:TIBConnection;
   TR:TSQLTransaction;
-  Q:TSQLQuery;
   DBUser, DBPass, DBHost, DBPath: string;
+  k:integer;
+  TempList:TListBox;
 begin
 try
    DB:=TIBConnection.Create(nil);
@@ -75,10 +78,6 @@ try
 
    DB.Transaction:=TR;
    TR.Database:=DB;
-
-   Q:=TSQLQuery.Create(self);
-   Q.Database:=DB;
-   Q.Transaction:=TR;
 
    DBIni := TIniFile.Create(IniFileName+'_db');
    try
@@ -99,28 +98,39 @@ try
      Connected:=true;
    end;
 
-    With Q do begin
-      Close;
-        SQL.Clear;
-        SQL.Add(' SELECT NAME_TABLE FROM DATABASE_TABLES ');
-        SQL.Add(' ORDER BY NAME_TABLE ');
-      Open;
-    end;
+   try
+   TempList:=TListBox.Create(self);
+   DB.GetTableNames(TempList.Items,False);
 
-    chlbVariables.Items.Clear;
-    while not Q.eof do begin
-     chlbVariables.Items.Add(Q.Fields[0].AsString);
-     Q.Next;
-    end;
-    Q.Close;
+    for k:=0 to TempList.Items.Count-1 do
+     if (copy(TempList.Items.Strings[k], 1, 2)='P_') then
+       chlbVariables.Items.Add(TempList.Items.Strings[k]);
+   finally
+     TempList.Free;
+   end;
+
  finally
-  Q.Free;
   TR.Commit;
   TR.Free;
   DB.Connected:=false;
   DB.Free;
  end;
+
+ for k:=0 to chlbVariables.Items.Count-1 do chlbVariables.Checked[k]:=true;
 end;
+
+
+
+procedure Tfrmcreatenewdb.Button1Click(Sender: TObject);
+var
+  k:integer;
+begin
+    (* tables from the list *)
+  for k:=0 to chlbVariables.Items.Count-1 do
+    if chlbVariables.Checked[k]=true then
+      AddTblScript(chlbVariables.Items.Strings[k]);
+end;
+
 
 procedure Tfrmcreatenewdb.chlbVariablesItemClick(Sender: TObject; Index: integer);
 Var
@@ -217,7 +227,7 @@ begin
   (* tables from the list *)
   for k:=0 to chlbVariables.Items.Count-1 do
     if chlbVariables.Checked[k]=true then
-      AddTbl(chlbVariables.Items.Strings[k]);
+      AddTblScript(chlbVariables.Items.Strings[k]);
 
   (* new tables *)
   if trim(eNewDB.Text)<>'' then begin
@@ -229,7 +239,7 @@ begin
        if eNewDB.Text[c]<>';' then buf_str:=buf_str+eNewDB.Text[c];
     until (eNewDB.Text[c]=';') or (c=length(eNewDB.Text));
 
-    AddTbl(trim(buf_str));
+    AddTblNew(trim(buf_str));
    until (c>=length(eNewDB.Text));
   end;
 
@@ -239,12 +249,48 @@ begin
   CloseFile(dat);
 end;
 
-procedure Tfrmcreatenewdb.AddTbl(tbl:string);
+procedure Tfrmcreatenewdb.AddTblScript(tbl:string);
+Var
+  dat1, out1:text;
+  st:string;
+begin
+  AssignFile(dat1, GlobalUnloadPath+PathDelim+'TMP.SQL'); reset(dat1);
+  AssignFile(out1, GlobalUnloadPath+'OCEAN.SQL'); append(out1);
+
+  st:='';
+  repeat
+    readln(dat1, st);
+  until (copy(st, 14, length(tbl)) = tbl);
+
+ { if eof(dat1) then begin
+   showmessage('not found: '+tbl);
+   closefile(dat1);
+   closefile(out1);
+   exit;
+  end;   }
+
+  repeat
+     if trim(st)<>'' then writeln(out1, st);
+   readln(dat1, st);
+  until trim(st)='';
+
+  writeln(out1,'   ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_1 FOREIGN KEY (ID) REFERENCES STATION (ID) ON UPDATE CASCADE ON DELETE CASCADE;');
+  writeln(out1,'   ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_2 FOREIGN KEY (INSTRUMENT_ID) REFERENCES INSTRUMENT (ID) ON UPDATE CASCADE;');
+  writeln(out1,'   ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_3 FOREIGN KEY (UNITS_ID) REFERENCES UNITS (ID) ON UPDATE CASCADE;');
+  writeln(out1,'   ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_4 FOREIGN KEY (PQF1) REFERENCES FLAG_PQF1 (ID) ON UPDATE CASCADE;');
+  writeln(out1,'   ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_5 FOREIGN KEY (PQF2) REFERENCES FLAG_PQF2 (ID) ON UPDATE CASCADE;');
+  writeln(out1,'   ALTER TABLE '+tbl+' ADD CONSTRAINT FK_'+tbl+'_6 FOREIGN KEY (SQF) REFERENCES FLAG_SQF (ID) ON UPDATE CASCADE;');
+  writeln(out1,'');
+
+  CloseFile(dat1);
+  CloseFile(out1);
+end;
+
+procedure Tfrmcreatenewdb.AddTblNew(tbl: string);
 Var
   dat:text;
 begin
-   (* adding tables *)
-  AssignFile(dat, GlobalUnloadPath+'OCEAN.SQL'); append(dat);
+ AssignFile(dat, GlobalUnloadPath+'OCEAN.SQL'); append(dat);
 
      writeln(dat,'CREATE TABLE '+tbl+' (ID BIGINT NOT NULL, ');
      writeln(dat,'   LEV_DBAR DECIMAL(9, 4) NOT NULL, ');
@@ -479,9 +525,9 @@ frmosmain.SD.DefaultExt:='FDB';
    CreateNewDB(frmosmain.SD.FileName);
    PopulateSupportTables(frmosmain.SD.FileName);
 
-    frmdm.IBDB.Close;
+  {  frmdm.IBDB.Close;
     frmdm.IBDB.DatabaseName:=frmosmain.SD.FileName;
-    frmosmain.OpenLocalDatabase(frmdm.IBDB.DatabaseName);
+    frmosmain.OpenLocalDatabase(frmdm.IBDB.DatabaseName); }
   frmcreatenewdb.Enabled:=true;
   Close;
  end;
