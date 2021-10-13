@@ -13,11 +13,11 @@ object frmloadGLODAP_v2_2021_product: TfrmloadGLODAP_v2_2021_product
     Height = 603
     Top = 0
     Width = 856
-    ActivePage = TabSheet4
+    ActivePage = TabSheet5
     Align = alClient
     Font.Height = 22
     ParentFont = False
-    TabIndex = 0
+    TabIndex = 3
     TabOrder = 0
     object TabSheet4: TTabSheet
       Caption = 'Settings'
@@ -150,15 +150,15 @@ object frmloadGLODAP_v2_2021_product: TfrmloadGLODAP_v2_2021_product
       Caption = 'ENTRY TBD'
       ClientHeight = 569
       ClientWidth = 848
-      object btnFixedStations: TBitBtn
+      object btnFixedStations_A1: TBitBtn
         Left = 64
         Height = 30
         Top = 56
-        Width = 177
-        Caption = 'Find fixed stations'
+        Width = 300
+        Caption = 'Find fixed stations (real position)'
         Font.Height = 22
         Font.Style = [fsBold]
-        OnClick = btnFixedStationsClick
+        OnClick = btnFixedStations_A1Click
         ParentFont = False
         TabOrder = 0
       end
@@ -173,11 +173,11 @@ object frmloadGLODAP_v2_2021_product: TfrmloadGLODAP_v2_2021_product
       end
       object GroupBox4: TGroupBox
         Left = 528
-        Height = 208
+        Height = 248
         Top = 32
         Width = 278
         Caption = 'Fixed stations'
-        ClientHeight = 182
+        ClientHeight = 222
         ClientWidth = 274
         Font.Height = 22
         ParentFont = False
@@ -257,6 +257,42 @@ object frmloadGLODAP_v2_2021_product: TfrmloadGLODAP_v2_2021_product
           ParentFont = False
           TabOrder = 3
         end
+        object Edit1: TEdit
+          Left = 143
+          Height = 29
+          Top = 176
+          Width = 56
+          TabOrder = 4
+          Text = '0.2'
+        end
+        object Label9: TLabel
+          Left = 16
+          Height = 21
+          Top = 184
+          Width = 79
+          Caption = 'Square size'
+          ParentColor = False
+        end
+        object Label10: TLabel
+          Left = 208
+          Height = 21
+          Top = 184
+          Width = 55
+          Caption = 'degrees'
+          ParentColor = False
+        end
+      end
+      object btnFixedStations_A2: TBitBtn
+        Left = 64
+        Height = 30
+        Top = 136
+        Width = 300
+        Caption = 'Find fixed stations (squares)'
+        Font.Height = 22
+        Font.Style = [fsBold]
+        OnClick = btnFixedStations_A2Click
+        ParentFont = False
+        TabOrder = 2
       end
     end
     object TabSheet3: TTabSheet

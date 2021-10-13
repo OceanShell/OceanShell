@@ -33,8 +33,7 @@
 #FS2: populate FSTATION from STATION using coordinates limits
 #FS3: test/populate ENTRY using arbitrarily defined time series constraints
 #FS4: populate STATION_ENTRY using arbitrarily defined time series constraints
-#FS5 update station_amount in ENTRY from STATION_ENTRY
-#FS6: assign entries as cruises (optional)}
+#FS5: assign entries as cruises (optional)}
 
 
 
@@ -47,7 +46,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, StdCtrls,
-  Buttons, comobj, variants, DateUtils, dynlibs;
+  Buttons, ExtCtrls, comobj, variants, DateUtils;
 
 
 
@@ -56,7 +55,8 @@ type
   { TfrmloadGLODAP_v2_2021_product }
 
   TfrmloadGLODAP_v2_2021_product = class(TForm)
-    btnFixedStations: TBitBtn;
+    btnFixedStations_A2: TBitBtn;
+    btnFixedStations_A1: TBitBtn;
     btnUpdateCruiseTable: TBitBtn;
     btnDownload: TBitBtn;
     btnPopulateCruiseTable: TBitBtn;
@@ -64,11 +64,13 @@ type
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
+    Edit1: TEdit;
     Edit2: TEdit;
     Edit3: TEdit;
     Edit4: TEdit;
     GroupBox4: TGroupBox;
     Label1: TLabel;
+    Label10: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -76,6 +78,7 @@ type
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
+    Label9: TLabel;
     Memo1: TMemo;
     Memo2: TMemo;
     PageControl1: TPageControl;
@@ -85,7 +88,8 @@ type
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
     procedure btnDownloadClick(Sender: TObject);
-    procedure btnFixedStationsClick(Sender: TObject);
+    procedure btnFixedStations_A1Click(Sender: TObject);
+    procedure btnFixedStations_A2Click(Sender: TObject);
     procedure btnPopulateCruiseTableClick(Sender: TObject);
     procedure btnUpdateCruiseTableClick(Sender: TObject);
     procedure btnUpdateExcelTableClick(Sender: TObject);
@@ -1800,7 +1804,7 @@ end;
 
 
 
-procedure TfrmloadGLODAP_v2_2021_product.btnFixedStationsClick(Sender: TObject);
+procedure TfrmloadGLODAP_v2_2021_product.btnFixedStations_A1Click(Sender: TObject);
 
 type
   OneStation=record
@@ -1832,6 +1836,7 @@ str,entry_title :string;
 new :boolean;
 minDT,maxDT :TDateTime;
 minlat,maxlat,minlon,maxlon :real;
+dt_min,dt_max :TDateTime;
 
 begin
 
@@ -1903,17 +1908,17 @@ Application.ProcessMessages;
 
 {S}for i:=1 to High(Station) do begin
    new:=true;
-   Label3.Caption:='...station: '+inttostr(i);
+   Label3.Caption:='...find fixed stations: '+inttostr(i);
    Application.ProcessMessages;
 {FS}for j:=0 to High(FStation) do begin
 
-    if (Station[i].lat>FStation[j].lat-pl) and (Station[i].lat<FStation[j].lat+pl)
-   and (Station[i].lon>FStation[j].lon-pl) and (Station[i].lon<FStation[j].lon+pl)
+    if (Station[i].lat>=FStation[j].lat-pl) and (Station[i].lat<=FStation[j].lat+pl)
+   and (Station[i].lon>=FStation[j].lon-pl) and (Station[i].lon<=FStation[j].lon+pl)
    then begin
      new:=false;
      FStation[j].stcount:=FStation[j].stcount+1;
-     if FStation[j].time_min>Station[i].time then FStation[j].time_min:=Station[i].time;
-     if FStation[j].time_max<Station[i].time then FStation[j].time_max:=Station[i].time;
+     if FStation[j].time_min>=Station[i].time then FStation[j].time_min:=Station[i].time;
+     if FStation[j].time_max<=Station[i].time then FStation[j].time_max:=Station[i].time;
     end;
 {FS}end;
     if new=true then begin
@@ -1957,18 +1962,36 @@ Application.ProcessMessages;
 {if}if (db>=strtoint(Edit3.Text)) and (FStation[i].stcount>=strtoint(Edit4.Text))
     then begin
      inc(fsc);
-     str:='FS_'+floattostr(FStation[i].lat)+'_'+floattostr(FStation[i].lon);
+     str:='lat'+floattostr(FStation[i].lat)
+     +'_lon'+floattostr(FStation[i].lon)
+     +'_pl'+floattostr(pl);
+
+
+     with frmdm.q1 do begin
+      Close;
+      SQL.Clear;
+      SQL.Add(' select count(id) as sa, min(dateandtime) as dt_min, max(dateandtime) as dt_max ');
+      SQL.Add(' from STATION ');
+      SQL.Add(' where latitude >=:lat_min and latitude <=:lat_max and ');
+      SQL.Add('       longitude>=:lon_min and longitude<=:lon_max ');
+      ParamByName('lat_min').AsFloat:=FStation[i].lat-pl;
+      ParamByName('lat_max').AsFloat:=FStation[i].lat+pl;
+      ParamByName('lon_min').AsFloat:=FStation[i].lon-pl;
+      ParamByName('lon_max').AsFloat:=FStation[i].lon+pl;
+      Open;
+      sa:=FieldByName('sa').AsInteger;
+      dt_min:=FieldByName('dt_min').AsDateTime;
+      dt_max:=FieldByName('dt_max').AsDateTime;
+      Close;
+     end;
 
      memo1.Lines.Add(inttostr(fsc)
      +#9+floattostrF(FStation[i].lat,ffFixed,12,5)
      +#9+floattostrF(FStation[i].lon,ffFixed,12,5)
-     +#9+inttostr(FStation[i].stcount)
+     +#9+inttostr(sa)
      +#9+inttostr(db)
-     //+#9+datetimetostr(FStation[i].time_min)
-     //+#9+datetimetostr(FStation[i].time_max)
-     +#9+FormatDateTime('DD.MM.YYYY',FStation[i].time_min)
-     +#9+FormatDateTime('DD.MM.YYYY',FStation[i].time_max)
-     );
+     +#9+FormatDateTime('DD.MM.YYYY',dt_min)
+     +#9+FormatDateTime('DD.MM.YYYY',dt_max));
 
 {db}if CheckBox2.Checked then begin
      with frmdm.q1 do begin
@@ -1983,9 +2006,9 @@ Application.ProcessMessages;
         ParamByName('entry_id').AsInteger:=fsc+id_max;
         ParamByName('entry_type_id').AsInteger:=2;  //fixed station
         ParamByName('title').AsString:=str;
-        ParamByName('date_start').AsDateTime:=FStation[i].time_min;
-        ParamByName('date_end').AsDateTime:=FStation[i].time_max;
-        ParamByName('stations_amount').AsInteger:=FStation[i].stcount;
+        ParamByName('date_start').AsDateTime:=dt_min;
+        ParamByName('date_end').AsDateTime:=dt_max;
+        ParamByName('stations_amount').AsInteger:=sa;
         ParamByName('date_added').AsDateTime:=NOW;
         ParamByName('date_updated').AsDateTime:=NOW;
         ExecSQL;
@@ -1996,8 +2019,8 @@ Application.ProcessMessages;
 
 {#FS4: populate STATION_ENTRY using arbitrarily defined time series constraints}
 {S}for j:=0 to High(Station) do begin
-{P}if  (Station[j].lat>FStation[i].lat-pl) and (Station[j].lat<FStation[i].lat+pl)
-  and  (Station[j].lon>FStation[i].lon-pl) and (Station[j].lon<FStation[i].lon+pl)
+{P}if  (Station[j].lat>=FStation[i].lat-pl) and (Station[j].lat<=FStation[i].lat+pl)
+  and  (Station[j].lon>=FStation[i].lon-pl) and (Station[j].lon<=FStation[i].lon+pl)
   then begin
 {db}if CheckBox2.Checked then begin
     with frmdm.q2 do begin
@@ -2021,38 +2044,8 @@ Application.ProcessMessages;
 {FC}end;
 
 
-{#FS5 update station_amount in ENTRY from STATION_ENTRY}
-{db}if CheckBox2.Checked then begin
-     Label3.Caption:='...update ENTRY (stations_amount)';
-     Application.ProcessMessages;        memo1.Lines.Add('');
-     memo1.Lines.Add('Update ENTRY set stations_amount');
-     with frmdm.q1 do begin
-      Close;
-      SQL.Clear;
-      SQL.Add(' select entry_id, count(entry_id) from STATION_ENTRY ');
-      SQL.Add(' group by entry_id ');
-      Open;
-     end;
-{SE}while not frmdm.q1.EOF do begin
-    entry_id:=frmdm.q1.FieldByName('entry_id').AsInteger;
-    sa:=frmdm.q1.FieldByName('count').AsInteger;
-    memo1.Lines.Add(inttostr(entry_id)+#9+ inttostr(sa));
-    with frmdm.q2 do begin
-     Close;
-     SQL.Clear;
-     SQL.Add(' update ENTRY set stations_amount=:sa ');
-     SQL.Add(' where id=:entry_id ');
-     ParamByName('sa').AsInteger:=sa;
-     ParamByName('entry_id').AsInteger:=entry_id;
-     ExecSQL;
-    end;
-      frmdm.q1.Next;
-{SE}end;
-      frmdm.q1.Close;
-      frmdm.TR.CommitRetaining;
-{db}end;
 
-{#FS6 assign entries as cruises}
+{#FS5: assign entries as cruises}
 {CB3}if CheckBox3.Checked then begin
 memo1.Lines.Add('');
 memo1.Lines.Add('entry -> cruises');
@@ -2263,7 +2256,26 @@ Label3.Caption:='...done';
 DT2:=NOW;
 memo1.Lines.Add('...stop: '+datetimetostr(DT2));
 memo1.Lines.Add('...time spent: '+timetostr(DT2-DT1));
+end;
 
+
+
+{...stations amount in squares}
+procedure TfrmloadGLODAP_v2_2021_product.btnFixedStations_A2Click(
+  Sender: TObject);
+var
+ss :real;
+begin
+DT1:=NOW;
+memo1.Lines.Add('...find fixed stations in data (squares): ');
+memo1.Lines.Add('...start: '+datetimetostr(DT1));
+
+ss:=strtofloat(Edit1.Text);  //square size
+memo1.Lines.Add('...square size: '+floattostr(ss));
+
+DT2:=NOW;
+memo1.Lines.Add('...stop: '+datetimetostr(DT2));
+memo1.Lines.Add('...time spent: '+timetostr(DT2-DT1));
 end;
 
 
