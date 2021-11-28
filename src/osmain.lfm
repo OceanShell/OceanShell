@@ -4,8 +4,8 @@ object frmosmain: Tfrmosmain
   Top = 37
   Width = 1381
   Caption = 'OceanShell'
-  ClientHeight = 853
-  ClientWidth = 1381
+  ClientHeight = 0
+  ClientWidth = 0
   Color = clBtnFace
   Constraints.MinHeight = 700
   Constraints.MinWidth = 1380
@@ -2945,6 +2945,13 @@ object frmosmain: Tfrmosmain
         OnClick = iMetadataUpdateClick
       end
     end
+    object MenuItem26: TMenuItem
+      Caption = 'Import'
+      object iImportFirebird: TMenuItem
+        Caption = 'Firebird DB'
+        OnClick = iImportFirebirdClick
+      end
+    end
     object MenuItem7: TMenuItem
       Caption = 'Export'
       object iExportFirebirdDB: TMenuItem
@@ -3014,7 +3021,6 @@ object frmosmain: Tfrmosmain
       Caption = 'Statistics'
       object iDBStatistics: TMenuItem
         Caption = 'DB Statistics'
-        Enabled = False
         ImageIndex = 196
         OnClick = iDBStatisticsClick
       end
@@ -3154,6 +3160,13 @@ object frmosmain: Tfrmosmain
       Caption = 'Select stations'
       ImageIndex = 14
       OnClick = iSelectStationsForCruiseClick
+    end
+    object MenuItem28: TMenuItem
+      Caption = '-'
+    end
+    object btnUpdateCruiseInfo: TMenuItem
+      Caption = 'Update Cruise Info'
+      OnClick = btnUpdateCruiseInfoClick
     end
   end
   object PMEntry: TPopupMenu

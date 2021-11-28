@@ -158,6 +158,10 @@ type
     iFixedStation: TMenuItem;
     iUpdateStationParameters: TMenuItem;
     iLoad_GLODAP_v2_2021: TMenuItem;
+    MenuItem26: TMenuItem;
+    iImportFirebird: TMenuItem;
+    btnUpdateCruiseInfo: TMenuItem;
+    MenuItem28: TMenuItem;
     mStationIDList: TMemo;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
@@ -346,6 +350,7 @@ type
     procedure btnSaveEntryClick(Sender: TObject);
     procedure btnSelectIDClick(Sender: TObject);
     procedure btnSelectClick(Sender: TObject);
+    procedure btnUpdateCruiseInfoClick(Sender: TObject);
     procedure cbCountryDropDown(Sender: TObject);
     procedure cbCruiseDropDown(Sender: TObject);
     procedure cbEntryTypeSelect(Sender: TObject);
@@ -391,6 +396,7 @@ type
     procedure iExportDIVAndClick(Sender: TObject);
     procedure iDuplicatesClick(Sender: TObject);
     procedure iFixedStationClick(Sender: TObject);
+    procedure iImportFirebirdClick(Sender: TObject);
     procedure iInsertBottomDepthGEBCOClick(Sender: TObject);
     procedure iExportCIAClick(Sender: TObject);
     procedure iExportCOMFORTClick(Sender: TObject);
@@ -607,6 +613,9 @@ uses
 (* database service procedures *)
   ossupporttables,
   osservicestatistics,
+
+(* dat import *)
+  osimportdb,
 
 (* data export *)
   osexport_divand,
@@ -1358,7 +1367,10 @@ frmosmain.Enabled:=false;
 Application.ProcessMessages;
 try
 
+  //Saving current search settings
+  SaveSettingsSearch;
 
+  //closing transaction if it's still active
   if frmdm.TR.Active=true then frmdm.TR.Commit;
 
   GetSQLQueryText;
@@ -1515,6 +1527,42 @@ finally
   frmosmain.Enabled:=true;
   Application.ProcessMessages;
 end;
+end;
+
+
+
+procedure Tfrmosmain.btnUpdateCruiseInfoClick(Sender: TObject);
+Var
+  crID_old, cnt:Int64;
+begin
+
+  try
+    (* saving current ID *)
+    crID_old:=frmdm.QCruise.FieldByName('ID').AsInteger;
+
+    (* making sure that current cruise is selected *)
+    with frmdm.QCruise do begin
+     Edit;
+      FieldByName('SELECTED').AsBoolean:=true;
+     Post;
+    end;
+
+    frmdm.QCruise.DisableControls;
+    frmdm.QCruise.First;
+    cnt:=0;
+    while not frmdm.QCruise.EOF do begin
+     if frmdm.QCruise.FieldByName('SELECTED').AsBoolean=true then begin
+        inc(cnt);
+        UpdateCruiseInfo(frmdm.QCruise.FieldByName('ID').Value, true);
+     end;
+     frmdm.QCruise.Next;
+    end;
+    frmdm.TR.CommitRetaining;
+   finally
+    frmdm.QCruise.Locate('ID', crID_old, []);
+    frmdm.QCruise.EnableControls;
+    Showmessage('Please, redo the selection');
+   end;
 end;
 
 
@@ -2365,27 +2413,235 @@ end;
 
 
 procedure Tfrmosmain.iInsertBottomDepthGEBCOClick(Sender: TObject);
-Var
-  cmd:string;
+var
+  ID, k, cnt_null,cnt_updated, cnt:int64;
+  IniFileName: string;
+  Lat, Lon: real;
+
+  Ini:TIniFile;
+
+  GebcoFileName: string;
+  ncid, varidp, Pct:integer;
+  start: PArraySize_t;
+  sp:array of smallint;
+  lat0, lon0, step: real;
+  GEBCO:variant;
+
+  nc_open:Tnc_open;
+  nc_inq_varid:Tnc_inq_varid;
+  nc_get_var1_short:Tnc_get_var1_short;
+  nc_close:Tnc_close;
+
+  TRt:TSQLTransaction;
+  Qt, Qt1:TSQLQuery;
 begin
- //form to show log
- if frminfo_open=false then frmInfo := TfrmInfo.Create(Self) else frminfo.SetFocus;
- // parameters for executable
- cmd:=OceanToolsPath+'UpdateGEBCO.exe -d '+DBAlias;
- //running the executable with specified parameters
- frmosmain.RunScript(0, cmd, frmInfo.memo1);
+
+   lat0:=-(89+(59/60)+(525E-1/3600));  // first latitude
+   lon0:=-(179+(59/60)+(525E-1/3600)); // first longitude
+   step  := 1/240;  // 15"
+
+   Ini := TIniFile.Create(IniFileName);
+    try
+      GebcoFileName:=Ini.ReadString('main', 'GEBCOPath', '');
+    finally
+      Ini.Free;
+    end;
+
+   TRt:=TSQLTransaction.Create(self);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt:=TSQLQuery.Create(self);
+   Qt.Database:=frmdm.IBDB;
+   Qt.Transaction:=TRt;
+
+   Qt1:=TSQLQuery.Create(self);
+   Qt1.Database:=frmdm.IBDB;
+   Qt1.Transaction:=TRt;
+
+   try
+
+    with Qt do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' SELECT ID, LATITUDE, LONGITUDE ');
+      SQL.Add(' FROM STATION ');
+      SQL.Add(' WHERE BOTTOMDEPTH_GEBCO IS NULL ');
+      SQL.Add(' ORDER BY ID ');
+     Open;
+     Last;
+       cnt:=Qt.RecordCount;
+     First;
+    end;
+
+    if MessageDlg(inttostr(cnt)+' stations will be updated. Proceed?',
+      mtWarning, [mbYes, mbNo], 0)= mrNo then Exit;
+
+   // opening GEBCO_2021.nc
+   nc_open:=Tnc_open(GetProcedureAddress(netcdf, 'nc_open'));
+   nc_inq_varid:= Tnc_inq_varid(GetProcedureAddress(netcdf, 'nc_inq_varid'));
+   nc_get_var1_short:=Tnc_get_var1_short(GetProcedureAddress(netcdf, 'nc_get_var1_short'));
+   nc_close:=Tnc_close(GetProcedureAddress(netcdf, 'nc_close'));
+
+   nc_open(pansichar(GebcoFileName), 0, ncid);
+   nc_inq_varid (ncid, pChar('elevation'), varidp);
+   start:=GetMemory(SizeOf(TArraySize_t)*2);
+
+    k:=0;
+    While not Qt.Eof do begin
+     inc(k);
+      ID:=Qt.FieldByName('ID').Value;
+      Lat:=Qt.FieldByName('LATITUDE').Value;
+      Lon:=Qt.FieldByName('LONGITUDE').Value;
+
+     start^[0]:=abs(trunc((lat0-lat)/step)); // lat index
+     start^[1]:=abs(trunc((lon0-lon)/step)); // lon index
+
+     SetLength(sp, 1); // setting an empty array
+     nc_get_var1_short(ncid, varidp, start^, sp);  // sending request to the file
+
+     if not VarIsNull(sp[0]) then
+       GEBCO:=-sp[0] else begin
+         GEBCO:=null;
+         inc(cnt_null);
+       end;
+
+     if (GEBCO<>null) then begin
+       inc(cnt_updated);
+    //   writeln(dat, inttostr(id)+'   '+floattostr(lat)+'   '+floattostr(lon)+'   '+vartostr(gebco){+'   '+vartostr(dep)});
+
+       With Qt1 do begin
+        Close;
+         SQL.Clear;
+         SQL.Add(' Update STATION set ');
+         SQL.Add(' BOTTOMDEPTH_GEBCO=:GEB ');
+         SQL.Add(' where ID=:pAbsNum ');
+         Parambyname('pAbsnum').Value:=ID;
+         Parambyname('GEB').Value:=GEBCO;
+        ExecSQL;
+       end;
+    end;
+
+      {$IFDEF WINDOWS}
+       Procedures.ProgressTaskbar(k, cnt);
+      {$ENDIF}
+
+      if (k mod 1000=0) then TRt.CommitRetaining;
+
+     Qt.Next;
+    end;
+    finally
+     {$IFDEF WINDOWS}
+       Procedures.ProgressTaskbar(0, 0);
+     {$ENDIF}
+
+      sp:=nil;
+      FreeMemory(start);
+      nc_close(ncid);  // Close nc file
+
+     Trt.Commit;
+     Qt.Free;
+     Qt1.Free;
+     Trt.Free;
+    end;
 end;
 
 procedure Tfrmosmain.iInsertLastLevelClick(Sender: TObject);
-Var
-  cmd:string;
+var
+  ID: int64;
+  ci1, k, cnt:integer;
+  Max_LLM, Max_LLD:variant;
+
+  TRt:TSQLTransaction;
+  Qt, Qt1:TSQLQuery;
 begin
- //form to show log
- if frminfo_open=false then frmInfo := TfrmInfo.Create(Self) else frminfo.SetFocus;
- // parameters for executable
- cmd:=OceanToolsPath+'UpdateLastLevel.exe -d '+DBAlias;
- //running the executable with specified parameters
- frmosmain.RunScript(0, cmd, frmInfo.memo1);
+
+ TRt:=TSQLTransaction.Create(self);
+ TRt.DataBase:=frmdm.IBDB;
+
+ Qt:=TSQLQuery.Create(self);
+ Qt.Database:=frmdm.IBDB;
+ Qt.Transaction:=TRt;
+
+ Qt1:=TSQLQuery.Create(self);
+ Qt1.Database:=frmdm.IBDB;
+ Qt1.Transaction:=TRt;
+
+ try
+
+  with Qt do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' SELECT ID FROM STATION ');
+    SQL.Add(' WHERE ');
+    SQL.Add(' (LASTLEVEL_M IS NULL OR LASTLEVEL_DBAR IS NULL) AND ');
+    SQL.Add(' (EMPTY=FALSE) ');
+    SQL.Add(' ORDER BY ID ');
+   Open;
+   Last;
+     cnt:=Qt.RecordCount;
+   First;
+  end;
+
+  if MessageDlg(inttostr(cnt)+' stations will be updated. Proceed?',
+    mtWarning, [mbYes, mbNo], 0)= mrNo then Exit;
+
+  k:=0;
+  While not Qt.Eof do begin
+   inc(k);
+    ID:=Qt.FieldByName('ID').Value;
+
+    Max_LLM:=-9;
+    Max_LLD:=-9;
+    for ci1:=0 to frmosmain.ListBox1.Count-1 do begin
+      With Qt1 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' Select max(LEV_M) as LLM, max(LEV_DBAR) as LLD from ');
+        SQL.Add(frmosmain.ListBox1.Items.Strings[ci1]);
+        SQL.Add(' where ID=:pAbsNum ');
+        Parambyname('pAbsnum').asInteger:=ID;
+       Open;
+          if not VarIsNull(Qt1.Fields[0].AsVariant) then Max_LLM:=Max(Max_LLM,Qt1.Fields[0].AsFloat);
+          if not VarIsNull(Qt1.Fields[1].AsVariant) then Max_LLD:=Max(Max_LLD,Qt1.Fields[1].AsFloat);
+       Close;
+      end;
+    end;
+
+    if Max_LLM=-9 then Max_LLM:=Null;
+    if Max_LLD=-9 then Max_LLD:=Null;
+
+    With Qt1 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' Update STATION set ');
+        SQL.Add(' LASTLEVEL_M=:LLM, ');
+        SQL.Add(' LASTLEVEL_DBAR=:LLD ');
+        SQL.Add(' where ID=:pAbsNum ');
+        Parambyname('pAbsnum').Value:=ID;
+        Parambyname('LLM').Value:=Max_LLM;
+        Parambyname('LLD').Value:=Max_LLD;
+       ExecSQL;
+    end;
+
+    {$IFDEF WINDOWS}
+     Procedures.ProgressTaskbar(k, cnt);
+    {$ENDIF}
+
+    if (k mod 1000=0) then TRt.CommitRetaining;
+
+   Qt.Next;
+  end;
+  finally
+   {$IFDEF WINDOWS}
+     Procedures.ProgressTaskbar(0, 0);
+   {$ENDIF}
+
+   Trt.Commit;
+   Qt.Free;
+   Qt1.Free;
+   Trt.Free;
+  end;
+
 end;
 
 procedure Tfrmosmain.iUpdateStationParametersClick(Sender: TObject);
@@ -2686,6 +2942,13 @@ Qt_DB1.Transaction:=TRt_DB1;
 
    (* getting list of all instruments *)
    PopulateInstrumentList;
+
+   cbSource.Clear;
+   cbCountry.Clear;
+   cbPlatform.Clear;
+   cbCruise.Clear;
+   cbInstitute.Clear;
+   cbProject.Clear;
 
  Finally
   TRt_DB1.Commit;
@@ -3896,9 +4159,9 @@ begin
       LatMax:=0;
       LonMin:=0;
       LonMax:=0;
-      DateMin:=EncodeDate(1900, 01, 01);
-      DateMax:=EncodeDate(1900, 01, 01);
-      DateUpd:=EncodeDate(1900, 01, 01);
+      DateMin:=now;
+      DateMax:=now;
+      DateUpd:=now;
       cnt:=0;
     end;
    Close;
@@ -3915,9 +4178,10 @@ begin
     SQL.Add(' DATE_UPDATED=:DateUpd, ');
     SQL.Add(' DATE_START_DATABASE=:DateMin, ');
     SQL.Add(' DATE_END_DATABASE=:DateMax, ');
-    SQL.Add(' STATIONS_DATABASE=:cnt, ');
+    SQL.Add(' STATIONS_DATABASE=:cnt ');
 
     if TotalEqualDB=true then begin
+      SQL.Add(',');
       SQL.Add(' DATE_START_TOTAL=:DateMin, ');
       SQL.Add(' DATE_END_TOTAL=:DateMax, ');
       SQL.Add(' STATIONS_TOTAL=:cnt ');
@@ -3943,6 +4207,7 @@ begin
   Trt.Free;
  end;
 end;
+
 
 procedure Tfrmosmain.iExportCIAClick(Sender: TObject);
 begin
@@ -4255,6 +4520,18 @@ begin
    finally
      frmFixedStation.Free;
      frmFixedStation := nil;
+   end;
+end;
+
+
+procedure Tfrmosmain.iImportFirebirdClick(Sender: TObject);
+begin
+  frmimportdb := Tfrmimportdb.Create(Self);
+   try
+    if not frmimportdb.ShowModal = mrOk then exit;
+   finally
+     frmimportdb.Free;
+     frmimportdb:= nil;
    end;
 end;
 

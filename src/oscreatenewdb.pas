@@ -29,7 +29,7 @@ type
   private
     procedure PopulateSupportTables(dbname:string);
   public
-    function  GetDDL:boolean;
+    function  GetDDL(DBAlias:string):boolean;
     procedure ProcessDDL;
     procedure AddTblNew(tbl:string);
     procedure AddTblScript(tbl:string);
@@ -79,12 +79,14 @@ try
    DB.Transaction:=TR;
    TR.Database:=DB;
 
+   DBAlias:=cbDatabases.text;
+
    DBIni := TIniFile.Create(IniFileName+'_db');
    try
-     DBUser :=DBIni.ReadString(cbDatabases.text, 'user',     'SYSDBA');
-     DBPass :=DBIni.ReadString(cbDatabases.text, 'pass',     'masterkey');
-     DBHost :=DBIni.ReadString(cbDatabases.text, 'host',     'localhost');
-     DBPath :=DBIni.ReadString(cbDatabases.text, 'dbpath',   '');
+     DBUser :=DBIni.ReadString(DBAlias, 'user',     'SYSDBA');
+     DBPass :=DBIni.ReadString(DBAlias, 'pass',     'masterkey');
+     DBHost :=DBIni.ReadString(DBAlias, 'host',     'localhost');
+     DBPath :=DBIni.ReadString(DBAlias, 'dbpath',   '');
    finally
      DBIni.Free;
    end;
@@ -145,7 +147,7 @@ end;
 
 
 (* Creating NEW EMPTY database EXACTLY like OCEAN.FDB *)
-function Tfrmcreatenewdb.GetDDL:boolean;
+function Tfrmcreatenewdb.GetDDL(DBAlias:string):boolean;
 var
   DBIni: TIniFile;
   lReg : TRegistry;
@@ -167,10 +169,10 @@ begin
   (* Path to Ocean.FDB *)
     DBIni := TIniFile.Create(IniFileName+'_db');
     try
-      DBUser :=DBIni.ReadString(cbDatabases.text, 'user',     'SYSDBA');
-      DBPass :=DBIni.ReadString(cbDatabases.text, 'pass',     'masterkey');
-      DBHost :=DBIni.ReadString(cbDatabases.text, 'host',     'localhost');
-      DBPath :=DBIni.ReadString(cbDatabases.text, 'dbpath',   '');
+      DBUser :=DBIni.ReadString(DBAlias, 'user',     'SYSDBA');
+      DBPass :=DBIni.ReadString(DBAlias, 'pass',     'masterkey');
+      DBHost :=DBIni.ReadString(DBAlias, 'host',     'localhost');
+      DBPath :=DBIni.ReadString(DBAlias, 'dbpath',   '');
     finally
       DBIni.Free;
     end;
@@ -324,7 +326,7 @@ SC:TSQLScript;
 begin
 
 (* extracting structure from OCEAN.FDB *)
- if not(GetDDL) then
+ if not GetDDL(cbDatabases.Text) then
   if MessageDlg('Unable to extract DDL', mtWarning, [mbOk], 0)=mrOk then exit;
 
  ProcessDDL;

@@ -48,7 +48,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="65">
+    <Units Count="66">
       <Unit0>
         <Filename Value="OceanShell.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -455,6 +455,13 @@
         <Filename Value="osunitsconversion.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit64>
+      <Unit65>
+        <Filename Value="osimportdb.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmimportdb"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit65>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -5,8 +5,8 @@ unit osstatistics;
 interface
 
 uses
-  LCLIntf, LCLType, LMessages, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  StdCtrls, CheckLst, ExtCtrls,ComCtrls, Spin, IniFiles, Dialogs, DateUtils, ToolWin,
+  LCLIntf, LCLType,SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  StdCtrls, ExtCtrls,ComCtrls, IniFiles, Dialogs, DateUtils,
   Menus, FileUtil, TAGraph, TASeries, TAMultiSeries, sqldb;
 
 type
@@ -16,40 +16,21 @@ type
   Tfrmosstatistics = class(TForm)
     btnGetStatistics: TButton;
     clbStatList: TCheckGroup;
+    cbSource: TComboBox;
+    GroupBox1: TGroupBox;
     Memo1: TMemo;
-    Memo2: TMemo;
     Memo4: TMemo;
-    PageControl1: TPageControl;
-    Splitter1: TSplitter;
-    tabBarHorisontal: TTabSheet;
-    tabBarPoints: TTabSheet;
-    tabBarVertical: TTabSheet;
-    TabControl1: TTabControl;
-    TabControl2: TTabControl;
-    TabControl3: TTabControl;
-    tabLog: TTabSheet;
-    tabSelection: TTabSheet;
+    rbSource: TRadioButton;
     ToolBar1: TToolBar;
     btnCopyToClip: TToolButton;
     btnSaveMap: TToolButton;
     ToolButton2: TToolButton;
-    PopupMenu1: TPopupMenu;
-    Preferences1: TMenuItem;
-    Standardchartsettings1: TMenuItem;
+
 
     procedure clbStatListItemClick(Sender: TObject; Index: integer);
     procedure FormShow(Sender: TObject);
     procedure btnGetStatisticsClick(Sender: TObject);
-    procedure TabControl1Change(Sender: TObject);
-    procedure TabControl2Change(Sender: TObject);
-    procedure TabControl3Change(Sender: TObject);
-//    procedure clbStatListClick(Sender: TObject);
-//    procedure Label3Click(Sender: TObject);
-    procedure btnSaveMapClick(Sender: TObject);
-    procedure btnCopyToClipClick(Sender: TObject);
-    procedure Standardchartsettings1Click(Sender: TObject);
-  //  procedure lbAllSourcesClick(Sender: TObject);
-//    procedure Label4Click(Sender: TObject); // перестраиваем карты
+
 
   private
     procedure YearStatistics;
@@ -63,8 +44,6 @@ type
     procedure HorizontalBar;
     procedure YearBySources;
     procedure YearByCountries;
-    procedure AllStationsMap;
-    procedure AllStationsMapByYear;
     procedure MonthYearStatistics;
 
   public
@@ -91,9 +70,8 @@ begin
  PathStatistics:=GlobalUnloadPath+'statistics'+PathDelim;
   if not DirectoryExists(PathStatistics) then CreateDir(PathStatistics);
 
-   tabBarVertical.TabVisible:=false;
-   tabBarHorisontal.TabVisible:=false;
-   tabBarPoints.TabVisible:=false;
+  frmosmain.cbSource.OnDropDown(self);
+  cbSource.Items:=frmosmain.cbSource.Items;
 
  for k:=3 to clbStatList.Items.Count-1 do
   clbStatList.CheckEnabled[k]:=false;
@@ -118,8 +96,6 @@ Ini:TIniFile;
 CommonTime:TDateTime;
 begin
 btnGetStatistics.Enabled:=false;
-PageControl1.ActivePageIndex:=1;
-Application.ProcessMessages;
 
  try
   Ini := TIniFile.Create(IniFileName);
@@ -130,13 +106,6 @@ Application.ProcessMessages;
 
 //   showmessage(PathStatistics);
    memo1.Clear;
-   TabControl1.Tabs.Clear;
-   TabControl2.Tabs.Clear;
-   TabControl3.Tabs.Clear;
-
-   tabBarVertical.TabVisible:=false;
-   tabBarHorisontal.TabVisible:=false;
-   tabBarPoints.TabVisible:=false;
 
  {  frmmain.ProgressBar1.Position:=0;
    frmmain.ProgressBar1.Max:=Count;
@@ -156,9 +125,7 @@ Application.ProcessMessages;
     if clbStatList.Checked[8]  then YearBySources;
     if clbStatList.Checked[9]  then YearByCountries;
     if clbStatList.Checked[10] then InstrumentBar;
-    if clbStatList.Checked[11] then AllStationsMap;
-    if clbStatList.Checked[12] then AllStationsMapByYear;
-    if clbStatList.Checked[13] then MonthYearStatistics;
+    if clbStatList.Checked[11] then MonthYearStatistics;
    finally
     frmdm.TR.Commit;
     btnGetStatistics.Enabled:=true;
@@ -204,9 +171,6 @@ memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
 memo1.Lines.Add('===');
 memo1.Lines.Add('');
 
-TabControl1.Tabs.Add('Year');
-TabControl1.OnChange(Self);
-tabBarVertical.TabVisible:=true;
 Application.ProcessMessages;
 end;
 
@@ -243,9 +207,6 @@ memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
 memo1.Lines.Add('===');
 memo1.Lines.Add('');
 
-TabControl1.Tabs.Add('Month');
-tabBarVertical.TabVisible:=true;
-TabControl1.OnChange(Self);
 Application.ProcessMessages;
 end;
 
@@ -261,7 +222,7 @@ TRt:TSQLTransaction;
 Qt:TSQLQuery;
 
 TblDesc, TblName: string;
-
+ID_MIN, ID_MAX:Int64;
 begin
 StartTime:=Now;
 Assignfile(dat,PathStatistics+'Parameter.dat'); rewrite(dat);
@@ -281,46 +242,41 @@ Qt.Transaction:=TRt;
   for k:=0 to frmosmain.ListBox1.Items.Count-1 do begin
     tblPar:=frmosmain.ListBox1.Items.Strings[k];
 
-    with Qt do begin
+     with Qt do begin
        Close;
         SQL.Clear;
-        SQL.Add(' select VARIABLENAME, DESCRIPTION from DATABASE_TABLES ');
-        SQL.Add(tblPar);
-        SQL.Add(' where TABLENAME='+QuotedStr(tblPar));
+        SQL.Add(' SELECT STATION_ID_MIN, STATION_ID_MAX FROM SOURCE ');
+        SQL.Add(' WHERE NAME='+QuotedStr(cbSource.Text));
        Open;
-         TblDesc:=Qt.FieldByName('DESCRIPTION').AsWideString;
-         TblName:=Qt.FieldByName('VARIABLENAME').AsWideString;
+         ID_MIN:= Qt.FieldByName('STATION_ID_MIN').Value;
+         ID_MAX:= Qt.FieldByName('STATION_ID_MAX').Value;
        Close;
       end;
-
 
     cnt:=0;
-    frmdm.Q.First;
-    while not frmdm.Q.Eof do begin
-      with Qt do begin
+     with Qt do begin
        Close;
         SQL.Clear;
-        SQL.Add(' select ID from ');
+        SQL.Add(' SELECT COUNT(DISTINCT(ID)) FROM ');
         SQL.Add(tblPar);
-        SQL.Add(' where ID=:ID ');
-        ParamByName('ID').AsInteger:=frmdm.Q.FieldByName('ID').AsInteger;
+        SQL.Add(' where ID BETWEEN :ID_MIN AND :ID_MAX ');
+        ParamByName('ID_MIN').Value:=ID_MIN;
+        ParamByName('ID_MAX').Value:=ID_MAX;
        Open;
-         if Qt.IsEmpty=false then inc(cnt);
+         if not Qt.IsEmpty then cnt:=Qt.Fields[0].Value;
        Close;
       end;
-     frmdm.Q.Next;
-   end;
-    if cnt>0 then writeln(dat, inttostr(cnt), #9, TblDesc+' ['+tblPar+']');
+
+     if cnt>0 then begin
+       Memo1.LInes.add(tblPar+#9+inttostr(cnt));
+       writeln(dat, tblPar, #9, inttostr(cnt));
+     end;
   end;
 CloseFile(dat);
 
 memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
 memo1.Lines.Add('===');
 memo1.Lines.Add('');
-
-TabControl1.Tabs.Add('Parameter');
-tabBarVertical.TabVisible:=true;
-TabControl1.OnChange(Self);
 Application.ProcessMessages;
 end;
 
@@ -431,9 +387,7 @@ memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
 memo1.Lines.Add('===');
 memo1.Lines.Add('');
 
-TabControl1.Tabs.Add('MonthYear');
-TabControl1.OnChange(Self);
-tabBarVertical.TabVisible:=true;
+
 Application.ProcessMessages;
 end;
 
@@ -506,9 +460,7 @@ memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
 memo1.Lines.Add('===');
 memo1.Lines.Add('');
 
-TabControl1.Tabs.Add('Vessel');
-tabBarVertical.TabVisible:=true;
-TabControl1.OnChange(Self);
+
 Application.ProcessMessages;
 end;
 
@@ -602,9 +554,7 @@ memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
 memo1.Lines.Add('===');
 memo1.Lines.Add('');
 
-TabControl1.Tabs.Add('Instrument');
-tabBarVertical.TabVisible:=true;
-TabControl1.OnChange(Self);
+
 Application.ProcessMessages;
 end;
 
@@ -677,9 +627,7 @@ memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
 memo1.Lines.Add('===');
 memo1.Lines.Add('');
 
-TabControl1.Tabs.Add('Country');
-TabControl1.OnChange(Self);
-tabBarVertical.TabVisible:=true;
+
 Application.ProcessMessages;
 end;
 
@@ -753,18 +701,11 @@ memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
 memo1.Lines.Add('===');
 memo1.Lines.Add('');
 
-TabControl1.Tabs.Add('Source');
-TabControl1.OnChange(Self);
-tabBarVertical.TabVisible:=true;
+
 Application.ProcessMessages;
 end;
 
 
-procedure Tfrmosstatistics.Standardchartsettings1Click(Sender: TObject);
-begin
- //CE.Execute;
-// UpdateStationMap;
-end;
 
 procedure Tfrmosstatistics.HorizontalBar;
 var
@@ -860,8 +801,7 @@ memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
 memo1.Lines.Add('===');
 memo1.Lines.Add('');
 
-tabBarHorisontal.TabVisible:=true;
-TabControl3.OnChange(Self);
+
 Application.ProcessMessages;
 end;
 
@@ -914,8 +854,7 @@ memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
 memo1.Lines.Add('===');
 memo1.Lines.Add('');
 
-tabBarPoints.TabVisible:=true;
-TabControl2.OnChange(Self);
+
 Application.ProcessMessages;
 end;
 
@@ -1133,262 +1072,6 @@ memo1.Lines.Add('');
 Application.ProcessMessages;
 end;
 
-
-
-(*Stations on map *)
-procedure Tfrmosstatistics.AllStationsMap;
-Var
-k:integer;
-lon, lat:real;
-StartTime:TDateTime;
-instr, source1:string;
-begin
-StartTime:=Now;
-
-AssignFile(f_dat,PathStatistics+'\StationsMap.dat'); rewrite(f_dat);
-writeln(f_dat, 'Latitude':15, 'Longitude':15 );
- memo1.Lines.Add('STATIONS MAP:');
-
- {  With odbdm.ib1q2 do begin
-    Close;
-      SQL.clear;
-      SQL.Add(' Select StLat, StLon from Station, Station_info where ');
-      SQL.Add(' Station.absnum=Station_info.absnum and ' );
-      SQL.Add(' StLat between :LatMin and  :LatMax and ' );
-      SQL.Add(' StLon between :LonMin and  :LonMax and ' );
-      SQL.Add(' Extract(Day from StDate) between :DayMin and :DayMax and ' );
-      SQL.Add(' Extract(Month from StDate) between :MonthMin and :MonthMax and ' );
-      SQL.Add(' Extract(Year from StDate) between :YearMin and :YearMax ' );
-      if rgQC.ItemIndex=1 then SQL.Add(' and StFlag<16384 ');
-
-       instr:='';
-       for k:=0 to chkInstrument.Items.Count-1 do
-        if chkInstrument.Checked[k]=true then if instr='' then instr:=inttostr(k) else instr:=instr+','+inttostr(k);
-      SQL.Add(' and INSTRUMENT in ('+instr+')');
-
-      source1:='';
-       for k:=0 to clbsources.Items.Count-1 do
-        if clbsources.Checked[k]=true then if source1='' then source1:=QuotedStr(clbsources.Items.strings[k]) else
-        source1:=source1+','+QuotedStr(clbsources.Items.strings[k]);
-      SQL.Add(' and StSource in ('+source1+')');
-
-      SQL.Add(' Order by StLat, StLon ');
-
-      ParamByName('LatMin').AsFloat:=strtofloat(Edit1.Text);
-      ParamByName('LatMax').AsFloat:=strtofloat(Edit2.Text);
-      ParamByName('LonMin').AsFloat:=strtofloat(Edit3.Text);
-      ParamByName('LonMax').AsFloat:=strtofloat(Edit4.Text);
-      ParamByName('DayMin'  ).AsInteger:=SpinEdit1.Value;
-      ParamByName('DayMax'  ).AsInteger:=SpinEdit2.Value;
-      ParamByName('MonthMin').AsInteger:=SpinEdit3.Value;
-      ParamByName('MonthMax').AsInteger:=SpinEdit4.Value;
-      ParamByName('YearMin' ).AsInteger:=SpinEdit5.Value;
-      ParamByName('YearMax' ).AsInteger:=SpinEdit6.Value;
-    Open;
-   end;
-
-  While not odbdm.ib1q2.Eof do begin
-   lon:=odbdm.ib1q2.FieldByName('StLon').AsFloat;
-   lat:=odbdm.ib1q2.FieldByName('StLat').AsFloat;
-     writeln(f_dat, lat:15:5, lon:15:5);
-   odbdm.ib1q2.Next;
-  end;
- odbdm.ib1q2.Close;
- CloseFile(f_dat); }
-
-//frmmain.ProgressBar1.Position:=frmmain.ProgressBar1.Position+1;
-memo1.Lines.Add(PathStatistics+'\StationsMap.dat');
-memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
-memo1.Lines.Add('===');
-memo1.Lines.Add('');
-
-//tabMap.TabVisible:=true;
-Application.ProcessMessages;
-
-//UpdateStationMap; // Набрасываем данные на карту
-end;
-
-
-(*Stations on map by year*)
-procedure Tfrmosstatistics.AllStationsMapByYear;
-Var
-Ini:TIniFile;
-k, yy, fl, Projection:integer;
-lon, lat:real;
-StartTime, DateB, DateE:TDateTime;
-instr, source1:string;
-begin
-StartTime:=Now;
-
-Ini := TIniFile.Create(IniFileName);
- try
-  Projection:= Ini.ReadInteger ( 'Map',  'Projection', 0);
- finally
-   Ini.Free;
- end;
-//ChartSettings;
-{
-WindowState:=wsMaximized;
-Application.ProcessMessages;
-
-memo1.Lines.Add('STATIONS MAP BY YEAR:');
- For yy:=SpinEdit5.Value to SpinEdit6.Value do begin
-  AssignFile(f_dat,PathStatistics+'\StationsMap_'+inttostr(yy)+'.dat'); rewrite(f_dat);
-  writeln(f_dat, 'Lat', #9, 'Lon' );
-   DateB:=EncodeDate(yy, SpinEdit3.Value, SpinEdit1.Value);
-   DateE:=EncodeDate(yy, SpinEdit4.Value, SpinEdit2.Value);
-
-   With odbdm.ib1q2 do begin
-    Close;
-      SQL.clear;
-      SQL.Add(' Select StLat, StLon, StFlag from Station, Station_info where ');
-      SQL.Add(' Station.absnum=Station_info.absnum and ' );
-      SQL.Add(' StLat between :LatMin and  :LatMax and ' );
-      SQL.Add(' StLon between :LonMin and  :LonMax and ' );
-      SQL.Add(' StDate between :DMin and :DMax ' );
-
-      instr:='';
-      for k:=0 to chkInstrument.Items.Count-1 do
-       if chkInstrument.Checked[k]=true then if instr='' then instr:=inttostr(k) else instr:=instr+','+inttostr(k);
-      SQL.Add(' and INSTRUMENT in ('+instr+')');
-
-      source1:='';
-       for k:=0 to clbsources.Items.Count-1 do
-        if clbsources.Checked[k]=true then if source1='' then source1:=QuotedStr(clbsources.Items.strings[k]) else
-        source1:=source1+','+QuotedStr(clbsources.Items.strings[k]);
-      SQL.Add(' and StSource in ('+source1+')');
-
-      SQL.Add(' Order by StLat, StLon ');
-
-      ParamByName('LatMin').AsFloat:=strtofloat(Edit1.Text);
-      ParamByName('LatMax').AsFloat:=strtofloat(Edit2.Text);
-      ParamByName('LonMin').AsFloat:=strtofloat(Edit3.Text);
-      ParamByName('LonMax').AsFloat:=strtofloat(Edit4.Text);
-      ParamByName('DMin'  ).AsDateTime:=DateB;
-      ParamByName('DMax'  ).AsDateTime:=DateE;
-    Open;
-   end;
-
-   if not odbdm.ib1q2.IsEmpty then begin
-   //  PointSeries1.Clear;
-  //   PointSeries4.Clear;
-     k:=0;
-      While not odbdm.ib1q2.Eof do begin
-        inc(k);
-         lon:=odbdm.ib1q2.FieldByName('StLon').AsFloat;
-         lat:=odbdm.ib1q2.FieldByName('StLat').AsFloat;
-         fl :=odbdm.ib1q2.FieldByName('StFlag').AsInteger;
-
-          if Projection=1 then begin
-           Lon:=2*6388.015*sin(Pi/4-lat/2*Pi/180)*Sin(Pi/180*lon)/10;
-           Lat:=-2*6388.015*sin(Pi/4-lat/2*Pi/180)*Cos(Pi/180*lon)/10;
-          end;
-
-      //  if fl>=16384 then PointSeries4.AddXY(Lon, Lat) else PointSeries1.AddXY(Lon, Lat);
-        writeln(f_dat, FloattostrF(lon,ffGeneral,10,5), #9, FloattostrF(lon,ffGeneral,10,5));
-
-       odbdm.ib1q2.Next;
-     end;
-     odbdm.ib1q2.Close;
-     CloseFile(f_dat);
-
-   //  DBChart1.Title.Caption:=IntToStr(yy)+', '+Inttostr(k)+' stations';
-  //   DBChart1.SaveToBitmapFile(PathStatistics+'\StationsMap_'+inttostr(yy)+'.bmp');
-     memo1.Lines.Add(PathStatistics+'\StationsMap_'+inttostr(yy)+'.bmp');
-       if not tabMap.TabVisible then begin
-        tabMap.TabVisible:=true;
-        PageControl1.ActivePageIndex:=4;
-       end; // else DBChart1.Repaint;
-   end;
- end;
-
-memo1.Lines.Add('Spent: '+TimeToStr(Now-StartTime));
-memo1.Lines.Add('===');
-memo1.Lines.Add('');
-WindowState:=wsNormal;
-Application.ProcessMessages;    }
-end;
-
-
-procedure Tfrmosstatistics.btnSaveMapClick(Sender: TObject);
-begin
-//frmmain.SD.DefaultExt:='bmp';
-//if frmmain.SD.Execute then
- //  DBChart1.SaveToBitmapFile(frmmain.SaveDialog1.FileName);
-end;
-
-procedure Tfrmosstatistics.btnCopyToClipClick(Sender: TObject);
-begin
- //DBChart1.CopyToClipboardBitmap;
-end;
-(*End of Stations on map *)
-
-
-procedure Tfrmosstatistics.TabControl1Change(Sender: TObject);
-var
-x,y:integer;
-z,st, FilePath:string;
-begin
-memo2.Clear;
-memo2.Visible:=false;
-Splitter1.Align:=alNone;
-
-FilePath:=PathStatistics+'\'+TabControl1.Tabs[TabControl1.TabIndex]+'.dat';
-AssignFile(f_dat,FilePath); reset(f_dat);
-readln(f_dat, st);
-
-  {Chart1.Series[0].Clear;
-   while not EOF(f_dat) do begin
-     readln(f_dat, x, y, z);
-       if z<>' ' then begin
-          memo2.Lines.Add(inttostr(x)+' '+z);
-          memo2.Visible:=true;
-          Splitter1.Align:=alRight;
-       end;
-    Chart1.Series[0].AddXY(x, y);
-   end;  }
-CloseFile(f_dat);
-end;
-
-
-procedure Tfrmosstatistics.TabControl3Change(Sender: TObject);
-var
-ParName, FilePath:string;
-X,Y:real;
-begin
-ParName:=TabControl3.Tabs.Strings[TabControl3.TabIndex];
-FilePath:=concat(PathStatistics,'\Layer_',ParName,'.dat');
-AssignFile(f_dat,FilePath); Reset(f_dat);
-
- {Series3.Clear;
-  while not EOF(f_dat) do begin
-    readln(f_dat,X,Y);
-   Series3.AddXY(Y,X,'',clRed);
-  end;  }
-CloseFile(f_dat);
-end;
-
-
-procedure Tfrmosstatistics.TabControl2Change(Sender: TObject);
-var
-daycount:integer;
-datecurrent:real;
-st, FilePath:string;
-begin
-//Series2.Clear;
- FilePath:=concat(PathStatistics,'\TimeDayDiagram.dat');
- AssignFile(f_dat,FilePath); reset(f_dat);
- readln(f_dat, st);
-   while not EOF(f_dat) do begin
-     readln(f_dat, datecurrent, daycount);
-  //  Series2.AddBubble(DateCurrent,DayCount,2,'',clRed);
-   end;
-CloseFile(f_dat);
-end;
-
-
-
-// if odbdm.ib1q1.Active=true then odbdm.ib1q1.Close;
 
 end.
 

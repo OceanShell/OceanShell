@@ -275,6 +275,8 @@ ss:=0;
   Qt2.Close;
   Qt1.Close;
 
+  if CDS.FieldCount>0 then begin
+
   CDS.CreateDataSet;
   CDS.IndexFieldNames:=CDS.FieldbyName('Lev_dbar').FieldName;
   CDS.Open;
@@ -456,16 +458,18 @@ ss:=0;
     end;
   end;
 
- finally
-  TRt.Commit;
   CDS.First;
   CDS.EnableControls;
+  end; //CDS.FieldCount>0
+
+ finally
+  TRt.Commit;
   Qt.Free;
   Trt.Free;
   pCharts.Visible:=true;
  end;
 
-  CheckChartSize;
+ CheckChartSize;
 end;
 
 

@@ -46,7 +46,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, StdCtrls,
-  Buttons, ExtCtrls, comobj, variants, DateUtils;
+  Buttons, ExtCtrls, comobj, variants, DateUtils, dynlibs;
 
 
 
