@@ -1,60 +1,25 @@
 object frmqc_duplicates: Tfrmqc_duplicates
   Left = 664
-  Height = 486
+  Height = 458
   Top = 225
-  Width = 469
+  Width = 457
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Duplicated stations'
-  ClientHeight = 486
-  ClientWidth = 469
+  ClientHeight = 458
+  ClientWidth = 457
   DesignTimePPI = 144
-  OnShow = FormShow
   Position = poOwnerFormCenter
   LCLVersion = '2.0.6.0'
-  object GroupBox1: TGroupBox
-    Left = 24
-    Height = 96
-    Top = 16
-    Width = 422
-    Caption = 'Find duplicated stations in'
-    ClientHeight = 66
-    ClientWidth = 418
-    TabOrder = 0
-    object cbSource: TComboBox
-      Left = 24
-      Height = 28
-      Top = 16
-      Width = 368
-      Font.Color = clWindowText
-      Font.Height = -17
-      Font.Name = 'MS Sans Serif'
-      ItemHeight = 20
-      OnChange = cbSourceChange
-      ParentFont = False
-      Style = csDropDownList
-      TabOrder = 0
-    end
-  end
-  object btnFindDuplicates: TButton
-    Left = 24
-    Height = 38
-    Top = 272
-    Width = 422
-    Caption = 'Find duplicates in STATION'
-    Enabled = False
-    OnClick = btnFindDuplicatesClick
-    TabOrder = 1
-  end
   object GroupBox2: TGroupBox
     Left = 24
-    Height = 126
-    Top = 128
-    Width = 422
+    Height = 240
+    Top = 16
+    Width = 406
     Caption = 'Thresholds'
-    ClientHeight = 96
-    ClientWidth = 418
-    TabOrder = 2
+    ClientHeight = 210
+    ClientWidth = 402
+    TabOrder = 0
     object Label1: TLabel
       Left = 24
       Height = 25
@@ -113,53 +78,60 @@ object frmqc_duplicates: Tfrmqc_duplicates
       TabOrder = 1
       Value = 1
     end
-  end
-  object btnUpdateCruise: TButton
-    Left = 24
-    Height = 38
-    Top = 320
-    Width = 422
-    Caption = 'Update # of duplicates in CRUISE'
-    Enabled = False
-    OnClick = btnUpdateCruiseClick
-    TabOrder = 3
+    object btnFindDuplicates: TButton
+      Left = 24
+      Height = 38
+      Top = 104
+      Width = 351
+      Caption = 'Find duplicates'
+      OnClick = btnFindDuplicatesClick
+      TabOrder = 2
+    end
+    object btnUpdateCruise: TButton
+      Left = 24
+      Height = 38
+      Top = 152
+      Width = 351
+      Caption = 'Update # of duplicates in CRUISE'
+      OnClick = btnUpdateCruiseClick
+      TabOrder = 3
+    end
   end
   object GroupBox3: TGroupBox
     Left = 24
-    Height = 96
-    Top = 368
-    Width = 422
+    Height = 152
+    Top = 280
+    Width = 406
     Caption = 'Mark cruise as duplicate'
-    ClientHeight = 66
-    ClientWidth = 418
-    TabOrder = 4
+    ClientHeight = 122
+    ClientWidth = 402
+    TabOrder = 1
     object Label5: TLabel
-      Left = 8
+      Left = 24
       Height = 25
       Top = 16
-      Width = 169
-      Caption = 'Duplicates/Stations ='
+      Width = 209
+      Caption = '% of duplicated stations ='
       ParentColor = False
     end
-    object seRatio: TFloatSpinEdit
-      Left = 200
-      Height = 33
-      Top = 8
-      Width = 64
-      DecimalPlaces = 1
-      MaxValue = 1
-      MinValue = 0
+    object btnMarkCruiseDuplicate: TButton
+      Left = 24
+      Height = 38
+      Top = 64
+      Width = 351
+      Caption = 'Mark cruises as duplicates'
+      OnClick = btnMarkCruiseDuplicateClick
       TabOrder = 0
-      Value = 1
     end
-    object Button1: TButton
-      Left = 296
+    object seRatio: TSpinEdit
+      Left = 252
       Height = 33
       Top = 8
-      Width = 94
-      Caption = 'Update'
-      OnClick = Button1Click
+      Width = 123
+      Alignment = taCenter
+      ParentFont = False
       TabOrder = 1
+      Value = 50
     end
   end
 end

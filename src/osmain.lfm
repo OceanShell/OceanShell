@@ -4,8 +4,8 @@ object frmosmain: Tfrmosmain
   Top = 37
   Width = 1381
   Caption = 'OceanShell'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 853
+  ClientWidth = 1381
   Color = clBtnFace
   Constraints.MinHeight = 700
   Constraints.MinWidth = 1380
@@ -2900,7 +2900,7 @@ object frmosmain: Tfrmosmain
         OnClick = iStandarddeviationslayersClick
       end
       object iDuplicates: TMenuItem
-        Caption = 'Station duplicates'
+        Caption = 'Duplicates'
         OnClick = iDuplicatesClick
       end
       object MenuItem24: TMenuItem
