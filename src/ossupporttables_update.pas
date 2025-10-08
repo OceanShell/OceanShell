@@ -34,6 +34,7 @@ type
     Button5: TButton;
     Button6: TButton;
     Button7: TButton;
+    btnNODC_WOD: TButton;
     chkShowLog: TCheckBox;
     GroupBox1: TGroupBox;
     GroupBox3: TGroupBox;
@@ -50,6 +51,7 @@ type
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
+    Label9: TLabel;
     mLog: TMemo;
     PageControl1: TPageControl;
     rgDupCountry: TRadioGroup;
@@ -76,8 +78,11 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
+    procedure btnNODC_WODClick(Sender: TObject);
     procedure Label12Click(Sender: TObject);
     procedure Label1Click(Sender: TObject);
+    procedure Label2Click(Sender: TObject);
+    procedure Label3Click(Sender: TObject);
     procedure Label7Click(Sender: TObject);
     procedure Label8Click(Sender: TObject);
   private
@@ -106,7 +111,7 @@ end;
 (* WOD PLATFORM codes *)
 procedure Tfrmsupporttables_update.Label8Click(Sender: TObject);
 begin
-  OpenURL('https://www.ncei.noaa.gov/access/world-ocean-database/CODES/s_3_platform.html');
+  OpenURL('https://www.ncei.noaa.gov/data/oceans/woa/WOD/CODES/CSV/s_3_platform.csv');
 end;
 
 (* Free ISO COUNTRY codes *)
@@ -118,7 +123,17 @@ end;
 (* WOD COUNTRY codes *)
 procedure Tfrmsupporttables_update.Label1Click(Sender: TObject);
 begin
-   OpenURL('https://www.nodc.noaa.gov/OC5/WOD/wod_codes.html');
+   OpenURL('https://www.ncei.noaa.gov/data/oceans/woa/WOD/CODES/CSV/country_list.csv');
+end;
+
+procedure Tfrmsupporttables_update.Label2Click(Sender: TObject);
+begin
+  OpenURL('https://www.ncei.noaa.gov/data/oceans/woa/WOD/CODES/CSV/s_4_institute.csv');
+end;
+
+procedure Tfrmsupporttables_update.Label3Click(Sender: TObject);
+begin
+  OpenURL('https://www.ncei.noaa.gov/data/oceans/woa/WOD/CODES/CSV/s_2_project.csv');
 end;
 
 
@@ -127,7 +142,7 @@ Var
 k, absnum, Country_ID, cnt_ins, fl:integer;
 XL: oleVariant;
 XLTemplate:Variant;
-RString, src, shipname:String;
+RString, src, shipname, shiptitle:String;
 TRt:TSQLTransaction;
 Qt1, Qt2, Qt3:TSQLQuery;
 dat, dat2: text;
@@ -185,10 +200,10 @@ if frmosmain.OD.Execute then begin
   repeat
    inc(k);
 
+   //NODC code must have 4 symbols
+   if length(VarToStr(Xl.Cells[k,  1].Value))<>4 then Continue;
+
        RString:='';
-       if VarToStr(Xl.Cells[k,  3].Value)<>'' then RString:=RString+'Title: '              +VarToStr(Xl.Cells[k,  3].Value)+#13 ;
-      // if VarToStr(Xl.Cells[k,  5].Value)<>'' then RString:=RString+'Country: '            +VarToStr(Xl.Cells[k,  5].Value)+#13;
-       //empty
        if VarToStr(Xl.Cells[k,  7].Value)<>'' then RString:=RString+'Platform class: '     +VarToStr(Xl.Cells[k,  7].Value)+#13;
        if VarToStr(Xl.Cells[k,  9].Value)<>'' then RString:=RString+'Commissioned: '       +VarToStr(Xl.Cells[k,  9].Value)+#13;
        if VarToStr(Xl.Cells[k, 10].Value)<>'' then RString:=RString+'Decomissioned: '      +VarToStr(Xl.Cells[k, 10].Value)+#13;
@@ -203,12 +218,13 @@ if frmosmain.OD.Execute then begin
 
    inc(NODC_CODE_cnt);
    NODC_CODE_arr[NODC_CODE_cnt]:=VarToStr(Xl.Cells[k,  1].Value);
+   //mlog.Lines.add(NODC_CODE_arr[NODC_CODE_cnt]);
 
 
    with Qt1 do begin
     Close;
      SQL.Clear;
-     SQL.Add(' select ID, NAME from PLATFORM ');
+     SQL.Add(' select ID, NAME, TITLE from PLATFORM ');
      SQL.Add(' where NODC_CODE=:code_nodc and ID<10000000 ');
      ParamByName('code_nodc').AsWideString:=VarToStr(Xl.Cells[k,  1].Value);
     Open;
@@ -253,21 +269,26 @@ if frmosmain.OD.Execute then begin
       end;
      end;
 
+     if Country_ID=0 then begin
+      mLog.Lines.Add('Missing country '+Copy(UpperCase(VarToStr(Xl.Cells[k, 1].Value)), 1, 2));
+      Continue;
+     end;
 
     try
      with Qt2 do begin
       Close;
        SQL.Clear;
        SQL.Add(' INSERT INTO PLATFORM ' );
-       SQL.Add(' (ID, NODC_CODE, NAME, IMO_ID, COUNTRY_ID, CALLSIGN, NOTES_ICES) ');
+       SQL.Add(' (ID, NODC_CODE, TITLE, NAME, IMO_ID, COUNTRY_ID, CALLSIGN, NOTES_ICES) ');
        SQL.Add(' VALUES ' );
-       SQL.Add(' (:ID, :NODC_CODE, :NAME, :IMO_ID, :COUNTRY_ID, :CALLSIGN, :NOTES_ICES)');
+       SQL.Add(' (:ID, :NODC_CODE, :TITLE, :NAME, :IMO_ID, :COUNTRY_ID, :CALLSIGN, :NOTES_ICES)');
        ParamByName('ID').AsInteger:=absnum;
        ParamByName('NODC_CODE').asString:=UpperCase(VarToStr(Xl.Cells[k, 1].Value));
        ParamByName('COUNTRY_ID').asInteger:=Country_ID;
+       ParamByName('TITLE').AsString:=UpperCase(VarToStr(Xl.Cells[k, 3].Value));
        ParamByName('NAME').AsString:=UpperCase(VarToStr(Xl.Cells[k, 2].Value));
        if trim(Xl.Cells[k, 4].Value)<>'' then
-       ParamByName('IMO_ID').AsInteger:=Xl.Cells[k, 4].Value else ParamByName('IMO_ID').AsInteger:=-9;
+       ParamByName('IMO_ID').AsInteger:=Xl.Cells[k, 4].Value else ParamByName('IMO_ID').Value:=null;
        ParamByName('CALLSIGN').AsString:=VarToStr(Xl.Cells[k, 8].Value);
        ParamByName('NOTES_ICES').AsWideString:=RString; //Wide??
        //showmessage(SQL.Text);
@@ -283,7 +304,7 @@ if frmosmain.OD.Execute then begin
         mLog.Lines.Add('Insert error: '+RString);
         TRt.RollbackRetaining;
         Showmessage(e.message);
-       end;
+     end;
 
      end;
     end;
@@ -292,32 +313,46 @@ if frmosmain.OD.Execute then begin
    (* Обновляем существующую запись *)
    if (Qt1.IsEmpty=false) and (Qt1.RecordCount=1) then begin
 
-    Absnum  :=Qt1.FieldByName('ID').AsInteger;
-    ShipName:=Qt1.FieldByName('NAME').AsString;
+    Absnum   :=Qt1.FieldByName('ID').AsInteger;
+    ShipName :=Qt1.FieldByName('NAME').AsString;
+    ShipTitle:=Qt1.FieldByName('TITLE').AsString;
 
     if ShipName<>trim(UpperCase(VarToStr(Xl.Cells[k,  2].Value))) then begin
      RString:='ICES name: '+VarToStr(Xl.Cells[k,  2].Value)+#13+RString;
-     writeln(dat, 'NODC: '+VarToStr(Xl.Cells[k,  1].Value)+'; '+
+
+       with Qt2 do begin
+         Close;
+          SQL.Clear;
+          SQL.Add(' Update PLATFORM set ');
+          SQL.Add(' NAME_ICES=:NAME, NOTES_ICES=:Notes ');
+          SQL.Add(' where ID=:ID ' );
+          ParamByName('ID').AsInteger:=absnum;
+          ParamByName('NAME').AsString:=VarToStr(Xl.Cells[k,  2].Value);
+          ParamByName('NOTES').AsWideString:=RString;
+         ExecSQL;
+         Close;
+       end;
+       TRt.CommitRetaining;
+
+       writeln(dat, 'NODC: '+VarToStr(Xl.Cells[k,  1].Value)+'; '+
                   'DB: '+ShipName+' --> ICES: '+
                   uppercase(Xl.Cells[k,  2].Value));
     end;
 
-   try
-    with Qt2 do begin
+    if ShipTitle<>trim(UpperCase(VarToStr(Xl.Cells[k,  3].Value))) then begin
+     //showmessage(trim(UpperCase(VarToStr(Xl.Cells[k,  3].Value))));
+     with Qt2 do begin
       Close;
        SQL.Clear;
        SQL.Add(' Update PLATFORM set ');
-       SQL.Add(' NOTES_ICES=:Notes ');
+       SQL.Add(' TITLE=:title ');
        SQL.Add(' where ID=:ID ' );
        ParamByName('ID').AsInteger:=absnum;
-       ParamByName('NOTES').AsWideString:=RString;
+       ParamByName('title').AsString:=trim(UpperCase(VarToStr(Xl.Cells[k,  3].Value)));
       ExecSQL;
       Close;
      end;
     TRt.CommitRetaining;
-   except
-    mLog.Lines.Add('Update error: '+VarToStr(Xl.Cells[k, 1].Value)+#13+RString);
-    TRt.RollbackRetaining;
    end;
 
     (* IMO *)
@@ -394,7 +429,7 @@ if frmosmain.OD.Execute then begin
   TRt.Commit;
 
   (* looking for codes NOT in the update file *)
-{  AssignFile(dat2, GlobalUnloadPath+'ICES_codes_not_in_source.txt'); rewrite(dat2);
+  AssignFile(dat2, GlobalUnloadPath+'ICES_codes_not_in_source.txt'); rewrite(dat2);
    with Qt1 do begin
      Close;
        SQL.Clear;
@@ -416,7 +451,7 @@ if frmosmain.OD.Execute then begin
     Qt1.Next;
    end;
    Qt1.Close;
-  CloseFile(dat2);   }
+  CloseFile(dat2);
 
  finally
   XL.Quit;
@@ -439,6 +474,171 @@ end;
 
 
 (* Update PLATFORM code from WOD *)
+procedure Tfrmsupporttables_update.btnNODC_WODClick(Sender: TObject);
+var
+  dat: text;
+  PathToCodesSource, ShipName, ship_title:string;
+  code_ocl, absnum, cnt_ins, Country_id, fl:integer;
+  call_sign, st,code_nodc:widestring;
+  TRt:TSQLTransaction;
+  Qt1, Qt2:TSQLQuery;
+begin
+
+ try
+  mLog.Clear;
+
+ //Q.DisableControls;
+ btnNODC_WOD.Enabled:=false;
+
+ frmosmain.OD.Filter:='platformlist.txt|platformlist.txt';
+ if frmosmain.OD.Execute then PathToCodesSource:=frmosmain.OD.FileName else exit;
+
+ cnt_ins:=0;
+
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.IBDB;
+  Qt2.Transaction:=TRt;
+
+ AssignFile(dat, PathToCodesSource); reset(dat);
+ repeat
+   readln(dat,st);
+ until copy(st,1,3)='  -';
+
+  // WOD_ID_cnt:=0;
+   repeat
+    readln(dat, st);
+
+    if copy(st,1,1)=' ' then Continue;
+
+    code_nodc:=trim(copy(st,1,4));
+    if trim(copy(st,6,7))<>'' then
+      code_ocl :=StrToInt(trim(copy(st,6,7))) else code_ocl:=-9;
+    call_sign:=trim(copy(st,13,8));
+    Ship_title:=trim(copy(st,22,7));
+    ShipName:=trim(copy(st,30,length(st)));
+
+   if length(code_nodc)<>4 then Continue;
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID, nodc_code, wod_id, name from PLATFORM ');
+     SQL.Add(' where nodc_code=:nodc ');
+     ParamByName('nodc').Value:=code_nodc;
+    Open;
+   end;
+
+   if Qt1.IsEmpty=true then begin
+       with Qt2 do begin
+        Close;
+         SQL.Clear;
+         SQL.ADD(' Select max(ID) as AbsnumMax from PLATFORM ');
+         SQL.ADD(' WHERE ID<10000000 ');
+        Open;
+          Absnum:=Qt2.FieldByName('AbsnumMax').AsInteger+1;
+        Close;
+       end;
+
+       Country_ID:=0;
+       with Qt2 do begin
+        Close;
+         SQL.Clear;
+         SQL.Add(' SELECT ID FROM COUNTRY WHERE ' );
+         SQL.Add(' NODC_CODE=:NODC_CODE ');
+         ParamByName('NODC_CODE').asString:=Copy(UpperCase(code_nodc), 1, 2);
+        Open;
+         Country_ID:=Qt2.Fields[0].AsInteger;
+        Close;
+       end;
+
+       if Country_ID=0 then begin
+        with Qt2 do begin
+         Close;
+          SQL.Clear;
+          SQL.Add(' SELECT ID FROM COUNTRY WHERE ' );
+          SQL.Add(' ISO3166_CODE=:ISO3166_CODE ');
+          ParamByName('ISO3166_CODE').asString:=Copy(UpperCase(code_nodc), 1, 2);
+         Open;
+          Country_ID:=Qt2.Fields[0].AsInteger;
+         Close;
+        end;
+       end;
+      try
+       with Qt2 do begin
+        Close;
+         SQL.Clear;
+         SQL.Add(' INSERT INTO PLATFORM ' );
+         SQL.Add(' (ID, NODC_CODE, WOD_ID, CALLSIGN, TITLE, NAME, COUNTRY_ID)');
+         SQL.Add(' VALUES ' );
+         SQL.Add(' (:ID, :NODC_CODE, :OCL_ID, :CALLSIGN, :TITLE, :NAME, :COUNTRY_ID)');
+         ParamByName('ID').AsInteger:=absnum;
+         ParamByName('NODC_CODE').AsString:=UpperCase(code_nodc);
+         if call_sign<>'' then
+           ParamByName('callsign').Value:=call_sign else
+           ParamByName('callsign').Value:=null;
+
+         if code_ocl<>-9 then
+           ParamByName('OCL_ID').AsInteger:=code_ocl else
+           ParamByName('OCL_ID').Value:=null;
+         if Ship_Title<>'' then
+           ParamByName('TITLE').AsString:=UpperCase(Ship_Title) else
+           ParamByName('TITLE').Value:=null;
+         ParamByName('Name').AsString:=UpperCase(ShipName);
+         ParamByName('COUNTRY_ID').AsInteger:=Country_ID;
+        ExecSQL;
+        Close;
+       end;
+        Trt.CommitRetaining;
+        mLog.Lines.add('Insert successful: '+code_nodc+'   '+ShipName);
+         inc(cnt_ins);
+      except
+        TrT.RollbackRetaining;
+        mLog.Lines.add('Insert error: '+code_nodc);
+       end;
+   end;
+
+   if not Qt1.IsEmpty=true then begin
+     if VarIsNull(Qt1.FieldByName('WOD_ID').Value) then begin
+      if (code_ocl>-9) and (code_ocl<20000) then begin
+         with Qt2 do begin
+          Close;
+           SQL.Clear;
+           SQL.Add(' Update PLATFORM set' );
+           SQL.Add(' WOD_ID=:code_ocl');
+           SQL.Add(' where ID=:absnum ' );
+           ParamByName('absnum').AsInteger:=Qt1.FieldByName('ID').AsInteger;
+           ParamByName('code_ocl').AsInteger:=code_ocl;
+          ExecSQL;
+          Close;
+         end;
+         TrT.CommitRetaining;
+      mlog.Lines.add('NODC_code: '+code_nodc+' WOD_ID updated with: '+inttostr(code_ocl));
+      end;
+     end;
+   end;
+
+   until eof(dat);
+   closefile(dat);
+
+ finally
+  btnNODC_WOD.Enabled:=true;
+  Qt1.Free;
+  Qt2.Free;
+  TrT.Free;
+
+  Showmessage(SDone+' Insterted: '+inttostr(cnt_ins));
+ end;
+end;
+
+
+
 procedure Tfrmsupporttables_update.btnPlatformWOD2013Click(Sender: TObject);
 var
 dat, dat1, dat2: text;
@@ -457,7 +657,7 @@ begin
  //Q.DisableControls;
  btnPlatformWOD2013.Enabled:=false;
 
- frmosmain.OD.Filter:='*.csv|*.csv';
+ frmosmain.OD.Filter:='s_3_platform.csv|s_3_platform.csv';
  if frmosmain.OD.Execute then PathToCodesSource:=frmosmain.OD.FileName else exit;
 
  AssignFile(dat1, GlobalUnloadPath+'WOD_update_name_mismatch.txt'); rewrite(dat1);
@@ -483,7 +683,7 @@ begin
 
  AssignFile(dat, PathToCodesSource); reset(dat);
  readln(dat,st);
- //readln(dat,st);
+ readln(dat,st);
 
    WOD_ID_cnt:=0;
    repeat
@@ -491,15 +691,14 @@ begin
    // if eof(dat) then exit;
 
     k:=0;
-    for c:=1 to 3 do begin
+    for c:=1 to 2 do begin
      buf_str:='';
      repeat
       inc(k);
        if (st[k]<>',') and (st[k]<>'(') then buf_str:=buf_str+st[k];
      until (st[k]=',') or (st[k]='(') or (k=length(st));
      if c=1 then code_ocl:=StrToInt(trim(buf_str));
-     if c=2 then code_nodc:=trim(buf_str);
-     if c=3 then ShipName:=trim(buf_str);
+     if c=2 then ShipName:=trim(buf_str);
     end;
 
     notes:='';
@@ -519,23 +718,22 @@ begin
     str_pos:=pos('IMO', notes);
     if str_pos>0 then
      if TryStrToInt(copy(notes, str_pos+3, 7), imo)=true then
-        imo:=strtoint(copy(notes, str_pos+3, 7))else
+        imo:=strtoint(copy(notes, str_pos+3, 7)) else
         mLog.Lines.Add(inttostr(code_ocl)+'   '+copy(notes, str_pos+3, 7));
 
 
    with Qt1 do begin
     Close;
      SQL.Clear;
-     SQL.Add(' select ID, nodc_code, wod_id, name from PLATFORM ');
+     SQL.Add(' select ID, wod_id, name from PLATFORM ');
      SQL.Add(' where wod_id=:code_ocl ');
-    // ParamByName('code_nodc').AsString:=code_nodc;
      ParamByName('code_ocl').AsInteger:=code_ocl;
     Open;
    end;
 
     (*Вставляем новое судно *)
    if Qt1.IsEmpty=true then begin
-     with Qt2 do begin
+    { with Qt2 do begin
       Close;
        SQL.Clear;
        SQL.ADD(' Select max(ID) as AbsnumMax from PLATFORM ');
@@ -597,14 +795,16 @@ begin
     except
       TrT.RollbackRetaining;
       mLog.Lines.add('Insert error: '+ReportString);
-     end;
+     end; }
+
+    mLog.Lines.add('Insert successful: '+ReportString);
     end;
 
 
    (* Обновляем существующую запись *)
    if (Qt1.IsEmpty=false) then begin
      Absnum:=Qt1.Fields[0].AsInteger;
-     code_nodc0:=Qt1.FieldByName('NODC_CODE').AsString;
+    // code_nodc0:=Qt1.FieldByName('NODC_CODE').AsString;
      shipname0:=Qt1.FieldByName('NAME').AsString;
 
    if ShipName<>shipname0 then begin
@@ -638,7 +838,7 @@ begin
    end;
 
    (* IMO *)
-    if imo<>-9 then begin
+  {  if imo<>-9 then begin
       with Qt3 do begin
        Close;
         SQL.Clear;
@@ -660,7 +860,7 @@ begin
         end;
       Close;
     end;
-   end;
+   end;    }
    (* END of IMO *)
    end;
 
@@ -727,7 +927,7 @@ mLog.Clear;
  //Q.DisableControls;
  btnProjectWOD.Enabled:=false;
 
- frmosmain.OD.Filter:='s_2_project.txt|s_2_project.txt';
+ frmosmain.OD.Filter:='s_2_project.csv|s_2_project.csv';
  frmosmain.OD.InitialDir:=GlobalPath;
  if frmosmain.OD.Execute then PathToCodesSource:=frmosmain.OD.FileName else exit;
 
@@ -802,30 +1002,6 @@ mLog.Clear;
       mLog.Lines.add('Insert error: '+st);
      end;
     end;
-
-
-   (* Обновляем существующую запись *)
-   if (Qt1.IsEmpty=false) then begin
-     Absnum:=Qt1.Fields[0].AsInteger;
-   try
-    with Qt2 do begin
-      Close;
-       SQL.Clear;
-       SQL.Add(' Update PROJECT set' );
-       SQL.Add(' NAME=:name ');
-       SQL.Add(' where ID=:absnum ' );
-       ParamByName('absnum').AsInteger:=absnum;
-       ParamByName('name').AsString:=ProjectName;
-      ExecSQL;
-     Close;
-     end;
-     TrT.CommitRetaining;
-     if chkShowLog.Checked then mLog.Lines.add('Update successful: '+st);
-   except
-    mLog.Lines.add('Update error: '+st);
-   end;
-
-   end;
   until eof(dat);
   closefile(dat);
 
@@ -835,7 +1011,6 @@ mLog.Clear;
   Qt2.Free;
   TrT.Commit;
   TrT.Free;
-  frmsupporttables.PageControl1.OnChange(self);
   Showmessage(SDone);
  end;
 end;

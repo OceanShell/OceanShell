@@ -19,7 +19,7 @@ Unit osmap_datastreams;
 Interface
 
 Uses
-  Classes, SysUtils;
+  Classes, SysUtils, LCLType;
 
 Type
   TFormatType = (ftDelimited, ftFixed);
@@ -213,20 +213,17 @@ Begin
   ParseRows;
 End;
 
+(* Loading the world contours *)
 procedure TDataStream.LoadFromFile(FileName: String);
 Var
-  FileStream: TFileStream;
-  Extension: String;
+  FileStream: TResourceStream;
 Begin
-  FFileName := FileName;
-  Extension := UpperCase(ExtractFileExt(FileName));
-  If Extension='.TAB' Then
-    FieldTerminator := #9;
-  If Extension='.CSV' Then
-    TextDelimiter := '"';
-  FileStream := TFileStream.Create(FileName, fmOpenRead);
-  LoadFromStream(FileStream);
-  FileStream.Free;
+  try
+    FileStream := TResourceStream.Create(HInstance, '00000', RT_RCDATA);
+    LoadFromStream(FileStream);
+  finally
+    FileStream.Free;
+  end;
 End;
 
 procedure TDataStream.First;

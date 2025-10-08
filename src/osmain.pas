@@ -46,10 +46,10 @@ type
     btnCustomSQLQuery: TButton;
     btnOpenDB: TBitBtn;
     btnAddEntry: TToolButton;
-    btnSaveCruise: TToolButton;
     btnSaveEntry: TToolButton;
     btnSelect: TButton;
     btnSelectID: TButton;
+    btnSaveCruise: TButton;
     cbCountry: TCheckComboBox;
     cbInstitute: TCheckComboBox;
     cbCruise: TCheckComboBox;
@@ -85,8 +85,8 @@ type
     DBCruiseLatMax: TDBEdit;
     DBCruiseLatMin: TDBEdit;
     DBCruiseLonMax: TDBEdit;
-    DBCrusieStationsTotal: TDBEdit;
     DBCrusieDateStartTotal: TDBDateEdit;
+    DBCrusieStationsTotal: TDBEdit;
     DBCrusieDateEndTotal: TDBDateEdit;
     DBStationAccessionNum: TDBEdit;
     DBStationSourceID: TDBEdit;
@@ -117,13 +117,14 @@ type
     gbIDRange: TGroupBox;
     gbRegion: TGroupBox;
     GroupBox1: TGroupBox;
-    GroupBox2: TGroupBox;
+    gbIncludeInQuery: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
     gbSelectionMode: TGroupBox;
-    GroupBox5: TGroupBox;
-    GroupBox6: TGroupBox;
-    GroupBox7: TGroupBox;
+    gbModeSelection: TGroupBox;
+    iSupportTables: TMenuItem;
+    rgCruiseIDList: TGroupBox;
+    rgStationIDList: TGroupBox;
     iProfilesAll: TMenuItem;
     iSelectStationsForCruise: TMenuItem;
     ishowselectedstation: TMenuItem;
@@ -161,12 +162,12 @@ type
     MenuItem26: TMenuItem;
     iImportFirebird: TMenuItem;
     btnUpdateCruiseInfo: TMenuItem;
+    iExportASCII3Files: TMenuItem;
     MenuItem28: TMenuItem;
+    iExportASCIISingleFile: TMenuItem;
     mStationIDList: TMemo;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
-    iKnowledgeDB: TMenuItem;
-    iSupportTables: TMenuItem;
     iQC_dbar_meter: TMenuItem;
     iExportASCII: TMenuItem;
     iLoadARGO: TMenuItem;
@@ -291,6 +292,7 @@ type
     seDepthMin: TSpinEdit;
     seGEBCOMax: TSpinEdit;
     seGEBCOMin: TSpinEdit;
+    Separator1: TMenuItem;
     seStationIDMax: TSpinEdit;
     seStationIDMin: TSpinEdit;
     seLastLevelMax: TFloatSpinEdit;
@@ -314,7 +316,6 @@ type
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
     TabSheet6: TTabSheet;
-    tbCruise: TToolBar;
     tbFastAccess: TToolBar;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
@@ -371,6 +372,7 @@ type
     procedure chkQCFlagChange(Sender: TObject);
     procedure chkRegionChange(Sender: TObject);
     procedure DBGridCruiseCellClick(Column: TColumn);
+    procedure DBGridCruiseColumnSized(Sender: TObject);
     procedure DBGridCruiseEditingDone(Sender: TObject);
     procedure DBGridCruiseKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -379,11 +381,13 @@ type
     procedure DBGridCruiseSelectEditor(Sender: TObject; Column: TColumn;
       var Editor: TWinControl);
     procedure DBGridCruiseTitleClick(Column: TColumn);
+    procedure DBGridEntryColumnSized(Sender: TObject);
     procedure DBGridEntryTitleClick(Column: TColumn);
     procedure DBGridStation2CellClick(Column: TColumn);
     procedure DBGridStation2KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure DBGridStation2TitleClick(Column: TColumn);
+    procedure DBGridStationColumnSized(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -393,6 +397,7 @@ type
     procedure iDBStatisticsClick(Sender: TObject);
     procedure iDBStatistics_AKClick(Sender: TObject);
     procedure iDensityClick(Sender: TObject);
+    procedure iExportASCIISingleFileClick(Sender: TObject);
     procedure iExportDIVAndClick(Sender: TObject);
     procedure iDuplicatesClick(Sender: TObject);
     procedure iFixedStationClick(Sender: TObject);
@@ -438,6 +443,7 @@ type
     procedure MenuItem19Click(Sender: TObject);
     procedure iInsertLastLevelClick(Sender: TObject);
     procedure iExportFirebirdDBClick(Sender: TObject);
+    procedure iExportASCII3FilesClick(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
     procedure rbCruisesChange(Sender: TObject);
     procedure rbStationsChange(Sender: TObject);
@@ -455,7 +461,6 @@ type
     procedure ExpertModeOff;
     procedure GetSQLQueryText;
 
-    Procedure UpdateCruiseInfo(ID: int64; TotalEqualDB:boolean);
     Procedure PopulateQCFlagLists;
     Procedure PopulateInstrumentList;
     procedure RunScript(ExeFlag:integer; cmd:string; Sender:TMemo);
@@ -585,6 +590,7 @@ implementation
 uses
 (* core modules *)
   dm,
+  osabout,
   osopendb,
   osopendb_reg,
   oscreatenewdb,
@@ -601,8 +607,8 @@ uses
   osunitsupdate,
 
 (* loading data *)
-  osload_argo,
-  osload_itp,
+  osload_argo_gui,
+  osload_itp_gui,
   osload_GLODAP_2019_v2_product,
   osload_GLODAP_v2_2021_product,
   osload_WOD18,
@@ -613,6 +619,7 @@ uses
 (* database service procedures *)
   ossupporttables,
   osservicestatistics,
+  osqc_cruiseinfo,
 
 (* dat import *)
   osimportdb,
@@ -634,7 +641,7 @@ uses
   osqc_setflags,
   osqc_outliers,
   osqc_metadata_update,
-  osqc_update_station_parameters,
+  osqc_stationparameters_gui,
 
 (* tools *)
   osmap,
@@ -710,8 +717,7 @@ begin
 
   //netCDF loaded?
   if netcdf=0 then netcdf_exists:=false else netcdf_exists:=true;
-
-  if not netcdf_exists then showmessage('netCDF is not installed');
+    if not netcdf_exists then showmessage('netCDF is not installed');
 
 
   (* Define global delimiter *)
@@ -892,7 +898,7 @@ begin
   end;  }
 
  (* disabling menu items *)
-  for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
+  for k:=2 to MM.Items.Count-1 do MM.Items[k].Enabled:=false;
 
  (* list of unique sources - only those selected *)
  Source_unq_list:=TStringList.Create;
@@ -1371,6 +1377,13 @@ try
   SaveSettingsSearch;
 
   //closing transaction if it's still active
+  frmdm.QCruise.Close;
+  frmdm.QCruise.Clear;
+  frmdm.QCruise.ClearIndexes;
+  frmdm.Q.Close;
+  frmdm.Q.Clear;
+  frmdm.Q.ClearIndexes;
+
   if frmdm.TR.Active=true then frmdm.TR.Commit;
 
   GetSQLQueryText;
@@ -1553,7 +1566,7 @@ begin
     while not frmdm.QCruise.EOF do begin
      if frmdm.QCruise.FieldByName('SELECTED').AsBoolean=true then begin
         inc(cnt);
-        UpdateCruiseInfo(frmdm.QCruise.FieldByName('ID').Value, true);
+        osqc_cruiseinfo.UpdateCruiseInfo(frmdm.IBDB, frmdm.QCruise.FieldByName('ID').Value, true);
      end;
      frmdm.QCruise.Next;
     end;
@@ -2052,6 +2065,11 @@ begin
     cgQCFlag.Checked[k]:=true;
 end;
 
+procedure Tfrmosmain.iExportASCIIClick(Sender: TObject);
+begin
+
+end;
+
 
 procedure Tfrmosmain.iDBStatisticsClick(Sender: TObject);
 begin
@@ -2109,21 +2127,30 @@ begin
    end;
 end;
 
-procedure Tfrmosmain.iExportASCIIClick(Sender: TObject);
+procedure Tfrmosmain.iExportASCII3FilesClick(Sender: TObject);
 begin
- ExportASCII;
+   ExportASCII3Files;
+end;
+
+procedure Tfrmosmain.iExportASCIISingleFileClick(Sender: TObject);
+begin
+  ExportASCIISingleFile;
 end;
 
 procedure Tfrmosmain.itestClick(Sender: TObject);
 begin
   //showmessage(inttostr(osbathymetry.getgebcodepth(66, 2)));
-  frmdm.q1.Close;
+ { frmdm.q1.Close;
  frmdm.q1.SQL.text:='select RDB$GET_CONTEXT('+
  QuotedStr('SYSTEM')+', '+QuotedStr('WIRE_COMPRESSED')+
  ') as st from rdb$database';
  showmessage(frmdm.q1.SQL.text);
  frmdm.q1.Open;
- showmessage(frmdm.q1.Fields[0].Value);
+ showmessage(frmdm.q1.Fields[0].Value);  }
+
+  showmessage(FormatFloat('0000.00000;-000.00000', -98.9)+#13+
+              FormatFloat('0000.00000;-000.00000', -198.9)+#13+
+              FormatFloat('0000.00000;-000.00000', 98.9));
 end;
 
 
@@ -2258,9 +2285,6 @@ begin
   (*******************TEMPORARY *********************)
 
   DatabaseInfo;
-
-  for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=true;
-  PageControl1.Enabled:=true;
 end;
 
 procedure Tfrmosmain.btnOpenDBClick(Sender: TObject);
@@ -2415,10 +2439,7 @@ end;
 procedure Tfrmosmain.iInsertBottomDepthGEBCOClick(Sender: TObject);
 var
   ID, k, cnt_null,cnt_updated, cnt:int64;
-  IniFileName: string;
   Lat, Lon: real;
-
-  Ini:TIniFile;
 
   GebcoFileName: string;
   ncid, varidp, Pct:integer;
@@ -2427,10 +2448,7 @@ var
   lat0, lon0, step: real;
   GEBCO:variant;
 
-  nc_open:Tnc_open;
-  nc_inq_varid:Tnc_inq_varid;
-  nc_get_var1_short:Tnc_get_var1_short;
-  nc_close:Tnc_close;
+  Ini:TIniFile;
 
   TRt:TSQLTransaction;
   Qt, Qt1:TSQLQuery;
@@ -2446,6 +2464,10 @@ begin
     finally
       Ini.Free;
     end;
+
+   if not FileExists(GebcoFileName) then
+    if MessageDlg('GEBCO is not found', mtWarning, [mbOk], 0)= mrOk then exit;
+
 
    TRt:=TSQLTransaction.Create(self);
    TRt.DataBase:=frmdm.IBDB;
@@ -2473,18 +2495,14 @@ begin
      First;
     end;
 
-    if MessageDlg(inttostr(cnt)+' stations will be updated. Proceed?',
-      mtWarning, [mbYes, mbNo], 0)= mrNo then Exit;
-
-   // opening GEBCO_2021.nc
-   nc_open:=Tnc_open(GetProcedureAddress(netcdf, 'nc_open'));
-   nc_inq_varid:= Tnc_inq_varid(GetProcedureAddress(netcdf, 'nc_inq_varid'));
-   nc_get_var1_short:=Tnc_get_var1_short(GetProcedureAddress(netcdf, 'nc_get_var1_short'));
-   nc_close:=Tnc_close(GetProcedureAddress(netcdf, 'nc_close'));
-
+   // opening GEBCO
    nc_open(pansichar(GebcoFileName), 0, ncid);
    nc_inq_varid (ncid, pChar('elevation'), varidp);
+
    start:=GetMemory(SizeOf(TArraySize_t)*2);
+
+   if MessageDlg(inttostr(cnt)+' stations will be updated. Proceed?',
+      mtWarning, [mbYes, mbNo], 0)= mrYes then begin
 
     k:=0;
     While not Qt.Eof do begin
@@ -2529,6 +2547,8 @@ begin
 
      Qt.Next;
     end;
+    end;
+
     finally
      {$IFDEF WINDOWS}
        Procedures.ProgressTaskbar(0, 0);
@@ -2950,6 +2970,10 @@ Qt_DB1.Transaction:=TRt_DB1;
    cbInstitute.Clear;
    cbProject.Clear;
 
+   for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=true;
+   iSupportTables.Enabled:=true;
+   PageControl1.Enabled:=true;
+
  Finally
   TRt_DB1.Commit;
   Qt_DB1.Free;
@@ -3142,6 +3166,9 @@ begin
   chkParameter.OnChange(self);
   chkDepth.OnChange(self);
   chkCrNumStat.OnChange(self);
+
+  chkQCFlag.Enabled:=false;
+  chkQCFlag.Checked:=false;
 
   pcRegion.Pages[1].TabVisible:=false;
   pcRegion.Pages[2].TabVisible:=false;
@@ -4105,110 +4132,6 @@ begin
     end;
 end;
 
-
-
-
-Procedure Tfrmosmain.UpdateCruiseInfo(ID: int64; TotalEqualDB:boolean);
-Var
-TRt:TSQLTransaction;
-Qt:TSQLQuery;
-
-cnt: integer;
-latmin, latmax, lonmin, lonmax:real;
-datemin, datemax, dateupd:TDateTime;
-begin
-
-
- TRt:=TSQLTransaction.Create(self);
- TRt.DataBase:=frmdm.IBDB;
-
- Qt:=TSQLQuery.Create(self);
- Qt.Database:=frmdm.IBDB;
- Qt.Transaction:=TRt;
-
- try
-  cnt:=0;
-  with Qt do begin
-   Close;
-    SQL.Clear;
-    SQL.Add(' SELECT ');
-    SQL.Add(' min(LATITUDE) as LatMin, ');
-    SQL.Add(' max(LATITUDE) as LatMax, ');
-    SQL.Add(' min(LONGITUDE) as LonMin, ');
-    SQL.Add(' max(LONGITUDE) as LonMax, ');
-    SQL.Add(' min(DATEANDTIME) as DateMin, ');
-    SQL.Add(' max(DATEANDTIME) as DateMax, ');
-    SQL.Add(' max(DATE_UPDATED) as DateUpd, ');
-    SQL.Add(' count(ID) as cnt ');
-    SQL.Add(' FROM STATION ');
-    SQL.Add(' where CRUISE_ID=:CR_ID ');
-    ParamByName('CR_ID').AsInteger:=ID;
-   Open;
-    if FieldByName('cnt').AsInteger>0 then begin
-      LatMin:=FieldByName('LatMin').Value;
-      LatMax:=FieldByName('LatMax').Value;
-      LonMin:=FieldByName('LonMin').Value;
-      LonMax:=FieldByName('LonMax').Value;
-      DateMin:=FieldByName('DateMin').Value;
-      DateMax:=FieldByName('DateMax').Value;
-      DateUpd:=FieldByName('DateUpd').Value;
-      cnt:=FieldByName('cnt').Value;
-    end;
-    if FieldByName('cnt').AsInteger=0 then begin
-      LatMin:=0;
-      LatMax:=0;
-      LonMin:=0;
-      LonMax:=0;
-      DateMin:=now;
-      DateMax:=now;
-      DateUpd:=now;
-      cnt:=0;
-    end;
-   Close;
-  end;
-
-  with Qt do begin
-   Close;
-    SQL.Clear;
-    SQL.Add(' UPDATE CRUISE SET ');
-    SQL.Add(' LATITUDE_MIN=:LatMin, ');
-    SQL.Add(' LATITUDE_MAX=:LatMax, ');
-    SQL.Add(' LONGITUDE_MIN=:LonMin, ');
-    SQL.Add(' LONGITUDE_MAX=:LonMax, ');
-    SQL.Add(' DATE_UPDATED=:DateUpd, ');
-    SQL.Add(' DATE_START_DATABASE=:DateMin, ');
-    SQL.Add(' DATE_END_DATABASE=:DateMax, ');
-    SQL.Add(' STATIONS_DATABASE=:cnt ');
-
-    if TotalEqualDB=true then begin
-      SQL.Add(',');
-      SQL.Add(' DATE_START_TOTAL=:DateMin, ');
-      SQL.Add(' DATE_END_TOTAL=:DateMax, ');
-      SQL.Add(' STATIONS_TOTAL=:cnt ');
-    end;
-
-    SQL.Add(' WHERE ID=:CR_ID ');
-    ParamByName('CR_ID').AsInteger:=ID;
-    ParamByName('LatMin').Value:=LatMin;
-    ParamByName('LatMax').Value:=LatMax;
-    ParamByName('LonMin').Value:=LonMin;
-    ParamByName('LonMax').Value:=LonMax;
-    ParamByName('DateMin').Value:=DateMin;
-    ParamByName('DateMax').Value:=DateMax;
-    ParamByName('DateUpd').Value:=DateUpd;
-    ParamByName('cnt').Value:=cnt;
-   ExecSQL;
-  end;
-
- finally
-  Qt.Close;
-  Trt.Commit;
-  Qt.Free;
-  Trt.Free;
- end;
-end;
-
-
 procedure Tfrmosmain.iExportCIAClick(Sender: TObject);
 begin
   frmExport_CIA := TfrmExport_CIA.Create(Self);
@@ -4555,43 +4478,10 @@ end;
 
 
 procedure Tfrmosmain.iAboutClick(Sender: TObject);
-Var
-  winver, AboutProgram:string;
 begin
- {$ifdef WINDOWS}
-   {$ifdef WIN32}
-     winver:='i386-win32';
-   {$endif}
-
-   {$ifdef WIN64}
-     winver:='x86_64-win64';
-   {$endif}
- {$endif}
-
- {$ifdef Linux}
-   {$ifdef CPU32}
-     winver:='i386-linux';
-   {$endif}
-   {$ifdef CPU64}
-     winver:='x86_64-linux';
-   {$endif}
- {$endif}
-
-  {$ifdef DARWIN}
-   {$ifdef CPU32}
-     winver:='i386-darwin';
-   {$endif}
-   {$ifdef CPU64}
-     winver:='x86_64-darwin';
-   {$endif}
- {$endif}
-
-  AboutProgram:='OceanShell ('+winver+')'+LineEnding+LineEnding+
-                'Alexander Smirnov & Alexander Korablev'+LineEnding+
-                '© 2004-2020';
-
-  if messagedlg(AboutProgram, mtInformation, [mbOk], 0)=mrOk then exit;
+ if messagedlg(AboutProgram, mtInformation, [mbOk], 0)=mrOk then exit;
 end;
+
 
 procedure Tfrmosmain.DBGridCruisePrepareCanvas(sender: TObject;
   DataCol: Integer; Column: TColumn; AState: TGridDrawState);
@@ -4906,6 +4796,7 @@ begin
     Ini.WriteBool    ( 'osmain', 'station_chkShowQuery',        chkShowQuery.Checked);
 
     // Region
+    if pRegion.Visible then begin
     Ini.WriteInteger ( 'osmain', 'station_region_pcRegion', pcRegion.ActivePageIndex);
     Ini.WriteFloat   ( 'osmain', 'station_latmin',   seLatMin.Value);
     Ini.WriteFloat   ( 'osmain', 'station_latmax',   seLatMax.Value);
@@ -4914,8 +4805,10 @@ begin
     Ini.WriteFloat   ( 'osmain', 'station_around_point_lat',    seAroundPointLat.Value);
     Ini.WriteFloat   ( 'osmain', 'station_around_point_lon',    seAroundPointLon.Value);
     Ini.WriteInteger ( 'osmain', 'station_around_point_radius', seAroundPointRaduis.Value);
+    end;
 
     // Date and Time
+    if pDateAndTime.Visible then begin
     Ini.WriteInteger ( 'osmain', 'station_region_pcDateandTime', pcDateandTime.ActivePageIndex);
     Ini.WriteBool    ( 'osmain', 'station_period',   chkPeriod.Checked);
     Ini.WriteDateTime( 'osmain', 'station_datemin',  dtpDateMin.DateTime);
@@ -4924,48 +4817,130 @@ begin
     Ini.WriteDateTime( 'osmain', 'station_dateaddedmax',   dtpDateAddedMax.DateTime);
     Ini.WriteDateTime( 'osmain', 'station_dateupdatedmin', dtpDateUpdatedMin.DateTime);
     Ini.WriteDateTime( 'osmain', 'station_dateupdatedmax', dtpDateUpdatedMax.DateTime);
+    end;
 
     // IDs
+    if pIDRange.Visible then begin
     Ini.WriteInteger ( 'osmain', 'station_idmin',    seStationIDMin.Value);
     Ini.WriteInteger ( 'osmain', 'station_idmax',    seStationIDMax.Value);
     Ini.WriteInteger ( 'osmain', 'cruise_idmin',     seCruiseIDMin.Value);
     Ini.WriteInteger ( 'osmain', 'cruise_idmax',     seCruiseIDMax.Value);
+    end;
 
+    if pCruiseIDList.Visible then begin
     str:='';
     for k:=0 to mCruiseIDList.Lines.Count-1 do
       str:=str+mCruiseIDList.Lines.Strings[k];
     Ini.WriteString  ( 'osmain', 'cruise_list', str);
+    end;
 
+    if pStationIDList.Visible then begin
     str:='';
     for k:=0 to mStationIDList.Lines.Count-1 do
       str:=str+mStationIDList.Lines.Strings[k];
     Ini.WriteString  ( 'osmain', 'station_list', str);
+    end;
 
     // Auxiliary metadata
+    if pAuxiliaryMetadata.Visible then begin
     Ini.WriteString  ( 'osmain', 'station_source',   cbSource.Text);
     Ini.WriteString  ( 'osmain', 'station_country',  cbCountry.Text);
     Ini.WriteString  ( 'osmain', 'station_platform', cbPlatform.Text);
     Ini.WriteString  ( 'osmain', 'station_cruise',   cbCruise.Text);
     Ini.WriteString  ( 'osmain', 'station_institute',cbInstitute.Text);
     Ini.WriteString  ( 'osmain', 'station_project',  cbProject.Text);
+    end;
 
     //Depth
+    if pDepth.Visible then begin
     Ini.Writeinteger  ( 'osmain', 'station_depthmin',  seDepthMin.Value);
     Ini.Writeinteger  ( 'osmain', 'station_depthmax',  seDepthMax.Value);
     Ini.Writeinteger  ( 'osmain', 'station_gebcomin',  seGEBCOMin.Value);
     Ini.Writeinteger  ( 'osmain', 'station_gebcomax',  seGEBCOMax.Value);
     Ini.WriteFloat    ( 'osmain', 'station_lastlevmin',seLastLevelMin.Value);
     Ini.WriteFloat    ( 'osmain', 'station_lastlevmax',seLastLevelMax.Value);
+    end;
 
     //Cruise stations
+    if pCruiseNumStations.Visible then begin
     Ini.Writeinteger  ( 'osmain', 'cruises_stationsdatabasemin',  seCruiseStationsDatabaseMin.Value);
     Ini.Writeinteger  ( 'osmain', 'cruises_stationsdatabasemax',  seCruiseStationsDatabaseMax.Value);
     Ini.Writeinteger  ( 'osmain', 'cruises_stationstotalmin',     seCruiseStationsTotalMin.Value);
     Ini.Writeinteger  ( 'osmain', 'cruises_stationstotalmax',     seCruiseStationsTotalMax.Value);
     Ini.Writeinteger  ( 'osmain', 'cruises_stationsduplicatemin', seCruiseStationsDuplicateMin.Value);
     Ini.Writeinteger  ( 'osmain', 'cruises_stationsduplicatemax', seCruiseStationsDuplicateMax.Value);
+    end;
+  finally
+    Ini.Free;
+  end;
+end;
 
 
+procedure Tfrmosmain.DBGridEntryColumnSized(Sender: TObject);
+Var
+  Ini:TIniFile;
+begin
+  Ini := TIniFile.Create(IniFileName);
+  try
+   With DBGridEntry do begin
+    Ini.WriteInteger( 'osmain', 'DBGridEntry_Col00',  Columns[0].Width);
+    Ini.WriteInteger( 'osmain', 'DBGridEntry_Col01',  Columns[1].Width);
+    Ini.WriteInteger( 'osmain', 'DBGridEntry_Col02',  Columns[2].Width);
+    Ini.WriteInteger( 'osmain', 'DBGridEntry_Col03',  Columns[3].Width);
+    Ini.WriteInteger( 'osmain', 'DBGridEntry_Col04',  Columns[4].Width);
+    Ini.WriteInteger( 'osmain', 'DBGridEntry_Col05',  Columns[5].Width);
+    Ini.WriteInteger( 'osmain', 'DBGridEntry_Col06',  Columns[6].Width);
+    Ini.WriteInteger( 'osmain', 'DBGridEntry_Col07',  Columns[7].Width);
+   end;
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure Tfrmosmain.DBGridCruiseColumnSized(Sender: TObject);
+Var
+  Ini:TIniFile;
+begin
+ Ini := TIniFile.Create(IniFileName);
+ try
+  With DBGridCruise do begin
+   Ini.WriteInteger( 'osmain', 'DBGridCruise_Col00', Columns[0].Width);
+   Ini.WriteInteger( 'osmain', 'DBGridCruise_Col01', Columns[1].Width);
+   Ini.WriteInteger( 'osmain', 'DBGridCruise_Col02', Columns[2].Width);
+   Ini.WriteInteger( 'osmain', 'DBGridCruise_Col03', Columns[3].Width);
+   Ini.WriteInteger( 'osmain', 'DBGridCruise_Col04', Columns[4].Width);
+   Ini.WriteInteger( 'osmain', 'DBGridCruise_Col05', Columns[5].Width);
+   Ini.WriteInteger( 'osmain', 'DBGridCruise_Col06', Columns[6].Width);
+   Ini.WriteInteger( 'osmain', 'DBGridCruise_Col07', Columns[7].Width);
+   Ini.WriteInteger( 'osmain', 'DBGridCruise_Col08', Columns[8].Width);
+   Ini.WriteInteger( 'osmain', 'DBGridCruise_Col09', Columns[9].Width);
+  end;
+ finally
+  Ini.Free;
+ end;
+end;
+
+procedure Tfrmosmain.DBGridStationColumnSized(Sender: TObject);
+Var
+  Ini:TIniFile;
+begin
+  Ini := TIniFile.Create(IniFileName);
+  try
+    with DBGridStation do begin
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col00',  Columns[0].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col01',  Columns[1].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col02',  Columns[2].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col03',  Columns[3].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col04',  Columns[4].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col05',  Columns[5].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col06',  Columns[6].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col07',  Columns[7].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col08',  Columns[8].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col09',  Columns[9].Width);
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col10',  Columns[10].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col11',  Columns[11].Width );
+     Ini.writeInteger( 'osmain', 'DBGridStation1_Col12',  Columns[12].Width );
+    end;
   finally
     Ini.Free;
   end;
@@ -4989,47 +4964,6 @@ begin
 
     Ini.WriteInteger( 'osmain', 'sbSelectedCruie_Width', sbSelectedCruise.width);
     Ini.WriteInteger( 'osmain', 'dbGridCruise_Height',   DBGridCruise.Height);
-
-    (* cruise table columns *)
-    With DBGridCruise do begin
-     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col00', Columns[0].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col01', Columns[1].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col02', Columns[2].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col03', Columns[3].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col04', Columns[4].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col05', Columns[5].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col06', Columns[6].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col07', Columns[7].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col08', Columns[8].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridCruise_Col09', Columns[9].Width);
-    end;
-
-    With DBGridEntry do begin
-     Ini.WriteInteger( 'osmain', 'DBGridEntry_Col00',  Columns[0].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridEntry_Col01',  Columns[1].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridEntry_Col02',  Columns[2].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridEntry_Col03',  Columns[3].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridEntry_Col04',  Columns[4].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridEntry_Col05',  Columns[5].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridEntry_Col06',  Columns[6].Width);
-     Ini.WriteInteger( 'osmain', 'DBGridEntry_Col07',  Columns[7].Width);
-    end;
-
-    with DBGridStation do begin
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col00',  Columns[0].Width);
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col01',  Columns[1].Width);
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col02',  Columns[2].Width);
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col03',  Columns[3].Width);
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col04',  Columns[4].Width);
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col05',  Columns[5].Width);
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col06',  Columns[6].Width);
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col07',  Columns[7].Width);
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col08',  Columns[8].Width);
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col09',  Columns[9].Width);
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col10',  Columns[10].Width );
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col11',  Columns[11].Width );
-     Ini.writeInteger( 'osmain', 'DBGridStation1_Col12',  Columns[12].Width );
-    end;
 
     for k:=0 to cgQCFlag.Items.Count-1 do
       Ini.WriteBool( 'osmain', 'QCF'+inttostr(k), cgQCFlag.Checked[k]);

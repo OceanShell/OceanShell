@@ -18,6 +18,7 @@ type
   { Tfrmprofile_station_all }
 
   Tfrmprofile_station_all = class(TForm)
+    btnSetFlagLevel: TMenuItem;
     pFiller: TPanel;
     rbPQF1: TRadioButton;
     rbPQF2: TRadioButton;
@@ -41,14 +42,16 @@ type
     ZMW: TZoomMouseWheelTool;
 
     procedure btnSetFlagArrowClick(Sender: TObject);
+    procedure btnSetFlagLevelClick(Sender: TObject);
     procedure DBGrid1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure DBGrid1PrepareCanvas(sender: TObject; DataCol: Integer;
       Column: TColumn; AState: TGridDrawState);
     procedure DPCPointClick(ATool: TChartTool; APoint: TPoint);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
-    procedure FormCreate(Sender: TObject);
+  //  procedure FormCreate(Sender: TObject);
     procedure btnCommitClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure iSetFlagParameterClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -106,15 +109,9 @@ end;
 
 
 procedure Tfrmprofile_station_all.FormCreate(Sender: TObject);
-Var
-ID:Integer;
-par:string;
 begin
- CDS:=TBufDataSet.Create(nil);
-  ID:=frmdm.Q.FieldByName('ID').AsInteger;
- ChangeID(ID);
+    CDS:=TBufDataSet.Create(nil);
 end;
-
 
 procedure Tfrmprofile_station_all.FormShow(Sender: TObject);
 Var
@@ -135,6 +132,7 @@ Ini := TIniFile.Create(IniFileName);
   finally
    Ini.Free;
   end;
+
 end;
 
 
@@ -247,8 +245,6 @@ ss:=0;
 
           inc(ss);
 
-          //showmessage(inttostr(ss));
-
           Charts[ss]:=TChart.Create(Self);
           Charts[ss].Toolset:=Toolset;
            with Charts[ss] do begin
@@ -263,9 +259,14 @@ ss:=0;
              LeftAxis.Inverted:=true;
              BottomAxis.Alignment:=calTop;
              Width:=250;
+
+             AxisList[1].Intervals.NiceSteps := '2|5|10';
+             AxisList[1].Intervals.MinLength := 20;
+             AxisList[1].Intervals.MaxLength := 100;
+             AxisList[1].Intervals.Tolerance := 1;
            end;
 
-          AddLineSeries(Charts[ss]);
+           AddLineSeries(Charts[ss]);
 
           Qt2.Next;
         end;
@@ -275,7 +276,7 @@ ss:=0;
   Qt2.Close;
   Qt1.Close;
 
-  if CDS.FieldCount>0 then begin
+  if ss>0 then begin
 
   CDS.CreateDataSet;
   CDS.IndexFieldNames:=CDS.FieldbyName('Lev_dbar').FieldName;
@@ -334,7 +335,6 @@ ss:=0;
 
    cds_name:=par+'_'+instr_name+'_'+inttostr(prof_num)+'_'+inttostr(units_id);
 
-  //  showmessage(inttostr(Qt.RecordCount));
   Qt.First;
   Count_st:=0; cur_l:=-9;
     while not Qt.eof do begin
@@ -381,7 +381,7 @@ ss:=0;
     end;
     Qt.Close;
 
-    //par_name:='['+inttostr(count_st)+']  '+copy(par,3,length(par))+' ';
+    par_name:='['+inttostr(count_st)+']  '+copy(par,3,length(par))+' ';
     //CheckListBox1.Items.Add(par_name);
 
     col_title:=Copy(par, 3, length(par));
@@ -420,12 +420,13 @@ ss:=0;
   DBGrid1.Columns[0].Title.Caption:='Level, dBar';
   DBGrid1.Columns[0].ReadOnly:=true;
   DBGrid1.Columns[1].Title.Caption:='Level, m';
+  DBGrid1.Columns[1].ReadOnly:=true;
+
   for k:=2 to DBGrid1.Columns.Count-1 do begin
    col_title:=DBGrid1.Columns[k].Title.Caption;
 
     if (k mod 2<>1) then begin
       col_title:=Copy(col_title, 3, length(col_title));
-     // col_title:=Copy(col_title, 1, Pos('_', col_title)+3);
       DBGrid1.Columns[k].Title.Caption:=col_title;
       DBGrid1.Columns[k].ReadOnly:=true;
       DBGrid1.Columns[k].Width:=120;
@@ -453,14 +454,12 @@ ss:=0;
         DBGrid1.Columns[k].PickList.Add(
          Copy(SQF_list.Strings[c], 2, Pos(']', SQF_list.Strings[c])-2));
       end;
-    end else begin
-     // DBGrid1.Columns[k].Footer.ValueType:=fvtAvg;
     end;
   end;
 
   CDS.First;
   CDS.EnableControls;
-  end; //CDS.FieldCount>0
+  end; //CDS not empty
 
  finally
   TRt.Commit;
@@ -748,25 +747,56 @@ begin
     (DBGrid1.SelectedColumn.Index=1) then exit;
 
   if Copy(par,length(par)-2,3)<>'_FL' then Par:=Par+'_FL';
+  if CDS.FieldByName(par).isNull then exit;
 
  CDS.DisableControls;
  cur_pos:=CDS.RecNo;
  try
-  fl:=CDS.FieldByName(par).AsInteger;
+  fl:=CDS.FieldByName(par).Value;
     repeat
      CDS.Edit;
-      CDS.FieldByName(par).AsFloat:=fl;
+      CDS.FieldByName(par).Value:=fl;
       CDS.Post;
      CDS.Prior;
     until CDS.RecNo=1;
     CDS.First;
     CDS.Edit;
-    CDS.FieldByName(par).AsFloat:=fl;
+    CDS.FieldByName(par).Value:=fl;
     CDS.Post;
  finally
    CDS.RecNo:=Cur_pos;
    CDS.EnableControls;
  end;
+end;
+
+
+procedure Tfrmprofile_station_all.btnSetFlagLevelClick(Sender: TObject);
+Var
+  par:string;
+  fl, cur_pos, k: integer;
+begin
+ par:=DBGrid1.SelectedField.FieldName;
+ if Copy(par,length(par)-2,3)<>'_FL' then Par:=Par+'_FL';
+
+ CDS.DisableControls;
+ cur_pos:=CDS.RecNo;
+ try
+  fl:=CDS.FieldByName(par).AsInteger;
+  For k:=2 to CDS.Fields.Count-1 do begin
+   par:=CDS.Fields[k].FieldName;
+    if copy(par, length(par)-2, 3)='_FL' then begin
+     if not CDS.FieldByName(par).IsNull then begin
+      CDS.Edit;
+      CDS.FieldByName(par).Value:=fl;
+      CDS.Post;
+     end;
+    end;
+  end;
+ finally
+   CDS.RecNo:=Cur_pos;
+   CDS.EnableControls;
+ end;
+
 end;
 
 

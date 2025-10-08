@@ -1,44 +1,45 @@
 object frmprofile_station_single: Tfrmprofile_station_single
-  Left = 454
-  Height = 634
-  Top = 329
-  Width = 997
+  Left = 527
+  Height = 423
+  Top = 243
+  Width = 637
   Caption = 'frmprofile_station_single'
-  ClientHeight = 634
-  ClientWidth = 997
-  DesignTimePPI = 144
-  OnClose = FormClose
-  OnShow = FormShow
+  ClientHeight = 423
+  ClientWidth = 637
+  Constraints.MinHeight = 400
+  Constraints.MinWidth = 533
   Position = poOwnerFormCenter
-  LCLVersion = '2.0.6.0'
+  OnClose = FormClose
+  OnResize = FormResize
+  OnShow = FormShow
   object Panel1: TPanel
     Left = 0
-    Height = 562
+    Height = 377
     Top = 0
-    Width = 327
+    Width = 218
     Align = alLeft
     BevelOuter = bvNone
     Caption = 'Panel1'
-    ClientHeight = 562
-    ClientWidth = 327
+    ClientHeight = 377
+    ClientWidth = 218
     TabOrder = 0
     object cbParameters: TComboBox
       Left = 0
-      Height = 33
+      Height = 23
       Top = 0
-      Width = 327
+      Width = 218
       Align = alTop
       DropDownCount = 20
-      ItemHeight = 25
-      OnChange = cbParametersChange
+      ItemHeight = 15
       Style = csDropDownList
       TabOrder = 0
+      OnChange = cbParametersChange
     end
     object Chart1: TChart
       Left = 0
-      Height = 457
-      Top = 33
-      Width = 327
+      Height = 306
+      Top = 23
+      Width = 218
       AxisList = <      
         item
           Arrow.Inverted = True
@@ -50,6 +51,10 @@ object frmprofile_station_single: Tfrmprofile_station_single
           Title.LabelBrush.Style = bsClear
         end      
         item
+          Intervals.MaxLength = 100
+          Intervals.MinLength = 20
+          Intervals.NiceSteps = '2|5|10'
+          Intervals.Tolerance = 1
           Alignment = calTop
           Marks.LabelBrush.Style = bsClear
           Minors = <>
@@ -68,53 +73,53 @@ object frmprofile_station_single: Tfrmprofile_station_single
     end
     object clbSeries: TChartListbox
       Left = 0
-      Height = 64
-      Top = 498
-      Width = 327
+      Height = 43
+      Top = 334
+      Width = 218
       Chart = Chart1
       Align = alBottom
       Columns = 2
-      ItemHeight = 0
       MultiSelect = True
       TabOrder = 2
     end
     object Splitter2: TSplitter
       Cursor = crVSplit
       Left = 0
-      Height = 8
-      Top = 490
-      Width = 327
+      Height = 5
+      Top = 329
+      Width = 218
       Align = alBottom
       ResizeAnchor = akBottom
     end
   end
   object Splitter1: TSplitter
-    Left = 327
-    Height = 562
+    Left = 218
+    Height = 377
     Top = 0
-    Width = 8
+    Width = 5
     Beveled = True
   end
   object Panel2: TPanel
-    Left = 335
-    Height = 562
+    Left = 223
+    Height = 377
     Top = 0
-    Width = 662
+    Width = 414
     Align = alClient
     BevelOuter = bvNone
     Caption = 'Panel2'
-    ClientHeight = 562
-    ClientWidth = 662
+    ClientHeight = 377
+    ClientWidth = 414
     TabOrder = 2
     object ToolBar1: TToolBar
       Left = 0
-      Top = 34
-      Width = 662
-      ButtonHeight = 30
-      ButtonWidth = 80
+      Height = 21
+      Top = 23
+      Width = 414
+      ButtonHeight = 20
+      ButtonWidth = 53
       Caption = 'ToolBar1'
       Font.Color = clWindowText
-      Font.Height = -17
+      Font.Height = -11
       Font.Name = 'Tahoma'
       Images = frmicons.IL1
       List = True
@@ -132,7 +137,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
         OnClick = btnAddClick
       end
       object btnDelete: TToolButton
-        Left = 81
+        Left = 54
         Hint = 'Delete level'
         Top = 2
         Caption = 'Delete'
@@ -140,7 +145,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
         OnClick = btnDeleteClick
       end
       object btnCommit: TToolButton
-        Left = 166
+        Left = 117
         Hint = 'Commit changes'
         Top = 2
         Caption = 'Save'
@@ -148,8 +153,8 @@ object frmprofile_station_single: Tfrmprofile_station_single
         OnClick = btnCommitClick
       end
       object ToolButton4: TToolButton
-        Left = 161
-        Height = 30
+        Left = 114
+        Height = 20
         Top = 2
         Caption = 'ToolButton4'
         Style = tbsDivider
@@ -157,9 +162,9 @@ object frmprofile_station_single: Tfrmprofile_station_single
     end
     object DBGridSingleProfile: TDBGrid
       Left = 0
-      Height = 496
-      Top = 66
-      Width = 662
+      Height = 333
+      Top = 44
+      Width = 414
       Align = alClient
       AlternateColor = 13631478
       Color = 13627366
@@ -179,7 +184,7 @@ object frmprofile_station_single: Tfrmprofile_station_single
         item
           DropDownRows = 9
           Title.Caption = 'PQF1'
-          Width = 60
+          Width = 40
           FieldName = 'PQF1'
         end      
         item
@@ -196,30 +201,29 @@ object frmprofile_station_single: Tfrmprofile_station_single
             '8'
           )
           Title.Caption = 'PQF2'
-          Width = 60
+          Width = 40
           FieldName = 'PQF2'
         end      
         item
           DropDownRows = 9
           Title.Caption = 'SQF'
-          Width = 60
+          Width = 40
           FieldName = 'SQF'
         end      
         item
-          Title.Caption = 'Bottle'
-          Width = 60
+          Title.Caption = 'Bottle #'
+          Width = 40
           FieldName = 'BOTTLE_NUMBER'
         end      
         item
-          DropDownRows = 20
-          Title.Caption = 'Units ID'
+          Title.Caption = 'Units'
           FieldName = 'UNITS_ID'
         end>
       DataSource = DS
       FixedCols = 0
       Flat = True
       Font.Color = clWindowText
-      Font.Height = -17
+      Font.Height = -11
       Font.Name = 'Tahoma'
       Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgRowHighlight]
       ParentFont = False
@@ -227,16 +231,16 @@ object frmprofile_station_single: Tfrmprofile_station_single
       Scrollbars = ssAutoBoth
       TabOrder = 1
       TitleFont.Color = clWindowText
-      TitleFont.Height = -11
+      TitleFont.Height = -7
       TitleFont.Name = 'MS Sans Serif'
       OnPrepareCanvas = DBGridSingleProfilePrepareCanvas
       OnSelectEditor = DBGridSingleProfileSelectEditor
     end
     object TabControl1: TTabControl
       Left = 0
-      Height = 34
+      Height = 23
       Top = 0
-      Width = 662
+      Width = 414
       OnChange = TabControl1Change
       Align = alTop
       TabOrder = 2
@@ -244,56 +248,56 @@ object frmprofile_station_single: Tfrmprofile_station_single
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 36
-    Top = 562
-    Width = 997
+    Height = 23
+    Top = 377
+    Width = 637
     Panels = <    
       item
         Text = 'Level'
-        Width = 65
+        Width = 43
       end    
       item
-        Width = 150
+        Width = 100
       end    
       item
-        Width = 150
+        Width = 100
       end    
       item
-        Width = 150
+        Width = 100
       end    
       item
-        Width = 150
+        Width = 100
       end    
       item
-        Width = 50
+        Width = 33
       end>
     SimplePanel = False
     SizeGrip = False
   end
   object StatusBar2: TStatusBar
     Left = 0
-    Height = 36
-    Top = 598
-    Width = 997
+    Height = 23
+    Top = 400
+    Width = 637
     Panels = <    
       item
         Text = 'Value'
-        Width = 65
+        Width = 43
       end    
       item
-        Width = 150
+        Width = 100
       end    
       item
-        Width = 150
+        Width = 100
       end    
       item
-        Width = 150
+        Width = 100
       end    
       item
-        Width = 150
+        Width = 100
       end    
       item
-        Width = 150
+        Width = 100
       end>
     SimplePanel = False
     SizeGrip = False
@@ -303,17 +307,18 @@ object frmprofile_station_single: Tfrmprofile_station_single
     Database = frmdm.IBDB
     Transaction = frmdm.TR
     Params = <>
-    left = 457
-    top = 179
+    Macros = <>
+    Left = 305
+    Top = 119
   end
   object DS: TDataSource
     DataSet = Qt
-    left = 520
-    top = 179
+    Left = 347
+    Top = 119
   end
   object ChartToolset1: TChartToolset
-    left = 140
-    top = 139
+    Left = 93
+    Top = 93
     object DPCT: TDataPointClickTool
       Shift = [ssLeft]
       ActiveCursor = crHandPoint
@@ -333,8 +338,8 @@ object frmprofile_station_single: Tfrmprofile_station_single
   end
   object PM: TPopupMenu
     Images = frmicons.IL1
-    left = 584
-    top = 179
+    Left = 389
+    Top = 119
     object SetFlagBelow: TMenuItem
       Caption = 'Set selected PQF2 BELOW this level'
       OnClick = SetFlagBelowClick

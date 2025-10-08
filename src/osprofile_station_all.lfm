@@ -166,6 +166,10 @@ object frmprofile_station_all: Tfrmprofile_station_all
     AutoPopup = False
     left = 288
     top = 168
+    object btnSetFlagLevel: TMenuItem
+      Caption = 'Set selected flag for selected level'
+      OnClick = btnSetFlagLevelClick
+    end
     object SetFlagBelow: TMenuItem
       Caption = 'Set selected flag BELOW this level'
       OnClick = SetFlagBelowClick

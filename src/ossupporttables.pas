@@ -31,6 +31,7 @@ type
     DBGridInstrument: TDBGrid;
     DBGridSource: TDBGrid;
     DS: TDataSource;
+    ePlatform_Title: TEdit;
     eTables_ID: TEdit;
     eTables_NAME: TEdit;
     eCountry_NODC: TEdit;
@@ -79,7 +80,6 @@ type
     ePlatform_Name: TEdit;
     Panel20: TPanel;
     Panel21: TPanel;
-    Panel28: TPanel;
     Panel3: TPanel;
     ePlatform_NODC: TEdit;
     Panel7: TPanel;
@@ -89,6 +89,7 @@ type
     rgFlag: TRadioGroup;
     Splitter1: TSplitter;
     PageControl1: TPageControl;
+    ToolButton2: TToolButton;
     tsFlag: TTabSheet;
     tsTables: TTabSheet;
     tbInstrument: TTabSheet;
@@ -105,7 +106,7 @@ type
     mNotesICES: TMemo;
     mNotesPlatform: TMemo;
     ePlatform_IMO: TEdit;
-    ePlatform_Callsign: TEdit;
+    ePlatform_CS: TEdit;
     mNotesWOD: TMemo;
     Splitter3: TSplitter;
     tbProject: TTabSheet;
@@ -149,10 +150,6 @@ type
     procedure DBGridCountryTitleClick(Column: TColumn);
 
     procedure ePlatform_NameNativeChange(Sender: TObject);
-    procedure ePlatfo(Sender: TObject);
-    procedure ePlatform_(Sender: TObject);
-    procedure eCountry_ISOChange(Sender: TObject);
-    procedure QBeforeScroll(DataSet: TDataSet);
     procedure rgFlagClick(Sender: TObject);
 
 
@@ -167,6 +164,10 @@ type
     procedure SearchPI(Sender:TObject);
     procedure SearchNODC(Sender:TObject);
     procedure SearchWOD(Sender:TObject);
+    procedure SearchIMO(Sender:TObject);
+    procedure SearchCS(Sender:TObject);
+    procedure SearchISO(Sender:TObject);
+    procedure SearchTitle(Sender:TObject);
   public
     { Public declarations }
   end;
@@ -216,6 +217,7 @@ begin
      Columns[5].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col05', 100);
      Columns[6].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col06', 100);
      Columns[7].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col07', 100);
+     Columns[8].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col08', 100);
     end;
 
     With DBGridSource do begin
@@ -293,14 +295,20 @@ begin
  eUnits_NAME.OnChange      := @SearchNAME;
 
  (* NODC *)
- ePlatform_NODC.OnChange  := @SearchNODC;
- eInstitute_NODC.OnChange := @SearchNODC;
+ ePlatform_NODC.OnChange   := @SearchNODC;
+ eInstitute_NODC.OnChange  := @SearchNODC;
+ eCountry_NODC.OnChange    := @SearchNODC;
 
  (* WOD*)
- ePlatform_WOD.OnChange   := @SearchWOD;
- eProject_WOD.OnChange    := @SearchWOD;
- eInstitute_WOD.OnChange  := @SearchWOD;
- eInstrument_WOD.OnChange := @SearchWOD;
+ ePlatform_WOD.OnChange    := @SearchWOD;
+ eProject_WOD.OnChange     := @SearchWOD;
+ eInstitute_WOD.OnChange   := @SearchWOD;
+ eInstrument_WOD.OnChange  := @SearchWOD;
+
+ ePlatform_IMO.OnChange    := @SearchIMO;
+ ePlatform_CS.OnChange     := @SearchCS;
+ eCountry_ISO.OnChange     := @SearchISO;
+ ePlatform_Title.OnChange  := @SearchTitle;
 
 
  (* Procedures for resizing *)
@@ -338,7 +346,6 @@ begin
    DeleteSQL.Clear;
    ClearIndexes;
   end;
-
 
  CodesTblName:='';
  case PageControl1.ActivePageIndex of
@@ -417,20 +424,20 @@ begin
        end;
 
        Q.SQL.text:='Select PLATFORM.ID, PLATFORM.NODC_CODE, WOD_ID, IMO_ID, '+
-                   'CALLSIGN, PLATFORM.NAME, NAME_NATIVE, COUNTRY.NAME as CTRY, '+
-                   'PLATFORM.COUNTRY_ID FROM PLATFORM, COUNTRY WHERE '+
-                   'PLATFORM.COUNTRY_ID=COUNTRY.ID ORDER BY NAME';
+                   'CALLSIGN, PLATFORM.TITLE, PLATFORM.NAME, NAME_NATIVE, '+
+                   'COUNTRY.NAME as CTRY, PLATFORM.COUNTRY_ID FROM PLATFORM, '+
+                   'COUNTRY WHERE PLATFORM.COUNTRY_ID=COUNTRY.ID ORDER BY NAME';
 
        Q.InsertSQL.Text:='INSERT INTO PLATFORM '+
-                         '(ID, NODC_CODE, WOD_ID, IMO_ID, CALLSIGN, NAME, '+
-                         'NAME_NATIVE, COUNTRY_ID) '+
+                         '(ID, NODC_CODE, WOD_ID, IMO_ID, CALLSIGN, TITLE, '+
+                         'NAME, NAME_NATIVE, COUNTRY_ID) '+
                          ' VALUES '+
-                         '(:ID, :NODC_CODE, :WOD_ID, :IMO_ID, :CALLSIGN, :NAME, '+
-                         ':NAME_NATIVE, :COUNTRY_ID) ';
+                         '(:ID, :NODC_CODE, :WOD_ID, :IMO_ID, :CALLSIGN, :TITLE, '+
+                         ':NAME, :NAME_NATIVE, :COUNTRY_ID) ';
        Q.UpdateSQL.Text:='UPDATE PLATFORM SET '+
                          'ID=:ID, NODC_CODE=:NODC_CODE, WOD_ID=:WOD_ID, '+
-                         'IMO_ID=:IMO_ID, CALLSIGN=:CALLSIGN, NAME=:NAME, '+
-                         'NAME_NATIVE=:NAME_NATIVE, COUNTRY_ID=:COUNTRY_ID '+
+                         'IMO_ID=:IMO_ID, CALLSIGN=:CALLSIGN, TITLE=:TITLE, '+
+                         'NAME=:NAME, NAME_NATIVE=:NAME_NATIVE, COUNTRY_ID=:COUNTRY_ID '+
                          'WHERE ID=:ID';
        Q.DeleteSQL.Text:='DELETE FROM PLATFORM WHERE ID=:ID';
      end;
@@ -483,7 +490,6 @@ begin
      Caption:='Codes: '+CodesTblName+' ['+inttostr(Q.RecordCount)+']' else
      Caption:='Codes: '+CodesTblName;
 
-
    // check if there's any tables in the database not in DATABASE_TABLES
    if CodesTblName='DATABASE_TABLES' then begin
     tbl_missing:='';
@@ -519,10 +525,11 @@ begin
     ePlatform_NODC.Width:=DBGridPlatform.Columns[1].Width;
     ePlatform_WOD.Width:=DBGridPlatform.Columns[2].Width;
     ePlatform_IMO.Width:=DBGridPlatform.Columns[3].Width;
-    ePlatform_Callsign.Width:=DBGridPlatform.Columns[4].Width;
-    ePlatform_Name.Width:=DBGridPlatform.Columns[5].Width;
-    ePlatform_NameNative.Width:=DBGridPlatform.Columns[6].Width;
-    ePlatform_Country.Width:=DBGridPlatform.Columns[7].Width;
+    ePlatform_CS.Width:=DBGridPlatform.Columns[4].Width;
+    ePlatform_Title.Width:=DBGridPlatform.Columns[5].Width;
+    ePlatform_Name.Width:=DBGridPlatform.Columns[6].Width;
+    ePlatform_NameNative.Width:=DBGridPlatform.Columns[7].Width;
+    ePlatform_Country.Width:=DBGridPlatform.Columns[8].Width;
  end;
  if CodesTblName='COUNTRY' then begin
     occup:=trunc(DBGridCountry.Width-25-
@@ -530,11 +537,10 @@ begin
             DBGridCountry.Columns[1].Width+
             DBGridCountry.Columns[2].Width));
     DBGridCountry.Columns[3].Width:=occup+1;
-
-    eCountry_ID.Width:=DBGridCountry.Columns[0].Width;
+    eCountry_ID.Width  :=DBGridCountry.Columns[0].Width;
     eCountry_NODC.Width:=DBGridCountry.Columns[1].Width;
-    eCountry_ISO.Width:=DBGridCountry.Columns[2].Width;
-    eCountry_NAME.Width:=DBGridCountry.Columns[3].Width;
+    eCountry_ISO.Width :=DBGridCountry.Columns[2].Width;
+    eCountry_NAME.Width:=DBGridCountry.Columns[3].Width
  end;
  if CodesTblName='SOURCE' then begin
     occup:=trunc(DBGridSource.Width-25-
@@ -542,26 +548,37 @@ begin
             DBGridSource.Columns[2].Width+
             DBGridSource.Columns[3].Width));
     DBGridSource.Columns[1].Width:=occup+1;
+    eSource_ID.Width  :=DBGridSource.Columns[0].Width;
     eSource_Name.Width:=DBGridSource.Columns[1].Width;
  end;
  if CodesTblName='PROJECT' then begin
-   eProject_ID.Width:=DBGridProject.Columns[0].Width;
-   eProject_WOD.Width:=DBGridProject.Columns[1].Width;
-   eProject_NAME.Width:=DBGridProject.Columns[2].Width;
-   //eProject_NAMEFULL.Width:=DBGridProject.Columns[3].Width;
+      occup:=trunc(DBGridProject.Width-25-
+           (DBGridProject.Columns[0].Width+
+            DBGridProject.Columns[1].Width));
+    DBGridProject.Columns[2].Width:=occup+1;
+    eProject_ID.Width  :=DBGridProject.Columns[0].Width;
+    eProject_WOD.Width :=DBGridProject.Columns[1].Width;
+    eProject_NAME.Width:=DBGridProject.Columns[2].Width;
  end;
  if CodesTblName='INSTITUTE' then begin
-   eInstitute_ID.Width:=DBGridInstitute.Columns[0].Width;
+      occup:=trunc(DBGridInstitute.Width-25-
+           (DBGridInstitute.Columns[0].Width+
+            DBGridInstitute.Columns[1].Width+
+            DBGridInstitute.Columns[2].Width));
+   DBGridInstitute.Columns[3].Width:=occup+1;
+   eInstitute_ID.Width  :=DBGridInstitute.Columns[0].Width;
    eInstitute_NODC.Width:=DBGridInstitute.Columns[1].Width;
-   eInstitute_WOD.Width:=DBGridInstitute.Columns[2].Width;
+   eInstitute_WOD.Width :=DBGridInstitute.Columns[2].Width;
    eInstitute_NAME.Width:=DBGridInstitute.Columns[3].Width;
-  // eINstitute_NAMEFULL.Width:=DBGridInstitute.Columns[4].Width;
  end;
  if CodesTblName='INSTRUMENT' then begin
     occup:=trunc(DBGridInstrument.Width-25-
            (DBGridInstrument.Columns[0].Width+
             DBGridInstrument.Columns[1].Width));
     DBGridInstrument.Columns[2].Width:=occup+1;
+    eInstrument_ID.Width  :=DBGridInstrument.Columns[0].Width;
+    eInstrument_WOD.Width :=DBGridInstrument.Columns[1].Width;
+    eInstrument_NAME.Width:=DBGridInstrument.Columns[2].Width;
  end;
  if CodesTblName='UNITS' then begin
     occup:=trunc(DBGridUnits.Width-25-
@@ -570,15 +587,9 @@ begin
             DBGridUnits.Columns[3].Width+
             DBGridUnits.Columns[4].Width));
     DBGridUnits.Columns[1].Width:=occup+1;
+    eUnits_ID.Width  :=DBGridUnits.Columns[0].Width;
     eUnits_Name.Width:=DBGridUnits.Columns[1].Width;
  end;
-
-Panel28.Width:=trunc(ToolBar1.Width-20-
-               (btnAdd.Width+
-                btnDelete.Width+
-                btnCancel.Width+
-                btnSave.Width+
-                btnUpdateQC.Width));
 Application.ProcessMessages;
 end;
 
@@ -611,26 +622,8 @@ begin
      mNotesWOD.Lines.Text :=Qt.FieldByName('NOTES_WOD').AsWideString;
     Close;
    end;
-   TRt.Commit;
-   Qt.Free;
-   TRt.Free;
-  end;
- end;
 
-  If (CodesTblName='PLATFORM') or (CodesTblName='INSTITUTE') then begin
-    TRt:=TSQLTransaction.Create(self);
-    TRt.DataBase:=frmdm.IBDB;
-    Qt :=TSQLQuery.Create(self);
-    Qt.Database:=frmdm.IBDB;
-    Qt.Transaction:=TRt;
-
-   lbCountryPlatform.Caption:=''; imgFlagPlatform.Picture.Clear;
-   lbCountryInstitute.Caption:=''; imgFlagInstitute.Picture.Clear;
-
-   cc:=Copy(Q.FieldByName('NODC_CODE').AsString, 1, 2);
-   if trim(cc)='' then exit;
-
-    with Qt do begin
+     with Qt do begin
      Close;
       SQL.Clear;
       SQL.Add(' select COUNT(PLATFORM_ID) FROM CRUISE ');
@@ -641,40 +634,50 @@ begin
      Close;
     end;
 
+   lbCountryPlatform.Caption:=''; imgFlagPlatform.Picture.Clear;
+     with Qt do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' select ISO3166_CODE, NAME from COUNTRY ');
+      SQL.Add(' where ID=:ID');
+      ParamByName('ID').Value:=Q.FieldByName('COUNTRY_ID').AsInteger;
+     Open;
+    end;
+
+    if Qt.IsEmpty=false then begin
+      imgFlagPlatform.Picture.LoadFromLazarusResource(LowerCase(Qt.Fields[0].AsString+'_32'));
+      lbCountryPlatform.Caption:=Qt.Fields[1].AsString;
+    end;
+
+   TRt.Commit;
+   Qt.Free;
+   TRt.Free;
+  end;
+ end;
+
+  If (CodesTblName='INSTITUTE') then begin
+    TRt:=TSQLTransaction.Create(self);
+    TRt.DataBase:=frmdm.IBDB;
+    Qt :=TSQLQuery.Create(self);
+    Qt.Database:=frmdm.IBDB;
+    Qt.Transaction:=TRt;
+
+
+    lbCountryInstitute.Caption:=''; imgFlagInstitute.Picture.Clear;
     with Qt do begin
      Close;
       SQL.Clear;
       SQL.Add(' select ISO3166_CODE, NAME from COUNTRY ');
-      SQL.Add(' where NODC_CODE=:code');
-      ParamByName('code').AsString:=cc;
+      SQL.Add(' where NODC_CODE=:NODC');
+      ParamByName('NODC').Value:=copy(Q.FieldByName('NODC_CODE').Value, 1 ,2);
      Open;
     end;
 
-    if Qt.IsEmpty=true then
-     with Qt do begin
-      Close;
-       SQL.Clear;
-       SQL.Add(' select ISO3166_CODE, NAME from COUNTRY ');
-       SQL.Add(' where ISO3166_CODE=:code');
-       ParamByName('code').AsString:=cc;
-      Open;
-    end;
-
     if Qt.IsEmpty=false then begin
-       try
-         if CodesTblName='PLATFORM' then begin
-            imgFlagPlatform.Picture.LoadFromLazarusResource(LowerCase(Qt.Fields[0].AsString+'_32'));
-            lbCountryPlatform.Caption:=Qt.Fields[1].AsString;
-         end;
-         if CodesTblName='INSTITUTE' then begin
-            imgFlagInstitute.Picture.LoadFromLazarusResource(LowerCase(Qt.Fields[0].AsString+'_32'));
-            lbCountryInstitute.Caption:=Qt.Fields[1].AsString;
-         end;
-       except
-       end;
-
-      end;
-    TRt.Commit;
+      imgFlagInstitute.Picture.LoadFromLazarusResource(LowerCase(Qt.Fields[0].AsString+'_32'));
+      lbCountryInstitute.Caption:=Qt.Fields[1].AsString;
+    end;
+   TRt.Commit;
    Qt.Free;
    TRt.Free;
   end;
@@ -781,11 +784,6 @@ begin
   btnSave.Enabled:=true;
 end;
 
-procedure Tfrmsupporttables.QBeforeScroll(DataSet: TDataSet);
-begin
-  btnsave.OnClick(self);
-end;
-
 
 (* Save changes *)
 procedure Tfrmsupporttables.btnsaveClick(Sender: TObject);
@@ -808,14 +806,14 @@ begin
       frmdm.TR.CommitRetaining;
 
 
-      if ((CodesTblName='DATABASE_TABLES') and (mNotesTables.Lines.Text<>'')) or
-         ((CodesTblName='PLATFORM') and (mNotesPlatform.Lines.Text<>'')) or
-         ((CodesTblName='SOURCE') and (mNotesSource.Lines.Text<>'')) or
-         ((CodesTblName='UNITS') and (mNotesUnits.Lines.Text<>'')) or
-         ((CodesTblName='INSTRUMENT') and (mNotesInstrument.Lines.Text<>'')) or
-         ((CodesTblName='PROJECT') and (mNotesProject.Lines.Text<>'')) or
-         ((CodesTblName='INSTITUTE') and (mNotesInstitute.Lines.Text<>'')) or
-         ((CodesTblName='COUNTRY') and (mNotesCountry.Lines.Text<>'')) then begin
+      if (CodesTblName='DATABASE_TABLES') or
+         (CodesTblName='PLATFORM') or
+         (CodesTblName='SOURCE') or
+         (CodesTblName='UNITS') or
+         (CodesTblName='INSTRUMENT') or
+         (CodesTblName='PROJECT') or
+         (CodesTblName='INSTITUTE') or
+         (CodesTblName='COUNTRY') then begin
 
       try
         TRt:=TSQLTransaction.Create(self);
@@ -831,14 +829,47 @@ begin
           SQL.Add(' NOTES=:NOTES ');
           SQL.Add(' where ID=:ID ');
           ParamByName('ID').AsInteger:=Q.FieldByName('ID').AsInteger;
-          if (CodesTblName='DATABASE_TABLES') then ParamByName('NOTES').AsWideString:=mNotesTables.Lines.Text;
-          if (CodesTblName='PLATFORM')        then ParamByName('NOTES').AsWideString:=mNotesPlatform.Lines.Text;
-          if (CodesTblName='SOURCE')          then ParamByName('NOTES').AsWideString:=mNotesSource.Lines.Text;
-          if (CodesTblName='PROJECT')         then ParamByName('NOTES').AsWideString:=mNotesProject.Lines.Text;
-          if (CodesTblName='INSTITUTE')       then ParamByName('NOTES').AsWideString:=mNotesInstitute.Lines.Text;
-          if (CodesTblName='INSTRUMENT')      then ParamByName('NOTES').AsWideString:=mNotesInstrument.Lines.Text;
-          if (CodesTblName='UNITS')           then ParamByName('NOTES').AsWideString:=mNotesUnits.Lines.Text;
-          if (CodesTblName='COUNTRY')         then ParamByName('NOTES').AsWideString:=mNotesCountry.Lines.Text;
+          if (CodesTblName='DATABASE_TABLES') then begin
+            if mNotesTables.Lines.Text<>'' then
+               ParamByName('NOTES').AsWideString:=mNotesTables.Lines.Text else
+               ParamByName('NOTES').Value:=null;
+          end;
+          if (CodesTblName='PLATFORM') then begin
+            if mNotesPlatform.Lines.Text<>'' then
+               ParamByName('NOTES').AsWideString:=mNotesPlatform.Lines.Text else
+               ParamByName('NOTES').Value:=null;
+          end;
+          if (CodesTblName='SOURCE') then begin
+             if mNotesSource.Lines.Text<>'' then
+               ParamByName('NOTES').AsWideString:=mNotesSource.Lines.Text else
+               ParamByName('NOTES').Value:=null;
+          end;
+          if (CodesTblName='PROJECT') then begin
+             if mNotesProject.Lines.Text<>'' then
+               ParamByName('NOTES').AsWideString:=mNotesProject.Lines.Text else
+               ParamByName('NOTES').Value:=null;
+          end;
+          if (CodesTblName='INSTITUTE') then begin
+             if mNotesInstitute.Lines.Text<>'' then
+               ParamByName('NOTES').AsWideString:=mNotesInstitute.Lines.Text else
+               ParamByName('NOTES').Value:=null;
+          end;
+          if (CodesTblName='INSTRUMENT') then begin
+             if mNotesInstrument.Lines.Text<>'' then
+               ParamByName('NOTES').AsWideString:=mNotesInstrument.Lines.Text else
+               ParamByName('NOTES').Value:=null;
+          end;
+          if (CodesTblName='UNITS') then begin
+             if mNotesUnits.Lines.Text<>'' then
+               ParamByName('NOTES').AsWideString:=mNotesUnits.Lines.Text else
+               ParamByName('NOTES').Value:=null;
+          end;
+          if (CodesTblName='COUNTRY') then begin
+             if mNotesCountry.Lines.Text<>'' then
+               ParamByName('NOTES').AsWideString:=mNotesCountry.Lines.Text else
+               ParamByName('NOTES').Value:=null;
+          end;
+
          ExecSQL;
         end;
       finally
@@ -901,7 +932,7 @@ end;
 
 
 (* IMO *)
-procedure Tfrmsupporttables.ePlatfo(Sender: TObject);
+procedure Tfrmsupporttables.SearchIMO(Sender: TObject);
 begin
  if ePlatform_IMO.Text='' then exit;
    Q.Locate('IMO_ID', StrToInt(ePlatform_IMO.Text),[loCaseInsensitive, loPartialKey]);
@@ -915,7 +946,7 @@ begin
 end;
 
 (* ISO-3166 code *)
-procedure Tfrmsupporttables.eCountry_ISOChange(Sender: TObject);
+procedure Tfrmsupporttables.SearchISO(Sender:TObject);
 begin
  if eCountry_ISO.Text='' then exit;
   Q.Locate('ISO3166_CODE',eCountry_ISO.Text,[loCaseInsensitive, loPartialKey]);
@@ -936,9 +967,9 @@ end;
 
 
 (* Callsign *)
-procedure Tfrmsupporttables.ePlatform_(Sender: TObject);
+procedure Tfrmsupporttables.SearchCS(Sender: TObject);
 begin
- Q.Filter:='CALLSIGN = '+QuotedStr('*'+ePlatform_Callsign.Text+'*');
+ Q.Filter:='CALLSIGN = '+QuotedStr('*'+ePlatform_CS.Text+'*');
  Q.Filtered:=true;
 end;
 
@@ -951,6 +982,13 @@ begin
 end;
 
 
+procedure Tfrmsupporttables.SearchTitle(Sender: TObject);
+begin
+ Q.Filter:='TITLE = '+QuotedStr('*'+ePlatform_Title.Text+'*');
+ Q.Filtered:=true;
+end;
+
+
 (* Cleaning controls on click and drop the filter *)
 procedure Tfrmsupporttables.ePlatform_IDClick(Sender: TObject);
 var
@@ -960,6 +998,7 @@ begin
     if frmsupporttables.Components[k] is TEdit then TEdit(frmsupporttables.Components[k]).Clear;
   Q.Filtered:=false;
 end;
+
 
 procedure Tfrmsupporttables.eProject_NameFullChange(Sender: TObject);
 begin
@@ -1178,6 +1217,7 @@ begin
      Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col05', Columns[5].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col06', Columns[6].Width);
      Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col07', Columns[7].Width);
+     Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col08', Columns[8].Width);
     end;
 
     With DBGridSource do begin

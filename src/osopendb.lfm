@@ -4,7 +4,7 @@ object frmopendb: Tfrmopendb
   Top = 298
   Width = 265
   BorderIcons = [biSystemMenu]
-  BorderStyle = bsSizeToolWin
+  BorderStyle = bsNone
   Caption = 'Open DB'
   ClientHeight = 297
   ClientWidth = 265
@@ -15,6 +15,7 @@ object frmopendb: Tfrmopendb
   Font.Name = 'MS Sans Serif'
   OnClose = FormClose
   OnCreate = FormCreate
+  OnMouseLeave = FormMouseLeave
   LCLVersion = '2.0.6.0'
   Visible = True
   object ListBox1: TListBox

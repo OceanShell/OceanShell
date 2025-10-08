@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, DBGrids, IniFiles, SQLDB, DB, Grids, Menus, Types,
+  ComCtrls, DBGrids, IniFiles, SQLDB, DB, Grids, Menus, DBCtrls, Types,
   TAGraph, TATools, TASeries, TATypes, TAChartAxisUtils,
   TACustomSeries,  // for TChartSeries
   TAChartUtils,
@@ -46,6 +46,7 @@ type
     ToolBar1: TToolBar;
     ToolButton4: TToolButton;
 
+    procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnAddClick(Sender: TObject);
     procedure btnBestProfileClick(Sender: TObject);
@@ -82,7 +83,7 @@ implementation
 
 { Tfrmprofile_station_single }
 
-uses osmain, dm;
+uses osmain, dm, driver_fdb, osprofile_plot_all;
 
 
 function Tfrmprofile_station_single.AddLineSeries(AChart: TChart;
@@ -175,10 +176,9 @@ try
 
     DBGridSingleProfile.Columns[7].PickList.Clear;
     while not Qtt.EOF do begin
-      DBGridSingleProfile.Columns[7].PickList.Add(IntToStr(Qtt.Fields[0].AsInteger));
+     DBGridSingleProfile.Columns[7].PickList.Add(IntToStr(Qtt.Fields[0].AsInteger));
      Qtt.Next;
     end;
-    Qtt.close;
 finally
  Trt.Commit;
  Qtt.Free;
@@ -187,6 +187,15 @@ end;
 
 
 cbParameters.OnChange(self);
+end;
+
+procedure Tfrmprofile_station_single.FormResize(Sender: TObject);
+begin
+ { pUnits.Width:=ToolBar1.Width-(
+                btnAdd.Width+
+                btnDelete.Width+
+                btnCommit.Width);   }
+  //showmessage(inttostr(ToolBar1.Width));
 end;
 
 
@@ -218,8 +227,9 @@ var
   Qt1, Qt2:TSQLQuery;
   Instr_name, TabName, SName, isbest, tblPar:string;
   prof_best: boolean;
-  lev, lev_m, lev_d, val1: real;
+  lev, lev_m, lev_d, val1: double;
   LeftAxisTitle: string;
+  units:integer;
 begin
  //getting list of not empty tables
   cbParameters.Clear;
@@ -391,6 +401,7 @@ mik:=-1;
          lev_m := Qt2.FieldByName('LEV_M').AsVariant;
          lev_d := Qt2.FieldByName('LEV_DBAR').AsVariant;
          val1  := Qt2.FieldByName('VAL').AsFloat;
+         units := Qt2.FieldByName('UNITS_ID').Value;
 
          (* units for the vertical axis *)
          if depth_units=0 then lev:=lev_m else lev:=lev_d;
@@ -642,8 +653,7 @@ begin
   if (Column.Index = 3) or
      (Column.Index = 4) or
      (Column.Index = 5) or
-     (Column.Index = 7) or
-     (Column.Index = 8) then begin
+     (Column.Index = 7) then begin
        if (Editor is TCustomComboBox) then
         with Editor as TCustomComboBox do
           Style := csDropDownList;
@@ -780,6 +790,8 @@ procedure Tfrmprofile_station_single.btnCommitClick(Sender: TObject);
 Var
   ID, Instr_id, Prof_num:integer;
   TabName, Instr_name:string;
+  units:integer;
+  units_ok:boolean;
 begin
   ID:=frmdm.Q.FieldByName('ID').AsInteger;
 
@@ -821,35 +833,34 @@ begin
 
      Qt.First;
      while not Qt.Eof do begin
-      with frmdm.q1 do begin
-       Close;
-        Sql.Clear;
-        SQL.Add('insert into');
-        SQL.Add(CurrentParTable);
-        SQL.Add(' (ID, lev_m, lev_dbar, val, pqf1, pqf2, sqf, ');
-        SQL.Add(' bottle_number, units_id, instrument_id, PROFILE_NUMBER, ');
-        SQL.Add(' PROFILE_BEST) ');
-        SQL.Add(' VALUES ' );
-        SQL.Add(' (:ID, :lev_m, :lev_dbar, :val, :pqf1, :pqf2, :sqf, ');
-        SQL.Add(' :bottle_number, :units_id, :instrument_id, :PROFILE_NUMBER, ');
-        SQL.Add(' :PROFILE_BEST) ');
-        ParamByName('ID').Value:=Qt.FieldByName('ID').Value;
-        ParamByName('LEV_M').Value:=Qt.FieldByName('LEV_M').Value;
-        ParamByName('LEV_DBAR').Value:=Qt.FieldByName('LEV_DBAR').Value;
-        ParamByName('VAL').Value:=Qt.FieldByName('VAL').Value;
-        ParamByName('PQF1').Value:=Qt.FieldByName('PQF1').Value;
-        ParamByName('PQF2').Value:=Qt.FieldByName('PQF2').Value;
-        ParamByName('SQF').Value:=Qt.FieldByName('SQF').Value;
-        ParamByName('BOTTLE_NUMBER').Value:=Qt.FieldByName('BOTTLE_NUMBER').Value;
-        ParamByName('PROFILE_BEST').Value:=Qt.FieldByName('PROFILE_BEST').Value;
-        ParamByName('UNITS_ID').Value:=Qt.FieldByName('UNITS_ID').Value;
-        ParamByName('INSTRUMENT_ID').Value:=Instr_id;
-        ParamByName('PROFILE_NUMBER').Value:=Prof_num;
-      //  showmessage(SQL.Text);
-       ExecSQL;
-      end;
-     Qt.Next;
-   end;
+       PutFDBProfile(frmdm.q1, CurrentParTable,
+         Qt.FieldByName('ID').Value,
+         Qt.FieldByName('LEV_M').Value,
+         Qt.FieldByName('LEV_DBAR').Value,
+         Qt.FieldByName('VAL').Value,
+         Qt.FieldByName('PQF1').Value,
+         Qt.FieldByName('PQF2').Value,
+         Qt.FieldByName('SQF').Value,
+         Qt.FieldByName('BOTTLE_NUMBER').Value,
+         Qt.FieldByName('UNITS_ID').Value,
+         Instr_id, Prof_num,
+         Qt.FieldByName('PROFILE_BEST').Value);
+
+        if frmprofile_plot_all_open=true then
+           frmprofile_plot_all.AddToPlot(
+             Qt.FieldByName('ID').Value,
+             Instr_id, Prof_num, INSTR_NAME,
+             Qt.FieldByName('PQF1').Value,
+             Qt.FieldByName('PQF2').Value,
+             Qt.FieldByName('SQF').Value,
+             Qt.FieldByName('PROFILE_BEST').Value,
+             true, //toUpdate
+             units,
+             units_ok);
+
+      Qt.Next;
+     end;
+     Qt.Close;
 
    frmdm.TR.CommitRetaining;
    except
@@ -863,8 +874,6 @@ begin
      Qt.EnableControls;
    end;
  ChangeID(ID);
-
-// if frmprofile_plot_all_open=true then frmprofile_plot_all.AddToPlot(ID, true);
 end;
 
 

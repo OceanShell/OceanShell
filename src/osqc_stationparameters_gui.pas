@@ -1,11 +1,12 @@
-unit osqc_update_station_parameters;
+unit osqc_stationparameters_gui;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Spin;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Spin,
+  dm, osqc_stationparameters;
 
 type
 
@@ -52,7 +53,9 @@ begin
                 seIDMax.Text+' will be updated. Proceed?',
                 mtConfirmation,[mbYes, mbNo], 0)=mrNo then exit;
 
-  if frminfo_open=false then frmInfo := TfrmInfo.Create(Self) else frminfo.SetFocus;
+  osqc_stationparameters.UpdateStationParameters(frmdm.IBDB, seIDMin.Value, seIDMAX.Value);
+
+ { if frminfo_open=false then frmInfo := TfrmInfo.Create(Self) else frminfo.SetFocus;
 
   btnUpdate.Enabled:=false;
 
@@ -63,7 +66,7 @@ begin
 
 //  showmessage(cmd);
 
-  frmosmain.RunScript(0, cmd, frmInfo.memo1);
+  frmosmain.RunScript(0, cmd, frmInfo.memo1);  }
   btnUpdate.Enabled:=true;
 end;
 

@@ -1,33 +1,31 @@
 object frmsettings: Tfrmsettings
   Left = 672
-  Height = 570
+  Height = 380
   Top = 209
-  Width = 764
+  Width = 509
   ActiveControl = btnOk
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 570
-  ClientWidth = 764
-  DesignTimePPI = 144
-  OnShow = FormShow
+  ClientHeight = 380
+  ClientWidth = 509
   Position = poOwnerFormCenter
-  LCLVersion = '2.0.6.0'
+  OnShow = FormShow
   object btnOk: TButton
-    Left = 632
-    Height = 38
-    Top = 512
-    Width = 112
+    Left = 421
+    Height = 25
+    Top = 341
+    Width = 75
     Caption = 'Ok'
-    OnClick = btnOkClick
     ParentFont = False
     TabOrder = 0
+    OnClick = btnOkClick
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 496
+    Height = 331
     Top = 0
-    Width = 764
+    Width = 509
     ActivePage = TabSheet1
     Align = alTop
     ParentFont = False
@@ -36,217 +34,163 @@ object frmsettings: Tfrmsettings
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = 'Paths'
-      ClientHeight = 458
-      ClientWidth = 756
+      ClientHeight = 303
+      ClientWidth = 501
       ParentFont = False
       object GroupBox6: TGroupBox
-        Left = 16
-        Height = 96
-        Top = 232
-        Width = 716
+        Left = 11
+        Height = 64
+        Top = 155
+        Width = 477
         Caption = 'Support files'
-        ClientHeight = 66
-        ClientWidth = 712
+        ClientHeight = 44
+        ClientWidth = 473
         ParentFont = False
         TabOrder = 0
         object eSupportPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 12
-          Width = 632
+          Left = 12
+          Height = 23
+          Top = 8
+          Width = 421
           Font.Color = clGreen
           ParentFont = False
           ReadOnly = True
           TabOrder = 0
         end
         object btnSupportPath: TButton
-          Left = 657
-          Height = 33
-          Top = 12
-          Width = 39
+          Left = 438
+          Height = 22
+          Top = 8
+          Width = 26
           Caption = '...'
-          OnClick = btnSupportPathClick
           ParentFont = False
           TabOrder = 1
+          OnClick = btnSupportPathClick
         end
       end
       object GroupBox7: TGroupBox
-        Left = 16
-        Height = 96
-        Top = 128
-        Width = 716
+        Left = 11
+        Height = 64
+        Top = 85
+        Width = 477
         Caption = 'Output directory'
-        ClientHeight = 66
-        ClientWidth = 712
+        ClientHeight = 44
+        ClientWidth = 473
         ParentFont = False
         TabOrder = 1
         object eUnloadPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 12
-          Width = 632
+          Left = 12
+          Height = 23
+          Top = 8
+          Width = 421
           Font.Color = clGreen
           ParentFont = False
           ReadOnly = True
           TabOrder = 0
         end
         object btnUnloadPath: TButton
-          Left = 657
-          Height = 33
-          Top = 12
-          Width = 39
+          Left = 438
+          Height = 22
+          Top = 8
+          Width = 26
           Caption = '...'
-          OnClick = btnUnloadPathClick
           ParentFont = False
           TabOrder = 1
+          OnClick = btnUnloadPathClick
         end
       end
       object GroupBox8: TGroupBox
-        Left = 16
-        Height = 96
-        Top = 24
-        Width = 716
+        Left = 11
+        Height = 64
+        Top = 16
+        Width = 477
         Caption = 'Data directory'
-        ClientHeight = 66
-        ClientWidth = 712
+        ClientHeight = 44
+        ClientWidth = 473
         ParentFont = False
         TabOrder = 2
         object eDataPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 12
-          Width = 632
+          Left = 12
+          Height = 23
+          Top = 8
+          Width = 421
           Font.Color = clGreen
           ParentFont = False
           ReadOnly = True
           TabOrder = 0
         end
         object btnDataPath: TButton
-          Left = 657
-          Height = 33
-          Top = 12
-          Width = 39
+          Left = 438
+          Height = 22
+          Top = 8
+          Width = 26
           Caption = '...'
-          OnClick = btnDataPathClick
           ParentFont = False
           TabOrder = 1
+          OnClick = btnDataPathClick
         end
       end
       object GroupBox10: TGroupBox
-        Left = 16
-        Height = 96
-        Top = 344
-        Width = 716
+        Left = 11
+        Height = 64
+        Top = 229
+        Width = 477
         Caption = 'OceanTools directory'
-        ClientHeight = 66
-        ClientWidth = 712
+        ClientHeight = 44
+        ClientWidth = 473
         ParentFont = False
         TabOrder = 3
         object eOceanToolsPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 12
-          Width = 632
+          Left = 12
+          Height = 23
+          Top = 8
+          Width = 421
           Font.Color = clGreen
           ParentFont = False
           ReadOnly = True
           TabOrder = 0
         end
         object btnOceanToolsPath: TButton
-          Left = 657
-          Height = 33
-          Top = 12
-          Width = 39
+          Left = 438
+          Height = 22
+          Top = 8
+          Width = 26
           Caption = '...'
+          ParentFont = False
+          TabOrder = 1
           OnClick = btnOceanToolsPathClick
-          ParentFont = False
-          TabOrder = 1
         end
-      end
-    end
-    object TabSheet5: TTabSheet
-      Caption = 'Python'
-      ClientHeight = 458
-      ClientWidth = 756
-      ParentFont = False
-      object gbPythonPath: TGroupBox
-        Left = 18
-        Height = 96
-        Top = 16
-        Width = 716
-        Caption = 'Path to Python.exe'
-        ClientHeight = 66
-        ClientWidth = 712
-        ParentFont = False
-        TabOrder = 0
-        object ePythonPath: TEdit
-          Left = 16
-          Height = 33
-          Top = 12
-          Width = 632
-          ParentFont = False
-          TabOrder = 0
-        end
-        object btnPython: TButton
-          Left = 657
-          Height = 34
-          Top = 12
-          Width = 39
-          Caption = '...'
-          OnClick = btnPythonClick
-          ParentFont = False
-          TabOrder = 1
-        end
-      end
-      object Memo1: TMemo
-        Left = 18
-        Height = 248
-        Top = 184
-        Width = 716
-        ParentFont = False
-        ScrollBars = ssVertical
-        TabOrder = 1
-      end
-      object btnInstallPackages: TButton
-        Left = 216
-        Height = 34
-        Top = 128
-        Width = 328
-        Caption = 'Install/update required modules'
-        OnClick = btnInstallPackagesClick
-        ParentFont = False
-        TabOrder = 2
       end
     end
     object TabSheet4: TTabSheet
       Caption = 'Visualization'
-      ClientHeight = 458
-      ClientWidth = 756
+      ClientHeight = 303
+      ClientWidth = 501
       ParentFont = False
       object GroupBox3: TGroupBox
-        Left = 288
-        Height = 104
-        Top = 16
-        Width = 252
+        Left = 8
+        Height = 69
+        Top = 160
+        Width = 168
         Caption = 'KML'
-        ClientHeight = 74
-        ClientWidth = 248
+        ClientHeight = 49
+        ClientWidth = 164
         ParentFont = False
         TabOrder = 0
         object Label1: TLabel
-          Left = 16
-          Height = 25
-          Top = 16
-          Width = 106
+          Left = 11
+          Height = 15
+          Top = 11
+          Width = 71
           Caption = 'KML support:'
           ParentColor = False
           ParentFont = False
         end
         object lbKML: TLabel
-          Left = 144
-          Height = 25
-          Top = 16
-          Width = 54
+          Left = 96
+          Height = 15
+          Top = 11
+          Width = 35
           Caption = 'lbKML'
           Font.Style = [fsBold]
           ParentColor = False
@@ -254,10 +198,10 @@ object frmsettings: Tfrmsettings
         end
       end
       object rgDepth: TRadioGroup
-        Left = 564
-        Height = 104
-        Top = 16
-        Width = 170
+        Left = 200
+        Height = 69
+        Top = 160
+        Width = 113
         AutoFill = True
         Caption = 'Depth units'
         ChildSizing.LeftRightSpacing = 6
@@ -267,8 +211,8 @@ object frmsettings: Tfrmsettings
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 74
-        ClientWidth = 166
+        ClientHeight = 49
+        ClientWidth = 109
         ItemIndex = 0
         Items.Strings = (
           'Meters'
@@ -277,135 +221,113 @@ object frmsettings: Tfrmsettings
         ParentFont = False
         TabOrder = 1
       end
-      object rgPlotSoft: TRadioGroup
-        Left = 18
-        Height = 104
+      object gbSurferPath: TGroupBox
+        Left = 8
+        Height = 64
         Top = 16
-        Width = 246
-        AutoFill = True
-        Caption = 'Use for plotting'
-        ChildSizing.LeftRightSpacing = 6
-        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
-        ChildSizing.EnlargeVertical = crsHomogenousChildResize
-        ChildSizing.ShrinkHorizontal = crsScaleChilds
-        ChildSizing.ShrinkVertical = crsScaleChilds
-        ChildSizing.Layout = cclLeftToRightThenTopToBottom
-        ChildSizing.ControlsPerLine = 1
-        ClientHeight = 74
-        ClientWidth = 242
-        ItemIndex = 0
-        Items.Strings = (
-          'Surfer/Grapher'
-          'matplotlib'
-        )
+        Width = 477
+        Caption = 'Surfer (scripter.exe)'
+        ClientHeight = 44
+        ClientWidth = 473
         ParentFont = False
         TabOrder = 2
-      end
-      object gbSurferPath: TGroupBox
-        Left = 18
-        Height = 96
-        Top = 136
-        Width = 716
-        Caption = 'Surfer (scripter.exe)'
-        ClientHeight = 66
-        ClientWidth = 712
-        ParentFont = False
-        TabOrder = 3
         object eSurferPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 12
-          Width = 632
+          Left = 12
+          Height = 23
+          Top = 8
+          Width = 421
           ParentFont = False
+          ReadOnly = True
           TabOrder = 0
         end
         object btnSurferPath: TButton
-          Left = 658
-          Height = 34
-          Top = 12
-          Width = 39
+          Left = 439
+          Height = 23
+          Top = 8
+          Width = 26
           Caption = '...'
-          OnClick = btnSurferPathClick
           ParentFont = False
           TabOrder = 1
+          OnClick = btnSurferPathClick
         end
       end
       object gbGrapherPath: TGroupBox
-        Left = 18
-        Height = 96
-        Top = 240
-        Width = 716
+        Left = 8
+        Height = 64
+        Top = 88
+        Width = 477
         Caption = 'Grapher (scripter.exe)'
-        ClientHeight = 66
-        ClientWidth = 712
+        ClientHeight = 44
+        ClientWidth = 473
         ParentFont = False
-        TabOrder = 4
+        TabOrder = 3
         object eGrapherPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 16
-          Width = 632
+          Left = 12
+          Height = 23
+          Top = 11
+          Width = 421
           ParentFont = False
+          ReadOnly = True
           TabOrder = 0
         end
         object btnGrapherPath: TButton
-          Left = 658
-          Height = 34
-          Top = 15
-          Width = 39
+          Left = 439
+          Height = 23
+          Top = 10
+          Width = 26
           Caption = '...'
-          OnClick = btnGrapherPathClick
           ParentFont = False
           TabOrder = 1
+          OnClick = btnGrapherPathClick
         end
       end
     end
     object TabSheet2: TTabSheet
       Caption = 'Bathymetry'
-      ClientHeight = 458
-      ClientWidth = 756
+      ClientHeight = 303
+      ClientWidth = 501
       object GroupBox9: TGroupBox
-        Left = 16
-        Height = 94
-        Top = 16
-        Width = 716
-        Caption = 'GEBCO 2020/2021'
-        ClientHeight = 64
-        ClientWidth = 712
+        Left = 11
+        Height = 63
+        Top = 11
+        Width = 477
+        Caption = 'GEBCO'
+        ClientHeight = 43
+        ClientWidth = 473
         ParentFont = False
         TabOrder = 0
         object eGEBCOPath: TEdit
-          Left = 18
-          Height = 33
-          Top = 12
-          Width = 632
+          Left = 12
+          Height = 23
+          Top = 8
+          Width = 421
           Font.Color = clGreen
           ParentFont = False
           ReadOnly = True
           TabOrder = 0
         end
         object btnGEBCOPath: TButton
-          Left = 657
-          Height = 33
-          Top = 12
-          Width = 39
+          Left = 438
+          Height = 22
+          Top = 8
+          Width = 26
           Caption = '...'
-          OnClick = btnGEBCOPathClick
           ParentFont = False
           TabOrder = 1
+          OnClick = btnGEBCOPathClick
         end
       end
     end
     object tsAdvanced: TTabSheet
       Caption = 'Advanced'
-      ClientHeight = 458
-      ClientWidth = 756
+      ClientHeight = 303
+      ClientWidth = 501
       ParentFont = False
       object mAdvancedSettings: TMemo
-        Left = 18
-        Height = 408
-        Top = 24
-        Width = 714
+        Left = 12
+        Height = 272
+        Top = 16
+        Width = 476
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
@@ -413,12 +335,12 @@ object frmsettings: Tfrmsettings
     end
   end
   object chkExpFeat: TCheckBox
-    Left = 24
-    Height = 29
-    Top = 521
-    Width = 392
+    Left = 16
+    Height = 19
+    Top = 347
+    Width = 262
     Caption = 'Enable experimental features (undocumented)'
-    OnChange = chkExpFeatChange
     TabOrder = 2
+    OnChange = chkExpFeatChange
   end
 end

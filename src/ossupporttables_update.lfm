@@ -1,59 +1,55 @@
 object frmsupporttables_update: Tfrmsupporttables_update
   Left = 121
-  Height = 825
+  Height = 550
   Top = 163
-  Width = 1537
+  Width = 1025
   Caption = 'Support tables update and QC'
-  ClientHeight = 825
-  ClientWidth = 1537
-  DesignTimePPI = 144
+  ClientHeight = 550
+  ClientWidth = 1025
   Position = poOwnerFormCenter
-  LCLVersion = '2.0.6.0'
   object PageControl1: TPageControl
     Left = 0
-    Height = 592
+    Height = 395
     Top = 0
-    Width = 1537
-    ActivePage = TabSheet3
+    Width = 1025
+    ActivePage = TabSheet1
     Align = alTop
     ParentFont = False
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Update'
-      ClientHeight = 554
-      ClientWidth = 1529
+      ClientHeight = 367
+      ClientWidth = 1017
       ParentFont = False
       object GroupBox1: TGroupBox
-        Left = 12
-        Height = 132
-        Top = 12
-        Width = 528
+        Left = 8
+        Height = 120
+        Top = 8
+        Width = 376
         Caption = 'PLATFORM'
-        ClientHeight = 102
-        ClientWidth = 524
+        ClientHeight = 100
+        ClientWidth = 372
         ParentFont = False
         TabOrder = 0
         object btnPlatformICES: TButton
-          Left = 324
-          Height = 38
-          Top = -4
-          Width = 180
+          Left = 240
+          Height = 25
+          Top = -1
+          Width = 120
           Caption = 'Update ICES codes'
-          OnClick = btnPlatformICESClick
           ParentFont = False
           TabOrder = 0
+          OnClick = btnPlatformICESClick
         end
         object Label12: TLabel
           Cursor = crHandPoint
-          Left = 12
-          Height = 20
-          Top = 14
-          Width = 295
+          Left = 8
+          Height = 15
+          Top = 9
+          Width = 215
           Caption = 'Download ICES codes in the Excel format'
           Font.Color = clBlue
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentColor = False
           ParentFont = False
@@ -61,249 +57,275 @@ object frmsupporttables_update: Tfrmsupporttables_update
         end
         object Label8: TLabel
           Cursor = crHandPoint
-          Left = 12
-          Height = 20
-          Top = 60
-          Width = 244
+          Left = 8
+          Height = 15
+          Top = 74
+          Width = 183
           Caption = 'Download data from WOD website'
           Font.Color = clBlue
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentColor = False
           ParentFont = False
           OnClick = Label8Click
         end
         object btnPlatformWOD2013: TButton
-          Left = 324
-          Height = 38
-          Top = 42
-          Width = 180
+          Left = 240
+          Height = 25
+          Top = 64
+          Width = 120
           Caption = 's_3_platform.csv'
-          OnClick = btnPlatformWOD2013Click
           ParentFont = False
           TabOrder = 1
+          OnClick = btnPlatformWOD2013Click
+        end
+        object btnNODC_WOD: TButton
+          Left = 240
+          Height = 25
+          Top = 32
+          Width = 120
+          Caption = 'platformlist.txt'
+          TabOrder = 2
+          OnClick = btnNODC_WODClick
+        end
+        object Label9: TLabel
+          Cursor = crHandPoint
+          Left = 8
+          Height = 15
+          Top = 40
+          Width = 110
+          Caption = 'NODC + WOD codes'
+          Font.Color = clBlue
+          Font.Style = [fsUnderline]
+          ParentColor = False
+          ParentFont = False
         end
       end
       object GroupBox3: TGroupBox
-        Left = 12
-        Height = 132
-        Top = 156
-        Width = 528
+        Left = 400
+        Height = 88
+        Top = 8
+        Width = 376
         Caption = 'COUNTRY'
-        ClientHeight = 102
-        ClientWidth = 524
+        ClientHeight = 68
+        ClientWidth = 372
         ParentFont = False
         TabOrder = 1
         object Label7: TLabel
           Cursor = crHandPoint
-          Left = 12
-          Height = 20
-          Top = 12
-          Width = 171
+          Left = 8
+          Height = 15
+          Top = 8
+          Width = 124
           Caption = 'Download free ISO data'
           Font.Color = clBlue
-          Font.Height = -17
-          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentColor = False
           ParentFont = False
           OnClick = Label7Click
         end
         object btnCountryISO: TButton
-          Left = 324
-          Height = 38
-          Top = -6
-          Width = 180
+          Left = 240
+          Height = 25
+          Top = -2
+          Width = 120
           Caption = 'data.csv'
-          OnClick = btnCountryISOClick
           ParentFont = False
           TabOrder = 0
+          OnClick = btnCountryISOClick
         end
         object Label1: TLabel
-          Left = 12
-          Height = 25
-          Top = 60
-          Width = 136
+          Cursor = crHandPoint
+          Left = 8
+          Height = 15
+          Top = 40
+          Width = 90
           Caption = 'WOD country list'
+          Font.Color = clBlue
+          Font.Style = [fsUnderline]
           ParentColor = False
           ParentFont = False
           OnClick = Label1Click
         end
         object btnCountryWOD: TButton
-          Left = 324
-          Height = 38
-          Top = 42
-          Width = 180
+          Left = 240
+          Height = 25
+          Top = 32
+          Width = 120
           Caption = 'country_list.txt'
-          OnClick = btnCountryWODClick
           ParentFont = False
           TabOrder = 1
+          OnClick = btnCountryWODClick
         end
       end
       object GroupBox4: TGroupBox
-        Left = 12
-        Height = 96
-        Top = 408
-        Width = 528
+        Left = 8
+        Height = 64
+        Top = 208
+        Width = 376
         Caption = 'INSTITUTE'
-        ClientHeight = 66
-        ClientWidth = 524
+        ClientHeight = 44
+        ClientWidth = 372
         ParentFont = False
         TabOrder = 2
         object Label2: TLabel
-          Left = 12
-          Height = 25
-          Top = 15
-          Width = 139
+          Cursor = crHandPoint
+          Left = 8
+          Height = 15
+          Top = 18
+          Width = 92
           Caption = 'WOD institute list'
+          Font.Color = clBlue
+          Font.Style = [fsUnderline]
           ParentColor = False
           ParentFont = False
-          OnClick = Label1Click
+          OnClick = Label2Click
         end
         object btnInstituteWOD: TButton
-          Left = 324
-          Height = 38
-          Top = 0
-          Width = 180
+          Left = 240
+          Height = 25
+          Top = 8
+          Width = 120
           Caption = 's_4_institute.txt'
-          OnClick = btnInstituteWODClick
           ParentFont = False
           TabOrder = 0
+          OnClick = btnInstituteWODClick
         end
       end
       object GroupBox5: TGroupBox
-        Left = 12
-        Height = 96
-        Top = 300
-        Width = 528
+        Left = 8
+        Height = 64
+        Top = 136
+        Width = 376
         Caption = 'PROJECT'
-        ClientHeight = 66
-        ClientWidth = 524
+        ClientHeight = 44
+        ClientWidth = 372
         ParentFont = False
         TabOrder = 3
         object Label3: TLabel
-          Left = 12
-          Height = 25
-          Top = 15
-          Width = 131
+          Cursor = crHandPoint
+          Left = 8
+          Height = 15
+          Top = 16
+          Width = 86
           Caption = 'WOD project list'
+          Font.Color = clBlue
+          Font.Style = [fsUnderline]
           ParentColor = False
           ParentFont = False
-          OnClick = Label1Click
+          OnClick = Label3Click
         end
         object btnProjectWOD: TButton
-          Left = 324
-          Height = 38
-          Top = 0
-          Width = 180
-          Caption = 's_2_project.txt'
-          OnClick = btnProjectWODClick
+          Left = 240
+          Height = 25
+          Top = 8
+          Width = 120
+          Caption = 's_2_project.csv'
           ParentFont = False
           TabOrder = 0
+          OnClick = btnProjectWODClick
         end
       end
       object chkShowLog: TCheckBox
-        Left = 12
-        Height = 29
-        Top = 514
-        Width = 126
+        Left = 8
+        Height = 19
+        Top = 343
+        Width = 81
         Caption = 'Detailed log'
         ParentFont = False
         TabOrder = 4
       end
       object GroupBox6: TGroupBox
-        Left = 564
-        Height = 96
-        Top = 12
-        Width = 528
+        Left = 400
+        Height = 64
+        Top = 104
+        Width = 376
         Caption = 'PI'
-        ClientHeight = 66
-        ClientWidth = 524
+        ClientHeight = 44
+        ClientWidth = 372
         ParentFont = False
         TabOrder = 5
         object Label4: TLabel
-          Left = 12
-          Height = 25
-          Top = 15
-          Width = 91
+          Left = 8
+          Height = 15
+          Top = 18
+          Width = 59
           Caption = 'WOD PI list'
           ParentColor = False
           ParentFont = False
           OnClick = Label1Click
         end
         object btnPIWOD: TButton
-          Left = 252
-          Height = 38
-          Top = 0
-          Width = 252
+          Left = 192
+          Height = 25
+          Top = 8
+          Width = 168
           Caption = 'primary_investigator_list.txt'
-          OnClick = btnPIWODClick
           ParentFont = False
           TabOrder = 0
+          OnClick = btnPIWODClick
         end
       end
       object GroupBox7: TGroupBox
-        Left = 564
-        Height = 132
-        Top = 120
-        Width = 528
+        Left = 400
+        Height = 96
+        Top = 176
+        Width = 376
         Caption = 'CRUISE'
-        ClientHeight = 102
-        ClientWidth = 524
+        ClientHeight = 76
+        ClientWidth = 372
         ParentFont = False
         TabOrder = 6
         object Label5: TLabel
-          Left = 12
-          Height = 25
-          Top = 15
-          Width = 124
+          Left = 8
+          Height = 15
+          Top = 10
+          Width = 82
           Caption = 'WOD Cruise list'
           ParentColor = False
           ParentFont = False
           OnClick = Label1Click
         end
         object btnCruiseWOD: TButton
-          Left = 252
-          Height = 38
+          Left = 192
+          Height = 25
           Top = 0
-          Width = 252
+          Width = 168
           Caption = 'allcruises_list.txt'
-          OnClick = btnCruiseWODClick
           ParentFont = False
           TabOrder = 0
+          OnClick = btnCruiseWODClick
         end
         object Label6: TLabel
-          Left = 12
-          Height = 25
-          Top = 57
-          Width = 150
+          Left = 8
+          Height = 15
+          Top = 42
+          Width = 101
           Caption = 'GLODAP cruise md'
           ParentColor = False
           ParentFont = False
         end
         object btnCruiseGLODAP: TButton
-          Left = 252
-          Height = 38
-          Top = 42
-          Width = 252
+          Left = 192
+          Height = 25
+          Top = 32
+          Width = 168
           Caption = 'GLODAP Cruise'
-          OnClick = btnCruiseGLODAPClick
           ParentFont = False
           TabOrder = 1
+          OnClick = btnCruiseGLODAPClick
         end
       end
     end
     object TabSheet2: TTabSheet
       Caption = 'QC'
-      ClientHeight = 554
-      ClientWidth = 1529
+      ClientHeight = 367
+      ClientWidth = 1017
       ParentFont = False
       object rgDuplicates: TRadioGroup
-        Left = 24
-        Height = 228
-        Top = 12
-        Width = 314
+        Left = 16
+        Height = 152
+        Top = 8
+        Width = 209
         AutoFill = True
         Caption = 'Duplicates in PLATFORM'
         ChildSizing.LeftRightSpacing = 6
@@ -313,8 +335,8 @@ object frmsupporttables_update: Tfrmsupporttables_update
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 198
-        ClientWidth = 310
+        ClientHeight = 132
+        ClientWidth = 205
         ItemIndex = 0
         Items.Strings = (
           'Vessel name'
@@ -328,20 +350,20 @@ object frmsupporttables_update: Tfrmsupporttables_update
         TabOrder = 0
       end
       object btnPlatformDuplicates: TButton
-        Left = 24
-        Height = 38
-        Top = 252
-        Width = 314
+        Left = 16
+        Height = 25
+        Top = 168
+        Width = 209
         Caption = 'Find duplicates in PLATFORM'
-        OnClick = btnPlatformDuplicatesClick
         ParentFont = False
         TabOrder = 1
+        OnClick = btnPlatformDuplicatesClick
       end
       object rgDupCountry: TRadioGroup
-        Left = 24
-        Height = 134
-        Top = 312
-        Width = 314
+        Left = 16
+        Height = 89
+        Top = 208
+        Width = 209
         AutoFill = True
         Caption = 'Duplicates in COUNTRY'
         ChildSizing.LeftRightSpacing = 6
@@ -351,8 +373,8 @@ object frmsupporttables_update: Tfrmsupporttables_update
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 104
-        ClientWidth = 310
+        ClientHeight = 69
+        ClientWidth = 205
         ItemIndex = 0
         Items.Strings = (
           'Country name'
@@ -363,90 +385,90 @@ object frmsupporttables_update: Tfrmsupporttables_update
         TabOrder = 2
       end
       object btnCountryDuplicates: TButton
-        Left = 24
-        Height = 38
-        Top = 456
-        Width = 314
+        Left = 16
+        Height = 25
+        Top = 304
+        Width = 209
         Caption = 'Find duplicates in COUNTRY'
-        OnClick = btnCountryDuplicatesClick
         ParentFont = False
         TabOrder = 3
+        OnClick = btnCountryDuplicatesClick
       end
     end
     object TabSheet3: TTabSheet
       Caption = 'Auxiliary procedures'
-      ClientHeight = 554
-      ClientWidth = 1529
+      ClientHeight = 367
+      ClientWidth = 1017
       object Button2: TButton
-        Left = 40
-        Height = 38
-        Top = 40
-        Width = 209
+        Left = 27
+        Height = 25
+        Top = 27
+        Width = 139
         Caption = 'Vessel IDs by name'
-        OnClick = Button2Click
         TabOrder = 0
+        OnClick = Button2Click
       end
       object Button3: TButton
-        Left = 40
-        Height = 38
-        Top = 96
-        Width = 209
+        Left = 27
+        Height = 25
+        Top = 64
+        Width = 139
         Caption = 'AARI_Raid to platforms'
-        OnClick = Button3Click
         TabOrder = 1
+        OnClick = Button3Click
       end
       object Button4: TButton
-        Left = 40
-        Height = 38
-        Top = 152
-        Width = 280
+        Left = 27
+        Height = 25
+        Top = 101
+        Width = 187
         Caption = 'COUNTRY_ID to PLATFORMS'
-        OnClick = Button4Click
         TabOrder = 2
+        OnClick = Button4Click
       end
       object Button5: TButton
-        Left = 40
-        Height = 38
-        Top = 208
-        Width = 280
+        Left = 27
+        Height = 25
+        Top = 139
+        Width = 187
         Caption = 'Projects-acronyms'
-        OnClick = Button5Click
         TabOrder = 3
+        OnClick = Button5Click
       end
       object Button1: TButton
-        Left = 40
-        Height = 38
-        Top = 272
-        Width = 314
+        Left = 27
+        Height = 25
+        Top = 181
+        Width = 209
         Caption = 'Ship type from name to class'
-        OnClick = Button1Click
         ParentFont = False
         TabOrder = 4
+        OnClick = Button1Click
       end
       object Button6: TButton
-        Left = 40
-        Height = 38
-        Top = 328
-        Width = 313
+        Left = 27
+        Height = 25
+        Top = 219
+        Width = 209
         Caption = 'ICES vessel names'
         TabOrder = 5
       end
       object Button7: TButton
-        Left = 40
-        Height = 38
-        Top = 376
-        Width = 313
+        Left = 27
+        Height = 25
+        Top = 251
+        Width = 209
         Caption = 'Wod vessel names'
-        OnClick = Button7Click
         TabOrder = 6
+        OnClick = Button7Click
       end
     end
   end
   object mLog: TMemo
     Left = 0
-    Height = 229
-    Top = 596
-    Width = 1537
+    Height = 152
+    Top = 398
+    Width = 1025
     Align = alClient
     ParentFont = False
     ScrollBars = ssBoth
@@ -455,9 +477,9 @@ object frmsupporttables_update: Tfrmsupporttables_update
   object Splitter1: TSplitter
     Cursor = crVSplit
     Left = 0
-    Height = 4
-    Top = 592
-    Width = 1537
+    Height = 3
+    Top = 395
+    Width = 1025
     Align = alTop
     ResizeAnchor = akTop
   end

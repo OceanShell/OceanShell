@@ -56,13 +56,6 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
       OnClick = btnNextClick
       ShowCaption = False
     end
-    object btnAllParameters: TToolButton
-      Left = 72
-      Top = 2
-      Action = frmosmain.aProfilesStationAll
-      AutoSize = True
-      ShowCaption = False
-    end
     object btnMap: TToolButton
       Left = 143
       Top = 2
@@ -78,7 +71,7 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
       Style = tbsDivider
     end
     object btnSingleProfile: TToolButton
-      Left = 105
+      Left = 72
       Top = 2
       Action = frmosmain.aProfilesStationSingle
       AutoSize = True
@@ -162,6 +155,12 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
       Caption = 'ToolButton3'
       Style = tbsDivider
     end
+    object btnAllParameters: TToolButton
+      Left = 105
+      Top = 2
+      Action = frmosmain.aProfilesStationAll
+      ShowCaption = False
+    end
   end
   object Chart1: TChart
     Left = 0
@@ -182,6 +181,10 @@ object frmprofile_plot_all: Tfrmprofile_plot_all
       end    
       item
         Grid.Visible = False
+        Intervals.MaxLength = 100
+        Intervals.MinLength = 20
+        Intervals.NiceSteps = '2|5|10'
+        Intervals.Tolerance = 1
         Alignment = calTop
         Marks.LabelBrush.Style = bsClear
         Minors = <>

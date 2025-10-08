@@ -16,25 +16,17 @@ type
 
   TfrmloadPangaeaTab = class(TForm)
     btnCheckCompliance: TBitBtn;
-    btnDeleteSelected: TBitBtn;
-    btnUpdateStation: TBitBtn;
-    btnCreatePangeaeaDB: TBitBtn;
     btnDownloadPrf: TBitBtn;
     btnDownloadMD: TBitBtn;
-    btnPreprocessing: TBitBtn;
-    btnSelectProfiles: TButton;
+    btnOpenFile: TButton;
     CheckBox1: TCheckBox;
-    CheckBox2: TCheckBox;
-    Edit1: TEdit;
     Edit2: TEdit;
     Edit3: TEdit;
-    FileListBox1: TFileListBox;
     GroupBox1: TGroupBox;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
-    Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
@@ -46,17 +38,12 @@ type
     StringGrid2: TStringGrid;
     StringGrid3: TStringGrid;
     StringGrid4: TStringGrid;
+
     procedure btnCheckComplianceClick(Sender: TObject);
-    procedure btnCreatePangeaeaDBClick(Sender: TObject);
-    procedure btnDeleteSelectedClick(Sender: TObject);
     procedure btnDownloadMDClick(Sender: TObject);
     procedure btnDownloadPrfClick(Sender: TObject);
-    procedure btnPreprocessingClick(Sender: TObject);
-    procedure btnSelectProfilesClick(Sender: TObject);
-    procedure btnUpdateStationClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
-    procedure StringGrid1SelectCell(Sender: TObject; aCol, aRow: Integer;
-      var CanSelect: Boolean);
+    procedure btnOpenFileClick(Sender: TObject);
+
   private
 
   public
@@ -80,21 +67,16 @@ uses osmain, procedures, dm;
 
 { TfrmloadPangaeaTab }
 
-procedure TfrmloadPangaeaTab.FormShow(Sender: TObject);
+procedure TfrmloadPangaeaTab.btnOpenFileClick(Sender: TObject);
 var
 i,col:integer;
 fn,st,buf:string;
 colTitle_arr:array[1..100] of string;
 begin
   memo1.Clear;
-  FileListBox1.Clear;
-  PathSource:='c:\Users\ako071\AK\datasets\Partners\Pangaea\download\';
-  PathOut:='c:\Users\ako071\AK\datasets\Partners\Pangaea\output\';
-  FileListBox1.Directory:=PathSource;
 
+  if frmosmain.od.Execute then fn:=frmosmain.OD.FileName else exit;
 
-  //StringGrid1: columns in file
-  fn:=PathSource+FileListBox1.Items.Strings[0];
   AssignFile(fi,concat(fn));
   Reset(fi);
   memo1.Lines.Add(fn);
@@ -195,29 +177,8 @@ begin
    StringGrid4.Cells[1,0]:='title';
    StringGrid4.Cells[2,0]:='col#';
    StringGrid4.Cells[3,0]:='unit';
-
-
-
 end;
 
-
-
-
-
-
-
-procedure TfrmloadPangaeaTab.StringGrid1SelectCell(Sender: TObject; aCol,
-  aRow: Integer; var CanSelect: Boolean);
-begin
-    Edit1.text:=inttostr(StringGrid1.Row);
-end;
-
-
-//procedure TfrmloadPangaeaTab.StringGrid2SelectCell(Sender: TObject; aCol,
-//  aRow: Integer; var CanSelect: Boolean);
-//begin
-//   StringGrid2.Cells[acol,arow]:=Edit1.text;
-//end;
 
 
 procedure TfrmloadPangaeaTab.btnCheckComplianceClick(Sender: TObject);
@@ -249,86 +210,9 @@ begin
      if StringGrid4.Cells[1,vcount]='P_OXYGEN_CTD' then StringGrid4.Cells[3,vcount]:='3';
      if StringGrid4.Cells[1,vcount]='P_OXYGEN_BOTTLE' then StringGrid4.Cells[3,vcount]:='3';
      if StringGrid4.Cells[1,vcount]='P_TRANSMISSION_CTD' then StringGrid4.Cells[3,vcount]:='10';
-
-
 {v}end;
 {i}end;
 end;
-
-
-
-
-
-
-
-
-procedure TfrmloadPangaeaTab.btnPreprocessingClick(Sender: TObject);
-var
-  i,kfile,stn,mik,ln1,ln2,md_count:integer;
-  fn,st,buf,md_str:string;
-  md_str_arr:array[1..10000] of string;
-begin
-
-{f}for kfile:=0 to FileListBox1.Items.Count-1 do begin
-     fn:=PathSource+FileListBox1.Items.Strings[kfile];
-
-     AssignFile(fi,concat(fn));
-     Reset(fi);
-
-     memo1.Lines.Add(inttostr(kfile+1)+#9+fn);
-
-     stn:=0;
-     mik:=0;
-{w}while not EOF(fi) do begin
-     readln(fi,st);
-     mik:=mik+1;
-     if copy(st,1,9)='Event(s):' then ln1:=mik;
-     if copy(st,1,8)='Comment:'  then ln2:=mik;
-{w}end;
-     closefile(fi);
-
-     stn:=ln2-ln1-1;
-     memo1.Lines.Add('ln1:'+inttostr(ln1)+'   '+'Event(s):');
-     memo1.Lines.Add('ln2:'+inttostr(ln2)+'   '+'Comment:');
-
-     reset(fi);
-     mik:=0;
-     stn:=0;
-{w}while not EOF(fi) do begin
-     readln(fi,st);
-     mik:=mik+1;
-{m}if (mik>ln1) and (mik<ln2) then begin
-     stn:=stn+1;
-
-     st:=trim(st);
-
-     md_count:=0;
-     buf:='';
-{s}for i:=1 to length(st) do begin
-     if st[i]<>'*' then buf:=buf+st[i]
-     else begin
-          md_count:=md_count+1;
-          md_str_arr[md_count]:=buf;
-          buf:='';
-     end;
-{s}end;
-
-     md_str:='';
-   for i:=1 to md_count do md_str:=md_str+#9+md_str_arr[i];
-
-     memo1.Lines.Add(inttostr(stn)+#9+md_str);
-{m}end;
-{w}end;
-
-
-     closefile(fi);
-     memo1.Lines.Add('st#:'+inttostr(stn));
-{f}end;
-
-end;
-
-
-
 
 
 procedure TfrmloadPangaeaTab.btnDownloadMDClick(Sender: TObject);
@@ -424,8 +308,8 @@ begin
 {ID}end;
 
 
-{f}for kfile:=0 to FileListBox1.Items.Count-1 do begin
-     fn:=PathSource+FileListBox1.Items.Strings[kfile];
+//{f}for kfile:=0 to FileListBox1.Items.Count-1 do begin
+//     fn:=PathSource+FileListBox1.Items.Strings[kfile];
 
      AssignFile(fi,concat(fn));
      Reset(fi);
@@ -776,7 +660,7 @@ begin
 
      closefile(fi);
      absnum:=ID;
-{f}end;
+//{f}end;
      closefile(f_station);
      closefile(f_temp_ctd);
      closefile(f_salt_ctd);
@@ -842,605 +726,7 @@ begin
       frmdm.TR.Commit;
 {v}end;
       memo1.Lines.Add('prf end: '+datetimetostr(NOW));
-
-
 end;
-
-
-
-
-
-procedure TfrmloadPangaeaTab.btnSelectProfilesClick(Sender: TObject);
-var
-i:integer;
-begin
-  frmdm.IBDB.GetTableNames(ListBox1.Items,False);
-  ListBox1.Visible:=true;
-
-
-  for i:=0 to ListBox1.Items.Count-1 do
-  if (copy(ListBox1.items.strings[i],1,2)='P_')
-  then ListBox2.Items.Add(ListBox1.items.strings[i]);
-
-  //if (copy(ListBox1.items.strings[i],1,2)='P_') then ListBox1.Items.Delete(ListBox1.ItemIndex);
-  //if (copy(ListBox1.items.strings[i],1,2)='P_') then ListBox1.Items.Delete(i);
-
-  ListBox1.Visible:=true;
-  ListBox2.Visible:=true;
-  btnDeleteSelected.Visible:=true;
-  btnUpdateStation.Visible:=true;
-end;
-
-
-
-
-procedure TfrmloadPangaeaTab.btnDeleteSelectedClick(Sender: TObject);
-begin
-  ListBox1.DeleteSelected;
-end;
-
-
-
-
-procedure TfrmloadPangaeaTab.btnUpdateStationClick(Sender: TObject);
-var
-i,kst,kpr,MaxID:integer;
-LLdbar,LLm,LLdbar_max,LLm_max:real;
-tbl:string;
-begin
-
-    //showmessage('items in listbox: '+inttostr(ListBox2.Items.Count));
-
-    with frmdm.q1 do begin
-     Close;
-     SQL.Clear;
-     SQL.Add(' select max(ID) as MaxID from station  ');
-     Open;
-     MaxID:=frmdm.q1.FieldByName('MAXID').AsInteger;
-     Close;
-    end;
-
-     memo1.Lines.Add('...last levels in STATION will be updated');
-     memo1.Lines.Add('Maximum ID in DB='+inttostr(MaxID));
-
-{st}for kst:=1 to maxid do begin
-
-    //max level from all profiles tables
-{pr}for kpr:=0 to ListBox2.Items.Count-1 do begin
-     tbl:=ListBox2.Items.Strings[kpr];
-
-     LLdbar_max:=0;
-     LLm_max:=0;
-
-     with frmdm.q1 do begin
-      Close;
-      SQL.Clear;
-      SQL.Add(' select max(lev_dbar) as LL_dbar, max(lev_m) as LL_m  ');
-      SQL.Add(' from  ');
-      SQL.Add(tbl);
-      SQL.Add(' where ID=:ID  ');
-      ParamByName('ID').AsInteger:=kst;
-      Open;
-      LLdbar:=frmdm.q1.FieldByName('LL_dbar').AsFloat;
-      LLm:=frmdm.q1.FieldByName('LL_m').AsFloat;
-      Close;
-     end;
-      if LLdbar_max<LLdbar then LLdbar_max:=LLdbar;
-      if LLm_max<LLm then LLm_max:=LLm;
-      if CheckBox2.Checked then
-      memo1.Lines.Add(inttostr(kst)+#9+floattostr(LLdbar_max)+' dbar '
-      +#9+floattostr(LLm_max)+' m '
-      +#9+tbl);
-{pr}end;
-
-
-      with frmdm.q1 do begin
-       Close;
-       SQL.Clear;
-       SQL.Add(' update STATION set lastlevel_m=:LL_m, lastlevel_dbar=:LL_dbar  ');
-       SQL.Add(' where ID=:ID  ');
-       ParamByName('ID').AsInteger:=kst;
-       ParamByName('LL_m').AsFloat:=LLm_max;
-       ParamByName('LL_dbar').AsFloat:=LLdbar_max;
-       ExecSQL;
-       Close;
-      end;
-
-      //frmdm.TR.CommitRetaining;
-{st}end;
-       frmdm.TR.Commit;
-
-       memo1.Lines.Add('...STATION has been updated');
-
-
-end;
-
-
-
-
-procedure TfrmloadPangaeaTab.btnCreatePangeaeaDBClick(Sender: TObject);
-Var
-DB:TIBConnection;
-TR:TSQLTransaction;
-ST:TSQLScript;
-
-IBName:string;
-
-    (* Script for main tables *)
-    const ScriptText=
-       (* STATION *)
-       'CREATE TABLE STATION ('+LineEnding+
-       '    ID                  BIGINT NOT NULL, '+LineEnding+
-       '    LATITUDE            DECIMAL(8,5) NOT NULL, '+LineEnding+
-       '    LONGITUDE           DECIMAL(9,5) NOT NULL, '+LineEnding+
-       '    DATEANDTIME         TIMESTAMP NOT NULL, '+LineEnding+
-       '    BOTTOMDEPTH         INTEGER, '+LineEnding+
-       '    LASTLEVEL_M         INTEGER, '+LineEnding+
-       '    LASTLEVEL_DBAR      INTEGER, '+LineEnding+
-       '    CRUISE_ID           BIGINT NOT NULL, '+LineEnding+
-       '    INSTRUMENT_ID       BIGINT NOT NULL, '+LineEnding+
-       '    ST_NUMBER_ORIGIN    VARCHAR(50), '+LineEnding+
-       '    ST_ID_ORIGIN        BIGINT, '+LineEnding+
-       '    CAST_NUMBER         SMALLINT DEFAULT 1 NOT NULL, '+LineEnding+
-       '    QCFLAG              SMALLINT NOT NULL, '+LineEnding+
-       '    STVERSION           SMALLINT NOT NULL, '+LineEnding+
-       '    DUPLICATE           SMALLINT DEFAULT 0 NOT NULL, '+LineEnding+
-       '    MERGED              SMALLINT DEFAULT 0 NOT NULL, '+LineEnding+
-       '    ACCESSION_NUMBER    BIGINT, '+LineEnding+
-       '    DATE_ADDED          TIMESTAMP NOT NULL, '+LineEnding+
-       '    DATE_UPDATED        TIMESTAMP, '+LineEnding+
-       '    CONSTRAINT STATION_PK PRIMARY KEY (ID) '+LineEnding+
-       '); '+LineEnding+
-
-       //   '    SOURCE_ID           BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-    //   '    COUNTRY_ID          BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-    //   '    PLATFORM_ID         BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-       //   '    INSTRUMENT_ID       BIGINT DEFAULT -9 NOT NULL, '+LineEnding+
-
-       (* ENTRY *)
-       'CREATE TABLE ENTRY ('+LineEnding+
-       '    ID               BIGINT NOT NULL, '+LineEnding+
-       '    ENTRIES_TYPE_ID  BIGINT NOT NULL, '+LineEnding+
-       '    TITLE            VARCHAR(100) NOT NULL, '+LineEnding+
-       '    DATE_BEGIN       TIMESTAMP NOT NULL, '+LineEnding+
-       '    DATE_END         TIMESTAMP NOT NULL, '+LineEnding+
-       '    STATIONS_NUMBER  BIGINT, '+LineEnding+
-       '    DATE_ADDED       TIMESTAMP NOT NULL, '+LineEnding+
-       '    DATE_UPDATED     TIMESTAMP, '+LineEnding+
-       '    CONSTRAINT ENTRY_PK PRIMARY KEY (ID) '+LineEnding+
-       '); '+LineEnding+
-
-       (* ENTRY_TYPE *)
-       'CREATE TABLE ENTRY_TYPE ('+LineEnding+
-       '    ID           BIGINT NOT NULL, '+LineEnding+
-       '    NAME         VARCHAR(255) NOT NULL, '+LineEnding+
-       '    DESCRIPTION  BLOB SUB_TYPE 1 SEGMENT SIZE 16384, '+LineEnding+
-       '    CONSTRAINT ENTRY_TYPE_PK PRIMARY KEY (ID) '+LineEnding+
-       '); '+LineEnding+
-
-       (* STATION_ENTRY *)
-       'CREATE TABLE STATION_ENTRY ('+LineEnding+
-       '    STATION_ID  BIGINT NOT NULL, '+LineEnding+
-       '    ENTRY_ID    BIGINT NOT NULL '+LineEnding+
-       '); '+LineEnding+
-
-       (* PARAMETERS *)
-       'CREATE TABLE DATABASE_TABLES ('+LineEnding+
-       '    ID            BIGINT NOT NULL, '+LineEnding+
-       '    TABLENAME     VARCHAR(255) NOT NULL, '+LineEnding+
-       '    VARIABLENAME  VARCHAR(255) NOT NULL, '+LineEnding+
-       '    DESCRIPTION   VARCHAR(255), '+LineEnding+
-       '    CONSTRAINT DATABASE_TABLES_PK PRIMARY KEY (ID) '+LineEnding+
-       '); '+LineEnding+
-
-          'CREATE TABLE P_TEMPERATURE_CTD ( '+LineEnding+
-          '   ID             BIGINT NOT NULL, '+LineEnding+
-          '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-          '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-          '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-          '   pQF1           SMALLINT, '+LineEnding+
-          '   pQF2           SMALLINT, '+LineEnding+
-          '   sQF            SMALLINT, '+LineEnding+
-          '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-          '   UNITS_ID        BIGINT '+LineEnding+
-          '); '+LineEnding+
-
-          'CREATE TABLE P_TEMPERATURE_BOTTLE ( '+LineEnding+
-          '   ID             BIGINT NOT NULL, '+LineEnding+
-          '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-          '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-          '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-          '   pQF1           SMALLINT, '+LineEnding+
-          '   pQF2           SMALLINT, '+LineEnding+
-          '   sQF            SMALLINT, '+LineEnding+
-          '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-          '   UNITS_ID        BIGINT '+LineEnding+
-          '); '+LineEnding+
-
-          'CREATE TABLE P_SALINITY_CTD ( '+LineEnding+
-          '   ID             BIGINT NOT NULL, '+LineEnding+
-          '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-          '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-          '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-          '   pQF1           SMALLINT, '+LineEnding+
-          '   pQF2           SMALLINT, '+LineEnding+
-          '   sQF            SMALLINT, '+LineEnding+
-          '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-          '   UNITS_ID        BIGINT '+LineEnding+
-          '); '+LineEnding+
-
-       'CREATE TABLE P_SALINITY_BOTTLE ( '+LineEnding+
-          '   ID             BIGINT NOT NULL, '+LineEnding+
-          '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-          '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-          '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-          '   pQF1           SMALLINT, '+LineEnding+
-          '   pQF2           SMALLINT, '+LineEnding+
-          '   sQF            SMALLINT, '+LineEnding+
-          '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-          '   UNITS_ID        BIGINT '+LineEnding+
-          '); '+LineEnding+
-
-       'CREATE TABLE P_OXYGEN_CTD ( '+LineEnding+
-          '   ID             BIGINT NOT NULL, '+LineEnding+
-          '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-          '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-          '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-          '   pQF1           SMALLINT, '+LineEnding+
-          '   pQF2           SMALLINT, '+LineEnding+
-          '   sQF            SMALLINT, '+LineEnding+
-          '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-          '   UNITS_ID        BIGINT '+LineEnding+
-          '); '+LineEnding+
-
-       'CREATE TABLE P_OXYGEN_BOTTLE ( '+LineEnding+
-          '   ID             BIGINT NOT NULL, '+LineEnding+
-          '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-          '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-          '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-          '   pQF1           SMALLINT, '+LineEnding+
-          '   pQF2           SMALLINT, '+LineEnding+
-          '   sQF            SMALLINT, '+LineEnding+
-          '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-          '   UNITS_ID        BIGINT '+LineEnding+
-          '); '+LineEnding+
-
-       'CREATE TABLE P_FLUORESCENCE_CTD ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_TURBIDITY_CTD ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_RADIATION_CTD ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_TRANSMISSION_CTD ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_AMMONIUM_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_CF5CF3_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_C13_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       //   DISSOLVED INORGANIC CARBON
-       'CREATE TABLE P_DIC_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       //   HYDROGEN
-       'CREATE TABLE P_H_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_FREON12_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_NITRATE_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_NITRITE_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_NITROGEN_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_O18_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_PHOSPHATE_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_PH_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_SF6_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_SILICATE_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_SULFIDE_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-       'CREATE TABLE P_TALK_BOTTLE ( '+LineEnding+
-       '   ID             BIGINT NOT NULL, '+LineEnding+
-       '   LEV_DBAR       DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   LEV_M          DECIMAL(9,4) NOT NULL, '+LineEnding+
-       '   VAL            DOUBLE PRECISION NOT NULL, '+LineEnding+
-       '   pQF1           SMALLINT, '+LineEnding+
-       '   pQF2           SMALLINT, '+LineEnding+
-       '   sQF            SMALLINT, '+LineEnding+
-       '   BOTTLE_NUMBER  SMALLINT, '+LineEnding+
-       '   UNITS_ID        BIGINT '+LineEnding+
-       '); '+LineEnding+
-
-
-
-
-       'ALTER TABLE STATION ADD CONSTRAINT UNQ1_STATION UNIQUE (LATITUDE,LONGITUDE,DATEANDTIME,CAST_NUMBER,STVERSION); '+LineEnding+
-       'ALTER TABLE ENTRY ADD CONSTRAINT FK_ENTRY FOREIGN KEY (ENTRIES_TYPE_ID) REFERENCES ENTRY_TYPE (ID); '+LineEnding+
-       'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_1 FOREIGN KEY (STATION_ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE STATION_ENTRY ADD CONSTRAINT FK_STATION_ENTRY_2 FOREIGN KEY (ENTRY_ID) REFERENCES ENTRY (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-
-       'ALTER TABLE P_TEMPERATURE_CTD ADD CONSTRAINT FK_P_TEMPERATURE_CTD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_SALINITY_CTD ADD CONSTRAINT FK_P_SALINITY_CTD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_OXYGEN_CTD ADD CONSTRAINT FK_P_OXYGEN_CTD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_FLUORESCENCE_CTD ADD CONSTRAINT FK_P_FLUORESCENCE_CTD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_RADIATION_CTD ADD CONSTRAINT FK_P_RADIATION_CTD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_TURBIDITY_CTD ADD CONSTRAINT FK_P_TURBIDITY_CTD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_TRANSMISSION_CTD ADD CONSTRAINT FK_P_TRANSMISSION_CTD FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-
-       'ALTER TABLE P_TEMPERATURE_BOTTLE ADD CONSTRAINT FK_P_TEMPERATURE_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_SALINITY_BOTTLE ADD CONSTRAINT FK_P_SALINITY_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_OXYGEN_BOTTLE ADD CONSTRAINT FK_P_OXYGEN_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_AMMONIUM_BOTTLE ADD CONSTRAINT FK_P_AMMONIUM_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_CF5CF3_BOTTLE ADD CONSTRAINT FK_P_CF5CF3_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_C13_BOTTLE ADD CONSTRAINT FK_P_C13_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_DIC_BOTTLE ADD CONSTRAINT FK_P_DIC_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_H_BOTTLE ADD CONSTRAINT FK_P_H_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_FREON12_BOTTLE ADD CONSTRAINT FK_P_FREON12_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_NITRATE_BOTTLE ADD CONSTRAINT FK_P_NITRATE_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_NITRITE_BOTTLE ADD CONSTRAINT FK_P_NITRITE_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_NITROGEN_BOTTLE ADD CONSTRAINT FK_P_NITROGEN_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_O18_BOTTLE ADD CONSTRAINT FK_P_O18_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_PHOSPHATE_BOTTLE ADD CONSTRAINT FK_P_PHOSPHATE_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_PH_BOTTLE ADD CONSTRAINT FK_P_PH_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_SF6_BOTTLE ADD CONSTRAINT FK_P_SF6_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_SILICATE_BOTTLE ADD CONSTRAINT FK_P_SILICATE_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_SULFIDE_BOTTLE ADD CONSTRAINT FK_P_SULFIDE_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-       'ALTER TABLE P_TALK_BOTTLE ADD CONSTRAINT FK_P_TALK_BOTTLE FOREIGN KEY (ID) REFERENCES STATION (ID) ON DELETE CASCADE ON UPDATE CASCADE; '+LineEnding+
-
-       'COMMIT WORK '+LineEnding+
-       'SET TERM ; '+LineEnding;
-
-   begin
-
-    // showmessage(ScriptText);
-     try
-       DB:=TIBConnection.Create(nil);
-       TR:=TSQLTransaction.Create(nil);
-       ST:=TSQLScript.Create(nil);
-
-        DB.Transaction:=TR;
-        TR.Database:=DB;
-        ST.Transaction:=TR;
-        ST.Database:=DB;
-        ST.CommentsInSQL:=false;
-
-        //DB.DatabaseName:=(dbname);
-        IBName:='c:\Users\ako071\AK\OceanShell-GIT\OceanShell\databases\PANGAEA.fdb';
-        DB.DatabaseName:=IBName;
-        DB.UserName:='SYSDBA';
-        DB.Password:='masterkey';
-         With DB.Params do begin
-          Clear;
-           Add('SET SQL DIALECT 3');
-           Add('SET NAMES UTF8');
-           Add('PAGE_SIZE 16384');
-           Add('DEFAULT CHARACTER SET UTF8 COLLATION UTF8');
-         end;
-        DB.CreateDB;
-        DB.Connected:=False;
-        DB.LoginPrompt:=False;
-        DB.Open;
-
-        ST.Script.Text:=ScriptText;
-        ST.UseCommit:=true;
-        ST.UseSetTerm:=true; // for Firebird ONLY
-        ST.CommentsInSQL:=false;
-         try
-          ST.Execute;
-          TR.Commit;
-         except
-          on E: EDataBaseError do begin
-            ShowMessage('Error running script: '+E.Message);
-            TR.Rollback;
-          end;
-         end;
-     finally
-      ST.Free;
-      TR.Free;
-      DB.Free;
-     end;
-       frmosmain.DatabaseInfo;
-       showmessage('PANGAEA database has been created ');
-end;
-
-
-
 
 
 

@@ -20,10 +20,10 @@ type
     btnDelete: TMenuItem;
 
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormMouseLeave(Sender: TObject);
     procedure ListBox1DblClick(Sender: TObject);
     procedure btnAddClick(Sender: TObject);
     procedure btnDeleteClick(Sender: TObject);
-    procedure RefreshDBList;
     procedure ListBox1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure ListBox1Click(Sender: TObject);
@@ -34,6 +34,7 @@ type
     { Private declarations }
   public
     { Public declarations }
+    procedure RefreshDBList;
   end;
 
 var
@@ -54,11 +55,8 @@ begin
   APoint.y := 0;
   APoint := frmosmain.Panel1.ClientToScreen(APoint);
 
- { ShowMessage('Button X = ' + APoint.x.ToString +
-    ', Y =' + APoint.y.ToString);  }
-
   Top:=APoint.y+frmosmain.Panel1.Height;
-  Left:=frmosmain.Left;
+  Left:=frmosmain.Left+10;
 
   RefreshDBList;
 end;
@@ -144,6 +142,11 @@ end;
 procedure Tfrmopendb.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
   frmopendb_open:=false;
+end;
+
+procedure Tfrmopendb.FormMouseLeave(Sender: TObject);
+begin
+  Close;
 end;
 
 

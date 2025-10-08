@@ -218,22 +218,23 @@ end;
 procedure Tfrmparameters_list.btnAmountOfProfilesClick(Sender: TObject);
 Var
 prfCount,k_prf:integer;
-ID_cur:int64;
+ID_cur, ID:int64;
 tblPar:string;
 
 TRt:TSQLTransaction;
-Qt:TSQLQuery;
+Qt1:TSQLQuery;
+
+t1:tdatetime;
 
 PQF1_st, PQF2_st, SQF_st, instr_st:string;
+PQF1_cnt, PQF2_cnt, SQF_cnt, instr_cnt: integer;
 begin
 TRt:=TSQLTransaction.Create(self);
 TRt.DataBase:=frmdm.IBDB;
 
-Qt:=TSQLQuery.Create(self);
-Qt.Database:=frmdm.IBDB;
-Qt.Transaction:=TRt;
-
-GetFlags(PQF1_st, PQF2_st, SQF_st, instr_st);
+Qt1:=TSQLQuery.Create(self);
+Qt1.Database:=frmdm.IBDB;
+Qt1.Transaction:=TRt;
 
 btnAmountOfProfiles.Enabled:=false;
 lbParameters.Enabled:=false;
@@ -242,48 +243,47 @@ try
  ID_cur:=frmdm.Q.FieldByName('ID').Value;
 
  frmdm.Q.DisableControls;
+ t1:=now;
   for k_prf:=0 to frmosmain.ListBox1.Count-1 do begin
    tblPar:=frmosmain.ListBox1.Items.Strings[k_prf];
+  // showmessage(tblpar);
 
    if cancel_fl=false then begin
     frmdm.Q.First;
     prfCount:=0;
      while not frmdm.Q.Eof do begin
-
-      with Qt do begin
+      ID:=frmdm.Q.FieldByName('ID').Value;
+      with Qt1 do begin
        Close;
         SQL.Clear;
-        SQL.Add(' SELECT ');
-        SQL.Add(' count(distinct(instrument_id)), ');
-        SQL.Add(' count(distinct(profile_number)) ');
-        SQL.Add(' FROM '+tblPar);
-        SQL.Add(' WHERE ID=:ID AND ');
-        SQL.Add(' PQF1 IN ('+PQF1_st+') AND ');
-        SQL.Add(' PQF2 IN ('+PQF2_st+') AND ');
-        SQL.Add(' SQF IN ('+SQF_st+') AND ');
-        SQL.Add(' INSTRUMENT_ID IN ('+instr_st+')');
-        ParamByName('ID').AsInteger:=frmdm.Q.FieldByName('ID').Value;
+        SQL.Add(' SELECT ID ');
+        SQL.Add(' FROM '+ tblpar);
+        SQL.Add(' WHERE ID=:ID ');
+        ParamByName('ID').AsInteger:=ID;
        Open;
-         prfCount:=prfCount+(Fields[0].Value*Fields[1].Value);
+         if not Qt1.IsEmpty then inc(prfCount);
        Close;
       end;
-      frmdm.Q.Next;
+
+     frmdm.Q.Next;
     end;
 
-    if prfCount>0 then begin
+    //if prfCount>0 then begin
      lbParameters.Items.Add(tblPar+'   ['+inttostr(prfCount)+']');
      Application.ProcessMessages;
-    end;
+   // end;
    end;
  end;
  Finally
+  showmessage(datetimetostr(now-t1));
   btnAmountOfProfiles.Enabled:=true;
   lbParameters.Enabled:=true;
 
-  Qt.Close;
+  Qt1.Close;
   Trt.Commit;
-  Qt.Free;
+  Qt1.Free;
   TrT.Free;
+
   frmdm.Q.Locate('ID', ID_cur, []);
   frmdm.Q.EnableControls;
  end;
@@ -344,38 +344,55 @@ procedure Tfrmparameters_list.GetFlags(Var PQF1_st, PQF2_st, SQF_st,
   instr_st:string);
 Var
   k:integer;
+  PQF1_cnt, PQF2_cnt, SQF_cnt, instr_cnt: integer;
 begin
-PQF1_st:='';
+   PQF1_st:='';
+   PQF1_cnt:=0;
    for k:=0 to frmparameters_list.chkPQF1.Items.Count-1 do
-    if frmparameters_list.chkPQF1.Checked[k] then
+    if frmparameters_list.chkPQF1.Checked[k] then begin
+     inc(PQF1_cnt);
       PQF1_st:=PQF1_st+','+
                Copy(frmparameters_list.chkPQF1.Items.Strings[k], 2,
                Pos(']', frmparameters_list.chkPQF1.Items.Strings[k])-2);
+    end;
    PQF1_st:=copy(PQF1_st, 2, length(PQF1_st));
+   if PQF1_cnt=chkPQF1.Items.Count then PQF1_st:='all';
 
    PQF2_st:='';
+   PQF2_cnt:=0;
    for k:=0 to frmparameters_list.chkPQF2.Items.Count-1 do
-    if frmparameters_list.chkPQF2.Checked[k] then
+    if frmparameters_list.chkPQF2.Checked[k] then begin
+     inc(PQF2_cnt);
       PQF2_st:=PQF2_st+','+
                Copy(frmparameters_list.chkPQF2.Items.Strings[k], 2,
                Pos(']', frmparameters_list.chkPQF2.Items.Strings[k])-2);
+    end;
    PQF2_st:=copy(PQF2_st, 2, length(PQF2_st));
+   if PQF2_cnt=chkPQF2.Items.Count then PQF2_st:='all';
 
    SQF_st:='';
+   SQF_cnt:=0;
    for k:=0 to frmparameters_list.chkSQF.Items.Count-1 do
-    if frmparameters_list.chkSQF.Checked[k] then
+    if frmparameters_list.chkSQF.Checked[k] then begin
+     inc(SQF_cnt);
       SQF_st:=SQF_st+','+
                Copy(frmparameters_list.chkSQF.Items.Strings[k], 2,
                Pos(']', frmparameters_list.chkSQF.Items.Strings[k])-2);
+    end;
    SQF_st:=copy(SQF_st, 2, length(SQF_st));
+   if SQF_cnt=chkSQF.Items.Count then SQF_st:='all';
 
    instr_st:='';
+   instr_cnt:=0;
    for k:=0 to frmparameters_list.chklInstrument.Items.Count-1 do
-    if frmparameters_list.chklInstrument.Checked[k] then
+    if frmparameters_list.chklInstrument.Checked[k] then begin
+     inc(instr_cnt);
       instr_st:=instr_st+','+
                Copy(frmparameters_list.chklInstrument.Items.Strings[k], 2,
                Pos(']', frmparameters_list.chklInstrument.Items.Strings[k])-2);
+    end;
    instr_st:=copy(instr_st, 2, length(instr_st));
+   if instr_cnt=chklInstrument.Items.Count then instr_st:='all';
 end;
 
 

@@ -34,13 +34,13 @@ type
     StatusBar1: TStatusBar;
     ToolButton1: TToolButton;
     btnFilter: TToolButton;
+    btnAllParameters: TToolButton;
     ToolButton3: TToolButton;
     ZD: TZoomDragTool;
     ZMW: TZoomMouseWheelTool;
     ToolBar1: TToolBar;
     btnPrior: TToolButton;
     btnNext: TToolButton;
-    btnAllParameters: TToolButton;
     btnMap: TToolButton;
     ToolButton6: TToolButton;
     btnSingleProfile: TToolButton;
@@ -71,8 +71,9 @@ type
     procedure FilterSources(Sender: TObject);
 
   public
-    procedure AddToPlot(ID, INSTR_ID, PROF_NUM:integer; INSTR_NAME: string;
-      prof_best, ToUpdate:boolean; var units:integer; Var units_ok:boolean);
+    procedure AddToPlot(ID, INSTR_ID, PROF_NUM:integer; INSTR_NAME,
+      PQF1_st, PQF2_st, SQF_st: string; prof_best, ToUpdate:boolean;
+      var units:integer; Var units_ok:boolean);
     procedure ChangeID(ID:integer);
   end;
 
@@ -277,7 +278,7 @@ begin
 
   frmparameters_list.GetFlags(PQF1_st, PQF2_st, SQF_st, instr_st);
 
- //  showmessage(pqf1_st+#13+pqf2_st+#13+sqf_st+#13+instr_st);
+   //showmessage(pqf1_st+#13+pqf2_st+#13+sqf_st+#13+instr_st);
 
   if (trim(PQF1_st)='') or (trim(PQF2_st)='') or (trim(SQF_st)='') then
     if MessageDlg('Please, set QC flags', mtWarning, [mbOk], 0)=mrOk then exit;
@@ -302,11 +303,6 @@ begin
    Qt2.Database:=frmdm.IBDB;
    Qt2.Transaction:=TRt;
 
-   frmdm.Q.DisableControls;
-   frmdm.Q.First;
-     cnt_def:=0;
-     cnt_orig:=0;
-
    units_buf:=TBufDataSet.Create(nil);
    with units_buf.FieldDefs do begin
      Add('qf',  ftinteger, 0, false);
@@ -314,6 +310,11 @@ begin
    end;
    units_buf.CreateDataSet;
 
+   frmdm.Q.DisableControls;
+   frmdm.Q.First;
+
+   cnt_def:=0;
+   cnt_orig:=0;
      While not frmdm.Q.Eof do begin
       ID:=frmdm.Q.FieldByName('ID').AsInteger;
 
@@ -324,8 +325,9 @@ begin
         SQL.Add(' FROM INSTRUMENT, '+ CurrentParTable);
         SQL.Add(' WHERE ');
         SQL.Add( CurrentParTable+'.INSTRUMENT_ID=INSTRUMENT.ID AND ');
-        SQL.Add( CurrentParTable+'.INSTRUMENT_ID in ('+instr_st+') AND ');
         SQL.Add( CurrentParTable+'.ID=:ID ');
+        if instr_st<>'all' then
+          SQL.Add( ' AND '+CurrentParTable+'.INSTRUMENT_ID in ('+instr_st+') ');
         ParamByName('ID').AsInteger:=ID;
        Open;
       end;
@@ -350,7 +352,10 @@ begin
         prof_num :=Qt2.Fields[0].AsInteger;
         prof_best:=Qt2.Fields[1].AsBoolean;
 
-        AddToPlot(ID, INSTR_ID,  PROF_NUM, INSTR_NAME, prof_best, false, units, units_ok);
+       // showmessage('here');
+        AddToPlot(ID, INSTR_ID,  PROF_NUM, INSTR_NAME, PQF1_st, PQF2_st, SQF_st,
+                  prof_best, false, units, units_ok);
+      //  showmessage('added');
 
         if units_ok=true then begin
          if VarIsNull(units_buf.Lookup('qf', units, 'qf')) then begin
@@ -390,7 +395,7 @@ begin
    end;
    str_units:=trim(copy(str_units, 2, length(str_units)));
    StatusBar1.Panels.Items[0].Text:=str_units;
-   rbUnitsOriginal.Caption:='Original units ('+inttostr(units_buf.RecordCount)+')';
+   rbUnitsOriginal.Caption:='Original units: '+inttostr(units_buf.RecordCount)+' item(s)';
    rbUnitsDefault.Caption:=units_default_name;
 
    finally
@@ -436,8 +441,8 @@ end;
 
 
 procedure Tfrmprofile_plot_all.AddToPlot(ID, INSTR_ID, PROF_NUM:integer;
-  INSTR_NAME: string; prof_best, ToUpdate:boolean; var units:integer;
-  var units_ok:boolean);
+  INSTR_NAME, PQF1_st, PQF2_st, SQF_st: string; prof_best, ToUpdate:boolean;
+  var units:integer; var units_ok:boolean);
 Var
 k, flag:integer;
 lev, val1, val_out, lab_dens, Lat, Lon:real;
@@ -451,8 +456,6 @@ sColor:TColor;
 
 TRt:TSQLTransaction;
 Qt:TSQLQuery;
-
-PQF1_st, PQF2_st, SQF_st, instr_st:string;
 begin
 
 TRt:=TSQLTransaction.Create(self);
@@ -464,29 +467,35 @@ Qt.Transaction:=TRt;
 try
 units_ok:=false;
 
-frmparameters_list.GetFlags(PQF1_st, PQF2_st, SQF_st, instr_st);
+//showmessage('here');
 
     with Qt do begin
      Close;
       SQL.Clear;
       SQL.Add(' SELECT LEV_DBAR, LEV_M, VAL, UNITS_ID ');
       SQL.Add(' FROM '+ CurrentParTable );
-      SQL.Add(' WHERE ID=:ID AND ');
-      SQL.Add(' PQF1 IN ('+PQF1_st+') AND ');
-      SQL.Add(' PQF2 IN ('+PQF2_st+') AND ');
-      SQL.Add(' SQF IN ('+SQF_st+') AND ');
-      SQL.Add(' INSTRUMENT_ID=:INSTR_ID AND ');
-      SQL.Add(' PROFILE_NUMBER=:PROF_NUM ');
+      SQL.Add(' WHERE ID=:ID ');
+      if PQF1_st<>'all' then
+        SQL.Add(' AND PQF1 IN ('+PQF1_st+') ');
+      if PQF2_st<>'all' then
+        SQL.Add(' AND PQF2 IN ('+PQF2_st+') ');
+      if SQF_st<>'all' then
+        SQL.Add(' AND SQF IN ('+SQF_st+') ');
+      SQL.Add(' AND INSTRUMENT_ID=:INSTR_ID ');
+      SQL.Add(' AND PROFILE_NUMBER=:PROF_NUM ');
       if chkShowBest.Checked then
         SQL.Add(' AND PROFILE_BEST=TRUE ');
       SQL.Add(' ORDER BY LEV_DBAR');
       ParamByName('ID').AsInteger:=ID;
       ParamByName('INSTR_ID').AsInteger:=INSTR_ID;
       ParamByName('PROF_NUM').AsInteger:=PROF_NUM;
+    //  showmessage(SQL.Text);
      Open;
      Last;
      First;
     end;
+
+   // showmessage(inttostr(Qt.RecordCount));
 
     Lat:=frmdm.Q.FieldByName('LATITUDE').Value;
     Lon:=frmdm.Q.FieldByName('LONGITUDE').Value;
@@ -542,9 +551,10 @@ frmparameters_list.GetFlags(PQF1_st, PQF2_st, SQF_st, instr_st);
        osunitsconversion.GetDefaultUnits(CurrentParTable, units, units_default,
                                          val1, val_out, isconverted);
 
-       if isConverted=true then val1:=val_out else val1:=-9999;
+       if isConverted=true then val1:=val_out; // else val1:=-9999;
      end;
 
+   //  showmessage(floattostr(val1));
      if val1<>-9999 then begin
       TLineSeries(Chart1.Series[mik]).AddXY(val1,lev);
       units_ok:=true;
