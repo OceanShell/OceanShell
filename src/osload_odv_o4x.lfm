@@ -1,0 +1,31 @@
+object frmload_odv_netcdf: Tfrmload_odv_netcdf
+  Left = 333
+  Height = 359
+  Top = 250
+  Width = 640
+  Caption = 'frmload_odv_o4x'
+  ClientHeight = 359
+  ClientWidth = 640
+  LCLVersion = '4.6.0.0'
+  object mLog: TMemo
+    Left = 8
+    Height = 298
+    Top = 48
+    Width = 617
+    Anchors = [akTop, akLeft, akRight]
+    Lines.Strings = (
+      'mLog'
+    )
+    ScrollBars = ssAutoBoth
+    TabOrder = 0
+  end
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'Start'
+    TabOrder = 1
+    OnClick = Button1Click
+  end
+end

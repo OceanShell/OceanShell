@@ -1,11 +1,10 @@
 object frmdm: Tfrmdm
   OnDestroy = DataModuleDestroy
   OldCreateOrder = False
-  Height = 331
-  HorizontalOffset = 743
-  VerticalOffset = 362
-  Width = 590
-  PPI = 144
+  Height = 221
+  HorizontalOffset = 495
+  VerticalOffset = 241
+  Width = 393
   object IBDB: TIBConnection
     Connected = False
     LoginPrompt = False
@@ -15,15 +14,16 @@ object frmdm: Tfrmdm
     UserName = 'SYSDBA'
     LogEvents = []
     CheckTransactionParams = False
-    left = 36
-    top = 24
+    UseConnectionCharSetIfNone = False
+    Left = 24
+    Top = 16
   end
   object TR: TSQLTransaction
     Active = False
     Action = caNone
     Database = IBDB
-    left = 104
-    top = 24
+    Left = 69
+    Top = 16
   end
   object Q: TSQLQuery
     MaxIndexesCount = 100
@@ -31,13 +31,13 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 180
-    top = 24
+    Macros = <>
+    Left = 120
+    Top = 16
   end
   object QCruise: TSQLQuery
     MaxIndexesCount = 100
     FieldDefs = <>
-    AfterEdit = QCruiseAfterEdit
     AfterScroll = QCruiseAfterScroll
     Database = IBDB
     Transaction = TR
@@ -66,8 +66,9 @@ object frmdm: Tfrmdm
       ''
     )
     Params = <>
-    left = 176
-    top = 104
+    Macros = <>
+    Left = 117
+    Top = 69
   end
   object QEntry: TSQLQuery
     MaxIndexesCount = 100
@@ -102,23 +103,24 @@ object frmdm: Tfrmdm
       'DELETE FROM ENTRY WHERE ID=:ID'
     )
     Params = <>
-    left = 180
-    top = 200
+    Macros = <>
+    Left = 120
+    Top = 133
   end
   object DSCruise: TDataSource
     DataSet = QCruise
-    left = 264
-    top = 104
+    Left = 176
+    Top = 69
   end
   object DSEntry: TDataSource
     DataSet = QEntry
-    left = 264
-    top = 200
+    Left = 176
+    Top = 133
   end
   object DS: TDataSource
     DataSet = Q
-    left = 264
-    top = 24
+    Left = 176
+    Top = 16
   end
   object q1: TSQLQuery
     MaxIndexesCount = 100
@@ -126,8 +128,9 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 368
-    top = 200
+    Macros = <>
+    Left = 245
+    Top = 133
   end
   object q2: TSQLQuery
     MaxIndexesCount = 100
@@ -135,8 +138,9 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 416
-    top = 200
+    Macros = <>
+    Left = 277
+    Top = 133
   end
   object q3: TSQLQuery
     MaxIndexesCount = 100
@@ -144,8 +148,9 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 464
-    top = 200
+    Macros = <>
+    Left = 309
+    Top = 133
   end
   object QCruiseDetails: TSQLQuery
     MaxIndexesCount = 100
@@ -153,20 +158,21 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 368
-    top = 104
+    Macros = <>
+    Left = 245
+    Top = 69
   end
   object DSCruiseDetails: TDataSource
     DataSet = QCruiseDetails
-    left = 497
-    top = 104
+    Left = 331
+    Top = 69
   end
   object DBLoader: TSQLDBLibraryLoader
     Enabled = False
     ConnectionType = 'Firebird'
     LibraryName = 'fbclient.dll'
-    left = 36
-    top = 104
+    Left = 24
+    Top = 69
   end
   object q4: TSQLQuery
     MaxIndexesCount = 100
@@ -174,7 +180,34 @@ object frmdm: Tfrmdm
     Database = IBDB
     Transaction = TR
     Params = <>
-    left = 512
-    top = 200
+    Macros = <>
+    Left = 341
+    Top = 133
+  end
+  object IBDBScript: TSQLScript
+    DataBase = IBDB
+    Transaction = TR
+    AutoCommit = False
+    UseDollarString = False
+    Directives.Strings = (
+      'SET TERM'
+      'COMMIT WORK'
+      'COMMIT RETAIN'
+      'COMMIT'
+      '#IFDEF'
+      '#IFNDEF'
+      '#ELSE'
+      '#ENDIF'
+      '#DEFINE'
+      '#UNDEF'
+      '#UNDEFINE'
+    )
+    Terminator = ';'
+    CommentsinSQL = True
+    UseSetTerm = True
+    UseCommit = True
+    UseDefines = True
+    Left = 224
+    Top = 16
   end
 end

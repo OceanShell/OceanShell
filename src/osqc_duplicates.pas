@@ -14,8 +14,9 @@ type
 
   Tfrmqc_duplicates = class(TForm)
     btnFindDuplicates: TButton;
-    btnUpdateCruise: TButton;
     btnMarkCruiseDuplicate: TButton;
+    btnUpdateCruise: TButton;
+    GroupBox1: TGroupBox;
     GroupBox3: TGroupBox;
     Label5: TLabel;
     GroupBox2: TGroupBox;
@@ -167,7 +168,6 @@ raitings<=2, and look for duplicates in stations with the rating =3 *)
   btnUpdateCruise.Enabled:=true;
   btnMarkCruiseDuplicate.Enabled:=true;
 
-  frmdm.TR.CommitRetaining;
   Trt.Commit;
   Qt1.Close;
   Qt1.Free;
@@ -178,60 +178,84 @@ end;
 
 procedure Tfrmqc_duplicates.btnUpdateCruiseClick(Sender: TObject);
 Var
- cnt_dup:integer;
+ cnt_dup, k:integer;
+ TRt:TSQLTransaction;
+ Qt1, Qt2:TSQLQuery;
 begin
- try
-   btnFindDuplicates.Enabled:=false;
-   btnUpdateCruise.Enabled:=false;
-   btnMarkCruiseDuplicate.Enabled:=false;
+try
+  btnFindDuplicates.Enabled:=false;
+  btnUpdateCruise.Enabled:=false;
+  btnMarkCruiseDuplicate.Enabled:=false;
 
-    with frmdm.q1 do begin
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
+
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
+
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.IBDB;
+  Qt2.Transaction:=TRt;
+
+    with Qt1 do begin
       Close;
         SQL.Clear;
         SQL.Add(' SELECT ID from CRUISE ');
         SQL.Add(' ORDER BY CRUISE.ID ');
       Open;
+      Last;
+      First;
      end;
 
-    while not frmdm.q1.EOF do begin
-
+    k:=0;
+    while not Qt1.EOF do begin
+     inc(k);
      cnt_dup:=0;
-     with frmdm.q2 do begin
+     with Qt2 do begin
        Close;
          SQL.Clear;
          SQL.Add(' SELECT COUNT(ID) from STATION ');
          SQL.Add(' WHERE CRUISE_ID=:CR_ID AND ');
          SQL.Add(' DUPLICATE=TRUE ');
-         ParamByName('CR_ID').AsInteger:=frmdm.q1.Fields[0].AsInteger;
+         ParamByName('CR_ID').Value:=Qt1.Fields[0].Value;
        Open;
-        cnt_dup:=frmdm.q2.Fields[0].AsInteger;
+        cnt_dup:=Qt2.Fields[0].Value;
        Close;
      end;
 
-       with frmdm.q2 do begin
+       with Qt2 do begin
          Close;
           SQL.Clear;
           SQL.Add(' UPDATE CRUISE SET ');
           SQL.Add(' STATIONS_DUPLICATES=:cnt ');
           SQL.Add(' where ID=:CR_ID ');
-          ParamByName('CR_ID').AsInteger:=frmdm.q1.Fields[0].AsInteger;
+          ParamByName('CR_ID').AsInteger:=Qt1.Fields[0].Value;
           ParamByName('cnt').AsInteger:=cnt_dup;
          ExecSQL;
        end;
-
-  frmdm.q1.Next;
+     {$IFDEF WINDOWS}
+        Procedures.ProgressTaskbar(k, Qt1.RecordCount);
+     {$ENDIF}
+    Qt1.Next;
 end;
 
+ finally
   showmessage('Update completed');
 
- finally
-  btnFindDuplicates.Enabled:=true;
-  btnUpdateCruise.Enabled:=true;
-  btnMarkCruiseDuplicate.Enabled:=true;
+   {$IFDEF WINDOWS}
+     Procedures.ProgressTaskbar(0, 0);
+   {$ENDIF}
 
-  frmdm.TR.CommitRetaining;
+   btnFindDuplicates.Enabled:=true;
+   btnUpdateCruise.Enabled:=true;
+   btnMarkCruiseDuplicate.Enabled:=true;
+
+   Trt.Commit;
+   Qt1.Close;
+   Qt1.Free;
+   Trt.Free;
  end;
-
 end;
 
 procedure Tfrmqc_duplicates.btnMarkCruiseDuplicateClick(Sender: TObject);

@@ -1,23 +1,22 @@
 object frmload_ices1: Tfrmload_ices1
   Left = 382
-  Height = 625
+  Height = 417
   Top = 296
-  Width = 1416
+  Width = 944
   Caption = 'frmload_ices1'
-  ClientHeight = 625
-  ClientWidth = 1416
-  DesignTimePPI = 144
-  Font.Height = 19
+  ClientHeight = 417
+  ClientWidth = 944
+  Font.Height = 13
+  LCLVersion = '4.4.0.0'
   OnClose = FormClose
   OnShow = FormShow
-  LCLVersion = '2.0.12.0'
   object Memo1: TMemo
     Left = 0
-    Height = 270
-    Top = 355
+    Height = 180
+    Top = 445
     Width = 1416
     Align = alBottom
-    Font.Height = 17
+    Font.Height = 11
     Lines.Strings = (
       'Memo1'
     )
@@ -25,267 +24,267 @@ object frmload_ices1: Tfrmload_ices1
     TabOrder = 0
   end
   object GroupBox1: TGroupBox
-    Left = 230
-    Height = 144
-    Top = 10
-    Width = 278
+    Left = 153
+    Height = 96
+    Top = 7
+    Width = 185
     Caption = '1. Split files into cruises'
-    ClientHeight = 120
-    ClientWidth = 274
-    Font.Height = 19
+    ClientHeight = 72
+    ClientWidth = 181
+    Font.Height = 13
     ParentFont = False
     TabOrder = 1
     object FileListBox1: TFileListBox
-      Left = 19
-      Height = 72
+      Left = 13
+      Height = 48
       Top = 0
-      Width = 240
+      Width = 160
       Directory = 'C:\Users\ako071\AK\_soft\lazarus_2.0.6'
-      Font.Height = 17
+      Font.Height = 11
       ItemHeight = 0
       ParentFont = False
       TabOrder = 0
     end
     object btnSplitFile: TBitBtn
-      Left = 19
-      Height = 30
-      Top = 77
-      Width = 240
+      Left = 13
+      Height = 20
+      Top = 51
+      Width = 160
       Caption = 'Split'
       Font.Color = clGreen
-      Font.Height = 22
+      Font.Height = 15
       Font.Style = [fsBold]
-      OnClick = btnSplitFileClick
       ParentFont = False
       TabOrder = 1
+      OnClick = btnSplitFileClick
     end
   end
   object GroupBox2: TGroupBox
-    Left = 1104
-    Height = 144
-    Top = 173
-    Width = 269
+    Left = 736
+    Height = 96
+    Top = 115
+    Width = 179
     Caption = 'B. Populate CRUISE_CSR'
-    ClientHeight = 120
-    ClientWidth = 265
-    Font.Height = 19
+    ClientHeight = 72
+    ClientWidth = 175
+    Font.Height = 13
     ParentFont = False
     TabOrder = 2
     object btnPopuateCruiseTable: TBitBtn
-      Left = 19
-      Height = 30
-      Top = 77
-      Width = 240
+      Left = 13
+      Height = 20
+      Top = 51
+      Width = 160
       Caption = 'Start'
       Font.Color = clFuchsia
-      Font.Height = 22
-      OnClick = btnPopuateCruiseTableClick
+      Font.Height = 15
       ParentFont = False
       TabOrder = 0
+      OnClick = btnPopuateCruiseTableClick
     end
     object FileListBox2: TFileListBox
-      Left = 19
-      Height = 67
+      Left = 13
+      Height = 45
       Top = 0
-      Width = 240
+      Width = 160
       Directory = 'C:\Users\ako071\AK\_soft\lazarus_2.0.6'
-      Font.Height = 19
+      Font.Height = 13
       ItemHeight = 0
       ParentFont = False
       TabOrder = 1
     end
   end
   object GroupBox3: TGroupBox
-    Left = 1104
-    Height = 115
-    Top = 48
-    Width = 269
+    Left = 736
+    Height = 77
+    Top = 32
+    Width = 179
     Caption = 'A. Clean CSR file'
-    ClientHeight = 93
-    ClientWidth = 265
-    Font.Height = 17
+    ClientHeight = 55
+    ClientWidth = 175
+    Font.Height = 11
     ParentFont = False
     TabOrder = 3
     object btnCleanCruiseName: TBitBtn
-      Left = 67
-      Height = 30
-      Top = 10
-      Width = 125
+      Left = 45
+      Height = 20
+      Top = 7
+      Width = 83
       Caption = 'Names'
       Font.Color = clGreen
-      Font.Height = 22
-      OnClick = btnCleanCruiseNameClick
+      Font.Height = 15
       ParentFont = False
       TabOrder = 0
+      OnClick = btnCleanCruiseNameClick
     end
     object btnCleanDate: TBitBtn
-      Left = 67
-      Height = 30
-      Top = 48
-      Width = 125
+      Left = 45
+      Height = 20
+      Top = 32
+      Width = 83
       Caption = 'Dates'
       Font.Color = clGreen
-      Font.Height = 22
-      OnClick = btnCleanDateClick
+      Font.Height = 15
       ParentFont = False
       TabOrder = 1
+      OnClick = btnCleanDateClick
     end
   end
   object GroupBox4: TGroupBox
-    Left = 230
-    Height = 134
-    Top = 182
-    Width = 269
+    Left = 153
+    Height = 89
+    Top = 121
+    Width = 179
     Caption = '2. Download cruises'
-    ClientHeight = 110
-    ClientWidth = 265
-    Font.Height = 19
+    ClientHeight = 65
+    ClientWidth = 175
+    Font.Height = 13
     ParentFont = False
     TabOrder = 4
     object FileListBox3: TFileListBox
-      Left = 10
-      Height = 72
+      Left = 7
+      Height = 48
       Top = 0
-      Width = 240
+      Width = 160
       Directory = 'C:\Users\ako071\AK\_soft\lazarus_2.0.6'
-      Font.Height = 17
+      Font.Height = 11
       ItemHeight = 0
       ParentFont = False
       TabOrder = 0
     end
     object btnDownloadData: TBitBtn
-      Left = 10
-      Height = 30
-      Top = 77
-      Width = 240
+      Left = 7
+      Height = 20
+      Top = 51
+      Width = 160
       Caption = 'Download'
       Font.Color = clRed
-      Font.Height = 22
+      Font.Height = 15
       Font.Style = [fsBold]
-      OnClick = btnDownloadDataClick
       ParentFont = False
       TabOrder = 1
+      OnClick = btnDownloadDataClick
     end
   end
   object Label2: TLabel
-    Left = 1114
+    Left = 743
     Height = 21
-    Top = 19
+    Top = 13
     Width = 204
     Caption = 'Cruise summary report (CSR)'
-    Font.Height = 22
+    Font.Height = 15
     ParentColor = False
     ParentFont = False
   end
   object GroupBox5: TGroupBox
-    Left = 38
-    Height = 307
-    Top = 10
-    Width = 173
+    Left = 25
+    Height = 205
+    Top = 7
+    Width = 115
     Caption = 'Settings'
-    ClientHeight = 283
-    ClientWidth = 169
-    Font.Height = 19
+    ClientHeight = 181
+    ClientWidth = 111
+    Font.Height = 13
     ParentFont = False
     TabOrder = 5
     object CheckBox1: TCheckBox
-      Left = 29
+      Left = 19
       Height = 29
-      Top = 19
+      Top = 13
       Width = 120
       Caption = 'Show output?'
-      Font.Height = 19
+      Font.Height = 13
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 0
     end
     object CheckBox2: TCheckBox
-      Left = 29
+      Left = 19
       Height = 29
-      Top = 67
+      Top = 45
       Width = 126
       Caption = 'Write into DB?'
-      Font.Height = 19
+      Font.Height = 13
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 1
     end
     object Label3: TLabel
-      Left = 19
+      Left = 13
       Height = 17
-      Top = 125
+      Top = 83
       Width = 134
       Caption = 'Cruise threshold (days)'
-      Font.Height = 17
+      Font.Height = 11
       ParentColor = False
       ParentFont = False
     end
     object Edit1: TEdit
-      Left = 58
+      Left = 39
       Height = 27
-      Top = 154
-      Width = 29
-      Font.Height = 19
+      Top = 103
+      Width = 19
+      Font.Height = 13
       ParentFont = False
       TabOrder = 2
       Text = '14'
     end
     object Label1: TLabel
-      Left = 48
+      Left = 32
       Height = 17
-      Top = 230
+      Top = 153
       Width = 61
       Caption = 'Progress...'
-      Font.Height = 17
+      Font.Height = 11
       ParentColor = False
       ParentFont = False
       Visible = False
     end
   end
   object GroupBox6: TGroupBox
-    Left = 528
-    Height = 298
-    Top = 19
-    Width = 509
+    Left = 352
+    Height = 199
+    Top = 13
+    Width = 339
     Caption = '3. Post-processing'
-    ClientHeight = 274
-    ClientWidth = 505
-    Font.Height = 19
+    ClientHeight = 175
+    ClientWidth = 335
+    Font.Height = 13
     ParentFont = False
     TabOrder = 6
     object btnMarkThinnedCTD: TBitBtn
-      Left = 10
-      Height = 36
+      Left = 7
+      Height = 24
       Top = 0
-      Width = 480
+      Width = 320
       Caption = 'A.  Set STATION.duplicate=true on CTD variant of stations'
       Font.Color = clHighlight
-      Font.Height = 22
+      Font.Height = 15
       Font.Style = [fsBold]
-      OnClick = btnMarkThinnedCTDClick
       ParentFont = False
       TabOrder = 0
+      OnClick = btnMarkThinnedCTDClick
     end
     object btnFindStationsInOcean: TBitBtn
-      Left = 10
-      Height = 36
-      Top = 230
-      Width = 480
+      Left = 7
+      Height = 24
+      Top = 153
+      Width = 320
       Caption = 'E.  Compare with OCEAN, set STATION.duplicates=true'
       Font.Color = clHighlight
-      Font.Height = 22
+      Font.Height = 15
       Font.Style = [fsBold]
-      OnClick = btnFindStationsInOceanClick
       ParentFont = False
       TabOrder = 1
+      OnClick = btnFindStationsInOceanClick
     end
     object Memo2: TMemo
-      Left = 10
-      Height = 86
-      Top = 38
-      Width = 480
+      Left = 7
+      Height = 57
+      Top = 25
+      Width = 320
       Font.Color = clHighlight
-      Font.Height = 22
+      Font.Height = 15
       Font.Style = [fsBold]
       Lines.Strings = (
         'B. - go to QC -> Station duplicates'
@@ -297,30 +296,30 @@ object frmload_ices1: Tfrmload_ices1
       TabOrder = 2
     end
     object btnCopyCTDProfilesToBottleStations: TBitBtn
-      Left = 10
-      Height = 36
-      Top = 134
-      Width = 480
+      Left = 7
+      Height = 24
+      Top = 89
+      Width = 320
       Caption = 'C.  Copy CTD profiles to bottle stations'
       Font.Color = clHighlight
-      Font.Height = 22
+      Font.Height = 15
       Font.Style = [fsBold]
-      OnClick = btnCopyCTDProfilesToBottleStationsClick
       ParentFont = False
       TabOrder = 3
+      OnClick = btnCopyCTDProfilesToBottleStationsClick
     end
     object btnDeleteDuplicateCruises: TBitBtn
-      Left = 10
-      Height = 36
-      Top = 182
-      Width = 480
+      Left = 7
+      Height = 24
+      Top = 121
+      Width = 320
       Caption = 'D.  Delete duplicate cruises'
       Font.Color = clHighlight
-      Font.Height = 22
+      Font.Height = 15
       Font.Style = [fsBold]
-      OnClick = btnDeleteDuplicateCruisesClick
       ParentFont = False
       TabOrder = 4
+      OnClick = btnDeleteDuplicateCruisesClick
     end
   end
   object IBDB2: TIBConnection
@@ -332,33 +331,35 @@ object frmload_ices1: Tfrmload_ices1
     UserName = 'SYSDBA'
     CheckTransactionParams = False
     UseConnectionCharSetIfNone = False
-    Left = 1085
-    Top = 394
+    Left = 723
+    Top = 263
   end
   object TR2: TSQLTransaction
     Active = False
     Database = IBDB2
-    Left = 1152
-    Top = 394
+    Left = 768
+    Top = 263
   end
   object q1: TSQLQuery
     FieldDefs = <>
     Database = IBDB2
     Transaction = TR2
     Params = <>
-    Left = 1210
-    Top = 394
+    Macros = <>
+    Left = 807
+    Top = 263
   end
   object q2: TSQLQuery
     FieldDefs = <>
     Database = IBDB2
     Transaction = TR2
     Params = <>
-    Left = 1267
-    Top = 394
+    Macros = <>
+    Left = 845
+    Top = 263
   end
   object OpenDialog1: TOpenDialog
-    Left = 1085
-    Top = 490
+    Left = 723
+    Top = 327
   end
 end

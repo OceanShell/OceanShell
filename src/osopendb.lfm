@@ -1,44 +1,42 @@
 object frmopendb: Tfrmopendb
   Left = 613
-  Height = 297
+  Height = 198
   Top = 298
-  Width = 265
+  Width = 177
   BorderIcons = [biSystemMenu]
   BorderStyle = bsNone
   Caption = 'Open DB'
-  ClientHeight = 297
-  ClientWidth = 265
+  ClientHeight = 198
+  ClientWidth = 177
   Color = clBtnFace
-  DesignTimePPI = 144
   Font.Color = clWindowText
-  Font.Height = -17
+  Font.Height = -11
   Font.Name = 'MS Sans Serif'
+  Visible = True
   OnClose = FormClose
   OnCreate = FormCreate
   OnMouseLeave = FormMouseLeave
-  LCLVersion = '2.0.6.0'
-  Visible = True
   object ListBox1: TListBox
     Left = 0
-    Height = 297
+    Height = 198
     Top = 0
-    Width = 265
+    Width = 177
     Align = alClient
     Font.Color = clWindowText
-    Font.Height = -17
+    Font.Height = -11
     Font.Name = 'MS Sans Serif'
     ItemHeight = 0
+    ParentFont = False
+    Sorted = True
+    TabOrder = 0
     OnClick = ListBox1Click
     OnDblClick = ListBox1DblClick
     OnMouseDown = ListBox1MouseDown
     OnMouseEnter = ListBox1MouseEnter
-    ParentFont = False
-    Sorted = True
-    TabOrder = 0
   end
   object PopupMenu1: TPopupMenu
-    left = 120
-    top = 96
+    Left = 80
+    Top = 64
     object btnAdd: TMenuItem
       Caption = 'Add/Edit'
       ImageIndex = 24

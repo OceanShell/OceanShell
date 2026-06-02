@@ -76,6 +76,8 @@ end;
 
 procedure Tfrmopendb.ListBox1DblClick(Sender: TObject);
 begin
+  if ListBox1.ItemIndex=-1 then exit; //empty click
+
   DBAlias:=ListBox1.Items.Strings[ListBox1.ItemIndex];
   frmosmain.OpenRegisteredDatabase(DBAlias);
 end;

@@ -1,14 +1,15 @@
 unit osmain;
 
 {$mode objfpc}{$H+}
+//{$WARN 6058 OFF} //turning off 'marked as inline is not inlined' - temporaryly
 
 interface
 
 uses
   SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, LCLType,
   Menus, Dialogs, ActnList, StdCtrls, IniFiles, ExtCtrls, DateUtils, sqldb, DB,
-  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, Process, Math, Grids, dynlibs,
-  LCLIntf, ComboEx, DBExtCtrls;
+  Buttons, DBGrids, Spin, DBCtrls, DateTimePicker, DBDateTimePicker, Process,
+  Math, Grids, dynlibs, LCLIntf, ComboEx;
 
 type
    MapDS=record
@@ -18,6 +19,14 @@ type
      Longitude:real;
      x:int64;
      y:int64;
+end;
+
+Type
+  ARGO_FDB_MAP=record
+    TBL_ID: int64;
+    NAME_ARGO:string;
+    NAME_FDB:string;
+    UNITS:smallint;
 end;
 
 type
@@ -43,13 +52,14 @@ type
     aOpenDatabase: TAction;
     aMapAllStations: TAction;
     AL: TActionList;
+    btnUpdateDatabaseInfo: TBitBtn;
     btnCustomSQLQuery: TButton;
     btnOpenDB: TBitBtn;
     btnAddEntry: TToolButton;
     btnSaveEntry: TToolButton;
     btnSelect: TButton;
     btnSelectID: TButton;
-    btnSaveCruise: TButton;
+    btnTest: TButton;
     cbCountry: TCheckComboBox;
     cbInstitute: TCheckComboBox;
     cbCruise: TCheckComboBox;
@@ -64,9 +74,9 @@ type
     chkCruiseIDList: TCheckBox;
     chkDateandTime: TCheckBox;
     chkDepth: TCheckBox;
+    chkDuplicates: TCheckBox;
     chkStationIDRange: TCheckBox;
     chkCruiseIDRange: TCheckBox;
-    chkIgnoreDup: TCheckBox;
     chkNOTCountry: TCheckBox;
     chkNOTCruise: TCheckBox;
     chkNOTInstitute: TCheckBox;
@@ -80,24 +90,20 @@ type
     cbEntryType: TComboBox;
     chkShowQuery: TCheckBox;
     chkStationIDList: TCheckBox;
-    DBCruiseCountry: TDBComboBox;
-    DBCruiseInstitute: TDBComboBox;
+    DBCruiseDateStartTotal1: TDBDateTimePicker;
+    DBCruiseDOI: TDBText;
+    DBCruiseWWW: TDBText;
     DBCruiseLatMax: TDBEdit;
     DBCruiseLatMin: TDBEdit;
     DBCruiseLonMax: TDBEdit;
-    DBCrusieDateStartTotal: TDBDateEdit;
-    DBCrusieStationsTotal: TDBEdit;
-    DBCrusieDateEndTotal: TDBDateEdit;
-    DBStationAccessionNum: TDBEdit;
+    DBStationFilePath: TDBText;
+    DBCrusieCountry: TDBEdit;
+    DBCrusieInstitute: TDBEdit;
+    DBCrusieProject: TDBEdit;
+    DBCruiseDateStartTotal: TDBDateTimePicker;
     DBStationSourceID: TDBEdit;
     DBCruiseLonMin: TDBEdit;
-    DBCruiseProject: TDBComboBox;
-    DBCruiseUpdated: TDBDateEdit;
     DBCrusiePI: TDBEdit;
-    DBCrusieExpocode: TDBEdit;
-    DBStationUpdated: TDBDateEdit;
-    DBStationAdded: TDBDateEdit;
-    DBCrusieAdded: TDBDateEdit;
     DBGridCruise: TDBGrid;
     DBGridEntry: TDBGrid;
     DBGridStation: TDBGrid;
@@ -116,13 +122,24 @@ type
     gbDepth: TGroupBox;
     gbIDRange: TGroupBox;
     gbRegion: TGroupBox;
-    GroupBox1: TGroupBox;
+    gbCruiseRegion: TGroupBox;
     gbIncludeInQuery: TGroupBox;
-    GroupBox3: TGroupBox;
+    gbCruiseDetails: TGroupBox;
     GroupBox4: TGroupBox;
     gbSelectionMode: TGroupBox;
     gbModeSelection: TGroupBox;
     iSupportTables: TMenuItem;
+    lbCruiseStart: TLabel;
+    lbCruiseStart1: TLabel;
+    lbDOI: TLabel;
+    lbwww: TLabel;
+    iLoad_IORAS: TMenuItem;
+    iTSDiagram: TMenuItem;
+    iTSDiagramSurfer: TMenuItem;
+    iLoadODV: TMenuItem;
+    iImportFirebird_old: TMenuItem;
+    lbwww1: TLabel;
+    iLoad_WOD: TMenuItem;
     rgCruiseIDList: TGroupBox;
     rgStationIDList: TGroupBox;
     iProfilesAll: TMenuItem;
@@ -131,23 +148,14 @@ type
     iLoad_Pangaea_CTD_tab: TMenuItem;
     iLoad_WOD18: TMenuItem;
     iMap: TMenuItem;
-    Label1: TLabel;
-    Label10: TLabel;
-    Label11: TLabel;
-    Label12: TLabel;
-    Label13: TLabel;
-    Label14: TLabel;
+    lbCountry: TLabel;
     Label15: TLabel;
-    Label17: TLabel;
-    Label18: TLabel;
-    Label19: TLabel;
-    Label2: TLabel;
-    Label20: TLabel;
-    Label3: TLabel;
+    lbInstitute: TLabel;
+    lbProject: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
-    Label7: TLabel;
+    lbPI: TLabel;
     Label8: TLabel;
     Label9: TLabel;
     lbResetSearchStations: TLabel;
@@ -158,8 +166,7 @@ type
     iLoadICESnew: TMenuItem;
     iFixedStation: TMenuItem;
     iUpdateStationParameters: TMenuItem;
-    iLoad_GLODAP_v2_2021: TMenuItem;
-    MenuItem26: TMenuItem;
+    iImport: TMenuItem;
     iImportFirebird: TMenuItem;
     btnUpdateCruiseInfo: TMenuItem;
     iExportASCII3Files: TMenuItem;
@@ -178,7 +185,7 @@ type
     iExportCIA: TMenuItem;
     iQC_WideRanges: TMenuItem;
     iMeteo: TMenuItem;
-    iTDdiagrams: TMenuItem;
+    iTDDiagram: TMenuItem;
     btnEntryAddStations: TMenuItem;
     MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
@@ -200,8 +207,8 @@ type
     MenuItem2: TMenuItem;
     MenuItem20: TMenuItem;
     iVisualizationGrapferHistorgam: TMenuItem;
-    MenuItem21: TMenuItem;
     iExportCOMFORT: TMenuItem;
+    iExportCOMFORT_stations: TMenuItem;
     iExportCOMFORT_table: TMenuItem;
     MenuItem22: TMenuItem;
     MenuItem23: TMenuItem;
@@ -218,12 +225,11 @@ type
     iDBStatistics_AK: TMenuItem;
     iDuplicates: TMenuItem;
     MenuItem6: TMenuItem;
-    MenuItem7: TMenuItem;
+    iExport: TMenuItem;
     iExportDIVAnd: TMenuItem;
     iQC: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
-    Panel3: TPanel;
     Panel4: TPanel;
     pcCruiseNumStations: TPageControl;
     pStationIDList: TPanel;
@@ -260,19 +266,16 @@ type
     iLoad: TMenuItem;
     iTools: TMenuItem;
     iLoad_ITP: TMenuItem;
-    MenuItem1: TMenuItem;
-    iLoad_GLODAP_2019_v2_product: TMenuItem;
+    iLoadGLODAP: TMenuItem;
     iStatistics: TMenuItem;
     iDBStatistics: TMenuItem;
     MenuItem3: TMenuItem;
-    iLoad_GLODAP_2019_v2: TMenuItem;
     OD: TOpenDialog;
     PageControl1: TPageControl;
     SD: TSaveDialog;
     Memo1: TMemo;
     MM: TMainMenu;
     iFile: TMenuItem;
-    iNewDatabase: TMenuItem;
     iOpenDatabase: TMenuItem;
     iHelp: TMenuItem;
     iHelpContent: TMenuItem;
@@ -293,6 +296,7 @@ type
     seGEBCOMax: TSpinEdit;
     seGEBCOMin: TSpinEdit;
     Separator1: TMenuItem;
+    Separator2: TMenuItem;
     seStationIDMax: TSpinEdit;
     seStationIDMin: TSpinEdit;
     seLastLevelMax: TFloatSpinEdit;
@@ -340,18 +344,18 @@ type
     procedure aProfilesStationAllExecute(Sender: TObject);
     procedure aProfilesStationSingleExecute(Sender: TObject);
     procedure aSettingsExecute(Sender: TObject);
-    procedure btnAddCruiseClick(Sender: TObject);
     procedure btnAddEntryClick(Sender: TObject);
     procedure btnAdvancedSelectionClick(Sender: TObject);
     procedure btnCustomSQLQueryClick(Sender: TObject);
     procedure btnEntryAddStationsClick(Sender: TObject);
     procedure btnOpenDBClick(Sender: TObject);
     procedure btnRemoveEntryClick(Sender: TObject);
-    procedure btnSaveCruiseClick(Sender: TObject);
     procedure btnSaveEntryClick(Sender: TObject);
     procedure btnSelectIDClick(Sender: TObject);
     procedure btnSelectClick(Sender: TObject);
+    procedure btnTestClick(Sender: TObject);
     procedure btnUpdateCruiseInfoClick(Sender: TObject);
+    procedure btnUpdateDatabaseInfoClick(Sender: TObject);
     procedure cbCountryDropDown(Sender: TObject);
     procedure cbCruiseDropDown(Sender: TObject);
     procedure cbEntryTypeSelect(Sender: TObject);
@@ -371,6 +375,9 @@ type
     procedure chkParameterChange(Sender: TObject);
     procedure chkQCFlagChange(Sender: TObject);
     procedure chkRegionChange(Sender: TObject);
+    procedure DBCruiseDOIClick(Sender: TObject);
+    procedure DBStationFilePathClick(Sender: TObject);
+    procedure DBCruiseWWWClick(Sender: TObject);
     procedure DBGridCruiseCellClick(Column: TColumn);
     procedure DBGridCruiseColumnSized(Sender: TObject);
     procedure DBGridCruiseEditingDone(Sender: TObject);
@@ -402,17 +409,19 @@ type
     procedure iDuplicatesClick(Sender: TObject);
     procedure iFixedStationClick(Sender: TObject);
     procedure iImportFirebirdClick(Sender: TObject);
+    procedure iImportFirebird_oldClick(Sender: TObject);
     procedure iInsertBottomDepthGEBCOClick(Sender: TObject);
     procedure iExportCIAClick(Sender: TObject);
-    procedure iExportCOMFORTClick(Sender: TObject);
+    procedure iExportCOMFORT_stationsClick(Sender: TObject);
     procedure iExportCOMFORT_tableClick(Sender: TObject);
     procedure iInterpolatedProfileClick(Sender: TObject);
     procedure iLoadARGOClick(Sender: TObject);
+    procedure iLoadGLODAPClick(Sender: TObject);
     procedure iLoadICESnewClick(Sender: TObject);
     procedure iLoadITPClick(Sender: TObject);
-    procedure iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
-    procedure iLoad_GLODAP_v2_2021Click(Sender: TObject);
+    procedure iLoadODVClick(Sender: TObject);
     procedure iload_icesClick(Sender: TObject);
+    procedure iLoad_IORASClick(Sender: TObject);
     procedure iLoad_ITPClick(Sender: TObject);
     procedure iLoad_Pangaea_CTD_tabClick(Sender: TObject);
     procedure iLoad_WOD18Click(Sender: TObject);
@@ -425,18 +434,20 @@ type
     procedure iQC_dbar_meterClick(Sender: TObject);
     procedure iQC_WideRangesClick(Sender: TObject);
     procedure iSelectStationsForCruiseClick(Sender: TObject);
-    procedure iNewDatabaseClick(Sender: TObject);
     procedure iSelectEntryClick(Sender: TObject);
     procedure iServiceStatisticsClick(Sender: TObject);
     procedure iSettingsClick(Sender: TObject);
     procedure iSplitCruisesClick(Sender: TObject);
     procedure iStandarddeviationslayersClick(Sender: TObject);
     procedure iSupportTablesClick(Sender: TObject);
-    procedure iTDdiagramsClick(Sender: TObject);
+    procedure iTDDiagramClick(Sender: TObject);
+    procedure iTSDiagramClick(Sender: TObject);
+    procedure iTSDiagramSurferClick(Sender: TObject);
     procedure iUpdateStationParametersClick(Sender: TObject);
     procedure iUpdateUnitsClick(Sender: TObject);
     procedure iVisualizationGrapferHistorgamClick(Sender: TObject);
     procedure iVisualizationSurferSquaresClick(Sender: TObject);
+    procedure iLoad_WODClick(Sender: TObject);
     procedure lbResetSearchStationsClick(Sender: TObject);
     procedure iExportASCIIClick(Sender: TObject);
     procedure itestClick(Sender: TObject);
@@ -469,6 +480,7 @@ type
   resourcestring
     SOpenFile = 'Open file?';
     SErrorOccured = 'Something went wrong. Check the output';
+    SDBInfoUpdated = 'Database information updated';
 
     SYes = 'Yes';
     SNo  = 'No';
@@ -488,15 +500,15 @@ const
     'ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, LASTLEVEL_M, '+
     'LASTLEVEL_DBAR, CRUISE_ID, CAST_NUMBER, ST_NUMBER_ORIGIN, '+
     'ST_ID_ORIGIN, QCFLAG, STVERSION, DUPLICATE, BOTTOMDEPTH_GEBCO,  '+
-    'ACCESSION_NUMBER, DATE_ADDED, DATE_UPDATED, SELECTED '+
+    'DATE_ADDED, DATE_UPDATED, SELECTED, FILE_PATH '+
     'FROM STATION ';
 
   CruiseSQL =
     'SELECT '+
     'CRUISE.ID, CRUISE.PLATFORM_ID, CRUISE.SOURCE_ID, CRUISE.CRUISE_NUMBER, '+
     'CRUISE.DATE_START_DATABASE, CRUISE.DATE_END_DATABASE, '+
-    'CRUISE.STATIONS_DATABASE, CRUISE.STATIONS_DUPLICATES, '+
-    'CRUISE.SELECTED, CRUISE.DUPLICATE, '+
+    'CRUISE.STATIONS_DATABASE, CRUISE.STATIONS_DUPLICATES, CRUISE.EXPOCODE, '+
+    'CRUISE.SELECTED, CRUISE.DUPLICATE, CRUISE.DATE_ADDED, CRUISE.DATE_UPDATED, '+
     'SOURCE.NAME AS SOURCE,   '+
     'PLATFORM.NAME AS PLATFORM '+
     'FROM CRUISE, SOURCE, PLATFORM ';
@@ -505,12 +517,11 @@ const
     ' SELECT '+
     ' CRUISE.ID, INSTITUTE_ID, PROJECT_ID,  COUNTRY.NAME AS COUNTRY, '+
     ' INSTITUTE.NAME AS INSTITUTE, PROJECT.NAME AS PROJECT, '+
-    ' CRUISE.DATE_ADDED, CRUISE.DATE_UPDATED, '+
-    ' CRUISE.DATE_START_TOTAL, CRUISE.DATE_END_TOTAL, '+
     ' CRUISE.LATITUDE_MIN, CRUISE.LATITUDE_MAX, '+
-    ' CRUISE.LONGITUDE_MIN, CRUISE.LONGITUDE_MAX, CRUISE.EXPOCODE, '+
-    ' CRUISE.PI, CRUISE.NOTES, CRUISE.STATIONS_TOTAL, '+
-    ' CRUISE.SELECTED '+
+    ' CRUISE.LONGITUDE_MIN, CRUISE.LONGITUDE_MAX, '+
+    ' CRUISE.PRINCIPAL_INVESTIGATOR, CRUISE.NOTES, '+
+    ' CRUISE.SELECTED, CRUISE.DOI, CRUISE.WWW, '+
+    ' CRUISE.DATE_START_TOTAL, CRUISE.DATE_END_TOTAL, CRUISE.STATIONS_TOTAL '+
     ' FROM CRUISE, PLATFORM, COUNTRY, INSTITUTE, PROJECT '+
     ' WHERE '+
     ' CRUISE.PLATFORM_ID=PLATFORM.ID AND '+
@@ -527,9 +538,12 @@ var
 
   IniFileName:string;
   GlobalPath, GlobalDataPath, GlobalUnloadPath, GlobalSupportPath:string; //global paths for the app
+  path_to_argo: string; // path to ARGO data
   OceanToolsPath, DBAlias:string;
   CurrentParTable: string;
   Cruise_SQL_str, Station_SQL_str: string;
+
+  Current_Station_ID, Current_Cruise_ID: int64;
 
   source_list_open, country_list_open, platform_list_open: boolean;
 
@@ -539,7 +553,8 @@ var
   PQF2_list: TStringList; // list for PQF2
   SQF_list : TStringList; // list for SQF
 
-  depth_units: integer; //0-meters, 1-dBar
+  depth_units_id: integer; //0-meters, 1-dBar
+  depth_units_str: string;
 
   StationIDMin, StationIDMax: integer;
   StationLatMin,StationLatMax,StationLonMin,StationLonMax: real;
@@ -553,11 +568,13 @@ var
   CruiseDateAddedMin, CruiseDateAddedMax :TDateTime;
   CruiseDateUpdatedMin, CruiseDateUpdatedMax :TDateTime;
   CruiseStationsTotalMax, CruiseStationsDatabaseMax, CruiseStationsDuplicateMax: integer;
+  CruiseCount: Integer;
 
   CRUISEInfoObtained: boolean = false; //getting CRUISE info on app start
   NavigationOrder:boolean=true; //Stop navigation until all modules responded
 
-  libgswteos, netcdf:TLibHandle;
+ // libgswteos, netcdf:TLibHandle;
+  firebird: string; // path to Firebird client
   libgswteos_exists, netcdf_exists:boolean;
 
   SLatP_arr:array[0..20000] of real;
@@ -565,11 +582,12 @@ var
   Length_arr:integer;
 
   MapDataset: array of MapDS;
+  ARGO_FDB_MAPPING: array of ARGO_FDB_MAP;
 
   frmprofile_station_all_open, frmprofile_station_single_open :boolean;
   frmmap_open, frmprofile_plot_all_open, frmparameters_list_open: boolean;
   frmmeteo_open, frmprofile_interpolation_open, frmopendb_open: boolean;
-  frmopendbreg_open, frminfo_open:boolean;
+  frmopendbreg_open, frminfo_open, frmostool_tsdiagram_open:boolean;
 
 const
    NC_NOWRITE   = 0;    // file for reading
@@ -588,33 +606,41 @@ implementation
 
 
 uses
+(* to remove *)
+  test,
 (* core modules *)
   dm,
   osabout,
   osopendb,
   osopendb_reg,
-  oscreatenewdb,
-  osdbstructure_updater, //temporary module to be removed later
+ // osdbstructure_updater, //temporary module to be removed later
   ossettings,
-  osinfo,
+ // osinfo,
   osselection_advanced,
   osselection_customsql,
   sortbufds,
   procedures,
   ArbytraryRegion,
-  osbathymetry,
+//  osbathymetry,
   declarations_netcdf,
   osunitsupdate,
+  gibbsseawater,
+
+(* drivers *)
+  driver_fdb,
+  driver_argo,
 
 (* loading data *)
   osload_argo_gui,
   osload_itp_gui,
-  osload_GLODAP_2019_v2_product,
-  osload_GLODAP_v2_2021_product,
+  osload_glodap,
+  osload_wod_netcdf,
   osload_WOD18,
   osload_PangaeaTab,
   osload_ices1,
   osload_ices2,
+  osload_ioras,
+  osload_odv_o4x,
 
 (* database service procedures *)
   ossupporttables,
@@ -623,6 +649,7 @@ uses
 
 (* dat import *)
   osimportdb,
+  osimport_olddb,
 
 (* data export *)
   osexport_divand,
@@ -633,9 +660,10 @@ uses
   osexport_firebird,
 
 (* QC *)
+  osqc_databaseinfo,
   osqc_dbar_meters_consistency,
   osqc_duplicates,
-  osqc_wideranges,
+//  osqc_wideranges,
   osqc_wideranges_upd,
   osqc_meanprofile,
   osqc_setflags,
@@ -653,7 +681,9 @@ uses
   osprofile_interpolation,
   osbathymetry_plot,
   osmeteo,
-  ostools_density,
+  ostool_density,
+  ostool_tsdiagram,
+  ostool_tsdiagram_surfer,
 
 (* statistics *)
   osstatistics,
@@ -684,40 +714,30 @@ begin
  frmmap_open:=false; frmparameters_list_open:=false; frmmeteo_open:=false;
  frmprofile_plot_all_open:=false; frmprofile_interpolation_open:=false;
  frmopendb_open:=false; frmopendbreg_open:=false; frminfo_open:=false;
+ frmostool_tsdiagram_open:=false;
 
  (* Defining Global Path - application root lolder *)
   GlobalPath:=ExtractFilePath(Application.ExeName);
 
   (* Define settings file, unique for every user*)
-  IniFileName:=GetUserDir+'.climateshell';
+//  IniFileName:=GetUserDir+'.climateshell';
+  IniFileName:=GlobalPath+'.oceanshell';
   if not FileExists(IniFileName) then begin
     Ini:=TIniFile.Create(IniFileName);
     Ini.WriteInteger('main', 'Language', 0);
     Ini.Free;
   end;
 
-  (* Loading TEOS-2010 dynamic library *)
+  (* Loading dynamic libraries *)
   {$IFDEF WINDOWS}
-    libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dll'));
-    netcdf    :=LoadLibrary(PChar(GlobalPath+'netcdf.dll'));
+    firebird  :=GlobalPath+'fbclient.dll';
   {$ENDIF}
   {$IFDEF LINUX}
-    libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.so'));
-    netcdf    :=LoadLibrary(PChar(GlobalPath+'libnetcdf.so'));
+    firebird  :=GlobalPath+'libfbclient.so.3.0.5';
   {$ENDIF}
   {$IFDEF DARWIN}
-    libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dylib'));
-    netcdf    :=LoadLibrary(PChar(GlobalPath+'libnetcdf.dylib'));
+    firebird  :=GlobalPath+'libfbclient.dylib';
   {$ENDIF}
-
-
-  //GibbsSeaWater loaded?
-  if libgswteos=0 then libgswteos_exists:=false else libgswteos_exists:=true;
-    if not libgswteos_exists then showmessage('TEOS-10 is not installed');
-
-  //netCDF loaded?
-  if netcdf=0 then netcdf_exists:=false else netcdf_exists:=true;
-    if not netcdf_exists then showmessage('netCDF is not installed');
 
 
   (* Define global delimiter *)
@@ -734,7 +754,14 @@ begin
     Width :=Ini.ReadInteger( 'osmain', 'width',  900);
     Height:=Ini.ReadInteger( 'osmain', 'weight', 500);
 
-    depth_units:=Ini.ReadInteger('main', 'depth_units', 0);
+    depth_units_id:=Ini.ReadInteger('main', 'depth_units', 0);
+    case depth_units_id of
+      0: depth_units_str:='Meter';
+      1: depth_units_str:='dBar';
+    end;
+
+
+    path_to_argo:= Ini.ReadString( 'osload_argo', 'data_path',  '');
 
     if Ini.ReadBool( 'main', 'Experimental',false)=false then ExpertModeOff;
 
@@ -755,7 +782,7 @@ begin
     chkDepth.Checked       := Ini.ReadBool( 'osmain', 'station_chkDepth',       false);
     chkCrNumStat.Checked   := Ini.ReadBool( 'osmain', 'cruise_chkNumStations',  false);
 
-    chkIgnoreDup.Checked   := Ini.ReadBool( 'osmain', 'station_chkIgnoreDup',   true);
+    chkDuplicates.Checked  := Ini.ReadBool( 'osmain', 'station_chkDuplicates',  false);
     chkShowQuery.Checked   := Ini.ReadBool( 'osmain', 'station_chkShowQuery',   false);
 
 
@@ -898,7 +925,7 @@ begin
   end;  }
 
  (* disabling menu items *)
-  for k:=2 to MM.Items.Count-1 do MM.Items[k].Enabled:=false;
+  for k:=2 to MM.Items.Count-2 do MM.Items[k].Enabled:=false;
 
  (* list of unique sources - only those selected *)
  Source_unq_list:=TStringList.Create;
@@ -925,7 +952,7 @@ Var
 
   SSYearMin,SSYearMax,SSMonthMin,SSMonthMax,SSDayMin,SSDayMax :Word;
   NotCondCountry, NotCondPlatform, NotCondSource, NotCondCruise:string;
-  NotCondInstitute, NotCondProject, NotCondOrigin, SBordersFile:string;
+  NotCondInstitute, NotCondProject:string;
 
   QCFlag_str, source_str, country_str, platform_str, cruise_str:string;
   institute_str, project_str, cr: string;
@@ -1066,17 +1093,17 @@ begin
             Cruise_SQL_str:=Cruise_SQL_str+QuotedStr(DateTimeToStr(dtpDateMax.DateTime))+') OR ';
             Cruise_SQL_str:=Cruise_SQL_str+'      (DATE_END_DATABASE BETWEEN ';
             Cruise_SQL_str:=Cruise_SQL_str+QuotedStr(DateTimeToStr(dtpDateMin.DateTime))+' AND ';
-            Cruise_SQL_str:=Cruise_SQL_str+QuotedStr(DateTimeToStr(dtpDateMax.DateTime))+'))';
+            Cruise_SQL_str:=Cruise_SQL_str+QuotedStr(DateTimeToStr(dtpDateMax.DateTime))+')) ';
         end;
        1: begin
            Cruise_SQL_str:=Cruise_SQL_str+'  AND (CRUISE.DATE_ADDED BETWEEN ';
            Cruise_SQL_str:=Cruise_SQL_str+QuotedStr(DateTimeToStr(dtpDateAddedMin.DateTime))+' AND ';
-           Cruise_SQL_str:=Cruise_SQL_str+QuotedStr(DateTimeToStr(dtpDateAddedMax.DateTime));
+           Cruise_SQL_str:=Cruise_SQL_str+QuotedStr(DateTimeToStr(dtpDateAddedMax.DateTime))+') ';
        end;
        2: begin
            Cruise_SQL_str:=Cruise_SQL_str+'  AND (CRUISE.DATE_UPDATED BETWEEN ';
            Cruise_SQL_str:=Cruise_SQL_str+QuotedStr(DateTimeToStr(dtpDateUpdatedMin.DateTime))+' AND ';
-           Cruise_SQL_str:=Cruise_SQL_str+QuotedStr(DateTimeToStr(dtpDateUpdatedMax.DateTime));
+           Cruise_SQL_str:=Cruise_SQL_str+QuotedStr(DateTimeToStr(dtpDateUpdatedMax.DateTime))+') ';
        end;
       end;
      end;
@@ -1149,7 +1176,7 @@ begin
        ' PROJECT.NAME IN ('+project_str+')) ';
     end;
 
-    if chkIgnoreDup.Checked=true then
+    if not chkDuplicates.Checked then
        Cruise_SQL_str:=Cruise_SQL_str+' AND CRUISE.DUPLICATE=FALSE ';
 
 (*===========================END OF CRUISE_SQL_str============================*)
@@ -1347,7 +1374,7 @@ Station_SQL_str:='';
      end;
    end;
 
-   if chkIgnoreDup.Checked=true then
+   if not chkDuplicates.Checked then
      Station_SQL_str:=Station_SQL_str+' AND (STATION.DUPLICATE=FALSE) ';
 
    if copy(Station_SQL_str, 1, 4)=' AND' then
@@ -1360,13 +1387,8 @@ end;
 
 procedure Tfrmosmain.btnSelectClick(Sender: TObject);
 var
-i, k, fl:integer;
-
-
-dlat, dlon, lat, lon, dist:real;
-time0, time1:TDateTime;
-buf_str, cr: string;
-LatMin, LatMax, LonMin, LonMax:real;
+  lat, lon, dist:real;
+  LatMin, LatMax, LonMin, LonMax:real;
 begin
 
 frmosmain.Enabled:=false;
@@ -1377,26 +1399,30 @@ try
   SaveSettingsSearch;
 
   //closing transaction if it's still active
-  frmdm.QCruise.Close;
-  frmdm.QCruise.Clear;
-  frmdm.QCruise.ClearIndexes;
-  frmdm.Q.Close;
-  frmdm.Q.Clear;
-  frmdm.Q.ClearIndexes;
-
   if frmdm.TR.Active=true then frmdm.TR.Commit;
 
   GetSQLQueryText;
+
+  with frmdm.QCruise do begin
+ //   DisableControls;
+    Close;
+    IndexName:='';
+    IndexDefs.Clear;
+  end;
+  with frmdm.Q do begin
+  //  DisableControls;
+    Close;
+    IndexName:='';
+    IndexDefs.Clear;
+  end;
 
 (*************************** Selecting CRUISES ********************************)
   if rbCruises.Checked=true then begin
    SelectionInfo(false);
    CDSNavigation;
 
-   try
-   frmdm.QCruise.DisableControls;
+  try
    with frmdm.QCruise do begin
-    Close;
       SQL.Clear;
       SQL.Add(CruiseSQL);
       SQL.Add(' WHERE ');
@@ -1412,6 +1438,7 @@ try
    Open;
    Last;
    First;
+ //  EnableControls;
   end;
 
    if not frmdm.QCruise.IsEmpty then begin
@@ -1430,9 +1457,10 @@ try
 
 (**********************SELECTING STATIONS**************************************)
  if rbStations.Checked=true then begin
-
+   if chkRegion.checked = true then begin
     if pcRegion.ActivePageIndex>0 then begin
-     // around point
+
+    // around point
      if pcRegion.ActivePageIndex=1 then begin
       PositionByDistance(seAroundPointLat.Value,
                          seAroundPointLon.Value,
@@ -1512,10 +1540,9 @@ try
       frmdm.TR.CommitRetaining;
       Station_SQL_str:=' STATION.ID IN (SELECT ID FROM TEMPORARY_ID_LIST) ';
     end;
-
+   end;
 
    with frmdm.Q do begin
-    Close;
      SQL.Clear;
      SQL.Add(StationSQL);
      if trim(Station_SQL_str)<>'' then begin
@@ -1531,7 +1558,24 @@ try
     Open;
     Last;
     First;
+ //   EnableControls;
    end;
+
+   (* Closing and re-opening the tools with multiple profiles *)
+   if frmprofile_plot_all_open then begin
+    frmprofile_plot_all.Close;
+    Application.ProcessMessages;
+    frmprofile_plot_all:= Tfrmprofile_plot_all.Create(nil);
+    frmprofile_plot_all_open:=true;
+   end;
+   if frmostool_tsdiagram_open then begin
+    frmostool_tsdiagram.Close;
+    Application.ProcessMessages;
+    frmostool_tsdiagram:= Tfrmostool_tsdiagram.Create(nil);
+    frmostool_tsdiagram_open:=true;
+   end;
+
+
    SelectionInfo(true);
    CDSNavigation;
   end;
@@ -1566,7 +1610,7 @@ begin
     while not frmdm.QCruise.EOF do begin
      if frmdm.QCruise.FieldByName('SELECTED').AsBoolean=true then begin
         inc(cnt);
-        osqc_cruiseinfo.UpdateCruiseInfo(frmdm.IBDB, frmdm.QCruise.FieldByName('ID').Value, true);
+        UpdateCruiseInfo(frmdm.IBDB, frmdm.QCruise.FieldByName('ID').Value);
      end;
      frmdm.QCruise.Next;
     end;
@@ -1577,6 +1621,8 @@ begin
     Showmessage('Please, redo the selection');
    end;
 end;
+
+
 
 
 procedure Tfrmosmain.SelectGetCruisesFromStation(temp_list:TStringList);
@@ -1738,7 +1784,6 @@ end;
 procedure Tfrmosmain.iSelectStationsForCruiseClick(Sender: TObject);
 Var
  crID_OLD, cnt: int64;
- temp_list:TStringList;
 begin
   With frmdm.q1 do begin
    Close;
@@ -1787,6 +1832,8 @@ begin
  // if frmdm.TR.Active=true then frmdm.TR.CommitRetaining;
    with frmdm.Q do begin
      Close;
+     IndexName:='';
+     IndexDefs.Clear;
       SQL.Clear;
       SQL.Add(StationSQL);
       SQL.Add(' WHERE STATION.CRUISE_ID IN (SELECT ID FROM TEMPORARY_ID_LIST) '); //('+id_str+') ');
@@ -1826,7 +1873,6 @@ end;
 procedure Tfrmosmain.MenuItem19Click(Sender: TObject);
 Var
  ID_OLD, cnt: integer;
- SQL_str: string;
 begin
   With frmdm.q1 do begin
    Close;
@@ -1915,8 +1961,7 @@ end;
 
 procedure Tfrmosmain.iSelectEntryClick(Sender: TObject);
 Var
-  Ini: TIniFile;
-  id_str, SQL_str: string;
+  SQL_str: string;
   crID_old :integer;
 begin
   try
@@ -2138,6 +2183,18 @@ begin
 end;
 
 procedure Tfrmosmain.itestClick(Sender: TObject);
+Var
+ // Func:Tgsw_z_from_p;
+  i, ncid: integer;
+  varidp, ndimsp, profidp, paridp:integer;
+  dimname:array of pAnsiChar;
+  vardimidsp:array of integer;
+  n_prof, n_params ,n_sp :size_t;
+  pp, pr, sp: integer;
+    ip: array of PAnsiChar;
+    par_str:string;
+    start, start2: PArraySize_t;
+
 begin
   //showmessage(inttostr(osbathymetry.getgebcodepth(66, 2)));
  { frmdm.q1.Close;
@@ -2148,9 +2205,69 @@ begin
  frmdm.q1.Open;
  showmessage(frmdm.q1.Fields[0].Value);  }
 
-  showmessage(FormatFloat('0000.00000;-000.00000', -98.9)+#13+
+ { showmessage(FormatFloat('0000.00000;-000.00000', -98.9)+#13+
               FormatFloat('0000.00000;-000.00000', -198.9)+#13+
-              FormatFloat('0000.00000;-000.00000', 98.9));
+              FormatFloat('0000.00000;-000.00000', 98.9)); }
+ // Func:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+//  showmessage(floattostr(-gsw_z_from_p(10, 60, 0, 0)));
+
+   nc_open(pansichar('Y:\ARGO\dac\aoml\3900235\profiles\D3900235_001.nc'), NC_NOWRITE, ncid); // only for reading
+
+   nc_inq_dimid(ncid, pAnsiChar('N_PROF'), profidp);
+   nc_inq_dimlen(ncid, profidp, n_prof);
+
+   nc_inq_dimid(ncid, pAnsiChar('N_PARAM'), paridp);
+   nc_inq_dimlen(ncid, paridp, n_params);
+
+   nc_inq_varid(ncid, pAnsiChar('STATION_PARAMETERS'), varidp);
+   nc_inq_varndims(ncid, varidp, ndimsp);
+
+   SetLength(vardimidsp, ndimsp); //number of dimensions
+   nc_inq_vardimid(ncid, varidp, vardimidsp);
+   n_sp:=0;
+    for i:=0 to ndimsp-1 do begin  // Loop for variable dimensions
+         setlength(dimname, 0);
+         setlength(dimname, NC_MAX_NAME);
+         nc_inq_dimname(ncid, vardimidsp[i], dimname); //Dimension's name
+         if copy(pansichar(dimname), 1, 6)='STRING' then
+           nc_inq_dimlen (ncid, vardimidsp[i], n_sp);
+    end;
+      showmessage(inttostr(n_sp));
+
+    start:=GetMemory(SizeOf(TArraySize_t)*3); // get memory for start pointer
+    start2:=GetMemory(SizeOf(TArraySize_t)*3); // get memory for start pointer
+
+    for pp:=0 to n_prof-1 do begin
+      start^[0]:=pp;
+      start2^[0]:=pp;
+      for pr:=0 to n_params-1 do begin
+       start^[1]:=pr;
+       start2^[1]:=pr;
+
+       start^[2]:=0;
+       start2^[2]:=n_sp;
+
+     {  setlength(ip, 1);
+       nc_get_vara_text(ncid, varidp, start1^, start2^ , ip);
+       showmessage(pansichar(ip));   }
+
+       par_str:='';
+       for sp:=0 to n_sp do begin
+       start^[2]:=sp ;//n_sp;
+
+       setlength(ip, 1);
+       nc_get_var1_text(ncid, varidp, start^, ip);
+       par_str:=par_str+pansichar(ip);
+
+     end;
+       showmessage(par_str);
+      end;
+
+    end;
+     FreeMemory(start);
+
+
+
 end;
 
 
@@ -2165,30 +2282,6 @@ begin
   end;
 end;
 
-procedure Tfrmosmain.btnAddCruiseClick(Sender: TObject);
-Var
- Qt:TSQLQuery;
-begin
-{frmdm.QCruise.Insert;
-
-Qt :=TSQLQuery.Create(self);
-Qt.Database:=frmdm.IBDB;
-Qt.Transaction:=frmdm.TR;
-
-   if frmdm.QCruise.FieldByName('ID').IsNull then begin
-     Qt.Close;
-     Qt.SQL.Text:=' Select max(ID) from CRUISE ';
-     Qt.Open;
-      frmdm.QCruise.Append;
-      frmdm.QCruise.FieldByName('ID').Value:=Qt.Fields[0].AsInteger+1;
-      frmdm.QCruise.FieldByName('DATE_ADDED').Value:=Now;
-     Qt.Close;
-   end;
-
-Qt.Free;
-btnSaveCruise.Enabled:=true;
-}
-end;
 
 procedure Tfrmosmain.btnAddEntryClick(Sender: TObject);
 Var
@@ -2255,8 +2348,6 @@ end;
 
 (* Opening a local database*)
 procedure Tfrmosmain.aOpenDatabaseExecute(Sender: TObject);
-Var
-  k:integer;
 begin
   OD.Filter:='Firebird Database|*.FDB;*.fdb';
   if OD.Execute then begin
@@ -2264,9 +2355,8 @@ begin
   end;
 end;
 
+
 procedure Tfrmosmain.OpenLocalDatabase(DBName:string);
-Var
-  k:integer;
 begin
   try
     frmdm.IBDB.Close(false);
@@ -2302,10 +2392,12 @@ Var
  DBIni:TIniFile;
  DBUser, DBPass, DBHost, DBPath: string;
  k:integer;
+ LocalServer:boolean=false;
 begin
 
   DBIni := TIniFile.Create(IniFileName+'_db');
   try
+    LocalServer:=DBIni.ReadBool(DBAlias, 'srv_local', false);
     DBUser :=DBIni.ReadString(DBAlias, 'user',     'SYSDBA');
     DBPass :=DBIni.ReadString(DBAlias, 'pass',     'masterkey');
     DBHost :=DBIni.ReadString(DBAlias, 'host',     'localhost');
@@ -2321,15 +2413,7 @@ begin
                     mtwarning, [mbOk], 0)=mrOk then exit;
 
   with frmdm.DBLoader do begin
-    {$IFDEF WINDOWS}
-      LibraryName:=GlobalPath+'fbclient.dll';
-    {$ENDIF}
-    {$IFDEF LINUX}
-      LibraryName:=GlobalPath+'libfbclient.so.3.0.5';
-    {$ENDIF}
-    {$IFDEF DARWIN}
-      LibraryName:=GlobalPath+'libfbclient.dylib';
-    {$ENDIF}
+    LibraryName:=firebird;
     Enabled:=true;
   end;
 
@@ -2338,7 +2422,7 @@ begin
       Connected:=false;
       UserName:=DBUser;
       Password:=DBPass;
-      HostName:=DBHost;
+        if not LocalServer then HostName:=DBHost;
       DatabaseName:=DBPath;
       Connected:=true;
     end;
@@ -2356,7 +2440,7 @@ begin
 
   except
     on e: Exception do
-      if MessageDlg(e.message, mtError, [mbOk], 0)=mrOk then close;
+      if MessageDlg(e.message, mtError, [mbOk], 0)=mrOk then btnOpenDB.OnClick(self);
   end;
 
 end;
@@ -2424,7 +2508,7 @@ begin
 end;
 
 
-procedure Tfrmosmain.iTDdiagramsClick(Sender: TObject);
+procedure Tfrmosmain.iTDDiagramClick(Sender: TObject);
 begin
   if frmparameters_list_open=true then frmparameters_list.SetFocus else
      begin
@@ -2435,6 +2519,21 @@ begin
   frmparameters_list_open:=true;
 end;
 
+procedure Tfrmosmain.iTSDiagramClick(Sender: TObject);
+begin
+  if frmostool_tsdiagram_open=true then frmostool_tsdiagram.SetFocus else
+     begin
+       frmostool_tsdiagram:= Tfrmostool_tsdiagram.Create(Self);
+       frmostool_tsdiagram.Show;
+     end;
+  frmostool_tsdiagram_open:=true;
+end;
+
+procedure Tfrmosmain.iTSDiagramSurferClick(Sender: TObject);
+begin
+  GetTSDiagramData;
+end;
+
 
 procedure Tfrmosmain.iInsertBottomDepthGEBCOClick(Sender: TObject);
 var
@@ -2442,7 +2541,7 @@ var
   Lat, Lon: real;
 
   GebcoFileName: string;
-  ncid, varidp, Pct:integer;
+  ncid, varidp:integer;
   start: PArraySize_t;
   sp:array of smallint;
   lat0, lon0, step: real;
@@ -2505,6 +2604,8 @@ begin
       mtWarning, [mbYes, mbNo], 0)= mrYes then begin
 
     k:=0;
+    cnt_null:=0;
+    cnt_updated:=0;
     While not Qt.Eof do begin
      inc(k);
       ID:=Qt.FieldByName('ID').Value;
@@ -2787,20 +2888,6 @@ Qt.Transaction:=TRt;
 
 end;
 
-procedure Tfrmosmain.btnSaveCruiseClick(Sender: TObject);
-begin
- (*
-  if frmdm.QCruise.Modified then frmdm.QCruise.Post;
-
-
-  frmdm.QCruise.ApplyUpdates(0);
-  frmdm.TR.CommitRetaining;
-
-  btnSaveCruise.Enabled:=false;
-  Application.ProcessMessages;
-  *)
-end;
-
 
 procedure Tfrmosmain.btnSaveEntryClick(Sender: TObject);
 begin
@@ -2818,44 +2905,47 @@ end;
 (* gathering info about the database *)
 procedure Tfrmosmain.DatabaseInfo;
 var
-  Ini:TIniFile;
-
-  TRt_DB1:TSQLTransaction;
-  Qt_DB1:TSQLQuery;
-  TempList:TListBox;
-
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
   k:integer;
 begin
 
 (* temporary transaction for main database *)
-TRt_DB1:=TSQLTransaction.Create(self);
-TRt_DB1.DataBase:=frmdm.IBDB;
+TRt:=TSQLTransaction.Create(self);
+ with TRt.Params do begin
+  Clear;
+   Add('isc_tpb_read');
+   Add('isc_tpb_read_committed');
+   Add('isc_tpb_nowait');
+   Add('isc_tpb_rec_version');
+ end;
+TRt.DataBase:=frmdm.IBDB;
 
 (* temporary query for main database *)
-Qt_DB1 :=TSQLQuery.Create(self);
-Qt_DB1.Database:=frmdm.IBDB;
-Qt_DB1.Transaction:=TRt_DB1;
+Qt :=TSQLQuery.Create(self);
+Qt.Database:=frmdm.IBDB;
+Qt.Transaction:=TRt;
 
  try
-   with Qt_DB1 do begin
+   with Qt do begin
     Close;
         SQL.Clear;
-        SQL.Add(' select count(ID) as StCount, ');
-        SQL.Add(' min(ID) as IDMin, max(ID) as IDMax, ');
-        SQL.Add(' min(CRUISE_ID) as CrIDMin, max(CRUISE_ID) as CrIDMax, ');
-        SQL.Add(' min(LATITUDE) as StLatMin, max(LATITUDE) as StLatMax, ');
-        SQL.Add(' min(LONGITUDE) as StLonMin, max(LONGITUDE) as StLonMax, ');
-        SQL.Add(' min(DATEANDTIME) as StDateMin, ');
-        SQL.Add(' max(DATEANDTIME) as StDateMax, ');
-        SQL.Add(' min(DATE_ADDED) as StDateAddedMin, ');
-        SQL.Add(' max(DATE_ADDED) as StDateAddedMax, ');
-        SQL.Add(' min(DATE_UPDATED) as StDateUpdatedMin, ');
-        SQL.Add(' max(DATE_UPDATED) as StDateUpdatedMax ');
-        SQL.Add(' from STATION');
+        SQL.Add(' SELECT ');
+        SQL.Add(' STATION_COUNT, CRUISE_COUNT, ');
+        SQL.Add(' STATION_ID_MIN as IDMin, STATION_ID_MAX as IDMax, ');
+        SQL.Add(' LATITUDE_MIN as StLatMin, LATITUDE_MAX as StLatMax, ');
+        SQL.Add(' LONGITUDE_MIN as StLonMin, LONGITUDE_MAX as StLonMax, ');
+        SQL.Add(' DATEANDTIME_MIN as StDateMin, DATEANDTIME_MAX as StDateMax, ');
+        SQL.Add(' DATE_ADDED_MIN as StDateAddedMin, DATE_ADDED_MAX as StDateAddedMax, ');
+        SQL.Add(' DATE_UPDATED_MIN as StDateUpdatedMin, DATE_UPDATED_MAX as StDateUpdatedMax, ');
+        SQL.Add(' CRUISE_ID_MIN as CrIDMin, CRUISE_ID_MAX as CrIDMax, ');
+        SQL.Add(' CRUISE_ST_TOTAL_MAX, CRUISE_ST_DB_MAX, CRUISE_DUPLICATES_MAX ');
+        SQL.Add(' FROM DATABASE_INFO');
     Open;
-      StationCount:=FieldByName('StCount').AsInteger;
-     // showmessage(inttostr(stationCount));
-       if StationCount>0 then begin
+      StationCount:=FieldByName('STATION_COUNT').AsInteger;
+      CruiseCount :=FieldByName('CRUISE_COUNT').AsInteger;
+
+      if StationCount>0 then begin
          StationIDMin   :=FieldByName('IDMin').AsInteger;
          StationIDMax   :=FieldByName('IDMax').AsInteger;
          CruiseIDMin    :=FieldByName('CrIDMin').AsInteger;
@@ -2907,47 +2997,61 @@ Qt_DB1.Transaction:=TRt_DB1;
            dtpDateUpdatedMax.DateTime:=StationDateUpdatedMax;
          end;
 
-      end else for k:=1 to 7 do sbDatabase.Panels[k].Text:='---';
-    Close;
-   end;
+       end else for k:=1 to 7 do sbDatabase.Panels[k].Text:='---';
 
-   with Qt_DB1 do begin
-     Close;
-       SQL.Clear;
-       SQL.Add(' select count(ID) as StCount, ');
-       SQL.Add(' max(STATIONS_TOTAL) as ST_TOTAL_MAX, ');
-       SQL.Add(' max(STATIONS_DATABASE) as ST_DATABASE_MAX, ');
-       SQL.Add(' max(STATIONS_DUPLICATES) as ST_DUPLICATES_MAX ');
-       SQL.Add(' FROM CRUISE');
-     Open;
-     if FieldByName('StCount').AsInteger>0 then begin
-       CruiseStationsTotalMax:=FieldByName('ST_TOTAL_MAX').AsInteger;
-       CruiseStationsDatabaseMax:=FieldByName('ST_DATABASE_MAX').AsInteger;
-       CruiseStationsDuplicateMax:=FieldByName('ST_DUPLICATES_MAX').AsInteger;
+    if CruiseCount>0 then begin
+       CruiseStationsTotalMax:=FieldByName('CRUISE_ST_TOTAL_MAX').AsInteger;
+       CruiseStationsDatabaseMax:=FieldByName('CRUISE_ST_DB_MAX').AsInteger;
+       CruiseStationsDuplicateMax:=FieldByName('CRUISE_DUPLICATES_MAX').AsInteger;
 
        seCruiseStationsTotalMax.Value:=CruiseStationsTotalMax;
        seCruiseStationsDatabaseMax.Value:=CruiseStationsDatabaseMax;
        seCruiseStationsDuplicateMax.Value:=CruiseStationsDuplicateMax;
      end;
-     Close;
-    end;
+    Close;
+   end;
+
 
    (* permanent list for parameter tables *)
    ListBox1.Clear;
-
-   try
-   (* temporary list for all tables from Db *)
-    TempList:=TListBox.Create(self);
-
-   (* list of all tables *)
-   frmdm.IBDB.GetTableNames(TempList.Items,False);
-
-    for k:=0 to TempList.Items.Count-1 do
-     if (copy(TempList.Items.Strings[k], 1, 2)='P_') then
-       ListBox1.Items.Add(TempList.Items.Strings[k]);
-   finally
-     TempList.Free;
+   with Qt do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select name_table from database_tables ');
+     SQL.Add(' where EXTERNAL_TBL is false '); // TEMPORARY FIX!!!!!
+     SQL.Add(' order by id ');
+    Open;
+    While not Qt.EOF do begin
+       ListBox1.Items.Add(Qt.Fields[0].Value);
+     Next;
+    end;
+    Close;
    end;
+
+   (* Getting ARGO and FDB tables *)
+  with Qt do begin
+   Close;
+     SQL.Clear;
+     SQL.Add(' select id, name_table, name_argo, units_id_default ');
+     SQL.Add(' from database_tables ');
+     SQL.Add(' where name_argo is not null ');
+     SQL.Add(' order by id ');
+   Open;
+   Last;
+   First;
+  end;
+
+  SetLength(ARGO_FDB_MAPPING, Qt.RecordCount);
+  k:=-1;
+  While not Qt.EOF do begin
+   inc(k);
+     ARGO_FDB_MAPPING[k].TBL_ID    :=Qt.FieldByName('id').Value;
+     ARGO_FDB_MAPPING[k].NAME_FDB  :=Qt.FieldByName('name_table').Value;
+     ARGO_FDB_MAPPING[k].NAME_ARGO :=Qt.FieldByName('name_argo').Value;
+     ARGO_FDB_MAPPING[k].UNITS     :=Qt.FieldByName('units_id_default').Value;
+   Qt.Next;
+  end;
+  Qt.Close;
 
    pParameters.Visible:=false;
    cgParameters.Items.Clear;
@@ -2973,13 +3077,32 @@ Qt_DB1.Transaction:=TRt_DB1;
    for k:=1 to MM.Items.Count-2 do MM.Items[k].Enabled:=true;
    iSupportTables.Enabled:=true;
    PageControl1.Enabled:=true;
+   btnUpdateDatabaseInfo.Enabled:=true;
 
  Finally
-  TRt_DB1.Commit;
-  Qt_DB1.Free;
-  TRt_DB1.free;
+  TRt.Commit;
+  Qt.Free;
+  TRt.free;
  end;
 end;
+
+
+procedure Tfrmosmain.btnUpdateDatabaseInfoClick(Sender: TObject);
+Var
+  f : TForm;
+begin
+  try
+   btnUpdateDatabaseInfo.Enabled:=false;
+   UpdateDatabaseInfo(frmdm.IBDB);
+   DatabaseInfo;
+  finally
+   f := CreateMessageDialog(SDBInfoUpdated, mtCustom, [mbOK]);
+   f.Position := poOwnerFormCenter;
+   f.ShowModal;
+   btnUpdateDatabaseInfo.Enabled:=false;
+  end;
+end;
+
 
 (* lists for QC flags *)
 Procedure Tfrmosmain.PopulateQCFlagLists;
@@ -3055,8 +3178,6 @@ end;
 
 Procedure Tfrmosmain.PopulateInstrumentList;
 Var
-  K: integer;
-
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
 begin
@@ -3148,7 +3269,6 @@ end;
 
 procedure Tfrmosmain.rbCruisesChange(Sender: TObject);
 begin
-
   chkStationIDRange.Enabled:=false;
   chkStationIDRange.Checked:=false;
 
@@ -3159,7 +3279,10 @@ begin
   chkParameter.Checked:=false;
 
   chkDepth.Enabled:=false;
-  chkDepth.Checked:=false;;
+  chkDepth.Checked:=false;
+
+  chkQCFlag.Enabled:=false;
+  chkQCFlag.Checked:=false;
 
   chkCrNumStat.Enabled:=true;
 
@@ -3183,6 +3306,7 @@ begin
   chkStationIDList.Enabled:=true;
   chkParameter.Enabled:=true;
   chkDepth.Enabled:=true;
+  chkQCFlag.Enabled:=true;
 
   chkCrNumStat.Checked:=false;
   chkCrNumStat.Enabled:=false;
@@ -3190,6 +3314,7 @@ begin
   chkParameter.OnChange(self);
   chkDepth.OnChange(self);
   chkCrNumStat.OnChange(self);
+  chkQCFlag.OnChange(self);
 
   pcRegion.Pages[1].TabVisible:=true;
   pcRegion.Pages[2].TabVisible:=true;
@@ -3209,7 +3334,6 @@ var
   items_enabled:boolean;
   yy, mn, dd:word;
   temp_list: TStringList;
-  tblpar:string;
 begin
 
   SCount:=0;
@@ -3297,21 +3421,21 @@ begin
   aProfilesStationAll.Enabled:=items_enabled;
   aProfilesSelectedAllPlot.Enabled:=items_enabled;
   iStandarddeviationslayers.Enabled:=items_enabled;
-  iTDdiagrams.Enabled:=items_enabled;
+  iTDDiagram.Enabled:=items_enabled;
+  iTSDiagram.Enabled:=items_enabled;
   iMetadataUpdate.Enabled:=items_enabled;
 
+  iExportFirebirdDB.Enabled:=items_enabled;
+  iExportDIVAnd.Enabled:=items_enabled;
+  iExportASCII.Enabled:=items_enabled;
+  iExportCIA.Enabled:=items_enabled;
+  iExportCOMFORT.Enabled:=items_enabled;
 
   tsSelectedStations.TabVisible:=items_enabled;
   if tsSelectedStations.TabVisible=true then begin
     PageControl1.ActivePageIndex:=2;
     tsSelectedStations.Caption:='Cruises: '+inttostr(frmdm.QCruise.RecordCount)+'; '+
                                 'Stations: '+inttostr(frmdm.Q.RecordCount);
-  end;
-
-  if frmprofile_plot_all_open then begin
-    frmprofile_plot_all.Close;
-    frmprofile_plot_all:= Tfrmprofile_plot_all.Create(nil);
-    frmprofile_plot_all_open:=true;
   end;
 end;
 
@@ -3466,14 +3590,6 @@ begin
    Qt.Database:=frmdm.IBDB;
    Qt.Transaction:=TRt;
 
-   if chkQCFlag.checked=true then begin
-    qc_str:='';
-     for k:=0 to cgQCFlag.Items.Count-1 do
-      if cgQCFlag.Checked[k] then
-       qc_str:=qc_str+','+cgQCFlag.Items.Strings[k];
-    qc_str:=copy(qc_str, 1, length(qc_str)-1);
-   end;
-
    source_str:='';
    if cbSource.Text<>'' then begin
     for k:=0 to cbSource.Count-1 do
@@ -3503,11 +3619,6 @@ begin
        SQL.Add(' (PLATFORM.COUNTRY_ID=COUNTRY.ID) ');
        SQL.Add(' AND (CRUISE.PLATFORM_ID=PLATFORM.ID) ');
        SQL.Add(' AND (STATION.CRUISE_ID=CRUISE.ID) ');
-       if chkQCFlag.Checked=true then
-         SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
-       if chkIgnoreDup.Checked=true then
-         SQL.Add(' AND (CRUISE.DUPLICATE = FALSE) ');
-       SQL.Add(' AND (CRUISE.STATIONS_DATABASE>0) ');
        SQL.Add(' ORDER BY COUNTRY.NAME ');
      Open;
     end;
@@ -3524,13 +3635,6 @@ begin
        SQL.Add(' (CRUISE.SOURCE_ID=SOURCE.ID) AND ');
        SQL.Add(' (STATION.CRUISE_ID=CRUISE.ID) AND ');
        SQL.Add(' (SOURCE.NAME '+NotCondSource+' IN ('+source_str+')) ');
-
-       if chkQCFlag.Checked=true then
-         SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
-       if chkIgnoreDup.Checked=true then
-         SQL.Add(' AND (CRUISE.DUPLICATE = FALSE) ');
-       SQL.Add(' AND (CRUISE.STATIONS_DATABASE>0) ');
-
        SQL.Add(' ORDER BY COUNTRY.NAME ');
      Open;
     end;
@@ -3547,13 +3651,6 @@ begin
        SQL.Add(' (CRUISE.SOURCE_ID=SOURCE.ID) AND ');
        SQL.Add(' (STATION.CRUISE_ID=CRUISE.ID) AND ');
        SQL.Add(' (PLATFORM.NAME '+NotCondPlatform+' IN ('+platform_str+')) ');
-
-       if chkQCFlag.Checked=true then
-         SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
-       if chkIgnoreDup.Checked=true then
-         SQL.Add(' AND (CRUISE.DUPLICATE = FALSE) ');
-       SQL.Add(' AND (CRUISE.STATIONS_DATABASE>0) ');
-
        SQL.Add(' ORDER BY COUNTRY.NAME ');
       Open;
      end;
@@ -3571,13 +3668,6 @@ begin
        SQL.Add(' (STATION.CRUISE_ID=CRUISE.ID) AND ');
        SQL.Add(' (SOURCE.NAME '+NotCondSource+' IN ('+source_str+')) AND ');
        SQL.Add(' (PLATFORM.NAME '+NotCondPlatform+' IN ('+platform_str+')) ');
-
-       if chkQCFlag.Checked=true then
-         SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
-       if chkIgnoreDup.Checked=true then
-         SQL.Add(' AND (CRUISE.DUPLICATE = FALSE) ');
-       SQL.Add(' AND (CRUISE.STATIONS_DATABASE>0) ');
-
        SQL.Add(' ORDER BY COUNTRY.NAME ');
       // showmessage(sql.Text);
      Open;
@@ -3603,7 +3693,7 @@ procedure Tfrmosmain.cbPlatformDropDown(Sender: TObject);
 Var
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
-  pp, k: integer;
+  k: integer;
   country_str, source_str, qc_str, NotCondSource, NotCondCountry:string;
 begin
 
@@ -3645,7 +3735,14 @@ begin
    end;
 
    if (cbSource.Text='') and (cbCountry.Text='') then begin
-    With Qt do begin
+     With Qt do begin
+      Close;
+        SQL.Clear;
+        SQL.Add(' SELECT DISTINCT PLATFORM.NAME FROM PLATFORM ');
+        SQL.Add(' ORDER BY PLATFORM.NAME ');
+      Open;
+     end;
+   {  With Qt do begin
      Close;
        SQL.Clear;
        SQL.Add(' SELECT DISTINCT PLATFORM.NAME FROM ');
@@ -3655,13 +3752,13 @@ begin
 
        if chkQCFlag.Checked=true then
          SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
-       if chkIgnoreDup.Checked=true then
+       if not chkDuplicates.Checked then
          SQL.Add(' AND (CRUISE.DUPLICATE = FALSE) ');
        SQL.Add(' AND (CRUISE.STATIONS_DATABASE>0) ');
 
        SQL.Add(' ORDER BY PLATFORM.NAME ');
      Open;
-    end;
+    end;  }
    end;
 
    if (cbSource.Text<>'') and (cbCountry.Text='') then begin
@@ -3677,7 +3774,7 @@ begin
 
        if chkQCFlag.Checked=true then
          SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
-       if chkIgnoreDup.Checked=true then
+       if not chkDuplicates.Checked then
          SQL.Add(' AND (CRUISE.DUPLICATE = FALSE) ');
        SQL.Add(' AND (CRUISE.STATIONS_DATABASE>0) ');
 
@@ -3701,7 +3798,7 @@ begin
 
        if chkQCFlag.Checked=true then
          SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
-       if chkIgnoreDup.Checked=true then
+       if not chkDuplicates.Checked then
          SQL.Add(' AND (CRUISE.DUPLICATE = FALSE) ');
        SQL.Add(' AND (CRUISE.STATIONS_DATABASE>0) ');
 
@@ -3725,7 +3822,7 @@ begin
 
        if chkQCFlag.Checked=true then
          SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
-       if chkIgnoreDup.Checked=true then
+       if not chkDuplicates.Checked then
          SQL.Add(' AND (CRUISE.DUPLICATE = FALSE) ');
        SQL.Add(' AND (CRUISE.STATIONS_DATABASE>0) ');
 
@@ -3758,8 +3855,8 @@ procedure Tfrmosmain.cbCruiseDropDown(Sender: TObject);
 Var
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
-  pp, k, cr_id: integer;
-  SQL_str, cr, cr_num, platform_str, qc_str, NotCondPlatform:string;
+  k: integer;
+  platform_str, qc_str, NotCondPlatform:string;
 begin
   try
    TRt:=TSQLTransaction.Create(self);
@@ -3800,7 +3897,7 @@ begin
 
        if chkQCFlag.Checked=true then
          SQL.Add(' AND (STATION.QCFLAG  IN ('+qc_str+')) ');
-       if chkIgnoreDup.Checked=true then
+       if not chkDuplicates.Checked then
          SQL.Add(' AND (CRUISE.DUPLICATE = FALSE) ');
        SQL.Add(' AND (CRUISE.STATIONS_DATABASE>0) ');
 
@@ -3811,11 +3908,6 @@ begin
 
     cbCruise.Clear;
    while not Qt.Eof do begin
-     cr_id:=Qt.Fields[0].Value;
-     cr_num:=Qt.Fields[1].AsString;
-     if trim(cr_num)<>'' then
-        cr:=inttostr(cr_id)+'_'+cr_num else
-        cr:=inttostr(cr_id);
      cbCruise.AddItem(Qt.Fields[0].AsString, cbUnchecked, true);
     Qt.Next;
    end;
@@ -3835,6 +3927,31 @@ procedure Tfrmosmain.chkRegionChange(Sender: TObject);
 begin
  // gbRegion.Enabled:=chkRegion.Checked;
   pRegion.Visible:=chkRegion.Checked;
+end;
+
+procedure Tfrmosmain.DBCruiseDOIClick(Sender: TObject);
+begin
+  OpenURL(frmdm.QCruiseDetails.FieldByName('DOI').Value);
+end;
+
+procedure Tfrmosmain.DBCruiseWWWClick(Sender: TObject);
+begin
+  OpenURL(frmdm.QCruiseDetails.FieldByName('www').Value);
+end;
+
+procedure Tfrmosmain.DBStationFilePathClick(Sender: TObject);
+Var
+  Ini:TIniFile;
+  src_path, file_path: string;
+begin
+  Ini := TIniFile.Create(IniFileName);
+   try
+     src_path := Ini.ReadString(frmdm.QCruise.FieldByName('SOURCE').Value, 'data_path',  '');
+     file_path:= frmdm.Q.FieldByName('file_path').AsString;
+     OpenDocument(PChar(src_path+file_path));
+   finally
+     Ini.Free;
+   end;
 end;
 
 procedure Tfrmosmain.chkDateandTimeChange(Sender: TObject);
@@ -3877,25 +3994,21 @@ end;
 
 procedure Tfrmosmain.chkAuxMetadataChange(Sender: TObject);
 begin
- //gbAuxiliaryMetadata.Enabled:=chkAuxMetadata.Checked;
   pAuxiliaryMetadata.Visible:=chkAuxMetadata.Checked;
 end;
 
 procedure Tfrmosmain.chkQCFlagChange(Sender: TObject);
 begin
- // cgQCFlag.Enabled:=chkQCFlag.Checked;
   pQCFlag.Visible:=chkQCFlag.Checked;
 end;
 
 procedure Tfrmosmain.chkParameterChange(Sender: TObject);
 begin
- // cgParameters.Enabled:=chkParameter.Checked;
   pParameters.Visible:=chkParameter.Checked;
 end;
 
 procedure Tfrmosmain.chkDepthChange(Sender: TObject);
 begin
- //gbDepth.Enabled:=chkDepth.Checked;
  pDepth.Visible:=chkDepth.Checked;
 end;
 
@@ -3925,8 +4038,10 @@ procedure Tfrmosmain.DBGridCruiseKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if ((key=VK_UP) or (key=VK_DOWN)) then begin
-    if (not frmdm.QCruise.IsEmpty) and (not VarIsNull(frmdm.QCruise.FieldByName('ID').Value)) then begin
-      if (not frmdm.Q.IsEmpty) and (not VarIsNull(frmdm.Q.FieldByName('ID').Value)) then begin
+    if (not frmdm.QCruise.IsEmpty) and (not not frmdm.QCruise.EOF) and
+       (not VarIsNull(frmdm.QCruise.FieldByName('ID').Value)) then begin
+      if (not frmdm.Q.IsEmpty) and (not not frmdm.Q.EOF) and
+         (not VarIsNull(frmdm.Q.FieldByName('ID').Value)) then begin
         if frmmap_open=true then frmmap.ChangeID(frmdm.Q.FieldByName('ID').Value); //Map
         if frmprofile_plot_all_open then frmprofile_plot_all.chkCruiseHighlight.OnChange(self);
       end;
@@ -3937,7 +4052,6 @@ end;
 
 procedure Tfrmosmain.cbInstituteDropDown(Sender: TObject);
 Var
-  pp:integer;
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
 begin
@@ -3984,12 +4098,10 @@ end;
 
 procedure Tfrmosmain.cbProjectDropDown(Sender: TObject);
 Var
-  pp:integer;
   TRt:TSQLTransaction;
   Qt:TSQLQuery;
 begin
   if cbProject.Count>0 then exit;
-
 
  try
    TRt:=TSQLTransaction.Create(self);
@@ -4063,51 +4175,53 @@ end;
 
 procedure Tfrmosmain.CDSNavigation;
 Var
-ID:integer;
+  ID:int64;
 begin
-if frmdm.Q.Active then begin
-ID:=frmdm.Q.FieldByName('ID').AsInteger;
-if NavigationOrder=false then exit;
+ if not frmdm.Q.Active then begin
+  if frmmap_open=true then frmmap.Close;
+  if frmprofile_station_all_open=true then frmprofile_station_all.Close;
+  if frmprofile_station_single_open =true then frmprofile_station_single.Close;
+  if frmprofile_plot_all_open=true then frmprofile_plot_all.Close;
+  if frmmeteo_open=true then frmmeteo.Close;
+  if frmparameters_list_open then frmparameters_list.Close;
+  if frmostool_tsdiagram_open then frmostool_tsdiagram.Close;
+  exit;
+ end;
+ if NavigationOrder=false then exit;
+ if VarIsNull(frmdm.Q.FieldByName('ID').Value) then exit;
 
  If NavigationOrder=true then begin
   NavigationOrder:=false; //blocking everthing until previous operations have been completed
 
-  if not frmdm.QCruise.IsEmpty then
-    frmdm.QCruise.Locate('ID', frmdm.Q.FieldByName('CRUISE_ID').AsInteger,[]);
+  Current_Station_ID:=frmdm.Q.FieldByName('ID').Value;
+  Current_Cruise_ID :=frmdm.Q.FieldByName('CRUISE_ID').Value;
 
-     if frmmap_open=true then frmmap.ChangeID(ID); //Map
-     if frmprofile_station_all_open=true then frmprofile_station_all.ChangeID(ID); //
-     if frmprofile_station_single_open =true then frmprofile_station_single.ChangeID(ID);
-     if frmprofile_plot_all_open=true then frmprofile_plot_all.ChangeID(ID);
-     if frmmeteo_open=true then frmmeteo.ChangeID(ID);
+  frmdm.QCruise.Locate('ID', Current_Cruise_ID,[]);
+
+     //Map
+     if frmmap_open=true then frmmap.ChangeID(Current_Station_ID);
+
+     //All parameters for the station
+     if frmprofile_station_all_open=true then frmprofile_station_all.ChangeID(Current_Station_ID);
+
+     //Single parameter for the station
+     if frmprofile_station_single_open =true then frmprofile_station_single.ChangeID;
+
+     //Profiles for all selected stations
+     if frmprofile_plot_all_open=true then
+       if not frmprofile_plot_all.Focused then frmprofile_plot_all.ChangeID(Current_Station_ID);
+
+     //TS-diagram
+     if frmostool_tsdiagram_open=true then
+       if not frmostool_tsdiagram.Focused then frmostool_tsdiagram.ChangeID(Current_Station_ID);
+
+     if frmmeteo_open=true then frmmeteo.ChangeID(Current_Station_ID);
      if frmparameters_list_open then begin
       if (Pos('[',frmparameters_list.lbParameters.Items.Strings[0])>0) then
            frmparameters_list.btnAmountOfProfiles.OnClick(self);
      end;
   NavigationOrder:=true; //Завершили, открываем доступ к навигации
  end;
-end;
-
-if not frmdm.Q.Active then begin
- if frmmap_open=true then frmmap.Close;
- if frmprofile_station_all_open=true then frmprofile_station_all.Close; //
- if frmprofile_station_single_open =true then frmprofile_station_single.Close;
- if frmprofile_plot_all_open=true then frmprofile_plot_all.Close;
- if frmmeteo_open=true then frmmeteo.Close;
- if frmparameters_list_open then frmparameters_list.Close;
-end;
-
-end;
-
-procedure Tfrmosmain.iNewDatabaseClick(Sender: TObject);
-begin
-  frmcreatenewdb := Tfrmcreatenewdb.Create(Self);
-  try
-    if not frmcreatenewdb.ShowModal = mrOk then exit;
-  finally
-    frmcreatenewdb.Free;
-    frmcreatenewdb := nil;
-  end;
 end;
 
 procedure Tfrmosmain.iSupportTablesClick(Sender: TObject);
@@ -4143,7 +4257,7 @@ begin
    end;
 end;
 
-procedure Tfrmosmain.iExportCOMFORTClick(Sender: TObject);
+procedure Tfrmosmain.iExportCOMFORT_stationsClick(Sender: TObject);
 begin
   frmExport_COMFORT := TfrmExport_COMFORT.Create(Self);
    try
@@ -4177,6 +4291,7 @@ begin
    end;
 end;
 
+
 procedure Tfrmosmain.iLoadICESnewClick(Sender: TObject);
 begin
   frmload_ices2 := Tfrmload_ices2.Create(Self);
@@ -4198,6 +4313,17 @@ begin
      frmLoadITP.Free;
      frmLoadITP := nil;
    end;
+end;
+
+procedure Tfrmosmain.iLoadODVClick(Sender: TObject);
+begin
+ frmload_odv_netcdf := Tfrmload_odv_netcdf.Create(Self);
+ try
+   if not frmload_odv_netcdf.ShowModal = mrOk then exit;
+ finally
+  frmload_odv_netcdf.Free;
+  frmload_odv_netcdf := nil;
+ end;
 end;
 
 
@@ -4234,27 +4360,17 @@ begin
  end;
 end;
 
-procedure Tfrmosmain.iLoad_GLODAP_2019_v2_productClick(Sender: TObject);
+procedure Tfrmosmain.iLoadGLODAPClick(Sender: TObject);
 begin
-  frmloadGLODAP_2019_v2_product := TfrmloadGLODAP_2019_v2_product.Create(Self);
+  frmloadGLODAP:= TfrmloadGLODAP.Create(Self);
  try
-  if not frmloadGLODAP_2019_v2_product.ShowModal = mrOk then exit;
+  if not frmloadGLODAP.ShowModal = mrOk then exit;
  finally
-   frmloadGLODAP_2019_v2_product.Free;
-   frmloadGLODAP_2019_v2_product := nil;
+   frmloadGLODAP.Free;
+   frmloadGLODAP := nil;
  end;
 end;
 
-procedure Tfrmosmain.iLoad_GLODAP_v2_2021Click(Sender: TObject);
-begin
-  frmloadGLODAP_v2_2021_product := TfrmloadGLODAP_v2_2021_product.Create(Self);
- try
-  if not frmloadGLODAP_v2_2021_product.ShowModal = mrOk then exit;
- finally
-   frmloadGLODAP_v2_2021_product.Free;
-   frmloadGLODAP_v2_2021_product := nil;
- end;
-end;
 
 procedure Tfrmosmain.iload_icesClick(Sender: TObject);
 begin
@@ -4265,6 +4381,17 @@ begin
    frmload_ices1.Free;
    frmload_ices1 := nil;
  end;
+end;
+
+procedure Tfrmosmain.iLoad_IORASClick(Sender: TObject);
+begin
+ frmLoadIORAS := TfrmLoadIORAS.Create(Self);
+try
+ if not frmLoadIORAS.ShowModal = mrOk then exit;
+finally
+  frmLoadIORAS.Free;
+  frmLoadIORAS := nil;
+end;
 end;
 
 procedure Tfrmosmain.iLoad_ITPClick(Sender: TObject);
@@ -4298,6 +4425,17 @@ finally
   frmloadWOD18.Free;
   frmloadWOD18 := nil;
 end;
+end;
+
+procedure Tfrmosmain.iLoad_WODClick(Sender: TObject);
+begin
+ frmload_wod_netcdf := Tfrmload_wod_netcdf.Create(Self);
+ try
+   if not frmload_wod_netcdf.ShowModal = mrOk then exit;
+ finally
+   frmload_wod_netcdf.Free;
+   frmload_wod_netcdf := nil;
+ end;
 end;
 
 procedure Tfrmosmain.iMetadataUpdateClick(Sender: TObject);
@@ -4458,6 +4596,17 @@ begin
    end;
 end;
 
+procedure Tfrmosmain.iImportFirebird_oldClick(Sender: TObject);
+begin
+ frmimport_olddb := Tfrmimport_olddb.Create(Self);
+  try
+   if not frmimport_olddb.ShowModal = mrOk then exit;
+  finally
+    frmimport_olddb.Free;
+    frmimport_olddb:= nil;
+  end;
+end;
+
 
 procedure Tfrmosmain.aMapSelectedStationExecute(Sender: TObject);
 begin
@@ -4478,8 +4627,12 @@ end;
 
 
 procedure Tfrmosmain.iAboutClick(Sender: TObject);
+Var
+f : TForm;
 begin
- if messagedlg(AboutProgram, mtInformation, [mbOk], 0)=mrOk then exit;
+   f := CreateMessageDialog(osabout.AboutProgram, mtCustom, [mbOK]);
+   f.Position := poOwnerFormCenter;
+   f.ShowModal;
 end;
 
 
@@ -4650,6 +4803,11 @@ begin
   tbFastAccess.Top:=PageControl1.Top;
   tbFastAccess.Left:=Width-10-tbFastAccess.Width;
 
+  btnUpdateDatabaseInfo.top:=1;
+  btnUpdateDatabaseInfo.Height:=sbDatabase.Height-1;
+  btnUpdateDatabaseInfo.Width:=btnUpdateDatabaseInfo.Height;
+  btnUpdateDatabaseInfo.Left:=sbDatabase.Panels.Items[0].Width-btnUpdateDatabaseInfo.Width-1;
+
   panel1.Height:=sbDatabase.Height+sbSelection.Height;
 
  { pCruiseFiller.Width:=tbCruise.Width-50-
@@ -4735,6 +4893,8 @@ begin
   if WaitOnExit=true then P.Options:=P.Options+[poWaitOnExit];
   P.Execute;
 
+  s:='';
+  buf:='';
   repeat
    SetLength(buf, buf_len);
    SetLength(buf, p.output.Read(buf[1], length(buf))); //waits for the process output
@@ -4792,7 +4952,7 @@ begin
     Ini.WriteBool    ( 'osmain', 'cruise_chkNumStations',       chkCrNumStat.Checked);
 
     (* Auxiliary checkboxes *)
-    Ini.WriteBool    ( 'osmain', 'station_chkIgnoreDup',        chkIgnoreDup.Checked);
+    Ini.WriteBool    ( 'osmain', 'station_chkDuplicates',       chkDuplicates.Checked);
     Ini.WriteBool    ( 'osmain', 'station_chkShowQuery',        chkShowQuery.Checked);
 
     // Region
@@ -4977,6 +5137,8 @@ begin
    cbSource.Clear;
    cbInstitute.Clear;
    cbProject.Clear;
+
+   CloseAction := caFree;
 end;
 
 
@@ -4989,15 +5151,25 @@ begin
 
   if frmdm.DBLoader.Enabled=true then frmdm.DBLoader.Enabled:=false;
 
-  FreeLibrary(libgswteos);
-  FreeLibrary(netcdf);
-
   if frmmap_open then frmmap.Close;
   if frmprofile_station_all_open then frmprofile_station_all.Close;
   if frmprofile_station_single_open then frmprofile_station_single.Close;
   if frmprofile_plot_all_open then frmprofile_plot_all.Close;
   if frmparameters_list_open then frmparameters_list.Close;
 end;
+
+
+procedure Tfrmosmain.btnTestClick(Sender: TObject);
+begin
+ frmtest := Tfrmtest.Create(Self);
+  try
+   if not frmtest.ShowModal = mrOk then exit;
+  finally
+    frmtest.Free;
+    frmtest := nil;
+  end;
+end;
+
 
 end.
 

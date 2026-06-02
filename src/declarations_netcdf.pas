@@ -12,13 +12,12 @@ St. Petersburg, Russia
 
 interface
 
-{$IFDEF WINDOWS}
+
 const
+{$IFDEF WINDOWS}
   netcdf='netcdf.dll';
 {$ENDIF}
-
 {$IFDEF Linux}
-const
   netcdf='libnetcdf.so';
 {$ENDIF}
 
@@ -68,11 +67,11 @@ type size_t = PtrUInt;
 //function nc__enddef;             //CHECK!!
 //function nc__open;               //CHECK!!
 //function NC_check_file_type;     //CHECK!!
-function nc_close    (ncid : integer) : integer; cdecl; external netcdf;
+function nc_close (ncid : integer) : integer; cdecl; external netcdf;
 function nc_create (path : pAnsiChar; cmode : integer; var ncidp : integer) :integer; cdecl; external netcdf;
-function nc_enddef   (ncid : integer) : integer; cdecl; external netcdf;
+function nc_enddef (ncid : integer) : integer; cdecl; external netcdf;
 function nc_inq (ncid : integer; var ndimsp : integer; var nvarsp : integer; var ngattsp : integer; var unlimdimidp : integer) : integer; cdecl; external netcdf;
-function nc_inq_format   (ncid : integer; var formatp : integer)     : integer; cdecl; external netcdf;
+function nc_inq_format (ncid : integer; var formatp : integer)     : integer; cdecl; external netcdf;
 //function nc_inq_format_extended; //CHECK!!
 //function nc_inq_path;            //CHECK!!
 //function nc_inq_type;            //CHECK!!

@@ -10,41 +10,57 @@ uses
 (******************************** SELECT Procedures ***************************)
 procedure GetInstrumentIDByName(instr_name:string; var instr_id:integer);
 procedure GetInstrumentNameByID(instr_id:integer; var instr_name:string);
+procedure GetUnitsNameShortByID(units_id:integer; var units_name:string);
+procedure GetStationFilePathByID(id:int64; var file_path:string);
 
-procedure GetFDBParameters(ID:int64; Var n_prof, n_levels, n_params:size_t;
+procedure GetFDBParameters(ID:int64; Var n_prof:size_t;
   Var station_parameters_list:TStringList);
 
 procedure GetFDBProfile(ID:int64; paramname:string; prof_num:integer;
   Var instr_id: integer; Var instr_name, fname: string; Var prof_best: boolean;
   Var lev_cnt: integer; Var pres_arr, lev_arr, par_arr, qc_arr:array of single;
-  Var num_size, num_scale: integer; Var val_units_str: string);
+  Var num_size, num_scale: integer; Var units_id: integer);
 
 
 (******************************** INSERT Procedures ***************************)
-procedure PutFDBPlatform(Q:TSQLQuery; cruise_id:Int64; platform_name: string;
-  country_id: integer; notes: string; date_added, date_updated: TDateTime);
+procedure PutFDBPlatform(Q:TSQLQuery; cruise_id, platform_name, country_id,
+  notes, date_added, date_updated: Variant);
 
 procedure PutFDBCruise(Q:TSQLQuery; cruise_id: Int64; platform_id, source_id,
-  institute_id, project_id:Smallint; expocode, cruise_number,
-  primary_investigator, notes: string; date_added, date_updated: TDateTime);
+  institute_id, project_id, expocode, cruise_number, principal_investigator,
+  notes, doi, www, date_start_total, date_end_total,
+  date_added, date_updated: Variant);
 
 procedure PutFDBStation(Q:TSQLQuery; station_id:int64; latitude, longitude:real;
-  stdate: TDateTime; bottom_depth:Variant; cruise_id:int64; numincruise:string;
+  stdate: TDateTime; bottom_depth:Variant; cruise_id:int64; numincruise,
   st_id_orig: Variant; qcflag, version: smallint; cast_number:integer;
-  accession_num:Variant; date_added, date_updated: TDateTime);
+  file_path: Variant; date_added, date_updated: TDateTime);
+
+procedure PutFDBStationParameters(Q:TSQLQuery; station_id, table_id: int64);
+
+
+procedure PutFDBProfile_Prepare(Q:TSQLQuery; table_name:string);
+
+procedure PutFDBProfile_(Q:TSQLQuery; table_name:string; station_id:int64;
+  lev_bar, lev_m:real; val: double; pqf1, pqf2, sqf: smallint; bottle_number:Variant;
+  units_id, instrument_id, profile_number: integer; profile_best: boolean);
 
 procedure PutFDBProfile(Q:TSQLQuery; table_name:string; station_id:int64;
   lev_bar, lev_m:real; val: double; pqf1, pqf2, sqf: smallint; bottle_number:Variant;
   units_id, instrument_id, profile_number: integer; profile_best: boolean);
 
 
+(******************************** DELETE Procedures ***************************)
+procedure DeleteFDBStation(Q:TSQLQuery; station_id:int64);
+procedure DeleteFDBStationParameters(Q:TSQLQuery; station_id:int64);
+
 implementation
 
 uses osmain, dm;
 
 // Inserting new platform
-procedure PutFDBPlatform(Q:TSQLQuery; cruise_id:Int64; platform_name: string;
-  country_id: integer; notes: string; date_added, date_updated: TDateTime);
+procedure PutFDBPlatform(Q:TSQLQuery; cruise_id, platform_name, country_id,
+  notes, date_added, date_updated: Variant);
 begin
   with Q do begin
     Close;
@@ -65,52 +81,60 @@ end;
 
 // Inserting new cruise
 procedure PutFDBCruise(Q:TSQLQuery; cruise_id: Int64; platform_id, source_id,
-  institute_id, project_id:Smallint; expocode, cruise_number,
-  primary_investigator, notes: string; date_added, date_updated: TDateTime);
+  institute_id, project_id, expocode, cruise_number, principal_investigator,
+  notes, doi, www, date_start_total, date_end_total,
+  date_added, date_updated: Variant);
 begin
   with Q do begin
     Close;
       SQL.Clear;
       SQL.Add(' INSERT INTO CRUISE ');
       SQL.Add(' (ID, platform_id, source_id, institute_id, project_id, ');
-      SQL.Add(' EXPOCODE, CRUISE_NUMBER, PI, NOTES, ');
-      SQL.Add(' DATE_ADDED, DATE_UPDATED ');
+      SQL.Add(' EXPOCODE, CRUISE_NUMBER, PRINCIPAL_INVESTIGATOR, NOTES, ');
+      SQL.Add(' DOI, WWW, ');
+      SQL.Add(' DATE_START_TOTAL, DATE_END_TOTAL, DATE_ADDED, DATE_UPDATED) ');
       SQL.Add(' VALUES ' );
       SQL.Add(' (:cruise_id, :platform_id, :source_id, :institute_id, :project_id, ');
-      SQL.Add(' :expocode, :cruise_number, :primary_investigator, :notes, ');
-      SQL.Add(' :date_added, :date_updated ');
-      ParamByName('cruise_id'           ).Value:=cruise_id;
-      ParamByName('platform_id'         ).Value:=platform_id;
-      ParamByName('source_id'           ).Value:=source_id;
-      ParamByName('institute_id'        ).Value:=institute_id;
-      ParamByName('project_id'          ).Value:=project_id;
-      ParamByName('expocode'            ).Value:=expocode;
-      ParamByName('cruise_number'       ).Value:=cruise_number;
-      ParamByName('primary_investigator').Value:=primary_investigator;
-      ParamByName('notes'               ).Value:=notes;
-      ParamByName('date_added'          ).Value:=date_added;
-      ParamByName('date_updated'        ).Value:=date_updated;
+      SQL.Add(' :expocode, :cruise_number, :principal_investigator, :notes, ');
+      SQL.Add(' :doi, :www, ');
+      SQL.Add(' :date_start_total, :date_end_total, :date_added, :date_updated) ');
+      ParamByName('cruise_id'             ).Value:=cruise_id;
+      ParamByName('platform_id'           ).Value:=platform_id;
+      ParamByName('source_id'             ).Value:=source_id;
+      ParamByName('institute_id'          ).Value:=institute_id;
+      ParamByName('project_id'            ).Value:=project_id;
+      ParamByName('expocode'              ).Value:=expocode;
+      ParamByName('cruise_number'         ).Value:=cruise_number;
+      ParamByName('principal_investigator').Value:=principal_investigator;
+      ParamByName('notes'                 ).Value:=notes;
+      ParamByName('doi'                   ).Value:=doi;
+      ParamByName('www'                   ).Value:=www;
+      ParamByName('date_start_total'      ).Value:=date_start_total;
+      ParamByName('date_end_total'        ).Value:=date_end_total;
+      ParamByName('date_added'            ).Value:=date_added;
+      ParamByName('date_updated'          ).Value:=date_updated;
     ExecSQL;
   end;
 end;
 
 // Inserting new station
 procedure PutFDBStation(Q:TSQLQuery; station_id:int64; latitude, longitude:real;
-  stdate: TDateTime; bottom_depth:Variant; cruise_id:int64; numincruise:string;
+  stdate: TDateTime; bottom_depth:Variant; cruise_id:int64; numincruise,
   st_id_orig: Variant; qcflag, version: smallint; cast_number:integer;
-  accession_num:Variant; date_added, date_updated: TDateTime);
+  file_path: variant; date_added, date_updated: TDateTime);
 begin
   with Q do begin
     Close;
       SQL.Clear;
-      SQL.Add(' INSERT INTO STATION ');
+      SQL.Add(' UPDATE OR INSERT INTO STATION ');
       SQL.Add(' (ID, LATITUDE, LONGITUDE, DATEANDTIME, BOTTOMDEPTH, CRUISE_ID, ');
       SQL.Add('  ST_NUMBER_ORIGIN, ST_ID_ORIGIN, QCFLAG, STVERSION, CAST_NUMBER, ');
-      SQL.Add('  ACCESSION_NUMBER, DATE_ADDED, DATE_UPDATED) ');
+      SQL.Add('  FILE_PATH, DATE_ADDED, DATE_UPDATED) ');
       SQL.Add(' VALUES ');
       SQL.Add(' (:ID, :LATITUDE, :LONGITUDE, :DATEANDTIME, :BOTTOMDEPTH, :CRUISE_ID, ');
       SQL.Add('  :ST_NUMBER_ORIGIN, :ST_ID_ORIGIN, :QCFLAG, :STVERSION, :CAST_NUMBER, ');
-      SQL.Add('  :ACCESSION_NUMBER, :DATE_ADDED, :DATE_UPDATED) ');
+      SQL.Add('  :FILE_PATH, :DATE_ADDED, :DATE_UPDATED) ');
+      SQL.Add(' MATCHING (ID) ');
       ParamByName('ID'               ).Value:=station_id;
       ParamByName('LATITUDE'         ).Value:=latitude;
       ParamByName('LONGITUDE'        ).Value:=longitude;
@@ -122,11 +146,59 @@ begin
       ParamByName('QCFLAG'           ).Value:=qcflag;
       ParamByName('STVERSION'        ).Value:=version;
       ParamByName('CAST_NUMBER'      ).Value:=cast_number;
-      ParamByName('ACCESSION_NUMBER' ).Value:=accession_num;
+      ParamByName('FILE_PATH'        ).Value:=file_path;
       ParamByName('DATE_ADDED'       ).Value:=date_added;
       ParamByName('DATE_UPDATED'     ).Value:=date_updated;
     ExecSQL;
   end;
+end;
+
+// Inserting into Station_Parameters
+procedure PutFDBStationParameters(Q:TSQLQuery; station_id, table_id: int64);
+begin
+  with Q do begin
+      ParamByName('STATION_ID'    ).Value:=station_id;
+      ParamByName('TABLE_ID'      ).Value:=table_id;
+    ExecSQL;
+  end;
+end;
+
+procedure PutFDBProfile_Prepare(Q:TSQLQuery; table_name:string);
+begin
+ with Q do begin
+   Close;
+     SQL.Clear;
+     SQL.Add(' INSERT INTO ');
+     SQL.Add( table_name );
+     SQL.Add(' (ID, LEV_DBAR, LEV_M, VAL, PQF1, PQF2, SQF, BOTTLE_NUMBER, ');
+     SQL.Add('  UNITS_ID, INSTRUMENT_ID, PROFILE_NUMBER, PROFILE_BEST) ');
+     SQL.Add(' values ');
+     SQL.Add(' (:ID, :LEV_DBAR, :LEV_M, :VAL, :PQF1, :PQF2, :SQF, :BOTTLE_NUMBER, ');
+     SQL.Add('  :UNITS_ID, :INSTRUMENT_ID, :PROFILE_NUMBER, :PROFILE_BEST) ');
+   Prepare;
+ end;
+end;
+
+
+procedure PutFDBProfile_(Q:TSQLQuery; table_name:string; station_id:int64;
+  lev_bar, lev_m:real; val: double; pqf1, pqf2, sqf: smallint; bottle_number:Variant;
+  units_id, instrument_id, profile_number: integer; profile_best: boolean);
+begin
+ with Q do begin
+     ParamByName('ID'            ).Value:=station_id;
+     ParamByName('LEV_DBAR'      ).Value:=lev_bar;
+     ParamByName('LEV_M'         ).Value:=lev_m;
+     ParamByName('VAL'           ).Value:=val;
+     ParamByName('PQF1'          ).Value:=pqf1;
+     ParamByName('PQF2'          ).Value:=pqf2;
+     ParamByName('SQF'           ).Value:=sqf;
+     ParamByName('BOTTLE_NUMBER' ).Value:=bottle_number;
+     ParamByName('UNITS_ID'      ).Value:=units_id;
+     ParamByName('INSTRUMENT_ID' ).Value:=instrument_id;
+     ParamByName('PROFILE_NUMBER').Value:=profile_number;
+     ParamByName('PROFILE_BEST'  ).Value:=profile_best;
+   ExecSQL;
+ end;
 end;
 
 // Inserting new profile
@@ -160,17 +232,61 @@ begin
  end;
 end;
 
-procedure GetFDBParameters(ID:int64; Var n_prof, n_levels, n_params:size_t;
+procedure GetFDBParameters(ID:int64; Var n_prof:size_t;
   Var station_parameters_list:TStringList);
+var
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
 begin
+ try
+   TRt:=TSQLTransaction.Create(nil);
+   TRt.DataBase:=frmdm.IBDB;
 
- //
+   Qt:=TSQLQuery.Create(nil);
+   Qt.Database:=frmdm.IBDB;
+   Qt.Transaction:=TRt;
+
+    with Qt do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' SELECT NAME_TABLE FROM ');
+      SQL.Add(' DATABASE_TABLES, STATION_PARAMETERS ');
+      SQL.Add(' WHERE ');
+      SQL.Add(' DATABASE_TABLES.ID=STATION_PARAMETERS.TABLE_ID AND ');
+      SQL.Add(' STATION_PARAMETERS.STATION_ID=:ID ');
+      ParamByName('ID').Value:=id;
+     Open;
+    end;
+
+    with Qt do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' SELECT NAME_TABLE FROM ');
+      SQL.Add(' DATABASE_TABLES, STATION_PARAMETERS ');
+      SQL.Add(' WHERE ');
+      SQL.Add(' DATABASE_TABLES.ID=STATION_PARAMETERS.TABLE_ID AND ');
+      SQL.Add(' STATION_PARAMETERS.STATION_ID=:ID ');
+      ParamByName('ID').Value:=id;
+     Open;
+    end;
+
+    while not Qt.EOF do begin
+      station_parameters_list.Add(Qt.Fields[0].Value);
+     Qt.Next;
+    end;
+ finally
+  Trt.Commit;
+  Qt.Free;
+  Trt.Free;
+ end;
 end;
 
+
+// Selecting profile
 procedure GetFDBProfile(ID:int64; paramname:string; prof_num:integer;
   Var instr_id: integer; Var instr_name, fname: string; Var prof_best: boolean;
   Var lev_cnt: integer; Var pres_arr, lev_arr, par_arr, qc_arr:array of single;
-  Var num_size, num_scale: integer; Var val_units_str: string);
+  Var num_size, num_scale: integer; Var units_id: integer);
 Var
   count, items_id, k, LNum:integer;
   Avg, Sum, Dif2, ValX, SD, ValX_Sum:real;
@@ -372,6 +488,96 @@ begin
   Trt.Commit;
   Qt.Free;
   Trt.Free;
+ end;
+end;
+
+
+(* retrieving unit name by ID *)
+procedure GetUnitsNameShortByID(units_id:integer; var units_name:string);
+var
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
+begin
+ try
+   TRt:=TSQLTransaction.Create(nil);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt:=TSQLQuery.Create(nil);
+   Qt.Database:=frmdm.IBDB;
+   Qt.Transaction:=TRt;
+
+    with Qt do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' SELECT NAME_SHORT FROM UNITS ');
+      SQL.Add(' WHERE ID=:ID ');
+      ParamByName('ID').Value:=units_id;
+     Open;
+       units_name:=Qt.Fields[0].Value;
+     Close;
+    end;
+ finally
+  Trt.Commit;
+  Qt.Free;
+  Trt.Free;
+ end;
+end;
+
+
+procedure GetStationFilePathByID(id:int64; var file_path:string);
+var
+  TRt:TSQLTransaction;
+  Qt:TSQLQuery;
+begin
+ try
+   TRt:=TSQLTransaction.Create(nil);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt:=TSQLQuery.Create(nil);
+   Qt.Database:=frmdm.IBDB;
+   Qt.Transaction:=TRt;
+
+    with Qt do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' SELECT FILE_PATH FROM STATION ');
+      SQL.Add(' WHERE ID=:ID ');
+      ParamByName('ID').Value:=id;
+     Open;
+       file_path:=Qt.Fields[0].Value;
+     Close;
+    end;
+ finally
+  Trt.Commit;
+  Qt.Free;
+  Trt.Free;
+ end;
+end;
+
+
+(********************** DELETE PROCEDURES ************************************)
+// Deleting station
+procedure DeleteFDBStation(Q:TSQLQuery; station_id:int64);
+begin
+ with Q do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' DELETE FROM STATION ');
+    SQL.Add(' where ID=:ID ');
+   ParamByName('ID').Value:=station_id;
+  ExecSQL;
+ end;
+end;
+
+procedure DeleteFDBStationParameters(Q:TSQLQuery; station_id:int64);
+begin
+ with Q do begin
+   Close;
+    SQL.Clear;
+    SQL.Add(' DELETE FROM STATION_PARAMETERS ');
+    SQL.Add(' where ID=:ID ');
+   ParamByName('ID').Value:=station_id;
+  ExecSQL;
  end;
 end;
 

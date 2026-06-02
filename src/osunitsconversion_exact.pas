@@ -25,9 +25,9 @@ Var
 
   SA, sp, p, p_ref, t, t_lab, lab_dens, pot_dens, pot_temp, LEV_DBAR:real;
 
-  gsw_sa_from_sp:Tgsw_sa_from_sp;
+ { gsw_sa_from_sp:Tgsw_sa_from_sp;
   gsw_rho_t_exact:Tgsw_rho_t_exact;
-  gsw_pt_from_t:Tgsw_pt_from_t;
+  gsw_pt_from_t:Tgsw_pt_from_t;  }
 begin
  val_out:=-9999;
 
@@ -81,16 +81,16 @@ begin
  p_ref:=10.1325; //atmosheric pressure, dbar
  t_lab:=22;  //laboratory temperature
 
- gsw_sa_from_sp:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_sa_from_sp'));
+ //gsw_sa_from_sp:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_sa_from_sp'));
  SA  := gsw_sa_from_sp(sp, p_ref, lon, lat); // absolute salinity
 
- gsw_rho_t_exact:=Tgsw_rho_t_exact(GetProcedureAddress(libgswteos, 'gsw_rho_t_exact'));
+// gsw_rho_t_exact:=Tgsw_rho_t_exact(GetProcedureAddress(libgswteos, 'gsw_rho_t_exact'));
  lab_dens:= gsw_rho_t_exact(SA, t_lab, p_ref); //laboratory density
  lab_dens:=lab_dens/1000;
 
  p:=LEV_DBAR+p_ref; //absolute pressure=atmospheric pressure+hydrostatic pressure
 
- gsw_pt_from_t:=Tgsw_pt_from_t(GetProcedureAddress(libgswteos, 'gsw_pt_from_t'));
+// gsw_pt_from_t:=Tgsw_pt_from_t(GetProcedureAddress(libgswteos, 'gsw_pt_from_t'));
  pot_temp:=gsw_pt_from_t(SA, t, p, p_ref);  //potential temperature
 
  pot_dens:=gsw_rho_t_exact(SA, pot_temp, p); //potential density

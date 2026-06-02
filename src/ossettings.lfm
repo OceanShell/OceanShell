@@ -10,6 +10,7 @@ object frmsettings: Tfrmsettings
   ClientHeight = 380
   ClientWidth = 509
   Position = poOwnerFormCenter
+  LCLVersion = '4.6.0.0'
   OnShow = FormShow
   object btnOk: TButton
     Left = 421
@@ -33,7 +34,7 @@ object frmsettings: Tfrmsettings
     TabOrder = 1
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
-      Caption = 'Paths'
+      Caption = 'Directories'
       ClientHeight = 303
       ClientWidth = 501
       ParentFont = False
@@ -130,17 +131,17 @@ object frmsettings: Tfrmsettings
           OnClick = btnDataPathClick
         end
       end
-      object GroupBox10: TGroupBox
+      object GroupBox9: TGroupBox
         Left = 11
-        Height = 64
-        Top = 229
+        Height = 63
+        Top = 224
         Width = 477
-        Caption = 'OceanTools directory'
-        ClientHeight = 44
+        Caption = 'GEBCO'
+        ClientHeight = 43
         ClientWidth = 473
         ParentFont = False
         TabOrder = 3
-        object eOceanToolsPath: TEdit
+        object eGEBCOPath: TEdit
           Left = 12
           Height = 23
           Top = 8
@@ -150,7 +151,7 @@ object frmsettings: Tfrmsettings
           ReadOnly = True
           TabOrder = 0
         end
-        object btnOceanToolsPath: TButton
+        object btnGEBCOPath: TButton
           Left = 438
           Height = 22
           Top = 8
@@ -158,7 +159,7 @@ object frmsettings: Tfrmsettings
           Caption = '...'
           ParentFont = False
           TabOrder = 1
-          OnClick = btnOceanToolsPathClick
+          OnClick = btnGEBCOPathClick
         end
       end
     end
@@ -282,39 +283,125 @@ object frmsettings: Tfrmsettings
         end
       end
     end
-    object TabSheet2: TTabSheet
-      Caption = 'Bathymetry'
+    object tsQualityFlags: TTabSheet
+      Caption = 'Quality Flags'
       ClientHeight = 303
       ClientWidth = 501
-      object GroupBox9: TGroupBox
-        Left = 11
-        Height = 63
-        Top = 11
-        Width = 477
-        Caption = 'GEBCO'
-        ClientHeight = 43
-        ClientWidth = 473
+      object chkPQF1: TCheckListBox
+        Left = 8
+        Height = 264
+        Top = 24
+        Width = 152
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 0
-        object eGEBCOPath: TEdit
-          Left = 12
+      end
+      object lbPQF1: TLabel
+        Left = 8
+        Height = 15
+        Top = 9
+        Width = 28
+        Caption = 'PQF1'
+      end
+      object chkPQF2: TCheckListBox
+        Left = 172
+        Height = 264
+        Top = 24
+        Width = 152
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        ItemHeight = 0
+        ParentFont = False
+        TabOrder = 1
+      end
+      object chkSQF: TCheckListBox
+        Left = 336
+        Height = 264
+        Top = 24
+        Width = 152
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        ItemHeight = 0
+        ParentFont = False
+        TabOrder = 2
+      end
+      object lbPQF2: TLabel
+        Left = 172
+        Height = 15
+        Top = 9
+        Width = 28
+        Caption = 'PQF2'
+      end
+      object lbPQF3: TLabel
+        Left = 336
+        Height = 15
+        Top = 9
+        Width = 21
+        Caption = 'SQF'
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'External Data'
+      ClientHeight = 303
+      ClientWidth = 501
+      object GroupBox1: TGroupBox
+        Left = 11
+        Height = 80
+        Top = 16
+        Width = 477
+        Caption = 'ARGO'
+        ClientHeight = 60
+        ClientWidth = 473
+        TabOrder = 0
+        object eARGOPath: TEdit
+          Left = 16
           Height = 23
-          Top = 8
-          Width = 421
-          Font.Color = clGreen
-          ParentFont = False
-          ReadOnly = True
+          Top = 16
+          Width = 417
           TabOrder = 0
+          Text = 'Y:\ARGO\'
         end
-        object btnGEBCOPath: TButton
-          Left = 438
+        object btnSelectARGOPath: TButton
+          Left = 440
           Height = 22
-          Top = 8
-          Width = 26
+          Top = 16
+          Width = 22
           Caption = '...'
-          ParentFont = False
           TabOrder = 1
-          OnClick = btnGEBCOPathClick
+          OnClick = btnSelectARGOPathClick
+        end
+      end
+      object GroupBox2: TGroupBox
+        Left = 11
+        Height = 80
+        Top = 104
+        Width = 477
+        Caption = 'World Ocean Database (WOD)'
+        ClientHeight = 60
+        ClientWidth = 473
+        TabOrder = 1
+        object eWODPath: TEdit
+          Left = 16
+          Height = 23
+          Top = 16
+          Width = 417
+          TabOrder = 0
+          Text = 'Y:\WOD\wod\'
+        end
+        object btnSelectWODPath: TButton
+          Left = 440
+          Height = 22
+          Top = 16
+          Width = 22
+          Caption = '...'
+          TabOrder = 1
+          OnClick = btnSelectWODPathClick
         end
       end
     end

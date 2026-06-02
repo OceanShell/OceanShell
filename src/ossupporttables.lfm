@@ -13,7 +13,9 @@ object frmsupporttables: Tfrmsupporttables
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Position = poOwnerFormCenter
+  LCLVersion = '4.6.0.0'
   OnClose = FormClose
+  OnCreate = FormCreate
   OnResize = FormResize
   OnShow = FormShow
   object PageControl1: TPageControl
@@ -21,13 +23,13 @@ object frmsupporttables: Tfrmsupporttables
     Height = 528
     Top = 22
     Width = 1001
-    ActivePage = tbSource
+    ActivePage = tsTables
     Align = alClient
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     ParentFont = False
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 0
     OnChange = PageControl1Change
     object tsTables: TTabSheet
@@ -123,6 +125,8 @@ object frmsupporttables: Tfrmsupporttables
               FieldName = 'ID'
             end          
             item
+              MinSize = 150
+              MaxSize = 200
               Title.Caption = 'Table name'
               FieldName = 'NAME_TABLE'
             end          
@@ -159,12 +163,12 @@ object frmsupporttables: Tfrmsupporttables
           Scrollbars = ssVertical
           TabOrder = 1
           OnCellClick = DBGridPlatformCellClick
-          OnColumnSized = FormResize
+          OnColumnSized = DBGridTablesColumnSized
           OnEditingDone = DBGridTablesEditingDone
           OnKeyUp = DBGridPlatformKeyUp
           OnPrepareCanvas = DBGridPlatformPrepareCanvas
           OnSelectEditor = DBGridTablesSelectEditor
-          OnTitleClick = DBGridCountryTitleClick
+          OnTitleClick = DBGridPlatformTitleClick
         end
       end
       object mNotesTables: TMemo
@@ -265,7 +269,7 @@ object frmsupporttables: Tfrmsupporttables
             item
               MinSize = 10
               MaxSize = 200
-              Title.Caption = 'Native platform name'
+              Title.Caption = 'Native name'
               Width = 150
               FieldName = 'NAME_NATIVE'
             end          
@@ -285,7 +289,7 @@ object frmsupporttables: Tfrmsupporttables
           Scrollbars = ssVertical
           TabOrder = 0
           OnCellClick = DBGridPlatformCellClick
-          OnColumnSized = FormResize
+          OnColumnSized = DBGridPlatformColumnSized
           OnEditingDone = DBGridPlatformEditingDone
           OnKeyPress = DBGridPlatformKeyPress
           OnKeyUp = DBGridPlatformKeyUp
@@ -394,7 +398,6 @@ object frmsupporttables: Tfrmsupporttables
             Font.Name = 'MS Sans Serif'
             ParentFont = False
             TabOrder = 5
-            OnChange = ePlatform_NameNativeChange
             OnClick = ePlatform_IDClick
           end
           object ePlatform_ID: TEdit
@@ -424,7 +427,6 @@ object frmsupporttables: Tfrmsupporttables
             Font.Name = 'MS Sans Serif'
             ParentFont = False
             TabOrder = 7
-            OnChange = ePlatform_CountryChange
             OnClick = ePlatform_IDClick
           end
           object ePlatform_Title: TEdit
@@ -695,9 +697,10 @@ object frmsupporttables: Tfrmsupporttables
           Scrollbars = ssVertical
           TabOrder = 1
           OnCellClick = DBGridPlatformCellClick
+          OnColumnSized = DBGridSourceColumnSized
           OnKeyUp = DBGridPlatformKeyUp
           OnPrepareCanvas = DBGridPlatformPrepareCanvas
-          OnTitleClick = DBGridCountryTitleClick
+          OnTitleClick = DBGridPlatformTitleClick
         end
       end
       object mNotesSource: TMemo
@@ -839,9 +842,10 @@ object frmsupporttables: Tfrmsupporttables
           Scrollbars = ssVertical
           TabOrder = 1
           OnCellClick = DBGridPlatformCellClick
+          OnColumnSized = DBGridUnitsColumnSized
           OnKeyUp = DBGridPlatformKeyUp
           OnPrepareCanvas = DBGridPlatformPrepareCanvas
-          OnTitleClick = DBGridCountryTitleClick
+          OnTitleClick = DBGridPlatformTitleClick
         end
       end
       object mNotesUnits: TMemo
@@ -902,8 +906,8 @@ object frmsupporttables: Tfrmsupporttables
             Left = 126
             Height = 21
             Top = 0
-            Width = 527
-            Align = alClient
+            Width = 442
+            Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
             Font.Color = clWindowText
@@ -986,9 +990,10 @@ object frmsupporttables: Tfrmsupporttables
           Scrollbars = ssVertical
           TabOrder = 1
           OnCellClick = DBGridPlatformCellClick
+          OnColumnSized = DBGridInstrumentColumnSized
           OnKeyUp = DBGridPlatformKeyUp
           OnPrepareCanvas = DBGridPlatformPrepareCanvas
-          OnTitleClick = DBGridCountryTitleClick
+          OnTitleClick = DBGridPlatformTitleClick
         end
       end
       object mNotesInstrument: TMemo
@@ -1133,9 +1138,10 @@ object frmsupporttables: Tfrmsupporttables
           Scrollbars = ssVertical
           TabOrder = 1
           OnCellClick = DBGridPlatformCellClick
+          OnColumnSized = DBGridProjectColumnSized
           OnKeyUp = DBGridPlatformKeyUp
           OnPrepareCanvas = DBGridPlatformPrepareCanvas
-          OnTitleClick = DBGridCountryTitleClick
+          OnTitleClick = DBGridPlatformTitleClick
         end
       end
       object mNotesProject: TMemo
@@ -1196,7 +1202,7 @@ object frmsupporttables: Tfrmsupporttables
             Left = 189
             Height = 21
             Top = 0
-            Width = 159
+            Width = 95
             Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
@@ -1252,6 +1258,52 @@ object frmsupporttables: Tfrmsupporttables
             TabOrder = 3
             OnClick = ePlatform_IDClick
           end
+          object eInstitute_NameNative: TEdit
+            Left = 284
+            Height = 21
+            Top = 0
+            Width = 111
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
+            ParentFont = False
+            TabOrder = 4
+            OnClick = ePlatform_IDClick
+          end
+          object eInstitute_Place: TEdit
+            Left = 395
+            Height = 21
+            Top = 0
+            Width = 111
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
+            ParentFont = False
+            TabOrder = 5
+            OnChange = eInstitute_PlaceChange
+            OnClick = ePlatform_IDClick
+          end
+          object eInstitute_Country: TEdit
+            Left = 506
+            Height = 21
+            Top = 0
+            Width = 111
+            Align = alLeft
+            CharCase = ecUppercase
+            Color = clWhite
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
+            ParentFont = False
+            TabOrder = 6
+            OnClick = ePlatform_IDClick
+          end
         end
         object DBGridInstitute: TDBGrid
           Left = 0
@@ -1287,9 +1339,21 @@ object frmsupporttables: Tfrmsupporttables
             item
               MinSize = 10
               MaxSize = 200
-              Title.Caption = 'Name'
+              Title.Caption = 'Institute name'
               Width = 200
               FieldName = 'NAME'
+            end          
+            item
+              Title.Caption = 'Native name'
+              FieldName = 'NAME_NATIVE'
+            end          
+            item
+              Title.Caption = 'Place'
+              FieldName = 'PLACE'
+            end          
+            item
+              Title.Caption = 'Country'
+              FieldName = 'CTRY'
             end>
           DataSource = DS
           FixedCols = 0
@@ -1302,9 +1366,10 @@ object frmsupporttables: Tfrmsupporttables
           Scrollbars = ssVertical
           TabOrder = 1
           OnCellClick = DBGridPlatformCellClick
+          OnColumnSized = DBGridInstituteColumnSized
           OnKeyUp = DBGridPlatformKeyUp
           OnPrepareCanvas = DBGridPlatformPrepareCanvas
-          OnTitleClick = DBGridCountryTitleClick
+          OnTitleClick = DBGridPlatformTitleClick
         end
       end
       object Panel14: TPanel
@@ -1419,11 +1484,11 @@ object frmsupporttables: Tfrmsupporttables
           ParentFont = False
           TabOrder = 0
           object eCountry_Name: TEdit
-            Left = 206
+            Left = 191
             Height = 21
             Top = 0
-            Width = 447
-            Align = alClient
+            Width = 402
+            Align = alLeft
             CharCase = ecUppercase
             Color = clWhite
             Font.Color = clWindowText
@@ -1434,7 +1499,7 @@ object frmsupporttables: Tfrmsupporttables
             OnClick = ePlatform_IDClick
           end
           object eCountry_ISO: TEdit
-            Left = 143
+            Left = 128
             Height = 21
             Top = 0
             Width = 63
@@ -1467,7 +1532,7 @@ object frmsupporttables: Tfrmsupporttables
             Left = 63
             Height = 21
             Top = 0
-            Width = 80
+            Width = 65
             Align = alLeft
             TabOrder = 3
             OnClick = ePlatform_IDClick
@@ -1491,6 +1556,8 @@ object frmsupporttables: Tfrmsupporttables
               FieldName = 'ID'
             end          
             item
+              MinSize = 10
+              MaxSize = 200
               Title.Caption = 'NODC'
               FieldName = 'NODC_CODE'
             end          
@@ -1503,7 +1570,7 @@ object frmsupporttables: Tfrmsupporttables
             end          
             item
               MinSize = 10
-              MaxSize = 200
+              MaxSize = 500
               Title.Caption = 'Country name'
               Width = 710
               FieldName = 'NAME'
@@ -1519,9 +1586,10 @@ object frmsupporttables: Tfrmsupporttables
           Scrollbars = ssVertical
           TabOrder = 1
           OnCellClick = DBGridPlatformCellClick
+          OnColumnSized = DBGridCountryColumnSized
           OnKeyUp = DBGridPlatformKeyUp
           OnPrepareCanvas = DBGridPlatformPrepareCanvas
-          OnTitleClick = DBGridCountryTitleClick
+          OnTitleClick = DBGridPlatformTitleClick
         end
       end
       object mNotesCountry: TMemo
@@ -1578,12 +1646,10 @@ object frmsupporttables: Tfrmsupporttables
         Scrollbars = ssVertical
         TabOrder = 0
         OnCellClick = DBGridPlatformCellClick
-        OnColumnSized = FormResize
         OnEditingDone = DBGridTablesEditingDone
         OnKeyUp = DBGridPlatformKeyUp
         OnPrepareCanvas = DBGridPlatformPrepareCanvas
         OnSelectEditor = DBGridTablesSelectEditor
-        OnTitleClick = DBGridCountryTitleClick
       end
       object rgFlag: TRadioGroup
         Left = 16
@@ -1698,27 +1764,7 @@ object frmsupporttables: Tfrmsupporttables
       Style = tbsSeparator
     end
   end
-  object Q: TSQLQuery
-    PacketRecords = 1
-    MaxIndexesCount = 100
-    FieldDefs = <>
-    AfterEdit = QAfterEdit
-    AfterScroll = QAfterScroll
-    Database = frmdm.IBDB
-    Transaction = frmdm.TR
-    SQL.Strings = (
-      ''
-    )
-    UpdateSQL.Strings = (
-      ''
-    )
-    Params = <>
-    Macros = <>
-    Left = 48
-    Top = 304
-  end
   object DS: TDataSource
-    DataSet = Q
     Left = 88
     Top = 304
   end

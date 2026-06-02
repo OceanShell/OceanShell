@@ -7,12 +7,15 @@ interface
 uses
   Classes, SysUtils, SQLDB, IBConnection;
 
-Procedure UpdateCruiseInfo(DB:TIBConnection; cruise_ID: int64; TotalEqualDB:boolean);
+
+Procedure UpdateCruiseInfo(DB_main:TIBConnection; cruise_ID: int64);
+
 
 implementation
 
-Procedure UpdateCruiseInfo(DB:TIBConnection; cruise_ID: int64; TotalEqualDB:boolean);
+Procedure UpdateCruiseInfo(DB_main:TIBConnection; cruise_ID: int64);
 Var
+DBt:TIBConnection;
 TRt:TSQLTransaction;
 Qt:TSQLQuery;
 
@@ -21,13 +24,20 @@ latmin, latmax, lonmin, lonmax:real;
 datemin, datemax, dateupd:TDateTime;
 begin
 
- DB.Transaction.Commit;
+   TRt:=TSQLTransaction.Create(nil);
+    DBt:=TIBConnection.Create(nil);
+    With DBt do begin
+     DatabaseName:=DB_main.DatabaseName;
+     UserName:=DB_main.UserName;
+     Password:=DB_main.Password;
+     Params:=DB_main.Params;
+     Transaction:=TRt;
+    end;
 
- TRt:=TSQLTransaction.Create(nil);
- TRt.DataBase:=DB;
+    TRt.Database:=DBt;
 
  Qt:=TSQLQuery.Create(nil);
- Qt.Database:=DB;
+ Qt.Database:=DBt;
  Qt.Transaction:=TRt;
 
  try
@@ -83,14 +93,6 @@ begin
     SQL.Add(' DATE_START_DATABASE=:DateMin, ');
     SQL.Add(' DATE_END_DATABASE=:DateMax, ');
     SQL.Add(' STATIONS_DATABASE=:cnt ');
-
-    if TotalEqualDB=true then begin
-      SQL.Add(',');
-      SQL.Add(' DATE_START_TOTAL=:DateMin, ');
-      SQL.Add(' DATE_END_TOTAL=:DateMax, ');
-      SQL.Add(' STATIONS_TOTAL=:cnt ');
-    end;
-
     SQL.Add(' WHERE ID=:CR_ID ');
     ParamByName('CR_ID').AsInteger:=Cruise_ID;
     ParamByName('LatMin').Value:=LatMin;
@@ -109,6 +111,8 @@ begin
   Trt.Commit;
   Qt.Free;
   Trt.Free;
+  DBt.Connected:=false;
+  DBt.Free;
  end;
 end;
 

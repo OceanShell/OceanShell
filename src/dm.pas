@@ -5,7 +5,7 @@ unit dm;
 interface
 
 uses
-  Classes, SysUtils, Dialogs, Controls, IBConnection, sqldb, sqldblib,
+  Classes, SysUtils, Dialogs, Controls, IBConnection, FBAdmin, sqldb, sqldblib,
   BufDataset, DB, Variants;
 
 type
@@ -27,10 +27,10 @@ type
     QCruise: TSQLQuery;
     QEntry: TSQLQuery;
     DBLoader: TSQLDBLibraryLoader;
+    IBDBScript: TSQLScript;
     TR: TSQLTransaction;
 
     procedure DataModuleDestroy(Sender: TObject);
-    procedure QCruiseAfterEdit(DataSet: TDataSet);
     procedure QCruiseAfterScroll(DataSet: TDataSet);
     procedure QEntryAfterEdit(DataSet: TDataSet);
 
@@ -52,10 +52,6 @@ implementation
 
 uses osmain;
 
-procedure Tfrmdm.QCruiseAfterEdit(DataSet: TDataSet);
-begin
- frmosmain.btnSaveCruise.Enabled:=true;
-end;
 
 procedure Tfrmdm.QCruiseAfterScroll(DataSet: TDataSet);
 Var

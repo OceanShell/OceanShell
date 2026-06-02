@@ -1,19 +1,18 @@
 object frmoutliers: Tfrmoutliers
   Left = 778
-  Height = 916
+  Height = 611
   Top = 72
-  Width = 1026
+  Width = 684
   Caption = 'frmoutliers'
-  ClientHeight = 916
-  ClientWidth = 1026
-  DesignTimePPI = 144
+  ClientHeight = 611
+  ClientWidth = 684
+  LCLVersion = '4.6.0.0'
   OnShow = FormShow
-  LCLVersion = '2.0.6.0'
   object CheckGroup1: TCheckGroup
-    Left = 19
-    Height = 586
-    Top = 13
-    Width = 432
+    Left = 13
+    Height = 391
+    Top = 9
+    Width = 288
     AutoFill = True
     Caption = 'DB tables'
     ChildSizing.LeftRightSpacing = 6
@@ -25,27 +24,27 @@ object frmoutliers: Tfrmoutliers
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 3
     Columns = 3
-    Font.Height = 17
+    Font.Height = 11
     ParentFont = False
     TabOrder = 0
   end
   object btnSelectAll: TBitBtn
-    Left = 19
-    Height = 30
-    Top = 605
-    Width = 120
+    Left = 13
+    Height = 20
+    Top = 403
+    Width = 80
     Caption = 'Select all'
     Font.Color = clNavy
-    Font.Height = 17
-    OnClick = btnSelectAllClick
+    Font.Height = 11
     ParentFont = False
     TabOrder = 1
+    OnClick = btnSelectAllClick
   end
   object CheckGroup2: TCheckGroup
-    Left = 461
-    Height = 350
-    Top = 13
-    Width = 182
+    Left = 307
+    Height = 233
+    Top = 9
+    Width = 121
     AutoFill = True
     Caption = 'Source(s) for mean profile'
     ChildSizing.LeftRightSpacing = 6
@@ -56,89 +55,89 @@ object frmoutliers: Tfrmoutliers
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    Font.Height = 17
+    Font.Height = 11
     ParentFont = False
     TabOrder = 2
   end
   object GroupBox1: TGroupBox
-    Left = 674
-    Height = 158
-    Top = 13
-    Width = 324
+    Left = 449
+    Height = 105
+    Top = 9
+    Width = 216
     Caption = 'Settings for mean profiles computing'
-    ClientHeight = 134
-    ClientWidth = 320
-    Font.Height = 19
+    ClientHeight = 81
+    ClientWidth = 212
+    Font.Height = 13
     ParentFont = False
     TabOrder = 3
     object Label1: TLabel
-      Left = 19
+      Left = 13
       Height = 19
-      Top = 10
+      Top = 7
       Width = 108
       Caption = 'square size (deg.):'
-      Font.Height = 19
+      Font.Height = 13
       ParentColor = False
       ParentFont = False
     end
     object Edit1: TEdit
-      Left = 163
+      Left = 109
       Height = 27
-      Top = 10
-      Width = 23
-      Font.Height = 19
+      Top = 7
+      Width = 15
+      Font.Height = 13
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 0
       Text = '4'
     end
     object Label2: TLabel
-      Left = 19
+      Left = 13
       Height = 19
-      Top = 67
+      Top = 45
       Width = 117
       Caption = 'time period (years):'
-      Font.Height = 19
+      Font.Height = 13
       ParentColor = False
       ParentFont = False
     end
     object Label3: TLabel
-      Left = 158
+      Left = 105
       Height = 19
-      Top = 58
+      Top = 39
       Width = 37
       Caption = 'begin:'
-      Font.Height = 19
+      Font.Height = 13
       ParentColor = False
       ParentFont = False
     end
     object Label4: TLabel
-      Left = 158
+      Left = 105
       Height = 19
-      Top = 86
+      Top = 57
       Width = 29
       Caption = 'end::'
-      Font.Height = 19
+      Font.Height = 13
       ParentColor = False
       ParentFont = False
     end
     object Edit3: TEdit
-      Left = 230
+      Left = 153
       Height = 27
-      Top = 86
-      Width = 58
-      Font.Height = 19
+      Top = 57
+      Width = 39
+      Font.Height = 13
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 1
       Text = '2020'
     end
     object Edit2: TEdit
-      Left = 230
+      Left = 153
       Height = 27
-      Top = 48
-      Width = 55
-      Font.Height = 19
+      Top = 32
+      Width = 37
+      Font.Height = 13
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 2
@@ -147,11 +146,11 @@ object frmoutliers: Tfrmoutliers
   end
   object Memo1: TMemo
     Left = 0
-    Height = 109
-    Top = 807
+    Height = 73
+    Top = 843
     Width = 1026
     Align = alBottom
-    Font.Height = 19
+    Font.Height = 13
     Lines.Strings = (
       'Memo1'
     )
@@ -159,172 +158,172 @@ object frmoutliers: Tfrmoutliers
     TabOrder = 4
   end
   object ListBox1: TListBox
-    Left = 848
-    Height = 120
-    Top = 787
-    Width = 150
+    Left = 565
+    Height = 80
+    Top = 525
+    Width = 100
     ItemHeight = 0
     ParentFont = False
     TabOrder = 5
     Visible = False
   end
   object GroupBox3: TGroupBox
-    Left = 672
-    Height = 125
-    Top = 528
-    Width = 326
+    Left = 448
+    Height = 83
+    Top = 352
+    Width = 217
     Caption = 'Output'
-    ClientHeight = 103
-    ClientWidth = 322
-    Font.Height = 17
+    ClientHeight = 61
+    ClientWidth = 213
+    Font.Height = 11
     ParentFont = False
     TabOrder = 6
     object Label5: TLabel
-      Left = 10
+      Left = 7
       Height = 17
-      Top = 14
+      Top = 9
       Width = 34
       Caption = 'Table:'
-      Font.Height = 17
+      Font.Height = 11
       ParentColor = False
       ParentFont = False
     end
     object Label6: TLabel
-      Left = 10
+      Left = 7
       Height = 17
-      Top = 60
+      Top = 40
       Width = 44
       Caption = 'Square:'
-      Font.Height = 17
+      Font.Height = 11
       ParentColor = False
       ParentFont = False
     end
     object Edit6: TEdit
-      Left = 78
+      Left = 52
       Height = 25
-      Top = 58
-      Width = 48
-      Font.Height = 17
+      Top = 39
+      Width = 32
+      Font.Height = 11
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 0
       Text = 'Edit6'
     end
     object Label7: TLabel
-      Left = 144
+      Left = 96
       Height = 17
-      Top = 44
+      Top = 29
       Width = 17
       Caption = 'lat:'
-      Font.Height = 17
+      Font.Height = 11
       ParentColor = False
       ParentFont = False
     end
     object Edit7: TEdit
-      Left = 188
+      Left = 125
       Height = 25
-      Top = 38
-      Width = 120
-      Font.Height = 17
+      Top = 25
+      Width = 80
+      Font.Height = 11
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 1
       Text = 'Edit7'
     end
     object Edit8: TEdit
-      Left = 188
+      Left = 125
       Height = 25
-      Top = 67
-      Width = 120
-      Font.Height = 17
+      Top = 45
+      Width = 80
+      Font.Height = 11
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 2
       Text = 'Edit8'
     end
     object Label8: TLabel
-      Left = 144
+      Left = 96
       Height = 17
-      Top = 72
+      Top = 48
       Width = 21
       Caption = 'lon:'
-      Font.Height = 17
+      Font.Height = 11
       ParentColor = False
       ParentFont = False
     end
     object Edit9: TEdit
-      Left = 66
+      Left = 44
       Height = 25
-      Top = 5
-      Width = 241
-      Font.Height = 17
+      Top = 3
+      Width = 161
+      Font.Height = 11
       ParentFont = False
       TabOrder = 3
       Text = 'Edit9'
     end
   end
   object btnSelectAllSources: TBitBtn
-    Left = 461
-    Height = 30
-    Top = 374
-    Width = 120
+    Left = 307
+    Height = 20
+    Top = 249
+    Width = 80
     Caption = 'Select all'
     Font.Color = clBlue
-    Font.Height = 17
-    OnClick = btnSelectAllSourcesClick
+    Font.Height = 11
     ParentFont = False
     TabOrder = 7
+    OnClick = btnSelectAllSourcesClick
   end
   object btnStart: TBitBtn
-    Left = 883
-    Height = 31
-    Top = 470
-    Width = 115
+    Left = 589
+    Height = 21
+    Top = 313
+    Width = 77
     Caption = 'Start'
     Font.Color = clRed
     Font.Style = [fsBold]
-    OnClick = btnStartClick
     ParentFont = False
     TabOrder = 8
+    OnClick = btnStartClick
   end
   object GroupBox2: TGroupBox
-    Left = 672
-    Height = 274
-    Top = 182
-    Width = 324
+    Left = 448
+    Height = 183
+    Top = 121
+    Width = 216
     Caption = 'Settings to determine utliers'
-    ClientHeight = 250
-    ClientWidth = 320
-    Font.Height = 19
+    ClientHeight = 159
+    ClientWidth = 212
+    Font.Height = 13
     ParentFont = False
     TabOrder = 9
     object GroupBox5: TGroupBox
-      Left = 29
-      Height = 134
-      Top = 106
-      Width = 259
+      Left = 19
+      Height = 89
+      Top = 71
+      Width = 173
       Caption = 'Standard deviation factor in layers'
-      ClientHeight = 110
-      ClientWidth = 255
-      Font.Height = 19
+      ClientHeight = 65
+      ClientWidth = 169
+      Font.Height = 13
       ParentFont = False
       TabOrder = 0
       object Label10: TLabel
-        Left = 19
+        Left = 13
         Height = 19
         Top = 0
         Width = 49
         Caption = '0-50 m:'
-        Font.Height = 19
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
       object SpinEdit1: TSpinEdit
-        Left = 134
+        Left = 89
         Height = 27
         Top = 0
-        Width = 76
-        Font.Height = 19
+        Width = 51
+        Font.Height = 13
         MaxValue = 5
         MinValue = 1
         ParentFont = False
@@ -332,31 +331,31 @@ object frmoutliers: Tfrmoutliers
         Value = 5
       end
       object Label13: TLabel
-        Left = 19
+        Left = 13
         Height = 19
-        Top = 38
+        Top = 25
         Width = 65
         Caption = '50-500 m:'
-        Font.Height = 19
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
       object Label14: TLabel
-        Left = 19
+        Left = 13
         Height = 19
-        Top = 77
+        Top = 51
         Width = 53
         Caption = '>500 m:'
-        Font.Height = 19
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
       object SpinEdit2: TSpinEdit
-        Left = 134
+        Left = 89
         Height = 27
-        Top = 38
-        Width = 76
-        Font.Height = 19
+        Top = 25
+        Width = 51
+        Font.Height = 13
         MaxValue = 5
         MinValue = 1
         ParentFont = False
@@ -364,11 +363,11 @@ object frmoutliers: Tfrmoutliers
         Value = 4
       end
       object SpinEdit3: TSpinEdit
-        Left = 134
+        Left = 89
         Height = 27
-        Top = 77
-        Width = 76
-        Font.Height = 19
+        Top = 51
+        Width = 51
+        Font.Height = 13
         MaxValue = 5
         MinValue = 1
         ParentFont = False
@@ -377,53 +376,53 @@ object frmoutliers: Tfrmoutliers
       end
     end
     object GroupBox6: TGroupBox
-      Left = 29
-      Height = 96
+      Left = 19
+      Height = 64
       Top = 0
-      Width = 259
+      Width = 173
       Caption = 'Minimum samples in a layer'
-      ClientHeight = 72
-      ClientWidth = 255
-      Font.Height = 19
+      ClientHeight = 40
+      ClientWidth = 169
+      Font.Height = 13
       ParentFont = False
       TabOrder = 1
       object Label9: TLabel
-        Left = 19
+        Left = 13
         Height = 19
         Top = 0
         Width = 65
         Caption = '0-2000 m:'
-        Font.Height = 19
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
       object Edit4: TEdit
-        Left = 144
+        Left = 96
         Height = 27
         Top = 0
-        Width = 59
-        Font.Height = 19
+        Width = 39
+        Font.Height = 13
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 0
         Text = '10'
       end
       object Label12: TLabel
-        Left = 19
+        Left = 13
         Height = 19
-        Top = 38
+        Top = 25
         Width = 65
         Caption = '> 2000 m:'
-        Font.Height = 19
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
       object Edit5: TEdit
-        Left = 144
+        Left = 96
         Height = 27
-        Top = 29
-        Width = 58
-        Font.Height = 19
+        Top = 19
+        Width = 39
+        Font.Height = 13
         ParentFont = False
         TabOrder = 1
         Text = '5'
@@ -431,90 +430,90 @@ object frmoutliers: Tfrmoutliers
     end
   end
   object GroupBox4: TGroupBox
-    Left = 19
-    Height = 125
-    Top = 662
-    Width = 979
+    Left = 13
+    Height = 83
+    Top = 441
+    Width = 653
     Caption = 'Grapher: create plot'
-    ClientHeight = 101
-    ClientWidth = 975
-    Font.Height = 19
+    ClientHeight = 59
+    ClientWidth = 649
+    Font.Height = 13
     ParentFont = False
     TabOrder = 10
     object ComboBox1: TComboBox
-      Left = 10
+      Left = 7
       Height = 27
-      Top = 77
-      Width = 814
-      Font.Height = 19
+      Top = 51
+      Width = 543
+      Font.Height = 13
       ItemHeight = 19
-      OnDropDown = ComboBox1DropDown
-      OnSelect = ComboBox1Select
       ParentFont = False
       TabOrder = 0
       Text = 'ComboBox1'
+      OnDropDown = ComboBox1DropDown
+      OnSelect = ComboBox1Select
     end
     object CheckBox2: TCheckBox
-      Left = 10
+      Left = 7
       Height = 29
-      Top = 10
+      Top = 7
       Width = 110
       Caption = 'export to pdf'
-      Font.Height = 19
+      Font.Height = 13
       ParentFont = False
       TabOrder = 1
     end
     object CheckBox3: TCheckBox
-      Left = 10
+      Left = 7
       Height = 29
-      Top = 38
+      Top = 25
       Width = 114
       Caption = 'export to png'
       Checked = True
-      Font.Height = 19
+      Font.Height = 13
       ParentFont = False
       State = cbChecked
       TabOrder = 2
     end
     object btnExportAllPlots: TBitBtn
-      Left = 845
-      Height = 29
-      Top = 76
-      Width = 103
+      Left = 563
+      Height = 19
+      Top = 51
+      Width = 69
       Caption = 'Export All Plots'
-      Font.Height = 19
-      OnClick = btnExportAllPlotsClick
+      Font.Height = 13
       ParentFont = False
       TabOrder = 3
+      OnClick = btnExportAllPlotsClick
     end
     object Label11: TLabel
-      Left = 426
+      Left = 284
       Height = 19
-      Top = 38
+      Top = 25
       Width = 522
       Caption = '!!! The current setting should correspond to the settings when files where computed  '
-      Font.Height = 19
+      Font.Height = 13
       ParentColor = False
       ParentFont = False
     end
     object CheckBox4: TCheckBox
-      Left = 432
+      Left = 288
       Height = 29
       Top = 0
       Width = 161
       Caption = 'Include samples plot?'
-      Font.Height = 19
+      Font.Height = 13
       ParentFont = False
       TabOrder = 4
     end
   end
   object CheckBox1: TCheckBox
-    Left = 672
+    Left = 448
     Height = 29
-    Top = 470
+    Top = 313
     Width = 166
     Caption = 'write PQF2=2 into DB'
-    Font.Height = 19
+    Font.Height = 13
     ParentFont = False
     TabOrder = 11
   end

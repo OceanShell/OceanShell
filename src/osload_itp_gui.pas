@@ -21,6 +21,7 @@ type
     eITPPath: TEdit;
     Label1: TLabel;
     folder_lst: TListBox;
+    Memo1: TMemo;
     mLog: TMemo;
 
     procedure btnLoadClick(Sender: TObject);
@@ -54,6 +55,7 @@ begin
   end;
   eITPPath.OnChange(self);
 end;
+
 
 procedure TfrmLoadITP.btnLoadClick(Sender: TObject);
 Var
@@ -94,7 +96,7 @@ begin
 
   cnt_add:=0; cnt_upd:=0; cnt_del:=0;
 
-  ITP(libgswteos, frmdm.IBDB, eITPpath.Text, FolderName,
+  ITP(frmdm.IBDB, eITPpath.Text, FolderName,
       buoytype, stvessel, StatOnly, isfinal, log,
       cnt_add, cnt_upd, cnt_del, cruise_id);
 
@@ -104,7 +106,7 @@ begin
       if (cnt_upd>0) then str:=str+' updated: '+inttostr(cnt_upd);
       if (cnt_del>0) then str:=str+' removed: '+inttostr(cnt_del);
 
-      if not StatOnly then osqc_cruiseinfo.UpdateCruiseInfo(frmdm.IBDB, cruise_id, true);
+      if not StatOnly then UpdateCruiseInfo(frmdm.IBDB, cruise_id);
     end;
 
   mLog.Lines.Add(str);
@@ -122,6 +124,7 @@ begin
    if frmosmain.ODir.Execute then eITPPath.Text:=frmosmain.ODir.FileName+PathDelim;
   eITPPath.OnChange(self);
 end;
+
 
 procedure TfrmLoadITP.eITPPathChange(Sender: TObject);
 Var

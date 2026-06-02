@@ -1,138 +1,161 @@
 object frmopendb_reg: Tfrmopendb_reg
   Left = 628
-  Height = 297
+  Height = 267
   Top = 281
-  Width = 700
+  Width = 467
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = 'Add/edit database'
-  ClientHeight = 297
-  ClientWidth = 700
+  ClientHeight = 267
+  ClientWidth = 467
   Color = clBtnFace
-  DesignTimePPI = 144
   Font.Color = clWindowText
-  Font.Height = -17
+  Font.Height = -11
   Font.Name = 'MS Sans Serif'
+  LCLVersion = '4.6.0.0'
+  Visible = True
   OnClose = FormClose
   OnShow = FormShow
-  LCLVersion = '2.0.6.0'
-  Visible = True
   object GroupBox8: TGroupBox
-    Left = 24
-    Height = 256
-    Top = 16
-    Width = 652
+    Left = 16
+    Height = 171
+    Top = 80
+    Width = 435
     Caption = 'Connection'
-    ClientHeight = 226
-    ClientWidth = 648
+    ClientHeight = 151
+    ClientWidth = 431
+    ParentBackground = False
     ParentFont = False
     TabOrder = 0
     object ePath: TEdit
-      Left = 85
-      Height = 33
-      Top = 48
-      Width = 496
+      Left = 57
+      Height = 23
+      Top = 32
+      Width = 331
       TabOrder = 0
     end
-    object eHost: TEdit
-      Left = 85
-      Height = 33
-      Top = 8
-      Width = 539
-      TabOrder = 1
-    end
     object Label4: TLabel
-      Left = -272
-      Height = 25
-      Top = 112
-      Width = 69
+      Left = -181
+      Height = 15
+      Top = 75
+      Width = 45
       Caption = 'Address:'
       ParentColor = False
     end
     object Label2: TLabel
-      Left = 24
-      Height = 25
-      Top = 96
-      Width = 35
+      Left = 16
+      Height = 15
+      Top = 64
+      Width = 23
       Caption = 'User'
       ParentColor = False
     end
     object eUser: TEdit
-      Left = 85
-      Height = 33
-      Top = 88
-      Width = 539
-      TabOrder = 2
+      Left = 57
+      Height = 23
+      Top = 59
+      Width = 359
+      TabOrder = 1
     end
     object Label5: TLabel
-      Left = 24
-      Height = 25
-      Top = 136
-      Width = 34
+      Left = 16
+      Height = 15
+      Top = 91
+      Width = 23
       Caption = 'Pass'
       ParentColor = False
     end
     object ePass: TEdit
-      Left = 85
-      Height = 33
-      Top = 128
-      Width = 540
+      Left = 57
+      Height = 23
+      Top = 85
+      Width = 360
       EchoMode = emPassword
       PasswordChar = '*'
-      TabOrder = 3
-    end
-    object Label6: TLabel
-      Left = 24
-      Height = 25
-      Top = 16
-      Width = 38
-      Caption = 'Host'
-      ParentColor = False
+      TabOrder = 2
     end
     object Label7: TLabel
-      Left = 24
-      Height = 25
-      Top = 56
-      Width = 23
+      Left = 16
+      Height = 15
+      Top = 37
+      Width = 15
       Caption = 'DB'
       ParentColor = False
     end
     object Label8: TLabel
-      Left = 24
-      Height = 25
-      Top = 176
-      Width = 37
+      Left = 16
+      Height = 15
+      Top = 117
+      Width = 25
       Caption = 'Alias'
       ParentColor = False
     end
     object eAlias: TEdit
-      Left = 85
-      Height = 33
-      Top = 168
-      Width = 459
-      TabOrder = 4
+      Left = 57
+      Height = 23
+      Top = 112
+      Width = 306
+      TabOrder = 3
     end
     object btnSave: TButton
-      Left = 558
-      Height = 32
-      Top = 169
-      Width = 66
+      Left = 372
+      Height = 21
+      Top = 113
+      Width = 44
       Caption = 'Save'
       Font.Color = clWindowText
-      Font.Height = -17
+      Font.Height = -11
       Font.Name = 'MS Sans Serif'
-      OnClick = btnSaveClick
       ParentFont = False
-      TabOrder = 5
+      TabOrder = 4
+      OnClick = btnSaveClick
     end
     object btnOpenDB: TButton
-      Left = 583
-      Height = 33
-      Top = 48
-      Width = 41
+      Left = 389
+      Height = 22
+      Top = 32
+      Width = 27
       Caption = '...'
+      TabOrder = 5
       OnClick = btnOpenDBClick
-      TabOrder = 6
+    end
+  end
+  object GroupBox1: TGroupBox
+    Left = 16
+    Height = 57
+    Top = 16
+    Width = 435
+    Caption = 'Server'
+    ClientHeight = 39
+    ClientWidth = 431
+    ParentBackground = False
+    TabOrder = 1
+    OnClick = GroupBox1Click
+    object rbServerLocal: TRadioButton
+      Left = 16
+      Height = 17
+      Top = 8
+      Width = 44
+      Caption = 'Local'
+      TabOrder = 0
+    end
+    object rbServerRemote: TRadioButton
+      Left = 88
+      Height = 17
+      Top = 8
+      Width = 55
+      Caption = 'Remote'
+      Checked = True
+      TabOrder = 2
+      TabStop = True
+    end
+    object eHost: TEdit
+      Left = 152
+      Height = 21
+      Top = 5
+      Width = 264
+      TabOrder = 1
+      Text = 'localhost'
     end
   end
 end

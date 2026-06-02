@@ -19,7 +19,7 @@ type
 
   Tfrmprofile_plot_all = class(TForm)
     Chart1: TChart;
-    ChartToolset1: TChartToolset;
+    CTS: TChartToolset;
     chkCruiseHighlight: TCheckBox;
     chkShowBest: TCheckBox;
     DPH: TDataPointHintTool;
@@ -99,11 +99,16 @@ begin
  Result := TLineSeries.Create(AChart.Owner);
   with TLineSeries(Result) do begin
     Title := ATitle;
+    Name := sName;
     ShowPoints := false;
     ShowLines := true;
     LinePen.Style := psSolid;
+    LinePen.Width := 1;
+    LinePen.Cosmetic := true;
     SeriesColor := AColor;
-    Name := sName;
+    LineType := ltFromPrevious;
+    AxisIndexX := -1;
+    AxisIndexY := -1;
     ToolTargets := [nptPoint, nptYList, nptCustom];
   end;
  AChart.AddSeries(Result);
@@ -141,6 +146,7 @@ begin
   finally
    Ini.Free;
   end;
+  if Left> Screen.Width then Left:=0;
 
 
   (* creating checkboxes for sources *)
@@ -271,7 +277,7 @@ TRt:TSQLTransaction;
 PQF1_st, PQF2_st, SQF_st, instr_st: string;
 begin
 
-  case depth_units of
+  case depth_units_id of
    0: LeftAxisTitle:='Depth, [m]';
    1: LeftAxisTitle:='Depth, [dBar]';
   end;
@@ -544,7 +550,7 @@ units_ok:=false;
      units := Qt.FieldByName('UNITS_ID').AsInteger;
 
      (* units for the vertical axis *)
-     if depth_units=0 then lev:=lev_m else lev:=lev_d;
+     if depth_units_id=0 then lev:=lev_m else lev:=lev_d;
 
      if (rbUnitsDefault.Checked=true) and (units<>units_default) then begin
 
@@ -666,7 +672,7 @@ begin
 
       ID:=strtoint(copy(series.Name,2,Pos('_', series.Name)-2));
       frmdm.Q.Locate('ID', ID, []);
-      frmdm.QCruise.Locate('ID', frmdm.Q.FieldByName('CRUISE_ID').Value, []);
+      frmosmain.CDSNavigation;
     end;
   end;
 end;

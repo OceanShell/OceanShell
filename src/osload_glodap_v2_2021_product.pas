@@ -46,7 +46,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, StdCtrls,
-  Buttons, ExtCtrls, comobj, variants, DateUtils, dynlibs;
+  Buttons, ExtCtrls, comobj, variants, DateUtils, dynlibs, SQLDB, DB;
 
 
 
@@ -55,12 +55,10 @@ type
   { TfrmloadGLODAP_v2_2021_product }
 
   TfrmloadGLODAP_v2_2021_product = class(TForm)
+    btnDownload: TBitBtn;
     btnFixedStations_A2: TBitBtn;
     btnFixedStations_A1: TBitBtn;
-    btnUpdateCruiseTable: TBitBtn;
-    btnDownload: TBitBtn;
-    btnPopulateCruiseTable: TBitBtn;
-    btnUpdateExcelTable: TBitBtn;
+    btnUpdateCruise: TBitBtn;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
@@ -69,9 +67,7 @@ type
     Edit3: TEdit;
     Edit4: TEdit;
     GroupBox4: TGroupBox;
-    Label1: TLabel;
     Label10: TLabel;
-    Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
@@ -79,20 +75,17 @@ type
     Label7: TLabel;
     Label8: TLabel;
     Label9: TLabel;
-    Memo1: TMemo;
+    mLog: TMemo;
     Memo2: TMemo;
     PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
-    TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
     procedure btnDownloadClick(Sender: TObject);
     procedure btnFixedStations_A1Click(Sender: TObject);
     procedure btnFixedStations_A2Click(Sender: TObject);
-    procedure btnPopulateCruiseTableClick(Sender: TObject);
-    procedure btnUpdateCruiseTableClick(Sender: TObject);
-    procedure btnUpdateExcelTableClick(Sender: TObject);
+  //  procedure btnUpdateCruiseTableClick(Sender: TObject);
+    procedure btnUpdateCruiseClick(Sender: TObject);
   private
 
   public
@@ -107,381 +100,281 @@ var
 
 implementation
 
-uses osmain, dm, procedures, GibbsSeaWater;
+uses osmain, dm, procedures, GibbsSeaWater, driver_fdb;
 
 {$R *.lfm}
 
 { TfrmloadGLODAP_v2_2021_product }
 
-procedure TfrmloadGLODAP_v2_2021_product.btnUpdateExcelTableClick(Sender: TObject);
+procedure TfrmloadGLODAP_v2_2021_product.btnUpdateCruiseClick(Sender: TObject);
 var
-XLApp: OLEVariant;
-i,p,p1,p2,mik,y,gcrn,np: integer;
-platform_id :integer;
-expocode,ship_name :string;
-gcruise_dates,ds_str,de_str,dsN_str,deN_str :string;
-d_str,m_str,y_str :string;
-excel_table,gship_name: variant;
-nodc_code :string[4];
-two_dates,new_format :boolean;
-ds,de :TDateTime;
+dat: text;
+
+
+PathToCodesSource, buf_str, piname, st, code_nodc:string;
+c, k, i, absnum, ID:integer;
+wod_country:string;
+wod_id, country_ID, wod_institute_id, wod_platform_id, stnum: integer;
+source_id, platform_id, institute_id, project_id: integer;
+
+cruise_ind, start_date, end_date, wmo_id, date_str: string;
+Glodap_ID, country_name, platform_name: string;
+notes_str: widestring;
+
+expocode, cr_alias, dates, platform, chiefSc, carbonPI, HydroPI, OxygenPI: widestring;
+NutrientPI, CFCPI, OrganicsPI, IsotopesPI, OtherPI:widestring;
+mn, dd, yy: word;
+
+fl1, fl2:boolean;
+
+XL: oleVariant;
+XLTemplate:Variant;
+date1, date2:TDateTime;
+
+TRt:TSQLTransaction;
+Qt1, Qt2, Qt3:TSQLQuery;
 begin
+{$IFDEF WINDOWS}
+try
+mLog.Clear;
 
-DT1:=NOW;
-memo1.Lines.Add('...start [GLODAP cruise table update]: '+datetimetostr(DT1));
+ btnUpdateCruise.Enabled:=false;
 
-excel_table:='c:\Users\Alexa\AK\datasets\GLODAP\v2.2021\GLODAPCruiseTable.xlsx';
-memo1.Lines.Add('Exel file: '+excel_table);
 
- try
-  XLApp := CreateOleObject('Excel.Application');
-  XLApp.Visible := False;
-  XLApp.DisplayAlerts := False;
- except
-  Showmessage('MS Excel is not installed');
-  Exit;
- end;
+ frmosmain.OD.Filter:='GLODAP_MD.xls|GLODAP_MD.xls';
+ if frmosmain.OD.Execute then PathToCodesSource:=frmosmain.OD.FileName else exit;
 
-   label1.Visible:=true;
+  TRt:=TSQLTransaction.Create(self);
+  TRt.DataBase:=frmdm.IBDB;
 
-{T}try
-     XLApp.Workbooks.Open(excel_table); //open the workbook
-     y:=1; //skip header
-     mik:=0;
-{r}repeat
-     inc(y); //row
+  Qt1 :=TSQLQuery.Create(self);
+  Qt1.Database:=frmdm.IBDB;
+  Qt1.Transaction:=TRt;
 
-     {...GLODAP cruise number }
-     if trystrtoint(XLApp.Cells[y,1].Value,gcrn) then gcrn :=XLApp.Cells[y,1].Value else gcrn:=-9999;
+  Qt2 :=TSQLQuery.Create(self);
+  Qt2.Database:=frmdm.IBDB;
+  Qt2.Transaction:=TRt;
 
-     ds:=strtodate('1.01.1900');
-     de:=strtodate('1.01.1900');
-     two_dates:=false;
-     new_format:=true;
+  Qt3 :=TSQLQuery.Create(self);
+  Qt3.Database:=frmdm.IBDB;
+  Qt3.Transaction:=TRt;
 
-     {...check for empty strings}
-{C}if gcrn<>-9999 then begin
-     inc(mik);
-     label1.Caption:='cruise# '+inttostr(mik);
-     Application.ProcessMessages;
 
-     {...read}
-     expocode:=XLApp.Cells[y,2].Value;  //expocode
-     nodc_code:=copy(expocode,1,4);
-     gcruise_dates:=XLApp.Cells[y,7].Value;
-     gship_name:=XLApp.Cells[y,10].Value;  //expocode
+  XLTemplate:=frmosmain.OD.FileName;
 
-       platform_id:=1;
-       ship_name:='';
-     with frmdm.q1 do begin
+  try
+   XL := CreateOleObject('Excel.Application');
+   XL.Visible := False;
+   XL.DisplayAlerts := False;
+  except
+   Showmessage('MS Excel is not installed');
+   Exit;
+  end;
+
+  XL.WorkBooks.Open(XLTemplate);
+
+   k:=1;
+   repeat
+    inc(k);
+
+    if vartostr(Xl.Cells[k, 1].Value)='' then exit;
+
+    expocode:=''; cr_alias:=''; dates:=''; platform_name:=''; chiefsc:='';
+    CarbonPI:=''; HydroPI:=''; OxygenPI:=''; NutrientPI:=''; CFCPI:='';
+    OrganicsPI:=''; IsotopesPI:=''; OtherPI:='';
+
+ {   showmessage(vartostr(Xl.Cells[k, 1].Value)+#13+
+    vartostr(Xl.Cells[k, 2].Value)+#13+
+    vartostr(Xl.Cells[k, 3].Value)+#13+
+    vartostr(Xl.Cells[k, 4].Value)+#13+
+    vartostr(Xl.Cells[k, 5].Value)+#13+
+    vartostr(Xl.Cells[k, 6].Value)+#13+
+    vartostr(Xl.Cells[k, 7].Value)+#13+
+    vartostr(Xl.Cells[k, 8].Value)+#13+
+    vartostr(Xl.Cells[k, 9].Value)+#13+
+    vartostr(Xl.Cells[k, 10].Value)+#13+
+    vartostr(Xl.Cells[k, 11].Value)+#13+
+    vartostr(Xl.Cells[k, 12].Value)+#13+
+    vartostr(Xl.Cells[k, 13].Value)+#13+
+    vartostr(Xl.Cells[k, 14].Value));     }
+
+     Glodap_ID:= vartostr(Xl.Cells[k, 1].Value);
+
+     with Qt1 do begin
        Close;
-       SQL.Clear;
-       SQL.Add(' select id, name from PLATFORM ');
-       SQL.Add(' where nodc_code=:nodc_code ');
-       ParamByName('nodc_code').AsString:=nodc_code;
+        SQL.Clear;
+        SQL.Add(' select ID from CRUISE ');
+        SQL.Add(' where id=:ID ');
+        ParamByName('ID').AsString:=Glodap_ID;
        Open;
-       platform_id:=FieldByName('id').AsInteger;
-       ship_name:=FieldByName('name').AsString;
-       Close;
      end;
 
-       if ship_name='' then begin
-            ship_name:='UNKNOWN';
-            platform_id:=1; //UNKNOWN ship and country
+   if not Qt1.IsEmpty then Continue; //skipping existing rows
+
+
+     EXPOCODE:=  vartostr(Xl.Cells[k, 2].Value);
+     Cr_Alias:=  vartostr(Xl.Cells[k, 3].Value);
+     dates:=     vartostr(Xl.Cells[k, 4].Value);
+     platform:=  vartostr(Xl.Cells[k, 5].Value);
+     ChiefSc:=   vartostr(Xl.Cells[k, 6].Value);
+     CarbonPI:=  vartostr(Xl.Cells[k, 7].Value);
+     HydroPI:=   vartostr(Xl.Cells[k, 8].Value);
+     OxygenPI:=  vartostr(Xl.Cells[k, 9].Value);
+     NutrientPI:=vartostr(Xl.Cells[k, 10].Value);
+     CFCPI:=     vartostr(Xl.Cells[k, 11].Value);
+     OrganicsPI:=vartostr(Xl.Cells[k, 12].Value);
+     IsotopesPI:=vartostr(Xl.Cells[k, 13].Value);
+     OtherPI:=   vartostr(Xl.Cells[k, 14].Value);
+
+    notes_str:='';
+    if ChiefSc<>''    then notes_str:='Chief scientist: '+ChiefSc+LineEnding;
+    if CarbonPI<>''   then notes_str:=notes_str+'Carbon PI: '+CarbonPI+LineEnding;
+    if HydroPI<>''    then notes_str:=notes_str+'Hydro PI: '+HydroPI+LineEnding;
+    if OxygenPI<>''   then notes_str:=notes_str+'Oxygen PI: '+OxygenPI+LineEnding;
+    if NutrientPI<>'' then notes_str:=notes_str+'Nutrient PI: '+NutrientPI+LineEnding;
+    if CFCPI<>''      then notes_str:=notes_str+'CFC PI: '+CFCPI+LineEnding;
+    if OrganicsPI<>'' then notes_str:=notes_str+'Organics PI: '+OrganicsPI+LineEnding;
+    if IsotopesPI<>'' then notes_str:=notes_str+'Isotopes PI: '+IsotopesPI;
+    if OtherPI<>''    then notes_str:=notes_str+'Other PI: '+OtherPI;
+
+
+  if (strtoint(Glodap_ID)<>396) and
+     (strtoint(Glodap_ID)<=718) then begin
+   date1:=DateEncode(StrToInt(copy(EXPOCODE, 5, 4)),
+                     StrToInt(copy(EXPOCODE, 9, 2)),
+                     StrToInt(copy(EXPOCODE, 11, 2)),
+                     0, 0, fl1, fl2);
+
+   date_str:=trim(copy(dates, Pos('-',dates)+1, length(dates)));
+
+   i:=0;
+   for c:=1 to 3 do begin
+    buf_str:='';
+      repeat
+        inc(i);
+            if (date_str[i]<>'/') then buf_str:=buf_str+date_str[i];
+      until (date_str[i]='/') or (i=length(date_str));
+        if c=1 then mn:=StrToInt(trim(buf_str));
+        if c=2 then dd:=StrToInt(trim(buf_str));
+        if c=3 then yy:=StrToInt(trim(buf_str));
+   end;
+   date2:=DateEncode(yy, mn, dd, 0, 0, fl1, fl2);
+  end;
+
+  if strtoint(Glodap_ID)=396 then begin
+    date1:=DateEncode(1990, 01, 27, 0, 0, fl1, fl2);
+    date2:=DateEncode(1995, 08, 01, 0, 0, fl1, fl2);
+  end;
+  if strtoint(Glodap_ID)=719 then begin
+    date1:=DateEncode(2005, 01, 01, 0, 0, fl1, fl2);
+    date2:=DateEncode(2007, 12, 31, 0, 0, fl1, fl2);
+  end;
+  if strtoint(Glodap_ID)=720 then begin
+    date1:=DateEncode(1991, 08, 15, 0, 0, fl1, fl2);
+    date2:=DateEncode(2006, 10, 02, 0, 0, fl1, fl2);
+  end;
+  if strtoint(Glodap_ID)=721 then begin
+    date1:=DateEncode(1991, 08, 08, 0, 0, fl1, fl2);
+    date2:=DateEncode(2006, 02, 02, 0, 0, fl1, fl2);
+  end;
+  if strtoint(Glodap_ID)=722 then begin
+    date1:=DateEncode(1993, 04, 01, 0, 0, fl1, fl2);
+    date2:=DateEncode(1995, 11, 30, 0, 0, fl1, fl2);
+  end;
+  if strtoint(Glodap_ID)=723 then begin
+    date1:=DateEncode(1997, 06, 01, 0, 0, fl1, fl2);
+    date2:=DateEncode(1999, 09, 30, 0, 0, fl1, fl2);
+  end;
+  if strtoint(Glodap_ID)=724 then begin
+    date1:=DateEncode(2005, 01, 01, 0, 0, fl1, fl2);
+    date2:=DateEncode(2009, 12, 31, 0, 0, fl1, fl2);
+  end;
+
+  if (strtoint(Glodap_ID)>=725) then begin
+    yy:=StrToInt(copy(dates, 1, 4));
+    mn:=StrToInt(copy(dates, 5, 2));
+    dd:=StrToInt(copy(dates, 7, 2));
+
+    date1:=DateEncode(yy, mn, dd, 0, 0, fl1, fl2);
+
+    yy:=StrToInt(copy(dates, 12, 4));
+    mn:=StrToInt(copy(dates, 16, 2));
+    dd:=StrToInt(copy(dates, 18, 2));
+
+    date2:=DateEncode(yy, mn, dd, 0, 0, fl1, fl2);
+  end;
+
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID, name from COUNTRY ');
+     SQL.Add(' where NODC_CODE=:ID ');
+     ParamByName('ID').AsString:=copy(EXPOCODE, 1, 2);
+    Open;
+     if Qt1.IsEmpty=false then begin
+       country_id:=Qt1.Fields[0].AsInteger;
+       country_name:=Qt1.Fields[1].AsString;
+     end else country_id:=488;   //UNKNOWN
+    Close;
+   end;
+
+   with Qt1 do begin
+    Close;
+     SQL.Clear;
+     SQL.Add(' select ID, name from PLATFORM');
+     SQL.Add(' where NODC_CODE=:ID ');
+     ParamByName('ID').AsString:=copy(EXPOCODE, 1, 4);
+    Open;
+     if Qt1.IsEmpty=false then begin
+       platform_id:=Qt1.Fields[0].AsInteger;
+       platform_name:=Qt1.Fields[1].AsString;
+     end else platform_id:=19043;  //UNKNOWN PLATFORM
+    Close;
+   end;
+
+
+   institute_id:=1; //UNKNOWN
+   source_id:=1; //GLODAP
+   project_id:=0; //UNKNOWN
+
+    try
+      PutFDBCruise(Qt2, strtoint(glodap_id), platform_id, source_id, institute_id,
+         project_id, expocode, Cr_alias, UpperCase(ChiefSc), notes_str,
+         date1, date2, now, now);
+      Trt.CommitRetaining;
+      mLog.Lines.add('Insert successful: '+st);
+     except
+       on E: Exception do begin
+         if MessageDlg(E.Message, mtWarning, [mbOk], 0)=mrOk then exit;
+          mLog.Lines.add('Insert error: '+st);
        end;
-
-     {...try convert cruise end date}
-       p:=0; // position of -
-     for i:=1 to length(gcruise_dates) do begin
-       if gcruise_dates[i]='-' then p:=i;
-       if gcruise_dates[i]=';' then two_dates:=true;
-       if gcruise_dates[i]='/' then new_format:=false;
      end;
 
-     ds_str:=trim(copy(gcruise_dates,1,p-1));
-     de_str:=trim(copy(gcruise_dates,p+1,length(gcruise_dates)));
+    mLog.Lines.Add(Glodap_ID+'   '+
+                  platform_name+'   '+
+                  datetostr(date1)+'   '+
+                  datetostr(date2)+'   '+
+                  country_name+'   '+
+                  expocode+'   '+
+                  cr_alias);
 
+  until vartostr(Xl.Cells[k, 1].Value)='';
 
-    {...old date format with / }
-{F1}if new_format=false then begin
-     {...try convert cruise end date}
-     p1:=0; p2:=0; // position of /
-     np:=0; //number of /
-   for i:=1 to length(de_str) do begin
-     if de_str[i]='/' then begin
-        inc(np);
-        if np=1 then p1:=i;
-        if np=2 then p2:=i;
-     end;
-   end;
-   {...de without year}
-   if np=1 then begin
-     d_str:=copy(de_str,p1+1,length(de_str));
-     m_str:=copy(de_str,1,p1-1);
-     deN_str:=d_str+'.'+m_str+'.'+y_str;
-   end;
-   {...de with year}
-   if np=2 then begin
-     d_str:=copy(de_str,p1+1,p2-p1-1);
-     //showmessage('de_str='+de_str);
-     //showmessage('p1/p2='+inttostr(p1)+'/'+inttostr(p2));
-     //showmessage('d_str='+d_str);
-     m_str:=copy(de_str,1,p1-1);
-     y_str:=copy(de_str,p2+1,length(de_str));
-     deN_str:=d_str+'.'+m_str+'.'+y_str;
-   end;
-//showmessage(de_str+'->'+d_str+'.'+m_str+'.'+y_str+'.');
+ finally
+  XL.Quit;
+  XL:=UnAssigned;
 
-     {...try convert cruise start date}
-     p1:=0; p2:=0; // position of /
-     np:=0; //number of /
-   for i:=1 to length(ds_str) do begin
-     if ds_str[i]='/' then begin
-        inc(np);
-        if np=1 then p1:=i;
-        if np=2 then p2:=i;
-     end;
-   end;
-   {...ds without year}
-   if np=1 then begin
-     d_str:=copy(ds_str,p1+1,length(ds_str));
-     m_str:=copy(ds_str,1,p1-1);
-     dsN_str:=d_str+'.'+m_str+'.'+y_str;
-   end;
-   {...ds with year}
-   if np=2 then begin
-     d_str:=copy(ds_str,p1+1,p2-p1-1);
-     m_str:=copy(ds_str,1,p1-1);
-     y_str:=copy(ds_str,p2+1,length(ds_str));
-     dsN_str:=d_str+'.'+m_str+'.'+y_str;
-   end;
-{F1}end;
-
-
-
-    {...new date format without / }
-{F2}if new_format=true then begin
-     d_str:=copy(ds_str,7,2);
-     m_str:=copy(ds_str,5,2);
-     y_str:=copy(ds_str,1,4);
-     dsN_str:=d_str+'.'+m_str+'.'+y_str;
-
-     d_str:=copy(de_str,7,2);
-     m_str:=copy(de_str,5,2);
-     y_str:=copy(de_str,1,4);
-     deN_str:=d_str+'.'+m_str+'.'+y_str;
-{F2}end;
-
-     if trystrtodate(dsN_str,ds) then ds:=strtodate(dsN_str) else ds:=strtodate('1.01.1900');
-     if trystrtodate(deN_str,de) then de:=strtodate(deN_str) else de:=strtodate('1.01.1900');
-     if two_dates=true then ds:=strtodate('01.01.1900');
-
-     memo1.Lines.Add(inttostr(mik)
-     +#9+inttostr(gcrn)
-     +#9+expocode
-     +#9+nodc_code
-     +#9+ship_name+'(id='+inttostr(platform_id)+') ->'+gship_name
-     +#9+gcruise_dates
-     +#9+dsN_str
-     +#9+deN_str
-     +#9+datetostr(ds)
-     +#9+datetostr(de)
-     );
-
-     //XLApp.Cells[y,8].Value:='test2';
-     //XLApp.Cells[y,9].Value:=QuotedStr(str);
-     //XLApp.Cells[y,9].Value:=15;
-     //XLApp.Cells[y,9].Value.AsString:=QuotedStr(str);
-     //XLApp.Cells[y,9].Value:='"'+str+'"';
-     XLApp.Cells[y,8].Value:=ds;
-     XLApp.Cells[y,9].Value:=de;
-
-{C}end;
-{r}until trim(XLApp.Cells[y,1].Value)='#END';
-
-  finally
-    XLApp.ActiveWorkBook.Save; //saving
-    XLApp.Quit;
-    XLAPP := Unassigned;
-{T}end;
-
-    //XLApp.ActiveWorkBook.Save;
-    //XLApp.Quit;
-    //XLAPP := Unassigned;
-
-
-DT2:=NOW;
-memo1.Lines.Add('');
-memo1.Lines.Add('...stop: '+datetimetostr(DT2));
-memo1.Lines.Add('...time spent: '+datetimetostr(DT2-DT1));
+  btnUpdateCruise.Enabled:=true;
+  Qt1.Free;
+  Qt2.Free;
+  TrT.Commit;
+  TrT.Free;
+  Showmessage(SDone);
+ end;
+{$ENDIF}
 end;
 
-
-
-procedure TfrmloadGLODAP_v2_2021_product.btnPopulateCruiseTableClick(Sender: TObject);
-var
-XLApp: OLEVariant;
-excel_table,gship_name: variant;
-mik,y,gcrn,platform_id :integer;
-expocode,ship_name,crn_str,PI,notes :string;
-nodc_code :string[4];
-ds,de :TDateTime;
-begin
-DT1:=NOW;
-memo1.Lines.Add('...start [populate CRUISE table]: '+datetimetostr(DT1));
-
-excel_table:='c:\Users\Alexa\AK\datasets\GLODAP\v2.2021\excel\GLODAPCruiseTable_ed.xlsx';
-memo1.Lines.Add('Exel file: '+excel_table);
-
- try
-  XLApp := CreateOleObject('Excel.Application');
-  XLApp.Visible := False;
-  XLApp.DisplayAlerts := False;
- except
-  Showmessage('MS Excel is not installed');
-  Exit;
- end;
-
-   label1.Visible:=true;
-
-{T}try
-     XLApp.Workbooks.Open(excel_table); //open the workbook
-     y:=1; //skip header
-     mik:=0;
-{r}repeat
-     inc(y); //row
-
-     {...GLODAP cruise number }
-     if trystrtoint(XLApp.Cells[y,1].Value,gcrn) then gcrn :=XLApp.Cells[y,1].Value else gcrn:=-9999;
-
-     PI:='';
-     notes:='';
-
-     {...check for empty strings}
-{C}if gcrn<>-9999 then begin
-     inc(mik);
-     label1.Caption:='cruise: '+inttostr(mik)+'->'+inttostr(gcrn);
-     Application.ProcessMessages;
-
-     {...read}
-     expocode:=XLApp.Cells[y,2].Value;  //expocode
-     nodc_code:=copy(expocode,1,4);
-     crn_str:=XLApp.Cells[y,6].Value;  //cruise number
-     crn_str:=trim(crn_str);
-     crn_str:=copy(crn_str,1,100);
-     gship_name:=XLApp.Cells[y,10].Value;  //expocode
-     ds :=XLApp.Cells[y,8].Value;   //cruise start
-     de :=XLApp.Cells[y,9].Value;   //cruise end
-
-     if trim(XLApp.Cells[y,11].Value)<>'' then
-     PI:=trim(XLApp.Cells[y,11].Value);
-
-     notes:=notes+'region: '+trim(XLApp.Cells[y,5].Value)+#10;
-     notes:=notes+'ship: '+trim(XLApp.Cells[y,10].Value)+#10;
-     if trim(XLApp.Cells[y,11].Value)<>'' then
-     notes:=notes+'shief scientist: '+trim(XLApp.Cells[y,11].Value)+#10;
-     if trim(XLApp.Cells[y,12].Value)<>'' then
-     notes:=notes+'carbon PI: '+trim(XLApp.Cells[y,12].Value)+#10;
-     if trim(XLApp.Cells[y,13].Value)<>'' then
-     notes:=notes+'hydrography PI: '+trim(XLApp.Cells[y,13].Value)+#10;
-     if trim(XLApp.Cells[y,14].Value)<>'' then
-     notes:=notes+'oxygen PI: '+trim(XLApp.Cells[y,14].Value)+#10;
-     if trim(XLApp.Cells[y,15].Value)<>'' then
-     notes:=notes+'nutriens PI: '+trim(XLApp.Cells[y,15].Value)+#10;
-     if trim(XLApp.Cells[y,16].Value)<>'' then
-     notes:=notes+'organic PI: '+trim(XLApp.Cells[y,16].Value)+#10;
-     if trim(XLApp.Cells[y,17].Value)<>'' then
-     notes:=notes+'isotopes PI: '+trim(XLApp.Cells[y,17].Value)+#10;
-     if trim(XLApp.Cells[y,18].Value)<>'' then
-     notes:=notes+'other PIs: '+trim(XLApp.Cells[y,18].Value)+#10;
-
-       platform_id:=1;
-       ship_name:='';
-     with frmdm.q1 do begin
-       Close;
-       SQL.Clear;
-       SQL.Add(' select id, name from PLATFORM ');
-       SQL.Add(' where nodc_code=:nodc_code ');
-       ParamByName('nodc_code').AsString:=nodc_code;
-       Open;
-       platform_id:=FieldByName('id').AsInteger;
-       ship_name:=FieldByName('name').AsString;
-       Close;
-     end;
-       {??? id=1 (UNKNOWN ship and country) disappeared from PLATFORM}
-       if ship_name='' then begin
-            ship_name:='UNSPECIFIED PLATFORM';
-            platform_id:=19439; //UNKNOWN country(id=488)
-       end;
-
-       memo1.Lines.Add(inttostr(mik)
-       +#9+inttostr(gcrn)
-       +#9+expocode
-       +#9+nodc_code
-       +#9+ship_name+'(id='+inttostr(platform_id)+') ->'+gship_name
-       +#9+datetostr(ds)
-       +#9+datetostr(de)
-       );
-
-       {...SOURCE GLODAP station_id_min=1 station_id_max=1000000}
-{db}if CheckBox2.Checked then begin
-    with frmdm.q2 do begin
-      Close;
-      SQL.Clear;
-      SQL.Add('insert into CRUISE');
-      SQL.Add(' (ID, platform_id, source_id, institute_id, project_id, expocode, PI, notes, ');
-      SQL.Add(' DATE_ADDED, DATE_UPDATED, DATE_START_TOTAL, DATE_END_TOTAL,  ');
-      SQL.Add(' DATE_START_DATABASE, DATE_END_DATABASE, CRUISE_NUMBER,');
-      SQL.Add(' LATITUDE_MIN, LATITUDE_MAX, LONGITUDE_MIN, LONGITUDE_MAX,');
-      SQL.Add(' STATIONS_TOTAL, STATIONS_DATABASE, STATIONS_DUPLICATES) ');
-      SQL.Add(' VALUES ' );
-      SQL.Add(' (:ID, :platform_id, :source_id, :institute_id, :project_id, :expocode, :PI, :notes, ');
-      SQL.Add(' :DATE_ADDED, :DATE_UPDATED, :DATE_START_TOTAL, :DATE_END_TOTAL, ');
-      SQL.Add(' :DATE_START_DATABASE, :DATE_END_DATABASE, :CRUISE_NUMBER, ');
-      SQL.Add(' :LATITUDE_MIN, :LATITUDE_MAX, :LONGITUDE_MIN, :LONGITUDE_MAX,');
-      SQL.Add(' :STATIONS_TOTAL, :STATIONS_DATABASE, :STATIONS_DUPLICATES) ');
-      //ParamByName('ID').Value:=mik;
-      ParamByName('ID').Value:=gcrn; //save the original cruise numbers as STATION ID
-      ParamByName('platform_id').Value:=platform_id;
-      ParamByName('source_id').Value:=1;
-      ParamByName('institute_id').Value:=1; //UNKNOWN
-      ParamByName('project_id').Value:=1;   //UNKNOWN
-      ParamByName('expocode').Value:=expocode;
-      ParamByName('date_added').Value:=now;
-      ParamByName('date_updated').Value:=now;
-      ParamByName('date_start_total').Value:=ds;
-      ParamByName('date_end_total').Value:=de;
-      //ParamByName('date_start_database').Value:=q3.FieldByName('date_start_database').Value;
-      //ParamByName('date_end_database').Value:=q3.FieldByName('date_end_database').Value;
-      ParamByName('cruise_number').Value:=crn_str;
-      ParamByName('PI').Value:=PI;
-      ParamByName('notes').Value:=notes;
-      //ParamByName('latitude_min').Value:=q3.FieldByName('latitude_min').Value;
-      //ParamByName('latitude_max').Value:=q3.FieldByName('latitude_max').Value;
-      //ParamByName('longitude_min').Value:=q3.FieldByName('longitude_min').Value;
-      //ParamByName('longitude_max').Value:=q3.FieldByName('longitude_max').Value;
-      ParamByName('stations_total').Value:=0;
-      ParamByName('stations_database').Value:=0;
-      ParamByName('stations_duplicates').Value:=0;
-      ExecSQL;
-    end;
-      frmdm.TR.CommitRetaining;
-{db}end;
-
-{C}end;
-{r}until trim(XLApp.Cells[y,1].Value)='#END';
-
-  finally
-    //XLApp.ActiveWorkBook.Save; //saving
-    XLApp.Quit;
-    XLAPP := Unassigned;
-{T}end;
-
-DT2:=NOW;
-memo1.Lines.Add('');
-memo1.Lines.Add('...stop: '+datetimetostr(DT2));
-memo1.Lines.Add('...time spent: '+datetimetostr(DT2-DT1));
-end;
 
 
 
@@ -555,7 +448,7 @@ label 10;
 
 begin
 DT1:=NOW;
-memo1.Lines.Add('...start [populate database]: '+datetimetostr(DT1));
+mLog.Lines.Add('...start [populate database]: '+datetimetostr(DT1));
 
    gfile:='c:\Users\Alexa\AK\datasets\GLODAP\v2.2021\GLODAPv2.2021_Merged_Master_File.csv';
    AssignFile(fi, gfile);
@@ -907,10 +800,10 @@ memo1.Lines.Add('...start [populate database]: '+datetimetostr(DT1));
    GDBC[tc-1].unit_id:=14;  //μg·kg-1
 
    {...check GDBC}
-   memo1.Lines.Add('');
-   memo1.Lines.Add('vcol#'+#9+'pqf1#'+#9+'sqf#'+#9+'tbl_name'+#9+'tbl_type'+#9+'unit_id');
+   mLog.Lines.Add('');
+   mLog.Lines.Add('vcol#'+#9+'pqf1#'+#9+'sqf#'+#9+'tbl_name'+#9+'tbl_type'+#9+'unit_id');
    for ktbl:=0 to high(GDBC) do begin
-    memo1.Lines.Add(inttostr(GDBC[ktbl].val_col)
+    mLog.Lines.Add(inttostr(GDBC[ktbl].val_col)
     +#9+inttostr(GDBC[ktbl].pqf1_col)
     +#9+inttostr(GDBC[ktbl].sqf_col)
     +#9+GDBC[ktbl].tbl_name
@@ -938,18 +831,18 @@ memo1.Lines.Add('...start [populate database]: '+datetimetostr(DT1));
       buf_str:='';
      end;
    end;
-     memo1.Lines.Add('');
-     memo1.Lines.Add('col#'+#9+'col_name');
+     mLog.Lines.Add('');
+     mLog.Lines.Add('col#'+#9+'col_name');
    for i:=0 to High(GHeader) do begin
-     memo1.Lines.Add(inttostr(i+1)+#9+GHeader[i].col_name);
+     mLog.Lines.Add(inttostr(i+1)+#9+GHeader[i].col_name);
    end;
 
 
 
 {...#C1}
    {...create GMD dynamical array to split file on GLODAP stations}
-   memo1.Lines.Add('');
-   memo1.Lines.Add('...reformating MD');
+   mLog.Lines.Add('');
+   mLog.Lines.Add('...reformating MD');
    Label2.Caption:='...progress';
    Label2.Visible:=true;
 
@@ -1007,12 +900,12 @@ memo1.Lines.Add('...start [populate database]: '+datetimetostr(DT1));
 
       {...control md problems in master file}
       if g_cruise=-99999 then
-      memo1.Lines.Add('cruise number is not integer in line='+inttostr(ln)+'  '+g_cruise_str);
+      mLog.Lines.Add('cruise number is not integer in line='+inttostr(ln)+'  '+g_cruise_str);
       if g_st=-99999 then
-      memo1.Lines.Add('station number is not integer in line='+inttostr(ln)
+      mLog.Lines.Add('station number is not integer in line='+inttostr(ln)
       +'  '+g_st_str+'  changed to '+inttostr(g_st));
       if g_cast=-99999 then
-      memo1.Lines.Add('cast number is not integer in line='+inttostr(ln)+'  '+g_cast_str);
+      mLog.Lines.Add('cast number is not integer in line='+inttostr(ln)+'  '+g_cast_str);
 {W}end;
      closefile(fi);
      Label2.Caption:='line='+inttostr(ln);
@@ -1026,8 +919,8 @@ memo1.Lines.Add('...start [populate database]: '+datetimetostr(DT1));
       GMD[ln-2].G_st:=g_st;
       GMD[ln-2].G_cast:=g_cast;
 
-     memo1.Lines.Add('');
-     memo1.Lines.Add('[GMD] lines#='+inttostr(length(GMD)));
+     mLog.Lines.Add('');
+     mLog.Lines.Add('[GMD] lines#='+inttostr(length(GMD)));
 
 
 {...#C2}
@@ -1037,9 +930,9 @@ memo1.Lines.Add('...start [populate database]: '+datetimetostr(DT1));
      SetLength(NewSt,stn);
      NewSt[stn-1]:=2; //start of the first station
      crn:=0;
-     memo1.Lines.Add('');
-     memo1.Lines.Add('...GLODAP cruises ');
-     memo1.Lines.Add('cruise#'+#9+'st#');
+     mLog.Lines.Add('');
+     mLog.Lines.Add('...GLODAP cruises ');
+     mLog.Lines.Add('cruise#'+#9+'st#');
 {L}for i:=0 to high(GMD)-1 do begin
    if (GMD[i].G_st<>GMD[i+1].G_st) then begin
     stn:=stn+1;
@@ -1049,7 +942,7 @@ memo1.Lines.Add('...start [populate database]: '+datetimetostr(DT1));
   end;
   if (GMD[i].G_cruise<>GMD[i+1].G_cruise) then begin
     crn:=crn+1;
-    memo1.Lines.Add(inttostr(crn)+#9+inttostr(stncr));
+    mLog.Lines.Add(inttostr(crn)+#9+inttostr(stncr));
     stncr:=0;
   end;
 {L}end;
@@ -1535,8 +1428,8 @@ memo1.Lines.Add('...start [populate database]: '+datetimetostr(DT1));
        trunc(GSt[kl,7]),
        trunc(GSt[kl,8]),
        DayChange,DateChange);
-       if DayChange=true  then memo1.Lines.Add('procedures.DateEncode: day  change at station '+inttostr(kst+1));
-       if DateChange=true then memo1.Lines.Add('procedures.DateEncode: date change at station '+inttostr(kst+1));
+       if DayChange=true  then mLog.Lines.Add('procedures.DateEncode: day  change at station '+inttostr(kst+1));
+       if DateChange=true then mLog.Lines.Add('procedures.DateEncode: date change at station '+inttostr(kst+1));
        {...last level}
        FuncZ:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
        LLm:=-FuncZ(GSt[kl,12], GSt[kl,9], 0, 0);  //last level meters
@@ -1699,106 +1592,9 @@ writeln(fo,tbl
      Application.ProcessMessages;
 
 DT2:=NOW;
-memo1.Lines.Add('');
-memo1.Lines.Add('...stop: '+datetimetostr(DT2));
-memo1.Lines.Add('...time spent: '+datetimetostr(DT2-DT1));
-end;
-
-
-
-
-{update cruises dates and limits using information from STATION}
-procedure TfrmloadGLODAP_v2_2021_product.btnUpdateCruiseTableClick(
-  Sender: TObject);
-var
-mik,cr_id,st_cr :integer;
-lat_min,lat_max,lon_min,lon_max :real;
-dt_min,dt_max :TDateTime;
-
-begin
-DT1:=NOW;
-memo1.Lines.Add('...start [CRUISE DBT update]: '+datetimetostr(DT1));
-
-    with frmdm.q1 do begin
-     Close;
-     SQL.Clear;
-     SQL.Add(' select id from CRUISE ');
-     Open;
-    end;
-
-     mik:=0;
-     label2.Visible:=true;
-     memo1.Lines.Add('#'+#9+'cr#'+#9+'st#'+#9+'dt_min'+#9+'dt_max'
-     +#9+'lat_min'+#9+'lat_max'+#9+'lon_min'+#9+'lon_max');
-{cr}while not frmdm.q1.EOF do begin
-     inc(mik);
-     cr_id:=frmdm.q1.FieldByName('id').AsInteger;
-     label2.Caption:='cruise #/ID: '+inttostr(mik)+'->'+inttostr(cr_id);
-     Application.ProcessMessages;
-
-     with frmdm.q2 do begin
-      Close;
-      SQL.Clear;
-      SQL.Add(' select count(id) as st_cr, ');
-      SQL.Add(' min(dateandtime) as dt_min, max(dateandtime) as dt_max, ');
-      SQL.Add(' min(latitude) as lat_min, max(latitude) as lat_max, ');
-      SQL.Add(' min(longitude) as lon_min, max(longitude) as lon_max ');
-      SQL.Add(' from STATION ');
-      SQL.Add(' where cruise_id=:cruise_id ');
-      ParamByName('cruise_id').AsInteger:=cr_id;
-      Open;
-      st_cr:=FieldByName('st_cr').AsInteger;
-      dt_min:=FieldByName('dt_min').AsDateTime;
-      dt_max:=FieldByName('dt_max').AsDateTime;
-      lat_min:=FieldByName('lat_min').AsFloat;
-      lat_max:=FieldByName('lat_max').AsFloat;
-      lon_min:=FieldByName('lon_min').AsFloat;
-      lon_max:=FieldByName('lon_max').AsFloat;
-      Close;
-     end;
-
-     memo1.Lines.Add(inttostr(mik)
-     +#9+inttostr(cr_id)
-     +#9+inttostr(st_cr)
-     +#9+datetimetostr(dt_min)
-     +#9+datetimetostr(dt_max)
-     +#9+floattostr(lat_min)
-     +#9+floattostr(lat_max)
-     +#9+floattostr(lon_min)
-     +#9+floattostr(lon_max)
-     );
-
-{db}if CheckBox2.Checked then begin
- with frmdm.q2 do begin
-  Close;
-  SQL.Clear;
-  SQL.Add(' update CRUISE ');
-  SQL.Add(' set stations_database=:st_cr, ');
-  SQL.Add(' date_start_database=:dt_min, date_end_database=:dt_max, ');
-  SQL.Add(' latitude_min=:lat_min, latitude_max=:lat_max, ');
-  SQL.Add(' longitude_min=:lon_min, longitude_max=:lon_max ');
-  SQL.Add(' where id=:cr_id ');
-  ParamByName('cr_id').AsInteger:=cr_id;
-  ParamByName('st_cr').AsInteger:=st_cr;
-  ParamByName('dt_min').AsDateTime:=dt_min;
-  ParamByName('dt_max').AsDateTime:=dt_max;
-  ParamByName('lat_min').AsFloat:=lat_min;
-  ParamByName('lat_max').AsFloat:=lat_max;
-  ParamByName('lon_min').AsFloat:=lon_min;
-  ParamByName('lon_max').AsFloat:=lon_max;
-  ExecSQL;
- end;
-  frmdm.TR.CommitRetaining;
-{db}end;
-
-     frmdm.q1.Next;
-{cr}end;
-     frmdm.q1.Close;
-
-DT2:=NOW;
-memo1.Lines.Add('');
-memo1.Lines.Add('...stop: '+datetimetostr(DT2));
-memo1.Lines.Add('...time spent: '+datetimetostr(DT2-DT1));
+mLog.Lines.Add('');
+mLog.Lines.Add('...stop: '+datetimetostr(DT2));
+mLog.Lines.Add('...time spent: '+datetimetostr(DT2-DT1));
 end;
 
 
@@ -1846,8 +1642,8 @@ if frmdm.q.Active=false then begin
 end;
 
 DT1:=NOW;
-memo1.Lines.Add('...find fixed stations in data: ');
-memo1.Lines.Add('...start: '+datetimetostr(DT1));
+mLog.Lines.Add('...find fixed stations in data: ');
+mLog.Lines.Add('...start: '+datetimetostr(DT1));
 
 
 frmdm.q.DisableControls;
@@ -1888,8 +1684,8 @@ Application.ProcessMessages;
     frmdm.q.Next;
 {Q}end;
     frmdm.q.EnableControls;
-    memo1.Lines.Add('');
-    memo1.Lines.Add('Length(Station)='+inttostr(Length(Station)));
+    mLog.Lines.Add('');
+    mLog.Lines.Add('Length(Station)='+inttostr(Length(Station)));
 
 
 
@@ -1931,8 +1727,8 @@ Application.ProcessMessages;
      FStation[n-1].stcount:=1;
     end;
 {S}end;
-     memo1.Lines.Add('');
-     memo1.Lines.Add('Length(FStation)='+inttostr(Length(FStation)));
+     mLog.Lines.Add('');
+     mLog.Lines.Add('Length(FStation)='+inttostr(Length(FStation)));
 
 
 
@@ -1947,8 +1743,8 @@ Application.ProcessMessages;
       Close;
      end;
 
-    memo1.Lines.Add('');
-    memo1.Lines.Add('#'+#9+'lat'+#9+'lon'+#9+'stcount'+#9+'days'+#9+'dt_min'+#9+'dt_max');
+    mLog.Lines.Add('');
+    mLog.Lines.Add('#'+#9+'lat'+#9+'lon'+#9+'stcount'+#9+'days'+#9+'dt_min'+#9+'dt_max');
     fsc:=0; //fixed stations count
     db:=0; //days between
 {FS}for i:=0 to High(FStation) do begin
@@ -1985,7 +1781,7 @@ Application.ProcessMessages;
       Close;
      end;
 
-     memo1.Lines.Add(inttostr(fsc)
+     mLog.Lines.Add(inttostr(fsc)
      +#9+floattostrF(FStation[i].lat,ffFixed,12,5)
      +#9+floattostrF(FStation[i].lon,ffFixed,12,5)
      +#9+inttostr(sa)
@@ -2047,9 +1843,9 @@ Application.ProcessMessages;
 
 {#FS5: assign entries as cruises}
 {CB3}if CheckBox3.Checked then begin
-memo1.Lines.Add('');
-memo1.Lines.Add('entry -> cruises');
-memo1.Lines.Add('new_cruise_id'+#9+'st#'+#9+'entry_title'
+mLog.Lines.Add('');
+mLog.Lines.Add('entry -> cruises');
+mLog.Lines.Add('new_cruise_id'+#9+'st#'+#9+'entry_title'
                 +#9+'lat_min'+#9+'lat_max'+#9+'lon_min'+#9+'lon_max'
                 +#9+'date_start'+#9+'date_end');
 
@@ -2097,7 +1893,7 @@ memo1.Lines.Add('new_cruise_id'+#9+'st#'+#9+'entry_title'
     Close;
    end;
 
-   memo1.Lines.Add(inttostr(ncn)
+   mLog.Lines.Add(inttostr(ncn)
    +#9+inttostr(stinc)
    +#9+entry_title
    +#9+floattostrF(minlat,ffFixed,10,5)
@@ -2142,7 +1938,7 @@ memo1.Lines.Add('new_cruise_id'+#9+'st#'+#9+'entry_title'
       Close;
     end;
 
-    //memo1.Lines.Add('source_id='+inttostr(source_id)+'  platform_id='+inttostr(platform_id));
+    //mLog.Lines.Add('source_id='+inttostr(source_id)+'  platform_id='+inttostr(platform_id));
 
     with frmdm.q2 do begin
       Close;
@@ -2240,22 +2036,22 @@ memo1.Lines.Add('new_cruise_id'+#9+'st#'+#9+'entry_title'
 
 
 
-memo1.Lines.Add('');
-memo1.Lines.Add('Fixed stations criteria:');
-memo1.Lines.Add('Position  +/- '+floattostr(pl)+' degrees');
-memo1.Lines.Add('Duration    >'+Edit3.Text+' days');
-memo1.Lines.Add('Min st. num >'+Edit4.Text);
-memo1.Lines.Add('');
-memo1.Lines.Add('Number of fixed stations: '+inttostr(fsc));
-if CheckBox2.Checked then memo1.Lines.Add('DB was updated')
-   else memo1.Lines.Add('DB was not updated ("Write into DB?" checkbox has to be checked on the settings page)');
+mLog.Lines.Add('');
+mLog.Lines.Add('Fixed stations criteria:');
+mLog.Lines.Add('Position  +/- '+floattostr(pl)+' degrees');
+mLog.Lines.Add('Duration    >'+Edit3.Text+' days');
+mLog.Lines.Add('Min st. num >'+Edit4.Text);
+mLog.Lines.Add('');
+mLog.Lines.Add('Number of fixed stations: '+inttostr(fsc));
+if CheckBox2.Checked then mLog.Lines.Add('DB was updated')
+   else mLog.Lines.Add('DB was not updated ("Write into DB?" checkbox has to be checked on the settings page)');
 
-memo1.Lines.Add('');
+mLog.Lines.Add('');
 Label3.Caption:='...done';
 
 DT2:=NOW;
-memo1.Lines.Add('...stop: '+datetimetostr(DT2));
-memo1.Lines.Add('...time spent: '+timetostr(DT2-DT1));
+mLog.Lines.Add('...stop: '+datetimetostr(DT2));
+mLog.Lines.Add('...time spent: '+timetostr(DT2-DT1));
 end;
 
 
@@ -2267,15 +2063,15 @@ var
 ss :real;
 begin
 DT1:=NOW;
-memo1.Lines.Add('...find fixed stations in data (squares): ');
-memo1.Lines.Add('...start: '+datetimetostr(DT1));
+mLog.Lines.Add('...find fixed stations in data (squares): ');
+mLog.Lines.Add('...start: '+datetimetostr(DT1));
 
 ss:=strtofloat(Edit1.Text);  //square size
-memo1.Lines.Add('...square size: '+floattostr(ss));
+mLog.Lines.Add('...square size: '+floattostr(ss));
 
 DT2:=NOW;
-memo1.Lines.Add('...stop: '+datetimetostr(DT2));
-memo1.Lines.Add('...time spent: '+timetostr(DT2-DT1));
+mLog.Lines.Add('...stop: '+datetimetostr(DT2));
+mLog.Lines.Add('...time spent: '+timetostr(DT2-DT1));
 end;
 
 

@@ -1,16 +1,17 @@
 object frmLoadITP: TfrmLoadITP
   Left = 466
-  Height = 424
+  Height = 489
   Top = 184
   Width = 599
   BorderStyle = bsSingle
   Caption = 'Load ITP'
-  ClientHeight = 424
+  ClientHeight = 489
   ClientWidth = 599
   Color = clBtnFace
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
+  LCLVersion = '4.4.0.0'
   OnClose = FormClose
   OnShow = FormShow
   object mLog: TMemo
@@ -84,5 +85,18 @@ object frmLoadITP: TfrmLoadITP
     Width = 152
     ItemHeight = 0
     TabOrder = 5
+  end
+  object Memo1: TMemo
+    Left = 16
+    Height = 50
+    Top = 424
+    Width = 563
+    Lines.Strings = (
+      '1. Download updated archives by itp_md5_check.jl'
+      '2. Unpack ZIP archives into separate folders'
+      '3. Provide a path to that folder'
+    )
+    ReadOnly = True
+    TabOrder = 6
   end
 end

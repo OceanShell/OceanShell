@@ -1,108 +1,107 @@
 object frmparameters_list: Tfrmparameters_list
   Left = 723
-  Height = 525
+  Height = 350
   Top = 274
-  Width = 376
+  Width = 251
   BorderIcons = [biSystemMenu]
   Caption = 'Profiles selection'
-  ClientHeight = 525
-  ClientWidth = 376
+  ClientHeight = 350
+  ClientWidth = 251
   Color = clBtnFace
-  Constraints.MinHeight = 525
-  Constraints.MinWidth = 375
-  DesignTimePPI = 144
+  Constraints.MinHeight = 350
+  Constraints.MinWidth = 250
   Font.Color = clWindowText
-  Font.Height = -17
+  Font.Height = -11
   Font.Name = 'MS Sans Serif'
+  Position = poOwnerFormCenter
+  LCLVersion = '4.6.0.0'
+  Visible = True
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnResize = FormResize
   OnShow = FormShow
-  Position = poOwnerFormCenter
-  LCLVersion = '2.0.6.0'
-  Visible = True
   object PageControl1: TPageControl
     Left = 0
-    Height = 525
+    Height = 350
     Top = 0
-    Width = 376
+    Width = 251
     ActivePage = TabSheet1
     Align = alClient
     Font.Color = clWindowText
-    Font.Height = -17
+    Font.Height = -11
     Font.Name = 'MS Sans Serif'
     ParentFont = False
     TabIndex = 0
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Parameter'
-      ClientHeight = 492
-      ClientWidth = 368
+      ClientHeight = 324
+      ClientWidth = 243
       Font.Color = clWindowText
-      Font.Height = -17
+      Font.Height = -11
       Font.Name = 'MS Sans Serif'
       ParentFont = False
       object lbParameters: TListBox
-        Left = 12
-        Height = 420
-        Top = 12
-        Width = 341
+        Left = 8
+        Height = 276
+        Top = 8
+        Width = 225
         Anchors = [akTop, akLeft, akRight, akBottom]
         Columns = 1
         Font.Color = clWindowText
-        Font.Height = -17
+        Font.Height = -11
         Font.Name = 'MS Sans Serif'
         Font.Style = [fsBold]
         Items.Strings = (
           ''
         )
-        ItemHeight = 20
-        OnClick = lbParametersClick
+        ItemHeight = 13
         ParentFont = False
         TabOrder = 0
+        OnClick = lbParametersClick
       end
       object btnAmountOfProfiles: TButton
-        Left = 12
-        Height = 26
+        Left = 8
+        Height = 17
         Hint = 'Amount of profiles in tables'
-        Top = 448
-        Width = 229
+        Top = 295
+        Width = 150
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Amount of profiles'
         Font.Color = clWindowText
-        Font.Height = -17
+        Font.Height = -11
         Font.Name = 'MS Sans Serif'
-        OnClick = btnAmountOfProfilesClick
         ParentFont = False
         TabOrder = 1
+        OnClick = btnAmountOfProfilesClick
       end
       object btnCancel: TButton
-        Left = 256
-        Height = 26
-        Top = 448
-        Width = 97
+        Left = 168
+        Height = 17
+        Top = 295
+        Width = 65
         Anchors = [akRight, akBottom]
         Caption = 'Cancel'
         Font.Color = clWindowText
-        Font.Height = -17
+        Font.Height = -11
         Font.Name = 'MS Sans Serif'
-        OnClick = btnCancelClick
         ParentFont = False
         TabOrder = 2
+        OnClick = btnCancelClick
       end
     end
     object TabSheet3: TTabSheet
       Caption = 'Instrument'
-      ClientHeight = 492
-      ClientWidth = 367
+      ClientHeight = 324
+      ClientWidth = 243
       object chklInstrument: TCheckListBox
-        Left = 12
-        Height = 460
-        Top = 12
-        Width = 339
+        Left = 8
+        Height = 303
+        Top = 8
+        Width = 224
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
-        Font.Height = -17
+        Font.Height = -11
         Font.Name = 'MS Sans Serif'
         ItemHeight = 0
         ParentFont = False
@@ -111,16 +110,16 @@ object frmparameters_list: Tfrmparameters_list
     end
     object TabSheet4: TTabSheet
       Caption = 'PQF1'
-      ClientHeight = 492
-      ClientWidth = 367
+      ClientHeight = 324
+      ClientWidth = 243
       object chkPQF1: TCheckListBox
-        Left = 12
-        Height = 460
-        Top = 12
-        Width = 339
+        Left = 8
+        Height = 303
+        Top = 8
+        Width = 224
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
-        Font.Height = -17
+        Font.Height = -11
         Font.Name = 'MS Sans Serif'
         ItemHeight = 0
         ParentFont = False
@@ -129,21 +128,21 @@ object frmparameters_list: Tfrmparameters_list
     end
     object TabSheet2: TTabSheet
       Caption = 'PQF2'
-      ClientHeight = 492
-      ClientWidth = 367
+      ClientHeight = 324
+      ClientWidth = 243
       Font.Color = clWindowText
-      Font.Height = -17
+      Font.Height = -11
       Font.Name = 'MS Sans Serif'
       ImageIndex = 1
       ParentFont = False
       object chkPQF2: TCheckListBox
-        Left = 12
-        Height = 460
-        Top = 12
-        Width = 339
+        Left = 8
+        Height = 303
+        Top = 8
+        Width = 224
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
-        Font.Height = -17
+        Font.Height = -11
         Font.Name = 'MS Sans Serif'
         ItemHeight = 0
         ParentFont = False
@@ -152,16 +151,16 @@ object frmparameters_list: Tfrmparameters_list
     end
     object TabSheet5: TTabSheet
       Caption = 'SQF'
-      ClientHeight = 492
-      ClientWidth = 367
+      ClientHeight = 324
+      ClientWidth = 243
       object chkSQF: TCheckListBox
-        Left = 12
-        Height = 460
-        Top = 12
-        Width = 339
+        Left = 8
+        Height = 303
+        Top = 8
+        Width = 224
         Anchors = [akTop, akLeft, akRight, akBottom]
         Font.Color = clWindowText
-        Font.Height = -17
+        Font.Height = -11
         Font.Name = 'MS Sans Serif'
         ItemHeight = 0
         ParentFont = False

@@ -1,36 +1,35 @@
 object frmcompute_density: Tfrmcompute_density
   Left = 748
-  Height = 454
+  Height = 363
   Top = 440
-  Width = 1029
+  Width = 823
   Caption = 'frmcompute_density'
-  ClientHeight = 454
-  ClientWidth = 1029
-  DesignTimePPI = 120
+  ClientHeight = 363
+  ClientWidth = 823
+  LCLVersion = '4.4.0.0'
   OnShow = FormShow
-  LCLVersion = '2.0.6.0'
   object Label1: TLabel
-    Left = 32
+    Left = 26
     Height = 20
-    Top = 16
+    Top = 13
     Width = 233
     Caption = 'Stations in P_Salinity with PQF2>=3'
     ParentColor = False
     Visible = False
   end
   object Label2: TLabel
-    Left = 496
+    Left = 397
     Height = 20
-    Top = 8
+    Top = 6
     Width = 97
     Caption = 'Current station'
     ParentColor = False
     Visible = False
   end
   object Label3: TLabel
-    Left = 520
+    Left = 416
     Height = 20
-    Top = 32
+    Top = 26
     Width = 44
     Caption = 'Label3'
     ParentColor = False
@@ -38,11 +37,11 @@ object frmcompute_density: Tfrmcompute_density
   end
   object Memo1: TMemo
     Left = 0
-    Height = 174
-    Top = 280
+    Height = 139
+    Top = 315
     Width = 1029
     Align = alBottom
-    Font.Height = 16
+    Font.Height = 13
     Lines.Strings = (
       'Memo1'
     )
@@ -50,13 +49,13 @@ object frmcompute_density: Tfrmcompute_density
     TabOrder = 0
   end
   object Memo2: TMemo
-    Left = 24
-    Height = 136
-    Top = 80
-    Width = 424
+    Left = 19
+    Height = 109
+    Top = 64
+    Width = 339
     BorderStyle = bsNone
     Color = clForm
-    Font.Height = 18
+    Font.Height = 14
     Lines.Strings = (
       'Options for potential density computing'
       '1. If only ''Write into file'' is checked - density will be writen into density.txt file '
@@ -67,171 +66,171 @@ object frmcompute_density: Tfrmcompute_density
     TabOrder = 1
   end
   object GroupBox1: TGroupBox
-    Left = 480
-    Height = 168
-    Top = 64
-    Width = 144
+    Left = 384
+    Height = 134
+    Top = 51
+    Width = 115
     Caption = 'Density'
-    ClientHeight = 143
-    ClientWidth = 140
+    ClientHeight = 109
+    ClientWidth = 111
     TabOrder = 2
     object CheckBox2: TCheckBox
-      Left = 16
+      Left = 13
       Height = 24
-      Top = 16
+      Top = 13
       Width = 122
       Caption = 'Write into file?'
       TabOrder = 0
     end
     object CheckBox1: TCheckBox
-      Left = 16
+      Left = 13
       Height = 24
-      Top = 48
+      Top = 38
       Width = 121
       Caption = 'Write into DB?'
       TabOrder = 1
     end
     object btnStart: TBitBtn
-      Left = 24
-      Height = 22
-      Top = 96
-      Width = 94
+      Left = 19
+      Height = 18
+      Top = 77
+      Width = 75
       Caption = 'Start'
-      OnClick = btnStartClick
       TabOrder = 2
+      OnClick = btnStartClick
     end
   end
   object GroupBox2: TGroupBox
-    Left = 656
-    Height = 272
+    Left = 525
+    Height = 218
     Top = 0
-    Width = 272
+    Width = 218
     Caption = 'Test'
-    ClientHeight = 252
-    ClientWidth = 268
-    Font.Height = 16
+    ClientHeight = 198
+    ClientWidth = 214
+    Font.Height = 13
     ParentFont = False
     TabOrder = 3
     object Label4: TLabel
-      Left = 16
+      Left = 13
       Height = 15
-      Top = 128
+      Top = 102
       Width = 69
       Caption = 'depth (dbar):'
       ParentColor = False
     end
     object Label5: TLabel
-      Left = 16
+      Left = 13
       Height = 15
-      Top = 152
+      Top = 122
       Width = 87
       Caption = 'temperature (C):'
       ParentColor = False
     end
     object Label6: TLabel
-      Left = 16
+      Left = 13
       Height = 15
-      Top = 176
+      Top = 141
       Width = 70
       Caption = 'salinity (psu):'
       ParentColor = False
     end
     object Label7: TLabel
-      Left = 16
+      Left = 13
       Height = 15
-      Top = 200
+      Top = 160
       Width = 87
       Caption = 'density (kg/m3):'
       ParentColor = False
     end
     object Edit1: TEdit
-      Left = 160
+      Left = 128
       Height = 23
-      Top = 120
-      Width = 96
+      Top = 96
+      Width = 77
       TabOrder = 0
       Text = '0'
     end
     object Edit2: TEdit
-      Left = 160
+      Left = 128
       Height = 23
-      Top = 144
-      Width = 96
+      Top = 115
+      Width = 77
       TabOrder = 1
       Text = '29.1'
     end
     object Edit3: TEdit
-      Left = 160
+      Left = 128
       Height = 23
-      Top = 168
-      Width = 96
+      Top = 134
+      Width = 77
       TabOrder = 2
       Text = '0'
     end
     object Edit4: TEdit
-      Left = 160
+      Left = 128
       Height = 23
-      Top = 192
-      Width = 96
+      Top = 154
+      Width = 77
       TabOrder = 3
       Text = '?'
     end
     object Label8: TLabel
-      Left = 16
+      Left = 13
       Height = 15
-      Top = 8
+      Top = 6
       Width = 111
       Caption = 'Atm. pressure (dbar):'
       ParentColor = False
     end
     object Edit5: TEdit
-      Left = 160
+      Left = 128
       Height = 23
       Top = 0
-      Width = 60
+      Width = 48
       TabOrder = 4
       Text = '10.135'
     end
     object btnTest: TButton
-      Left = 64
-      Height = 24
-      Top = 224
-      Width = 190
+      Left = 51
+      Height = 19
+      Top = 179
+      Width = 152
       Caption = 'Compute Density'
       Font.Color = clBackground
-      OnClick = btnTestClick
       ParentFont = False
       TabOrder = 5
+      OnClick = btnTestClick
     end
     object Label9: TLabel
-      Left = 16
+      Left = 13
       Height = 15
-      Top = 48
+      Top = 38
       Width = 43
       Caption = 'Latitude'
       ParentColor = False
     end
     object Label10: TLabel
-      Left = 16
+      Left = 13
       Height = 15
-      Top = 72
+      Top = 58
       Width = 54
       Caption = 'Longitude'
       ParentColor = False
     end
     object Edit6: TEdit
-      Left = 160
+      Left = 128
       Height = 23
-      Top = 40
-      Width = 64
+      Top = 32
+      Width = 51
       TabOrder = 6
       Text = '30.4039'
     end
     object Edit7: TEdit
-      Left = 160
+      Left = 128
       Height = 23
-      Top = 64
-      Width = 64
+      Top = 51
+      Width = 51
       TabOrder = 7
       Text = '-89.4408'
     end

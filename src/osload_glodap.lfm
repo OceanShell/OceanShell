@@ -1,0 +1,274 @@
+object frmloadGLODAP: TfrmloadGLODAP
+  Left = 787
+  Height = 550
+  Top = 298
+  Width = 772
+  Caption = 'Load GLODAP'
+  ClientHeight = 550
+  ClientWidth = 772
+  LCLVersion = '4.4.0.0'
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 208
+    Top = 0
+    Width = 772
+    ActivePage = TabSheet2
+    Align = alTop
+    Font.Height = 15
+    ParentFont = False
+    TabIndex = 0
+    TabOrder = 0
+    object TabSheet2: TTabSheet
+      Caption = 'Metadata'
+      ClientHeight = 180
+      ClientWidth = 764
+      object Memo2: TMemo
+        Left = 283
+        Height = 139
+        Top = 21
+        Width = 461
+        Font.Height = 12
+        Lines.Strings = (
+          'Information'
+          'Before data upload CRUISE table has to be populated'
+          ''
+          '...steps'
+          '1. Original table from https://www.ncei.noaa.gov/access/ocean-carbon-acidification-data-system/oceans/GLODAPv2_2023/cruise_table_v2023.html has to be copied and converted to Excel and named GLODAPCruiseTable.xlsx'
+          ''
+          '2. The CRUISE database table is populated automatically from the Excel file GLODAPCruiseTable.xlsx'
+        )
+        ParentFont = False
+        TabOrder = 0
+      end
+      object btnUpdateCruise: TBitBtn
+        Left = 16
+        Height = 28
+        Top = 21
+        Width = 253
+        Caption = 'Update GLODAP Cruises'
+        Font.Height = 15
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+        OnClick = btnUpdateCruiseClick
+      end
+      object btnUpdateDOI: TButton
+        Left = 16
+        Height = 25
+        Top = 56
+        Width = 253
+        Caption = 'Update DOI'
+        TabOrder = 2
+        OnClick = btnUpdateDOIClick
+      end
+    end
+    object TabSheet1: TTabSheet
+      Caption = 'Profiles'
+      ClientHeight = 180
+      ClientWidth = 764
+      object btnDownload: TBitBtn
+        Left = 8
+        Height = 32
+        Top = 24
+        Width = 253
+        Caption = 'Update profiles'
+        Font.Color = clRed
+        Font.Height = 15
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 0
+        OnClick = btnDownloadClick
+      end
+      object CheckBox1: TCheckBox
+        Left = 8
+        Height = 17
+        Top = 64
+        Width = 169
+        Caption = 'Show detailed output in log?'
+        Font.Height = 13
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+      end
+      object CheckBox2: TCheckBox
+        Left = 8
+        Height = 17
+        Top = 88
+        Width = 93
+        Caption = 'Write into DB?'
+        Font.Height = 13
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+      end
+      object Label2: TLabel
+        Left = 16
+        Height = 15
+        Top = 145
+        Width = 34
+        Caption = 'Label2'
+      end
+    end
+    object TabSheet5: TTabSheet
+      Caption = 'ENTRY TBD'
+      ClientHeight = 180
+      ClientWidth = 764
+      object btnFixedStations_A1: TBitBtn
+        Left = 43
+        Height = 20
+        Top = 37
+        Width = 200
+        Caption = 'Find fixed stations (real position)'
+        Font.Height = 15
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 0
+        OnClick = btnFixedStations_A1Click
+      end
+      object Label3: TLabel
+        Left = 21
+        Height = 15
+        Top = 341
+        Width = 34
+        Caption = 'Label3'
+        ParentColor = False
+        Visible = False
+      end
+      object GroupBox4: TGroupBox
+        Left = 352
+        Height = 165
+        Top = 21
+        Width = 185
+        Caption = 'Fixed stations'
+        ClientHeight = 145
+        ClientWidth = 181
+        Font.Height = 15
+        ParentFont = False
+        TabOrder = 1
+        object Label4: TLabel
+          Left = 11
+          Height = 15
+          Top = 11
+          Width = 67
+          Caption = 'Position +/- '
+          ParentColor = False
+        end
+        object Edit2: TEdit
+          Left = 96
+          Height = 23
+          Top = 5
+          Width = 37
+          TabOrder = 0
+          Text = '0.2'
+        end
+        object Label5: TLabel
+          Left = 139
+          Height = 15
+          Top = 11
+          Width = 41
+          Caption = 'degrees'
+          ParentColor = False
+        end
+        object Label6: TLabel
+          Left = 11
+          Height = 15
+          Top = 37
+          Width = 84
+          Caption = 'Continuation > '
+          ParentColor = False
+        end
+        object Edit3: TEdit
+          Left = 96
+          Height = 23
+          Top = 32
+          Width = 37
+          TabOrder = 1
+          Text = '50'
+        end
+        object Label7: TLabel
+          Left = 139
+          Height = 15
+          Top = 37
+          Width = 24
+          Caption = 'days'
+          ParentColor = False
+        end
+        object Label8: TLabel
+          Left = 11
+          Height = 15
+          Top = 64
+          Width = 84
+          Caption = 'Number of st. >'
+          ParentColor = False
+        end
+        object Edit4: TEdit
+          Left = 95
+          Height = 23
+          Top = 59
+          Width = 37
+          TabOrder = 2
+          Text = '50'
+        end
+        object CheckBox3: TCheckBox
+          Left = 16
+          Height = 19
+          Top = 91
+          Width = 161
+          Caption = ' Assign entries as cruises ?'
+          Font.Height = 15
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 3
+        end
+        object Edit1: TEdit
+          Left = 95
+          Height = 23
+          Top = 117
+          Width = 37
+          TabOrder = 4
+          Text = '0.2'
+        end
+        object Label9: TLabel
+          Left = 11
+          Height = 15
+          Top = 123
+          Width = 58
+          Caption = 'Square size'
+          ParentColor = False
+        end
+        object Label10: TLabel
+          Left = 139
+          Height = 15
+          Top = 123
+          Width = 41
+          Caption = 'degrees'
+          ParentColor = False
+        end
+      end
+      object btnFixedStations_A2: TBitBtn
+        Left = 43
+        Height = 20
+        Top = 91
+        Width = 200
+        Caption = 'Find fixed stations (squares)'
+        Font.Height = 15
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+        OnClick = btnFixedStations_A2Click
+      end
+    end
+  end
+  object mLog: TMemo
+    Left = 0
+    Height = 342
+    Top = 208
+    Width = 772
+    Align = alClient
+    Lines.Strings = (
+      'Memo1'
+    )
+    ScrollBars = ssBoth
+    TabOrder = 1
+  end
+end

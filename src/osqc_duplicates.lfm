@@ -1,137 +1,145 @@
 object frmqc_duplicates: Tfrmqc_duplicates
   Left = 664
-  Height = 458
+  Height = 344
   Top = 225
-  Width = 457
+  Width = 304
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Duplicated stations'
-  ClientHeight = 458
-  ClientWidth = 457
-  DesignTimePPI = 144
+  ClientHeight = 344
+  ClientWidth = 304
   Position = poOwnerFormCenter
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '4.6.0.0'
   object GroupBox2: TGroupBox
-    Left = 24
-    Height = 240
-    Top = 16
-    Width = 406
+    Left = 16
+    Height = 128
+    Top = 11
+    Width = 271
     Caption = 'Thresholds'
-    ClientHeight = 210
-    ClientWidth = 402
+    ClientHeight = 108
+    ClientWidth = 267
     TabOrder = 0
     object Label1: TLabel
-      Left = 24
-      Height = 25
-      Top = 16
-      Width = 131
+      Left = 16
+      Height = 15
+      Top = 11
+      Width = 88
       Caption = 'Coordinates, +/-'
       ParentColor = False
     end
     object seThreshold: TFloatSpinEdit
-      Left = 168
-      Height = 28
-      Top = 13
-      Width = 123
+      Left = 112
+      Height = 21
+      Top = 9
+      Width = 82
       Alignment = taCenter
       DecimalPlaces = 5
       Font.Color = clWindowText
-      Font.Height = -17
+      Font.Height = -11
       Font.Name = 'MS Sans Serif'
       MaxValue = 5
-      MinValue = 0
       ParentFont = False
       TabOrder = 0
       Value = 0.05
     end
     object Label2: TLabel
-      Left = 304
-      Height = 25
-      Top = 16
-      Width = 73
+      Left = 203
+      Height = 15
+      Top = 11
+      Width = 49
       Caption = 'degree(s)'
       ParentColor = False
     end
     object Label3: TLabel
-      Left = 24
-      Height = 25
-      Top = 56
-      Width = 72
+      Left = 16
+      Height = 15
+      Top = 37
+      Width = 48
       Caption = 'Date, +/-'
       ParentColor = False
     end
     object Label4: TLabel
-      Left = 304
-      Height = 25
-      Top = 54
-      Width = 47
+      Left = 203
+      Height = 15
+      Top = 36
+      Width = 32
       Caption = 'day(s)'
       ParentColor = False
     end
     object seDateThreshold: TSpinEdit
-      Left = 168
-      Height = 33
-      Top = 48
-      Width = 123
+      Left = 112
+      Height = 23
+      Top = 32
+      Width = 82
       Alignment = taCenter
       ParentFont = False
       TabOrder = 1
       Value = 1
     end
     object btnFindDuplicates: TButton
-      Left = 24
-      Height = 38
-      Top = 104
-      Width = 351
+      Left = 16
+      Height = 25
+      Top = 69
+      Width = 234
       Caption = 'Find duplicates'
-      OnClick = btnFindDuplicatesClick
       TabOrder = 2
-    end
-    object btnUpdateCruise: TButton
-      Left = 24
-      Height = 38
-      Top = 152
-      Width = 351
-      Caption = 'Update # of duplicates in CRUISE'
-      OnClick = btnUpdateCruiseClick
-      TabOrder = 3
+      OnClick = btnFindDuplicatesClick
     end
   end
   object GroupBox3: TGroupBox
-    Left = 24
-    Height = 152
-    Top = 280
-    Width = 406
+    Left = 16
+    Height = 101
+    Top = 224
+    Width = 271
     Caption = 'Mark cruise as duplicate'
-    ClientHeight = 122
-    ClientWidth = 402
+    ClientHeight = 81
+    ClientWidth = 267
     TabOrder = 1
     object Label5: TLabel
-      Left = 24
-      Height = 25
-      Top = 16
-      Width = 209
+      Left = 16
+      Height = 15
+      Top = 11
+      Width = 138
       Caption = '% of duplicated stations ='
       ParentColor = False
     end
     object btnMarkCruiseDuplicate: TButton
-      Left = 24
-      Height = 38
-      Top = 64
-      Width = 351
-      Caption = 'Mark cruises as duplicates'
-      OnClick = btnMarkCruiseDuplicateClick
+      Left = 16
+      Height = 25
+      Top = 43
+      Width = 234
+      Caption = 'Mark cruise as duplicate'
       TabOrder = 0
+      OnClick = btnMarkCruiseDuplicateClick
     end
     object seRatio: TSpinEdit
-      Left = 252
-      Height = 33
-      Top = 8
-      Width = 123
+      Left = 168
+      Height = 23
+      Top = 5
+      Width = 82
       Alignment = taCenter
       ParentFont = False
       TabOrder = 1
       Value = 50
+    end
+  end
+  object GroupBox1: TGroupBox
+    Left = 16
+    Height = 73
+    Top = 144
+    Width = 273
+    Caption = 'Update # of duplicates in CRUISE'
+    ClientHeight = 53
+    ClientWidth = 269
+    TabOrder = 2
+    object btnUpdateCruise: TButton
+      Left = 16
+      Height = 25
+      Top = 16
+      Width = 234
+      Caption = 'Update CRUISE'
+      TabOrder = 0
+      OnClick = btnUpdateCruiseClick
     end
   end
 end

@@ -1,0 +1,30 @@
+object frmtest: Tfrmtest
+  Left = 579
+  Height = 240
+  Top = 259
+  Width = 320
+  Caption = 'frmtest'
+  ClientHeight = 240
+  ClientWidth = 320
+  LCLVersion = '4.6.0.0'
+  OnShow = FormShow
+  object ListBox2: TListBox
+    Left = 16
+    Height = 216
+    Top = 16
+    Width = 112
+    Items.Strings = (
+      '6100001'
+      '6100087'
+      '21549918'
+      '21549787'
+      '21697702'
+      '21550083'
+      '20000735'
+      '22369369'
+    )
+    ItemHeight = 15
+    TabOrder = 0
+    OnDblClick = ListBox2DblClick
+  end
+end

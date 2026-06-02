@@ -172,6 +172,7 @@ finally
  Ini.Free;
 end;
 
+//showmessage(inttostr(id));
 
 TRt:=TSQLTransaction.Create(self);
 TRt.DataBase:=frmdm.IBDB;
@@ -195,11 +196,16 @@ ss:=0;
 
   for k:=1 to 200 do charts[k].Free;
 
+ // showmessage('here0');
   CDS.DisableControls;
   CDS.Clear;
+//  showmessage('here1.5');
 
+  CDS.ClearIndexes;
   CDS.FieldDefs.Add('Lev_dbar',ftFloat,0,false);
   CDS.FieldDefs.Add('Lev_m',ftFloat,0,false);
+
+//  showmessage('here1');
 
   (* loop over tables *)
   for ks:=0 to frmosmain.ListBox1.Items.Count-1 do begin
@@ -276,13 +282,17 @@ ss:=0;
   Qt2.Close;
   Qt1.Close;
 
-  if ss>0 then begin
+ // showmessage(inttostr(ss));
 
+  if ss>0 then begin
+//  showmessage('CDS creation');
   CDS.CreateDataSet;
   CDS.IndexFieldNames:=CDS.FieldbyName('Lev_dbar').FieldName;
   CDS.Open;
 
   DS1.DataSet:=CDS;
+
+ // showmessage('CDS');
 
 
   min_lev:=9999;
@@ -297,7 +307,7 @@ ss:=0;
 
     sName:=CDS.Fields[pp].FieldName;
 
-  //  showmessage(sname);
+ //   showmessage(sname);
 
     ss:=2;
     for i:=1 to 4 do begin
@@ -409,7 +419,7 @@ ss:=0;
   end;
 
   (* depth units for the first chart *)
-  case depth_units of
+  case depth_units_id of
    0: LeftAxisTitle:='Depth, [m]';
    1: LeftAxisTitle:='Depth, [dBar]';
   end;
@@ -886,6 +896,7 @@ begin
   finally
     Ini.Free;
   end;
+btnCommit.Enabled:=false;
 ChangeID(frmdm.Q.FieldByName('ID').Value);
 end;
 
@@ -901,6 +912,7 @@ Ini := TIniFile.Create(IniFileName);
   finally
     Ini.Free;
   end;
+btnCommit.Enabled:=true;
 ChangeID(frmdm.Q.FieldByName('ID').Value);
 end;
 
@@ -915,6 +927,7 @@ Ini := TIniFile.Create(IniFileName);
   finally
     Ini.Free;
   end;
+btnCommit.Enabled:=false;
 ChangeID(frmdm.Q.FieldByName('ID').Value);
 end;
 

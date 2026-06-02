@@ -304,17 +304,17 @@ procedure Tfrmcompute_density.ComputePotentialDensity(atm_pref_dbar,lat,lon,lev_
 var
 p :real;
 sa,pt :double;
-gsw_sa_from_sp:Tgsw_sa_from_sp;
+{gsw_sa_from_sp:Tgsw_sa_from_sp;
 gsw_rho_t_exact:Tgsw_rho_t_exact;
-gsw_pt_from_t:Tgsw_pt_from_t;
+gsw_pt_from_t:Tgsw_pt_from_t; }
 begin
 
-gsw_sa_from_sp:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_sa_from_sp'));
+//gsw_sa_from_sp:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_sa_from_sp'));
 sa  := gsw_sa_from_sp(salt, atm_pref_dbar, lon, lat); // absolute salinity
 p:=atm_pref_dbar+lev_dbar; //absolute pressure=atmospheric pressure+hydrostatic pressure
-gsw_pt_from_t:=Tgsw_pt_from_t(GetProcedureAddress(libgswteos, 'gsw_pt_from_t'));
+//gsw_pt_from_t:=Tgsw_pt_from_t(GetProcedureAddress(libgswteos, 'gsw_pt_from_t'));
 pt:=gsw_pt_from_t(SA, temp, p, atm_pref_dbar);  //potential temperature
-gsw_rho_t_exact:=Tgsw_rho_t_exact(GetProcedureAddress(libgswteos, 'gsw_rho_t_exact'));
+//gsw_rho_t_exact:=Tgsw_rho_t_exact(GetProcedureAddress(libgswteos, 'gsw_rho_t_exact'));
 pot_dens:=gsw_rho_t_exact(sa, pt, p); //potential density
 //pot_dens:=pot_dens/1000;
 pot_dens:=pot_dens-1000;

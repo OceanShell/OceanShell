@@ -1,0 +1,151 @@
+object frmimport_olddb: Tfrmimport_olddb
+  Left = 333
+  Height = 419
+  Top = 250
+  Width = 492
+  Caption = 'Import from ODB_NA'
+  ClientHeight = 419
+  ClientWidth = 492
+  LCLVersion = '4.6.0.0'
+  OnClose = FormClose
+  OnCreate = FormCreate
+  object Label1: TLabel
+    Left = 16
+    Height = 15
+    Top = 9
+    Width = 200
+    Caption = 'Path to ODB_NA is predefined in code'
+  end
+  object GroupBox1: TGroupBox
+    Left = 16
+    Height = 96
+    Top = 32
+    Width = 457
+    Caption = 'Query to ODB_NA'
+    ClientHeight = 76
+    ClientWidth = 453
+    TabOrder = 0
+    object Label2: TLabel
+      Left = 8
+      Height = 15
+      Top = 16
+      Width = 31
+      Caption = 'Vessel'
+    end
+    object eOldVessel: TComboBox
+      Left = 72
+      Height = 23
+      Top = 8
+      Width = 368
+      ItemHeight = 15
+      TabOrder = 0
+      Text = 'eOldVessel'
+      OnSelect = eOldVesselSelect
+    end
+    object Label3: TLabel
+      Left = 8
+      Height = 15
+      Top = 48
+      Width = 36
+      Caption = 'Source'
+    end
+    object eOldSource: TComboBox
+      Left = 72
+      Height = 23
+      Top = 40
+      Width = 368
+      ItemHeight = 15
+      TabOrder = 1
+      Text = 'eOldSource'
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 16
+    Height = 89
+    Top = 136
+    Width = 457
+    Caption = 'Metadata for OCEAN.FDB'
+    ClientHeight = 69
+    ClientWidth = 453
+    TabOrder = 1
+    object Label4: TLabel
+      Left = 16
+      Height = 15
+      Top = 8
+      Width = 36
+      Caption = 'Source'
+    end
+    object seSourceNew: TSpinEdit
+      Left = 72
+      Height = 23
+      Top = 0
+      Width = 80
+      TabOrder = 0
+      Value = 17
+    end
+    object Label5: TLabel
+      Left = 16
+      Height = 15
+      Top = 36
+      Width = 31
+      Caption = 'Vessel'
+    end
+    object seVesselNew: TSpinEdit
+      Left = 72
+      Height = 23
+      Top = 28
+      Width = 80
+      TabOrder = 1
+      Value = 15
+    end
+    object Label6: TLabel
+      Left = 168
+      Height = 15
+      Top = 8
+      Width = 37
+      Caption = 'Project'
+    end
+    object seProjectNew: TSpinEdit
+      Left = 224
+      Height = 23
+      Top = 0
+      Width = 80
+      TabOrder = 2
+    end
+    object Label7: TLabel
+      Left = 168
+      Height = 15
+      Top = 36
+      Width = 43
+      Caption = 'Institute'
+    end
+    object seInstituteNew: TSpinEdit
+      Left = 224
+      Height = 23
+      Top = 28
+      Width = 80
+      TabOrder = 3
+      Value = 646
+    end
+  end
+  object mLog: TMemo
+    Left = 16
+    Height = 122
+    Top = 240
+    Width = 457
+    Lines.Strings = (
+      'mLog'
+    )
+    ScrollBars = ssAutoVertical
+    TabOrder = 2
+  end
+  object btnSelectOldStations: TButton
+    Left = 398
+    Height = 25
+    Top = 376
+    Width = 75
+    Caption = 'Export'
+    TabOrder = 3
+    OnClick = btnSelectOldStationsClick
+  end
+end

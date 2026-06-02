@@ -9,10 +9,14 @@ uses
   Registry, ShlObj, comobj, Win32Int, InterfaceBase,
 {$ENDIF}
 
-  SysUtils, Variants, Dialogs, DateUtils, Forms, osmain, Math;
+  SysUtils, Variants, Dialogs, DateUtils, Forms, Math, IniFiles,
+
+  osmain;
 
 function CheckKML:boolean;
 function ClearDir(Dir:string ): boolean;
+
+procedure MonthToInd(mns:string; var mn: word);
 
 {$ifdef WINDOWS}
 (* ProgressBar on taskbar in WINDOWS *)
@@ -26,9 +30,10 @@ procedure PositionByDistance(Lat0, Lon0, Dist: real;
 function DateEncode(Year,Month,Day,Hour,Minutes:word;
  Var DaysInAMonthFlag,DateChangedFlag:Boolean):TDateTime;
 
-
 Function  Cond2Sal78 (aConductivity, Temp, Press : Double; Var aSalinity: Double) : Boolean;
 
+procedure GetProfileStatistics(pres_arr, lev_arr, par_arr: array of single;
+  Var lev_min, lev_max, lev_avg, val_sd, val_min, val_max, val_avg: real);
 
 implementation
 
@@ -381,6 +386,68 @@ Begin
   Begin
     Cond2Sal78 := False;
   end;
+end;
+
+procedure GetProfileStatistics(pres_arr, lev_arr, par_arr: array of single;
+  Var lev_min, lev_max, lev_avg, val_sd, val_min, val_max, val_avg: real);
+Var
+  lev_cnt, ll:integer;
+  Sum, Dif2:real;
+  lev, val:real;
+  val_sum, lev_sum:real;
+begin
+
+//  showmessage(inttostr(depth_units_ind)+'  '+depth_units_str);
+
+    Val_Sum:=0; Lev_sum:=0;
+    Val_min:=99999; Val_max:=-99999;
+    Lev_min:=99999; Lev_max:=-99999;
+    lev_cnt:=0;
+    for ll:=0 to length(pres_arr)-1 do begin
+      inc(lev_cnt);
+
+      if depth_units_id=0 then lev:= lev_arr[ll]; //meters
+      if depth_units_id=1 then lev:=pres_arr[ll]; //dBar
+
+      val:=par_arr[ll];
+
+      Val_sum:=Val_sum+Val;
+      Lev_sum:=Lev_sum+Lev;
+
+      if lev<lev_min then lev_min:=lev;
+      if lev>lev_max then lev_max:=lev;
+      if val<val_min then val_min:=val;
+      if val>val_max then val_max:=val;
+    end;
+
+    //      showmessage(floattostr(lev));
+
+    val_avg:=Val_sum/lev_cnt;
+    lev_avg:=Lev_sum/lev_cnt;
+
+    sum:=0;
+    for ll:=0 to length(pres_arr)-1 do begin
+     Dif2:=sqr(par_arr[ll]-val_avg);
+     sum:=sum+Dif2;
+    end;
+   val_sd:=sqrt(sum/lev_cnt);
+end;
+
+procedure MonthToInd(mns:string; var mn: word);
+begin
+  mns:=lowercase(copy(mns,1,3));
+  if mns = 'jan' then mn:=1;
+  if mns = 'feb' then mn:=2;
+  if mns = 'mar' then mn:=3;
+  if mns = 'apr' then mn:=4;
+  if mns = 'may' then mn:=5;
+  if mns = 'jun' then mn:=6;
+  if mns = 'jul' then mn:=7;
+  if mns = 'aug' then mn:=8;
+  if mns = 'sep' then mn:=9;
+  if mns = 'oct' then mn:=10;
+  if mns = 'nov' then mn:=11;
+  if mns = 'dec' then mn:=12;
 end;
 
 
