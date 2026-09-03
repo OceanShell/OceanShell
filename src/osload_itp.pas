@@ -6,9 +6,11 @@ interface
 
 uses
   Classes, SysUtils, DateUtils, IBConnection, DB, SQLDB, Math,
-  dynlibs, gibbsseawater, driver_fdb;
+  dynlibs,
 
-procedure ITP(libgswteos: TLibHandle; DB_main:TIBConnection;
+  dm, gibbsseawater, osqc_cruiseinfo, driver_fdb;
+
+procedure ITP(DB_main:TIBConnection;
   DataPath, FolderName, buoytype, cruise_number:string;
   StatOnly, isfinal:boolean; var log:text;
   var cnt_add, cnt_upd, cnt_del: integer; var cruise_id:int64);
@@ -19,7 +21,7 @@ function GetCreationTime(fn:string):TDateTime;
 implementation
 
 
-procedure ITP(libgswteos: TLibHandle; DB_main:TIBConnection;
+procedure ITP(DB_main:TIBConnection;
   DataPath, FolderName, buoytype, cruise_number:string;
   StatOnly, isfinal:boolean; var log:text;
   var cnt_add, cnt_upd, cnt_del: integer; var cruise_id:int64);
@@ -42,7 +44,7 @@ var
   pres, temp, sal, oxy, u, v, w, turb, chl, cdom, par, nobs, val, lev_m:real;
   st, buf_str, CurFile, tbl:string;
   stdate,date_added, date_updated:TDateTime;
-  stnumincruise, st_param, platform_name, notes:string;
+  stnumincruise, st_param, platform_name, www, doi:string;
   cast_number, version: smallint;
 
   instrument_id, profile_number: integer;
@@ -51,7 +53,7 @@ var
 
   QCFlag, PQF1, PQF2, SQF: integer;
 
-  Func:Tgsw_z_from_p;
+ // Func:Tgsw_z_from_p;
 
   D_itp, D_itp_min, D_add, D_upd: TDateTime;
   toWrite:boolean;
@@ -90,7 +92,8 @@ begin
     source_id    :=2;
     institude_id :=244;
     project_id   :=165;
-    notes:='https://www.whoi.edu/itp/'+buoytype+cruise_number+'data.html';
+    doi:='https://doi.org/10.7289/v5mw2f7x';
+    www:='https://www.whoi.edu/itp/'+buoytype+cruise_number+'data.html';
     expocode:='';
     primary_investigator:='';
 
@@ -126,7 +129,7 @@ begin
       //if it's not, creating a new platform
       if Q2.IsEmpty then begin
         if not StatOnly then begin
-          PutFDBPlatform(Q3, cruise_id, platform_name, country_id, notes, now, now);
+          PutFDBPlatform(Q3, cruise_id, platform_name, country_id, null, now, now);
           TR.CommitRetaining;
         end;
         writeln(log, 'Adding new platform: '+platform_name);
@@ -135,7 +138,8 @@ begin
      //... and a new cruise
      if not StatOnly then begin
        PutFDBCruise(Q3, cruise_id, platform_id, source_id, institude_id,
-         project_id, expocode, cruise_number, primary_investigator, notes, now, now);
+         project_id, expocode, cruise_number, primary_investigator, null,
+         doi, www, null, null, now, now);
        TR.CommitRetaining;
      end;
     writeln(log, 'Adding new cruise: '+inttostr(Cruise_ID));
@@ -435,8 +439,8 @@ begin
 
 
                 if (val<>-9999) and (not StatOnly) then begin
-                  Func:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
-                  lev_m:=-Func(pres, lat, 0, 0);
+                  //Func:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+                  lev_m:=-gsw_z_from_p(pres, lat, 0, 0);
 
                   PutFDBProfile(Q3, tbl, station_id, pres, lev_m, val, pqf1,
                     pqf2, sqf, null, units_id, instrument_id, profile_number, profile_best);
@@ -492,9 +496,12 @@ begin
     end;
     Q.Close;
 
+    UpdateCruiseInfo(frmdm.IBDB, cruise_id);
+
   finally
    TR.Commit;
    Q.Free;
+   Q2.Free;
    DB.Close(true);
    DB.Free;
    TR.Free;

@@ -18,17 +18,19 @@ type
     btnDownloadOSDprf: TBitBtn;
     btnCreateWOD: TBitBtn;
     btnPreprocessing: TBitBtn;
+    btnUpdateCruise: TButton;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     FileListBox1: TFileListBox;
     GroupBox1: TGroupBox;
-    Memo1: TMemo;
+    mLog: TMemo;
     Q: TSQLQuery;
     Q_CruiseID: TSQLQuery;
 
     procedure btnCreateWODClick(Sender: TObject);
     procedure btnDownloadOSDprfClick(Sender: TObject);
     procedure btnGetStatisticsClick(Sender: TObject);
+    procedure btnUpdateCruiseClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
 
     procedure btnPreprocessingClick(Sender: TObject);
@@ -62,7 +64,7 @@ uses osmain, procedures, GibbsSeaWater, dm;
 
 procedure TfrmloadWOD18.FormShow(Sender: TObject);
 begin
-  memo1.Clear;
+  mLog.Clear;
   FileListBox1.Clear;
 end;
 
@@ -165,7 +167,7 @@ begin
    AssignFile(f_O18,FileOut); rewrite(f_O18); writeln(f_O18,StrOut);
 
    if checkbox1.Checked then
-   memo1.Lines.Add('absnum'+#9+'WODCastNum'+#9+'StFlag'+#9+'StLat'
+   mLog.Lines.Add('absnum'+#9+'WODCastNum'+#9+'StFlag'+#9+'StLat'
       +#9+'StLon'+#9+'DateTime'+#9+'ShipCode');
 
       for i:=1 to 50 do VarCount_arr[i]:=0;
@@ -181,7 +183,7 @@ begin
 
        WCCisNull:=0;
 
-      memo1.Lines.Add(datetimetostr(NOW));
+      mLog.Lines.Add(datetimetostr(NOW));
 {..........processing files from FileListBox..........}
 {FLB}for i:=0 to (FileListBox1.Items.Count-1) do begin
       FileForRead:=PathSource+trim(FileListBox1.Items.Strings[i]);
@@ -197,7 +199,7 @@ begin
 
       StInDataset:=StInDataset+StInFile;
 
-      memo1.Lines.Add(inttostr(i)
+      mLog.Lines.Add(inttostr(i)
       +#9+FileForRead
       +#9+inttostr(StInFile)
       );
@@ -235,8 +237,8 @@ begin
    WOD18Var[43]:='O18';
 
 
-    memo1.Lines.Add('');
-    memo1.Lines.Add('#'+#9+'VarCode'+#9+'Stations with variable');
+    mLog.Lines.Add('');
+    mLog.Lines.Add('#'+#9+'VarCode'+#9+'Stations with variable');
 
     writeln(f_statistics, '');
     writeln(f_statistics, '#',#9,'VarCode',#9,'StationsWithVariable');
@@ -246,14 +248,14 @@ begin
     for i:=1 to 50 do begin
     if VarCount_arr[i]<>0 then begin
       mik:=mik+1;
-      memo1.Lines.Add(inttostr(mik)+#9+inttostr(i)+#9+inttostr(VarCount_arr[i])
+      mLog.Lines.Add(inttostr(mik)+#9+inttostr(i)+#9+inttostr(VarCount_arr[i])
       +#9+WOD18Var[i]);
       writeln(f_statistics,inttostr(mik),#9,inttostr(i),#9,inttostr(VarCount_arr[i])
       ,#9,WOD18Var[i]);
     end;
     end;
 
-    memo1.Lines.Add('StInDataset='+inttostr(StInDataset));
+    mLog.Lines.Add('StInDataset='+inttostr(StInDataset));
     writeln(f_statistics,'StInDataset=',inttostr(StInDataset));
 
     Q_CRuiseID.Close;
@@ -285,7 +287,7 @@ begin
     closefile(f_CFC113);
     closefile(f_O18);
 
-    memo1.Lines.Add(datetimetostr(NOW));
+    mLog.Lines.Add(datetimetostr(NOW));
 end;
 
 
@@ -329,7 +331,7 @@ PQF1,PQF2,SQF,BNum,UID:integer; //primary QF1,QF2, secondary QF, Niskin bottle, 
 OrCastNum:integer;
 m_exist:integer;
 
-Func: Tgsw_p_from_z;
+//Func: Tgsw_p_from_z;
 begin
 
     line:=0;
@@ -372,8 +374,8 @@ begin
      // if wst[i]='C' then showmessage('C found around line='+inttostr(line));
      //end;
 
-   //memo1.Lines.Add('mik_st='+inttostr(mik_st));
-   //memo1.Lines.Add(wst);
+   //mLog.Lines.Add('mik_st='+inttostr(mik_st));
+   //mLog.Lines.Add(wst);
 
 
 {..........PRIMARY HEADER..........}
@@ -399,9 +401,9 @@ begin
     CruiseID:=Q_CruiseID.Lookup('WOD_CODE',WODcode,'ID')
     else begin
       WCCisNull:=WCCisNull+1;
-      memo1.Lines.Add(inttostr(WCCisNull)+#9+WODcode+#9+inttostr(CruiseID));
+      mLog.Lines.Add(inttostr(WCCisNull)+#9+WODcode+#9+inttostr(CruiseID));
     end;
-    //memo1.Lines.Add(WODcode+' -> '+inttostr(cruiseID));
+    //mLog.Lines.Add(WODcode+' -> '+inttostr(cruiseID));
 
 
    NC:=NC+BNF;
@@ -482,7 +484,7 @@ begin
     ST_QF:=4; //ocean.fdb QF =acceptable (WOD algorithms on variables passed successfully)
 {c}for k_var:=1 to VarNum do begin
      BNF:=strtoint(copy(wst,NC,1));
-{memo1.Lines.Add('>>>>>>>'+inttostr(k_var)+' -> '+copy(wst,NC,BNF)+'  NC:'+inttostr(nc));}
+{mLog.Lines.Add('>>>>>>>'+inttostr(k_var)+' -> '+copy(wst,NC,BNF)+'  NC:'+inttostr(nc));}
      NC:=NC+1;   VarCode:=strtoint(copy(wst,NC,BNF)); {variable code}
      VarCode_arr[k_var]:=VarCode;
      NC:=NC+BNF; V_QF  :=strtoint(copy(wst,NC,1));   {quality control flag for variable}
@@ -495,7 +497,7 @@ begin
      NC:=NC+BNF;
 
   {  if CheckBox1.Checked then
-    memo1.Lines.Add('...kvar: '+inttostr(k_var)
+    mLog.Lines.Add('...kvar: '+inttostr(k_var)
      +#9+'...VarCode: '+inttostr(VarCode)
      +#9+'...V_QF  : '+inttostr(V_QF)
      +#9+'...MDatNum: '+inttostr(MDatNum)); }
@@ -506,7 +508,7 @@ begin
    for m:=1 to MDatNum do begin
       BNF:=strtoint(copy(wst,NC,1));
       NC:=NC+1; VarSpCode:=strtoint(copy(wst,NC,BNF));
-{memo1.Lines.Add('>>>>>>>'+inttostr(m)+' -> '+copy(wst,NC,BNF));}
+{mLog.Lines.Add('>>>>>>>'+inttostr(m)+' -> '+copy(wst,NC,BNF));}
       NC:=NC+BNF;
       RC:=NC;  {fix read column}
       SF:=copy(wst,RC,1);
@@ -519,7 +521,7 @@ begin
    end;
 {m}end;
 {c}end;
-    //if ST_QF<>0 then memo1.Lines.Add('ST_QF<>0');
+    //if ST_QF<>0 then mLog.Lines.Add('ST_QF<>0');
 {v}end;
 
     {...character data and principal investigator}
@@ -664,7 +666,7 @@ begin
 
 
 {memo}if checkbox1.Checked then begin
-   memo1.Lines.Add(inttostr(absnum)
+   mLog.Lines.Add(inttostr(absnum)
     +#9+inttostr(WODCastNum)
     +#9+inttostr(StFlag)
     +#9+floattostr(StLat)
@@ -743,7 +745,7 @@ begin
       ConvertToFloat(str,StLev);
 
      // if CheckBox1.Checked then
-   //   memo1.Lines.Add('+++++Lev: '+floattostr(StLev));
+   //   mLog.Lines.Add('+++++Lev: '+floattostr(StLev));
 
       lev_arr[k_lev]:=StLev;
       if(SF='-') then NC:=NC+1 else
@@ -782,8 +784,8 @@ begin
 
       //TEOS: meters to dbar
       Lev_m:=-stLev;
-      Func:=Tgsw_p_from_z(GetProcedureAddress(libgswteos, 'gsw_p_from_z'));
-      Lev_dbar:=Func(Lev_m,stlat,0,0);
+    //  Func:=Tgsw_p_from_z(GetProcedureAddress(libgswteos, 'gsw_p_from_z'));
+      Lev_dbar:=gsw_z_from_p(Lev_m,stlat,0,0);
       Lev_m:=stLev;
       {m=0- depth to pressure, 1- pressure to depth}
       //Lev_m:=stLev;
@@ -1160,8 +1162,8 @@ end;{case}
 
      //TEOS: meters to dbar
      LastLev_m:=-StLev;
-     Func:=Tgsw_p_from_z(GetProcedureAddress(libgswteos, 'gsw_p_from_z'));
-     LastLev_dbar:=Func(LastLev_m,stlat,0,0);
+     //Func:=Tgsw_p_from_z(GetProcedureAddress(libgswteos, 'gsw_p_from_z'));
+     LastLev_dbar:=gsw_p_from_z(LastLev_m,stlat,0,0);
      LastLev_m:=StLev;
 
 {PD}end;
@@ -1324,7 +1326,7 @@ writeln(f_meteo,inttostr(absnum), //ID
 {WFR}until eof(f_dat); {end of file}
 
      StInFile:=mik_st;
-     //memo1.Lines.Add('mik_st='+inttostr(mik_st));
+     //mLog.Lines.Add('mik_st='+inttostr(mik_st));
 end;
 
 
@@ -1366,12 +1368,12 @@ begin
   varN_arr[22]:='CFC113';
   varN_arr[23]:='O18';
 
-  memo1.Lines.Add('start: '+datetimetostr(NOW));
+  mLog.Lines.Add('start: '+datetimetostr(NOW));
 
 {v}for kv:=1 to 23 do begin
   fileN:=tbl_path+varN_arr[kv]+'.dat';
   tbl:='P_'+varN_arr[kv]+'_OSD';
-  memo1.Lines.Add(fileN+' -> '+tbl);
+  mLog.Lines.Add(fileN+' -> '+tbl);
   Application.ProcessMessages;
   assignfile(f_dat,fileN);
   reset(f_dat);
@@ -1403,7 +1405,7 @@ begin
      //frmdm.TR.CommitRetaining;
 
 //   if CheckBox1.Checked then
-//   memo1.Lines.Add(inttostr(id)+#9+floattostr(L_dbar)+#9+floattostr(L_m)
+//   mLog.Lines.Add(inttostr(id)+#9+floattostr(L_dbar)+#9+floattostr(L_m)
 //   +#9+inttostr(pqf1)+#9+inttostr(pqf2)+#9+inttostr(sqf)
 //   +#9+inttostr(Nbn)+#9+inttostr(unit_id));
 
@@ -1411,7 +1413,7 @@ begin
    closefile(f_dat);
    frmdm.TR.Commit;
 {v}end;
-   memo1.Lines.Add('end: '+datetimetostr(NOW));
+   mLog.Lines.Add('end: '+datetimetostr(NOW));
 
 end;
 
@@ -1467,14 +1469,14 @@ procedure TfrmloadWOD18.btnGetStatisticsClick(Sender: TObject);
    +#9+'Unit short'
    +#9+'Unit ID'
    ;
-   memo1.Lines.Add(first_str);
+   mLog.Lines.Add(first_str);
 
    path_out:='c:\Users\ako071\AK\OceanShell-GIT\OceanShell\unload\statistics\WOD_statistics.dat';
    AssignFile(f_statistics, Path_out); Rewrite(f_statistics);
-   memo1.Lines.Add('path_out='+path_out);
+   mLog.Lines.Add('path_out='+path_out);
 
-   memo1.Lines.Add('');
-   memo1.Lines.Add(first_str);
+   mLog.Lines.Add('');
+   mLog.Lines.Add(first_str);
    writeln(f_statistics,first_str);
 
 
@@ -1482,7 +1484,7 @@ procedure TfrmloadWOD18.btnGetStatisticsClick(Sender: TObject);
  {TBL}for ktbl:=1 to 23 do begin
 
     tbl:='P_'+varN_arr[ktbl]+'_OSD';
-    memo1.Lines.Add(inttostr(ktbl)+#9+tbl);
+    mLog.Lines.Add(inttostr(ktbl)+#9+tbl);
     Application.ProcessMessages;
 
 
@@ -1573,7 +1575,7 @@ procedure TfrmloadWOD18.btnGetStatisticsClick(Sender: TObject);
 
 
 
-      memo1.Lines.Add(tbl
+      mLog.Lines.Add(tbl
       +#9+inttostr(frmdm.q1.FieldByName('samples_num').AsInteger)
       +#9+inttostr(PQF1_0_count)
       +#9+inttostr(PQF1_2_count)
@@ -1611,9 +1613,203 @@ procedure TfrmloadWOD18.btnGetStatisticsClick(Sender: TObject);
  {w}end;
  {TBL}end;
       closefile(f_statistics);
-      memo1.Lines.Add('');
-      memo1.Lines.Add('...Done');
+      mLog.Lines.Add('');
+      mLog.Lines.Add('...Done');
 
+end;
+
+procedure TfrmloadWOD18.btnUpdateCruiseClick(Sender: TObject);
+ var
+ dat: text;
+ PathToCodesSource, buf_str, piname, st, code_nodc:string;
+ c, k, i, absnum, ID:integer;
+ wod_country:string;
+ wod_id, country_ID, wod_institute_id, wod_platform_id, stnum: integer;
+ platform_id, institute_id, project_id: integer;
+
+ cruise_ind, start_date, end_date, wmo_id: string;
+ mn, dd, yy: word;
+
+ fl1, fl2:boolean;
+
+ nodate:boolean;
+ date1, date2:TDateTime;
+
+ TRt:TSQLTransaction;
+ Qt1, Qt2, Qt3:TSQLQuery;
+ begin
+ try
+ mLog.Clear;
+
+  btnUpdateCruise.Enabled:=false;
+
+  frmosmain.OD.Filter:='allcruises_list.txt|allcruises_list.txt';
+  if frmosmain.OD.Execute then PathToCodesSource:=frmosmain.OD.FileName else exit;
+
+   TRt:=TSQLTransaction.Create(self);
+   TRt.DataBase:=frmdm.IBDB;
+
+   Qt1 :=TSQLQuery.Create(self);
+   Qt1.Database:=frmdm.IBDB;
+   Qt1.Transaction:=TRt;
+
+   Qt2 :=TSQLQuery.Create(self);
+   Qt2.Database:=frmdm.IBDB;
+   Qt2.Transaction:=TRt;
+
+   Qt3 :=TSQLQuery.Create(self);
+   Qt3.Database:=frmdm.IBDB;
+   Qt3.Transaction:=TRt;
+
+  AssignFile(dat, PathToCodesSource); reset(dat);
+  readln(dat, st);
+ // readln(dat, st);
+
+  absnum:=0;
+    repeat
+     readln(dat, st);
+     if eof(dat) then exit;
+
+     k:=0;
+     wmo_id:='';
+     for c:=1 to 8 do begin
+      buf_str:='';
+      repeat
+       inc(k);
+        if (st[k]<>',') then buf_str:=buf_str+st[k];
+      until (st[k]=',') or (k=length(st));
+      if c=1 then cruise_ind:=trim(buf_str);
+      if c=2 then if trim(buf_str)<>'' then wod_institute_ID:=StrToInt(trim(buf_str)) else wod_institute_ID:=-9;
+      if c=3 then if trim(buf_str)<>'' then wod_platform_ID:=StrToInt(trim(buf_str)) else wod_platform_ID:=-9;
+      if c=4 then
+        if (trim(buf_str)<>'') and (trim(buf_str)<>'S') then stnum:=strtoint(trim(buf_str)) else stnum:=0;
+      if c=6 then start_date:=trim(buf_str);
+      if c=7 then end_date:=trim(buf_str);
+      if c=8 then if trim(buf_str)<>'' then wmo_ID:=trim(buf_str);
+     end;
+
+     wod_country:=copy(cruise_ind, 1, 2);
+
+     with Qt1 do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' select ID from COUNTRY ');
+      SQL.Add(' where iso3166_code=:code_wod ');
+      ParamByName('code_wod').AsString:=wod_country;
+     Open;
+       if Qt1.IsEmpty=false then country_id:=Qt1.Fields[0].AsInteger else country_id:=99;
+     Close;
+    end;
+
+     wod_id:=strtoint(copy(cruise_ind, 4, length(cruise_ind)));
+
+     nodate:=false;
+     for i:=1 to 2 do begin
+      if i=1 then st:=start_date;
+      if i=2 then st:=end_date;
+        k:=0;
+         for c:=1 to 3 do begin
+          buf_str:='';
+           repeat
+            inc(k);
+             if (st[k]<>'/') then buf_str:=buf_str+st[k];
+           until (st[k]='/') or (k=length(st));
+         if c=1 then mn:=StrToInt(trim(buf_str));
+         if c=2 then dd:=StrToInt(trim(buf_str));
+         if c=3 then yy:=StrToInt(trim(buf_str));
+        end;
+      if i=1 then date1:=DateEncode(yy, mn, dd, 0, 0, fl1, fl2);
+      if i=2 then date2:=DateEncode(yy, mn, dd, 0, 0, fl1, fl2);
+     end;
+
+    with Qt1 do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' select ID from CRUISE_WOD ');
+      SQL.Add(' where wod_code=:code_wod ');
+      ParamByName('code_wod').AsWideString:=cruise_ind;
+     Open;
+    end;
+
+    if Qt1.IsEmpty=true then begin
+     inc(absnum);
+
+     with Qt3 do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' select ID from PLATFORM ');
+      SQL.Add(' where WOD_ID=:code_wod ');
+      ParamByName('code_wod').AsInteger:=wod_platform_id;
+     Open;
+       if Qt3.IsEmpty=false then platform_id:=Qt3.Fields[0].AsInteger else platform_id:=1;
+     Close;
+    end;
+
+    with Qt3 do begin
+     Close;
+      SQL.Clear;
+      SQL.Add(' select ID from INSTITUTE ');
+      SQL.Add(' where WOD_ID=:code_wod ');
+      ParamByName('code_wod').AsInteger:=wod_institute_id;
+     Open;
+      if Qt3.IsEmpty=false then  institute_id:=Qt3.Fields[0].AsInteger else institute_id:=1;
+     Close;
+    end;
+
+
+      with Qt2 do begin
+       Close;
+        SQL.Clear;
+        SQL.Add(' INSERT INTO CRUISE_WOD ' );
+        SQL.Add(' (ID, PLATFORM_ID, DATE_START, DATE_END, STATIONS_AMOUNT, ');
+        SQL.Add('  COUNTRY_ID, INSTITUTE_ID, WOD_CODE, WMO_CODE )');
+        SQL.Add(' VALUES ' );
+        SQL.Add(' (:ID, :PLATFORM_ID, :DATE_START, :DATE_END, :STATIONS_AMOUNT, ');
+        SQL.Add('  :COUNTRY_ID, :INSTITUTE_ID, :WOD_CODE, :WMO_CODE )');
+        ParamByName('ID').AsInteger:=absnum;
+        ParamByName('PLATFORM_ID').AsInteger:=platform_id;
+        ParamByName('DATE_START').AsDate:=date1;
+        ParamByName('DATE_END').AsDate:=date2;
+        ParamByName('STATIONS_AMOUNT').AsInteger:=stnum;
+        ParamByName('COUNTRY_ID').AsInteger:=country_id;
+        ParamByName('INSTITUTE_ID').AsInteger:=institute_id;
+        ParamByName('WOD_CODE').AsString:=cruise_ind;
+        ParamByName('WMO_CODE').AsString:=wmo_id;
+       ExecSQL;
+       Close;
+      end;
+       Trt.CommitRetaining;
+       mLog.Lines.add('Insert successful: '+st);
+   {   except
+        on E: Exception do begin
+           mLog.Lines.add('Insert error: '+st);
+        end;   }
+
+     // end;
+
+   {  mLog.Lines.Add(inttostr(absnum)+'   '+
+                   inttostr(platform_id)+'   '+
+                   datetostr(date1)+'   '+
+                   datetostr(date2)+'   '+
+                   inttostr(stnum)+'   '+
+                   inttostr(country_id)+'   '+
+                   inttostr(institute_id)+'   '+
+                   cruise_ind+'   '+
+                   wmo_id); }
+   end;
+
+   until eof(dat);
+   closefile(dat);
+
+  finally
+   btnUpdateCruise.Enabled:=true;
+   Qt1.Free;
+   Qt2.Free;
+   TrT.Commit;
+   TrT.Free;
+
+   Showmessage(SDone);
+  end;
 end;
 
 

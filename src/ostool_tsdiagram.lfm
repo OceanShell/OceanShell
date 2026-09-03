@@ -1,0 +1,140 @@
+object frmostool_tsdiagram: Tfrmostool_tsdiagram
+  Left = 351
+  Height = 472
+  Top = 250
+  Width = 663
+  BorderStyle = bsSizeToolWin
+  Caption = 'TS diagram'
+  ClientHeight = 472
+  ClientWidth = 663
+  LCLVersion = '4.6.0.0'
+  Visible = True
+  OnClose = FormClose
+  OnCreate = FormCreate
+  object Panel1: TPanel
+    Left = 0
+    Height = 472
+    Top = 0
+    Width = 256
+    Align = alLeft
+    BevelOuter = bvNone
+    Caption = 'Panel1'
+    ClientHeight = 472
+    ClientWidth = 256
+    TabOrder = 0
+    object sgTSDiagram: TStringGrid
+      Left = 0
+      Height = 450
+      Top = 22
+      Width = 256
+      Align = alClient
+      AlternateColor = 13631478
+      Color = 13627366
+      ColCount = 4
+      Columns = <      
+        item
+          Title.Caption = 'Level'
+          Width = 55
+        end      
+        item
+          Title.Caption = 'Pot. Temp.'
+          Width = 67
+        end      
+        item
+          Title.Caption = 'Salinity'
+          Width = 55
+        end      
+        item
+          Title.Caption = 'Density'
+          Width = 55
+        end>
+      DefaultColWidth = 55
+      FixedCols = 0
+      Flat = True
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect, goSmoothScroll]
+      TabOrder = 0
+      ColWidths = (
+        55
+        67
+        55
+        55
+      )
+    end
+    object tbTSDiagram: TToolBar
+      Left = 0
+      Height = 22
+      Top = 0
+      Width = 256
+      AutoSize = True
+      Caption = 'tbTSDiagram'
+      EdgeBorders = []
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Images = frmicons.IL1
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+      object btnSurfer: TToolButton
+        Left = 24
+        Top = 0
+        ImageIndex = 1011
+        OnClick = btnSurferClick
+      end
+      object btnOpenDataFolder: TToolButton
+        Left = 1
+        Hint = 'Open folder with data'
+        Top = 0
+        ImageIndex = 422
+        OnClick = btnOpenDataFolderClick
+      end
+    end
+  end
+  object Chart1: TChart
+    Left = 256
+    Height = 472
+    Top = 0
+    Width = 407
+    AxisList = <    
+      item
+        Marks.LabelBrush.Style = bsClear
+        Minors = <>
+        Title.LabelFont.Orientation = 900
+        Title.LabelBrush.Style = bsClear
+      end    
+      item
+        Alignment = calBottom
+        Marks.LabelBrush.Style = bsClear
+        Minors = <>
+        Title.LabelBrush.Style = bsClear
+      end>
+    Title.Text.Strings = (
+      'TAChart'
+    )
+    Toolset = CTS
+    Align = alClient
+  end
+  object CTS: TChartToolset
+    Left = 480
+    Top = 112
+    object DPC: TDataPointClickTool
+      Shift = [ssLeft]
+      ActiveCursor = crHandPoint
+      OnPointClick = DPCPointClick
+    end
+    object DPH: TDataPointHintTool
+      OnAfterMouseMove = DPHAfterMouseMove
+      ActiveCursor = crHandPoint
+      OnHint = DPHHint
+      UseApplicationHint = True
+    end
+    object ZD: TZoomDragTool
+      Shift = [ssLeft]
+      Brush.Style = bsClear
+      RestoreExtentOn = [zreDragTopLeft, zreDragTopRight, zreDragBottomLeft]
+    end
+    object ZMV: TZoomMouseWheelTool
+    end
+  end
+end

@@ -1,0 +1,40 @@
+object frmLoadIORAS: TfrmLoadIORAS
+  Left = 351
+  Height = 338
+  Top = 250
+  Width = 540
+  Caption = 'frmosload_ioras'
+  ClientHeight = 338
+  ClientWidth = 540
+  LCLVersion = '4.6.0.0'
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'Cruise'
+    TabOrder = 0
+    OnClick = Button1Click
+  end
+  object mLog: TMemo
+    Left = 8
+    Height = 280
+    Top = 48
+    Width = 523
+    Anchors = [akTop, akLeft, akRight]
+    Lines.Strings = (
+      'mLog'
+    )
+    ScrollBars = ssAutoBoth
+    TabOrder = 1
+  end
+  object btnStation: TButton
+    Left = 96
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'Station'
+    TabOrder = 2
+    OnClick = btnStationClick
+  end
+end

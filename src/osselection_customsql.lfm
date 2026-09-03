@@ -1,33 +1,32 @@
 object frmselection_customsql: Tfrmselection_customsql
   Left = 676
-  Height = 450
+  Height = 300
   Top = 319
-  Width = 751
+  Width = 501
   BorderIcons = [biSystemMenu]
   Caption = 'Custom SQL query'
-  ClientHeight = 450
-  ClientWidth = 751
+  ClientHeight = 300
+  ClientWidth = 501
   Color = clBtnFace
-  Constraints.MinHeight = 450
-  Constraints.MinWidth = 750
-  DesignTimePPI = 144
+  Constraints.MinHeight = 300
+  Constraints.MinWidth = 500
   Font.Color = clWindowText
-  Font.Height = -17
+  Font.Height = -11
   Font.Name = 'MS Sans Serif'
+  Position = poOwnerFormCenter
+  LCLVersion = '4.6.0.0'
   OnClose = FormClose
   OnShow = FormShow
-  Position = poOwnerFormCenter
-  LCLVersion = '2.0.6.0'
   object Memo1: TMemo
     Left = 0
-    Height = 413
-    Top = 37
-    Width = 751
+    Height = 274
+    Top = 26
+    Width = 501
     Align = alClient
     BorderStyle = bsNone
     Font.CharSet = RUSSIAN_CHARSET
     Font.Color = clWindowText
-    Font.Height = -17
+    Font.Height = -11
     Font.Name = 'Tahoma'
     ParentFont = False
     ScrollBars = ssVertical
@@ -36,16 +35,16 @@ object frmselection_customsql: Tfrmselection_customsql
   end
   object ToolBar2: TToolBar
     Left = 0
-    Height = 37
+    Height = 26
     Top = 0
-    Width = 751
+    Width = 501
     AutoSize = True
-    ButtonHeight = 33
-    ButtonWidth = 93
+    ButtonHeight = 22
+    ButtonWidth = 62
     Caption = 'ToolBar2'
     EdgeBorders = [ebTop, ebBottom]
     Font.Color = clWindowText
-    Font.Height = -17
+    Font.Height = -11
     Font.Name = 'Tahoma'
     Images = frmicons.IL1
     List = True
@@ -63,7 +62,7 @@ object frmselection_customsql: Tfrmselection_customsql
       OnClick = btnDefaultQueryClick
     end
     object btnSelect: TToolButton
-      Left = 345
+      Left = 256
       Hint = 'Commit changes'
       Top = 2
       AutoSize = True
@@ -71,29 +70,29 @@ object frmselection_customsql: Tfrmselection_customsql
       OnClick = btnSelectClick
     end
     object ToolButton5: TToolButton
-      Left = 340
-      Height = 33
+      Left = 253
+      Height = 22
       Top = 2
       Caption = 'ToolButton3'
       Style = tbsDivider
     end
     object btnSaveAs: TToolButton
-      Left = 242
+      Left = 174
       Top = 2
       Caption = 'Save as...'
       ImageIndex = 336
       OnClick = btnSaveAsClick
     end
     object btnLoadFromFile: TToolButton
-      Left = 115
+      Left = 80
       Top = 2
       Caption = 'Load from file'
       ImageIndex = 422
       OnClick = btnLoadFromFileClick
     end
     object ToolButton4: TToolButton
-      Left = 110
-      Height = 33
+      Left = 77
+      Height = 22
       Top = 2
       Caption = 'ToolButton4'
       Style = tbsDivider

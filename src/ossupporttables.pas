@@ -5,9 +5,7 @@ unit ossupporttables;
 interface
 
 uses
-  {$IFDEF WINDOWS}
-  Windows,
-  {$ENDIF}
+
   lclintf, SysUtils, Variants, Classes, Graphics, Controls, Forms, LCLType,
   Dialogs, StdCtrls, Buttons, ComCtrls, ExtCtrls, Menus, sqldb, DB, sortbufds,
   DBGrids, DBCtrls, LResources, Grids, IniFiles;
@@ -31,6 +29,9 @@ type
     DBGridInstrument: TDBGrid;
     DBGridSource: TDBGrid;
     DS: TDataSource;
+    eInstitute_NameNative: TEdit;
+    eInstitute_Country: TEdit;
+    eInstitute_Place: TEdit;
     ePlatform_Title: TEdit;
     eTables_ID: TEdit;
     eTables_NAME: TEdit;
@@ -85,7 +86,6 @@ type
     Panel7: TPanel;
     Panel8: TPanel;
     Panel9: TPanel;
-    Q: TSQLQuery;
     rgFlag: TRadioGroup;
     Splitter1: TSplitter;
     PageControl1: TPageControl;
@@ -115,7 +115,21 @@ type
     btncancel: TToolButton;
     ToolButton1: TToolButton;
 
+    procedure eInstitute_PlaceChange(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure btnUpdateQCClick(Sender: TObject);
+
+    procedure DBGridCountryColumnSized(Sender: TObject);
+    procedure DBGridInstituteColumnSized(Sender: TObject);
+    procedure DBGridInstrumentColumnSized(Sender: TObject);
+    procedure DBGridPlatformColumnSized(Sender: TObject);
+    procedure DBGridUnitsColumnSized(Sender: TObject);
+    procedure DBGridProjectColumnSized(Sender: TObject);
+    procedure DBGridSourceColumnSized(Sender: TObject);
+    procedure DBGridTablesColumnSized(Sender: TObject);
+
     procedure DBGridPlatformEditingDone(Sender: TObject);
     procedure DBGridPlatformKeyPress(Sender: TObject; var Key: char);
     procedure DBGridPlatformPrepareCanvas(sender: TObject; DataCol: Integer;
@@ -125,15 +139,7 @@ type
     procedure DBGridTablesEditingDone(Sender: TObject);
     procedure DBGridTablesSelectEditor(Sender: TObject; Column: TColumn;
       var Editor: TWinControl);
-    procedure eCountry_NODCChange(Sender: TObject);
-    procedure eInstitute_NameFullChange(Sender: TObject);
-    procedure ePlatform_CountryChange(Sender: TObject);
-    procedure ePlatform_IDClick(Sender: TObject);
-    procedure eProject_NameFullChange(Sender: TObject);
-    procedure eTables_TABLENAMEChange(Sender: TObject);
-    procedure FormShow(Sender: TObject);
-    procedure FormResize(Sender: TObject);
-    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+
     procedure mNotesPlatformKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure PageControl1Change(Sender: TObject);
     procedure QAfterEdit(DataSet: TDataSet);
@@ -147,19 +153,23 @@ type
     procedure DBGridPlatformCellClick(Column: TColumn);
     procedure DBGridPlatformKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure DBGridPlatformTitleClick(Column: TColumn);
-    procedure DBGridCountryTitleClick(Column: TColumn);
 
-    procedure ePlatform_NameNativeChange(Sender: TObject);
+    procedure eCountry_NODCChange(Sender: TObject);
+    procedure eInstitute_NameFullChange(Sender: TObject);
+    procedure ePlatform_IDClick(Sender: TObject);
+    procedure eProject_NameFullChange(Sender: TObject);
+    procedure eTables_TABLENAMEChange(Sender: TObject);
     procedure rgFlagClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
 
 
   private
     { Private declarations }
     procedure Navigation;
-    procedure ResizeColumns(Sender: TObject);
 
     procedure SearchID(Sender:TObject);
     procedure SearchNAME(Sender:TObject);
+    procedure SearchNAMENATIVE(Sender:TObject);
     procedure SearchSOURCENAME(Sender:TObject);
     procedure SearchPI(Sender:TObject);
     procedure SearchNODC(Sender:TObject);
@@ -168,6 +178,7 @@ type
     procedure SearchCS(Sender:TObject);
     procedure SearchISO(Sender:TObject);
     procedure SearchTitle(Sender:TObject);
+    procedure SearchCountry(Sender:TObject);
   public
     { Public declarations }
   end;
@@ -175,6 +186,8 @@ type
 var
   frmsupporttables: Tfrmsupporttables;
   CodesTblName: string; //Global active table name
+  TR:TSQLTransaction;
+  Q:TSQLQuery;
 
 implementation
 
@@ -182,10 +195,22 @@ implementation
 
 uses osmain, dm, ossupporttables_update;
 
+
+procedure Tfrmsupporttables.FormCreate(Sender: TObject);
+begin
+  TR:=TSQLTransaction.Create(self);
+  TR.DataBase:=frmdm.IBDB;
+
+  Q:=TSQLQuery.Create(self);
+  Q.Database:=frmdm.IBDB;
+  Q.Transaction:=TR;
+end;
+
 procedure Tfrmsupporttables.FormShow(Sender: TObject);
 Var
   Ini: TIniFile;
 begin
+
  PageControl1.ActivePageIndex:=0;
  PageControl1.OnChange(self);
 
@@ -197,80 +222,9 @@ begin
     Left  :=Ini.ReadInteger( 'ossupporttables', 'left',   50);
     Width :=Ini.ReadInteger( 'ossupporttables', 'width',  900);
     Height:=Ini.ReadInteger( 'ossupporttables', 'weight', 500);
-
-    With DBGridTables do begin
-     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridTables_Col00',  50);
-     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridTables_Col01',  100);
-     Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridTables_Col02',  100);
-     Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridTables_Col03',  100);
-     Columns[4].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridTables_Col04',  100);
-     Columns[5].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridTables_Col05',  100);
-    end;
-
-
-    With DBGridPlatform do begin
-     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col00',  50);
-     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col01',  50);
-     Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col02',  50);
-     Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col03',  50);
-     Columns[4].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col04',  50);
-     Columns[5].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col05', 100);
-     Columns[6].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col06', 100);
-     Columns[7].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col07', 100);
-     Columns[8].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridPlatform_Col08', 100);
-    end;
-
-    With DBGridSource do begin
-     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridSource_Col00',  50);
-     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridSource_Col01',  50);
-     Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridSource_Col02',  50);
-     Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridSource_Col03',  50);
-    end;
-
-    With DBGridUnits do begin
-     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridUnits_Col00',  50);
-     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridUnits_Col01',  300);
-     Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridUnits_Col02',  50);
-     Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridUnits_Col03',  50);
-     Columns[4].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridUnits_Col04',  50);
-    end;
-
-    With DBGridInstrument do begin
-     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstrument_Col00',  50);
-     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstrument_Col01',  50);
-     Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstrument_Col02',  200);
-    end;
-
-    With DBGridProject do begin
-     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col00',  50);
-     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col01',  50);
-     Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col02',  200);
-   //  Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridProject_Col03',  200);
-    end;
-
-    With DBGridInstitute do begin
-     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col00',  50);
-     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col01',  50);
-     Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col02',  50);
-     Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col03',  300);
-   //  Columns[4].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridInstitute_Col04',  300);
-    end;
-
-    With DBGridCountry do begin
-     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridCountry_Col00',  50);
-     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridCountry_Col01',  50);
-     Columns[2].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridCountry_Col02',  50);
-     Columns[3].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridCountry_Col03',  300);
-    end;
-
-    With DBGridFlag do begin
-     Columns[0].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridFlag_Col00',  50);
-     Columns[1].Width :=Ini.ReadInteger( 'ossupporttables', 'DBGridFlag_Col01',  50);
-    end;
   finally
+    Ini.Free;
   end;
-
- ResizeColumns(self);
 
  // Assigning procedures for fast search
  (* ID *)
@@ -294,6 +248,14 @@ begin
  eInstrument_NAME.OnChange := @SearchNAME;
  eUnits_NAME.OnChange      := @SearchNAME;
 
+ (* NAME NATIVE *)
+ ePlatform_NAMENATIVE.OnChange  := @SearchNAMENATIVE;
+ eInstitute_NAMENATIVE.OnChange := @SearchNAMENATIVE;
+
+  (* COUNTRY *)
+ ePlatform_Country.OnChange  := @SearchCountry;
+ eInstitute_Country.OnChange := @SearchCountry;
+
  (* NODC *)
  ePlatform_NODC.OnChange   := @SearchNODC;
  eInstitute_NODC.OnChange  := @SearchNODC;
@@ -309,16 +271,19 @@ begin
  ePlatform_CS.OnChange     := @SearchCS;
  eCountry_ISO.OnChange     := @SearchISO;
  ePlatform_Title.OnChange  := @SearchTitle;
+end;
 
 
- (* Procedures for resizing *)
- DBGridPlatform.OnColumnSized     := @ResizeColumns;
- DBGridCountry.OnColumnSized      := @ResizeColumns;
- DBGridSource.OnColumnSized       := @ResizeColumns;
- DBGridProject.OnColumnSized      := @ResizeColumns;
- DBGridInstitute.OnColumnSized    := @ResizeColumns;
- DBGridInstrument.OnColumnSized   := @ResizeColumns;
- DBGridUnits.OnColumnSized        := @ResizeColumns;
+procedure Tfrmsupporttables.FormResize(Sender: TObject);
+begin
+  DbGridTables.OnColumnSized(self);
+  DBGridPlatform.OnColumnSized(self);
+  DBGridSource.OnColumnSized(self);
+  DBGridUnits.OnColumnSized(self);
+  DBGridInstrument.OnColumnSized(self);
+  DBGridInstitute.OnColumnSized(self);
+  DBGridProject.OnColumnSized(self);
+  DBGridCountry.OnColumnSized(self);
 end;
 
 
@@ -396,6 +361,8 @@ begin
                          'NAME=:NAME, UNITS_ID_DEFAULT=:UNITS_ID_DEFAULT '+
                          'WHERE ID=:ID';
        Q.DeleteSQL.Text:='DELETE FROM DATABASE_TABLES WHERE ID=:ID';
+
+       DBGridTables.OnColumnSized(self);
      end;
   1: begin
        CodesTblName:='PLATFORM';
@@ -463,8 +430,11 @@ begin
      end;
   6: begin
        CodesTblName:='INSTITUTE';
-       Q.SQL.text:='Select ID, WOD_ID, NODC_CODE, NAME '+
-                   'FROM INSTITUTE ORDER BY NAME';
+       Q.SQL.text:='SELECT INSTITUTE.ID, INSTITUTE.NODC_CODE, INSTITUTE.WOD_ID, '+
+                   'INSTITUTE.NAME, INSTITUTE.NAME_NATIVE, INSTITUTE.PLACE, '+
+                   'COUNTRY.NAME as CTRY, INSTITUTE.COUNTRY_ID FROM INSTITUTE, '+
+                   'COUNTRY WHERE INSTITUTE.COUNTRY_ID=COUNTRY.ID ORDER BY '+
+                   'INSTITUTE.NAME';
      end;
   7: begin
        CodesTblName:='COUNTRY';
@@ -502,95 +472,149 @@ begin
    end;
 
    Navigation;
-   ResizeColumns(self);
  end;
+
+ DS.DataSet:=Q;
 
  finally
    Q.EnableControls;
  end;
 end;
 
-procedure Tfrmsupporttables.ResizeColumns(Sender: TObject);
-Var
- occup:integer;
-begin
-  if CodesTblName='DATABASE_TABLES' then begin
-    eTables_ID.Width:=DBGridTables.Columns[0].Width+1;
-    eTables_TABLENAME.Width:=DBGridTables.Columns[1].Width;
-    eTables_NAME.Width:=DBGridTables.Columns[2].Width;
- end;
 
- if CodesTblName='PLATFORM' then begin
-    ePlatform_ID.Width:=DBGridPlatform.Columns[0].Width+1;
-    ePlatform_NODC.Width:=DBGridPlatform.Columns[1].Width;
-    ePlatform_WOD.Width:=DBGridPlatform.Columns[2].Width;
-    ePlatform_IMO.Width:=DBGridPlatform.Columns[3].Width;
-    ePlatform_CS.Width:=DBGridPlatform.Columns[4].Width;
-    ePlatform_Title.Width:=DBGridPlatform.Columns[5].Width;
-    ePlatform_Name.Width:=DBGridPlatform.Columns[6].Width;
-    ePlatform_NameNative.Width:=DBGridPlatform.Columns[7].Width;
-    ePlatform_Country.Width:=DBGridPlatform.Columns[8].Width;
+procedure Tfrmsupporttables.DBGridTablesColumnSized(Sender: TObject);
+Var
+  occup:integer;
+begin
+ with DBGridTables do begin
+  occup:=trunc(Width-25-(Columns[0].Width+Columns[4].Width+Columns[5].Width));
+
+  Columns[1].Width:=trunc(occup/3);
+  Columns[2].Width:=trunc(occup/3);
+  Columns[3].Width:=trunc(occup/3);
+
+  eTables_ID.Width       :=Columns[0].Width+1;
+  eTables_TABLENAME.Width:=Columns[1].Width;
+  eTables_NAME.Width     :=Columns[2].Width;
  end;
- if CodesTblName='COUNTRY' then begin
-    occup:=trunc(DBGridCountry.Width-25-
-           (DBGridCountry.Columns[0].Width+
-            DBGridCountry.Columns[1].Width+
-            DBGridCountry.Columns[2].Width));
-    DBGridCountry.Columns[3].Width:=occup+1;
-    eCountry_ID.Width  :=DBGridCountry.Columns[0].Width;
-    eCountry_NODC.Width:=DBGridCountry.Columns[1].Width;
-    eCountry_ISO.Width :=DBGridCountry.Columns[2].Width;
-    eCountry_NAME.Width:=DBGridCountry.Columns[3].Width
+end;
+
+
+procedure Tfrmsupporttables.DBGridPlatformColumnSized(Sender: TObject);
+Var
+  occup:integer;
+begin
+  with DBGridPlatform do begin
+    occup:=trunc(Width-25-
+      (Columns[0].Width+Columns[1].Width+Columns[2].Width+
+       Columns[3].Width+Columns[4].Width+Columns[5].Width));
+    Columns[6].Width:=trunc(occup/3);
+    Columns[7].Width:=trunc(occup/3);
+    Columns[8].Width:=trunc(occup/3);
+
+    ePlatform_ID.Width        :=Columns[0].Width+1;
+    ePlatform_NODC.Width      :=Columns[1].Width;
+    ePlatform_WOD.Width       :=Columns[2].Width;
+    ePlatform_IMO.Width       :=Columns[3].Width;
+    ePlatform_CS.Width        :=Columns[4].Width;
+    ePlatform_Title.Width     :=Columns[5].Width;
+    ePlatform_Name.Width      :=Columns[6].Width;
+    ePlatform_NameNative.Width:=Columns[7].Width;
+    ePlatform_Country.Width   :=Columns[8].Width;
+  end;
+end;
+
+procedure Tfrmsupporttables.DBGridSourceColumnSized(Sender: TObject);
+Var
+  occup:integer;
+begin
+ With DBGridSource do begin
+   occup:=trunc(Width-25-(Columns[0].Width+Columns[2].Width+Columns[3].Width));
+   Columns[1].Width:=occup+1;
+   eSource_ID.Width  :=Columns[0].Width;
+   eSource_Name.Width:=Columns[1].Width;
  end;
- if CodesTblName='SOURCE' then begin
-    occup:=trunc(DBGridSource.Width-25-
-           (DBGridSource.Columns[0].Width+
-            DBGridSource.Columns[2].Width+
-            DBGridSource.Columns[3].Width));
-    DBGridSource.Columns[1].Width:=occup+1;
-    eSource_ID.Width  :=DBGridSource.Columns[0].Width;
-    eSource_Name.Width:=DBGridSource.Columns[1].Width;
- end;
- if CodesTblName='PROJECT' then begin
-      occup:=trunc(DBGridProject.Width-25-
-           (DBGridProject.Columns[0].Width+
-            DBGridProject.Columns[1].Width));
-    DBGridProject.Columns[2].Width:=occup+1;
-    eProject_ID.Width  :=DBGridProject.Columns[0].Width;
-    eProject_WOD.Width :=DBGridProject.Columns[1].Width;
-    eProject_NAME.Width:=DBGridProject.Columns[2].Width;
- end;
- if CodesTblName='INSTITUTE' then begin
-      occup:=trunc(DBGridInstitute.Width-25-
-           (DBGridInstitute.Columns[0].Width+
-            DBGridInstitute.Columns[1].Width+
-            DBGridInstitute.Columns[2].Width));
-   DBGridInstitute.Columns[3].Width:=occup+1;
-   eInstitute_ID.Width  :=DBGridInstitute.Columns[0].Width;
-   eInstitute_NODC.Width:=DBGridInstitute.Columns[1].Width;
-   eInstitute_WOD.Width :=DBGridInstitute.Columns[2].Width;
-   eInstitute_NAME.Width:=DBGridInstitute.Columns[3].Width;
- end;
- if CodesTblName='INSTRUMENT' then begin
-    occup:=trunc(DBGridInstrument.Width-25-
-           (DBGridInstrument.Columns[0].Width+
-            DBGridInstrument.Columns[1].Width));
-    DBGridInstrument.Columns[2].Width:=occup+1;
-    eInstrument_ID.Width  :=DBGridInstrument.Columns[0].Width;
-    eInstrument_WOD.Width :=DBGridInstrument.Columns[1].Width;
-    eInstrument_NAME.Width:=DBGridInstrument.Columns[2].Width;
- end;
- if CodesTblName='UNITS' then begin
-    occup:=trunc(DBGridUnits.Width-25-
-           (DBGridUnits.Columns[0].Width+
-            DBGridUnits.Columns[2].Width+
-            DBGridUnits.Columns[3].Width+
-            DBGridUnits.Columns[4].Width));
-    DBGridUnits.Columns[1].Width:=occup+1;
-    eUnits_ID.Width  :=DBGridUnits.Columns[0].Width;
-    eUnits_Name.Width:=DBGridUnits.Columns[1].Width;
- end;
-Application.ProcessMessages;
+end;
+
+
+procedure Tfrmsupporttables.DBGridUnitsColumnSized(Sender: TObject);
+Var
+  occup:integer;
+begin
+ occup:=trunc(DBGridUnits.Width-25-
+        (DBGridUnits.Columns[0].Width+
+         DBGridUnits.Columns[2].Width+
+         DBGridUnits.Columns[3].Width+
+         DBGridUnits.Columns[4].Width));
+ DBGridUnits.Columns[1].Width:=occup+1;
+ eUnits_ID.Width  :=DBGridUnits.Columns[0].Width;
+ eUnits_Name.Width:=DBGridUnits.Columns[1].Width;
+end;
+
+
+procedure Tfrmsupporttables.DBGridInstrumentColumnSized(Sender: TObject);
+Var
+  occup:integer;
+begin
+ occup:=trunc(DBGridInstrument.Width-25-
+        (DBGridInstrument.Columns[0].Width+
+         DBGridInstrument.Columns[1].Width));
+ DBGridInstrument.Columns[2].Width:=occup+1;
+ eInstrument_ID.Width  :=DBGridInstrument.Columns[0].Width;
+ eInstrument_WOD.Width :=DBGridInstrument.Columns[1].Width;
+ eInstrument_NAME.Width:=DBGridInstrument.Columns[2].Width;
+end;
+
+
+procedure Tfrmsupporttables.DBGridProjectColumnSized(Sender: TObject);
+Var
+  occup:integer;
+begin
+ occup:=trunc(DBGridProject.Width-25-
+      (DBGridProject.Columns[0].Width+
+       DBGridProject.Columns[1].Width));
+DBGridProject.Columns[2].Width:=occup+1;
+eProject_ID.Width  :=DBGridProject.Columns[0].Width;
+eProject_WOD.Width :=DBGridProject.Columns[1].Width;
+eProject_NAME.Width:=DBGridProject.Columns[2].Width;
+end;
+
+
+procedure Tfrmsupporttables.DBGridInstituteColumnSized(Sender: TObject);
+Var
+  occup:integer;
+begin
+  With DBGridInstitute do begin
+    occup:=trunc(Width-25-(Columns[0].Width+Columns[1].Width+Columns[2].Width+
+    Columns[3].Width));
+
+    Columns[4].Width:=trunc(occup/3)+1;
+    Columns[5].Width:=trunc(occup/3)+1;
+    Columns[6].Width:=trunc(occup/3)+1;
+
+    eInstitute_ID.Width  :=Columns[0].Width;
+    eInstitute_NODC.Width:=Columns[1].Width;
+    eInstitute_WOD.Width :=Columns[2].Width;
+    eInstitute_NAME.Width:=Columns[3].Width;
+    eInstitute_NameNative.Width:=Columns[4].Width;
+    eInstitute_Place.Width:=Columns[5].Width;
+    eInstitute_Country.Width:=Columns[6].Width;
+  end;
+end;
+
+
+procedure Tfrmsupporttables.DBGridCountryColumnSized(Sender: TObject);
+Var
+  occup:integer;
+begin
+  With DBGridCountry do begin
+    occup:=trunc(Width-25-(Columns[0].Width+Columns[1].Width+Columns[2].Width));
+    Columns[3].Width:=occup+1;
+    eCountry_ID.Width  :=Columns[0].Width;
+    eCountry_NODC.Width:=Columns[1].Width;
+    eCountry_ISO.Width :=Columns[2].Width;
+    eCountry_NAME.Width:=Columns[3].Width;
+  end;
 end;
 
 
@@ -656,30 +680,32 @@ begin
  end;
 
   If (CodesTblName='INSTITUTE') then begin
+  lbCountryInstitute.Caption:='';
+  imgFlagInstitute.Picture.Clear;
+  if Q.FieldByName('COUNTRY_ID').Value>0 then begin
     TRt:=TSQLTransaction.Create(self);
     TRt.DataBase:=frmdm.IBDB;
     Qt :=TSQLQuery.Create(self);
     Qt.Database:=frmdm.IBDB;
     Qt.Transaction:=TRt;
 
-
-    lbCountryInstitute.Caption:=''; imgFlagInstitute.Picture.Clear;
     with Qt do begin
      Close;
       SQL.Clear;
       SQL.Add(' select ISO3166_CODE, NAME from COUNTRY ');
-      SQL.Add(' where NODC_CODE=:NODC');
-      ParamByName('NODC').Value:=copy(Q.FieldByName('NODC_CODE').Value, 1 ,2);
+      SQL.Add(' where ID=:ID');
+      ParamByName('ID').Value:=Q.FieldByName('COUNTRY_ID').Value;
      Open;
     end;
 
-    if Qt.IsEmpty=false then begin
-      imgFlagInstitute.Picture.LoadFromLazarusResource(LowerCase(Qt.Fields[0].AsString+'_32'));
-      lbCountryInstitute.Caption:=Qt.Fields[1].AsString;
-    end;
-   TRt.Commit;
-   Qt.Free;
-   TRt.Free;
+      if Qt.IsEmpty=false then begin
+        imgFlagInstitute.Picture.LoadFromLazarusResource(LowerCase(Qt.Fields[0].AsString+'_32'));
+        lbCountryInstitute.Caption:=Qt.Fields[1].AsString;
+      end;
+    TRt.Commit;
+    Qt.Free;
+    TRt.Free;
+   end;
   end;
 
 
@@ -831,42 +857,42 @@ begin
           ParamByName('ID').AsInteger:=Q.FieldByName('ID').AsInteger;
           if (CodesTblName='DATABASE_TABLES') then begin
             if mNotesTables.Lines.Text<>'' then
-               ParamByName('NOTES').AsWideString:=mNotesTables.Lines.Text else
+               ParamByName('NOTES').Value:=mNotesTables.Lines.Text else
                ParamByName('NOTES').Value:=null;
           end;
           if (CodesTblName='PLATFORM') then begin
             if mNotesPlatform.Lines.Text<>'' then
-               ParamByName('NOTES').AsWideString:=mNotesPlatform.Lines.Text else
+               ParamByName('NOTES').Value:=mNotesPlatform.Lines.Text else
                ParamByName('NOTES').Value:=null;
           end;
           if (CodesTblName='SOURCE') then begin
              if mNotesSource.Lines.Text<>'' then
-               ParamByName('NOTES').AsWideString:=mNotesSource.Lines.Text else
+               ParamByName('NOTES').Value:=mNotesSource.Lines.Text else
                ParamByName('NOTES').Value:=null;
           end;
           if (CodesTblName='PROJECT') then begin
              if mNotesProject.Lines.Text<>'' then
-               ParamByName('NOTES').AsWideString:=mNotesProject.Lines.Text else
+               ParamByName('NOTES').Value:=mNotesProject.Lines.Text else
                ParamByName('NOTES').Value:=null;
           end;
           if (CodesTblName='INSTITUTE') then begin
              if mNotesInstitute.Lines.Text<>'' then
-               ParamByName('NOTES').AsWideString:=mNotesInstitute.Lines.Text else
+               ParamByName('NOTES').Value:=mNotesInstitute.Lines.Text else
                ParamByName('NOTES').Value:=null;
           end;
           if (CodesTblName='INSTRUMENT') then begin
              if mNotesInstrument.Lines.Text<>'' then
-               ParamByName('NOTES').AsWideString:=mNotesInstrument.Lines.Text else
+               ParamByName('NOTES').Value:=mNotesInstrument.Lines.Text else
                ParamByName('NOTES').Value:=null;
           end;
           if (CodesTblName='UNITS') then begin
              if mNotesUnits.Lines.Text<>'' then
-               ParamByName('NOTES').AsWideString:=mNotesUnits.Lines.Text else
+               ParamByName('NOTES').Value:=mNotesUnits.Lines.Text else
                ParamByName('NOTES').Value:=null;
           end;
           if (CodesTblName='COUNTRY') then begin
              if mNotesCountry.Lines.Text<>'' then
-               ParamByName('NOTES').AsWideString:=mNotesCountry.Lines.Text else
+               ParamByName('NOTES').Value:=mNotesCountry.Lines.Text else
                ParamByName('NOTES').Value:=null;
           end;
 
@@ -902,6 +928,13 @@ begin
  Q.Filtered:=true;
 end;
 
+(* NAME NATIVE *)
+procedure Tfrmsupporttables.SearchNameNative(Sender: TObject);
+begin
+  Q.Filter:='NAME_NATIVE = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+  Q.Filtered:=true;
+end;
+
 (* SOURCE *)
 procedure Tfrmsupporttables.SearchSOURCENAME(Sender: TObject);
 begin
@@ -909,10 +942,17 @@ begin
   Q.Filtered:=true;
 end;
 
-(* PI *)
+(* COUNTRY *)
+procedure Tfrmsupporttables.SearchCountry(Sender: TObject);
+begin
+ Q.Filter:='CTRY = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+ Q.Filtered:=true;
+end;
+
+(* PRINCIPAL_INVESTIGATOR *)
 procedure Tfrmsupporttables.SearchPI(Sender: TObject);
 begin
-  Q.Filter:='PI = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+  Q.Filter:='PRINCIPAL_INVESTIGATOR = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
   Q.Filtered:=true;
 end;
 
@@ -952,18 +992,17 @@ begin
   Q.Locate('ISO3166_CODE',eCountry_ISO.Text,[loCaseInsensitive, loPartialKey]);
 end;
 
+(* PLACE *)
+procedure Tfrmsupporttables.eInstitute_PlaceChange(Sender: TObject);
+begin
+   Q.Filter:='PLACE = '+QuotedStr('*'+(Sender as TEdit).Text+'*');
+   Q.Filtered:=true;
+end;
+
 procedure Tfrmsupporttables.rgFlagClick(Sender: TObject);
 begin
   PageControl1.OnChange(self);
 end;
-
-(* COUNTRY *)
-procedure Tfrmsupporttables.ePlatform_CountryChange(Sender: TObject);
-begin
- Q.Filter:='CTRY = '+QuotedStr('*'+ePlatform_Country.Text+'*');
- Q.Filtered:=true;
-end;
-
 
 
 (* Callsign *)
@@ -971,14 +1010,6 @@ procedure Tfrmsupporttables.SearchCS(Sender: TObject);
 begin
  Q.Filter:='CALLSIGN = '+QuotedStr('*'+ePlatform_CS.Text+'*');
  Q.Filtered:=true;
-end;
-
-
-(* Platform native name *)
-procedure Tfrmsupporttables.ePlatform_NameNativeChange(Sender: TObject);
-begin
-  Q.Filter:='NAME_NATIVE = '+QuotedStr('*'+ePlatform_NameNative.Text+'*');
-  Q.Filtered:=true;
 end;
 
 
@@ -1119,6 +1150,7 @@ begin
   end;
 end;
 
+
 procedure Tfrmsupporttables.DBGridPlatformSelectEditor(Sender: TObject;
   Column: TColumn; var Editor: TWinControl);
 begin
@@ -1131,11 +1163,6 @@ end;
 
 
 procedure Tfrmsupporttables.DBGridPlatformTitleClick(Column: TColumn);
-begin
-  sortbufds.SortBufDataSet(Q, Column.FieldName);
-end;
-
-procedure Tfrmsupporttables.DBGridCountryTitleClick(Column: TColumn);
 begin
   sortbufds.SortBufDataSet(Q, Column.FieldName);
 end;
@@ -1167,11 +1194,6 @@ begin
 end;
 
 
-procedure Tfrmsupporttables.FormResize(Sender: TObject);
-begin
-  ResizeColumns(self);
-end;
-
 
 (* Update and QC for SupportTables.FDB *)
 procedure Tfrmsupporttables.btnUpdateQCClick(Sender: TObject);
@@ -1185,11 +1207,16 @@ begin
  end;
 end;
 
+
+
 procedure Tfrmsupporttables.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 Var
   Ini:TIniFile;
 begin
+  TR.Commit;
   Q.Close;
+  Q.Free;
+  TR.Free;
 
   Ini := TIniFile.Create(IniFileName);
    try
@@ -1197,76 +1224,6 @@ begin
     Ini.WriteInteger( 'ossupporttables', 'left',   Left);
     Ini.WriteInteger( 'ossupporttables', 'width',  Width);
     Ini.WriteInteger( 'ossupporttables', 'weight', Height);
-
-    With DBGridTables do begin
-     Ini.WriteInteger( 'ossupporttables', 'DBGridTables_Col00', Columns[0].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridTables_Col01', Columns[1].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridTables_Col02', Columns[2].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridTables_Col03', Columns[3].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridTables_Col04', Columns[4].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridTables_Col05', Columns[5].Width);
-    end;
-
-
-    With DBGridPlatform do begin
-     Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col00', Columns[0].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col01', Columns[1].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col02', Columns[2].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col03', Columns[3].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col04', Columns[4].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col05', Columns[5].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col06', Columns[6].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col07', Columns[7].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridPlatform_Col08', Columns[8].Width);
-    end;
-
-    With DBGridSource do begin
-     Ini.WriteInteger( 'ossupporttables', 'DBGridSource_Col00', Columns[0].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridSource_Col01', Columns[1].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridSource_Col02', Columns[2].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridSource_Col03', Columns[3].Width);
-    end;
-
-    With DBGridUnits do begin
-     Ini.WriteInteger( 'ossupporttables', 'DBGridUnits_Col00', Columns[0].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridUnits_Col01', Columns[1].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridUnits_Col02', Columns[2].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridUnits_Col03', Columns[3].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridUnits_Col04', Columns[4].Width)
-    end;
-
-    With DBGridInstrument do begin
-     Ini.WriteInteger( 'ossupporttables', 'DBGridInstrument_Col00', Columns[0].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridInstrument_Col01', Columns[1].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridInstrument_Col02', Columns[2].Width);
-    end;
-
-    With DBGridProject do begin
-     Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col00', Columns[0].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col01', Columns[1].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col02', Columns[2].Width);
-   //  Ini.WriteInteger( 'ossupporttables', 'DBGridProject_Col03', Columns[3].Width);
-    end;
-
-    With DBGridInstitute do begin
-     Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col00', Columns[0].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col01', Columns[1].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col02', Columns[2].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col03', Columns[3].Width);
-  //   Ini.WriteInteger( 'ossupporttables', 'DBGridInstitute_Col04', Columns[4].Width);
-    end;
-
-    With DBGridCountry do begin
-     Ini.WriteInteger( 'ossupporttables', 'DBGridCountry_Col00', Columns[0].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridCountry_Col01', Columns[1].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridCountry_Col02', Columns[2].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridCountry_Col03', Columns[3].Width);
-    end;
-
-    With DBGridFlag do begin
-     Ini.WriteInteger( 'ossupporttables', 'DBGridFlag_Col00', Columns[0].Width);
-     Ini.WriteInteger( 'ossupporttables', 'DBGridFlag_Col01', Columns[1].Width);    end;
-
    finally
      Ini.Free;
    end;

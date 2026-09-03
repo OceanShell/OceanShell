@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, sqldb, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, Buttons, GetText, LCLIntf, IniFIles, fileutil;
+  ExtCtrls, Buttons, GetText, LCLIntf, Spin, IniFIles, fileutil, DateTimePicker;
 
 type
 
@@ -17,47 +17,56 @@ type
     btnOpenScript: TBitBtn;
     btnPlot: TButton;
     btnSamplesInLayers: TBitBtn;
-    btnSelectAll_Layers: TBitBtn;
-    btnSelectAll_Variables: TBitBtn;
     btnSurferSettings: TBitBtn;
     cbAllOutputFiles: TComboBox;
     cbColumn: TComboBox;
-    CheckBox1: TCheckBox;
-    CheckGroup2: TCheckGroup;
+    chkArbitraryLayer: TCheckBox;
+    chkLayers: TCheckGroup;
+    dtpDateMax: TDateTimePicker;
+    dtpDateMin: TDateTimePicker;
     Edit1: TEdit;
     Edit2: TEdit;
     Edit3: TEdit;
     frmviz_surfer_squares: TBitBtn;
     btnProfilesInTables: TBitBtn;
     btnCompute: TBitBtn;
-    CheckGroup1: TCheckGroup;
+    chkVariables: TCheckGroup;
     GroupBox1: TGroupBox;
-    Label1: TLabel;
+    GroupBox2: TGroupBox;
+    GroupBox3: TGroupBox;
     Label2: TLabel;
     Label3: TLabel;
+    lbSelectAllVariables: TLabel;
+    lbSelectAllLayers: TLabel;
     ListBox1: TListBox;
     Memo1: TMemo;
     Memo2: TMemo;
     myQ: TSQLQuery;
-    RadioGroup1: TRadioGroup;
+    rgSquares: TRadioGroup;
+    seLatMax: TFloatSpinEdit;
+    seLatMin: TFloatSpinEdit;
+    seLonMax: TFloatSpinEdit;
+    seLonMin: TFloatSpinEdit;
     procedure btnComputeClick(Sender: TObject);
     procedure btnOpenFolderClick(Sender: TObject);
     procedure btnOpenScriptClick(Sender: TObject);
     procedure btnPlotClick(Sender: TObject);
     procedure btnProfilesInTablesClick(Sender: TObject);
     procedure btnSamplesInLayersClick(Sender: TObject);
-    procedure btnSelectAll_VariablesClick(Sender: TObject);
-    procedure btnSelectAll_LayersClick(Sender: TObject);
     procedure btnSurferSettingsClick(Sender: TObject);
     procedure cbAllOutputFilesDropDown(Sender: TObject);
     procedure cbAllOutputFilesSelect(Sender: TObject);
     procedure cbColumnSelect(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure lbSelectAllLayersClick(Sender: TObject);
+    procedure lbSelectAllVariablesClick(Sender: TObject);
+    procedure rgSquaresClick(Sender: TObject);
   private
     procedure get_stations(step:real);
     procedure get_profiles(step:real);
     procedure get_var_statistics(step:real);
     procedure get_arbitrary_layer_statistics(step:real);
+    procedure save_settings;
   public
 
   end;
@@ -80,6 +89,7 @@ uses osmain, dm, osunitsconversion, surfer_settings, surfer_field;
 
 procedure Tfrmviz_surfer_squares.FormShow(Sender: TObject);
 var
+  Ini:TIniFile;
 kt,kl :integer;
 dir_name: string;
 begin
@@ -88,30 +98,8 @@ begin
   user_path:=GlobalUnloadPath+PathDelim+'squares'+PathDelim;
   if directoryexists(user_path)=false then mkdir(user_path);
 
-
-  with myQ do begin
-    Close;
-    SQL.Clear;
-    SQL.Add(' Select count(id) as st_count from STATION');
-    SQL.Add(' where duplicate=false ');
-    Open;
-    st_count:=FieldByName('st_count').AsInteger;
-    Close;
-  end;
-
-  label1.Caption:='Station# (without duplicates): '+inttostr(st_count);
-
-  {
-  frmdm.IBDB.GetTableNames(ListBox1.Items,False);
-
-{T}for kt:=0 to ListBox1.Items.Count-1 do begin
-{P}if (copy(ListBox1.items.strings[kt],1,2)='P_') then begin
-     CheckGroup1.items.add(ListBox1.items.strings[kt]);
-{P}end;
-{T}end; }
-
   (* заменил код выше на упрощенную версию *)
-  CheckGroup1.items:=frmosmain.ListBox1.Items;
+  chkVariables.items:=frmosmain.ListBox1.Items;
 
 {L}for kl:=1 to 44 do begin
       {SeaDataNet global climatology  July 2019}
@@ -162,11 +150,25 @@ begin
       44: begin  Layer[1,kl]:=5500;  Layer[2,kl]:=6000; end;
       end;
 
-      CheckGroup2.items.add(floattostr(Layer[1,kl])+'->'+floattostr(Layer[2,kl]));
+      chkLayers.items.add(floattostr(Layer[1,kl])+'->'+floattostr(Layer[2,kl]));
 
 {L}end;
-end;
 
+Ini := TIniFile.Create(IniFileName); // settings from file
+ try
+  rgSquares.ItemIndex:=Ini.ReadInteger(name, 'Squares', 0);
+  seLonMin.Text:=Ini.ReadString(name, 'LonMin', '-180');
+  seLonMax.Text:=Ini.ReadString(name, 'LonMax',  '180');
+  seLatMin.Text:=Ini.ReadString(name, 'LatMin',  '-90');
+  seLatMax.Text:=Ini.ReadString(name, 'LatMax',   '90');
+  dtpDateMin.DateTime:=Ini.ReadDateTime(name, 'DateMin', StationDateMin);
+  dtpDateMax.DateTime:=Ini.ReadDateTime(name, 'DateMax', StationDateMax);
+ finally
+   Ini.Free;
+ end;
+
+  rgSquares.OnClick(self);
+end;
 
 procedure Tfrmviz_surfer_squares.btnComputeClick(Sender: TObject);
 var
@@ -174,28 +176,33 @@ i :integer;
 step :real;
 var_selected,layer_selected :boolean;
 begin
+  save_settings; // saving current settings;
 
-   case RadioGroup1.ItemIndex of
-      0: step:=5;
-      1: step:=1;
-      2: step:=0.25;
-   end;
+  step:=StrToInt(rgSquares.Items.Strings[rgSquares.ItemIndex]);
 
-     var_selected:=false;
-   for i:=0 to CheckGroup1.Items.Count-1 do
-   if CheckGroup1.Checked[i] then var_selected:=true;
+  var_selected:=false;
+  for i:=0 to chkVariables.Items.Count-1 do
+   if chkVariables.Checked[i] then var_selected:=true;
 
-    layer_selected:=false;
-   for i:=0 to CheckGroup2.Items.Count-1 do
-   if CheckGroup2.Checked[i] then layer_selected:=true;
+  layer_selected:=false;
+  for i:=0 to chkLayers.Items.Count-1 do
+   if chkLayers.Checked[i] then layer_selected:=true;
 
-   if CheckBox1.Checked then get_arbitrary_layer_statistics(step)
+  if chkArbitraryLayer.Checked then get_arbitrary_layer_statistics(step)
    else begin
     if (var_selected=false) and (layer_selected=false) then get_stations(step);
-    if (var_selected=true) and (layer_selected=false) then get_profiles(step);
-    if (var_selected=true) and (layer_selected=true) then get_var_statistics(step);
+    if (var_selected=true)  and (layer_selected=false) then get_profiles(step);
+    if (var_selected=true)  and (layer_selected=true)  then get_var_statistics(step);
    end;
+end;
 
+
+procedure Tfrmviz_surfer_squares.rgSquaresClick(Sender: TObject);
+begin
+ seLonMin.Increment:=StrToFloat(rgSquares.Items.Strings[rgSquares.ItemIndex]);
+ seLonMax.Increment:=seLonMin.Increment;
+ seLatMin.Increment:=seLonMin.Increment;
+ seLatMax.Increment:=seLonMin.Increment;
 end;
 
 procedure Tfrmviz_surfer_squares.btnOpenFolderClick(Sender: TObject);
@@ -230,14 +237,14 @@ begin
 
  grid_step:=StrToFloat(copy(fname, 1, Pos('x', fname)-1));
 
- ncols:=round(360/grid_step);
- nrows:=round(180/grid_step);
+ ncols:=round((seLonMax.Value-seLonMin.Value)/grid_step);
+ nrows:=round((seLatMax.Value-seLatMin.Value)/grid_step);
 
  GetFieldScript(cbAllOutputFiles.Text, //data file
                 param, // variable name and its units
                 (cbColumn.ItemIndex+3),
                 ncols, nrows, //colums and rows
-                -180, 180, -90, 90 //region
+                seLonMin.Value, seLonMax.Value, seLatMin.Value, seLatMax.Value //region
                 );
 
    {$IFDEF Windows}
@@ -258,8 +265,8 @@ begin
 
   DT1:=NOW;
   memo1.Lines.Add('...start: '+datetimetostr(DT1));
-  CheckGroup1.Items.Clear;
-  CheckGroup1.Visible:=false;
+  chkVariables.Items.Clear;
+  chkVariables.Visible:=false;
   Application.ProcessMessages;
 
 
@@ -280,12 +287,12 @@ begin
       Close;
     end;
 
-    CheckGroup1.items.add(ListBox1.items.strings[kt]+'  ('+inttostr(prf_count)+')');
+    chkVariables.items.add(ListBox1.items.strings[kt]+'  ('+inttostr(prf_count)+')');
 
 {P}end;
 {T}end;
 
-   CheckGroup1.Visible:=true;
+   chkVariables.Visible:=true;
    Application.ProcessMessages;
 
    DT2:=NOW;
@@ -310,8 +317,8 @@ begin
 
  {...only one table has to be checked}
    tbl_count:=0;
- for kt:=0 to CheckGroup1.Items.Count-1 do begin
- if CheckGroup1.Checked[kt] then begin
+ for kt:=0 to chkVariables.Items.Count-1 do begin
+ if chkVariables.Checked[kt] then begin
    tbl_count:=tbl_count+1;
  end;
  end;
@@ -320,15 +327,15 @@ begin
    Exit;
  end;
 
-   CheckGroup2.Items.Clear;
-   CheckGroup2.Visible:=false;
+   chkLayers.Items.Clear;
+   chkLayers.Visible:=false;
    Application.ProcessMessages;
 
 
-{T}for kt:=0 to CheckGroup1.Items.Count-1 do begin
-{P}if CheckGroup1.Checked[kt] then begin
+{T}for kt:=0 to chkVariables.Items.Count-1 do begin
+{P}if chkVariables.Checked[kt] then begin
 
-     tbl:=CheckGroup1.items.Strings[kt];
+     tbl:=chkVariables.items.Strings[kt];
      if pos(' ',tbl)<>0 then tbl:=copy(tbl,1,(pos(' ',tbl)));
      tbl:=trim(tbl);
      memo1.Lines.Add(tbl);
@@ -351,13 +358,13 @@ begin
        Close;
      end;
 
-     CheckGroup2.items.add(floattostr(L1)+'->'+floattostr(L2)+'  ('+inttostr(samples_count)+')');
+     chkLayers.items.add(floattostr(L1)+'->'+floattostr(L2)+'  ('+inttostr(samples_count)+')');
 
 {L}end;
 {P}end;
 {T}end;
 
-    CheckGroup2.Visible:=true;
+    chkLayers.Visible:=true;
     Application.ProcessMessages;
 
     DT2:=NOW;
@@ -368,43 +375,39 @@ begin
 end;
 
 
-
-
-
-procedure Tfrmviz_surfer_squares.btnSelectAll_VariablesClick(Sender: TObject);
+procedure Tfrmviz_surfer_squares.lbSelectAllVariablesClick(Sender: TObject);
 var
 i: integer;
 begin
-   if btnSelectAll_Variables.Caption='Select all' then begin
-     for i:=0 to CheckGroup1.Items.Count-1 do CheckGroup1.Checked[i]:=true;
-     btnSelectAll_Variables.Caption:='Deselect all';
+   if lbSelectAllVariables.Caption='Select all' then begin
+     for i:=0 to chkVariables.Items.Count-1 do chkVariables.Checked[i]:=true;
+     lbSelectAllVariables.Caption:='Deselect all';
      Exit;
    end;
 
-    if btnSelectAll_Variables.Caption='Deselect all' then begin
-     for i:=0 to CheckGroup1.Items.Count-1 do CheckGroup1.Checked[i]:=false;
-     btnSelectAll_Variables.Caption:='Select all';
+    if lbSelectAllVariables.Caption='Deselect all' then begin
+     for i:=0 to chkVariables.Items.Count-1 do chkVariables.Checked[i]:=false;
+     lbSelectAllVariables.Caption:='Select all';
      Exit;
    end;
 end;
 
 
-
-
-procedure Tfrmviz_surfer_squares.btnSelectAll_LayersClick(Sender: TObject);
+procedure Tfrmviz_surfer_squares.lbSelectAllLayersClick(Sender: TObject);
 var
 i:integer;
 begin
-      if btnSelectAll_Layers.Caption='Select all' then begin
-      for i:=0 to CheckGroup2.Items.Count-1 do CheckGroup2.Checked[i]:=true;
-      btnSelectAll_Layers.Caption:='Deselect all';
+   if lbSelectAllLayers.Caption='Select all' then begin
+      for i:=0 to chkLayers.Items.Count-1 do chkLayers.Checked[i]:=true;
+      lbSelectAllLayers.Caption:='Deselect all';
+      Exit;
+   end;
+   if lbSelectAllLayers.Caption='Deselect all' then begin
+      for i:=0 to chkLayers.Items.Count-1 do chkLayers.Checked[i]:=false;
+      lbSelectAllLayers.Caption:='Select all';
       Exit;
     end;
-     if btnSelectAll_Layers.Caption='Deselect all' then begin
-      for i:=0 to CheckGroup2.Items.Count-1 do CheckGroup2.Checked[i]:=false;
-      btnSelectAll_Layers.Caption:='Select all';
-      Exit;
-    end;
+
 end;
 
 procedure Tfrmviz_surfer_squares.btnSurferSettingsClick(Sender: TObject);
@@ -421,8 +424,7 @@ end;
 
 procedure Tfrmviz_surfer_squares.cbAllOutputFilesDropDown(Sender: TObject);
 begin
- //cbAllOutputFiles.Items:=FindAllFiles(user_path, '*.txt', true);
- //AK
+ showmessage(user_path);
  cbAllOutputFiles.Items:=FindAllFiles(user_path, '*.txt', false);
 end;
 
@@ -461,8 +463,6 @@ begin
 end;
 
 
-
-
 procedure Tfrmviz_surfer_squares.get_stations(step:real);
 var
 klt,kln :integer;
@@ -488,19 +488,19 @@ begin
    writeln(fo1,'lon'+#9+'lat'+#9+'station#');
 
 
-      klt:=0;
+     klt:=0;
 {Lt}repeat
       inc(klt);
-      ltn:=90-step*(klt-1);
-      lts:=90-step*klt;
+      ltn:=seLatMax.Value-step*(klt-1);
+      lts:=seLatMax.Value-step*klt;
       lt:=(ltn+lts)/2;
       //memo1.Lines.Add(inttostr(klt)+#9+floattostr(ltn)+'->'+floattostr(lts)+#9+floattostr(lt));
 
       kln:=0;
 {Ln}repeat
       inc(kln);
-      lnw:=-180+step*(kln-1);
-      lne:=-180+step*kln;
+      lnw:=seLonMin.Value+step*(kln-1);
+      lne:=seLonMin.Value+step*kln;
       ln:=(lnw+lne)/2;
       //memo1.Lines.Add(#9+inttostr(kln)+#9+floattostr(lnw)+'->'+floattostr(lne)+#9+floattostr(ln));
 
@@ -527,8 +527,10 @@ begin
       if st_in_sq>0 then
       writeln(fo1,floattostr(ln),#9,floattostr(lt),#9,inttostr(st_in_sq));
 
-{Ln}until lne=180;
-{Lt}until lts=-90;
+{Ln}until lne=seLonMax.Value;
+{Lt}until lts=seLatMin.Value;
+
+
       closefile(fo);
       closefile(fo1);
 
@@ -574,13 +576,13 @@ begin
    memo1.Lines.Add('...start: '+datetimetostr(DT1));
    memo1.Lines.Add('');
 
-{T}for kt:=0 to CheckGroup1.Items.Count-1 do begin
-{C}if CheckGroup1.Checked[kt] then begin
+{T}for kt:=0 to chkVariables.Items.Count-1 do begin
+{C}if chkVariables.Checked[kt] then begin
 
-   tbl:=CheckGroup1.Items.Strings[kt];
+   tbl:=chkVariables.Items.Strings[kt];
    //memo1.Lines.Add(tbl);
 
-   with myQ do begin
+{   with myQ do begin
      Close;
      SQL.Clear;
      SQL.Add(' Select count(distinct('+tbl+'.id)) as prf_count from station,'+tbl);
@@ -591,7 +593,7 @@ begin
    end;
 
    memo1.Lines.Add(tbl+'  profiles#: '+inttostr(prf_count));
-   Application.ProcessMessages;
+   Application.ProcessMessages;      }
 
    var_name:=copy(tbl,3,length(tbl));
 
@@ -610,55 +612,42 @@ begin
       klt:=0;
 {Lt}repeat
       inc(klt);
-      ltn:=90-step*(klt-1);
-      lts:=90-step*klt;
+      ltn:=seLatMax.Value-step*(klt-1);
+      lts:=seLatMax.Value-step*klt;
       lt:=(ltn+lts)/2;
       //memo1.Lines.Add(inttostr(klt)+#9+floattostr(ltn)+'->'+floattostr(lts)+#9+floattostr(lt));
 
       kln:=0;
 {Ln}repeat
       inc(kln);
-      lnw:=-180+step*(kln-1);
-      lne:=-180+step*kln;
+      lnw:=seLonMin.Value+step*(kln-1);
+      lne:=seLonMin.Value+step*kln;
       ln:=(lnw+lne)/2;
 
-      {with frmdm.q1 do begin
-        Close;
-        SQL.Clear;
-        SQL.Add(' Select count(distinct('+tbl+'.id)) as prf_in_sq from STATION,'+tbl);
-        SQL.Add(' where station.id='+tbl+'.id and duplicate=false');
-        SQL.Add(' and latitude>:lts and latitude<=:ltn ');
-        SQL.Add(' and longitude>=:lnw and longitude<:lne ');
-        ParamByName('ltn').AsFloat:=ltn;
-        ParamByName('lts').AsFloat:=lts;
-        ParamByName('lnw').AsFloat:=lnw;
-        ParamByName('lne').AsFloat:=lne;
-        Open;
-        prf_in_sq:=FieldByName('prf_in_sq').AsInteger;
-        Close;
-      end; }
+      min_dt:=dtpDateMax.DateTime;
+      max_dt:=dtpDateMin.DateTime;
 
       {...no duplicates, PQF2>2}
       with frmdm.q1 do begin
         Close;
         SQL.Clear;
         SQL.Add(' select distinct(station.id), dateandtime from STATION,'+tbl);
-        SQL.Add(' where station.id='+tbl+'.id and duplicate=false');
+        SQL.Add(' where station.id='+tbl+'.id and duplicate=false ');
+        SQL.Add(' and dateandtime between :dmin and :dmax ');
         SQL.Add(' and latitude>:lts and latitude<=:ltn ');
         {...select data from 180 meridian}
         if lne<>180 then SQL.Add(' and longitude>=:lnw and longitude<:lne ')
                     else SQL.Add(' and longitude>=:lnw and longitude<=:lne ');
         //SQL.Add(' and longitude>=:lnw and longitude<:lne ');
         SQL.Add(' and PQF2>2 ');
+        ParamByName('dmin').AsDateTime:=dtpDateMin.DateTime;
+        ParamByName('dmax').AsDateTime:=dtpDateMax.DateTime;
         ParamByName('ltn').AsFloat:=ltn;
         ParamByName('lts').AsFloat:=lts;
         ParamByName('lnw').AsFloat:=lnw;
         ParamByName('lne').AsFloat:=lne;
         Open;
       end;
-
-      min_dt:=strtodate('01.01.2100');
-      max_dt:=strtodate('01.01.1600');
 
       count_y:=1;
       setlength(TSL_y,count_y);
@@ -726,8 +715,8 @@ begin
       #9,inttostr(ts_length_years),
       #9,inttostr(ts_length_months));
 
-{Ln}until lne=180;
-{Lt}until lts=-90;
+{Ln}until lne=seLonMax.Value;
+{Lt}until lts=seLatMin.Value;
       closefile(fo);
       closefile(fo1);
 
@@ -786,14 +775,14 @@ begin
    setcurrentdir(dir_name);
 
       tbl_count:=0;
-{T}for kt:=0 to CheckGroup1.Items.Count-1 do begin
-{TC}if CheckGroup1.Checked[kt] then begin
+{T}for kt:=0 to chkVariables.Items.Count-1 do begin
+{TC}if chkVariables.Checked[kt] then begin
    tbl_count:=tbl_count+1;
 {TC}end;
 {T} end;
 
   if tbl_count=0 then begin
-     showmessage('Variable does not selected');
+     showmessage('Variable is not selected');
      Exit;
   end;
 
@@ -805,17 +794,17 @@ begin
     sq_index:=floattostr(step)+'x'+floattostr(step)+'_';
 
 
-{T}for kt:=0 to CheckGroup1.Items.Count-1 do begin
-{TC}if CheckGroup1.Checked[kt] then begin
+{T}for kt:=0 to chkVariables.Items.Count-1 do begin
+{TC}if chkVariables.Checked[kt] then begin
 
-     tbl:=CheckGroup1.Items.Strings[kt];
+     tbl:=chkVariables.Items.Strings[kt];
      if pos(' ',tbl)<>0 then tbl:=copy(tbl,1,(pos(' ',tbl)));
      tbl:=trim(tbl);
      var_name:=copy(tbl,3,length(tbl));
      memo1.Lines.Add(tbl);
 
-{L}for kl:=0 to CheckGroup2.Items.Count-1 do begin
-{LC}if CheckGroup2.Checked[kl] then begin
+{L}for kl:=0 to chkLayers.Items.Count-1 do begin
+{LC}if chkLayers.Checked[kl] then begin
      L1:=Layer[1,kl+1]; {array and CheckGroup indexes are diffrent}
      L2:=Layer[2,kl+1];
 
@@ -840,19 +829,19 @@ begin
      +#9+'min_dt'+#9+'max_dt'+#9+'TSL_y'+#9+'TSL_m');
 
 {.....var staistics in squares and layer }
-         klt:=0;
+    klt:=0;
 {Lt}repeat
       inc(klt);
-      ltn:=90-step*(klt-1);
-      lts:=90-step*klt;
+      ltn:=seLatMax.Value-step*(klt-1);
+      lts:=seLatMax.Value-step*klt;
       lt:=(ltn+lts)/2;
       //memo1.Lines.Add(inttostr(klt)+#9+floattostr(ltn)+'->'+floattostr(lts)+#9+floattostr(lt));
 
       kln:=0;
 {Ln}repeat
       inc(kln);
-      lnw:=-180+step*(kln-1);
-      lne:=-180+step*kln;
+      lnw:=seLonMin.Value+step*(kln-1);
+      lne:=seLonMin.Value+step*kln;
       ln:=(lnw+lne)/2;
 
       n:=0;
@@ -862,8 +851,8 @@ begin
       s2:=0;
       min:=9999;
       max:=-9999;
-      min_dt:=strtodate('01.01.2100');
-      max_dt:=strtodate('01.01.1600');
+      min_dt:=dtpDateMax.DateTime;
+      max_dt:=dtpDateMin.DateTime;
 
       count_y:=1;
       setlength(TSL_y,count_y);
@@ -879,6 +868,7 @@ begin
         SQL.Clear;
         SQL.Add(' select dateandtime,val,units_id from STATION,'+tbl);
         SQL.Add(' where station.id='+tbl+'.id and duplicate=false');
+        SQL.Add(' and dateandtime between :dmin and :dmax ');
         SQL.Add(' and latitude>:lts and latitude<=:ltn ');
         {...select data from 180 meridian}
         if lne<>180 then SQL.Add(' and longitude>=:lnw and longitude<:lne ')
@@ -886,6 +876,8 @@ begin
         //SQL.Add(' and longitude>=:lnw and longitude<:lne ');
         SQL.Add(' and lev_m>=:L1 and lev_m<:L2 ');
         SQL.Add(' and PQF2>2 ');
+        ParamByName('dmin').AsDateTime:=dtpDateMin.DateTime;
+        ParamByName('dmax').AsDateTime:=dtpDateMax.DateTime;
         ParamByName('ltn').AsFloat:=ltn;
         ParamByName('lts').AsFloat:=lts;
         ParamByName('lnw').AsFloat:=lnw;
@@ -999,8 +991,8 @@ begin
 {n}end;
 
 
-{Ln}until lne=180;
-{Lt}until lts=-90;
+{Ln}until lne=seLonMax.Value;
+{Lt}until lts=seLatMin.Value;
 
 
      closefile(fo);
@@ -1063,8 +1055,8 @@ begin
    setcurrentdir(dir_name);
 
      tbl_count:=0;
-{T}for kt:=0 to CheckGroup1.Items.Count-1 do begin
-{TC}if CheckGroup1.Checked[kt] then begin
+{T}for kt:=0 to chkVariables.Items.Count-1 do begin
+{TC}if chkVariables.Checked[kt] then begin
      tbl_count:=tbl_count+1;
 {TC}end;
 {T} end;
@@ -1087,10 +1079,10 @@ begin
     L2_str:=trim(inttostr(trunc(L2)));
     if length(L2_str)<4 then for i:=1 to 4-length(L2_str) do L2_str:='0'+L2_str;
 
-{T}for kt:=0 to CheckGroup1.Items.Count-1 do begin
-{TC}if CheckGroup1.Checked[kt] then begin
+{T}for kt:=0 to chkVariables.Items.Count-1 do begin
+{TC}if chkVariables.Checked[kt] then begin
 
-   tbl:=CheckGroup1.items.Strings[kt];
+   tbl:=chkVariables.items.Strings[kt];
    if pos(' ',tbl)<>0 then tbl:=copy(tbl,1,(pos(' ',tbl)));
    tbl:=trim(tbl);
    var_name:=copy(tbl,3,length(tbl));
@@ -1291,6 +1283,25 @@ begin
      memo1.Lines.Add('...time spent: '+timetostr(DT2-DT1));
 
 end;
+
+procedure Tfrmviz_surfer_squares.save_settings;
+Var
+  Ini:TIniFile;
+begin
+ Ini := TIniFile.Create(IniFileName);
+  try
+   Ini.WriteInteger (name, 'Squares', rgSquares.ItemIndex);
+   Ini.WriteString  (name, 'LonMin',  seLonMin.Text);
+   Ini.WriteString  (name, 'LonMax',  seLonMax.Text);
+   Ini.WriteString  (name, 'LatMin',  seLatMin.Text);
+   Ini.WriteString  (name, 'LatMax',  seLatMax.Text);
+   Ini.WriteDateTime(name, 'DateMin', dtpDateMin.DateTime);
+   Ini.WriteDateTime(name, 'DateMax', dtpDateMax.DateTime);
+  finally
+    Ini.Free;
+  end;
+end;
+
 
 end.
 

@@ -1,0 +1,212 @@
+object ImportDatabase: TImportDatabase
+  Left = 742
+  Height = 634
+  Top = 313
+  Width = 613
+  BorderIcons = [biSystemMenu, biMinimize]
+  Caption = 'Import from ODB (*.ib, *.fdb)'
+  ClientHeight = 634
+  ClientWidth = 613
+  Color = clBtnFace
+  Constraints.MinWidth = 570
+  DesignTimePPI = 144
+  Font.Color = clWindowText
+  Font.Height = -17
+  Font.Name = 'MS Sans Serif'
+  OnClose = FormClose
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '2.0.6.0'
+  Visible = True
+  object BtnMergeDatabases: TBitBtn
+    Left = 488
+    Height = 38
+    Top = 568
+    Width = 112
+    Caption = 'Import'
+    Font.Color = clRed
+    Font.Height = -17
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 0
+  end
+  object Button1: TButton
+    Left = 24
+    Height = 38
+    Top = 24
+    Width = 89
+    Caption = 'Catalog'
+    OnClick = Button1Click
+    TabOrder = 1
+  end
+  object Memo1: TMemo
+    Left = 24
+    Height = 399
+    Top = 88
+    Width = 576
+    Lines.Strings = (
+      'Memo1'
+    )
+    ScrollBars = ssVertical
+    TabOrder = 2
+  end
+  object Button2: TButton
+    Left = 128
+    Height = 38
+    Top = 24
+    Width = 104
+    Caption = 'Station'
+    OnClick = Button2Click
+    TabOrder = 3
+  end
+  object Button3: TButton
+    Left = 256
+    Height = 38
+    Top = 24
+    Width = 113
+    Caption = 'Parameters'
+    OnClick = Button3Click
+    TabOrder = 4
+  end
+  object DB1TableList: TListBox
+    Left = 131
+    Height = 120
+    Top = 183
+    Width = 150
+    ItemHeight = 0
+    TabOrder = 5
+  end
+  object Button4: TButton
+    Left = 24
+    Height = 38
+    Top = 512
+    Width = 113
+    Caption = 'm to pres'
+    OnClick = Button4Click
+    TabOrder = 6
+  end
+  object Button5: TButton
+    Left = 24
+    Height = 38
+    Top = 568
+    Width = 113
+    Caption = 'cruise dup'
+    OnClick = Button5Click
+    TabOrder = 7
+  end
+  object Button6: TButton
+    Left = 152
+    Height = 38
+    Top = 512
+    Width = 113
+    Caption = 'cruise dup 2'
+    OnClick = Button6Click
+    TabOrder = 8
+  end
+  object Button7: TButton
+    Left = 152
+    Height = 38
+    Top = 568
+    Width = 113
+    Caption = 'update IDs'
+    OnClick = Button7Click
+    TabOrder = 9
+  end
+  object Button8: TButton
+    Left = 272
+    Height = 38
+    Top = 568
+    Width = 200
+    Caption = 'meteo id from st_id_orig'
+    OnClick = Button8Click
+    TabOrder = 10
+  end
+  object Button9: TButton
+    Left = 272
+    Height = 38
+    Top = 512
+    Width = 201
+    Caption = 'copy meteo'
+    OnClick = Button9Click
+    TabOrder = 11
+  end
+  object DB1: TIBConnection
+    Connected = True
+    LoginPrompt = False
+    DatabaseName = 'X:\OceanShell\databases\AARI_TGM\AARI_TGM_FINAL.FDB'
+    KeepConnection = False
+    Password = 'masterkey'
+    Transaction = TR1
+    UserName = 'SYSDBA'
+    CharSet = 'UTF8'
+    CheckTransactionParams = False
+    left = 288
+    top = 112
+  end
+  object DB2: TIBConnection
+    Connected = True
+    LoginPrompt = False
+    DatabaseName = 'X:\OceanShell\databases\AARI_TGM\AARI_TGM_20200220_FB3.FDB'
+    KeepConnection = False
+    Password = 'masterkey'
+    Transaction = TR2
+    UserName = 'SYSDBA'
+    CharSet = 'UTF8'
+    CheckTransactionParams = False
+    left = 288
+    top = 200
+  end
+  object TR1: TSQLTransaction
+    Active = False
+    Database = DB1
+    left = 352
+    top = 112
+  end
+  object ib1q1: TSQLQuery
+    FieldDefs = <>
+    Database = DB1
+    Transaction = TR1
+    Params = <>
+    left = 416
+    top = 112
+  end
+  object TR2: TSQLTransaction
+    Active = False
+    Database = DB2
+    left = 352
+    top = 200
+  end
+  object ib2q1: TSQLQuery
+    FieldDefs = <>
+    Database = DB2
+    Transaction = TR2
+    Params = <>
+    left = 416
+    top = 200
+  end
+  object ib2q2: TSQLQuery
+    FieldDefs = <>
+    Database = DB2
+    Transaction = TR2
+    Params = <>
+    left = 480
+    top = 200
+  end
+  object ib1q2: TSQLQuery
+    FieldDefs = <>
+    Database = DB1
+    Transaction = TR1
+    Params = <>
+    left = 480
+    top = 112
+  end
+  object ib1qq1: TSQLQuery
+    FieldDefs = <>
+    Database = DB1
+    Transaction = TR1
+    Params = <>
+    left = 536
+    top = 112
+  end
+end

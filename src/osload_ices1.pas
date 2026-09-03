@@ -508,7 +508,7 @@ st_num,st_type,st_date,st_lat,st_lon,st_bd,st1,st2,st_lev_dbar :string;
 nodc_code :string[4];
 col_arr :array[1..100] of string;
 st_DT,dsdb_DT,dedb_DT,date_start_total,date_end_total :TDateTime;
-Func:Tgsw_z_from_p;
+//Func:Tgsw_z_from_p;
 
 begin
 
@@ -885,8 +885,8 @@ end;
 
     st_lev_dbar:=col_arr[8];
     lev_dbar:=strtofloat(st_lev_dbar);
-    Func:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
-    lev_m:=-Func(lev_dbar, lat, 0, 0);
+   // Func:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+    lev_m:=-gsw_z_from_p(lev_dbar, lat, 0, 0);
 
     Station[clev-1,0]:=lev_dbar;
     Station[clev-1,1]:=lev_m;

@@ -774,8 +774,8 @@ nodc_code :string[4];
 col_arr :array[1..100] of string;
 st_DT,dsdb_DT,dedb_DT,date_start_total,date_end_total :TDateTime;
 DayChange,DateChange :boolean;
-FuncZ:Tgsw_z_from_p;
-FuncP:Tgsw_p_from_z;
+//FuncZ:Tgsw_z_from_p;
+//FuncP:Tgsw_p_from_z;
 begin
 
 DT1:=NOW;
@@ -1375,13 +1375,13 @@ end;
     if st_lev_dbar<>'' then lev_dbar:=strtofloat(st_lev_dbar) else lev_dbar:=-9999;
 
     if (lev_m<>-9999) and (lev_dbar=-9999) then begin
-    FuncP:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_p_from_z'));
-    lev_dbar:=FuncP(-lev_m, lat, 0, 0);
+  //  FuncP:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_p_from_z'));
+    lev_dbar:=gsw_p_from_z(-lev_m, lat, 0, 0);
     end;
 
     if (lev_dbar<>-9999) and (lev_m=-9999) then begin
-    FuncZ:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
-    lev_m:=-FuncZ(lev_dbar, lat, 0, 0);
+   // FuncZ:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+    lev_m:=-gsw_z_from_p(lev_dbar, lat, 0, 0);
     end;
 
     //memo1.Lines.Add(inttostr(station_id)+'  lat='+floattostr(lat)+'  lev_m='+floattostr(lev_m)

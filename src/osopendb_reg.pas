@@ -15,22 +15,25 @@ type
   Tfrmopendb_reg = class(TForm)
     btnSave: TButton;
     btnOpenDB: TButton;
-    ePath: TEdit;
     eHost: TEdit;
+    ePath: TEdit;
     ePass: TEdit;
     eAlias: TEdit;
     eUser: TEdit;
+    GroupBox1: TGroupBox;
     GroupBox8: TGroupBox;
     Label2: TLabel;
     Label4: TLabel;
     Label5: TLabel;
-    Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
+    rbServerRemote: TRadioButton;
+    rbServerLocal: TRadioButton;
 
     procedure btnSaveClick(Sender: TObject);
     procedure btnOpenDBClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure GroupBox1Click(Sender: TObject);
     procedure ShowDBSettings(alias_str:string);
     procedure FormShow(Sender: TObject);
 
@@ -67,6 +70,8 @@ Var
 begin
  DBIni := TIniFile.Create(IniFileName+'_db');
  try
+   rbServerLocal.Checked :=DBIni.ReadBool(alias_str, 'srv_local',  false);
+   rbServerRemote.Checked:=DBIni.ReadBool(alias_str, 'srv_remote', true);
    eHost.text  :=DBIni.ReadString(alias_str, 'host',     'localhost');
    ePath.text  :=DBIni.ReadString(alias_str, 'dbpath',   '');
    eUser.text  :=DBIni.ReadString(alias_str, 'user',     'SYSDBA');
@@ -101,6 +106,8 @@ begin
 
   DBIni := TIniFile.Create(IniFileName+'_db');
   try
+    DBIni.WriteBool(eAlias.Text, 'srv_local',  rbServerLocal.Checked);
+    DBIni.WriteBool(eAlias.Text, 'srv_remote', rbServerRemote.Checked);
     DBIni.WriteString (eAlias.Text, 'dbpath',   ePath.Text);
     DBIni.WriteString (eAlias.Text, 'host',     eHost.Text);
     DBIni.WriteString (eAlias.Text, 'user',     eUser.Text);
@@ -130,6 +137,11 @@ procedure Tfrmopendb_reg.FormClose(Sender: TObject;
   var CloseAction: TCloseAction);
 begin
   frmopendbreg_open:=false;
+end;
+
+procedure Tfrmopendb_reg.GroupBox1Click(Sender: TObject);
+begin
+
 end;
 
 

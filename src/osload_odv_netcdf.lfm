@@ -1,0 +1,21 @@
+object frmload_odv_netcdf: Tfrmload_odv_netcdf
+  Left = 333
+  Height = 359
+  Top = 250
+  Width = 463
+  Caption = 'frmload_odv_netcdf'
+  ClientHeight = 359
+  ClientWidth = 463
+  LCLVersion = '4.6.0.0'
+  OnShow = FormShow
+  object mLog: TMemo
+    Left = 8
+    Height = 274
+    Top = 72
+    Width = 440
+    Lines.Strings = (
+      'mLog'
+    )
+    TabOrder = 0
+  end
+end

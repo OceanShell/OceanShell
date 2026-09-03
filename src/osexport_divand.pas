@@ -5,30 +5,33 @@ unit osexport_divand;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Spin, ExtCtrls, CheckLst, IniFiles, DateUtils;
+  LCLIntf, Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
+  ExtCtrls, Buttons, DateUtils;
 
 type
+  TDIVA=record
+    dat:string;
+    lon:real;
+    lat:real;
+    lev:real;
+    val:double;
+    id:string;
+end;
+TDIVA_ARR = array of TDIVA;
+
 
   { Tfrmosexport_divand }
 
   Tfrmosexport_divand = class(TForm)
     btnExport: TButton;
-    chkInstrument: TCheckGroup;
-    CheckListBox1: TCheckGroup;
-    Edit1: TEdit;
-    eYY1: TSpinEdit;
-    eYY2: TSpinEdit;
+    btnOpenFolder: TBitBtn;
+    cbParameter: TComboBox;
     GroupBox1: TGroupBox;
-    GroupBox5: TGroupBox;
-    GroupBox6: TGroupBox;
-    Label1: TLabel;
-    seLatMax: TFloatSpinEdit;
-    seLatMin: TFloatSpinEdit;
-    seLonMax: TFloatSpinEdit;
-    seLonMin: TFloatSpinEdit;
+    mLog: TMemo;
 
     procedure btnExportClick(Sender: TObject);
+    procedure btnOpenFolderClick(Sender: TObject);
+    procedure cbParameterSelect(Sender: TObject);
     procedure FormCreate(Sender: TObject);
 
   private
@@ -39,130 +42,116 @@ type
 
 var
   frmosexport_divand: Tfrmosexport_divand;
-  DIVAndFPath:string;
+  export_divand_path:string;
+  DIVAnd_arr:array of TDIVA;
+
 
 implementation
 
 {$R *.lfm}
 
-uses dm, osmain, osbathymetry, gibbsseawater;
+uses dm, osmain, driver__selector, osbathymetry, gibbsseawater, procedures;
 
 { Tfrmosexport_divand }
 
 
 procedure Tfrmosexport_divand.FormCreate(Sender: TObject);
 begin
-  DIVAndFPath:=GlobalUnloadPath+'DIVAnd'+PathDelim;
-    if not DirectoryExists(DIVAndFPath) then CreateDir(DIVAndFPath);
+  // output directory
+  export_divand_path:=GlobalUnloadPath+'DIVAnd'+PathDelim;
+    if not DirectoryExists(export_divand_path) then CreateDir(export_divand_path);
+
+    cbParameter.Items:=frmosmain.cgParameters.Items;
 end;
 
 
 procedure Tfrmosexport_divand.btnExportClick(Sender: TObject);
 Var
- f: text;
- ID, ff, k, yymin, yymax, dec, GEBCO: integer;
+ f_out: text;
+ f_out_name: string;
+
+ ID, ID_old: Int64;
+ ff, k, yymin, yymax, dec, GEBCO: integer;
  Lat, Lon, lev_m, lev_b, Val, dval, TVal, SVal, lev: real;
  yy, mn, dd, hh, mm, ss, ms:word;
  parname, fname, instr, mn_str, dd_str, hh_str, mm_str, id_str:string;
+
  d:string;
  x, y, LatMax, LonMax, LatMin, LonMin: real;
  ddd, ttt:TDateTime;
+
+ prof_arr:TPROF_ARR;
+ diva_arr:TDIVA_ARR;
+ diva_length: integer;
+
+ PQF1_str, PQF2_str, SQF_str:string;
+ date_st: string;
 begin
 
-   parname:='P_SALINITY';
+   GetQCFlags(PQF1_str, PQF2_str, SQF_str); //QC flags from settings
 
-    for dec:=6 to 6 do begin
-      case dec of
-        1: begin
-           yymin:=1960;
-           yymax:=1969;
-        end;
-        2: begin
-           yymin:=1970;
-           yymax:=1979;
-        end;
-        3: begin
-           yymin:=1980;
-           yymax:=1989;
-        end;
-        4: begin
-           yymin:=1990;
-           yymax:=1999;
-        end;
-        5: begin
-           yymin:=2000;
-           yymax:=2009;
-        end;
-        6: begin
-           yymin:=2010;
-           yymax:=2019;
-        end;
-      end;
+   try
+      ID_old:=frmdm.Q.FieldByName('ID').Value;
+      frmdm.Q.DisableControls;
+      frmdm.QCruise.DisableControls;
+      frmdm.Q.First;
+      diva_length:=0;
+       While not frmdm.Q.Eof do begin
+         ID:=frmdm.Q.FieldByName('ID').value;
+         Lat:=frmdm.Q.FieldByName('latitude').value;
+         Lon:=frmdm.Q.FieldByName('longitude').value;
+         ddd:=frmdm.Q.FieldByName('dateandtime').value;
 
- with frmdm.q do begin
-  Close;
-   SQL.Clear;
-   SQL.Add(' SELECT ');
-   SQL.Add(' STATION.ID, STATION.LATITUDE, STATION.LONGITUDE, ');
-   SQL.Add(' STATION.DATEANDTIME, '+parname+'.LEV_M, '+parname+'.VAL ');
-   SQL.Add(' from STATION, INSTRUMENT, '+parname);
-   SQL.Add(' WHERE ');
-   SQL.Add(' Station.ID='+parname+'.ID and ');
-   SQL.Add(' Station.INSTRUMENT_ID=INSTRUMENT.ID and ');
-   SQL.Add(' (STATION.LATITUDE>=80 or (STATION.LATITUDE>=70 and ');
-   SQL.Add('  (STATION.LONGITUDE<=-100 or STATION.LONGITUDE>=100))) and ');
-   SQL.Add(' Extract(Year from STATION.DATEANDTIME)>=:SSYear1 and ');
-   SQL.Add(' Extract(Year from STATION.DATEANDTIME)<=:SSYear2 and ');
-   SQL.Add(  parname+'.PQF2<=:QFL and ');
-  // SQL.Add(' STATION.LASTLEVEL_M >=800 and ');
-   SQL.Add(  parname+'.LEV_M>=100 and '+parname+'.LEV_M<=900 and ');
-   SQL.Add(' STATION.INSTRUMENT_ID in (0,4,7,9,11,12) ');
-   SQL.Add(' order by STATION.DATEANDTIME, STATION.ID, '+parname+'.LEV_M');
-   ParamByName('SSYear1').AsInteger:=yymin;
-   ParamByName('SSYear2').AsInteger:=yymax;
-   ParamByName('QFL').AsInteger:=4;
-  Open;
- end;
+         date_st:=FormatDateTime('YYYY-MM-DD', ddd)+'T'+FormatDateTime('hh:nn:ss', ddd);
+       //  showmessage(date_st);
+
+        // DecodeDateTime(ddd, yy, mn, dd, hh, mm, ss, ms);
 
 
- AssignFile(f, DIVAndFPath+inttostr(yymin)+inttostr(yymax)+'.txt'); rewrite(f);
+         GetProfile(ID, cbParameter.Text, 1, PQF1_str, PQF2_str, SQF_str, prof_arr);
 
- frmdm.q.First;
- while not frmdm.q.Eof do begin
-    ID   :=frmdm.q.FieldByName('ID').asInteger;
-    Lat  :=frmdm.q.FieldByName('LATITUDE').asFloat;
-    Lon  :=frmdm.q.FieldByName('LONGITUDE').asFloat;
-    ddd  :=frmdm.q.FieldByName('DATEANDTIME').asDateTime;
-    Lev  :=frmdm.q.FieldByName('LEV_M').asFloat;
-   // Lev_b:=frmdm.q.FieldByName('LEV_DBAR').asFloat;
-    Val  :=frmdm.q.FieldByName('VAL').asFloat;
+         for k:=low(prof_arr) to high(prof_arr) do begin
+           inc(diva_length);
+           SetLength(diva_arr, diva_length);
+             diva_arr[diva_length-1].dat:=date_st;
+             diva_arr[diva_length-1].lon:=lon;
+             diva_arr[diva_length-1].lat:=lat;
+             diva_arr[diva_length-1].lev:=prof_arr[k].lev_m;
+             diva_arr[diva_length-1].val:=prof_arr[k].val;
+             diva_arr[diva_length-1].id:=inttostr(id)+'_'+floattostr(prof_arr[k].lev_m);
+         end;
 
-    DecodeDateTime(ddd, yy, mn, dd, hh, mm, ss, ms);
+         frmdm.Q.Next;
+       end;
 
-    GEBCO := -GetGEBCODepth(lon, lat);
+     finally
+      frmdm.Q.Locate('ID', ID_old, []);
+      frmdm.QCruise.EnableControls;
+      frmdm.Q.EnableControls;
+     end;
 
-    x:= (90-Lat)*111.12*sin((Lon)*Pi/180);
-    y:=-(90-Lat)*111.12*cos((Lon)*Pi/180);
 
+     AssignFile(f_out, export_divand_path+cbParameter.Text+'.bigfile'); rewrite(f_out);
+     for k:=low(diva_arr) to high(diva_arr) do
+        writeln(f_out,
+          floattostr(diva_arr[k].Val)+' '+
+          floattostr(diva_arr[k].Lon)+' '+
+          floattostr(diva_arr[k].Lat)+' '+
+          floattostr(diva_arr[k].Lev)+' '+
+          diva_arr[k].dat+' '+
+          diva_arr[k].id);
+     Closefile(f_out);
+end;
 
-    if GEBCO>=500 then
-    writeln(f, inttostr(yy)+' '+
-               inttostr(mn)+' '+
-               inttostr(dd)+' '+
-               Floattostr(Lon)+' '+
-               Floattostr(Lat)+' '+
-               Floattostr(Lev)+' '+
-               Floattostr(Val)+' '+
-               Floattostr(x)+' '+
-               Floattostr(y)+' '+
-               inttostr(ID));
-  frmdm.q.Next;
- end;
- frmdm.q.Close;
- CloseFile(f);
+procedure Tfrmosexport_divand.btnOpenFolderClick(Sender: TObject);
+begin
+  OpenDocument(PChar(export_divand_path));
+end;
 
-    end;
-end; //end of the loop for parameters
+procedure Tfrmosexport_divand.cbParameterSelect(Sender: TObject);
+begin
+  btnExport.Enabled:=true;
+end;
 
 
 end.

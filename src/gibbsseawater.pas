@@ -7,7 +7,7 @@ http://www.teos-10.org/pubs/gsw/html/gsw_contents.html
 These declarations facilitate the use of TEOS-10 functions with FreePascal/Lazarus.
 
 Alexander Smirnov (axline@mail.ru)
-2015-2020
+2015-2026
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License 3 as published by the Free Software
@@ -17,10 +17,16 @@ Foundation. See the GNU General Public License for more details
 This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.
+
+
+!!! Set correct path to libgswteos-10 for your OS at the Begin section !!!
+
 *)
 
-
 interface
+
+uses
+  dynlibs, Forms; //Forms is only needed if the application path is used
 
 
 type
@@ -3405,7 +3411,289 @@ gsw_p_from_z : pressure                                  [dbar]                 
 
 Tgsw_p_from_z = function(z, lat, geo_strf_dyn_height, sea_surface_geopotential:double):double; cdecl;
 
+
+Var
+  libgswteos:TLibHandle;
+
+  gsw_adiabatic_lapse_rate_from_ct:Tgsw_adiabatic_lapse_rate_from_ct;
+  gsw_adiabatic_lapse_rate_ice:Tgsw_adiabatic_lapse_rate_ice;
+  gsw_alpha:Tgsw_alpha;
+  gsw_alpha_on_beta:Tgsw_alpha_on_beta;
+  gsw_alpha_wrt_t_exact:Tgsw_alpha_wrt_t_exact;
+  gsw_alpha_wrt_t_ice:Tgsw_alpha_wrt_t_ice;
+  gsw_beta_const_t_exact:Tgsw_beta_const_t_exact;
+  gsw_beta:Tgsw_beta;
+  gsw_cabbeling:Tgsw_cabbeling;
+  gsw_c_from_sp:Tgsw_c_from_sp;
+  gsw_chem_potential_water_ice:Tgsw_chem_potential_water_ice;
+  gsw_chem_potential_water_t_exact:Tgsw_chem_potential_water_t_exact;
+  gsw_cp_ice:Tgsw_cp_ice;
+  gsw_cp_t_exact:Tgsw_cp_t_exact;
+  gsw_ct_freezing:Tgsw_ct_freezing;
+  gsw_ct_freezing_poly:Tgsw_ct_freezing_poly;
+  gsw_ct_from_enthalpy:Tgsw_ct_from_enthalpy;
+  gsw_ct_from_enthalpy_exact:Tgsw_ct_from_enthalpy_exact;
+  gsw_ct_from_entropy:Tgsw_ct_from_entropy;
+  gsw_ct_from_pt:Tgsw_ct_from_pt;
+  gsw_ct_from_t:Tgsw_ct_from_t;
+  gsw_ct_maxdensity:Tgsw_ct_maxdensity;
+  gsw_deltasa_atlas:Tgsw_deltasa_atlas;
+  gsw_deltasa_from_sp:Tgsw_deltasa_from_sp;
+  gsw_dilution_coefficient_t_exact:Tgsw_dilution_coefficient_t_exact;
+  gsw_dynamic_enthalpy:Tgsw_dynamic_enthalpy;
+  gsw_enthalpy_ct_exact:Tgsw_enthalpy_ct_exact;
+  gsw_enthalpy_diff:Tgsw_enthalpy_diff;
+  gsw_enthalpy:Tgsw_enthalpy;
+  gsw_enthalpy_ice:Tgsw_enthalpy_ice;
+  gsw_enthalpy_sso_0:Tgsw_enthalpy_sso_0;
+  gsw_enthalpy_t_exact:Tgsw_enthalpy_t_exact;
+  gsw_entropy_from_ct:Tgsw_entropy_from_ct;
+  gsw_entropy_from_pt:Tgsw_entropy_from_pt;
+  gsw_entropy_from_t:Tgsw_entropy_from_t;
+  gsw_entropy_ice:Tgsw_entropy_ice;
+  gsw_entropy_part:Tgsw_entropy_part;
+  gsw_entropy_part_zerop:Tgsw_entropy_part_zerop;
+  gsw_fdelta:Tgsw_fdelta;
+  gsw_gibbs_ice:Tgsw_gibbs_ice;
+  gsw_gibbs_ice_part_t:Tgsw_gibbs_ice_part_t;
+  gsw_gibbs_ice_pt0:Tgsw_gibbs_ice_pt0;
+  gsw_gibbs_ice_pt0_pt0:Tgsw_gibbs_ice_pt0_pt0;
+  gsw_gibbs:Tgsw_gibbs;
+  gsw_gibbs_pt0_pt0:Tgsw_gibbs_pt0_pt0;
+  gsw_grav:Tgsw_grav;
+  gsw_helmholtz_energy_ice:Tgsw_helmholtz_energy_ice;
+  gsw_hill_ratio_at_sp2:Tgsw_hill_ratio_at_sp2;
+  gsw_internal_energy:Tgsw_internal_energy;
+  gsw_internal_energy_ice:Tgsw_internal_energy_ice;
+  gsw_kappa_const_t_ice:Tgsw_kappa_const_t_ice;
+  gsw_kappa:Tgsw_kappa;
+  gsw_kappa_ice:Tgsw_kappa_ice;
+  gsw_kappa_t_exact:Tgsw_kappa_t_exact;
+  gsw_latentheat_evap_ct:Tgsw_latentheat_evap_ct;
+  gsw_latentheat_evap_t:Tgsw_latentheat_evap_t;
+  gsw_latentheat_melting:Tgsw_latentheat_melting;
+  gsw_melting_ice_equilibrium_sa_ct_ratio:Tgsw_melting_ice_equilibrium_sa_ct_ratio;
+  gsw_melting_ice_equilibrium_sa_ct_ratio_poly:Tgsw_melting_ice_equilibrium_sa_ct_ratio_poly;
+  gsw_melting_ice_sa_ct_ratio:Tgsw_melting_ice_sa_ct_ratio;
+  gsw_melting_ice_sa_ct_ratio_poly:Tgsw_melting_ice_sa_ct_ratio_poly;
+  gsw_melting_seaice_equilibrium_sa_ct_ratio:Tgsw_melting_seaice_equilibrium_sa_ct_ratio;
+  gsw_melting_seaice_equilibrium_sa_ct_ratio_poly:Tgsw_melting_seaice_equilibrium_sa_ct_ratio_poly;
+  gsw_melting_seaice_sa_ct_ratio:Tgsw_melting_seaice_sa_ct_ratio;
+  gsw_melting_seaice_sa_ct_ratio_poly:Tgsw_melting_seaice_sa_ct_ratio_poly;
+  gsw_o2sol:Tgsw_o2sol;
+  gsw_o2sol_sp_pt:Tgsw_o2sol_sp_pt;
+  gsw_pot_enthalpy_from_pt_ice:Tgsw_pot_enthalpy_from_pt_ice;
+  gsw_pot_enthalpy_from_pt_ice_poly:Tgsw_pot_enthalpy_from_pt_ice_poly;
+  gsw_pot_enthalpy_ice_freezing:Tgsw_pot_enthalpy_ice_freezing;
+  gsw_pot_enthalpy_ice_freezing_poly:Tgsw_pot_enthalpy_ice_freezing_poly;
+  gsw_pot_rho_t_exact:Tgsw_pot_rho_t_exact;
+  gsw_pressure_coefficient_ice:Tgsw_pressure_coefficient_ice;
+  gsw_pressure_freezing_ct:Tgsw_pressure_freezing_ct;
+  gsw_pt0_cold_ice_poly:Tgsw_pt0_cold_ice_poly;
+  gsw_pt0_from_t:Tgsw_pt0_from_t;
+  gsw_pt0_from_t_ice:Tgsw_pt0_from_t_ice;
+  gsw_pt_from_ct:Tgsw_pt_from_ct;
+  gsw_pt_from_entropy:Tgsw_pt_from_entropy;
+  gsw_pt_from_pot_enthalpy_ice:Tgsw_pt_from_pot_enthalpy_ice;
+  gsw_pt_from_pot_enthalpy_ice_poly_dh:Tgsw_pt_from_pot_enthalpy_ice_poly_dh;
+  gsw_pt_from_pot_enthalpy_ice_poly:Tgsw_pt_from_pot_enthalpy_ice_poly;
+  gsw_pt_from_t:Tgsw_pt_from_t;
+  gsw_pt_from_t_ice:Tgsw_pt_from_t_ice;
+  gsw_rho:Tgsw_rho;
+  gsw_rho_ice:Tgsw_rho_ice;
+  gsw_rho_t_exact:Tgsw_rho_t_exact;
+  gsw_saar:Tgsw_saar;
+  gsw_sa_freezing_from_ct:Tgsw_sa_freezing_from_ct;
+  gsw_sa_freezing_from_ct_poly:Tgsw_sa_freezing_from_ct_poly;
+  gsw_sa_freezing_from_t:Tgsw_sa_freezing_from_t;
+  gsw_sa_freezing_from_t_poly:Tgsw_sa_freezing_from_t_poly;
+  gsw_sa_from_rho:Tgsw_sa_from_rho;
+  gsw_sa_from_sp_baltic:Tgsw_sa_from_sp_baltic;
+  gsw_sa_from_sp:Tgsw_sa_from_sp;
+  gsw_sa_from_sstar:Tgsw_sa_from_sstar;
+  gsw_sa_p_inrange:Tgsw_sa_p_inrange;
+  gsw_sigma0:Tgsw_sigma0;
+  gsw_sigma1:Tgsw_sigma1;
+  gsw_sigma2:Tgsw_sigma2;
+  gsw_sigma3:Tgsw_sigma3;
+  gsw_sigma4:Tgsw_sigma4;
+  gsw_sound_speed:Tgsw_sound_speed;
+  gsw_sound_speed_ice:Tgsw_sound_speed_ice;
+  gsw_sound_speed_t_exact:Tgsw_sound_speed_t_exact;
+  gsw_specvol_anom_standard:Tgsw_specvol_anom_standard;
+  gsw_specvol:Tgsw_specvol;
+  gsw_specvol_ice:Tgsw_specvol_ice;
+  gsw_specvol_sso_0:Tgsw_specvol_sso_0;
+  gsw_specvol_t_exact:Tgsw_specvol_t_exact;
+  gsw_sp_from_c:Tgsw_sp_from_c;
+  gsw_sp_from_sa_baltic:Tgsw_sp_from_sa_baltic;
+  gsw_sp_from_sa:Tgsw_sp_from_sa;
+  gsw_sp_from_sk:Tgsw_sp_from_sk;
+  gsw_sp_from_sr:Tgsw_sp_from_sr;
+  gsw_sp_from_sstar:Tgsw_sp_from_sstar;
+  gsw_sp_salinometer:Tgsw_sp_salinometer;
+  gsw_spiciness0:Tgsw_spiciness0;
+  gsw_spiciness1:Tgsw_spiciness1;
+  gsw_spiciness2:Tgsw_spiciness2;
+  gsw_sr_from_sp:Tgsw_sr_from_sp;
+  gsw_sstar_from_sa:Tgsw_sstar_from_sa;
+  gsw_sstar_from_sp:Tgsw_sstar_from_sp;
+  gsw_t_deriv_chem_potential_water_t_exact:Tgsw_t_deriv_chem_potential_water_t_exact;
+  gsw_t_freezing:Tgsw_t_freezing;
+  gsw_t_freezing_poly:Tgsw_t_freezing_poly;
+  gsw_t_from_ct:Tgsw_t_from_ct;
+  gsw_t_from_pt0_ice:Tgsw_t_from_pt0_ice;
+  gsw_thermobaric:Tgsw_thermobaric;
+  gsw_z_from_p:Tgsw_z_from_p;
+  gsw_p_from_z:Tgsw_p_from_z;
+
 implementation
 
+Begin
+ (* Loading dynamic libraries *)
+  {$IFDEF WINDOWS}
+    libgswteos:= LoadLibrary(PChar('libgswteos-10.dll'));
+  {$ENDIF}
+  {$IFDEF LINUX}
+    libgswteos:= SafeLoadLibrary(PChar(GlobalPath+'libgswteos-10.so'));
+  {$ENDIF}
+  {$IFDEF DARWIN}
+    libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dylib'));
+  {$ENDIF}
+
+  if libgswteos=NilHandle then exit;
+
+  gsw_adiabatic_lapse_rate_from_ct:=Tgsw_adiabatic_lapse_rate_from_ct(GetProcedureAddress(libgswteos, 'gsw_adiabatic_lapse_rate_from_ct'));
+  gsw_adiabatic_lapse_rate_ice:=Tgsw_adiabatic_lapse_rate_ice(GetProcedureAddress(libgswteos, 'gsw_adiabatic_lapse_rate_ice'));
+  gsw_alpha:=Tgsw_alpha(GetProcedureAddress(libgswteos, 'gsw_alpha'));
+  gsw_alpha_on_beta:=Tgsw_alpha_on_beta(GetProcedureAddress(libgswteos, 'gsw_alpha_on_beta'));
+  gsw_alpha_wrt_t_exact:=Tgsw_alpha_wrt_t_exact(GetProcedureAddress(libgswteos, 'gsw_alpha_wrt_t_exact'));
+  gsw_alpha_wrt_t_ice:=Tgsw_alpha_wrt_t_ice(GetProcedureAddress(libgswteos, 'gsw_alpha_wrt_t_ice'));
+  gsw_beta_const_t_exact:=Tgsw_beta_const_t_exact(GetProcedureAddress(libgswteos, 'gsw_beta_const_t_exact'));
+  gsw_beta:=Tgsw_beta(GetProcedureAddress(libgswteos, 'gsw_beta'));
+  gsw_cabbeling:=Tgsw_cabbeling(GetProcedureAddress(libgswteos, 'gsw_cabbeling'));
+  gsw_c_from_sp:=Tgsw_c_from_sp(GetProcedureAddress(libgswteos, 'gsw_c_from_sp'));
+  gsw_chem_potential_water_ice:=Tgsw_chem_potential_water_ice(GetProcedureAddress(libgswteos, 'gsw_chem_potential_water_ice'));
+  gsw_chem_potential_water_t_exact:=Tgsw_chem_potential_water_t_exact(GetProcedureAddress(libgswteos, 'gsw_chem_potential_water_t_exact'));
+  gsw_cp_ice:=Tgsw_cp_ice(GetProcedureAddress(libgswteos, 'gsw_cp_ice'));
+  gsw_cp_t_exact:=Tgsw_cp_t_exact(GetProcedureAddress(libgswteos, 'gsw_cp_t_exact'));
+  gsw_ct_freezing:=Tgsw_ct_freezing(GetProcedureAddress(libgswteos, 'gsw_ct_freezing'));
+  gsw_ct_freezing_poly:=Tgsw_ct_freezing_poly(GetProcedureAddress(libgswteos, 'gsw_ct_freezing_poly'));
+  gsw_ct_from_enthalpy:=Tgsw_ct_from_enthalpy(GetProcedureAddress(libgswteos, 'gsw_ct_from_enthalpy'));
+  gsw_ct_from_enthalpy_exact:=Tgsw_ct_from_enthalpy_exact(GetProcedureAddress(libgswteos, 'gsw_ct_from_enthalpy_exact'));
+  gsw_ct_from_entropy:=Tgsw_ct_from_entropy(GetProcedureAddress(libgswteos, 'gsw_ct_from_entropy'));
+  gsw_ct_from_pt:=Tgsw_ct_from_pt(GetProcedureAddress(libgswteos, 'gsw_ct_from_pt'));
+  gsw_ct_from_t:=Tgsw_ct_from_t(GetProcedureAddress(libgswteos, 'gsw_ct_from_t'));
+  gsw_ct_maxdensity:=Tgsw_ct_maxdensity(GetProcedureAddress(libgswteos, 'gsw_ct_maxdensity'));
+  gsw_deltasa_atlas:=Tgsw_deltasa_atlas(GetProcedureAddress(libgswteos, 'gsw_deltasa_atlas'));
+  gsw_deltasa_from_sp:=Tgsw_deltasa_from_sp(GetProcedureAddress(libgswteos, 'gsw_deltasa_from_sp'));
+  gsw_dilution_coefficient_t_exact:=Tgsw_dilution_coefficient_t_exact(GetProcedureAddress(libgswteos, 'gsw_dilution_coefficient_t_exact'));
+  gsw_dynamic_enthalpy:=Tgsw_dynamic_enthalpy(GetProcedureAddress(libgswteos, 'gsw_dynamic_enthalpy'));
+  gsw_enthalpy_ct_exact:=Tgsw_enthalpy_ct_exact(GetProcedureAddress(libgswteos, 'gsw_enthalpy_ct_exact'));
+  gsw_enthalpy_diff:=Tgsw_enthalpy_diff(GetProcedureAddress(libgswteos, 'gsw_enthalpy_diff'));
+  gsw_enthalpy:=Tgsw_enthalpy(GetProcedureAddress(libgswteos, 'gsw_enthalpy'));
+  gsw_enthalpy_ice:=Tgsw_enthalpy_ice(GetProcedureAddress(libgswteos, 'gsw_enthalpy_ice'));
+  gsw_enthalpy_sso_0:=Tgsw_enthalpy_sso_0(GetProcedureAddress(libgswteos, 'gsw_enthalpy_sso_0'));
+  gsw_enthalpy_t_exact:=Tgsw_enthalpy_t_exact(GetProcedureAddress(libgswteos, 'gsw_enthalpy_t_exact'));
+  gsw_entropy_from_ct:=Tgsw_entropy_from_ct(GetProcedureAddress(libgswteos, 'gsw_entropy_from_ct'));
+  gsw_entropy_from_pt:=Tgsw_entropy_from_pt(GetProcedureAddress(libgswteos, 'gsw_entropy_from_pt'));
+  gsw_entropy_from_t:=Tgsw_entropy_from_t(GetProcedureAddress(libgswteos, 'gsw_entropy_from_t'));
+  gsw_entropy_ice:=Tgsw_entropy_ice(GetProcedureAddress(libgswteos, 'gsw_entropy_ice'));
+  gsw_entropy_part:=Tgsw_entropy_part(GetProcedureAddress(libgswteos, 'gsw_entropy_part'));
+  gsw_entropy_part_zerop:=Tgsw_entropy_part_zerop(GetProcedureAddress(libgswteos, 'gsw_entropy_part_zerop'));
+  gsw_fdelta:=Tgsw_fdelta(GetProcedureAddress(libgswteos, 'gsw_fdelta'));
+  gsw_gibbs_ice:=Tgsw_gibbs_ice(GetProcedureAddress(libgswteos, 'gsw_gibbs_ice'));
+  gsw_gibbs_ice_part_t:=Tgsw_gibbs_ice_part_t(GetProcedureAddress(libgswteos, 'gsw_gibbs_ice_part_t'));
+  gsw_gibbs_ice_pt0:=Tgsw_gibbs_ice_pt0(GetProcedureAddress(libgswteos, 'gsw_gibbs_ice_pt0'));
+  gsw_gibbs_ice_pt0_pt0:=Tgsw_gibbs_ice_pt0_pt0(GetProcedureAddress(libgswteos, 'gsw_gibbs_ice_pt0_pt0'));
+  gsw_gibbs:=Tgsw_gibbs(GetProcedureAddress(libgswteos, 'gsw_gibbs'));
+  gsw_gibbs_pt0_pt0:=Tgsw_gibbs_pt0_pt0(GetProcedureAddress(libgswteos, 'gsw_gibbs_pt0_pt0'));
+  gsw_grav:=Tgsw_grav(GetProcedureAddress(libgswteos, 'gsw_grav'));
+  gsw_helmholtz_energy_ice:=Tgsw_helmholtz_energy_ice(GetProcedureAddress(libgswteos, 'gsw_helmholtz_energy_ice'));
+  gsw_hill_ratio_at_sp2:=Tgsw_hill_ratio_at_sp2(GetProcedureAddress(libgswteos, 'gsw_hill_ratio_at_sp2'));
+  gsw_internal_energy:=Tgsw_internal_energy(GetProcedureAddress(libgswteos, 'gsw_internal_energy'));
+  gsw_internal_energy_ice:=Tgsw_internal_energy_ice(GetProcedureAddress(libgswteos, 'gsw_internal_energy_ice'));
+  gsw_kappa_const_t_ice:=Tgsw_kappa_const_t_ice(GetProcedureAddress(libgswteos, 'gsw_kappa_const_t_ice'));
+  gsw_kappa:=Tgsw_kappa(GetProcedureAddress(libgswteos, 'gsw_kappa'));
+  gsw_kappa_ice:=Tgsw_kappa_ice(GetProcedureAddress(libgswteos, 'gsw_kappa_ice'));
+  gsw_kappa_t_exact:=Tgsw_kappa_t_exact(GetProcedureAddress(libgswteos, 'gsw_kappa_t_exact'));
+  gsw_latentheat_evap_ct:=Tgsw_latentheat_evap_ct(GetProcedureAddress(libgswteos, 'gsw_latentheat_evap_ct'));
+  gsw_latentheat_evap_t:=Tgsw_latentheat_evap_t(GetProcedureAddress(libgswteos, 'gsw_latentheat_evap_t'));
+  gsw_latentheat_melting:=Tgsw_latentheat_melting(GetProcedureAddress(libgswteos, 'gsw_latentheat_melting'));
+  gsw_melting_ice_equilibrium_sa_ct_ratio:=Tgsw_melting_ice_equilibrium_sa_ct_ratio(GetProcedureAddress(libgswteos, 'gsw_melting_ice_equilibrium_sa_ct_ratio'));
+  gsw_melting_ice_equilibrium_sa_ct_ratio_poly:=Tgsw_melting_ice_equilibrium_sa_ct_ratio_poly(GetProcedureAddress(libgswteos, 'gsw_melting_ice_equilibrium_sa_ct_ratio_poly'));
+  gsw_melting_ice_sa_ct_ratio:=Tgsw_melting_ice_sa_ct_ratio(GetProcedureAddress(libgswteos, 'gsw_melting_ice_sa_ct_ratio'));
+  gsw_melting_ice_sa_ct_ratio_poly:=Tgsw_melting_ice_sa_ct_ratio_poly(GetProcedureAddress(libgswteos, 'gsw_melting_ice_sa_ct_ratio_poly'));
+  gsw_melting_seaice_equilibrium_sa_ct_ratio:=Tgsw_melting_seaice_equilibrium_sa_ct_ratio(GetProcedureAddress(libgswteos, 'gsw_melting_seaice_equilibrium_sa_ct_ratio'));
+  gsw_melting_seaice_equilibrium_sa_ct_ratio_poly:=Tgsw_melting_seaice_equilibrium_sa_ct_ratio_poly(GetProcedureAddress(libgswteos, 'gsw_melting_seaice_equilibrium_sa_ct_ratio_poly'));
+  gsw_melting_seaice_sa_ct_ratio:=Tgsw_melting_seaice_sa_ct_ratio(GetProcedureAddress(libgswteos, 'gsw_melting_seaice_sa_ct_ratio'));
+  gsw_melting_seaice_sa_ct_ratio_poly:=Tgsw_melting_seaice_sa_ct_ratio_poly(GetProcedureAddress(libgswteos, 'gsw_melting_seaice_sa_ct_ratio_poly'));
+  gsw_o2sol:=Tgsw_o2sol(GetProcedureAddress(libgswteos, 'gsw_o2sol'));
+  gsw_o2sol_sp_pt:=Tgsw_o2sol_sp_pt(GetProcedureAddress(libgswteos, 'gsw_o2sol_sp_pt'));
+  gsw_pot_enthalpy_from_pt_ice:=Tgsw_pot_enthalpy_from_pt_ice(GetProcedureAddress(libgswteos, 'gsw_pot_enthalpy_from_pt_ice'));
+  gsw_pot_enthalpy_from_pt_ice_poly:=Tgsw_pot_enthalpy_from_pt_ice_poly(GetProcedureAddress(libgswteos, 'gsw_pot_enthalpy_from_pt_ice_poly'));
+  gsw_pot_enthalpy_ice_freezing:=Tgsw_pot_enthalpy_ice_freezing(GetProcedureAddress(libgswteos, 'gsw_pot_enthalpy_ice_freezing'));
+  gsw_pot_enthalpy_ice_freezing_poly:=Tgsw_pot_enthalpy_ice_freezing_poly(GetProcedureAddress(libgswteos, 'gsw_pot_enthalpy_ice_freezing_poly'));
+  gsw_pot_rho_t_exact:=Tgsw_pot_rho_t_exact(GetProcedureAddress(libgswteos, 'gsw_pot_rho_t_exact'));
+  gsw_pressure_coefficient_ice:=Tgsw_pressure_coefficient_ice(GetProcedureAddress(libgswteos, 'gsw_pressure_coefficient_ice'));
+  gsw_pressure_freezing_ct:=Tgsw_pressure_freezing_ct(GetProcedureAddress(libgswteos, 'gsw_pressure_freezing_ct'));
+  gsw_pt0_cold_ice_poly:=Tgsw_pt0_cold_ice_poly(GetProcedureAddress(libgswteos, 'gsw_pt0_cold_ice_poly'));
+  gsw_pt0_from_t:=Tgsw_pt0_from_t(GetProcedureAddress(libgswteos, 'gsw_pt0_from_t'));
+  gsw_pt0_from_t_ice:=Tgsw_pt0_from_t_ice(GetProcedureAddress(libgswteos, 'gsw_pt0_from_t_ice'));
+  gsw_pt_from_ct:=Tgsw_pt_from_ct(GetProcedureAddress(libgswteos, 'gsw_pt_from_ct'));
+  gsw_pt_from_entropy:=Tgsw_pt_from_entropy(GetProcedureAddress(libgswteos, 'gsw_pt_from_entropy'));
+  gsw_pt_from_pot_enthalpy_ice:=Tgsw_pt_from_pot_enthalpy_ice(GetProcedureAddress(libgswteos, 'gsw_pt_from_pot_enthalpy_ice'));
+  gsw_pt_from_pot_enthalpy_ice_poly_dh:=Tgsw_pt_from_pot_enthalpy_ice_poly_dh(GetProcedureAddress(libgswteos, 'gsw_pt_from_pot_enthalpy_ice_poly_dh'));
+  gsw_pt_from_pot_enthalpy_ice_poly:=Tgsw_pt_from_pot_enthalpy_ice_poly(GetProcedureAddress(libgswteos, 'gsw_pt_from_pot_enthalpy_ice_poly'));
+  gsw_pt_from_t:=Tgsw_pt_from_t(GetProcedureAddress(libgswteos, 'gsw_pt_from_t'));
+  gsw_pt_from_t_ice:=Tgsw_pt_from_t_ice(GetProcedureAddress(libgswteos, 'gsw_pt_from_t_ice'));
+  gsw_rho:=Tgsw_rho(GetProcedureAddress(libgswteos, 'gsw_rho'));
+  gsw_rho_ice:=Tgsw_rho_ice(GetProcedureAddress(libgswteos, 'gsw_rho_ice'));
+  gsw_rho_t_exact:=Tgsw_rho_t_exact(GetProcedureAddress(libgswteos, 'gsw_rho_t_exact'));
+  gsw_saar:=Tgsw_saar(GetProcedureAddress(libgswteos, 'gsw_saar'));
+  gsw_sa_freezing_from_ct:=Tgsw_sa_freezing_from_ct(GetProcedureAddress(libgswteos, 'gsw_sa_freezing_from_ct'));
+  gsw_sa_freezing_from_ct_poly:=Tgsw_sa_freezing_from_ct_poly(GetProcedureAddress(libgswteos, 'gsw_sa_freezing_from_ct_poly'));
+  gsw_sa_freezing_from_t:=Tgsw_sa_freezing_from_t(GetProcedureAddress(libgswteos, 'gsw_sa_freezing_from_t'));
+  gsw_sa_freezing_from_t_poly:=Tgsw_sa_freezing_from_t_poly(GetProcedureAddress(libgswteos, 'gsw_sa_freezing_from_t_poly'));
+  gsw_sa_from_rho:=Tgsw_sa_from_rho(GetProcedureAddress(libgswteos, 'gsw_sa_from_rho'));
+  gsw_sa_from_sp_baltic:=Tgsw_sa_from_sp_baltic(GetProcedureAddress(libgswteos, 'gsw_sa_from_sp_baltic'));
+  gsw_sa_from_sp:=Tgsw_sa_from_sp(GetProcedureAddress(libgswteos, 'gsw_sa_from_sp'));
+  gsw_sa_from_sstar:=Tgsw_sa_from_sstar(GetProcedureAddress(libgswteos, 'gsw_sa_from_sstar'));
+  gsw_sa_p_inrange:=Tgsw_sa_p_inrange(GetProcedureAddress(libgswteos, 'gsw_sa_p_inrange'));
+  gsw_sigma0:=Tgsw_sigma0(GetProcedureAddress(libgswteos, 'gsw_sigma0'));
+  gsw_sigma1:=Tgsw_sigma1(GetProcedureAddress(libgswteos, 'gsw_sigma1'));
+  gsw_sigma2:=Tgsw_sigma2(GetProcedureAddress(libgswteos, 'gsw_sigma2'));
+  gsw_sigma3:=Tgsw_sigma3(GetProcedureAddress(libgswteos, 'gsw_sigma3'));
+  gsw_sigma4:=Tgsw_sigma4(GetProcedureAddress(libgswteos, 'gsw_sigma4'));
+  gsw_sound_speed:=Tgsw_sound_speed(GetProcedureAddress(libgswteos, 'gsw_sound_speed'));
+  gsw_sound_speed_ice:=Tgsw_sound_speed_ice(GetProcedureAddress(libgswteos, 'gsw_sound_speed_ice'));
+  gsw_sound_speed_t_exact:=Tgsw_sound_speed_t_exact(GetProcedureAddress(libgswteos, 'gsw_sound_speed_t_exact'));
+  gsw_specvol_anom_standard:=Tgsw_specvol_anom_standard(GetProcedureAddress(libgswteos, 'gsw_specvol_anom_standard'));
+  gsw_specvol:=Tgsw_specvol(GetProcedureAddress(libgswteos, 'gsw_specvol'));
+  gsw_specvol_ice:=Tgsw_specvol_ice(GetProcedureAddress(libgswteos, 'gsw_specvol_ice'));
+  gsw_specvol_sso_0:=Tgsw_specvol_sso_0(GetProcedureAddress(libgswteos, 'gsw_specvol_sso_0'));
+  gsw_specvol_t_exact:=Tgsw_specvol_t_exact(GetProcedureAddress(libgswteos, 'gsw_specvol_t_exact'));
+  gsw_sp_from_c:=Tgsw_sp_from_c(GetProcedureAddress(libgswteos, 'gsw_sp_from_c'));
+  gsw_sp_from_sa_baltic:=Tgsw_sp_from_sa_baltic(GetProcedureAddress(libgswteos, 'gsw_sp_from_sa_baltic'));
+  gsw_sp_from_sa:=Tgsw_sp_from_sa(GetProcedureAddress(libgswteos, 'gsw_sp_from_sa'));
+  gsw_sp_from_sk:=Tgsw_sp_from_sk(GetProcedureAddress(libgswteos, 'gsw_sp_from_sk'));
+  gsw_sp_from_sr:=Tgsw_sp_from_sr(GetProcedureAddress(libgswteos, 'gsw_sp_from_sr'));
+  gsw_sp_from_sstar:=Tgsw_sp_from_sstar(GetProcedureAddress(libgswteos, 'gsw_sp_from_sstar'));
+  gsw_sp_salinometer:=Tgsw_sp_salinometer(GetProcedureAddress(libgswteos, 'gsw_sp_salinometer'));
+  gsw_spiciness0:=Tgsw_spiciness0(GetProcedureAddress(libgswteos, 'gsw_spiciness0'));
+  gsw_spiciness1:=Tgsw_spiciness1(GetProcedureAddress(libgswteos, 'gsw_spiciness1'));
+  gsw_spiciness2:=Tgsw_spiciness2(GetProcedureAddress(libgswteos, 'gsw_spiciness2'));
+  gsw_sr_from_sp:=Tgsw_sr_from_sp(GetProcedureAddress(libgswteos, 'gsw_sr_from_sp'));
+  gsw_sstar_from_sa:=Tgsw_sstar_from_sa(GetProcedureAddress(libgswteos, 'gsw_sstar_from_sa'));
+  gsw_sstar_from_sp:=Tgsw_sstar_from_sp(GetProcedureAddress(libgswteos, 'gsw_sstar_from_sp'));
+  gsw_t_deriv_chem_potential_water_t_exact:=Tgsw_t_deriv_chem_potential_water_t_exact(GetProcedureAddress(libgswteos, 'gsw_t_deriv_chem_potential_water_t_exact'));
+  gsw_t_freezing:=Tgsw_t_freezing(GetProcedureAddress(libgswteos, 'gsw_t_freezing'));
+  gsw_t_freezing_poly:=Tgsw_t_freezing_poly(GetProcedureAddress(libgswteos, 'gsw_t_freezing_poly'));
+  gsw_t_from_ct:=Tgsw_t_from_ct(GetProcedureAddress(libgswteos, 'gsw_t_from_ct'));
+  gsw_t_from_pt0_ice:=Tgsw_t_from_pt0_ice(GetProcedureAddress(libgswteos, 'gsw_t_from_pt0_ice'));
+  gsw_thermobaric:=Tgsw_thermobaric(GetProcedureAddress(libgswteos, 'gsw_thermobaric'));
+  gsw_z_from_p:=Tgsw_z_from_p(GetProcedureAddress(libgswteos, 'gsw_z_from_p'));
+  gsw_p_from_z:=Tgsw_p_from_z(GetProcedureAddress(libgswteos, 'gsw_p_from_z'));
 
 end.
+

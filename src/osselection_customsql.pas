@@ -105,12 +105,13 @@ begin
       First;
     end;
 
-   if not frmdm.QCruise.IsEmpty then begin
-    frmosmain.tsSelectedStations.Caption:=
-       'Cruises: '+inttostr(frmdm.QCruise.RecordCount);
-    frmosmain.PageControl1.ActivePageIndex:=2;
+
+    frmosmain.tsSelectedStations.TabVisible:= not frmdm.QCruise.IsEmpty;
+     if not frmdm.QCruise.IsEmpty then begin
+      frmosmain.tsSelectedStations.Caption:='Cruises: '+inttostr(frmdm.QCruise.RecordCount);
+      frmosmain.PageControl1.ActivePageIndex:=2;
+     end;
    end;
-  end;
 
    if frmosmain.rbStations.Checked=true then begin
     with frmdm.Q do begin
@@ -120,6 +121,7 @@ begin
       Last;
       First;
     end;
+
    frmosmain.SelectionInfo(true);
    frmosmain.CDSNavigation;
   end;

@@ -1,18 +1,17 @@
 object frmExport_CIA: TfrmExport_CIA
   Left = 887
-  Height = 477
+  Height = 382
   Top = 325
-  Width = 797
+  Width = 638
   Caption = 'frmExport_CIA'
-  ClientHeight = 477
-  ClientWidth = 797
-  DesignTimePPI = 120
+  ClientHeight = 382
+  ClientWidth = 638
+  LCLVersion = '4.4.0.0'
   OnShow = FormShow
-  LCLVersion = '2.0.6.0'
   object Memo1: TMemo
     Left = 0
-    Height = 209
-    Top = 268
+    Height = 167
+    Top = 310
     Width = 797
     Align = alBottom
     Lines.Strings = (
@@ -21,53 +20,53 @@ object frmExport_CIA: TfrmExport_CIA
     TabOrder = 0
   end
   object btnExport: TBitBtn
-    Left = 32
-    Height = 30
-    Top = 96
-    Width = 200
+    Left = 26
+    Height = 24
+    Top = 77
+    Width = 160
     Caption = 'Export'
     Font.Color = clRed
     Font.Style = [fsBold]
-    OnClick = btnExportClick
     ParentFont = False
     TabOrder = 1
+    OnClick = btnExportClick
   end
   object CheckBox1: TCheckBox
-    Left = 16
+    Left = 13
     Height = 24
-    Top = 224
+    Top = 179
     Width = 136
     Caption = 'Detailed output?'
     TabOrder = 2
   end
   object Label1: TLabel
-    Left = 320
+    Left = 256
     Height = 20
-    Top = 200
+    Top = 160
     Width = 418
     Caption = 'Cruise is not a duplicate if the number  of duplicate stations <='
     ParentColor = False
   end
   object Edit1: TEdit
-    Left = 744
+    Left = 595
     Height = 28
-    Top = 200
-    Width = 44
+    Top = 160
+    Width = 35
     TabOrder = 3
     Text = '0'
   end
   object Label2: TLabel
-    Left = 320
+    Left = 256
     Height = 20
-    Top = 232
+    Top = 186
     Width = 444
     Caption = '(Ignore duplicates box ON THE MAIN FORM should be unchecked )'
     ParentColor = False
   end
   object CheckBox2: TCheckBox
-    Left = 32
+    Left = 26
     Height = 24
-    Top = 20
+    Top = 16
     Width = 184
     Caption = 'Convert PQF2 to WOCE?'
     Checked = True
@@ -75,9 +74,9 @@ object frmExport_CIA: TfrmExport_CIA
     TabOrder = 4
   end
   object CheckBox3: TCheckBox
-    Left = 32
+    Left = 26
     Height = 24
-    Top = 56
+    Top = 45
     Width = 204
     Caption = 'Use density for conversion?'
     TabOrder = 5

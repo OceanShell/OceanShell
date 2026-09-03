@@ -9,18 +9,18 @@ object frmsupporttables_update: Tfrmsupporttables_update
   Position = poOwnerFormCenter
   object PageControl1: TPageControl
     Left = 0
-    Height = 395
-    Top = 0
-    Width = 1025
+    Height = 547
+    Top = 3
+    Width = 409
     ActivePage = TabSheet1
-    Align = alTop
+    Align = alLeft
     ParentFont = False
     TabIndex = 0
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Update'
-      ClientHeight = 367
-      ClientWidth = 1017
+      ClientHeight = 519
+      ClientWidth = 401
       ParentFont = False
       object GroupBox1: TGroupBox
         Left = 8
@@ -101,9 +101,9 @@ object frmsupporttables_update: Tfrmsupporttables_update
         end
       end
       object GroupBox3: TGroupBox
-        Left = 400
+        Left = 8
         Height = 88
-        Top = 8
+        Top = 288
         Width = 376
         Caption = 'COUNTRY'
         ClientHeight = 68
@@ -185,7 +185,7 @@ object frmsupporttables_update: Tfrmsupporttables_update
           Height = 25
           Top = 8
           Width = 120
-          Caption = 's_4_institute.txt'
+          Caption = 's_4_institute.csv'
           ParentFont = False
           TabOrder = 0
           OnClick = btnInstituteWODClick
@@ -225,25 +225,16 @@ object frmsupporttables_update: Tfrmsupporttables_update
           OnClick = btnProjectWODClick
         end
       end
-      object chkShowLog: TCheckBox
-        Left = 8
-        Height = 19
-        Top = 343
-        Width = 81
-        Caption = 'Detailed log'
-        ParentFont = False
-        TabOrder = 4
-      end
       object GroupBox6: TGroupBox
-        Left = 400
+        Left = 8
         Height = 64
-        Top = 104
+        Top = 384
         Width = 376
         Caption = 'PI'
         ClientHeight = 44
         ClientWidth = 372
         ParentFont = False
-        TabOrder = 5
+        TabOrder = 4
         object Label4: TLabel
           Left = 8
           Height = 15
@@ -265,61 +256,11 @@ object frmsupporttables_update: Tfrmsupporttables_update
           OnClick = btnPIWODClick
         end
       end
-      object GroupBox7: TGroupBox
-        Left = 400
-        Height = 96
-        Top = 176
-        Width = 376
-        Caption = 'CRUISE'
-        ClientHeight = 76
-        ClientWidth = 372
-        ParentFont = False
-        TabOrder = 6
-        object Label5: TLabel
-          Left = 8
-          Height = 15
-          Top = 10
-          Width = 82
-          Caption = 'WOD Cruise list'
-          ParentColor = False
-          ParentFont = False
-          OnClick = Label1Click
-        end
-        object btnCruiseWOD: TButton
-          Left = 192
-          Height = 25
-          Top = 0
-          Width = 168
-          Caption = 'allcruises_list.txt'
-          ParentFont = False
-          TabOrder = 0
-          OnClick = btnCruiseWODClick
-        end
-        object Label6: TLabel
-          Left = 8
-          Height = 15
-          Top = 42
-          Width = 101
-          Caption = 'GLODAP cruise md'
-          ParentColor = False
-          ParentFont = False
-        end
-        object btnCruiseGLODAP: TButton
-          Left = 192
-          Height = 25
-          Top = 32
-          Width = 168
-          Caption = 'GLODAP Cruise'
-          ParentFont = False
-          TabOrder = 1
-          OnClick = btnCruiseGLODAPClick
-        end
-      end
     end
     object TabSheet2: TTabSheet
       Caption = 'QC'
-      ClientHeight = 367
-      ClientWidth = 1017
+      ClientHeight = 519
+      ClientWidth = 401
       ParentFont = False
       object rgDuplicates: TRadioGroup
         Left = 16
@@ -397,13 +338,13 @@ object frmsupporttables_update: Tfrmsupporttables_update
     end
     object TabSheet3: TTabSheet
       Caption = 'Auxiliary procedures'
-      ClientHeight = 367
-      ClientWidth = 1017
+      ClientHeight = 519
+      ClientWidth = 401
       object Button2: TButton
         Left = 27
         Height = 25
         Top = 27
-        Width = 139
+        Width = 209
         Caption = 'Vessel IDs by name'
         TabOrder = 0
         OnClick = Button2Click
@@ -412,7 +353,7 @@ object frmsupporttables_update: Tfrmsupporttables_update
         Left = 27
         Height = 25
         Top = 64
-        Width = 139
+        Width = 211
         Caption = 'AARI_Raid to platforms'
         TabOrder = 1
         OnClick = Button3Click
@@ -420,8 +361,8 @@ object frmsupporttables_update: Tfrmsupporttables_update
       object Button4: TButton
         Left = 27
         Height = 25
-        Top = 101
-        Width = 187
+        Top = 296
+        Width = 209
         Caption = 'COUNTRY_ID to PLATFORMS'
         TabOrder = 2
         OnClick = Button4Click
@@ -430,7 +371,7 @@ object frmsupporttables_update: Tfrmsupporttables_update
         Left = 27
         Height = 25
         Top = 139
-        Width = 187
+        Width = 209
         Caption = 'Projects-acronyms'
         TabOrder = 3
         OnClick = Button5Click
@@ -456,19 +397,28 @@ object frmsupporttables_update: Tfrmsupporttables_update
       object Button7: TButton
         Left = 27
         Height = 25
-        Top = 251
+        Top = 256
         Width = 209
         Caption = 'Wod vessel names'
         TabOrder = 6
         OnClick = Button7Click
       end
+      object Button8: TButton
+        Left = 27
+        Height = 25
+        Top = 328
+        Width = 209
+        Caption = 'COUNTRY_ID to INSTITUTES'
+        TabOrder = 7
+        OnClick = Button8Click
+      end
     end
   end
   object mLog: TMemo
-    Left = 0
-    Height = 152
-    Top = 398
-    Width = 1025
+    Left = 409
+    Height = 547
+    Top = 3
+    Width = 616
     Align = alClient
     ParentFont = False
     ScrollBars = ssBoth
@@ -478,7 +428,7 @@ object frmsupporttables_update: Tfrmsupporttables_update
     Cursor = crVSplit
     Left = 0
     Height = 3
-    Top = 395
+    Top = 0
     Width = 1025
     Align = alTop
     ResizeAnchor = akTop

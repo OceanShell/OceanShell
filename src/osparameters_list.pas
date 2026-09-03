@@ -73,16 +73,16 @@ begin
     Height:= Ini.ReadInteger( 'osparameters_list', 'weight', 525);
 
     for k:=0 to chkPQF1.Count-1 do
-      chkPQF1.Checked[k]:=Ini.ReadBool('osparameters_list', 'PQF1_'+inttostr(k), true);
+      chkPQF1.Checked[k]:=Ini.ReadBool('PQF1', 'PQF1_'+inttostr(k), true);
 
     for k:=0 to chkPQF2.Count-1 do
-      chkPQF2.Checked[k]:=Ini.ReadBool('osparameters_list', 'PQF2_'+inttostr(k), true);
+      chkPQF2.Checked[k]:=Ini.ReadBool('PQF2', 'PQF2_'+inttostr(k), true);
 
     for k:=0 to chkSQF.Count-1 do
-      chkSQF.Checked[k]:=Ini.ReadBool('osparameters_list', 'SQF_'+inttostr(k), true);
+      chkSQF.Checked[k]:=Ini.ReadBool('SQF', 'SQF_'+inttostr(k), true);
 
     for k:=0 to chklInstrument.Count-1 do
-      chklInstrument.Checked[k]:=Ini.ReadBool('osparameters_list', 'Instrument'+inttostr(k), true);
+      chklInstrument.Checked[k]:=Ini.ReadBool('Instrument', 'Instrument'+inttostr(k), true);
    finally
      Ini.Free;
    end;
@@ -303,16 +303,16 @@ begin
    Ini.WriteInteger( 'osparameters_list', 'weight', Height);
 
    for k:=0 to chkPQF1.Count-1 do
-     Ini.WriteBool( 'osparameters_list', 'PQF1_'+inttostr(k), chkPQF1.Checked[k]);
+     Ini.WriteBool( 'PQF1', 'PQF1_'+inttostr(k), chkPQF1.Checked[k]);
 
    for k:=0 to chkPQF2.Count-1 do
-     Ini.WriteBool( 'osparameters_list', 'PQF2_'+inttostr(k), chkPQF2.Checked[k]);
+     Ini.WriteBool( 'PQF2', 'PQF2_'+inttostr(k), chkPQF2.Checked[k]);
 
    for k:=0 to chkSQF.Count-1 do
-     Ini.WriteBool( 'osparameters_list','SQF_'+inttostr(k), chkSQF.Checked[k]);
+     Ini.WriteBool( 'SQF','SQF_'+inttostr(k), chkSQF.Checked[k]);
 
    for k:=0 to chklInstrument.Count-1 do
-     Ini.WriteBool('osparameters_list', 'Instrument'+inttostr(k),  chklInstrument.Checked[k]);
+     Ini.WriteBool('Instrument', 'Instrument'+inttostr(k),  chklInstrument.Checked[k]);
 
   finally
     Ini.Free;
