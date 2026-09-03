@@ -5,7 +5,9 @@ unit osabout;
 interface
 
 uses
-  Classes, SysUtils, declarations_netcdf;
+  Classes, SysUtils, Dialogs, DateUtils,
+
+  declarations_netcdf;
 
 function AboutProgram:string;
 function ProgramVersion(v_beg:integer; str:string):string;
@@ -14,45 +16,43 @@ implementation
 
 function AboutProgram:string;
 Var
-  winver, ncver:string;
-  yy, mn, dd: word;
+  osver, ncver:string;
 begin
  {$ifdef WINDOWS}
    {$ifdef WIN32}
-     winver:='i386-win32';
+     oser:='i386-win32';
    {$endif}
 
    {$ifdef WIN64}
-     winver:='x86_64-win64';
+     osver:='x86_64-win64';
    {$endif}
  {$endif}
 
  {$ifdef Linux}
    {$ifdef CPU32}
-     winver:='i386-linux';
+     osver:='i386-linux';
    {$endif}
    {$ifdef CPU64}
-     winver:='x86_64-linux';
+     osver:='x86_64-linux';
    {$endif}
  {$endif}
 
   {$ifdef DARWIN}
    {$ifdef CPU32}
-     winver:='i386-darwin';
+     osver:='i386-darwin';
    {$endif}
    {$ifdef CPU64}
-     winver:='x86_64-darwin';
+     osver:='x86_64-darwin';
    {$endif}
  {$endif}
 
-  DecodeDate(now, yy, mn, dd);
+ // ncver:='netCDF: '+ProgramVersion(0, pansichar(nc_inq_libvers));
 
-  ncver:='netCDF: '+ProgramVersion(0, pansichar(nc_inq_libvers));
-
-  result:='OceanShell ('+winver+')'+LineEnding+
+  result:='OceanShell ('+osver+')'+LineEnding+
                 ncver+LineEnding+LineEnding+
                 'Alexander Smirnov & Alexander Korablev'+LineEnding+
-                '© 2004-'+inttostr(yy);
+                '© 2004-'+IntToStr(YearOf(now));
+   showmessage(result);
 end;
 
 
@@ -61,6 +61,7 @@ Var
   c:integer;
   buf_str:string;
 begin
+   showmessage(str);
   c:=v_beg;
   buf_str:='';
   repeat

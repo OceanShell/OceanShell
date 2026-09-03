@@ -9,7 +9,9 @@ uses
   ComCtrls, DBGrids, IniFiles, SQLDB, DB, Grids, Menus, DBCtrls, Types, Math,
   // for TAChartSeries
   TAGraph, TATools, TASeries, TATypes, TAChartAxisUtils, TACustomSeries,
-  TAChartUtils, TAEnumerators, TAChartListbox;
+  TAChartUtils, TAEnumerators, TAChartListbox,
+
+  osmain, dm, declarations_netcdf, driver__selector, driver_fdb, procedures;
 
 type
 
@@ -70,8 +72,6 @@ implementation
 {$R *.lfm}
 
 { Tfrmprofile_station_single_upd }
-
-uses osmain, dm, driver__selector, driver_fdb, procedures;
 
 
 function Tfrmprofile_station_single_upd.AddLineSeries(AChart: TChart;

@@ -16,8 +16,8 @@ procedure GetInstrumentNameByID(instr_id:integer; var instr_name:string);
 procedure GetUnitsNameShortByID(units_id:integer; var units_name:string);
 procedure GetStationFilePathByID(id:int64; var file_path:string);
 
-procedure GetFDBParameters(ID:int64; Var n_prof:size_t;
-  Var station_parameters_list:TStringList);
+{procedure GetFDBParameters(ID:int64; Var n_prof:size_t;
+  Var station_parameters_list:TStringList);  }
 
 procedure GetFDBProfile(ID:int64; paramname:string; prof_num:integer;
   PQF1_str, PQF2_str, SQF_str:string;
@@ -232,6 +232,8 @@ begin
  end;
 end;
 
+
+{
 procedure GetFDBParameters(ID:int64; Var n_prof:size_t;
   Var station_parameters_list:TStringList);
 var
@@ -279,7 +281,7 @@ begin
   Qt.Free;
   Trt.Free;
  end;
-end;
+end;  }
 
 
 // Selecting profile

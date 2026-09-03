@@ -18,10 +18,9 @@ function ClearDir(Dir:string ): boolean;
 
 procedure MonthToInd(mns:string; var mn: word);
 
-{$ifdef WINDOWS}
-(* ProgressBar on taskbar in WINDOWS *)
+
+(* ProgressBar on taskbar *)
 procedure ProgressTaskbar(k, max_k : integer);
-{$ENDIF}
 
 procedure Distance(ln0,ln1,lt0,lt1:real; var Dist:real);
 procedure PositionByDistance(Lat0, Lon0, Dist: real;
@@ -40,18 +39,22 @@ procedure GetQCFlags(Var PQF1_str, PQF2_str, SQF_str: string);
 
 implementation
 
-{$ifdef WINDOWS}
+
 procedure ProgressTaskbar(k, max_k : integer);
-Var
- FTaskBarList: ITaskbarList3;
- AppHandle: THandle;
+ {$IFDEF WINDOWS}
+ Var
+   FTaskBarList: ITaskbarList3;
+   AppHandle: THandle;
+ {$ENDIF}
 begin
- AppHandle := TWin32WidgetSet(WidgetSet).AppHandle;
- FTaskBarList := CreateComObject(CLSID_TaskbarList) as ITaskbarList3;
- FTaskBarList.SetProgressState(AppHandle, TBPF_Normal);
- FTaskBarList.SetProgressValue(AppHandle, k, max_k);
+  {$IFDEF WINDOWS}
+    AppHandle := TWin32WidgetSet(WidgetSet).AppHandle;
+    FTaskBarList := CreateComObject(CLSID_TaskbarList) as ITaskbarList3;
+    FTaskBarList.SetProgressState(AppHandle, TBPF_Normal);
+    FTaskBarList.SetProgressValue(AppHandle, k, max_k);
+  {$ENDIF}
 end;
-{$ENDIF}
+
 
 procedure GetQCFlags(Var PQF1_str, PQF2_str, SQF_str: string);
 Var

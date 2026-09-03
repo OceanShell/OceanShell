@@ -169,11 +169,8 @@ begin
    tsAdvanced.TabVisible:=chkExpertMode.Checked;
 
   {$IFDEF UNIX}
-     gbPythonPath.Enabled:=false;
      gbSurferPath.Visible:=false;
      gbGrapherPath.Visible:=false;
-     rgPlotSoft.ItemIndex:=1;
-     TRadioButton(rgPlotSoft.Controls[0]).Enabled := False;
   {$ENDIF}
 end;
 

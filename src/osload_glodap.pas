@@ -45,8 +45,12 @@ unit osload_glodap;
 interface
 
 uses
+  {$IFDEF WINDOWS}
+    comobj,
+  {$ENDIF}
+
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, StdCtrls,
-  Buttons, ExtCtrls, comobj, variants, DateUtils, dynlibs, SQLDB, DB;
+  Buttons, ExtCtrls, variants, DateUtils, dynlibs, SQLDB, DB;
 
 
 

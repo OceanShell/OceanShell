@@ -26,7 +26,7 @@ FITNESS FOR A PARTICULAR PURPOSE.
 interface
 
 uses
-  dynlibs, Forms; //Forms is only needed if the application path is used
+  SysUtils, dynlibs, Forms; //Forms is only needed if the application path is used
 
 
 type
@@ -3555,7 +3555,7 @@ Begin
     libgswteos:= LoadLibrary(PChar('libgswteos-10.dll'));
   {$ENDIF}
   {$IFDEF LINUX}
-    libgswteos:= SafeLoadLibrary(PChar(GlobalPath+'libgswteos-10.so'));
+    libgswteos:= SafeLoadLibrary(ExtractFilePath(Application.ExeName)+'libgswteos-10.so');
   {$ENDIF}
   {$IFDEF DARWIN}
     libgswteos:=LoadLibrary(PChar(GlobalPath+'libgswteos-10.dylib'));

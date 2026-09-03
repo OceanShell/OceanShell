@@ -9,7 +9,7 @@ object frmprofile_station_single_upd: Tfrmprofile_station_single_upd
   Constraints.MinHeight = 400
   Constraints.MinWidth = 533
   Position = poOwnerFormCenter
-  LCLVersion = '4.6.0.0'
+  LCLVersion = '4.8.0.0'
   OnClose = FormClose
   OnResize = FormResize
   OnShow = FormShow

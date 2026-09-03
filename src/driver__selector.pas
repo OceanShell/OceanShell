@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Dialogs,
-  osmain;
+  osmain, declarations_netcdf;
 
 procedure GetParameters(ID:int64;  Var n_prof:size_t;
   Var station_parameters_list:TStringList);
@@ -35,7 +35,7 @@ begin
     GetARGOParameters(file_path, n_prof, station_parameters_list)
   end
   else
-    GetFDBParameters(ID, n_prof, station_parameters_list);
+   // GetFDBParameters(ID, n_prof, station_parameters_list);
 end;
 
 {procedure GetProfile(ID:int64; paramname:string; prof_num:integer;

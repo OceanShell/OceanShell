@@ -5,7 +5,8 @@ unit driver_argo;
 interface
 
 uses
-  Classes, SysUtils, Dialogs, Variants;
+  Classes, SysUtils, Dialogs, Variants,
+  osmain, gibbsseawater, driver_fdb, declarations_netcdf;
 
 procedure GetARGOParameters(file_path:string; Var n_prof:size_t;
   Var station_parameters_list:TStringList);
@@ -18,8 +19,6 @@ procedure GetARGOProfile(ID:int64; paramname_fdb:string; prof_num:integer;
 procedure QFMapping(argo_QF:integer; var QF:single);
 
 implementation
-
-uses osmain, declarations_netcdf, gibbsseawater, driver_fdb;
 
 procedure GetARGOParameters(file_path:string; Var n_prof:size_t;
   Var station_parameters_list:TStringList);
